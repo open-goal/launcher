@@ -61,9 +61,9 @@ async function createWindow() {
     title: "OpenGOAL Launcher",
     webPreferences: {
       devTools: isDev,
-      nodeIntegration: false,
-      nodeIntegrationInWorker: false,
-      nodeIntegrationInSubFrames: false,
+      nodeIntegration: true,
+      // nodeIntegrationInWorker: false,
+      // nodeIntegrationInSubFrames: false,
       contextIsolation: true,
       enableRemoteModule: false,
       additionalArguments: [`storePath:${app.getPath("userData")}`],

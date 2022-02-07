@@ -116,7 +116,6 @@
     "@emotion/styled": "^11.6.0",
     "@loadable/component": "^5.15.2",
     "@reduxjs/toolkit": "^1.7.1",
-    "bulma": "^0.9.3",
     "connected-react-router": "^6.9.2",
     "easy-redux-undo": "^1.0.5",
     "electron-devtools-installer": "^3.2.0",
