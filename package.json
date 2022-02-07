@@ -1,7 +1,7 @@
 {
-  "name": "secure-electron-template",
-  "version": "16.1.0",
-  "description": "The best way to build Electron apps with security in mind.",
+  "name": "opengoal-launcher",
+  "version": "0.0.1",
+  "description": "A launcher for the OpenGOAL Project.",
   "private": true,
   "main": "app/electron/main.js",
   "scripts": {
@@ -111,12 +111,16 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "@chakra-ui/react": "^1.8.3",
+    "@emotion/react": "^11.7.1",
+    "@emotion/styled": "^11.6.0",
     "@loadable/component": "^5.15.2",
     "@reduxjs/toolkit": "^1.7.1",
     "bulma": "^0.9.3",
     "connected-react-router": "^6.9.2",
     "easy-redux-undo": "^1.0.5",
     "electron-devtools-installer": "^3.2.0",
+    "framer-motion": "^5.6.0",
     "i18next": "^21.6.6",
     "i18next-electron-fs-backend": "^2.0.0",
     "i18next-fs-backend": "^1.1.4",

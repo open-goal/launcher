@@ -57,7 +57,8 @@ async function createWindow() {
   win = new BrowserWindow({
     width: 800,
     height: 600,
-    title: "Application is currently initializing...",
+    resizable: false,
+    title: "OpenGOAL Launcher",
     webPreferences: {
       devTools: isDev,
       nodeIntegration: false,
@@ -110,7 +111,7 @@ async function createWindow() {
   }
 
   win.webContents.on("did-finish-load", () => {
-    win.setTitle(`Getting started with secure-electron-template (v${app.getVersion()})`);
+    win.setTitle(`OpenGOAL Launcher (v${app.getVersion()})`);
   });
 
   // Only do these things when in development
@@ -167,10 +168,10 @@ async function createWindow() {
   // });
 
   menuBuilder = MenuBuilder(win, app.name);
-  
+
   // Set up necessary bindings to update the menu items
   // based on the current language selected
-  i18nextMainBackend.on("initialized", (loaded) => {            
+  i18nextMainBackend.on("initialized", (loaded) => {
     i18nextMainBackend.changeLanguage("en");
     i18nextMainBackend.off("initialized"); // Remove listener to this event as it's not needed anymore   
   });
@@ -181,8 +182,8 @@ async function createWindow() {
   // error in the logs. To prevent said error, we only call the
   // below code until AFTER the i18n framework has finished its
   // "initialized" event.
-  i18nextMainBackend.on("languageChanged", (lng) => {    
-    if (i18nextMainBackend.isInitialized){
+  i18nextMainBackend.on("languageChanged", (lng) => {
+    if (i18nextMainBackend.isInitialized) {
       menuBuilder.buildMenu(i18nextMainBackend);
     }
   });
