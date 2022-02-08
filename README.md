@@ -7,7 +7,7 @@ A launcher for users to install and run the OpenGOAL project with ease.
 ![Launcher GIF](./app/src/assets/images/launcher.gif)
 
 ## Contributing
-As of right now, this project is dependent on the user building the OpenGOAL tools themselves, follow the [OpenGOAL README](https://github.com/water111/jak-project#readme) before attempting to run this.
+As of right now, this project is dependent on the user building the OpenGOAL tools themselves, follow the [OpenGOAL README](https://github.com/open-goal/jak-project#readme) before attempting to run this.
 If you are interested in contributing to this project please clone the repo to your local machine and install all dependencies with `npm i`.
 To run the application navigate to the root directory and run: `npm run dev`.
 
