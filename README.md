@@ -23,6 +23,6 @@ Users are required to provide their own copy of the ISO file in order to run the
 - [Chakra UI](https://chakra-ui.com/)
 
 ## Resources
-- [OpenGOAL Project Repo](https://github.com/water111/jak-project)
-- [OpenGOAL Documentation](https://water111.github.io/jak-project/)
-- [OpenGOAL Discord](https://discord.gg/BVEHQmm8)
+- [OpenGOAL Github Organization](https://github.com/open-goal/)
+- [OpenGOAL Documentation](https://open-goal.github.io/)
+- [OpenGOAL Discord](https://discord.gg/twBEFbMnqw)
