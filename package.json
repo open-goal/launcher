@@ -21,8 +21,8 @@
     "test": "mocha"
   },
   "build": {
-    "productName": "YourProductName",
-    "appId": "com.yourcompany|electron.yourproductname",
+    "productName": "OpenGOAL Launcher",
+    "appId": "com.tripp|electron.opengoal-launcher",
     "directories": {
       "buildResources": "resources"
     },
