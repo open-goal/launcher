@@ -2,7 +2,7 @@ import React from "react";
 import { Flex, Tabs, TabList, TabPanels, TabPanel, Tab } from "@chakra-ui/react";
 import Home from "./Home";
 import GettingStarted from "./GettingStarted";
-// import ImportantLinks from "./ImportantLinks";
+import ImportantLinks from "./ImportantLinks";
 import Settings from "./Settings";
 
 function Landing() {
@@ -22,9 +22,9 @@ function Landing() {
                     <TabPanel minH="70vh">
                         <GettingStarted />
                     </TabPanel>
-                    {/* <TabPanel minH="70vh">
+                    <TabPanel minH="70vh">
                         <ImportantLinks />
-                    </TabPanel> */}
+                    </TabPanel>
                     <TabPanel minH="70vh">
                         <Settings />
                     </TabPanel>
