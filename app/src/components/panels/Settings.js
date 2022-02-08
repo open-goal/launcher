@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, VStack } from '@chakra-ui/react';
-import { ColorModeSwitcher } from '../ColorModeSwitcher';
+import { ColorModeSwitcher } from '../../ColorModeSwitcher';
 const { invoke } = window.api;
 
 async function handleCheckUpdates() {

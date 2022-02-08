@@ -1,6 +1,6 @@
 import { Button, VStack } from "@chakra-ui/react";
 import React from "react";
-const data = require('../assets/data/links.json');
+const data = require('../../assets/data/links.json');
 
 function Feature({ title, link }) {
     return (

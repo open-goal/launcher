@@ -1,9 +1,6 @@
 import React from "react";
 import { Flex, Tabs, TabList, TabPanels, TabPanel, Tab } from "@chakra-ui/react";
-import Home from "./Home";
-import GettingStarted from "./GettingStarted";
-import ImportantLinks from "./ImportantLinks";
-import Settings from "./Settings";
+import { Home, GettingStarted, ImportantLinks, Settings } from './panels/index.js';
 
 function Landing() {
     return (
