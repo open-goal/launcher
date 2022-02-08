@@ -1,6 +1,6 @@
 import { Button, Text, Progress, VStack, Divider } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-const { receive, send } = window.api;
+// const { receive, send } = window.api;
 
 function GettingStarted() {
     const [status, setStatus] = useState('Awaiting Jak ISO File');
@@ -9,12 +9,12 @@ function GettingStarted() {
         send('getISO');
     }
 
-    useEffect(() => {
-        receive('status', newStatus => {
-            console.log(newStatus);
-            setStatus(newStatus);
-        });
-    }, [])
+    // useEffect(() => {
+    //     receive('status', newStatus => {
+    //         console.log(newStatus);
+    //         setStatus(newStatus);
+    //     });
+    // }, [])
 
 
     return (

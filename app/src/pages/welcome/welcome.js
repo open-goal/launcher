@@ -23,11 +23,11 @@ function Welcome() {
             <GettingStarted />
           </TabPanel>
           {/* <TabPanel minH="70vh">
-                <ImportantLinks />
-            </TabPanel>
-            <TabPanel minH="70vh">
-                <Settings />
-            </TabPanel> */}
+            <ImportantLinks />
+          </TabPanel>
+          <TabPanel minH="70vh">
+            <Settings />
+          </TabPanel> */}
         </TabPanels>
       </Tabs>
     </Flex>
