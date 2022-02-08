@@ -3,7 +3,7 @@ import { ConnectedRouter } from "connected-react-router";
 import { Provider } from "react-redux";
 import Routes from "Core/routes";
 // import Nav from "./nav";
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider, theme } from '@chakra-ui/react';
 
 class Root extends React.Component {
   render() {
@@ -13,7 +13,7 @@ class Root extends React.Component {
       <React.Fragment>
         <Provider store={store}>
           <ConnectedRouter history={history}>
-            <ChakraProvider>
+            <ChakraProvider theme={theme}>
               {/* <Nav history={history}></Nav> */}
               <Routes></Routes>
             </ChakraProvider>

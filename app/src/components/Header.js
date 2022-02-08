@@ -1,6 +1,6 @@
 import React from "react";
 import { Heading, Img } from "@chakra-ui/react";
-const logo = require('../assets/images/header-logo.png');
+const logo = require('../../../resources/images/header-logo.png');
 
 function Header() {
     return (
