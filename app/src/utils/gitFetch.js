@@ -1,9 +1,9 @@
 const download = require('download-git-repo');
-const fetch = require('node-fetch');
-const Store = require('electron-store');
+// const fetch = require('node-fetch');
+// const Store = require('electron-store');
 const { app } = require('electron');
 
-const store = new Store();
+// const store = new Store();
 const userDataPath = app.getPath('userData');
 
 // download the github repo
@@ -28,7 +28,7 @@ async function fetchLatestCommitSha() {
 // fetch the latest commit
 async function fetchLatestCommit() {
     const latestSha = await fetchLatestCommitSha();
-    store.set('latest_sha', latestSha);
+    // store.set('latest_sha', latestSha);
     const currentSha = store.get('current_sha');
 
     if (latestSha === currentSha) {
@@ -36,7 +36,7 @@ async function fetchLatestCommit() {
     }
 
     await downloadRepo()
-        .then((() => store.set('current_sha', latestSha)))
+        // .then((() => store.set('current_sha', latestSha)))
         .then(() => {
             return 'Downloaded the latest updates from github!';
         })

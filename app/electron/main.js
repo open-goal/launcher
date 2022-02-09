@@ -24,6 +24,7 @@ const crypto = require("crypto");
 const isDev = process.env.NODE_ENV === "development";
 const port = 40992; // Hardcoded; needs to match webpack.development.js and package.json
 const selfHost = `http://localhost:${port}`;
+const { buildGame, isoSeries, fetchLatestCommit, launchGame } = require('../src/utils/utils.js');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -316,4 +317,18 @@ app.on("remote-get-current-window", (event, webContents) => {
 
 app.on("remote-get-current-web-contents", (event, webContents) => {
   event.preventDefault();
+});
+
+ipcMain.on('getISO', isoSeries);
+
+ipcMain.handle('checkUpdates', async () => {
+  let response = await fetchLatestCommit();
+  return response;
+});
+
+ipcMain.on('build', buildGame);
+ipcMain.on('launch', launchGame);
+
+app.on('status', (status) => {
+  win.webContents.send('status', status);
 });

@@ -14,5 +14,19 @@ contextBridge.exposeInMainWorld("api", {
   i18nextElectronBackend: i18nextBackend.preloadBindings(ipcRenderer, process),
   store: store.preloadBindings(ipcRenderer, fs),
   contextMenu: ContextMenu.preloadBindings(ipcRenderer),
-  licenseKeys: SecureElectronLicenseKeys.preloadBindings(ipcRenderer)
+  licenseKeys: SecureElectronLicenseKeys.preloadBindings(ipcRenderer),
+  // were gonna figure out redux store in the future, but for now this is how im gonna communicate between front-end/backend
+  send: (command) => {
+    let validCommands = ['getISO', 'checkUpdates', 'launch', 'build'];
+    if (validCommands.includes(command)) {
+      ipcRenderer.send(command);
+    }
+  },
+  receive: (channel, func) => {
+    let validChannels = ["fromMain", 'status'];
+    if (validChannels.includes(channel)) {
+      // Deliberately strip event as it includes `sender` 
+      ipcRenderer.on(channel, (event, ...args) => func(...args));
+    }
+  }
 });
