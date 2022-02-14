@@ -70,7 +70,7 @@ function extractISOFile(callback) {
     // }
 
     if (process.platform === 'win32') {
-        const extractISOScript = path.join(__dirname, '../../assets/scripts/batch/extract-iso.bat');
+        const extractISOScript = path.join(__dirname, '../../src/assets/scripts/batch/extract-iso.bat');
         shell.openPath(extractISOScript);
 
         // copy the iso contents to the jak1 folder created above
@@ -109,7 +109,7 @@ function runDecompiler(callback) {
     if (decompScript) {
         console.log(decompScript);
         updateStatus('Decompiling the ISO File');
-        let decomp = exec(decompScript, { shell: true });
+        let decomp = exec(decompScript, { shell: true, cwd: path.join(jakprojectPath, '/scripts/batch/') });
 
         decomp.stdout.on('data', data => console.log(data));
 
