@@ -6,8 +6,6 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-imgui.ini
-
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
@@ -90,19 +88,4 @@ typings/
 # Electron-Forge
 out/
 
-# Bundled files
-app/dist/
-
-# Packed apps
-dist/
-
-# VSCode specific
-.vscode/
-
-# Logfile specific for development builds
-dev-scripts/webpack-dev-server.log
-dev-scripts/webpack-dev-server-error.log
-
-# License-specific files
-license.data
-public.key 
+/old-files
