@@ -1,7 +1,47 @@
+:root {
+  --bg-blue: #1B202B;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
-  margin: auto;
-  max-width: 38rem;
-  padding: 2rem;
+  margin: 0;
+  padding: 0;
+  background: var(--bg-blue);
+  overflow: hidden;
+}
+
+.container{
+  padding: 0;
+  max-width: 100vw;
+}
+
+header{
+  background: var(--bg-blue);
+  border-bottom: 2px solid lightgray;
+  padding: 1rem;
+}
+
+.logo {
+  width: 25%;
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-blue);
+  border-right: 1px solid lightgray;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.nav-link {
+  display: flex;
+  justify-content: center;
+  /* padding: 1rem; */
+}
+
+.nav-img {
+  width: 80%;
 }
