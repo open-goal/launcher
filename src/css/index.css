@@ -18,7 +18,7 @@ body {
 
 header{
   background: var(--bg-blue);
-  border-bottom: 2px solid lightgray;
+  border-bottom: 1px solid darkgray;
   padding: 1rem;
 }
 
@@ -31,7 +31,7 @@ nav {
   flex-direction: column;
   min-height: 100vh;
   background: var(--bg-blue);
-  border-right: 1px solid lightgray;
+  border-right: 1px solid darkgray;
   padding: 1rem;
   gap: 1rem;
 }
@@ -39,9 +39,13 @@ nav {
 .nav-link {
   display: flex;
   justify-content: center;
-  /* padding: 1rem; */
 }
 
 .nav-img {
   width: 80%;
+}
+
+.game-bg > img{
+  width: 120%;
+  z-index: -2;
 }

@@ -12,7 +12,9 @@ const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    resizable: false
+    resizable: false,
+    title: "OpenGOAL Launcher",
+    icon: path.join(__dirname, 'assets/images/icon.png')
   });
 
   // and load the index.html of the app.
