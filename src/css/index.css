@@ -64,14 +64,12 @@ nav {
 }
 
 .game-bg{
-  position:fixed;
   width: 110%;
   -webkit-user-drag: none;
   z-index: -2;
 }
 
 .model {
-  position: fixed;
   height: 80%;
   right: 155px;
   top: 170px;
@@ -79,7 +77,6 @@ nav {
 }
 
 .game-logo {
-  position: fixed;
   width: 40%;
   padding: 10px 15px;
   z-index: -1;
