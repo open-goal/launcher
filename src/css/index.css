@@ -23,7 +23,8 @@ header{
 }
 
 .logo {
-  width: 20%;
+  width: 25vw;
+  margin: 0 35vw;
   -webkit-user-drag: none;
 }
 
@@ -37,6 +38,19 @@ nav {
   gap: 3rem;
 }
 
+.offcanvas-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-blue);
+  border-right: 1px solid darkgray;
+  padding: 1rem;
+  gap: 3rem;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
 .nav-link {
   display: flex;
   justify-content: center;
@@ -45,12 +59,8 @@ nav {
 }
 
 .nav-img {
-  width: 80%;
+  width: 100%;
   -webkit-user-drag: none;
-}
-
-nav > .settings {
-  margin-top: 340px;
 }
 
 .game-bg{
@@ -71,14 +81,14 @@ nav > .settings {
 .game-logo {
   position: fixed;
   width: 40%;
-  padding: 10px;
+  padding: 10px 15px;
   z-index: -1;
 }
 
 .game-box {
   z-index: 1;
   padding-left: 2em;
-  padding-top: 53%;
+  padding-top: 45%;
   min-height: 100%;
 }
 
@@ -88,4 +98,9 @@ nav > .settings {
   font-weight: bold;
   font-size: xxx-large;
   letter-spacing: 3px;
+}
+
+.offcanvas-start {
+  width: 100px;
+  background-color: var(--bg-blue);
 }
