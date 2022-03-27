@@ -19,11 +19,11 @@ body {
 header{
   background: var(--bg-blue);
   border-bottom: 1px solid darkgray;
-  padding: 1rem;
+  padding: .5em 1em;
 }
 
 .logo {
-  width: 25%;
+  width: 20%;
   -webkit-user-drag: none;
 }
 
@@ -34,13 +34,14 @@ nav {
   background: var(--bg-blue);
   border-right: 1px solid darkgray;
   padding: 1rem;
-  gap: 1rem;
+  gap: 3rem;
 }
 
 .nav-link {
   display: flex;
   justify-content: center;
   -webkit-user-drag: none;
+  padding: 0;
 }
 
 .nav-img {
@@ -49,12 +50,12 @@ nav {
 }
 
 nav > .settings {
-  margin-top: 250px;
+  margin-top: 340px;
 }
 
 .game-bg{
   position:fixed;
-  width: 100%;
+  width: 110%;
   -webkit-user-drag: none;
   z-index: -2;
 }
@@ -77,7 +78,7 @@ nav > .settings {
 .game-box {
   z-index: 1;
   padding-left: 2em;
-  padding-top: 55%;
+  padding-top: 53%;
   min-height: 100%;
 }
 
