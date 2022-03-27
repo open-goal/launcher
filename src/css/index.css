@@ -24,6 +24,7 @@ header{
 
 .logo {
   width: 25%;
+  -webkit-user-drag: none;
 }
 
 nav {
@@ -39,13 +40,51 @@ nav {
 .nav-link {
   display: flex;
   justify-content: center;
+  -webkit-user-drag: none;
 }
 
 .nav-img {
   width: 80%;
+  -webkit-user-drag: none;
 }
 
-.game-bg > img{
-  width: 120%;
+nav > .settings {
+  margin-top: 250px;
+}
+
+.game-bg{
+  position:fixed;
+  width: 100%;
+  -webkit-user-drag: none;
   z-index: -2;
+}
+
+.model {
+  position: fixed;
+  height: 80%;
+  right: 155px;
+  top: 170px;
+  z-index: -1;
+}
+
+.game-logo {
+  position: fixed;
+  width: 40%;
+  padding: 10px;
+  z-index: -1;
+}
+
+.game-box {
+  z-index: 1;
+  padding-left: 2em;
+  padding-top: 55%;
+  min-height: 100%;
+}
+
+.btn-play {
+  padding: .15em 2em;
+  border-radius: 0;
+  font-weight: bold;
+  font-size: xxx-large;
+  letter-spacing: 3px;
 }
