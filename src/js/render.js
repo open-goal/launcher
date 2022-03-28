@@ -9,7 +9,6 @@ const container = document.querySelector('.container');
 const offcanvas = document.querySelector(".offcanvas-start");
 let backdrop = document.querySelector('.offcanvas-backdrop');
 const background = document.querySelector('#background');
-// const logo = document.querySelector('#logo');
 const configButton = document.querySelector("#config");
 
 const { send, receive, handleStatus, handleConsole } = window.electronAPI;
@@ -43,20 +42,10 @@ function navBarClick(target) {
 function changeGame(game) {
     switch (game) {
         case "jak1":
-            background.src = "../assets/images/jak1-bg.png";
-            // logo.src = "../assets/images/jak1-logo.png";
-            break;
-        case "jak2":
-            background.src = "../assets/images/jak2-bg.png";
-            // logo.src = "../assets/images/jak-2.png";
-            break;
-        case "jak3":
-            background.src = "../assets/images/jak3-bg.png";
-            // logo.src = "../assets/images/jak-3.png";
+            background.src = "../assets/images/backgrounds/jak1/map.jpg";
             break;
         default:
-            background.src = "../assets/images/jak1-bg.png";
-            // logo.src = "../assets/images/jak1-logo.png";
+            background.src = "../assets/images/backgrounds/jak1/map.jpg";
             break;
     }
 }

@@ -11,7 +11,7 @@
 
 <body>
   <div class="container">
-    <img id="background" class="position-fixed" src="../assets/images/jak1-bg.png">
+    <img id="background" class="position-fixed" src="../assets/images/backgrounds/jak1/map.jpg">
     <div class="row">
       <!-- sidebar toggle button, it runs the entire vertical height -->
       <div class="col-1">
@@ -24,17 +24,13 @@
       <!-- OpenGOAL LOGO -->
       <div class="col my-auto">
         <div class="row justify-content-center">
-          <img src="../assets/images/header-logo.png" class="logo">
+          <img src="../assets/images/opengoal/logo.png" class="logo">
         </div>
-
-        <!-- game logo -->
-        <!-- <div class="row justify-content-center">
-          <img id="logo" class="game-logo" src="../assets/images/jak1-logo.png">
-        </div> -->
 
         <!-- buttons -->
         <div id="buttons" class="row justify-content-center">
           <!-- config button -->
+          <!-- <button id="config" type="button" class="btn btn-success" onclick="config()">CONFIG</button> -->
           <button id="config" type="button" class="btn btn-success" onclick="config()">CONFIG</button>
           <!-- play button -->
           <button id="play" type="button" class="btn btn-success" onclick="launch()">PLAY</button>
@@ -47,16 +43,8 @@
       <div class="offcanvas-body">
         <a class="nav-link active" aria-current="page" href="#" data-bs-toggle="tooltip" data-bs-placement="right"
           title="Jak & Daxter: The Precursor Legacy" onclick="navBarClick('jak1')">
-          <img src="../assets/images/jak-tpl.png" class="nav-img">
+          <img src="../assets/images/games/jak-tpl.png" class="nav-img">
         </a>
-        <!-- <a class="nav-link" aria-current="page" href="#" data-bs-toggle="tooltip" data-bs-placement="right"
-          title="Jak 2" onclick="navBarClick('jak2')">
-          <img src="../assets/images/jak-2.png" class="nav-img">
-        </a>
-        <a class="nav-link" aria-current="page" href="#" data-bs-toggle="tooltip" data-bs-placement="right"
-          title="Jak 3" onclick="navBarClick('jak3')">
-          <img src="../assets/images/jak-3.png" class="nav-img">
-        </a> -->
         <a class="nav-link settings" aria-current="page" href="#" data-bs-toggle="tooltip" data-bs-placement="right"
           title="Settings" onclick="navBarClick('settings')">
           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="white" class="bi bi-sliders"
