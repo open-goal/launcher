@@ -1,7 +1,7 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 // Expose protected methods that allow the renderer process to use
-contextBridge.exposeInMainWorld("api", {
+contextBridge.exposeInMainWorld("electronAPI", {
   send: (command) => {
     let validCommands = ['getISO', 'checkUpdates', 'launch', 'build'];
     if (validCommands.includes(command)) {
@@ -14,5 +14,6 @@ contextBridge.exposeInMainWorld("api", {
       // Deliberately strip event as it includes `sender` 
       ipcRenderer.on(channel, (event, ...args) => func(...args));
     }
-  }
+  },
+  handleStatus: (callback) => ipcRenderer.on('status', callback)
 });
