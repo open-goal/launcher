@@ -75,20 +75,15 @@ nav {
   padding-top: 50vh;
 }
 
+/* this is the buttons div */
 #buttons {
   margin: 40px 0;
   gap: 0 10px;
 }
 
-.row > #play {
-  width: 30%;
-  border-radius: 0;
-  font-weight: bold;
-  font-size: x-large;
-  letter-spacing: 3px;
-}
-
-.row > #config {
+/* this is the config and play button */
+#buttons > button {
+  background-color: teal;
   width: 30%;
   border-radius: 0;
   font-weight: bold;
