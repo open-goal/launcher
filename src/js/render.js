@@ -9,6 +9,7 @@ const offcanvas = document.querySelector(".offcanvas-start");
 let backdrop = document.querySelector('.offcanvas-backdrop');
 const background = document.querySelector('#background');
 const logo = document.querySelector('#logo');
+const configButton = document.querySelector("#config");
 
 const { recieve, send } = window.api;
 
@@ -57,4 +58,8 @@ function changeGame(game) {
             logo.src = "../assets/images/jak1-logo.png";
             break;
     }
+}
+
+function config() {
+    send('getISO');
 }

@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const isDev = !app.isPackaged;
 const { launchGame, buildGame, isoSeries, fetchLatestCommit } = require('./js/utils/utils.js');
+let mainWindow;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -11,7 +12,7 @@ if (require('electron-squirrel-startup')) {
 
 const createWindow = () => {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     resizable: false,
@@ -71,5 +72,5 @@ ipcMain.on('build', buildGame);
 ipcMain.on('launch', launchGame);
 
 app.on('status', (status) => {
-  win.webContents.send('status', status);
+  mainWindow.webContents.send('status', status);
 });
