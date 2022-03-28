@@ -1,6 +1,7 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const isDev = !app.isPackaged;
+const { launchGame, buildGame, isoSeries, fetchLatestCommit } = require('./js/utils/utils.js');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -57,3 +58,18 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+// IPC STUFF HERE
+ipcMain.on('getISO', isoSeries);
+
+ipcMain.handle('checkUpdates', async () => {
+  let response = await fetchLatestCommit();
+  return response;
+});
+
+ipcMain.on('build', buildGame);
+ipcMain.on('launch', launchGame);
+
+app.on('status', (status) => {
+  win.webContents.send('status', status);
+});
