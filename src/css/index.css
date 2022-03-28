@@ -72,6 +72,7 @@ nav {
   border-radius: 0;
   background-color: var(--bg-blue);
   border-color: var(--bg-blue);
+  padding-top: 50vh;
 }
 
 #buttons {

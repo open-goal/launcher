@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification } = require('electron');
 const path = require('path');
 const isDev = !app.isPackaged;
 const { launchGame, buildGame, isoSeries, fetchLatestCommit } = require('./js/utils/utils.js');
@@ -75,6 +75,9 @@ ipcMain.on('launch', launchGame);
 // handle config status updates
 app.on('status', (value) => {
   mainWindow.webContents.send('status', value);
+  if (value.includes('Compiled game successfully!')) {
+    new Notification({ title: value, body: 'Game ready to launch!' }).show();
+  }
 });
 
 // handle console messages

@@ -15,10 +15,16 @@
     <div class="row">
       <!-- sidebar toggle button, it runs the entire vertical height -->
       <div class="col-1">
-        <a id="toggle-sidebar" class="btn btn-primary" data-bs-toggle="offcanvas" href="#sidebar" role="button"
+        <div class="row justify-content-center">
+          <a id="toggle-sidebar" class="btn btn-primary" data-bs-toggle="offcanvas" href="#sidebar" role="button"
+            aria-controls="offcanvasExample" onclick="openNav()">
+            >
+          </a>
+        </div>
+        <!-- <a id="toggle-sidebar" class="btn btn-primary" data-bs-toggle="offcanvas" href="#sidebar" role="button"
           aria-controls="offcanvasExample" onclick="openNav()">
           >
-        </a>
+        </a> -->
       </div>
 
       <!-- OpenGOAL LOGO -->
@@ -30,10 +36,9 @@
         <!-- buttons -->
         <div id="buttons" class="row justify-content-center">
           <!-- config button -->
-          <!-- <button id="config" type="button" class="btn btn-success" onclick="config()">CONFIG</button> -->
-          <button id="config" type="button" class="btn btn-success" onclick="config()">CONFIG</button>
+          <button id="config" type="button" class="btn btn-success shadow-lg" onclick="config()">CONFIG</button>
           <!-- play button -->
-          <button id="play" type="button" class="btn btn-success" onclick="launch()">PLAY</button>
+          <button id="play" type="button" class="btn btn-success shadow-lg" onclick="launch()">PLAY</button>
         </div>
       </div>
     </div>
