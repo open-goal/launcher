@@ -11,6 +11,8 @@ const background = document.querySelector('#background');
 const model = document.querySelector('#model');
 const logo = document.querySelector('#logo');
 
+const { recieve, send } = window.api;
+
 function openNav() {
     container.style.marginLeft = "100px";
     offcanvas.classList.add("show");

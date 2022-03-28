@@ -1,5 +1,6 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
+const isDev = !app.isPackaged;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -14,7 +15,12 @@ const createWindow = () => {
     height: 800,
     resizable: false,
     title: "OpenGOAL Launcher",
-    icon: path.join(__dirname, 'assets/images/icon.png')
+    icon: path.join(__dirname, 'assets/images/icon.png'),
+    webPreferences: {
+      preload: path.join(__dirname, "/js/preload.js"),
+      nodeIntegration: true,
+      devTools: isDev
+    }
   });
 
   // and load the index.html of the app.
