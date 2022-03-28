@@ -1,4 +1,5 @@
-var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+// game title tooltip on hover effect
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl)
 });
@@ -63,3 +64,10 @@ function changeGame(game) {
 function config() {
     send('getISO');
 }
+
+function launch() {
+    send('launch');
+}
+
+// let status_msg = await recieve();
+// console.log(status_msg);
