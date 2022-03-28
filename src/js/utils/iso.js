@@ -111,7 +111,10 @@ function runDecompiler(callback) {
         updateStatus('Decompiling the ISO File');
         let decomp = exec(decompScript, { shell: true, cwd: path.join(jakprojectPath, '/scripts/batch/') });
 
-        decomp.stdout.on('data', data => console.log(data));
+        decomp.stdout.on('data', data => {
+            console.log(data);
+            app.emit('console', data);
+        });
 
         // i see people online saying to use decomp.on('exit'), but thats triggering this listener immediately upon running
         decomp.on('close', (code => {

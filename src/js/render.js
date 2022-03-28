@@ -12,7 +12,7 @@ const background = document.querySelector('#background');
 // const logo = document.querySelector('#logo');
 const configButton = document.querySelector("#config");
 
-const { send, receive, handleStatus } = window.electronAPI;
+const { send, receive, handleStatus, handleConsole } = window.electronAPI;
 
 function openNav() {
     container.style.marginLeft = "100px";
@@ -70,5 +70,9 @@ function launch() {
 }
 
 handleStatus((event, value) => {
+    console.log(value);
+});
+
+handleConsole((event, value) => {
     console.log(value);
 });

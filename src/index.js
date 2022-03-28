@@ -71,6 +71,12 @@ ipcMain.handle('checkUpdates', async () => {
 ipcMain.on('build', buildGame);
 ipcMain.on('launch', launchGame);
 
-app.on('status', (status) => {
-  mainWindow.webContents.send('status', status);
+// handle config status updates
+app.on('status', (value) => {
+  mainWindow.webContents.send('status', value);
+});
+
+// handle console messages
+app.on('console', (value) => {
+  mainWindow.webContents.send('console', value);
 });

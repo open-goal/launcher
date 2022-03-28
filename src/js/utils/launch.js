@@ -30,6 +30,7 @@ function buildGame(callback) {
         let build = execFile(compilerScript, ['-v', '-auto-user'], { timeout: 30000 });
         build.stdout.on('data', data => {
             console.log(data.toString().trim());
+            app.emit('console', data);
             if (data.includes('[100%]')) {
                 updateStatus('Compiled game successfully!');
                 callback(null, 'Compiled game successfully!');
@@ -66,7 +67,10 @@ function launchGame() {
 
     if (launchScript) {
         let launcher = execFile(launchScript, ['-boot', '-fakeiso', '-debug', '-v'], { shell: true });
-        launcher.stdout.on('data', data => console.log(data));
+        launcher.stdout.on('data', data => {
+            console.log(data);
+            app.emit('console', data);
+        });
         return;
     }
 }

@@ -15,5 +15,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
       ipcRenderer.on(channel, (event, ...args) => func(...args));
     }
   },
-  handleStatus: (callback) => ipcRenderer.on('status', callback)
+  handleStatus: (callback) => ipcRenderer.on('status', callback),
+  handleConsole: (callback) => ipcRenderer.on('console', callback)
 });
