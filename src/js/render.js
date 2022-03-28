@@ -33,7 +33,7 @@ function closeNav() {
 function navBarClick(target) {
     closeNav();
     if (target.includes("settings")) {
-        console.log(target);
+        send('settings');
     } else {
         changeGame(target);
     }

@@ -63,6 +63,7 @@ app.on('activate', () => {
 // IPC STUFF HERE
 ipcMain.on('getISO', isoSeries);
 
+// github jak-project updates
 ipcMain.handle('checkUpdates', async () => {
   let response = await fetchLatestCommit();
   return response;
@@ -79,4 +80,11 @@ app.on('status', (value) => {
 // handle console messages
 app.on('console', (value) => {
   mainWindow.webContents.send('console', value);
+});
+
+// opening the settings page in a child window
+ipcMain.on('settings', () => {
+  let settingsWindow = new BrowserWindow({ parent: mainWindow, resizable: false, modal: true, title: "Settings", autoHideMenuBar: true });
+  settingsWindow.loadFile(path.join(__dirname, '/html/settings.html'));
+  settingsWindow.show();
 });
