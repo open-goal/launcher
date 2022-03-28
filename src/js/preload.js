@@ -6,8 +6,6 @@ contextBridge.exposeInMainWorld("api", {
     let validCommands = ['getISO', 'checkUpdates', 'launch', 'build'];
     if (validCommands.includes(command)) {
       ipcRenderer.send(command);
-    } else {
-      console.log(command);
     }
   },
   receive: (channel, func) => {
