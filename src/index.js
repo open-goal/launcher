@@ -12,8 +12,8 @@ if (require('electron-squirrel-startup')) {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: 800,
+    height: 600,
     resizable: false,
     title: "OpenGOAL Launcher",
     icon: path.join(__dirname, 'assets/images/icon.png'),

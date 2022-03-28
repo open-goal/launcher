@@ -11,56 +11,63 @@
 
 <body>
   <div class="container">
-    <header>
-      <img src="../assets/images/header-logo.png" class="logo" alt="OpenGOAL Logo">
-    </header>
-
+    <img id="background" class="position-fixed" src="../assets/images/jak1-bg.png">
     <div class="row">
-      <div class="p-0">
-        <img id="background" class="game-bg position-fixed" src="../assets/images/jak1-bg.png" alt="Rock Village">
-        <img id="model" class="model position-fixed" src="../assets/images/jak1-model.png" alt="Jak">
-        <img id="logo" class="game-logo position-fixed" src="../assets/images/jak1-logo.png"
-          alt="Jak & Daxter: The Precursor Legacy">
-        <div class="game-box">
-          <a class="btn btn-primary" data-bs-toggle="offcanvas" href="#sidebar" role="button"
-            aria-controls="offcanvasExample" onclick="openNav()">
-            >
-          </a>
-          <button type="button" class="btn btn-success btn-play">PLAY</button>
+      <!-- sidebar toggle button, it runs the entire vertical height -->
+      <div class="col-1">
+        <a id="toggle-sidebar" class="btn btn-primary" data-bs-toggle="offcanvas" href="#sidebar" role="button"
+          aria-controls="offcanvasExample" onclick="openNav()">
+          >
+        </a>
+      </div>
+
+      <!-- OpenGOAL LOGO -->
+      <div class="col my-auto">
+        <div class="row justify-content-center">
+          <img src="../assets/images/header-logo.png" class="logo">
+        </div>
+
+        <!-- game logo -->
+        <!-- <div class="row justify-content-center">
+          <img id="logo" class="game-logo" src="../assets/images/jak1-logo.png">
+        </div> -->
+
+        <!-- buttons -->
+        <div id="buttons" class="row justify-content-center">
+          <!-- config button -->
+          <button id="config" type="button" class="btn btn-success">CONFIG</button>
+          <!-- play button -->
+          <button id="play" type="button" class="btn btn-success">PLAY</button>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- OFFCANVAS SIDEBAR MENU -->
-  <div class="offcanvas offcanvas-start" id="sidebar" aria-labelledby="sidebar-label">
-    <div class="offcanvas-body">
-      <a class="nav-link active" aria-current="page" href="#" data-bs-toggle="tooltip" data-bs-placement="right"
-        title="Jak & Daxter: The Precursor Legacy" onclick="navBarClick('jak1')">
-        <img src="../assets/images/jak-tpl.png" class="nav-img">
-      </a>
-      <a class="nav-link" aria-current="page" href="#" data-bs-toggle="tooltip" data-bs-placement="right" title="Jak 2"
-        onclick="navBarClick('jak2')">
-        <img src="../assets/images/jak-2.png" class="nav-img">
-      </a>
-      <a class="nav-link" aria-current="page" href="#" data-bs-toggle="tooltip" data-bs-placement="right" title="Jak 3"
-        onclick="navBarClick('jak3')">
-        <img src="../assets/images/jak-3.png" class="nav-img">
-      </a>
-      <a class="nav-link settings" aria-current="page" href="#" data-bs-toggle="tooltip" data-bs-placement="right"
-        title="Settings" onclick="navBarClick('settings')">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="white" class="bi bi-sliders"
-          viewBox="0 0 16 16">
-          <path fill-rule="evenodd"
-            d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3h9.05zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8h2.05zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1h9.05z" />
-        </svg>
-      </a>
+    <!-- OFFCANVAS SIDEBAR MENU -->
+    <div class="offcanvas offcanvas-start" id="sidebar" aria-labelledby="sidebar-label">
+      <div class="offcanvas-body">
+        <a class="nav-link active" aria-current="page" href="#" data-bs-toggle="tooltip" data-bs-placement="right"
+          title="Jak & Daxter: The Precursor Legacy" onclick="navBarClick('jak1')">
+          <img src="../assets/images/jak-tpl.png" class="nav-img">
+        </a>
+        <!-- <a class="nav-link" aria-current="page" href="#" data-bs-toggle="tooltip" data-bs-placement="right"
+          title="Jak 2" onclick="navBarClick('jak2')">
+          <img src="../assets/images/jak-2.png" class="nav-img">
+        </a>
+        <a class="nav-link" aria-current="page" href="#" data-bs-toggle="tooltip" data-bs-placement="right"
+          title="Jak 3" onclick="navBarClick('jak3')">
+          <img src="../assets/images/jak-3.png" class="nav-img">
+        </a> -->
+        <a class="nav-link settings" aria-current="page" href="#" data-bs-toggle="tooltip" data-bs-placement="right"
+          title="Settings" onclick="navBarClick('settings')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="white" class="bi bi-sliders"
+            viewBox="0 0 16 16">
+            <path fill-rule="evenodd"
+              d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3h9.05zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8h2.05zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1h9.05z" />
+          </svg>
+        </a>
+      </div>
     </div>
-  </div>
-
-  <script src=" https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
-    </script>
+    <script src="../../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
 </body>
 
 </html>

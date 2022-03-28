@@ -7,7 +7,6 @@ body {
     Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background: var(--bg-blue);
   overflow: hidden;
 }
 
@@ -16,15 +15,9 @@ body {
   max-width: 100vw;
 }
 
-header{
-  background: var(--bg-blue);
-  border-bottom: 1px solid darkgray;
-  padding: .5em 1em;
-}
-
 .logo {
-  width: 25vw;
-  margin: 0 35vw;
+  width: 60vw;
+  margin: 15px 0;
   -webkit-user-drag: none;
 }
 
@@ -33,7 +26,6 @@ nav {
   flex-direction: column;
   min-height: 100vh;
   background: var(--bg-blue);
-  border-right: 1px solid darkgray;
   padding: 1rem;
   gap: 3rem;
 }
@@ -43,7 +35,6 @@ nav {
   flex-direction: column;
   min-height: 100vh;
   background: var(--bg-blue);
-  border-right: 1px solid darkgray;
   padding: 1rem;
   gap: 3rem;
   align-items: center;
@@ -63,37 +54,44 @@ nav {
   -webkit-user-drag: none;
 }
 
-.game-bg{
-  width: 110%;
+#background {
+  width: 130%;
   -webkit-user-drag: none;
   z-index: -2;
 }
 
-.model {
-  height: 80%;
-  right: 155px;
-  top: 170px;
-  z-index: -1;
+/* this refers to the game logo, jak: tpl */
+#logo {
+  width: 50%;
+  margin: 15px 0;
+  -webkit-user-drag: none;
 }
 
-.game-logo {
-  width: 40%;
-  padding: 10px 15px;
-  z-index: -1;
+#toggle-sidebar {
+  height: 100vh;
+  border-radius: 0;
+  background-color: var(--bg-blue);
+  border-color: var(--bg-blue);
 }
 
-.game-box {
-  z-index: 1;
-  padding-left: 2em;
-  padding-top: 45%;
-  min-height: 100%;
+#buttons {
+  margin: 40px 0;
+  gap: 0 10px;
 }
 
-.btn-play {
-  padding: .15em 2em;
+.row > #play {
+  width: 30%;
   border-radius: 0;
   font-weight: bold;
-  font-size: xxx-large;
+  font-size: x-large;
+  letter-spacing: 3px;
+}
+
+.row > #config {
+  width: 30%;
+  border-radius: 0;
+  font-weight: bold;
+  font-size: x-large;
   letter-spacing: 3px;
 }
 
