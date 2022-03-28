@@ -11,7 +11,15 @@
 
 <body>
   <div class="container">
-    <img id="background" class="position-fixed" src="../assets/images/backgrounds/jak1/map.jpg">
+    <div class="video-container">
+      <div class="overlay"></div>
+      <img id="background" class="position-static" src="../assets/images/backgrounds/jak1/map.jpg">
+      <video autoplay loop muted>
+        <!-- <source src="../assets/images/backgrounds/jak1/background.mp4" type="video/mp4"> -->
+      </video>
+    </div>
+
+
     <div class="row">
       <!-- sidebar toggle button, it runs the entire vertical height -->
       <div class="col-1">
@@ -21,10 +29,6 @@
             >
           </a>
         </div>
-        <!-- <a id="toggle-sidebar" class="btn btn-primary" data-bs-toggle="offcanvas" href="#sidebar" role="button"
-          aria-controls="offcanvasExample" onclick="openNav()">
-          >
-        </a> -->
       </div>
 
       <!-- OpenGOAL LOGO -->

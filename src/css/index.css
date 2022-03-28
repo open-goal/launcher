@@ -54,10 +54,27 @@ nav {
   -webkit-user-drag: none;
 }
 
+.video-container {
+  position: absolute;
+  z-index: -1;
+}
+
+/* for image overlay use position: fixed, for video overlay use position: absolute */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: whitesmoke;
+  width: 100%;
+  height: 100vh;
+  opacity: 0.5;
+}
+
 #background {
-  width: 130%;
+  width: 100%;
+  height: 100vh;
   -webkit-user-drag: none;
-  z-index: -2;
+  /* z-index: -2; */
 }
 
 /* this refers to the game logo, jak: tpl */
