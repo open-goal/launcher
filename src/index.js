@@ -88,3 +88,10 @@ ipcMain.on('settings', () => {
   settingsWindow.loadFile(path.join(__dirname, '/html/settings.html'));
   settingsWindow.show();
 });
+
+// opening the config page in a child window
+ipcMain.on('config', () => {
+  let configWindow = new BrowserWindow({ parent: mainWindow, resizable: false, modal: true, title: "Config", autoHideMenuBar: true });
+  configWindow.loadFile(path.join(__dirname, '/html/config.html'));
+  configWindow.show();
+});

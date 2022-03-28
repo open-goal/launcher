@@ -51,7 +51,7 @@ function changeGame(game) {
 }
 
 function config() {
-    send('getISO');
+    send('config');
 }
 
 function launch() {
