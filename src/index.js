@@ -87,14 +87,18 @@ app.on('console', (value) => {
 
 // opening the settings page in a child window
 ipcMain.on('settings', () => {
-  let settingsWindow = new BrowserWindow({ parent: mainWindow, resizable: false, modal: true, title: "Settings", autoHideMenuBar: true });
+  const settingsWindow = new BrowserWindow({ parent: mainWindow, resizable: false, modal: true, title: "Settings", autoHideMenuBar: true });
   settingsWindow.loadFile(path.join(__dirname, '/html/settings.html'));
-  settingsWindow.show();
+  settingsWindow.once('ready-to-show', () => {
+    settingsWindow.show();
+  });
 });
 
 // opening the config page in a child window
 ipcMain.on('config', () => {
-  let configWindow = new BrowserWindow({ parent: mainWindow, resizable: false, modal: true, title: "Config", autoHideMenuBar: true });
+  const configWindow = new BrowserWindow({ parent: mainWindow, resizable: false, modal: true, title: "Config", autoHideMenuBar: true });
   configWindow.loadFile(path.join(__dirname, '/html/config.html'));
-  configWindow.show();
+  configWindow.once('ready-to-show', () => {
+    configWindow.show();
+  })
 });
