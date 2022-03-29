@@ -16,9 +16,17 @@ function filterRelease(release) {
 
 // Define a function to filter assets.
 function filterAsset(asset) {
-    // filter the assets based on the user current OS
-    // Select assets that contain the string 'windows'.
-    return asset.name.includes('windows');
+    // filter the assets based on the user OS
+    switch (process.platform) {
+        case 'win32':
+            return asset.name.includes('windows');
+        case 'darwin':
+            return asset.name.includes('mac');
+        case 'linux':
+            return asset.name.includes('linux');
+        default:
+            return asset.name.includes('windows');
+    }
 }
 
 function fetchMasterRelease() {
