@@ -42,10 +42,10 @@ function navBarClick(target) {
 function changeGame(game) {
     switch (game) {
         case "jak1":
-            background.src = "../assets/images/backgrounds/jak1/map.jpg";
+            background.src = "../../assets/images/backgrounds/jak1/map.jpg";
             break;
         default:
-            background.src = "../assets/images/backgrounds/jak1/map.jpg";
+            background.src = "../../assets/images/backgrounds/jak1/map.jpg";
             break;
     }
 }

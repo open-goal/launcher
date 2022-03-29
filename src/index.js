@@ -26,7 +26,7 @@ const createWindow = () => {
   });
 
   // and load the index.html of the app.
-  mainWindow.loadFile(path.join(__dirname, '/html/index.html'));
+  mainWindow.loadFile(path.join(__dirname, '/pages/main/index.html'));
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
@@ -72,10 +72,12 @@ ipcMain.on('launch', launchGame);
 
 // opening the settings page in a child window
 ipcMain.on('settings', () => {
+  // const settingsWindow = new BrowserWindow({
   const settingsWindow = new BrowserWindow({
     parent: mainWindow,
     resizable: false,
     modal: true,
+
     title: "Settings",
     autoHideMenuBar: true,
     webPreferences: {
@@ -84,7 +86,7 @@ ipcMain.on('settings', () => {
       devTools: isDev
     }
   });
-  settingsWindow.loadFile(path.join(__dirname, '/html/settings.html'));
+  settingsWindow.loadFile(path.join(__dirname, '/pages/settings/settings.html'));
   settingsWindow.once('ready-to-show', () => {
     settingsWindow.show();
   });
@@ -97,7 +99,7 @@ ipcMain.on('settings', () => {
 // opening the config page in a child window
 ipcMain.on('config', () => {
   const configWindow = new BrowserWindow({ parent: mainWindow, resizable: false, modal: true, title: "Config", autoHideMenuBar: true });
-  configWindow.loadFile(path.join(__dirname, '/html/config.html'));
+  configWindow.loadFile(path.join(__dirname, '/pages/config/config.html'));
   configWindow.once('ready-to-show', () => {
     configWindow.show();
   })
