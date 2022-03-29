@@ -77,7 +77,6 @@ ipcMain.on('settings', () => {
     parent: mainWindow,
     resizable: false,
     modal: true,
-
     title: "Settings",
     autoHideMenuBar: true,
     webPreferences: {
