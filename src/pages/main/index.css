@@ -1,0 +1,114 @@
+:root {
+  --bg-blue: #1B202B;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.container{
+  padding: 0;
+  max-width: 100vw;
+}
+
+.logo {
+  width: 60vw;
+  margin: 15px 0;
+  -webkit-user-drag: none;
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-blue);
+  padding: 1rem;
+  gap: 3rem;
+}
+
+.offcanvas-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-blue);
+  padding: 1rem;
+  gap: 3rem;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.nav-link {
+  display: flex;
+  justify-content: center;
+  -webkit-user-drag: none;
+  padding: 0;
+}
+
+.nav-img {
+  width: 100%;
+  -webkit-user-drag: none;
+}
+
+.video-container {
+  position: absolute;
+  z-index: -1;
+}
+
+/* for image overlay use position: fixed, for video overlay use position: absolute */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: whitesmoke;
+  width: 100%;
+  height: 100vh;
+  opacity: 0.5;
+}
+
+#background {
+  width: 100%;
+  height: 100vh;
+  -webkit-user-drag: none;
+  /* z-index: -2; */
+}
+
+/* this refers to the game logo, jak: tpl */
+#logo {
+  width: 50%;
+  margin: 15px 0;
+  -webkit-user-drag: none;
+}
+
+#toggle-sidebar {
+  height: 100vh;
+  border-radius: 0;
+  background-color: var(--bg-blue);
+  border-color: var(--bg-blue);
+  padding-top: 50vh;
+}
+
+/* this is the buttons div */
+#buttons {
+  margin: 40px 0;
+  gap: 0 10px;
+}
+
+/* this is the config and play button */
+#buttons > button {
+  background-color: teal;
+  width: 30%;
+  border-radius: 0;
+  font-weight: bold;
+  font-size: x-large;
+  letter-spacing: 3px;
+}
+
+.offcanvas-start {
+  width: 100px;
+  background-color: var(--bg-blue);
+}
