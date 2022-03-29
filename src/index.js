@@ -17,7 +17,7 @@ const createWindow = () => {
     height: 600,
     resizable: false,
     title: "OpenGOAL Launcher",
-    icon: path.join(__dirname, 'assets/images/opengoal/icon.png'),
+    icon: path.join(__dirname, '/assets/images/opengoal/icon.png'),
     webPreferences: {
       preload: path.join(__dirname, "/js/preload.js"),
       nodeIntegration: true,

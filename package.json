@@ -18,12 +18,15 @@
   "license": "MIT",
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "icon": "src/assets/images/opengoal/icon.icns"
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "launcher"
+            "name": "OpenGOAL Launcher",
+            "icon": "/src/assets/images/icon.ico"
           }
         },
         {
@@ -33,12 +36,20 @@
           ]
         },
         {
-          "name": "@electron-forge/maker-dec",
+          "name": "@electron-forge/maker-deb",
           "config": {}
         },
         {
           "name": "@electron-forge/maker-rpm",
           "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-dmg",
+          "config": {
+            "name": "OpenGOAL Launcher",
+            "icon": "src/assets/images/opengoal/icon.icns",
+            "format": "ULFO"
+          }
         }
       ]
     }
@@ -53,6 +64,7 @@
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.63",
     "@electron-forge/maker-deb": "^6.0.0-beta.63",
+    "@electron-forge/maker-dmg": "^6.0.0-beta.63",
     "@electron-forge/maker-rpm": "^6.0.0-beta.63",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
     "@electron-forge/maker-zip": "^6.0.0-beta.63",
