@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification, shell } = require('electron');
 const path = require('path');
 const isDev = !app.isPackaged;
 const { launchGame, buildGame, isoSeries, fetchMasterRelease } = require('./js/utils/utils.js');
@@ -76,6 +76,10 @@ ipcMain.on('settings', () => {
   settingsWindow.loadFile(path.join(__dirname, '/html/settings.html'));
   settingsWindow.once('ready-to-show', () => {
     settingsWindow.show();
+  });
+  settingsWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
   });
 });
 

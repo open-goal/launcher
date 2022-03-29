@@ -6,6 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="../../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script defer src="../js/settings.js"></script>
   <title>Settings</title>
 </head>
 
@@ -17,11 +18,11 @@
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab"
-        aria-controls="profile" aria-selected="false">Profile</button>
+        aria-controls="profile" aria-selected="false">Updates</button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab"
-        aria-controls="contact" aria-selected="false">Contact</button>
+        aria-controls="contact" aria-selected="false">Links</button>
     </li>
   </ul>
   <div class="tab-content" id="myTabContent">
@@ -29,10 +30,14 @@
       home tab data here
     </div>
     <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-      profile tab data here
+      <button type="button" class="btn btn-primary" onclick="send('checkUpdates')">Check for Updates</button>
     </div>
     <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-      contact tab data here
+      <div class="list-group">
+        <a href="https://github.com/open-goal/jak-project" target="_blank" rel="noopener noreferrer"
+          class="list-group-item list-group-item-action">Github Repository</a>
+        <a href="#" class="list-group-item list-group-item-action">Discord Server</a>
+      </div>
     </div>
   </div>
 
