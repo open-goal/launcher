@@ -72,7 +72,18 @@ ipcMain.on('launch', launchGame);
 
 // opening the settings page in a child window
 ipcMain.on('settings', () => {
-  const settingsWindow = new BrowserWindow({ parent: mainWindow, resizable: false, modal: true, title: "Settings", autoHideMenuBar: true });
+  const settingsWindow = new BrowserWindow({
+    parent: mainWindow,
+    resizable: false,
+    modal: true,
+    title: "Settings",
+    autoHideMenuBar: true,
+    webPreferences: {
+      preload: path.join(__dirname, "/js/preload.js"),
+      nodeIntegration: true,
+      devTools: isDev
+    }
+  });
   settingsWindow.loadFile(path.join(__dirname, '/html/settings.html'));
   settingsWindow.once('ready-to-show', () => {
     settingsWindow.show();
