@@ -6,6 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="../../../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
   <script defer src="settings.js"></script>
   <title>Settings</title>
 </head>
@@ -13,35 +14,41 @@
 <body>
   <ul class="nav nav-tabs nav-justified justify-content-center mb-3" id="myTab" role="tablist">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab"
-        aria-controls="home" aria-selected="true">General</button>
+      <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button"
+        role="tab" aria-controls="general" aria-selected="true">General</button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab"
-        aria-controls="profile" aria-selected="false">Updates</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab"
-        aria-controls="contact" aria-selected="false">Links</button>
+      <button class="nav-link" id="links-tab" data-bs-toggle="tab" data-bs-target="#links" type="button" role="tab"
+        aria-controls="links" aria-selected="false">Links</button>
     </li>
   </ul>
   <div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-      <button type="button" class="btn btn-primary">Toggle dynamic background</button>
-    </div>
-    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-      <button type="button" class="btn btn-primary" onclick="send('checkUpdates')">Check for Updates</button>
-    </div>
-    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-      <div class="list-group">
-        <a href="https://github.com/open-goal/jak-project" target="_blank" rel="noopener noreferrer"
-          class="list-group-item list-group-item-action">OpenGOAL Github Repository</a>
-        <a href="https://open-goal.github.io/#/" target="_blank" rel="noopener noreferrer"
-          class="list-group-item list-group-item-action">OpenGOAL
-          Documentation</a>
-        <a href="https://discord.gg/VZbXMHXzWv" target="_blank" rel="noopener noreferrer"
-          class="list-group-item list-group-item-action">Discord Server</a>
+    <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+      <div class="container">
+        <div class="row mb-3">
+          <button type="button" class="btn btn-success" onclick="send('checkUpdates')">Check for Updates</button>
+        </div>
+        <div class="row mb-3">
+          <button type="button" class="btn btn-success">Toggle Dynamic Backgrounds</button>
+        </div>
+        <div class="row">
+          <button type="button" class="btn btn-danger">Uninstall</button>
+        </div>
       </div>
+    </div>
+    <div class="tab-pane fade" id="links" role="tabpanel" aria-labelledby="links-tab">
+      <div class="container">
+        <div class="list-group">
+          <a href="https://github.com/open-goal/jak-project" target="_blank" rel="noopener noreferrer"
+            class="list-group-item list-group-item-action">OpenGOAL Github Repository</a>
+          <a href="https://open-goal.github.io/#/" target="_blank" rel="noopener noreferrer"
+            class="list-group-item list-group-item-action">OpenGOAL
+            Documentation</a>
+          <a href="https://discord.gg/VZbXMHXzWv" target="_blank" rel="noopener noreferrer"
+            class="list-group-item list-group-item-action">Discord Server</a>
+        </div>
+      </div>
+
     </div>
   </div>
 
