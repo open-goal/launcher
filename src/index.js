@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, Notification } = require('electron');
 const path = require('path');
 const isDev = !app.isPackaged;
-const { launchGame, buildGame, isoSeries, fetchLatestCommit } = require('./js/utils/utils.js');
+const { launchGame, buildGame, isoSeries, fetchMasterRelease } = require('./js/utils/utils.js');
 let mainWindow;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -38,7 +38,10 @@ const createWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', () => {
+  createWindow();
+  fetchMasterRelease();
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -57,33 +60,15 @@ app.on('activate', () => {
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
-
 // IPC STUFF HERE
+// trigger iso extraction -> decompiler -> compiler
 ipcMain.on('getISO', isoSeries);
 
-// github jak-project updates
-ipcMain.handle('checkUpdates', async () => {
-  let response = await fetchLatestCommit();
-  return response;
-});
+// download jak-project release updates
+ipcMain.on('checkUpdates', fetchMasterRelease);
 
 ipcMain.on('build', buildGame);
 ipcMain.on('launch', launchGame);
-
-// handle config status updates
-app.on('status', (value) => {
-  mainWindow.webContents.send('status', value);
-  if (value.includes('Compiled game successfully!')) {
-    new Notification({ title: value, body: 'Game ready to launch!' }).show();
-  }
-});
-
-// handle console messages
-app.on('console', (value) => {
-  mainWindow.webContents.send('console', value);
-});
 
 // opening the settings page in a child window
 ipcMain.on('settings', () => {
@@ -101,4 +86,17 @@ ipcMain.on('config', () => {
   configWindow.once('ready-to-show', () => {
     configWindow.show();
   })
+});
+
+// handle config status updates
+app.on('status', (value) => {
+  mainWindow.webContents.send('status', value);
+  if (value.includes('Compiled game successfully!')) {
+    new Notification({ title: value, body: 'Game ready to launch!' }).show();
+  }
+});
+
+// handle console messages
+app.on('console', (value) => {
+  mainWindow.webContents.send('console', value);
 });
