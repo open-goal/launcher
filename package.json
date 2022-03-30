@@ -26,12 +26,15 @@
           "name": "@electron-forge/maker-squirrel",
           "config": {
             "name": "OpenGOAL-Launcher",
+            "exe": "OpenGOAL-Launcher.exe",
             "icon": "/src/assets/images/icon.ico"
           }
         },
         {
           "name": "@electron-forge/maker-deb",
-          "config": {}
+          "config": {
+            "name": "OpenGOAL-Launcher"
+          }
         },
         {
           "name": "@electron-forge/maker-dmg",
