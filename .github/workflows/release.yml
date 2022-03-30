@@ -35,7 +35,7 @@ jobs:
         tag_name: v0.${{ github.run_number}}
         files: |
           ./out/make/OpenGOAL Launcher.dmg
-          ./out/make/OpenGOAL-Launcher.exe
+          ./out/make/OpenGOAL-Launcher Setup.exe
       env: 
         GITHUB_REPOSITORY: trippjoe/launcher
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
