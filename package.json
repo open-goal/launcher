@@ -54,7 +54,7 @@
             "owner": "trippjoe",
             "name": "launcher"
           },
-          "prerelease": false
+          "prerelease": true
         }
       }
     ]
