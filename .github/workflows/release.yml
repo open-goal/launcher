@@ -32,11 +32,11 @@ jobs:
     - name: Upload Release
       uses: softprops/action-gh-release@v1
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: v0.${{ github.run_number}}
         files: |
-          OpenGOAL Launcher.app
-          OpenGOAL-Launcher.exe
+          ./out/OpenGOAL Launcher-darwin-x64/OpenGOAL Launcher.app
+          ./out/OpenGOAL-Launcher.exe
       env: 
         GITHUB_REPOSITORY: trippjoe/launcher
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
