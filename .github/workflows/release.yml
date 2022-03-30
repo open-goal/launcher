@@ -3,7 +3,7 @@ name: Automated Release
 on:
   pull_request:
   push:
-    branches: [ feature/testing ]
+    branches: [ feature/automated-release ]
 
 jobs:
   build:
