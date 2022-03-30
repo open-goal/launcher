@@ -25,7 +25,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "OpenGOAL Launcher",
+            "name": "OpenGOAL-Launcher",
             "icon": "/src/assets/images/icon.ico"
           }
         },
