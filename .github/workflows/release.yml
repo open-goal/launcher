@@ -47,4 +47,6 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url}}
         asset_path: ./out
         asset_name: launcher-v${{ github.run_number}}
-        asset_content_type: [application/exe, appplication/app]
+        asset_content_type: 
+          application/exe, 
+          appplication/app
