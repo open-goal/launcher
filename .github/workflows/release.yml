@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-        node: [16.x]
+        node: [16]
 
     steps:
     - name: Clone git repository
