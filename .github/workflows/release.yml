@@ -26,17 +26,20 @@ jobs:
     - name: Install Dependencies
       run: npm ci
 
-    - name: Build the Executables
-      run: npm run make
+    - name: Build and Publish Executables
+      run: npm run publish
 
-    - name: Upload Release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: v0.${{ github.run_number}}
-        files: |
-          ./out/make/OpenGOAL Launcher.dmg
-          ./out/make/OpenGOAL-Launcher Setup.exe
-      env: 
-        GITHUB_REPOSITORY: trippjoe/launcher
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    # - name: Build the Executables
+    #   run: npm run make
+
+    # - name: Upload Release
+    #   uses: softprops/action-gh-release@v1
+    #   with:
+    #     tag_name: v0.${{ github.run_number}}
+    #     files: |
+    #       ./out/make/OpenGOAL Launcher.dmg
+    #       ./out/make/OpenGOAL-Launcher Setup.exe
+    #   env: 
+    #     GITHUB_REPOSITORY: trippjoe/launcher
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
