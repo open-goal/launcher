@@ -10,8 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # os: [windows-latest, ubuntu-latest, macos-latest]
-        os: [windows-latest, macos-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest]
         node: [16]
 
     steps:
@@ -35,7 +34,7 @@ jobs:
         tag_name: v0.${{ github.run_number}}
         files: |
           ./out/make/OpenGOAL Launcher.dmg
-          ./out/make/
+          ./out/make/OpenGOAL Launcher.deb
       env: 
         GITHUB_REPOSITORY: trippjoe/launcher
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
