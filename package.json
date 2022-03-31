@@ -1,5 +1,5 @@
 {
-  "name": "launcher",
+  "name": "opengoal-launcher",
   "productName": "OpenGOAL Launcher",
   "version": "0.0.1",
   "description": "OpenGOAL Launcher",
@@ -25,14 +25,14 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "OpenGOAL-Launcher",
+            "name": "opengoal-launcher",
             "icon": "/src/assets/images/opengoal/icon.ico"
           }
         },
         {
           "name": "@electron-forge/maker-deb",
           "config": {
-            "name": "OpenGOAL-Launcher"
+            "name": "opengoal-launcher"
           }
         },
         {
