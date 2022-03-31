@@ -35,7 +35,9 @@ jobs:
         tag_name: v0.${{ github.run_number}}
         files: |
           ./out/make/OpenGOAL Launcher.dmg
-          out/make/squirrel.windows/opengoal-launcher-win32-x64/opengoal-launcher.exe
+          ./out/make/squirrel.windows/win32-x64/opengoal-launcher.exe
+          ./out/make/squirrel.windows/win32-x64/opengoal-launcher Setup.exe
+          ./out/make/squirrel.windows/win32-x64/opengoal-launcher-Setup.exe
       env: 
         GITHUB_REPOSITORY: trippjoe/launcher
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
