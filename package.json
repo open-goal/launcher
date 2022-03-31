@@ -20,7 +20,8 @@
     "forge": {
       "packagerConfig": {
         "icon": "src/assets/images/opengoal/icon.icns",
-        "executableName": "opengoal-launcher"
+        "executableName": "opengoal-launcher",
+        "platforms": ["darwin", "linux", "win32"]
       },
       "makers": [
         {
