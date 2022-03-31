@@ -36,7 +36,6 @@ jobs:
         files: |
           ./out/make/OpenGOAL Launcher.dmg
           .\out\make\**\**\*.deb
-          .\out\make\**\**\*Setup*.exe
           ./out/make/**/**/*Setup*.exe
       env: 
         GITHUB_REPOSITORY: trippjoe/launcher
