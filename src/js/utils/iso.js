@@ -4,6 +4,7 @@ const path = require('path');
 const { series } = require('async');
 const { exec } = require('child_process');
 const { buildGame } = require('./launch');
+const { extract } = require('./extract');
 
 const userDataPath = app.getPath('userData');
 const isoSavePath = path.join(userDataPath, '/iso');
@@ -133,11 +134,15 @@ function runDecompiler(callback) {
     }
 }
 
+// function isoSeries() {
+//     series([getISOFile, extractISOFile, runDecompiler, buildGame], (err, result) => {
+//         if (err) console.log(err);
+//         if (result) console.log(result);
+//     });
+// }
+
 function isoSeries() {
-    series([getISOFile, extractISOFile, runDecompiler, buildGame], (err, result) => {
-        if (err) console.log(err);
-        if (result) console.log(result);
-    });
+    extract();
 }
 
 module.exports = {
