@@ -21,39 +21,6 @@ body {
   -webkit-user-drag: none;
 }
 
-nav {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: var(--bg-blue);
-  padding: 1rem;
-  gap: 3rem;
-}
-
-.offcanvas-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: var(--bg-blue);
-  padding: 1rem;
-  gap: 3rem;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.nav-link {
-  display: flex;
-  justify-content: center;
-  -webkit-user-drag: none;
-  padding: 0;
-}
-
-.nav-img {
-  width: 100%;
-  -webkit-user-drag: none;
-}
-
 .video-container {
   position: absolute;
   z-index: -1;
@@ -74,31 +41,15 @@ nav {
   width: 100%;
   height: 100vh;
   -webkit-user-drag: none;
-  /* z-index: -2; */
 }
 
-/* this refers to the game logo, jak: tpl */
-#logo {
-  width: 50%;
-  margin: 15px 0;
-  -webkit-user-drag: none;
-}
-
-#toggle-sidebar {
-  height: 100vh;
-  border-radius: 0;
-  background-color: var(--bg-blue);
-  border-color: var(--bg-blue);
-  padding-top: 50vh;
-}
-
-/* this is the buttons div */
+/* buttons div */
 #buttons {
   margin: 40px 0;
   gap: 0 10px;
 }
 
-/* this is the config and play button */
+/* config and play button */
 #buttons > button {
   background-color: teal;
   width: 30%;
@@ -108,7 +59,62 @@ nav {
   letter-spacing: 3px;
 }
 
-.offcanvas-start {
-  width: 100px;
+
+/* START of sidenav styling */
+.sidenav{
+  width: 3rem;
+  height: 100vh;
   background-color: var(--bg-blue);
+  opacity: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: 200ms ease;
 }
+
+.sidenav-nav{
+  list-style: none;
+  padding: 0;
+  margin: 5px;
+}
+
+.sidenav:hover {
+  width: 5rem;
+  opacity: 100%;
+}
+
+.nav-item {
+  width: 100%;
+}
+
+.nav-link {
+  display: flex;
+  justify-content: center;
+  -webkit-user-drag: none;
+  padding: 0;
+  filter: grayscale(100%);
+  transition: 400ms ease;
+}
+
+.nav-link:hover{
+  filter: grayscale(0%);
+}
+
+.nav-img {
+  width: 100%;
+  -webkit-user-drag: none;
+}
+
+.nav-item:first-child  {
+  margin-bottom: 2rem;
+}
+
+.nav-link:last-child {
+  opacity: 50%;
+}
+
+.nav-link:last-child:hover {
+  opacity: 100%;
+}
+
+/* END of sidenav styling */
