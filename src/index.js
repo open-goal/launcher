@@ -33,6 +33,12 @@ const createWindow = () => {
 
   // hide menubar
   mainWindow.setMenuBarVisibility(false);
+
+  // open urls in the users default browser
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
 };
 
 // This method will be called when Electron has finished
@@ -70,39 +76,20 @@ ipcMain.on('checkUpdates', fetchMasterRelease);
 ipcMain.on('build', buildGame);
 ipcMain.on('launch', launchGame);
 
-// opening the settings page in a child window
+
+// opening the settings html page when navbar is selected
 ipcMain.on('settings', () => {
-  // const settingsWindow = new BrowserWindow({
-  const settingsWindow = new BrowserWindow({
-    parent: mainWindow,
-    resizable: false,
-    modal: true,
-    title: "Settings",
-    autoHideMenuBar: true,
-    webPreferences: {
-      preload: path.join(__dirname, "/js/preload.js"),
-      nodeIntegration: true,
-      devTools: isDev
-    }
-  });
-  settingsWindow.loadFile(path.join(__dirname, '/pages/settings/settings.html'));
-  settingsWindow.once('ready-to-show', () => {
-    settingsWindow.show();
-  });
-  settingsWindow.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url);
-    return { action: 'deny' };
-  });
+  mainWindow.loadFile(path.join(__dirname, '/pages/settings/settings.html'));
 });
 
 // opening the config page in a child window
-ipcMain.on('config', () => {
-  const configWindow = new BrowserWindow({ parent: mainWindow, resizable: false, modal: true, title: "Config", autoHideMenuBar: true });
-  configWindow.loadFile(path.join(__dirname, '/pages/config/config.html'));
-  configWindow.once('ready-to-show', () => {
-    configWindow.show();
-  })
-});
+// ipcMain.on('config', () => {
+//   const configWindow = new BrowserWindow({ parent: mainWindow, resizable: false, modal: true, title: "Config", autoHideMenuBar: true });
+//   configWindow.loadFile(path.join(__dirname, '/pages/config/config.html'));
+//   configWindow.once('ready-to-show', () => {
+//     configWindow.show();
+//   })
+// });
 
 // handle config status updates
 app.on('status', (value) => {
