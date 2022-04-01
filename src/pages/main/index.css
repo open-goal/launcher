@@ -85,6 +85,7 @@ body {
 
 .nav-item {
   width: 100%;
+  margin: .5em 0;
 }
 
 .nav-link {
@@ -94,27 +95,22 @@ body {
   padding: 0;
   filter: grayscale(100%);
   transition: 400ms ease;
+  opacity: 50%;
+}
+
+.nav-link i {
+  font-size: 2rem;
+  color: white;
 }
 
 .nav-link:hover{
   filter: grayscale(0%);
+  opacity: 100%;
 }
 
 .nav-img {
   width: 100%;
   -webkit-user-drag: none;
-}
-
-.nav-item:first-child  {
-  margin-bottom: 2rem;
-}
-
-.nav-link:last-child {
-  opacity: 50%;
-}
-
-.nav-link:last-child:hover {
-  opacity: 100%;
 }
 
 /* END of sidenav styling */
