@@ -51,12 +51,14 @@ body {
 
 /* config and play button */
 #buttons > button {
-  background-color: teal;
+  background: linear-gradient(to top, #F3B33F, #FBEC4F);
   width: 30%;
-  border-radius: 0;
+  border: none;
   font-weight: bold;
   font-size: x-large;
   letter-spacing: 3px;
+  color: white;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, .5);
 }
 
 
