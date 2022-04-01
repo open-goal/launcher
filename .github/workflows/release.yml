@@ -33,7 +33,7 @@ jobs:
       with:
         tag_name: v0.${{ github.run_number}}
         files: |
-          ./out/make/OpenGOAL Launcher.dmg
+          ./out/make/**.dmg
           ./out/make/**/**/*.deb
           ./out/make/**/**/*Setup*.exe
       env: 
