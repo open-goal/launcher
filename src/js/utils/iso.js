@@ -8,10 +8,7 @@ const { extract } = require('./extract');
 
 const userDataPath = app.getPath('userData');
 const isoSavePath = path.join(userDataPath, '/iso');
-const isoContents = path.join(userDataPath, '/iso/jak1')
 const jakprojectPath = path.join(userDataPath, '/jak-project');
-const isoFolderPath = path.join(jakprojectPath, '/iso_data');
-// const jak1FolderPath = path.join(jakprojectPath, '/iso_data/jak1');
 
 function updateStatus(status) {
     app.emit('status', status);
@@ -42,56 +39,6 @@ function getISOFile(callback) {
     fs.copyFileSync(isoPath, `${isoSavePath}/jak.iso`);
     updateStatus('Received Jak ISO File');
     callback(null, 'Received Jak ISO File');
-}
-
-// extract the game files from the main iso and put them into the jak1 folder
-function extractISOFile(callback) {
-    // if jak1 folder doesnt exist, then create the folder
-    // ideally they can put the jak1 folder into their actual repo and this entire chunk can be deleted
-    updateStatus('Extracting assets from ISO File');
-    if (!fs.existsSync(path.join(isoSavePath, '/jak1'))) {
-        fs.mkdirSync(path.join(isoSavePath, '/jak1'));
-    }
-
-    // if (!fs.existsSync(jak1FolderPath)) {
-    //     fs.mkdirSync(path.join(jakprojectPath, '/iso_data/jak1'));
-    // }
-
-    // if (process.platform === 'darwin') {
-    //     // const isoFile = path.join(isoSavePath, '/jak.iso');
-    //     // const output = path.join(isoSavePath, '/jak1');
-    //     // const archive = new ArchiveHdi(isoFile);
-    //     // await archive.read(async entry => {
-    //     //     console.log(entry.path);
-    //     //     await entry.extract(`${output}/${entry.path}`);
-    //     // });
-    //     updateStatus('Incompatible Operating Software');
-    //     callback('Incompatible Operating Software', null);
-    //     return;
-    // }
-
-    if (process.platform === 'win32') {
-        const extractISOScript = path.join(__dirname, '../../assets/scripts/batch/extract-iso.bat');
-        shell.openPath(extractISOScript);
-
-        // copy the iso contents to the jak1 folder created above
-        setTimeout(() => {
-            try {
-                fs.copySync(isoContents, isoFolderPath);
-                updateStatus('ISO assests extracted successfully');
-                callback(null, 'ISO assests extracted successfully');
-                return;
-            } catch (err) {
-                updateStatus(err);
-                callback(err, null);
-                return;
-            }
-        }, 7000);
-    } else {
-        updateStatus('Linux & Mac support TBD');
-        callback('Linux & Mac support TBD', null);
-        return;
-    }
 }
 
 function runDecompiler(callback) {
@@ -134,15 +81,11 @@ function runDecompiler(callback) {
     }
 }
 
-// function isoSeries() {
-//     series([getISOFile, extractISOFile, runDecompiler, buildGame], (err, result) => {
-//         if (err) console.log(err);
-//         if (result) console.log(result);
-//     });
-// }
-
 function isoSeries() {
-    extract();
+    series([getISOFile, extract, runDecompiler, buildGame], (err, result) => {
+        if (err) console.log(err);
+        if (result) console.log(result);
+    });
 }
 
 module.exports = {

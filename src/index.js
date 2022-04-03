@@ -76,20 +76,10 @@ ipcMain.on('checkUpdates', fetchMasterRelease);
 ipcMain.on('build', buildGame);
 ipcMain.on('launch', launchGame);
 
-
 // opening the settings html page when navbar is selected
 ipcMain.on('settings', () => {
   mainWindow.loadFile(path.join(__dirname, '/pages/settings/settings.html'));
 });
-
-// opening the config page in a child window
-// ipcMain.on('config', () => {
-//   const configWindow = new BrowserWindow({ parent: mainWindow, resizable: false, modal: true, title: "Config", autoHideMenuBar: true });
-//   configWindow.loadFile(path.join(__dirname, '/pages/config/config.html'));
-//   configWindow.once('ready-to-show', () => {
-//     configWindow.show();
-//   })
-// });
 
 // handle config status updates
 app.on('status', (value) => {
