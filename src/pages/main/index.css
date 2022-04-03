@@ -126,6 +126,7 @@ video {
   position: absolute;
   transform: translateX(55px) scale(var(--scale));
   transition: 200ms ease;
+  transform-origin: left center;
 }
 
 .nav-item a::before {
