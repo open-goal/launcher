@@ -60,7 +60,7 @@ function launchGame() {
         launchScript = path.join(jakprojectPath, '/scripts/shell/gk.sh');
         return;
     } else if (process.platform === 'darwin') {
-        console.log('No Mac support at this time');
+        updateStatus('Unsupported OS');
         return;
     }
     console.log(launchScript);

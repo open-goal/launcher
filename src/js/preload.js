@@ -3,7 +3,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 // Expose protected methods that allow the renderer process to use
 contextBridge.exposeInMainWorld("electronAPI", {
   send: (command) => {
-    let validCommands = ['getISO', 'checkUpdates', 'launch', 'build', 'settings', 'config'];
+    let validCommands = ['getISO', 'checkUpdates', 'launch', 'build', 'settings', 'config', 'toggle-console'];
     if (validCommands.includes(command)) {
       ipcRenderer.send(command);
     }

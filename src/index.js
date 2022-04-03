@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Notification, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification, shell, dialog } = require('electron');
 const path = require('path');
 const isDev = !app.isPackaged;
 const { launchGame, buildGame, isoSeries, fetchMasterRelease } = require('./js/utils/utils.js');
@@ -81,11 +81,18 @@ ipcMain.on('settings', () => {
   mainWindow.loadFile(path.join(__dirname, '/pages/settings/settings.html'));
 });
 
+ipcMain.on('toggle-console', () => {
+  // do something here
+});
+
 // handle config status updates
 app.on('status', (value) => {
   mainWindow.webContents.send('status', value);
   if (value.includes('Compiled game successfully!')) {
     new Notification({ title: value, body: 'Game ready to launch!' }).show();
+  }
+  if (value.includes('Unsupported OS')) {
+    dialog.showErrorBox('Unsupported OS', 'This application currently does not support your operating system.');
   }
 });
 

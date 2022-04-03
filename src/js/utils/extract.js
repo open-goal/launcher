@@ -39,8 +39,8 @@ function extract(callback) {
       }
     });
   } else {
-    updateStatus('Incompatible OS');
-    callback('Incompatible OS', null);
+    updateStatus('Unsupported OS');
+    callback('Unsupported OS', null);
   }
 }
 
