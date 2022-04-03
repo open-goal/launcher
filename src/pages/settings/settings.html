@@ -20,11 +20,29 @@
     <div class="body">
       <div class="pane">
         <div id="general">
-          General tab
+          <ul>
+            <li>
+              <button>Check for updates</button>
+            </li>
+            <li>
+              <button>Toggle dynamic backgrounds</button>
+            </li>
+            <li>
+              <button>Toggle automatic updates</button>
+            </li>
+          </ul>
         </div>
 
         <div id="files">
-          Files tab
+          <ul>
+            <li>
+              <label for="install-dir">Current install directory:</label>
+              <textarea id="install-dir" name="install-dir" disabled>%/your/install/dir/here</textarea>
+            </li>
+            <li>
+              <button>Uninstall</button>
+            </li>
+          </ul>
         </div>
         <div id="links">
           <a href="https://github.com/open-goal/jak-project" target="_blank" rel="noopener noreferrer">

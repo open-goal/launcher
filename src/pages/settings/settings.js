@@ -15,7 +15,7 @@ function handleClick(target) {
     });
 
     if (keyPane) {
-      keyPane.style.display = 'flex';
+      keyPane.style.display = 'initial';
     }
   }
 }

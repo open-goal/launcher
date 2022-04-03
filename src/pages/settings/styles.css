@@ -2,14 +2,14 @@
   --bg-blue: #1B202B;
 }
 
-body{
+body {
   height: 100vh;
   padding: 0;
   margin: 0;
   overflow: hidden;
 }
 
-.container {  
+.container {
   display: grid;
   height: 100vh;
   grid-template-columns: 0.10fr 1fr;
@@ -22,15 +22,15 @@ body{
 }
 
 .body {
-  display: grid; 
-  grid-template-columns: 1fr 16fr 1fr; 
-  grid-template-rows: 1fr 16fr 1fr; 
-  gap: 0px 0px; 
-  grid-template-areas: 
+  display: grid;
+  grid-template-columns: 1fr 16fr 1fr;
+  grid-template-rows: 1fr 16fr 1fr;
+  gap: 0px 0px;
+  grid-template-areas:
     ". . ."
     ". pane ."
-    ". . ."; 
-  grid-area: body; 
+    ". . .";
+  grid-area: body;
 }
 
 .pane {
@@ -41,7 +41,7 @@ body{
   box-shadow: inset 0px 0px 20px #000;
 }
 
-.sidenav {  
+.sidenav {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 5fr 1fr;
@@ -60,7 +60,7 @@ body{
   opacity: 100%;
 }
 
-.actions {  
+.actions {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr;
@@ -76,20 +76,22 @@ body{
   grid-area: actions;
 }
 
-.general { 
-  grid-area: general; 
+.general {
+  grid-area: general;
 }
-.links { 
-  grid-area: links; 
+
+.links {
+  grid-area: links;
 }
-.files { 
-  grid-area: files; 
+
+.files {
+  grid-area: files;
 }
 
 .return {
-  justify-self: center; 
-  align-self: center; 
-  grid-area: return; 
+  justify-self: center;
+  align-self: center;
+  grid-area: return;
 }
 
 .sidenav i {
@@ -97,7 +99,7 @@ body{
   color: white;
 }
 
-.sidenav i:hover{
+.sidenav i:hover {
   cursor: pointer;
 }
 
@@ -147,10 +149,6 @@ body{
   --scale: 1
 }
 
-#general {
-  display: flex;
-}
-
 #files,
 #links {
   display: none;
@@ -159,12 +157,7 @@ body{
 #general,
 #files,
 #links {
-  /* normally its flex */
   height: 100%;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  margin: 0 15%;
   font-size: 2em;
   color: white;
 }
@@ -173,4 +166,9 @@ body{
 #links i {
   text-decoration: none;
   color: white;
+}
+
+ul {
+  margin: 0;
+  list-style: none;
 }
