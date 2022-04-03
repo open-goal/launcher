@@ -21,17 +21,24 @@ body{
     "sidenav body";
 }
 
-.body {  
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
-  gap: 0px 0px;
-  grid-auto-flow: row;
-  grid-template-areas:
+.body {
+  display: grid; 
+  grid-template-columns: 1fr 16fr 1fr; 
+  grid-template-rows: 1fr 16fr 1fr; 
+  gap: 0px 0px; 
+  grid-template-areas: 
     ". . ."
-    ". . ."
-    ". . .";
-  grid-area: body;
+    ". pane ."
+    ". . ."; 
+  grid-area: body; 
+}
+
+.pane {
+  grid-area: pane;
+  background-color: var(--bg-blue);
+  opacity: 90%;
+  border-radius: 5px;
+  box-shadow: inset 0px 0px 20px #000;
 }
 
 .sidenav {  
@@ -90,6 +97,10 @@ body{
   color: white;
 }
 
+.sidenav i:hover{
+  cursor: pointer;
+}
+
 .background-container {
   z-index: -1;
   position: absolute;
@@ -134,4 +145,32 @@ body{
 
 .nav-item:hover::before {
   --scale: 1
+}
+
+#general {
+  display: flex;
+}
+
+#files,
+#links {
+  display: none;
+}
+
+#general,
+#files,
+#links {
+  /* normally its flex */
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  margin: 0 15%;
+  font-size: 2em;
+  color: white;
+}
+
+#links a,
+#links i {
+  text-decoration: none;
+  color: white;
 }

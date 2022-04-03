@@ -217,6 +217,10 @@ video {
   border-radius: 5px;
 }
 
+.buttons button:hover {
+  cursor: pointer;
+}
+
 .btn_settings {
   justify-self: center;
   grid-area: btn_settings;
@@ -230,4 +234,8 @@ video {
 .sidenav a:hover{
   filter: grayscale(0%);
   opacity: 100%;
+}
+
+.games a:hover{
+  cursor: pointer;
 }
