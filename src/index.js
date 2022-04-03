@@ -76,6 +76,10 @@ ipcMain.on('checkUpdates', fetchMasterRelease);
 ipcMain.on('build', buildGame);
 ipcMain.on('launch', launchGame);
 
+ipcMain.on('load-main', () => {
+  mainWindow.loadFile(path.join(__dirname, '/pages/main/index.html'));
+})
+
 // opening the settings html page when navbar is selected
 ipcMain.on('settings', () => {
   mainWindow.loadFile(path.join(__dirname, '/pages/settings/settings.html'));
