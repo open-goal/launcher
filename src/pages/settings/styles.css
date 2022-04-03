@@ -61,12 +61,22 @@ body{
   grid-auto-flow: row;
   grid-template-areas:
     "general"
-    "links"
     "files"
+    "links"
     "nav-4";
   justify-items: center;
   align-items: center;
   grid-area: actions;
+}
+
+.general { 
+  grid-area: general; 
+}
+.links { 
+  grid-area: links; 
+}
+.files { 
+  grid-area: files; 
 }
 
 .return {
