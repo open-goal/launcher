@@ -120,6 +120,28 @@ video {
   opacity: 100%;
 }
 
+.nav-item a::before,
+.nav-item a::after {
+  --scale: 0;
+  position: absolute;
+  transform: translateX(55px) scale(var(--scale));
+  transition: 200ms ease;
+}
+
+.nav-item a::before {
+  padding: .5rem;
+  width: max-content;
+  background: #333;
+  color: white;
+  content: attr(data-tooltip);
+  border-radius: .3rem;
+  text-align: center;
+}
+
+.nav-item a:hover::before {
+  --scale: 1
+}
+
 .games {  
   display: grid;
   grid-template-columns: 1fr;
