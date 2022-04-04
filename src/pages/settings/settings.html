@@ -5,53 +5,88 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="../../../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../../node_modules/bootstrap-icons/font/bootstrap-icons.css">
   <link rel="stylesheet" href="styles.css">
   <script defer src="settings.js"></script>
-  <title>Settings</title>
+  <title>OpenGOAL Launcher - Settings</title>
 </head>
 
 <body>
-  <ul class="nav nav-tabs nav-justified justify-content-center mb-3" id="myTab" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button"
-        role="tab" aria-controls="general" aria-selected="true">General</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="links-tab" data-bs-toggle="tab" data-bs-target="#links" type="button" role="tab"
-        aria-controls="links" aria-selected="false">Links</button>
-    </li>
-  </ul>
-  <div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
-      <div class="container">
-        <div class="row mb-3">
-          <button type="button" class="btn btn-success" onclick="send('checkUpdates')">Check for Updates</button>
+  <div class="container">
+    <div class="background-container">
+      <div class="overlay"></div>
+      <img class="background" src="../../assets/images/backgrounds/jak1/settings.png">
+    </div>
+    <div class="body">
+      <div class="pane">
+        <div id="general">
+          <ul>
+            <li>
+              <button>Check for updates</button>
+            </li>
+            <li>
+              <button>Toggle dynamic backgrounds</button>
+            </li>
+            <li>
+              <button>Toggle automatic updates</button>
+            </li>
+          </ul>
         </div>
-        <div class="row mb-3">
-          <button type="button" class="btn btn-success">Toggle Dynamic Backgrounds</button>
+
+        <div id="files">
+          <ul>
+            <li>
+              <label for="install-dir">Current install directory:</label>
+              <textarea id="install-dir" name="install-dir" disabled>%/your/install/dir/here</textarea>
+            </li>
+            <li>
+              <Button>Decompile Game</Button>
+            </li>
+            <li>
+              <Button>Build Game</Button>
+            </li>
+            <li>
+              <button>Uninstall</button>
+            </li>
+          </ul>
         </div>
-        <div class="row">
-          <button type="button" class="btn btn-danger">Uninstall</button>
+        <div id="links">
+          <a href="https://github.com/open-goal/jak-project" target="_blank" rel="noopener noreferrer">
+            <i class="bi bi-github"> OpenGOAL Github Repository</i>
+          </a>
+          <br>
+
+          <a href="https://open-goal.github.io/#/" target="_blank" rel="noopener noreferrer">
+            <i class="bi bi-files"> OpenGOAL Documentation</i>
+          </a>
+          <br>
+
+          <a href="https://discord.gg/VZbXMHXzWv" target="_blank" rel="noopener noreferrer">
+            <i class="bi bi-discord"> Discord Server</i>
+          </a>
         </div>
       </div>
     </div>
-    <div class="tab-pane fade" id="links" role="tabpanel" aria-labelledby="links-tab">
-      <div class="container">
-        <div class="list-group">
-          <a href="https://github.com/open-goal/jak-project" target="_blank" rel="noopener noreferrer"
-            class="list-group-item list-group-item-action">OpenGOAL Github Repository</a>
-          <a href="https://open-goal.github.io/#/" target="_blank" rel="noopener noreferrer"
-            class="list-group-item list-group-item-action">OpenGOAL Documentation</a>
-          <a href="https://discord.gg/VZbXMHXzWv" target="_blank" rel="noopener noreferrer"
-            class="list-group-item list-group-item-action">Discord Server</a>
+    <div class="sidenav" onclick="handleClick(event.target)">
+      <div class="actions">
+        <div class="general nav-item" data-tooltip="General">
+          <i class="bi bi-sliders2-vertical" key="general"></i>
+        </div>
+        <div class="links nav-item" data-tooltip="Links">
+          <i class="bi bi-link-45deg" key="links"></i>
+        </div>
+        <div class="Files nav-item" data-tooltip="Files">
+          <i class="bi bi-folder2" key="files"></i>
+        </div>
+        <div class="nav-4">
+
         </div>
       </div>
-
+      <div class="return nav-item" data-tooltip="Back">
+        <i class="bi bi-arrow-return-left" onclick="send('load-main')"></i>
+      </div>
     </div>
   </div>
-
-  <script src="../../../node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
 </body>
 
 </html>
