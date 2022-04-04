@@ -2,14 +2,14 @@
   --bg-blue: #1B202B;
 }
 
-body{
+body {
   height: 100vh;
   padding: 0;
   margin: 0;
   overflow: hidden;
 }
 
-.container {  
+.container {
   display: grid;
   grid-template-columns: 0.10fr 1fr;
   grid-template-rows: 1fr 1fr;
@@ -47,7 +47,7 @@ video {
   height: 100vh;
 }
 
-.body {  
+.body {
   display: grid;
   grid-template-columns: 1fr 5fr 1fr;
   grid-template-rows: 1fr 0.5fr 0.5fr 1fr;
@@ -67,7 +67,7 @@ video {
   -webkit-user-drag: none;
 }
 
-.buttons {  
+.buttons {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr;
@@ -90,7 +90,7 @@ video {
   grid-area: play;
 }
 
-.sidenav {  
+.sidenav {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 1fr;
@@ -115,7 +115,7 @@ video {
   opacity: 50%;
 }
 
-.nav-item:hover{
+.nav-item:hover {
   filter: grayscale(0%);
   opacity: 100%;
 }
@@ -143,7 +143,7 @@ video {
   --scale: 1
 }
 
-.games {  
+.games {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 1fr 1fr;
@@ -158,7 +158,7 @@ video {
   grid-area: games;
 }
 
-.games .nav-item img{
+.games .nav-item img {
   width: 70%;
   padding: 0 15%;
   -webkit-user-drag: none;
@@ -179,7 +179,7 @@ video {
   grid-area: btn_jak3;
 }
 
-.settings {  
+.settings {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 1fr 1fr;
@@ -215,6 +215,12 @@ video {
   min-height: 50px;
   min-width: 250px;
   border-radius: 5px;
+  transition: all 0.4s ease;
+}
+
+.buttons button:active {
+  transform: scale(0.9);
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 1);
 }
 
 .buttons button:hover {
@@ -231,11 +237,11 @@ video {
   grid-area: btn_console;
 }
 
-.sidenav a:hover{
+.sidenav a:hover {
   filter: grayscale(0%);
   opacity: 100%;
 }
 
-.games a:hover{
+.games a:hover {
   cursor: pointer;
 }
