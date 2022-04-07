@@ -1,0 +1,72 @@
+{
+  "name": "opengoal-launcher",
+  "productName": "OpenGOAL-Launcher",
+  "version": "0.0.1",
+  "description": "OpenGOAL Launcher",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "echo \"No linting configured\""
+  },
+  "keywords": [],
+  "author": {
+    "name": "trippjoe"
+  },
+  "license": "MIT",
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "icon": "src/assets/images/opengoal/icon.icns",
+        "executableName": "opengoal-launcher",
+        "platforms": [
+          "darwin",
+          "linux",
+          "win32"
+        ]
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "opengoal-launcher",
+            "icon": "/src/assets/images/opengoal/icon.ico"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {
+            "name": "opengoal-launcher"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-dmg",
+          "config": {
+            "name": "OpenGOAL Launcher",
+            "icon": "src/assets/images/opengoal/icon.icns",
+            "format": "ULFO"
+          }
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "@terascope/fetch-github-release": "^0.8.7",
+    "7zip": "^0.0.6",
+    "async": "^3.2.3",
+    "bootstrap-icons": "^1.8.1",
+    "electron-squirrel-startup": "^1.0.0",
+    "fs-extra": "^10.0.1"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.63",
+    "@electron-forge/maker-deb": "^6.0.0-beta.63",
+    "@electron-forge/maker-dmg": "^6.0.0-beta.63",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.63",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
+    "@electron-forge/maker-zip": "^6.0.0-beta.63",
+    "electron": "17.2.0"
+  }
+}
