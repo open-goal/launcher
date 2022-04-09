@@ -75,7 +75,7 @@ async function runDecompiler(callback) {
 }
 
 export async function isoSeries() {
-    series([await getISO(), await copyJakISO(), extract, runDecompiler, buildGame], (err, result) => {
+    series([getISO, copyJakISO, extract, runDecompiler, buildGame], (err, result) => {
         if (err) console.log(err);
         if (result) {
             console.log(result);
