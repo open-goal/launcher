@@ -1,12 +1,11 @@
 import { series } from 'async';
 import { extract } from './extract';
-// import { buildGame } from './launch';
 import { open } from '@tauri-apps/api/dialog';
 import { platform } from '@tauri-apps/api/os';
 import { appDir, join } from '@tauri-apps/api/path';
 import { copyFile, createDir, readDir } from '@tauri-apps/api/fs';
-import { message } from '@tauri-apps/api/dialog';
 import { Command } from '@tauri-apps/api/shell';
+import { buildGame } from './launch';
 
 const userDir = await appDir();
 const userPlatform = await platform();
@@ -76,7 +75,7 @@ async function runDecompiler(callback) {
 }
 
 export async function isoSeries() {
-    series([getISO, copyJakISO, extract, runDecompiler], (err, result) => {
+    series([await getISO(), await copyJakISO(), extract, runDecompiler, buildGame], (err, result) => {
         if (err) console.log(err);
         if (result) {
             console.log(result);

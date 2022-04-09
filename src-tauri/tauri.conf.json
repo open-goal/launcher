@@ -72,8 +72,9 @@
             "cmd": "cmd",
             "args": [
               "/C",
-              "gc-no-lt.bat",
-              "(mi)"
+              "goalc.exe",
+              "-v",
+              "-auto-user"
             ]
           },
           {
