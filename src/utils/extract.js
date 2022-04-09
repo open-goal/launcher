@@ -1,46 +1,41 @@
-const { app } = require('electron');
-const path = require('path');
-const { spawn } = require('child_process');
-const _7z = require('7zip')['7z'];
+import { appDir, join } from '@tauri-apps/api/path';
+import { platform } from '@tauri-apps/api/os';
 
-function updateStatus(status) {
-  app.emit('status', status);
-}
+// const _7z = require('7zip')['7z'];
 
 // extract game files from iso -> into jak-project/iso_data/jak1 dir
-function extract(callback) {
-  if (process.platform == 'win32') {
-    updateStatus('Extracting assets from ISO File');
+export async function extract(callback) {
+  if (platform() == 'win32') {
+    const workingDirPath = await appDir();
+    const isoFilePath = `${workingDirPath}/iso/jak.iso`;
+    const outputDirPath = await join(workingDirPath, '/jak-project/iso_data/jak1/');
+    console.log(outputDirPath);
+
     // x: extract with full paths
     // -y: yes to all prompts
     // -w: working directory (appdata/opengoal-launcher dir)
     // -o: output directory (appdata/opengoal-launcher dir/jak-project/iso_data/jak1/)
-    const workingDirPath = app.getPath('userData');
-    const isoFilePath = `${workingDirPath}/iso/jak.iso`;
-    const outputDirPath = path.join(workingDirPath, '/jak-project/iso_data/jak1/');
 
-    const task = spawn(_7z, ['x', isoFilePath, '-y', `-w${workingDirPath}`, `-o${outputDirPath}`]);
-    task.stdout.on('data', (data) => {
-      console.log('stdout: ', data.toString('utf8'));
-    });
-    task.stderr.on('data', (data) => {
-      console.log('stderr: ', data.toString('utf8'));
-    });
-    task.on('close', (code, signal) => {
-      console.log('Exited with code: ', code);
-      if (code === 0) {
-        updateStatus('ISO assests extracted successfully');
-        callback(null, 'ISO assests extracted successfully');
-        return;
-      } else {
-        updateStatus(signal);
-        callback(signal, null);
-        return;
-      }
-    });
-  } else {
-    updateStatus('Unsupported OS');
-    callback('Unsupported OS', null);
+
+    // const task = spawn(_7z, ['x', isoFilePath, '-y', `-w${workingDirPath}`, `-o${outputDirPath}`]);
+
+
+    // task.stdout.on('data', (data) => {
+    //   console.log('stdout: ', data.toString('utf8'));
+    // });
+    // task.stderr.on('data', (data) => {
+    //   console.log('stderr: ', data.toString('utf8'));
+    // });
+    // task.on('close', (code, signal) => {
+    //   console.log('Exited with code: ', code);
+    //   if (code === 0) {
+    //     callback(null, 'ISO assests extracted successfully');
+    //     return;
+    //   } else {
+    //     callback(signal, null);
+    //     return;
+    //   }
+    // });
   }
 }
 
@@ -55,7 +50,3 @@ function extract(callback) {
 //     });
 //   }
 // }
-
-module.exports = {
-  extract
-}

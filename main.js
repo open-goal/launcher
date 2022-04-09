@@ -2,7 +2,7 @@ import './style.css'
 import { actions, general_pane, files_pane, links_pane } from './components/settings/settings';
 import { jak1_main, jak1_sidebar } from './components/jak1/jak1';
 import { invoke } from '@tauri-apps/api/tauri'
-import { open } from '@tauri-apps/api/dialog';
+import { isoSeries } from './src/utils/iso';
 
 const sidebar = document.querySelector('.sidebar');
 
@@ -35,7 +35,6 @@ playBTN.onclick = () => {
   invoke('launch')
 }
 
-configBTN.onclick = async () => {
-  const iso = await open({ options: { multiple: false, directory: true, filters: { extensions: ['iso'] } } });
-  console.log(iso);
+configBTN.onclick = () => {
+  isoSeries();
 }

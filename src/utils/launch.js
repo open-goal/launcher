@@ -10,7 +10,7 @@ function updateStatus(status) {
     app.emit('status', status);
 }
 
-function buildGame(callback) {
+export function buildGame(callback) {
     let compilerScript = null;
 
     if (process.platform === 'win32') {
@@ -51,7 +51,7 @@ function buildGame(callback) {
     }
 }
 
-function launchGame() {
+export function launchGame() {
     let launchScript = null;
 
     if (process.platform === 'win32') {
@@ -73,9 +73,4 @@ function launchGame() {
         });
         return;
     }
-}
-
-module.exports = {
-    buildGame,
-    launchGame
 }
