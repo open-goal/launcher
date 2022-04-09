@@ -5,13 +5,13 @@ import { platform } from '@tauri-apps/api/os';
 
 // extract game files from iso -> into jak-project/iso_data/jak1 dir
 export async function extract(callback) {
-  if (platform() == 'win32') {
+  if (await platform() == 'win32') {
     const workingDirPath = await appDir();
     const isoFilePath = await join(workingDirPath, '/iso/jak.iso');
     const outputDirPath = await join(workingDirPath, '/jak-project/iso_data/jak1/');
     console.log("Output Directory:", outputDirPath);
 
-    return callback(null, 'extracted iso');
+    return 'Extracted iso';
 
     // x: extract with full paths
     // -y: yes to all prompts
@@ -39,7 +39,7 @@ export async function extract(callback) {
     //   }
     // });
   } else {
-    return callback('Unsupported OS');
+    return 'Unsupported OS';
   }
 }
 

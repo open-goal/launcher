@@ -51,7 +51,23 @@
     "allowlist": {
       "all": true,
       "fs": {
-        "scope": ["$APP/", "$APP/iso/*", "$APP/*"]
+        "scope": [
+          "$APP/",
+          "$APP/iso/*",
+          "$APP/*"
+        ]
+      },
+      "shell": {
+        "scope": [
+          {
+            "name": "decomp-windows",
+            "cmd": "cmd",
+            "args": [
+              "/C",
+              "decomp-jak1.bat"
+            ]
+          }
+        ]
       }
     },
     "windows": [
