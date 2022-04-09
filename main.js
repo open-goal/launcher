@@ -2,7 +2,7 @@ import './style.css'
 import { actions, general_pane, files_pane, links_pane } from './components/settings/settings';
 import { jak1_main, jak1_sidebar } from './components/jak1/jak1';
 import { invoke } from '@tauri-apps/api/tauri'
-import { isoSeries } from './src/utils/iso';
+import { isoWaterfall } from './src/utils/iso';
 
 const sidebar = document.querySelector('.sidebar');
 
@@ -36,5 +36,5 @@ playBTN.onclick = () => {
 }
 
 configBTN.onclick = () => {
-  isoSeries();
+  isoWaterfall();
 }

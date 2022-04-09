@@ -1,26 +1,25 @@
+import { waterfall } from 'async';
 import { extract } from './extract';
 // import { buildGame } from './launch';
 import { open } from '@tauri-apps/api/dialog';
 import { platform } from '@tauri-apps/api/os';
 import { appDir, join } from '@tauri-apps/api/path';
 import { copyFile, createDir, readDir } from '@tauri-apps/api/fs';
-import { series } from 'async';
+import { Command } from '@tauri-apps/api/shell';
 
 const userDir = await appDir();
 const userPlatform = await platform();
-let isoPath;
 
-// finished tauri get iso function
+// refactored tauri get iso function
 async function getISO(callback) {
-    const iso = await open({ options: { multiple: false, directory: false, filters: { extensions: ["iso", "ISO"] } } });
-    if (iso) {
-        isoPath = iso;
-        callback(null, 'Received the ISO File from the user!');
+    const isoPath = await open({ options: { multiple: false, directory: false, filters: { extensions: ["iso", "ISO"] } } });
+    if (isoPath) {
+        return (null, isoPath);
     }
 }
 
-// finished tauri copy jak iso function
-async function copyJakISO(callback) {
+// refactored tauri copy jak iso function
+async function copyJakISO(isoPath, callback) {
     const destinationPath = await join(userDir, '/iso/');
 
     try {
@@ -33,24 +32,29 @@ async function copyJakISO(callback) {
     const destination = await join(userDir, '/iso/jak.iso');
     console.log(destination);
     const copyout = await copyFile(isoPath, destination);
-    callback(null, 'Copied Jak ISO to correct directory');
+    return (null, 'Copied ISO to proper directory!');
 }
 
 async function runDecompiler(callback) {
     switch (userPlatform) {
         case 'win32':
             console.log('windows');
+            return ('sad');
             break;
         case 'darwin':
             console.log('mac');
-            callback('Unsupported OS', null);
+            return ('Unsupported OS');
             break;
         case 'linux':
             console.log('linux');
+            return ('Unsupported OS');
             break;
         default:
+            return ('Unsupported OS');
             break;
     }
+
+    // new Command('')
 }
 
 // function runDecompiler(callback) {
@@ -69,9 +73,13 @@ async function runDecompiler(callback) {
 //     }
 // }
 
-export function isoSeries() {
-    // series([getISO, copyJakISO, extract, runDecompiler, buildGame], (err, result) => {
-    series([getISO, copyJakISO, runDecompiler, extract], (err, result) => {
+export function isoWaterfall() {
+    waterfall([
+        getISO,
+        copyJakISO,
+        extract,
+        runDecompiler
+    ], function (err, result) {
         if (err) console.log(err);
         if (result) console.log(result);
     });
