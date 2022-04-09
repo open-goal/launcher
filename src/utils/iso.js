@@ -5,23 +5,22 @@ import { open } from '@tauri-apps/api/dialog';
 import { platform } from '@tauri-apps/api/os';
 import { appDir, join } from '@tauri-apps/api/path';
 import { copyFile, createDir, readDir } from '@tauri-apps/api/fs';
-import { Command } from '@tauri-apps/api/shell';
+// import { Command } from '@tauri-apps/api/shell';
 
 const userDir = await appDir();
 const userPlatform = await platform();
 
 // refactored tauri get iso function
 async function getISO(callback) {
-    const isoPath = await open({ options: { multiple: false, directory: false, filters: { extensions: ["iso", "ISO"] } } });
+    const isoPath = await open({ multiple: false, directory: false, filters: [{ extensions: ['ISO'], name: 'Jak ISO File' }] });
     if (isoPath) {
-        return (null, isoPath);
+        return callback(null, isoPath);
     }
 }
 
 // refactored tauri copy jak iso function
 async function copyJakISO(isoPath, callback) {
     const destinationPath = await join(userDir, '/iso/');
-
     try {
         const files = await readDir(destinationPath);
     } catch (error) {
@@ -30,27 +29,27 @@ async function copyJakISO(isoPath, callback) {
     }
 
     const destination = await join(userDir, '/iso/jak.iso');
-    console.log(destination);
+    console.log("Copy Destination:", destination);
     const copyout = await copyFile(isoPath, destination);
-    return (null, 'Copied ISO to proper directory!');
+    return callback(null, 'Copied ISO to proper directory!');
 }
 
 async function runDecompiler(callback) {
     switch (userPlatform) {
         case 'win32':
             console.log('windows');
-            return ('sad');
+            return callback('sad');
             break;
         case 'darwin':
             console.log('mac');
-            return ('Unsupported OS');
+            return callback('Unsupported OS');
             break;
         case 'linux':
             console.log('linux');
-            return ('Unsupported OS');
+            return callback('Unsupported OS');
             break;
         default:
-            return ('Unsupported OS');
+            return callback('Unsupported OS');
             break;
     }
 
