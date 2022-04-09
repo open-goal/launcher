@@ -66,6 +66,23 @@
               "/C",
               "decomp-jak1.bat"
             ]
+          },
+          {
+            "name": "compile-windows",
+            "cmd": "cmd",
+            "args": [
+              "/C",
+              "gc-no-lt.bat",
+              "(mi)"
+            ]
+          },
+          {
+            "name": "launch-windows",
+            "cmd": "cmd",
+            "args": [
+              "/C",
+              "gk-display.bat"
+            ]
           }
         ]
       }

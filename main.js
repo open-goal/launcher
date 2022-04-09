@@ -1,8 +1,8 @@
 import './style.css'
 import { actions, general_pane, files_pane, links_pane } from './components/settings/settings';
 import { jak1_main, jak1_sidebar } from './components/jak1/jak1';
-import { invoke } from '@tauri-apps/api/tauri'
 import { isoSeries } from './src/utils/iso';
+import { launchGame } from './src/utils/launch';
 
 const sidebar = document.querySelector('.sidebar');
 
@@ -32,7 +32,7 @@ const playBTN = document.querySelector('.play');
 const configBTN = document.querySelector('.config');
 
 playBTN.onclick = () => {
-  invoke('launch');
+  launchGame();
 }
 
 configBTN.onclick = () => {
