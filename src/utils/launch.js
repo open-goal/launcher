@@ -39,34 +39,6 @@ export async function buildGame() {
     }
 }
 
-
-// if (compilerScript) {
-//     // so its not console logging the '100%' when i run it in the series, but when i run it on its own its fine.
-//     // so im going to assume its working properly and its a problem with the way the compiler is outputting the %%%
-//     // for now i have a timeout that will kill the compiler process after 30 seconds because the compiler should be done by then (twice the length it takes my pc at least)
-//     let build = execFile(compilerScript, ['-v', '-auto-user'], { timeout: 30000 });
-//     build.stdout.on('data', data => {
-//         console.log(data.toString().trim());
-//         app.emit('console', data);
-//         if (data.includes('[100%]')) {
-//             updateStatus('Compiled game successfully!');
-//             callback(null, 'Compiled game successfully!');
-//             return;
-//         }
-//     });
-
-//     build.on('close', () => {
-//         updateStatus('Compiled game successfully!');
-//         callback(null, 'Compiled game successfully!');
-//         return;
-//     });
-
-//     let stdinStream = new stream.Readable();
-//     stdinStream.push('(mi)');
-//     stdinStream.push(null);
-//     stdinStream.pipe(build.stdin);
-// }
-
 export async function launchGame() {
     const userPlatform = await platform();
     const jaklaunchPath = await join(await appDir(), '/jak-project/scripts/batch/');
