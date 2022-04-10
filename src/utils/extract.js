@@ -4,26 +4,17 @@ import { platform } from '@tauri-apps/api/os';
 // const _7z = require('7zip')['7z'];
 
 // extract game files from iso -> into jak-project/iso_data/jak1 dir
-export function extract(callback) {
-  async function helper() {
-    if (await platform() == 'win32') {
-      const workingDirPath = await appDir();
-      const isoFilePath = await join(workingDirPath, '/iso/jak.iso');
-      const outputDirPath = await join(workingDirPath, '/jak-project/iso_data/jak1/');
-      console.log("Output Directory:", outputDirPath);
+export async function extract() {
+  if (await platform() == 'win32') {
+    const workingDirPath = await appDir();
+    const isoFilePath = await join(workingDirPath, '/iso/jak.iso');
+    const outputDirPath = await join(workingDirPath, '/jak-project/iso_data/jak1/');
+    console.log("Output Directory:", outputDirPath);
 
-      return [null, 'Extracted iso'];
-    } else {
-      return ['Unsupported OS', null];
-    }
+    return 'Extracted iso';
+  } else {
+    throw new Error('Unsupported OS');
   }
-
-  helper()
-    .then(res => {
-      const [err, response] = res;
-      if (err) return callback(err, null);
-      if (response) return callback(null, response);
-    });
 }
 
 

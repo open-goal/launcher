@@ -72,9 +72,7 @@
             "cmd": "cmd",
             "args": [
               "/C",
-              "goalc.exe",
-              "-v",
-              "-auto-user"
+              "goalc -cmd (mi)"
             ]
           },
           {

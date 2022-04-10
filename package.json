@@ -15,7 +15,6 @@
   "dependencies": {
     "@tauri-apps/api": "^1.0.0-rc.3",
     "7zip": "^0.0.6",
-    "async": "^3.2.3",
     "bootstrap-icons": "^1.8.1"
   }
 }
