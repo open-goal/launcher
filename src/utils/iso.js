@@ -9,17 +9,6 @@ import { buildGame } from './launch';
 const userDir = await appDir();
 let jakISOPath;
 
-// refactored tauri get iso function
-// async function getISO(callback) {
-//     const isoPath = await open({ multiple: false, directory: false, filters: [{ extensions: ['ISO'], name: 'Jak ISO File' }] });
-
-//     if (isoPath) {
-//         jakISOPath = isoPath;
-//         return ('Got the ISO File');
-//     }
-//     throw new Error('No ISO File Selected');
-// }
-
 async function getISO() {
     const isoPath = await open({ multiple: false, directory: false, filters: [{ extensions: ['ISO'], name: 'Jak ISO File' }] });
 
@@ -30,7 +19,6 @@ async function getISO() {
     throw new Error('No ISO File Selected');
 }
 
-// refactored tauri copy jak iso function
 async function copyJakISO() {
     const destinationPath = await join(userDir, '/iso/');
 
@@ -60,14 +48,14 @@ async function runDecompiler() {
             break;
         case 'darwin':
             decompCommand = 'decomp-mac';
-            // return ['Unsupported OS', null];
+            throw new Error('Unsupported OS');
             break;
         case 'linux':
             decompCommand = 'decomp-linux';
-            // return ['Unsupported OS', null];
+            throw new Error('Unsupported OS');
             break;
         default:
-            // return ['Unsupported OS', null];
+            throw new Error('Unsupported OS');
             break;
     }
 
