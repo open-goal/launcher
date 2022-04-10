@@ -60,6 +60,14 @@
       "shell": {
         "scope": [
           {
+            "name": "extract-windows",
+            "cmd": "cmd",
+            "args": [
+              "/C",
+              "7za"
+            ]
+          },
+          {
             "name": "decomp-windows",
             "cmd": "cmd",
             "args": [

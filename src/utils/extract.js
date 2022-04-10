@@ -1,24 +1,38 @@
 import { appDir, join } from '@tauri-apps/api/path';
+import { Command } from '@tauri-apps/api/shell';
 import { platform } from '@tauri-apps/api/os';
-
-// const _7z = require('7zip')['7z'];
 
 // extract game files from iso -> into jak-project/iso_data/jak1 dir
 export async function extract() {
-  if (await platform() == 'win32') {
-    const workingDirPath = await appDir();
-    const isoFilePath = await join(workingDirPath, '/iso/jak.iso');
-    const outputDirPath = await join(workingDirPath, '/jak-project/iso_data/jak1/');
-    console.log("Output Directory:", outputDirPath);
+  const userDir = await appDir();
+  const workingDir = await join(userDir, '/');
+  const outputDir = await join(userDir, '/jak-project/iso_data/jak1/');
+  const isoDir = await join(userDir, '/iso/jak.iso');
 
-    return 'Extracted iso';
-  } else {
-    throw new Error('Unsupported OS');
-  }
+  console.log(workingDir);
+  console.log(outputDir);
+  console.log(isoDir);
+
+  const extract = new Command('extract-windows', ['x', isoDir, 'y', `-w${userDir}`, `-o${outputDir}`]);
+  extract.on('close', data => {
+    console.log(`Extraction finished with code ${data.code} and signal ${data.signal}`);
+    if (data.code === 0) {
+      return 'Extraction finished';
+    }
+    throw new Error('Extraction exited with code:', data.code);
+  });
+  extract.on('error', error => {
+    console.log(`Decomp error: "${error}"`);
+    throw new Error('Extraction failed!');
+  });
+  extract.stdout.on('data', line => {
+    console.log(`Extract stdout: "${line}"`)
+  });
+
+  const child = await extract.spawn();
 }
 
-
-  // x: extract with full paths
+  //  x: extract with full paths
   // -y: yes to all prompts
   // -w: working directory (appdata/opengoal-launcher dir)
   // -o: output directory (appdata/opengoal-launcher dir/jak-project/iso_data/jak1/)

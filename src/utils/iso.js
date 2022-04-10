@@ -81,7 +81,7 @@ export async function isoSeries() {
     return await Promise.resolve()
         .then(getISO)
         .then(copyJakISO)
-        .then(extract)
+        // .then(extract)
         .then(runDecompiler)
         .then(buildGame)
         .then(res => message(res))
