@@ -3,19 +3,45 @@ import { platform } from "@tauri-apps/api/os";
 import { appDir, join } from "@tauri-apps/api/path";
 import { Command } from "@tauri-apps/api/shell";
 
-export async function buildGame(callback) {
-    const userPlatform = await platform();
-    const jakLaunchPath = await join(await appDir(), '/jak-project/out/build/Release/bin/');
+export function buildGame(callback) {
+    async function helper() {
+        const userPlatform = await platform();
+        const jakLaunchPath = await join(await appDir(), '/jak-project/out/build/Release/bin/');
 
-    let compilerScript = null;
+        let compilerScript = null;
 
-    if (userPlatform === 'win32') {
-        compilerScript = 'compile-windows';
-    } else if (userPlatform === 'linux') {
-        compilerScript = 'compile-linux';
-    } else if (userPlatform === 'darwin') {
-        compilerScript = 'compile-mac';
+        if (userPlatform === 'win32') {
+            compilerScript = 'compile-windows';
+        } else if (userPlatform === 'linux') {
+            compilerScript = 'compile-linux';
+        } else if (userPlatform === 'darwin') {
+            compilerScript = 'compile-mac';
+        }
+
+        if (compilerScript) {
+            const compile = new Command(compilerScript, null, { cwd: jakLaunchPath });
+            compile.on('close', data => {
+                console.log(`Compiler finished with code ${data.code} and signal ${data.signal}`);
+                message('Game Ready to play!');
+                return [null, 'Compiler finished'];
+            });
+            compile.on('error', error => {
+                console.error(`Compiler error: "${error}"`);
+            });
+            compile.stdout.on('data', line => console.log(`Compiler stdout: "${line}"`));
+
+            const child = await compile.spawn();
+            child.write('(mi)').then(res => { console.log(res) });
+        }
     }
+
+    helper()
+        .then(res => {
+            // const [err, response] = res;
+            // if (err) return callback(err, null);
+            // if (response) return callback(null, response);
+        })
+
 
     // if (compilerScript) {
     //     // so its not console logging the '100%' when i run it in the series, but when i run it on its own its fine.
@@ -44,20 +70,7 @@ export async function buildGame(callback) {
     //     stdinStream.pipe(build.stdin);
     // }
 
-    if (compilerScript) {
-        const compile = new Command(compilerScript, null, { cwd: jakLaunchPath });
-        compile.on('close', data => {
-            console.log(`Compiler finished with code ${data.code} and signal ${data.signal}`);
-            message('Game Ready to play!');
-            return ('Compiler finished');
-        });
-        compile.on('error', error => {
-            console.error(`Compiler error: "${error}"`);
-        });
-        compile.stdout.on('data', line => console.log(`Compiler stdout: "${line}"`));
 
-        const child = await compile.spawn();
-    }
 }
 
 export async function launchGame() {
