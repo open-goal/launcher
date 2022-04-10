@@ -1,15 +1,9 @@
 {
   "name": "opengoal-launcher",
-  "productName": "OpenGOAL-Launcher",
-  "version": "0.0.1",
-  "description": "OpenGOAL Launcher",
-  "keywords": [],
-  "author": {
-    "name": "trippjoe"
-  },
-  "license": "MIT",
+  "private": true,
+  "version": "0.0.0",
   "scripts": {
-    "dev": "vite serve src-frontend",
+    "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "tauri": "tauri"
@@ -19,6 +13,7 @@
     "vite": "^2.9.0"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1.0.0-rc.3"
+    "@tauri-apps/api": "^1.0.0-rc.3",
+    "bootstrap-icons": "^1.8.1"
   }
 }

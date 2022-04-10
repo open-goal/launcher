@@ -1,11 +1,11 @@
 {
   "package": {
-    "productName": "yeehaw2",
+    "productName": "launcher",
     "version": "0.1.0"
   },
   "build": {
     "distDir": "../dist",
-    "devPath": "http://localhost:3000",
+    "devPath": "http://localhost:3000/",
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build"
   },
@@ -13,7 +13,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "opengoal-launcher",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -49,14 +49,57 @@
       "active": false
     },
     "allowlist": {
-      "all": true
+      "all": true,
+      "fs": {
+        "scope": [
+          "$APP/",
+          "$APP/iso/*",
+          "$APP/*"
+        ]
+      },
+      "shell": {
+        "scope": [
+          {
+            "name": "extract-windows",
+            "cmd": "cmd",
+            "args": [
+              "/C",
+              "7za"
+            ]
+          },
+          {
+            "name": "decomp-windows",
+            "cmd": "cmd",
+            "args": [
+              "/C",
+              "decomp-jak1.bat"
+            ]
+          },
+          {
+            "name": "compile-windows",
+            "cmd": "cmd",
+            "args": [
+              "/C",
+              "goalc -cmd (mi)"
+            ]
+          },
+          {
+            "name": "launch-windows",
+            "cmd": "cmd",
+            "args": [
+              "/C",
+              "gk-display.bat"
+            ]
+          }
+        ]
+      }
     },
     "windows": [
       {
-        "title": "Tauri App",
+        "title": "OpenGOAL Launcher",
         "width": 800,
         "height": 600,
-        "resizable": true,
+        "resizable": false,
         "fullscreen": false
       }
     ],

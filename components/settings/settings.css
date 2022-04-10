@@ -1,0 +1,50 @@
+.pane {
+  display: flex;
+  background-color: var(--bg-blue);
+  opacity: 90%;
+  border-radius: 5px;
+  box-shadow: inset 0px 0px 20px #000;
+  height: 100vh;
+  margin: 20px;
+}
+
+i {
+  font-size: 2em;
+  color: white;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  height: 50vh;
+}
+
+.return {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 25vh;
+}
+
+ul {
+  margin: 0;
+  list-style: none;
+}
+
+#links {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+}
+
+#links a,
+#links i {
+  text-decoration: none;
+  color: white;
+  margin: 10px 0;
+}
