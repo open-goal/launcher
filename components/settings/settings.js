@@ -4,11 +4,11 @@ export const actions = `<div class="actions">
 <div class="general nav-item" data-tooltip="General">
   <i class="bi bi-sliders2-vertical" key="general"></i>
 </div>
-<div class="links nav-item" data-tooltip="Links">
-  <i class="bi bi-link-45deg" key="links"></i>
-</div>
 <div class="Files nav-item" data-tooltip="Files">
   <i class="bi bi-folder2" key="files"></i>
+</div>
+<div class="links nav-item" data-tooltip="Links">
+  <i class="bi bi-link-45deg" key="links"></i>
 </div>
 </div>
 
