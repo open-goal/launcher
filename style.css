@@ -1,9 +1,24 @@
 * {
   -webkit-user-drag: none;
+  font-family: 'AdventPro', sans-serif;
 }
 
 :root {
   --bg-blue: #1B202B;
+}
+
+@font-face {
+  font-family: 'AdventPro';
+  font-style: normal;
+  font-weight: 400;
+  src: url('src/assets/fonts/AdventPro-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'AdventPro';
+  font-style: normal;
+  font-weight: 700;
+  src: url('src/assets/fonts/AdventPro-Bold.ttf');
 }
 
 body {
@@ -11,15 +26,8 @@ body {
   padding: 0;
   margin: 0;
   overflow: hidden;
-}
-
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  font-style: normal;
+  font-weight: 400;
 }
 
 .video-container {
@@ -77,10 +85,19 @@ body {
   opacity: 50%;
 }
 
+.nav-item.active {
+  filter: grayscale(0%);
+}
+
 .nav-item:hover {
   filter: grayscale(0%);
   opacity: 100%;
   cursor: pointer;
+}
+
+.nav-item.disabled:hover, .nav-item.disabled {
+  cursor: not-allowed;
+  filter: grayscale(100%);
 }
 
 .nav-item a::before,
@@ -158,10 +175,18 @@ body {
   font-size: x-large;
   letter-spacing: 3px;
   color: white;
-  box-shadow: 0px 0px 20px rgba(0, 0, 0, .5);
-  text-shadow: 0 0 5px black;
+  border: black 1px solid;
+  text-shadow:
+   -1px -1px 0 #000,  
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+     1px 1px 0 #000;
   border-radius: 5px;
   transition: all 0.1s ease;
+}
+
+.buttons > button:not(:last-child) {
+  margin-right: 1em;
 }
 
 .buttons button:active {
@@ -171,4 +196,5 @@ body {
 
 .buttons button:hover {
   cursor: pointer;
+  color: orange;
 }

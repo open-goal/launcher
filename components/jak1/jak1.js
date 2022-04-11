@@ -1,5 +1,7 @@
+// TODO some minimal templating might help - https://olado.github.io/doT/index.html
+
 export const jak1_sidebar = `<div class="games">
-<div class="jak-1 nav-item">
+<div class="jak-1 nav-item active">
   <a data-tooltip="Jak & Daxter: The Precursor Legacy">
     <img src="src/assets/images/jak-tpl.png">
   </a>
@@ -36,8 +38,5 @@ export const jak1_main = `<div class="flex-center">
   <img id="logo" width="65%" src="src/assets/images/logo.png">
 </div>
 
-<div class="buttons">
-  <button class="config">CONFIG</button>
-  <button class="play">PLAY</button>
-</div>
+<div class="buttons" id="launcherControls"></div>
 </div>`;
