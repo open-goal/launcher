@@ -26,15 +26,51 @@ sidebar.onclick = e => {
       document.querySelector('.main').innerHTML = files_pane;
       break;
   }
+  renderControls();
 }
 
-const playBTN = document.querySelector('.play');
-const configBTN = document.querySelector('.config');
+class SupportedGame {
+  static Jak1 = new SupportedGame("Jak 1")
+  static Jak2 = new SupportedGame("Jak 2")
+  static Jak3 = new SupportedGame("Jak 3")
+  static JakX = new SupportedGame("Jak X")
 
-playBTN.onclick = () => {
-  launchGame();
+  constructor(name) {
+    this.name = name
+  }
 }
 
-configBTN.onclick = () => {
-  isoSeries();
+function isGameSetup(supportedGame) {
+  if (supportedGame == SupportedGame.Jak1) {
+    // TODO - check the installation directory and such, wherever that ends up being
+    // return false for now
+    return false;
+  } else {
+    return false;
+  }
+}
+
+// TODO - detect last played game, right now its assumed that jak 1 is always selected by default
+let activeGame = SupportedGame.Jak1;
+
+renderControls();
+
+function renderControls() {
+  if (document.getElementById("launcherControls") == undefined) {
+    return;
+  }
+  if (isGameSetup(activeGame)) {
+    document.getElementById("launcherControls").innerHTML += `<button id="configBtn">CONFIG</button><button id="playBtn">PLAY</button>`;
+    document.getElementById("playBtn").onclick = () => {
+      launchGame();
+    }
+    document.getElementById("configBtn").onclick = () => {
+      // TODO
+    }
+  } else {
+    document.getElementById("launcherControls").innerHTML += `<button id="setupBtn">SETUP</button>`;
+    document.getElementById("setupBtn").onclick = () => {
+      isoSeries();
+    }
+  }
 }
