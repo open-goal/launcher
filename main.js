@@ -3,6 +3,7 @@ import { actions, general_pane, files_pane, links_pane } from './components/sett
 import { jak1_main, jak1_sidebar } from './components/jak1/jak1';
 import { isoSeries } from './src/utils/iso';
 import { launchGame } from './src/utils/launch';
+import { getInstallStatus } from './src/utils/store';
 
 const sidebar = document.querySelector('.sidebar');
 
@@ -40,11 +41,11 @@ class SupportedGame {
   }
 }
 
-function isGameSetup(supportedGame) {
+async function isGameSetup(supportedGame) {
   if (supportedGame == SupportedGame.Jak1) {
     // TODO - check the installation directory and such, wherever that ends up being
-    // return false for now
-    return false;
+    const isInstalled = await getInstallStatus(supportedGame.name);
+    return isInstalled;
   } else {
     return false;
   }
@@ -55,12 +56,12 @@ let activeGame = SupportedGame.Jak1;
 
 renderControls();
 
-function renderControls() {
+export async function renderControls() {
   if (document.getElementById("launcherControls") == undefined) {
     return;
   }
-  if (isGameSetup(activeGame)) {
-    document.getElementById("launcherControls").innerHTML += `<button id="configBtn">CONFIG</button><button id="playBtn">PLAY</button>`;
+  if (await isGameSetup(activeGame)) {
+    document.getElementById("launcherControls").innerHTML = `<button id="configBtn">CONFIG</button><button id="playBtn">PLAY</button>`;
     document.getElementById("playBtn").onclick = () => {
       launchGame();
     }
@@ -68,7 +69,7 @@ function renderControls() {
       // TODO
     }
   } else {
-    document.getElementById("launcherControls").innerHTML += `<button id="setupBtn">SETUP</button>`;
+    document.getElementById("launcherControls").innerHTML = `<button id="setupBtn">SETUP</button>`;
     document.getElementById("setupBtn").onclick = () => {
       isoSeries();
     }

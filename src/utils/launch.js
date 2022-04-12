@@ -2,6 +2,7 @@ import { message } from "@tauri-apps/api/dialog";
 import { platform } from "@tauri-apps/api/os";
 import { appDir, join } from "@tauri-apps/api/path";
 import { Command } from "@tauri-apps/api/shell";
+import { setInstallStatus } from '../utils/store';
 
 export async function buildGame() {
     const userPlatform = await platform();
@@ -23,6 +24,7 @@ export async function buildGame() {
             console.log(`Compiler finished with code ${data.code} and signal ${data.signal}`);
             if (data.code === 0) {
                 message('Game Ready to play!');
+                setInstallStatus();
                 return 'Compiler finished';
             } else {
                 message('Game Ready to play!');
