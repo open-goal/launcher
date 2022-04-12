@@ -46,7 +46,7 @@ body {
   opacity: 0.35;
 }
 
-#background {
+#backgroundVideo {
   z-index: -1;
   height: 100vh;
 }
@@ -55,7 +55,7 @@ body {
   display: flex;
 }
 
-.sidebar {
+#sidebar {
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -66,7 +66,7 @@ body {
   max-width: 10vw;
 }
 
-.sidebar:hover {
+#sidebar:hover {
   opacity: 100%;
 }
 
@@ -145,7 +145,7 @@ body {
   font-size: 35px;
 }
 
-.main {
+#main {
   display: flex;
   justify-content: center;
   flex-direction: column;
