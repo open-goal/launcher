@@ -1,67 +1,35 @@
 import './style.css'
 import { actions, general_pane, files_pane, links_pane } from './components/settings/settings';
-import { jak1_main, jak1_sidebar } from './components/jak1/jak1';
 import { isoSeries } from './src/utils/iso';
 import { launchGame } from './src/utils/launch';
-import { getInstallStatus } from './src/utils/store';
+import { initConfig, getInstallStatus, getLastActiveGame, SupportedGame } from './src/config/config';
+import { mainTemplate } from './src/views/main.dot';
+import { sidebarTemplate } from './src/views/sidebar.dot';
 
-const sidebar = document.querySelector('.sidebar');
+// Main App Startup Routine
+(async function () {
+  // Create the default or load the config
+  await initConfig();
+  // Render the App
+  await renderApp();
+}());
 
-sidebar.onclick = e => {
-  switch (e.target.getAttribute('key')) {
-    case 'return':
-      document.querySelector('.main').innerHTML = jak1_main;
-      document.querySelector('.sidebar').innerHTML = jak1_sidebar;
-      break;
-    case 'settings':
-      document.querySelector('.main').innerHTML = general_pane;
-      document.querySelector('.sidebar').innerHTML = actions;
-      break;
-    case 'general':
-      document.querySelector('.main').innerHTML = general_pane;
-      break;
-    case 'links':
-      document.querySelector('.main').innerHTML = links_pane;
-      break;
-    case 'files':
-      document.querySelector('.main').innerHTML = files_pane;
-      break;
-  }
-  renderControls();
-}
+// Main App Rendering Handler
+async function renderApp() {
+  const activeGame = await getLastActiveGame();
+  const gameInstalled = await getInstallStatus(activeGame);
+  document.getElementById("sidebar").innerHTML = sidebarTemplate({
+    jak1Active: activeGame.name == SupportedGame.Jak1.name,
+    jak2Active: activeGame.name == SupportedGame.Jak2.name,
+    jak3Active: activeGame.name == SupportedGame.Jak3.name,
+    jakxActive: activeGame.name == SupportedGame.JakX.name,
+  });
+  document.getElementById("main").innerHTML = mainTemplate({
+    gameInstalled: gameInstalled
+  });
 
-class SupportedGame {
-  static Jak1 = new SupportedGame("Jak 1")
-  static Jak2 = new SupportedGame("Jak 2")
-  static Jak3 = new SupportedGame("Jak 3")
-  static JakX = new SupportedGame("Jak X")
-
-  constructor(name) {
-    this.name = name
-  }
-}
-
-async function isGameSetup(supportedGame) {
-  if (supportedGame == SupportedGame.Jak1) {
-    // TODO - check the installation directory and such, wherever that ends up being
-    const isInstalled = await getInstallStatus(supportedGame.name);
-    return isInstalled;
-  } else {
-    return false;
-  }
-}
-
-// TODO - detect last played game, right now its assumed that jak 1 is always selected by default
-let activeGame = SupportedGame.Jak1;
-
-renderControls();
-
-export async function renderControls() {
-  if (document.getElementById("launcherControls") == undefined) {
-    return;
-  }
-  if (await isGameSetup(activeGame)) {
-    document.getElementById("launcherControls").innerHTML = `<button id="configBtn">CONFIG</button><button id="playBtn">PLAY</button>`;
+  // Setup Event Handlers
+  if (gameInstalled) {
     document.getElementById("playBtn").onclick = () => {
       launchGame();
     }
@@ -69,9 +37,33 @@ export async function renderControls() {
       // TODO
     }
   } else {
-    document.getElementById("launcherControls").innerHTML = `<button id="setupBtn">SETUP</button>`;
     document.getElementById("setupBtn").onclick = () => {
       isoSeries();
+    }
+  }
+
+  const sidebar = document.getElementById('sidebar');
+
+  // TODO - not cleaned up yet!
+  sidebar.onclick = e => {
+    switch (e.target.getAttribute('key')) {
+      case 'return':
+        document.getElementById('main').innerHTML = jak1_main;
+        document.getElementById('sidebar').innerHTML = jak1_sidebar;
+        break;
+      case 'settings':
+        document.getElementById('main').innerHTML = general_pane;
+        document.getElementById('sidebar').innerHTML = actions;
+        break;
+      case 'general':
+        document.getElementById('main').innerHTML = general_pane;
+        break;
+      case 'links':
+        document.getElementById('main').innerHTML = links_pane;
+        break;
+      case 'files':
+        document.getElementById('main').innerHTML = files_pane;
+        break;
     }
   }
 }
