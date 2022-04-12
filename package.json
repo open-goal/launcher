@@ -6,10 +6,12 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "tauricon": "tauricon"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.0.0-rc.8",
+    "@tauri-apps/tauricon": "github:tauri-apps/tauricon",
     "vite": "^2.9.0"
   },
   "dependencies": {
