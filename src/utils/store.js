@@ -1,17 +1,24 @@
 import { Store } from 'tauri-plugin-store-api';
 import { renderControls } from '../../main';
-import { readTextFile, writeFile } from '@tauri-apps/api/fs';
+import { createDir, readTextFile, writeFile } from '@tauri-apps/api/fs';
 import { appDir, join } from '@tauri-apps/api/path';
 
 const store = new Store('settings.json');
+
+// TODO - a general -- does a file exist function -- would be nice
 
 (async function initStore() {
   const path = await join(await appDir(), 'settings.json');
   try {
     await readTextFile(path);
   } catch (error) {
-    const initSettings = `{"Jak 1": {"installed": false},"Jak 2": {"installed": false},"Jak 3": {"installed": false}}`;
-    const x = await writeFile({ contents: initSettings, path: path });
+    await createDir(await appDir(), { recursive: true });
+    const initSettings = {
+      "Jak 1": { "installed": false },
+      "Jak 2": { "installed": false },
+      "Jak 3": { "installed": false }
+    };
+    const x = await writeFile({ contents: JSON.stringify(initSettings, null, 2), path: path });
     console.log('Created settings.json file');
     // once again probably not a good idea to use this render function here
     renderControls();
