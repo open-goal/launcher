@@ -197,12 +197,12 @@ body {
   margin-right: 1em;
 }
 
-.btn:active {
+.btn:enabled:active {
   transform: scale(0.9);
   box-shadow: 0px 0px 20px rgba(0, 0, 0, 1);
 }
 
-.btn:hover {
+.btn:enabled:hover {
   cursor: pointer;
   color: orange;
   text-shadow:
@@ -210,6 +210,15 @@ body {
     1px -1px 0 #000,
     -1px 1px 0 #000,
      1px 1px 0 #000;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  filter: opacity(50%);
+}
+
+.btn:disabled:hover {
+  cursor: not-allowed;
 }
 
 .loader {
@@ -238,9 +247,17 @@ body {
 }
 
 .details-bg {
-  background: grey;
+  background-color: grey;
   padding: 0.25em;
   border-radius: 0.25em;
+  font-size: 1em;
+  font-family: monospace;
+  color: black;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  max-height: 10em;
+  /* TODO - scrolling flickers due to image (maybe the overlay?) */
+  overflow-y: scroll;
 }
 
 .row {

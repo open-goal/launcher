@@ -7,10 +7,10 @@ export let mainTemplate = doT.template(`
   </div>
   <div id="launcherControls">
   {{? it.gameInstalled }}
-    <button class="btn" id="configBtn">CONFIG</button>
-    <button class="btn" id="playBtn">PLAY</button>
+    <button class="btn lg" id="configBtn" disabled>Config</button>
+    <button class="btn lg" id="playBtn">Play</button>
   {{?? true }}
-    <button class="btn" id="setupBtn">SETUP</button>
+    <button class="btn lg" id="setupBtn">Setup</button>
   {{?}}
   </div>
 </div>
@@ -21,34 +21,30 @@ export let setupTemplate = doT.template(`
   <h1>Setup Process</h1>
   <p>Browse for your ISO - this should be a copy you obtain legitimately via dumping your official copy</p>
   <div>
-    <button class="btn">Browse for ISO</button>
-    File Path
+    <button class="btn" id="browseForIsoBtn">Browse for ISO</button>
+    <span id="filePathLabel"></span>
   </div>
   <div>
     <h2>Progress</h2>
     <ul>
       <li>
-        <span class="progress-row">
-          <div class="loader"></div>
-          Extracting ISO
+        <span class="progress-row" id="progressExtract">
+          ⏳ Extracting ISO
         </span>
       </li>
       <li>
-        <span class="progress-row">
-          ✅
-          Validating Game Data
+        <span class="progress-row" id="progressValidating">
+          ⏳ Validating Game Data
         </span>
       </li>
       <li>
-        <span class="progress-row">
-          ❌
-          Decompiling Game Data
+        <span class="progress-row" id="progressDecompile">
+          ⏳ Decompiling Game Data
         </span>
       </li>
       <li>
-        <span class="progress-row">
-          🕓
-          Compiling the Game
+        <span class="progress-row" id="progressCompile">
+          ⏳ Compiling the Game
         </span>
       </li>
     </ul>
@@ -56,11 +52,9 @@ export let setupTemplate = doT.template(`
   <div class="row">
     <details>
       <summary>Installation Logs</summary>
-      <div class="details-bg">
-        Stuff
-      </div>
+      <div class="details-bg" id="installLogs"></div>
     </details>
   </div>
-  <button class="btn">Cancel</button>
+  <button class="btn" id="cancelBtn" disabled>Cancel</button>
 </div>
 `);

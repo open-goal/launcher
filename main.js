@@ -1,10 +1,11 @@
 import './style.css'
 import { actions, general_pane, files_pane, links_pane } from './components/settings/settings';
-import { isoSeries } from './src/utils/iso';
 import { launchGame } from './src/utils/launch';
-import { initConfig, getInstallStatus, getLastActiveGame, SupportedGame } from './src/config/config';
+import { initConfig, getInstallStatus, getLastActiveGame, SupportedGame, setInstallStatus } from './src/config/config';
 import { mainTemplate, setupTemplate } from './src/views/main.dot';
 import { sidebarTemplate } from './src/views/sidebar.dot';
+import { filePrompt } from './src/utils/file'
+import { compileGame, decompileGameData, extractISO, validateGameData } from './src/utils/setup';
 
 // Main App Startup Routine
 (async function () {
@@ -15,11 +16,12 @@ import { sidebarTemplate } from './src/views/sidebar.dot';
 }());
 
 // State
-let settingUpGame = true;
+let settingUpGame = false;
+let activeGame;
 
 // Main App Rendering Handler
 async function renderApp() {
-  const activeGame = await getLastActiveGame();
+  activeGame = await getLastActiveGame();
   const gameInstalled = await getInstallStatus(activeGame);
   document.getElementById("sidebar").innerHTML = sidebarTemplate({
     jak1Active: activeGame.name == SupportedGame.Jak1.name,
@@ -44,7 +46,7 @@ async function renderApp() {
     } else {
       document.getElementById("setupBtn").onclick = async () => {
         settingUpGame = true;
-        await renderSetupProcess();
+        renderSetupProcess();
       }
     }
   } else {
@@ -78,6 +80,52 @@ async function renderApp() {
 }
 
 async function renderSetupProcess() {
-  document.getElementById("main").innerHTML = setupTemplate({
-  });
+  document.getElementById("main").innerHTML = setupTemplate({});
+
+  // Setup Event Handlers
+  document.getElementById("browseForIsoBtn").onclick = async () => {
+    // Get the file path
+    let isoPath = await filePrompt();
+    document.getElementById("filePathLabel").innerHTML = isoPath;
+    // Disable the cancel button, the user has committed!
+    document.getElementById("cancelBtn").disabled = true;
+    // Extract ISO
+    document.getElementById("progressExtract").innerHTML = `<div class="loader"></div>Extracting ISO`;
+    let output = await extractISO(isoPath);
+    document.getElementById("progressExtract").innerHTML = `${output.code === 0 ? "✅" : "❌"} Extracting ISO`;
+    // TODO - logs should go to a file
+    document.getElementById("installLogs").innerHTML += output.stdout.replaceAll("\n", "<br>") + output.stderr.replaceAll("\n", "<br>");
+    // Validate
+    if (output.code === 0) {
+      document.getElementById("progressValidating").innerHTML = `<div class="loader"></div>Validating Game Data`;
+      output = await validateGameData(isoPath);
+      document.getElementById("progressValidating").innerHTML = `${output.code === 0 ? "✅" : "❌"} Validating Game Data`;
+      document.getElementById("installLogs").innerHTML += output.stdout.replaceAll("\n", "<br>") + output.stderr.replaceAll("\n", "<br>");
+    }
+    // Decompiling
+    if (output.code === 0) {
+      document.getElementById("progressDecompile").innerHTML = `<div class="loader"></div>Decompiling Game Data`;
+      output = await decompileGameData(isoPath);
+      document.getElementById("progressDecompile").innerHTML = `${output.code === 0 ? "✅" : "❌"} Decompiling Game Data`;
+      document.getElementById("installLogs").innerHTML += output.stdout.replaceAll("\n", "<br>") + output.stderr.replaceAll("\n", "<br>");
+    }
+    // Compile
+    if (output.code === 0) {
+      document.getElementById("progressCompile").innerHTML = `<div class="loader"></div>Compiling the Game`;
+      output = await compileGame(isoPath);
+      document.getElementById("progressCompile").innerHTML = `${output.code === 0 ? "✅" : "❌"} Compiling the Game`;
+      document.getElementById("installLogs").innerHTML += output.stdout.replaceAll("\n", "<br>") + output.stderr.replaceAll("\n", "<br>");
+    }
+    // Update Settings
+    if (output.code === 0) {
+      await setInstallStatus(activeGame, true);
+      settingUpGame = false;
+      // Re-Render
+      renderApp();
+    }
+  }
+  document.getElementById("cancelBtn").onclick = () => {
+    settingUpGame = false;
+    renderApp();
+  }
 }
