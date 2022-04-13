@@ -32,8 +32,6 @@ export class SupportedGame {
 const key_lastActiveGame = "lastActiveGame";
 const store = new Store('settings.json');
 
-// TODO - a general -- does a file exist function -- would be nice
-
 export async function initConfig() {
   const path = await join(await appDir(), 'settings.json');
   try {

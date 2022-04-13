@@ -3,7 +3,7 @@ import { actions, general_pane, files_pane, links_pane } from './components/sett
 import { isoSeries } from './src/utils/iso';
 import { launchGame } from './src/utils/launch';
 import { initConfig, getInstallStatus, getLastActiveGame, SupportedGame } from './src/config/config';
-import { mainTemplate } from './src/views/main.dot';
+import { mainTemplate, setupTemplate } from './src/views/main.dot';
 import { sidebarTemplate } from './src/views/sidebar.dot';
 
 // Main App Startup Routine
@@ -13,6 +13,9 @@ import { sidebarTemplate } from './src/views/sidebar.dot';
   // Render the App
   await renderApp();
 }());
+
+// State
+let settingUpGame = true;
 
 // Main App Rendering Handler
 async function renderApp() {
@@ -24,22 +27,28 @@ async function renderApp() {
     jak3Active: activeGame.name == SupportedGame.Jak3.name,
     jakxActive: activeGame.name == SupportedGame.JakX.name,
   });
-  document.getElementById("main").innerHTML = mainTemplate({
-    gameInstalled: gameInstalled
-  });
 
-  // Setup Event Handlers
-  if (gameInstalled) {
-    document.getElementById("playBtn").onclick = () => {
-      launchGame();
-    }
-    document.getElementById("configBtn").onclick = () => {
-      // TODO
+  if (!settingUpGame) {
+    document.getElementById("main").innerHTML = mainTemplate({
+      gameInstalled: gameInstalled
+    });
+
+    // Setup Event Handlers
+    if (gameInstalled) {
+      document.getElementById("playBtn").onclick = () => {
+        launchGame();
+      }
+      document.getElementById("configBtn").onclick = () => {
+        // TODO
+      }
+    } else {
+      document.getElementById("setupBtn").onclick = async () => {
+        settingUpGame = true;
+        await renderSetupProcess();
+      }
     }
   } else {
-    document.getElementById("setupBtn").onclick = () => {
-      isoSeries();
-    }
+    await renderSetupProcess();
   }
 
   const sidebar = document.getElementById('sidebar');
@@ -66,4 +75,9 @@ async function renderApp() {
         break;
     }
   }
+}
+
+async function renderSetupProcess() {
+  document.getElementById("main").innerHTML = setupTemplate({
+  });
 }
