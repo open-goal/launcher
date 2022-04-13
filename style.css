@@ -1,6 +1,6 @@
 * {
   -webkit-user-drag: none;
-  font-family: 'AdventPro', sans-serif;
+  font-family: 'Oswald', sans-serif;
 }
 
 :root {
@@ -21,6 +21,11 @@
   src: url('src/assets/fonts/AdventPro-Bold.ttf');
 }
 
+@font-face {
+  font-family: 'Oswald';
+  src: url('src/assets/fonts/Oswald-VariableFont_wght.ttf');
+}
+
 body {
   height: 100vh;
   padding: 0;
@@ -28,6 +33,7 @@ body {
   overflow: hidden;
   font-style: normal;
   font-weight: 400;
+  color: white;
 }
 
 .video-container {
