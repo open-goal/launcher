@@ -11,19 +11,19 @@
   font-family: 'AdventPro';
   font-style: normal;
   font-weight: 400;
-  src: url('src/assets/fonts/AdventPro-Regular.ttf');
+  src: url('/src/assets/fonts/AdventPro-Regular.ttf');
 }
 
 @font-face {
   font-family: 'AdventPro';
   font-style: normal;
   font-weight: 700;
-  src: url('src/assets/fonts/AdventPro-Bold.ttf');
+  src: url('/src/assets/fonts/AdventPro-Bold.ttf');
 }
 
 @font-face {
   font-family: 'Oswald';
-  src: url('src/assets/fonts/Oswald-VariableFont_wght.ttf');
+  src: url('/src/assets/fonts/Oswald-VariableFont_wght.ttf');
 }
 
 body {
@@ -66,7 +66,7 @@ body {
   flex-direction: column;
   height: 100vh;
   background-color: var(--bg-blue);
-  opacity: 50%;
+  opacity: 65%;
   transition: 500ms ease;
   width: 10vw;
   max-width: 10vw;

@@ -6,7 +6,7 @@ function isInDebugMode() {
   return process.env.NODE_ENV === "development";
 }
 
-// TODO - this is kind of a total hack
+// TODO - this is kind of a total hack - likely windows only currently
 let debugPath;
 if (isInDebugMode()) {
   let path = await resourceDir();
@@ -14,9 +14,6 @@ if (isInDebugMode()) {
   debugPath += "\\launcher\\bundle-test\\data";
 }
 
-/**
- * @returns {Promise<ChildProcess>}
- */
 export async function launchGame() {
   let command;
   if (isInDebugMode()) {
@@ -24,6 +21,5 @@ export async function launchGame() {
   } else {
     command = Command.sidecar('bin/gk', ["-boot", "-fakeiso", "-debug"], { cwd: 'bin' });
   }
-
-  return await command.execute();
+  command.execute();
 }
