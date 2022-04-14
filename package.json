@@ -7,7 +7,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "tauricon": "tauricon"
+    "tauricon": "tauricon",
+    "package": "node ./scripts/rename-binaries.js",
+    "update-bin": "node ./scripts/update-binaries.js && npm run package"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.0.0-rc.8",

@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Test directory / game launching artifacts
+bundle-test/
+imgui.ini

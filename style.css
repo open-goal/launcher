@@ -1,6 +1,6 @@
 * {
   -webkit-user-drag: none;
-  font-family: 'AdventPro', sans-serif;
+  font-family: 'Oswald', sans-serif;
 }
 
 :root {
@@ -21,6 +21,11 @@
   src: url('src/assets/fonts/AdventPro-Bold.ttf');
 }
 
+@font-face {
+  font-family: 'Oswald';
+  src: url('src/assets/fonts/Oswald-VariableFont_wght.ttf');
+}
+
 body {
   height: 100vh;
   padding: 0;
@@ -28,6 +33,7 @@ body {
   overflow: hidden;
   font-style: normal;
   font-weight: 400;
+  color: white;
 }
 
 .video-container {
@@ -40,7 +46,7 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  background-color: whitesmoke;
+  background-color: #181818;
   width: 100%;
   height: 100vh;
   opacity: 0.35;
@@ -165,36 +171,100 @@ body {
   margin: 15px 0;
 }
 
-.buttons > button {
+.btn {
   text-align: center;
-  min-width: 200px;
-  padding: 10px 0;
   background: linear-gradient(to top, #F3B33F, #FBEC4F);
   border: none;
-  font-weight: bold;
-  font-size: x-large;
-  letter-spacing: 3px;
-  color: white;
+  padding: 0.25em;
+  padding-left: 1em;
+  padding-right: 1em;
+  font-size: 1em;
   border: black 1px solid;
-  text-shadow:
-   -1px -1px 0 #000,  
-    1px -1px 0 #000,
-    -1px 1px 0 #000,
-     1px 1px 0 #000;
+  font-weight: 700;
   border-radius: 5px;
   transition: all 0.1s ease;
+  color: black;
 }
 
-.buttons > button:not(:last-child) {
+.btn.lg {
+  min-width: 200px;
+  padding: 10px 0;
+  font-weight: bold;
+  font-size: x-large;
+}
+
+.btn:not(:last-child) {
   margin-right: 1em;
 }
 
-.buttons button:active {
+.btn:enabled:active {
   transform: scale(0.9);
   box-shadow: 0px 0px 20px rgba(0, 0, 0, 1);
 }
 
-.buttons button:hover {
+.btn:enabled:hover {
   cursor: pointer;
   color: orange;
+  text-shadow:
+   -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+     1px 1px 0 #000;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  filter: opacity(50%);
+}
+
+.btn:disabled:hover {
+  cursor: not-allowed;
+}
+
+.loader {
+  border: 0.25em solid #f3f3f3;
+  margin-right: 0.5em;
+  margin-left: 0.1em;
+  border-top: 0.25em solid #3498db;
+  border-radius: 100%;
+  width: 0.5em;
+  height: 0.5em;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.progress-row {
+  display: flex;
+  align-items: center;
+}
+
+.content {
+  padding: 2em;
+}
+
+.details-bg {
+  background-color: grey;
+  padding: 0.25em;
+  border-radius: 0.25em;
+  font-size: 1em;
+  font-family: monospace;
+  color: black;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  max-height: 10em;
+  /* TODO - scrolling flickers due to image (maybe the overlay?) */
+  overflow-y: scroll;
+}
+
+.row {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+details > summary:hover {
+  cursor: pointer;
 }

@@ -6,8 +6,8 @@
   "build": {
     "distDir": "../dist",
     "devPath": "http://localhost:3000/",
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "beforeDevCommand": "npm run package && npm run dev",
+    "beforeBuildCommand": "npm run package && npm run build"
   },
   "tauri": {
     "bundle": {
@@ -22,7 +22,7 @@
         "icons/icon.ico"
       ],
       "resources": [],
-      "externalBin": [],
+      "externalBin": ["bin/extractor", "bin/gk", "bin/goalc"],
       "copyright": "",
       "category": "DeveloperTool",
       "shortDescription": "",
@@ -58,40 +58,24 @@
         ]
       },
       "shell": {
-        "scope": [
-          {
-            "name": "extract-windows",
-            "cmd": "cmd",
-            "args": [
-              "/C",
-              "7za"
-            ]
-          },
-          {
-            "name": "decomp-windows",
-            "cmd": "cmd",
-            "args": [
-              "/C",
-              "decomp-jak1.bat"
-            ]
-          },
-          {
-            "name": "compile-windows",
-            "cmd": "cmd",
-            "args": [
-              "/C",
-              "goalc -cmd (mi)"
-            ]
-          },
-          {
-            "name": "launch-windows",
-            "cmd": "cmd",
-            "args": [
-              "/C",
-              "gk-display.bat"
-            ]
-          }
-        ]
+        "scope": [{
+          "name": "bin/extractor",
+          "sidecar": true,
+          "cmd": "ignored",
+          "args": true
+        },
+        {
+          "name": "bin/gk",
+          "sidecar": true,
+          "cmd": "ignored",
+          "args": true
+        },
+      {
+          "name": "bin/goalc",
+          "sidecar": true,
+          "cmd": "ignored",
+          "args": true
+        }]
       }
     },
     "windows": [
