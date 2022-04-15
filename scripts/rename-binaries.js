@@ -3,8 +3,8 @@
  * When `tauri build` is ran, it looks for the binary name appended with the platform specific postfix.
  */
 
-const execa = require('execa')
-const fs = require('fs')
+import {execa} from 'execa';
+import { existsSync, renameSync } from 'fs'
 
 let extension = ''
 if (process.platform === 'win32') {
@@ -17,20 +17,20 @@ async function main() {
   if (!targetTriple) {
     console.error('Failed to determine platform target triple')
   }
-  if (fs.existsSync(`src-tauri/bin/extractor${extension}`)) {
-    fs.renameSync(
+  if (existsSync(`src-tauri/bin/extractor${extension}`)) {
+    renameSync(
       `src-tauri/bin/extractor${extension}`,
       `src-tauri/bin/extractor-${targetTriple}${extension}`
     )
   }
-  if (fs.existsSync(`src-tauri/bin/gk${extension}`)) {
-    fs.renameSync(
+  if (existsSync(`src-tauri/bin/gk${extension}`)) {
+    renameSync(
       `src-tauri/bin/gk${extension}`,
       `src-tauri/bin/gk-${targetTriple}${extension}`
     )
   }
-  if (fs.existsSync(`src-tauri/bin/goalc${extension}`)) {
-    fs.renameSync(
+  if (existsSync(`src-tauri/bin/goalc${extension}`)) {
+    renameSync(
       `src-tauri/bin/goalc${extension}`,
       `src-tauri/bin/goalc-${targetTriple}${extension}`
     )

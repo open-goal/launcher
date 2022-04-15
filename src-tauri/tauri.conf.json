@@ -1,6 +1,6 @@
 {
   "package": {
-    "productName": "launcher",
+    "productName": "opengoal-launcher",
     "version": "0.1.0"
   },
   "build": {

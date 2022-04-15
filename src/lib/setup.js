@@ -21,9 +21,9 @@ if (isInDebugMode()) {
 export async function extractISO(filePath) {
   let command;
   if (isInDebugMode()) {
-    command = Command.sidecar('bin/extractor', [filePath, '-e', debugPath], { cwd: 'bin' })
+    command = Command.sidecar('bin/extractor', [filePath, '--extract', '--proj-path', debugPath], { cwd: 'bin' })
   } else {
-    command = Command.sidecar('bin/extractor', [filePath, '-e'], { cwd: 'bin' });
+    command = Command.sidecar('bin/extractor', [filePath, '--extract'], { cwd: 'bin' });
   }
 
   return await command.execute();
@@ -36,9 +36,9 @@ export async function extractISO(filePath) {
  export async function validateGameData(filePath) {
   let command;
   if (isInDebugMode()) {
-    command = Command.sidecar('bin/extractor', [filePath, '-v', debugPath], { cwd: 'bin' })
+    command = Command.sidecar('bin/extractor', [filePath, '--validate', '--proj-path', debugPath], { cwd: 'bin' })
   } else {
-    command = Command.sidecar('bin/extractor', [filePath, '-v'], { cwd: 'bin' });
+    command = Command.sidecar('bin/extractor', [filePath, '--validate'], { cwd: 'bin' });
   }
 
   return await command.execute();
@@ -51,9 +51,9 @@ export async function extractISO(filePath) {
  export async function decompileGameData(filePath) {
   let command;
   if (isInDebugMode()) {
-    command = Command.sidecar('bin/extractor', [filePath, '-d', debugPath], { cwd: 'bin' })
+    command = Command.sidecar('bin/extractor', [filePath, '--decompile', '--proj-path', debugPath], { cwd: 'bin' })
   } else {
-    command = Command.sidecar('bin/extractor', [filePath, '-d'], { cwd: 'bin' });
+    command = Command.sidecar('bin/extractor', [filePath, '--decompile'], { cwd: 'bin' });
   }
 
   return await command.execute();
@@ -66,9 +66,9 @@ export async function extractISO(filePath) {
  export async function compileGame(filePath) {
   let command;
   if (isInDebugMode()) {
-    command = Command.sidecar('bin/extractor', [filePath, '-c', debugPath], { cwd: 'bin' })
+    command = Command.sidecar('bin/extractor', [filePath, '--compile', '--proj-path', debugPath], { cwd: 'bin' })
   } else {
-    command = Command.sidecar('bin/extractor', [filePath, '-c'], { cwd: 'bin' });
+    command = Command.sidecar('bin/extractor', [filePath, '--compile'], { cwd: 'bin' });
   }
 
   return await command.execute();

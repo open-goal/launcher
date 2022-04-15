@@ -1,6 +1,5 @@
 import { createDir, readTextFile, writeFile } from '@tauri-apps/api/fs';
 import { appDir, join } from '@tauri-apps/api/path';
-
 import { Store } from 'tauri-plugin-store-api';
 
 export class SupportedGame {
