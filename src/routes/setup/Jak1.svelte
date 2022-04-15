@@ -17,7 +17,7 @@
   // TODO - kinda temporary, instead the status list should be an array
   function statusIndicator(val) {
     if (val === "inprogress") {
-      return `<div class="loader"></div>`;
+      return `spinner`;
     } else if (val === "success") {
       return "✅";
     } else if (val === "fail") {
@@ -29,7 +29,12 @@
 
   function appendLogs(stdout, stderr) {
     // TODO - logs should go to a file as well
-    logs += stdout.replaceAll("\n", "<br>") + stderr.replaceAll("\n", "<br>");
+    if (stdout !== "") {
+      logs += stdout.trim() + "\n";
+    }
+    if (stderr !== "") {
+      logs += stderr.trim() + "\n";
+    }
   }
 
   async function installProcess() {
@@ -89,22 +94,38 @@
     <ul>
       <li>
         <span class="progress-row">
+          {#if statusIndicator(progressExtraction) === "spinner"}
+          <div class="loader"></div>Extracting ISO
+          {:else}
           {statusIndicator(progressExtraction)} Extracting ISO
+          {/if}
         </span>
       </li>
       <li>
         <span class="progress-row">
+          {#if statusIndicator(progressValidation) === "spinner"}
+          <div class="loader"></div>Validating Game Data
+          {:else}
           {statusIndicator(progressValidation)} Validating Game Data
+          {/if}
         </span>
       </li>
       <li>
         <span class="progress-row">
+          {#if statusIndicator(progressDecompilation) === "spinner"}
+          <div class="loader"></div>Decompiling Game Data
+          {:else}
           {statusIndicator(progressDecompilation)} Decompiling Game Data
+          {/if}
         </span>
       </li>
       <li>
         <span class="progress-row">
+          {#if statusIndicator(progressCompilation) === "spinner"}
+          <div class="loader"></div>Compiling the Game
+          {:else}
           {statusIndicator(progressCompilation)} Compiling the Game
+          {/if}
         </span>
       </li>
     </ul>
@@ -112,7 +133,7 @@
   <div class="row">
     <details>
       <summary>Installation Logs</summary>
-      <div class="details-bg"></div>
+      <textarea name="logs" cols="120" rows="6">{logs}</textarea>
     </details>
   </div>
   {#if !setupInProgress}
