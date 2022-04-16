@@ -89,6 +89,13 @@
     {/if}
     <span id="filePathLabel"></span>
   </div>
+  {#if !setupInProgress}
+  <div class="row">
+    <Link to="/jak1">
+      <button class="btn">Cancel</button>
+    </Link>
+  </div>
+  {:else}
   <div>
     <h2>Progress</h2>
     <ul>
@@ -136,9 +143,5 @@
       <textarea name="logs" cols="120" rows="6">{logs}</textarea>
     </details>
   </div>
-  {#if !setupInProgress}
-    <Link to="/jak1">
-      <button class="btn">Cancel</button>
-    </Link>
   {/if}
 </div>
