@@ -1,4 +1,4 @@
-import './settings.css';
+import "./settings.css";
 
 export const actions = `<div class="actions">
 <div class="general nav-item" data-tooltip="General">

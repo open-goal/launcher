@@ -1,5 +1,5 @@
-import { Command } from '@tauri-apps/api/shell';
-import { resourceDir } from '@tauri-apps/api/path';
+import { Command } from "@tauri-apps/api/shell";
+import { resourceDir } from "@tauri-apps/api/path";
 
 // TODO - is this set to `production` properly in release mode?
 function isInDebugMode() {
@@ -10,16 +10,22 @@ function isInDebugMode() {
 let debugPath;
 if (isInDebugMode()) {
   let path = await resourceDir();
-  debugPath = path.split("launcher")[0].split("?\\")[1]
+  debugPath = path.split("launcher")[0].split("?\\")[1];
   debugPath += "\\launcher\\bundle-test\\data";
 }
 
 export async function launchGame() {
   let command;
   if (isInDebugMode()) {
-    command = Command.sidecar('bin/gk', ["-boot", "-fakeiso", '-debug', '-proj-path', debugPath], { cwd: 'bin' })
+    command = Command.sidecar(
+      "bin/gk",
+      ["-boot", "-fakeiso", "-debug", "-proj-path", debugPath],
+      { cwd: "bin" }
+    );
   } else {
-    command = Command.sidecar('bin/gk', ["-boot", "-fakeiso", "-debug"], { cwd: 'bin' });
+    command = Command.sidecar("bin/gk", ["-boot", "-fakeiso", "-debug"], {
+      cwd: "bin",
+    });
   }
   command.execute();
 }

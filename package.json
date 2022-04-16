@@ -10,13 +10,16 @@
     "tauri": "tauri",
     "tauricon": "tauricon",
     "package": "node ./scripts/rename-binaries.js",
-    "update-bin": "node ./scripts/update-binaries.js && npm run package"
+    "update-bin": "node ./scripts/update-binaries.js && npm run package",
+    "lint": "npx prettier --check .",
+    "format": "npx prettier --write ."
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
     "@tauri-apps/cli": "^1.0.0-rc.8",
     "@tauri-apps/tauricon": "github:tauri-apps/tauricon",
     "execa": "^6.1.0",
+    "prettier": "2.6.2",
     "svelte": "^3.44.0",
     "vite": "^2.9.2"
   },

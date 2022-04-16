@@ -1,29 +1,29 @@
 * {
   -webkit-user-drag: none;
-  font-family: 'Oswald', sans-serif;
+  font-family: "Oswald", sans-serif;
 }
 
 :root {
-  --bg-blue: #1B202B;
+  --bg-blue: #1b202b;
 }
 
 @font-face {
-  font-family: 'AdventPro';
+  font-family: "AdventPro";
   font-style: normal;
   font-weight: 400;
-  src: url('/src/assets/fonts/AdventPro-Regular.ttf');
+  src: url("/src/assets/fonts/AdventPro-Regular.ttf");
 }
 
 @font-face {
-  font-family: 'AdventPro';
+  font-family: "AdventPro";
   font-style: normal;
   font-weight: 700;
-  src: url('/src/assets/fonts/AdventPro-Bold.ttf');
+  src: url("/src/assets/fonts/AdventPro-Bold.ttf");
 }
 
 @font-face {
-  font-family: 'Oswald';
-  src: url('/src/assets/fonts/Oswald-VariableFont_wght.ttf');
+  font-family: "Oswald";
+  src: url("/src/assets/fonts/Oswald-VariableFont_wght.ttf");
 }
 
 body {
@@ -101,7 +101,8 @@ body {
   cursor: pointer;
 }
 
-.nav-item.disabled:hover, .nav-item.disabled {
+.nav-item.disabled:hover,
+.nav-item.disabled {
   cursor: not-allowed;
   filter: grayscale(100%);
 }
@@ -116,17 +117,17 @@ body {
 }
 
 .nav-item a::before {
-  padding: .5rem;
+  padding: 0.5rem;
   width: max-content;
   background: #333;
   color: white;
   content: attr(data-tooltip);
-  border-radius: .3rem;
+  border-radius: 0.3rem;
   text-align: center;
 }
 
 .nav-item a:hover::before {
-  --scale: 1
+  --scale: 1;
 }
 
 .nav-item img {
@@ -173,7 +174,7 @@ body {
 
 .btn {
   text-align: center;
-  background: linear-gradient(to top, #F3B33F, #FBEC4F);
+  background: linear-gradient(to top, #f3b33f, #fbec4f);
   border: none;
   padding: 0.25em;
   padding-left: 1em;
@@ -205,11 +206,8 @@ body {
 .btn:enabled:hover {
   cursor: pointer;
   color: orange;
-  text-shadow:
-   -1px -1px 0 #000,
-    1px -1px 0 #000,
-    -1px 1px 0 #000,
-     1px 1px 0 #000;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
 }
 
 .btn:disabled {
@@ -233,8 +231,12 @@ body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .progress-row {
