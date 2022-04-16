@@ -9,12 +9,12 @@
         <img src="/src/assets/images/jak-tpl.png">
       </Link>
     </div>
-    <div class="jak-2 nav-item">
+    <div class="jak-2 nav-item disabled">
       <Link to="/jak2" data-tooltip="Jak 2 - Not Available!">
         <img src="/src/assets/images/jak-2.png">
       </Link>
     </div>
-    <div class="jak-3 nav-item">
+    <div class="jak-3 nav-item disabled">
       <Link to="/jak2" data-tooltip="Jak 3 - Not Available!">
         <img src="/src/assets/images/jak-3.png">
       </Link>
