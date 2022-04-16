@@ -1,0 +1,4 @@
+src-tauri/
+node_modules/
+dist/
+bundle-test/

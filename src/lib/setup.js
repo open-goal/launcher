@@ -1,5 +1,5 @@
-import { Command } from '@tauri-apps/api/shell';
-import { resourceDir } from '@tauri-apps/api/path';
+import { Command } from "@tauri-apps/api/shell";
+import { resourceDir } from "@tauri-apps/api/path";
 
 // TODO - is this set to `production` properly in release mode?
 function isInDebugMode() {
@@ -10,7 +10,7 @@ function isInDebugMode() {
 let debugPath;
 if (isInDebugMode()) {
   let path = await resourceDir();
-  debugPath = path.split("launcher")[0].split("?\\")[1]
+  debugPath = path.split("launcher")[0].split("?\\")[1];
   debugPath += "\\launcher\\bundle-test\\data";
 }
 
@@ -21,9 +21,15 @@ if (isInDebugMode()) {
 export async function extractISO(filePath) {
   let command;
   if (isInDebugMode()) {
-    command = Command.sidecar('bin/extractor', [filePath, '--extract', '--proj-path', debugPath], { cwd: 'bin' })
+    command = Command.sidecar(
+      "bin/extractor",
+      [filePath, "--extract", "--proj-path", debugPath],
+      { cwd: "bin" }
+    );
   } else {
-    command = Command.sidecar('bin/extractor', [filePath, '--extract'], { cwd: 'bin' });
+    command = Command.sidecar("bin/extractor", [filePath, "--extract"], {
+      cwd: "bin",
+    });
   }
 
   return await command.execute();
@@ -33,12 +39,18 @@ export async function extractISO(filePath) {
  * @param {String} filePath
  * @returns {Promise<ChildProcess>}
  */
- export async function validateGameData(filePath) {
+export async function validateGameData(filePath) {
   let command;
   if (isInDebugMode()) {
-    command = Command.sidecar('bin/extractor', [filePath, '--validate', '--proj-path', debugPath], { cwd: 'bin' })
+    command = Command.sidecar(
+      "bin/extractor",
+      [filePath, "--validate", "--proj-path", debugPath],
+      { cwd: "bin" }
+    );
   } else {
-    command = Command.sidecar('bin/extractor', [filePath, '--validate'], { cwd: 'bin' });
+    command = Command.sidecar("bin/extractor", [filePath, "--validate"], {
+      cwd: "bin",
+    });
   }
 
   return await command.execute();
@@ -48,12 +60,18 @@ export async function extractISO(filePath) {
  * @param {String} filePath
  * @returns {Promise<ChildProcess>}
  */
- export async function decompileGameData(filePath) {
+export async function decompileGameData(filePath) {
   let command;
   if (isInDebugMode()) {
-    command = Command.sidecar('bin/extractor', [filePath, '--decompile', '--proj-path', debugPath], { cwd: 'bin' })
+    command = Command.sidecar(
+      "bin/extractor",
+      [filePath, "--decompile", "--proj-path", debugPath],
+      { cwd: "bin" }
+    );
   } else {
-    command = Command.sidecar('bin/extractor', [filePath, '--decompile'], { cwd: 'bin' });
+    command = Command.sidecar("bin/extractor", [filePath, "--decompile"], {
+      cwd: "bin",
+    });
   }
 
   return await command.execute();
@@ -63,12 +81,18 @@ export async function extractISO(filePath) {
  * @param {String} filePath
  * @returns {Promise<ChildProcess>}
  */
- export async function compileGame(filePath) {
+export async function compileGame(filePath) {
   let command;
   if (isInDebugMode()) {
-    command = Command.sidecar('bin/extractor', [filePath, '--compile', '--proj-path', debugPath], { cwd: 'bin' })
+    command = Command.sidecar(
+      "bin/extractor",
+      [filePath, "--compile", "--proj-path", debugPath],
+      { cwd: "bin" }
+    );
   } else {
-    command = Command.sidecar('bin/extractor', [filePath, '--compile'], { cwd: 'bin' });
+    command = Command.sidecar("bin/extractor", [filePath, "--compile"], {
+      cwd: "bin",
+    });
   }
 
   return await command.execute();
