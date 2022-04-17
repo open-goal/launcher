@@ -248,18 +248,19 @@ body {
   padding: 2em;
 }
 
-.details-bg {
-  background-color: grey;
-  padding: 0.25em;
-  border-radius: 0.25em;
-  font-size: 1em;
-  font-family: monospace;
-  color: black;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
+.logContainer {
   max-height: 10em;
-  /* TODO - scrolling flickers due to image (maybe the overlay?) */
   overflow-y: scroll;
+  padding: 1em;
+  background: black;
+  white-space: pre-wrap;
+  font-family: monospace;
+}
+
+.errorLogs {
+  font-family: monospace;
+  white-space: pre-wrap;
+  color: #cd5c5c;
 }
 
 .row {

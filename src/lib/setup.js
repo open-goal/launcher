@@ -1,6 +1,13 @@
 import { Command } from "@tauri-apps/api/shell";
 import { resourceDir } from "@tauri-apps/api/path";
 
+export class InstallationStatus {
+  static Pending = Symbol("pending");
+  static InProgress = Symbol("inprogress");
+  static Failed = Symbol("failed");
+  static Success = Symbol("success");
+}
+
 // TODO - is this set to `production` properly in release mode?
 function isInDebugMode() {
   return process.env.NODE_ENV === "development";
