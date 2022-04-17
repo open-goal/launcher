@@ -22,7 +22,7 @@
         "icons/icon.ico"
       ],
       "resources": [],
-      "externalBin": ["bin/extractor", "bin/gk", "bin/goalc"],
+      "externalBin": ["bin/extractor", "bin/gk", "bin/goalc", "bin/glewinfo"],
       "copyright": "",
       "category": "DeveloperTool",
       "shortDescription": "",
@@ -70,8 +70,14 @@
           "cmd": "ignored",
           "args": true
         },
-      {
+        {
           "name": "bin/goalc",
+          "sidecar": true,
+          "cmd": "ignored",
+          "args": true
+        },
+        {
+          "name": "bin/glewinfo",
           "sidecar": true,
           "cmd": "ignored",
           "args": true

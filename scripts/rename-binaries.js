@@ -35,6 +35,12 @@ async function main() {
       `src-tauri/bin/goalc-${targetTriple}${extension}`
     );
   }
+  if (existsSync(`src-tauri/bin/glewinfo${extension}`)) {
+    renameSync(
+      `src-tauri/bin/glewinfo${extension}`,
+      `src-tauri/bin/glewinfo-${targetTriple}${extension}`
+    );
+  }
 }
 
 main().catch((e) => {
