@@ -1,69 +1,107 @@
 <script>
   import { Link, navigate } from "svelte-routing";
-  import { filePrompt } from '/src/lib/utils/file'
-  import { compileGame, decompileGameData, extractISO, validateGameData } from '/src/lib/setup';
-  import { SupportedGame, setInstallStatus } from '/src/lib/config';
+  import { filePrompt } from "/src/lib/utils/file";
+  import {
+    compileGame,
+    decompileGameData,
+    extractISO,
+    validateGameData,
+  } from "/src/lib/setup";
+  import { SupportedGame, setInstallStatus } from "/src/lib/config";
+  import { InstallationStatus } from "/src/lib/setup";
+  import {
+    appendToInstallLog,
+    appendToInstallErrorLog,
+    clearInstallLogs,
+  } from "/src/lib/utils/file";
 
   let setupInProgress = false;
   let isoPath = undefined;
 
-  let progressExtraction = "pending";
-  let progressValidation = "pending";
-  let progressDecompilation = "pending";
-  let progressCompilation = "pending";
+  let currStep = 0;
+  let installSteps = [
+    {
+      status: InstallationStatus.Pending,
+      text: "Extracting ISO",
+      logs: "",
+      errorLogs: "",
+    },
+    {
+      status: InstallationStatus.Pending,
+      text: "Validating Game Data",
+      logs: "",
+      errorLogs: "",
+    },
+    {
+      status: InstallationStatus.Pending,
+      text: "Decompiling the Game",
+      logs: "",
+      errorLogs: "",
+    },
+    {
+      status: InstallationStatus.Pending,
+      text: "Compiling the Game",
+      logs: "",
+      errorLogs: "",
+    },
+  ];
 
-  let logs = "";
-
-  // TODO - kinda temporary, instead the status list should be an array
-  function statusIndicator(val) {
-    if (val === "inprogress") {
+  function statusIndicator(status) {
+    if (status === InstallationStatus.InProgress) {
       return `spinner`;
-    } else if (val === "success") {
+    } else if (status === InstallationStatus.Success) {
       return "✅";
-    } else if (val === "fail") {
+    } else if (status === InstallationStatus.Failed) {
       return "❌";
     } else {
       return "⏳";
     }
   }
 
-  function appendLogs(stdout, stderr) {
-    // TODO - logs should go to a file as well
-    if (stdout !== "") {
-      logs += stdout.trim() + "\n";
-    }
-    if (stderr !== "") {
-      logs += stderr.trim() + "\n";
+  function finishStep(output) {
+    appendLogs(output);
+    installSteps[currStep].status =
+      output.code === 0
+        ? InstallationStatus.Success
+        : InstallationStatus.Failed;
+    currStep++;
+    if (currStep < installSteps.length) {
+      installSteps[currStep].status = InstallationStatus.InProgress;
     }
   }
 
+  async function appendLogs(output) {
+    const separator = `----${installSteps[currStep].text}----\n`;
+    await appendToInstallLog(SupportedGame.Jak1, "\n" + separator + output.stdout);
+    await appendToInstallErrorLog(
+      SupportedGame.Jak1,
+      "\n" + separator + output.stderr
+    );
+    installSteps[currStep].logs += "\n" + separator + output.stdout;
+    installSteps[currStep].errorLogs += output.stderr;
+  }
+
   async function installProcess() {
+    await clearInstallLogs(SupportedGame.Jak1);
     // TODO - forbid refreshing
     setupInProgress = true;
-    progressExtraction = "inprogress";
+    installSteps[currStep].status = InstallationStatus.InProgress;
     let output = await extractISO(isoPath);
-    appendLogs(output.stdout, output.stderr);
-    progressExtraction = output.code === 0 ? "success" : "fail";
+    finishStep(output);
     if (output.code === 0) {
       console.log("[OpenGOAL]: Extraction Completed");
-      progressValidation = "inprogress";
       output = await validateGameData(isoPath);
-      appendLogs(output.stdout, output.stderr);
-      progressValidation = output.code === 0 ? "success" : "fail";
+      finishStep(output);
     }
     if (output.code === 0) {
       console.log("[OpenGOAL]: Validation Completed");
-      progressDecompilation = "inprogress";
       output = await decompileGameData(isoPath);
-      appendLogs(output.stdout, output.stderr);
-      progressDecompilation = output.code === 0 ? "success" : "fail";
+      finishStep(output);
     }
     if (output.code === 0) {
       console.log("[OpenGOAL]: Decompilation Completed");
-      progressCompilation = "inprogress";
       output = await compileGame(isoPath);
-      appendLogs(output.stdout, output.stderr);
-      progressCompilation = output.code === 0 ? "success" : "fail";
+      finishStep(output);
     }
     if (output.code === 0) {
       console.log("[OpenGOAL]: Compilation Completed");
@@ -87,7 +125,7 @@
     {#if isoPath}
       {isoPath}
     {/if}
-    <span id="filePathLabel"></span>
+    <span id="filePathLabel" />
   </div>
   {#if !setupInProgress}
   <div class="row">
@@ -99,48 +137,35 @@
   <div>
     <h2>Progress</h2>
     <ul>
-      <li>
-        <span class="progress-row">
-          {#if statusIndicator(progressExtraction) === "spinner"}
-          <div class="loader"></div>Extracting ISO
-          {:else}
-          {statusIndicator(progressExtraction)} Extracting ISO
-          {/if}
-        </span>
-      </li>
-      <li>
-        <span class="progress-row">
-          {#if statusIndicator(progressValidation) === "spinner"}
-          <div class="loader"></div>Validating Game Data
-          {:else}
-          {statusIndicator(progressValidation)} Validating Game Data
-          {/if}
-        </span>
-      </li>
-      <li>
-        <span class="progress-row">
-          {#if statusIndicator(progressDecompilation) === "spinner"}
-          <div class="loader"></div>Decompiling Game Data
-          {:else}
-          {statusIndicator(progressDecompilation)} Decompiling Game Data
-          {/if}
-        </span>
-      </li>
-      <li>
-        <span class="progress-row">
-          {#if statusIndicator(progressCompilation) === "spinner"}
-          <div class="loader"></div>Compiling the Game
-          {:else}
-          {statusIndicator(progressCompilation)} Compiling the Game
-          {/if}
-        </span>
-      </li>
+      {#each installSteps as step}
+        <li>
+          <span class="progress-row">
+            {#if step.status === InstallationStatus.InProgress}
+              <div class="loader" />
+            {:else}
+              {statusIndicator(step.status)}
+            {/if}
+            {step.text}
+          </span>
+        </li>
+      {/each}
     </ul>
   </div>
   <div class="row">
     <details>
       <summary>Installation Logs</summary>
-      <textarea name="logs" cols="120" rows="6">{logs}</textarea>
+      <div class="logContainer">
+        {#each installSteps as step}
+          {#if step.logs !== ""}
+            {step.logs}
+          {/if}
+          {#if step.errorLogs !== ""}
+            <div class="errorLogs">
+              {step.errorLogs}
+            </div>
+          {/if}
+        {/each}
+      </div>
     </details>
   </div>
   {/if}
