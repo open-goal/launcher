@@ -126,7 +126,6 @@
 
   async function installProcess() {
     await clearInstallLogs(SupportedGame.Jak1);
-    // TODO - forbid refreshing
     setupInProgress = true;
     installSteps[currStep].status = InstallationStatus.InProgress;
     let output = await extractISO(isoPath);
