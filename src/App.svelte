@@ -3,7 +3,6 @@
   import { Router, Link, Route } from "svelte-routing";
   import Jak1 from "/src/routes/Jak1.svelte";
   import Jak1_Setup from "/src/routes/setup/Jak1.svelte";
-  import Settings from "/src/routes/Settings.svelte";
   import Sidebar from "/src/components/Sidebar.svelte";
   import { initConfig } from "/src/lib/config";
   import { isInDebugMode } from "/src/lib/setup";
