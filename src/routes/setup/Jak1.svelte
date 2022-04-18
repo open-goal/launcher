@@ -187,7 +187,7 @@
   {#if areRequirementsMet(requirementChecks)}
     <p>Browse for your ISO - Obtained by dumping your own legitimate copy</p>
     <div>
-      <button class="btn" on:click={onClickBrowse}>Browse for ISO</button>
+      <button class="btn" disabled={setupInProgress} on:click={onClickBrowse}>Browse for ISO</button>
       {#if isoPath}
         {isoPath}
       {/if}
