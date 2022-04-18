@@ -9,7 +9,7 @@ export class InstallationStatus {
 }
 
 // TODO - is this set to `production` properly in release mode?
-function isInDebugMode() {
+export function isInDebugMode() {
   return process.env.NODE_ENV === "development";
 }
 
