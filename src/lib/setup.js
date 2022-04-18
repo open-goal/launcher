@@ -1,11 +1,20 @@
 import { Command } from "@tauri-apps/api/shell";
 import { resourceDir } from "@tauri-apps/api/path";
+import { os } from "@tauri-apps/api";
+import { getHighestSimd } from "/src/lib/commands";
 
 export class InstallationStatus {
   static Pending = Symbol("pending");
   static InProgress = Symbol("inprogress");
   static Failed = Symbol("failed");
   static Success = Symbol("success");
+}
+
+export class RequirementStatus {
+  static Unknown = Symbol("unknown");
+  static Met = Symbol("met");
+  static Failed = Symbol("failed");
+  static Checking = Symbol("checking");
 }
 
 // TODO - is this set to `production` properly in release mode?
@@ -19,6 +28,35 @@ if (isInDebugMode()) {
   let path = await resourceDir();
   debugPath = path.split("launcher")[0].split("?\\")[1];
   debugPath += "\\launcher\\bundle-test\\data";
+}
+
+export async function isAVXSupported() {
+  let highestSIMD = await getHighestSimd();
+  if (highestSIMD === undefined) {
+    return RequirementStatus.Unknown;
+  }
+  if (highestSIMD.toLowerCase().startsWith("avx")) {
+    return RequirementStatus.Met
+  }
+  return RequirementStatus.Failed;
+}
+
+export async function isOpenGLVersionSupported(version) {
+  // TODO - glewinfo not pre-compiled to work on linux yet!
+  if (await os.platform() === "linux" || await os.platform() === "darwin") {
+    return RequirementStatus.Unknown;
+  }
+  // Otherwise, query for the version
+  let command = Command.sidecar("bin/glewinfo", ["-version", version], { cwd: "bin" });
+  try {
+    let output = await command.execute();
+    if (output.code === 0) {
+      return RequirementStatus.Met;
+    }
+    return RequirementStatus.Failed;
+  } catch {
+    return RequirementStatus.Failed;
+  }
 }
 
 /**
