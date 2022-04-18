@@ -5,8 +5,7 @@
   import {
     compileGame,
     decompileGameData,
-    extractISO,
-    validateGameData,
+    extractAndValidateISO,
     isAVXSupported,
     isOpenGLVersionSupported,
   } from "/src/lib/setup";
@@ -24,7 +23,7 @@
   let requirementChecks = [
     {
       status: RequirementStatus.Checking,
-      text: `CPU Supports&nbsp;<a href="https://en.wikipedia.org/wiki/Advanced_Vector_Extensions"><strong>AVX or AVX2</strong></a>`,
+      text: `CPU Supports&nbsp;<a href="https://en.wikipedia.org/wiki/Advanced_Vector_Extensions" target="_blank"><strong>AVX or AVX2</strong></a>`,
       check: async () => await isAVXSupported(),
     },
     {
@@ -38,13 +37,7 @@
   let installSteps = [
     {
       status: InstallationStatus.Pending,
-      text: "Extracting ISO",
-      logs: "",
-      errorLogs: "",
-    },
-    {
-      status: InstallationStatus.Pending,
-      text: "Validating Game Data",
+      text: "Extracting and Validate ISO",
       logs: "",
       errorLogs: "",
     },
@@ -61,6 +54,8 @@
       errorLogs: "",
     },
   ];
+
+  let installErrors = [];
 
   // TODO - move this to the enum
   function statusIndicator(status) {
@@ -98,12 +93,71 @@
     return true;
   }
 
+  function handleError(output) {
+    if (output.code === 0) {
+      return;
+    }
+    switch (output.code) {
+      case 4000:
+        installErrors = [
+          ...installErrors,
+          {
+            title: `can't locate ELF in ISO's contents`,
+            description: "unable to determine the version of the game",
+          },
+        ];
+        break;
+      case 4001:
+        installErrors = [
+          ...installErrors,
+          {
+            title: `Unsupported serial`,
+            description:
+              "ISO containing an unsupported game serial or version was provided",
+          },
+        ];
+        break;
+      case 4002:
+      case 4010:
+      case 4011:
+        installErrors = [
+          ...installErrors,
+          {
+            title: `Unsupported game version`,
+            description:
+              "ISO contains files that are for an unsupported version, were modified from the original, or is an incomplete dump",
+          },
+        ];
+        break;
+      case 4020:
+        installErrors = [
+          ...installErrors,
+          {
+            title: `Unexpected Extraction Result`,
+            description:
+              "The extracted ISO's contents were not as expected, installation cannot proceed",
+          },
+        ];
+        break;
+      default:
+        installErrors = [
+          ...installErrors,
+          {
+            title: `Unexpected Error Code ${output.code}`,
+            description:
+              "An unexpected error occurred during installation, check logs",
+          },
+        ];
+    }
+  }
+
   function finishStep(output) {
     appendLogs(output);
     installSteps[currStep].status =
       output.code === 0
         ? InstallationStatus.Success
         : InstallationStatus.Failed;
+    handleError(output);
     currStep++;
     if (currStep < installSteps.length) {
       installSteps[currStep].status = InstallationStatus.InProgress;
@@ -128,28 +182,23 @@
     await clearInstallLogs(SupportedGame.Jak1);
     setupInProgress = true;
     installSteps[currStep].status = InstallationStatus.InProgress;
-    let output = await extractISO(isoPath);
+    let output = await extractAndValidateISO(isoPath);
     finishStep(output);
-    if (output.code === 0) {
-      console.log("[OpenGOAL]: Extraction Completed");
-      output = await validateGameData(isoPath);
-      finishStep(output);
-    }
-    if (output.code === 0) {
-      console.log("[OpenGOAL]: Validation Completed");
-      output = await decompileGameData(isoPath);
-      finishStep(output);
-    }
-    if (output.code === 0) {
-      console.log("[OpenGOAL]: Decompilation Completed");
-      output = await compileGame(isoPath);
-      finishStep(output);
-    }
-    if (output.code === 0) {
-      console.log("[OpenGOAL]: Compilation Completed");
-      await setInstallStatus(SupportedGame.Jak1, true);
-      navigate("/jak1", { replace: true });
-    }
+    // if (output.code === 0) {
+    //   console.log("[OpenGOAL]: Extraction and Validation Completed");
+    //   output = await decompileGameData(isoPath);
+    //   finishStep(output);
+    // }
+    // if (output.code === 0) {
+    //   console.log("[OpenGOAL]: Decompilation Completed");
+    //   output = await compileGame(isoPath);
+    //   finishStep(output);
+    // }
+    // if (output.code === 0) {
+    //   console.log("[OpenGOAL]: Compilation Completed");
+    //   await setInstallStatus(SupportedGame.Jak1, true);
+    //   navigate("/jak1", { replace: true });
+    // }
   }
 
   // Events
@@ -186,7 +235,9 @@
   {#if areRequirementsMet(requirementChecks)}
     <p>Browse for your ISO - Obtained by dumping your own legitimate copy</p>
     <div>
-      <button class="btn" disabled={setupInProgress} on:click={onClickBrowse}>Browse for ISO</button>
+      <button class="btn" disabled={setupInProgress} on:click={onClickBrowse}
+        >Browse for ISO</button
+      >
       {#if isoPath}
         {isoPath}
       {/if}
@@ -212,6 +263,12 @@
           {/each}
         </ul>
       </div>
+      {#each installErrors as err}
+        <div class="error-row">
+          <h3>❌ {err.title}</h3>
+          <p>{err.description}</p>
+        </div>
+      {/each}
       <div class="row">
         <details>
           <summary>Installation Logs</summary>
