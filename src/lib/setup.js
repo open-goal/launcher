@@ -36,18 +36,20 @@ export async function isAVXSupported() {
     return RequirementStatus.Unknown;
   }
   if (highestSIMD.toLowerCase().startsWith("avx")) {
-    return RequirementStatus.Met
+    return RequirementStatus.Met;
   }
   return RequirementStatus.Failed;
 }
 
 export async function isOpenGLVersionSupported(version) {
   // TODO - glewinfo not pre-compiled to work on linux yet!
-  if (await os.platform() === "linux" || await os.platform() === "darwin") {
+  if ((await os.platform()) === "linux" || (await os.platform()) === "darwin") {
     return RequirementStatus.Unknown;
   }
   // Otherwise, query for the version
-  let command = Command.sidecar("bin/glewinfo", ["-version", version], { cwd: "bin" });
+  let command = Command.sidecar("bin/glewinfo", ["-version", version], {
+    cwd: "bin",
+  });
   try {
     let output = await command.execute();
     if (output.code === 0) {
