@@ -43,7 +43,7 @@ export async function isAVXSupported() {
 
 export async function isOpenGLVersionSupported(version) {
   // TODO - glewinfo not pre-compiled to work on linux yet!
-  if ((await os.platform()) === "linux" || (await os.platform()) === "darwin") {
+  if ((await os.platform()) === "darwin") {
     return RequirementStatus.Unknown;
   }
   // Otherwise, query for the version

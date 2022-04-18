@@ -28,6 +28,6 @@ copyFileSync(
   "./src-tauri/bin/goalc.exe"
 );
 copyFileSync(
-  "./third-party/glew/windows/glewinfo.exe",
+  "./third-party/glew_2.1.0/windows/glewinfo.exe",
   "./src-tauri/bin/glewinfo.exe"
 );
