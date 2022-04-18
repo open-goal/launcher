@@ -20,3 +20,4 @@ if (process.platform === "win32") {
 writeFileSync(`./src-tauri/bin/extractor${extension}`, "dummy");
 writeFileSync(`./src-tauri/bin/gk${extension}`, "dummy");
 writeFileSync(`./src-tauri/bin/goalc${extension}`, "dummy");
+writeFileSync(`./src-tauri/bin/glewinfo${extension}`, "dummy");

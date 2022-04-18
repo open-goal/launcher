@@ -27,3 +27,7 @@ copyFileSync(
   "../jak-project/out/build/Release/bin/goalc.exe",
   "./src-tauri/bin/goalc.exe"
 );
+copyFileSync(
+  "./third-party/glew_2.1.0/windows/glewinfo.exe",
+  "./src-tauri/bin/glewinfo.exe"
+);
