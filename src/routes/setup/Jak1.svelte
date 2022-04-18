@@ -16,7 +16,9 @@
     appendToInstallErrorLog,
     clearInstallLogs,
   } from "/src/lib/utils/file";
+import { installUpdate } from "@tauri-apps/api/updater";
 
+  let setupStarted = false;
   let setupInProgress = false;
   let isoPath = undefined;
 
@@ -158,9 +160,11 @@
         ? InstallationStatus.Success
         : InstallationStatus.Failed;
     handleError(output);
-    currStep++;
-    if (currStep < installSteps.length) {
-      installSteps[currStep].status = InstallationStatus.InProgress;
+    if (output.code === 0) {
+      currStep++;
+      if (currStep < installSteps.length) {
+        installSteps[currStep].status = InstallationStatus.InProgress;
+      }
     }
   }
 
@@ -180,25 +184,36 @@
 
   async function installProcess() {
     await clearInstallLogs(SupportedGame.Jak1);
+    // Reset experience
+    installErrors = [];
+    for (let i = 0; i < installSteps.length; i++) {
+      installSteps[i].logs = "";
+      installSteps[i].errorLogs = "";
+      installSteps[i].status = InstallationStatus.Pending;
+    }
+    currStep = 0;
+    setupStarted = true;
     setupInProgress = true;
     installSteps[currStep].status = InstallationStatus.InProgress;
     let output = await extractAndValidateISO(isoPath);
     finishStep(output);
-    // if (output.code === 0) {
-    //   console.log("[OpenGOAL]: Extraction and Validation Completed");
-    //   output = await decompileGameData(isoPath);
-    //   finishStep(output);
-    // }
-    // if (output.code === 0) {
-    //   console.log("[OpenGOAL]: Decompilation Completed");
-    //   output = await compileGame(isoPath);
-    //   finishStep(output);
-    // }
-    // if (output.code === 0) {
-    //   console.log("[OpenGOAL]: Compilation Completed");
-    //   await setInstallStatus(SupportedGame.Jak1, true);
-    //   navigate("/jak1", { replace: true });
-    // }
+    if (output.code === 0) {
+      console.log("[OpenGOAL]: Extraction and Validation Completed");
+      output = await decompileGameData(isoPath);
+      finishStep(output);
+    }
+    if (output.code === 0) {
+      console.log("[OpenGOAL]: Decompilation Completed");
+      output = await compileGame(isoPath);
+      finishStep(output);
+    }
+    if (output.code === 0) {
+      console.log("[OpenGOAL]: Compilation Completed");
+      await setInstallStatus(SupportedGame.Jak1, true);
+      navigate("/jak1", { replace: true });
+    }
+    setupInProgress = false;
+    isoPath = undefined;
   }
 
   // Events
@@ -249,7 +264,8 @@
           <button class="btn">Cancel</button>
         </Link>
       </div>
-    {:else}
+    {/if}
+    {#if setupStarted}
       <div>
         <h2>Progress</h2>
         <ul class="no-decoration">

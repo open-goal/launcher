@@ -74,9 +74,13 @@ export async function extractAndValidateISO(filePath) {
       { cwd: "bin" }
     );
   } else {
-    command = Command.sidecar("bin/extractor", [filePath, "--extract", "--validate"], {
-      cwd: "bin",
-    });
+    command = Command.sidecar(
+      "bin/extractor",
+      [filePath, "--extract", "--validate"],
+      {
+        cwd: "bin",
+      }
+    );
   }
 
   return await command.execute();
