@@ -120,8 +120,10 @@
       SupportedGame.Jak1,
       "\n" + separator + output.stderr
     );
-    installSteps[currStep].logs += "\n" + separator + output.stdout;
-    installSteps[currStep].errorLogs += output.stderr;
+    if (installSteps[currStep] != undefined) {
+      installSteps[currStep].logs += "\n" + separator + output.stdout;
+      installSteps[currStep].errorLogs += output.stderr;
+    }
   }
 
   async function installProcess() {
