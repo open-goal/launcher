@@ -12,21 +12,38 @@
 
   export let url = "";
 
+  let revokeSpecificActions = false;
+
   // Events
   onMount(async () => {
     await initConfig();
   });
 
   if (!isInDebugMode()) {
+    revokeSpecificActions = true;
     // Disable Right Click
-    document.addEventListener("contextmenu", (event) => event.preventDefault());
+    document.addEventListener("contextmenu", (event) => {
+      if (revokeSpecificActions) {
+        event.preventDefault();
+      }
+    });
     // Disable Refreshing (F5 / Ctrl+R)
     document.addEventListener("keydown", (e) => {
       if (e.code == "F5") {
-        e.preventDefault();
+        if (revokeSpecificActions) {
+          e.preventDefault();
+        }
       }
       if (e.code == "KeyR" && e.ctrlKey) {
-        e.preventDefault();
+        if (revokeSpecificActions) {
+          e.preventDefault();
+        }
+      }
+      // super secret keybind to reverse the above so we can debug a release version
+      // Shift+Ctrl F12
+      if (e.code == "F12" && e.ctrlKey && e.shiftKey) {
+        revokeSpecificActions = false;
+        console.log("hello world");
       }
     });
   }
