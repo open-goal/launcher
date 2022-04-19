@@ -17,17 +17,18 @@ export class RequirementStatus {
   static Checking = Symbol("checking");
 }
 
-// TODO - is this set to `production` properly in release mode?
 export function isInDebugMode() {
   return process.env.NODE_ENV === "development";
 }
 
-// TODO - this is kind of a total hack
 let debugPath;
+let sidecarOptions = {};
 if (isInDebugMode()) {
+  // TODO - this is kind of a total hack
   let path = await resourceDir();
   debugPath = path.split("launcher")[0].split("?\\")[1];
   debugPath += "\\launcher\\bundle-test\\data";
+  sidecarOptions = { cwd: "bin" };
 }
 
 export async function isAVXSupported() {
@@ -42,21 +43,18 @@ export async function isAVXSupported() {
 }
 
 export async function isOpenGLVersionSupported(version) {
-  // TODO - glewinfo not pre-compiled to work on linux yet!
   if ((await os.platform()) === "darwin") {
     return RequirementStatus.Unknown;
   }
   // Otherwise, query for the version
-  let command = Command.sidecar("bin/glewinfo", ["-version", version], {
-    cwd: "bin",
-  });
+  let command = Command.sidecar("bin/glewinfo", ["-version", version], sidecarOptions);
   try {
     let output = await command.execute();
     if (output.code === 0) {
       return RequirementStatus.Met;
     }
     return RequirementStatus.Failed;
-  } catch {
+  } catch (e) {
     return RequirementStatus.Failed;
   }
 }
@@ -71,15 +69,13 @@ export async function extractAndValidateISO(filePath) {
     command = Command.sidecar(
       "bin/extractor",
       [filePath, "--extract", "--proj-path", debugPath],
-      { cwd: "bin" }
+      sidecarOptions
     );
   } else {
     command = Command.sidecar(
       "bin/extractor",
       [filePath, "--extract", "--validate"],
-      {
-        cwd: "bin",
-      }
+      sidecarOptions
     );
   }
 
@@ -96,12 +92,10 @@ export async function decompileGameData(filePath) {
     command = Command.sidecar(
       "bin/extractor",
       [filePath, "--decompile", "--proj-path", debugPath],
-      { cwd: "bin" }
+      sidecarOptions
     );
   } else {
-    command = Command.sidecar("bin/extractor", [filePath, "--decompile"], {
-      cwd: "bin",
-    });
+    command = Command.sidecar("bin/extractor", [filePath, "--decompile"], sidecarOptions);
   }
 
   return await command.execute();
@@ -117,12 +111,10 @@ export async function compileGame(filePath) {
     command = Command.sidecar(
       "bin/extractor",
       [filePath, "--compile", "--proj-path", debugPath],
-      { cwd: "bin" }
+      sidecarOptions
     );
   } else {
-    command = Command.sidecar("bin/extractor", [filePath, "--compile"], {
-      cwd: "bin",
-    });
+    command = Command.sidecar("bin/extractor", [filePath, "--compile"], sidecarOptions);
   }
 
   return await command.execute();
