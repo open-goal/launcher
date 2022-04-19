@@ -1,0 +1,19 @@
+{
+  "name": "v0.1.0",
+  "notes": "UPDATE",
+  "pub_date": "2022-04-22T19:25:57Z",
+  "platforms": {
+    "darwin": {
+      "signature": "",
+      "url": "https://github.com/open-goal/launcher/releases/download/v0.1.0/opengoal-launcher-macos.tar.gz"
+    },
+    "linux": {
+      "signature": "",
+      "url": "https://github.com/open-goal/launcher/releases/download/v0.1.0/opengoal-launcher-linux.AppImage.tar.gz"
+    },
+    "win64": {
+      "signature": "",
+      "url": "https://github.com/open-goal/launcher/releases/download/v0.1.0/opengoal-launcher-windows.x64.msi.zip"
+    }
+  }
+}

@@ -46,7 +46,12 @@
       }
     },
     "updater": {
-      "active": false
+      "active": true,
+      "endpoints": [
+        "https://raw.githubusercontent.com/open-goal/launcher/main/.tauri/latest-release.json"
+      ],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDI4QjhCQjgwMDlCQkQxNTQKUldSVTBic0pnTHU0S0xncTN0Q0ZnUW1uTHJuakVhWkt6UVJQa3lEc3U5dERUREZkSUdLV1VLRUQK"
     },
     "allowlist": {
       "all": true,
