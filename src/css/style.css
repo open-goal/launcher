@@ -8,20 +8,6 @@
 }
 
 @font-face {
-  font-family: "AdventPro";
-  font-style: normal;
-  font-weight: 400;
-  src: url("/src/assets/fonts/AdventPro-Regular.ttf");
-}
-
-@font-face {
-  font-family: "AdventPro";
-  font-style: normal;
-  font-weight: 700;
-  src: url("/src/assets/fonts/AdventPro-Bold.ttf");
-}
-
-@font-face {
   font-family: "Oswald";
   src: url("/src/assets/fonts/Oswald-VariableFont_wght.ttf");
 }

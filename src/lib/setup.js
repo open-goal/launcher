@@ -1,7 +1,7 @@
 import { Command } from "@tauri-apps/api/shell";
 import { resourceDir } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
-import { getHighestSimd } from "/src/lib/commands";
+import { getHighestSimd } from "$lib/commands";
 
 export class InstallationStatus {
   static Pending = Symbol("pending");

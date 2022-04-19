@@ -1,22 +1,21 @@
 <script>
   import { onMount } from "svelte";
   import { Link, navigate } from "svelte-routing";
-  import { filePrompt } from "/src/lib/utils/file";
+  import { filePrompt } from "$lib/utils/file";
   import {
     compileGame,
     decompileGameData,
     extractAndValidateISO,
     isAVXSupported,
     isOpenGLVersionSupported,
-  } from "/src/lib/setup";
-  import { SupportedGame, setInstallStatus } from "/src/lib/config";
-  import { InstallationStatus, RequirementStatus } from "/src/lib/setup";
+  } from "$lib/setup";
+  import { SupportedGame, setInstallStatus } from "$lib/config";
+  import { InstallationStatus, RequirementStatus } from "$lib/setup";
   import {
     appendToInstallLog,
     appendToInstallErrorLog,
     clearInstallLogs,
-  } from "/src/lib/utils/file";
-import { installUpdate } from "@tauri-apps/api/updater";
+  } from "$lib/utils/file";
 
   let setupStarted = false;
   let setupInProgress = false;

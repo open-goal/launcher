@@ -1,11 +1,14 @@
 <script>
+  // Assets
+  import bgVideo from '$assets/videos/background.webm';
+  // Other Imports
   import { onMount } from "svelte";
-  import { Router, Link, Route } from "svelte-routing";
+  import { Router, Route } from "svelte-routing";
   import Jak1 from "/src/routes/Jak1.svelte";
   import Jak1_Setup from "/src/routes/setup/Jak1.svelte";
   import Sidebar from "/src/components/Sidebar.svelte";
-  import { initConfig } from "/src/lib/config";
-  import { isInDebugMode } from "/src/lib/setup";
+  import { initConfig } from "$lib/config";
+  import { isInDebugMode } from "$lib/setup";
 
   export let url = "";
 
@@ -35,7 +38,7 @@
       <div class="overlay" />
       <video
         id="backgroundVideo"
-        src="/src/assets/videos/background.mp4"
+        src={bgVideo}
         autoplay
         muted
         loop
@@ -51,3 +54,4 @@
     </div>
   </main>
 </Router>
+
