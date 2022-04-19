@@ -65,7 +65,7 @@ export async function isOpenGLVersionSupported(version) {
  * @param {String} filePath
  * @returns {Promise<ChildProcess>}
  */
-export async function extractISO(filePath) {
+export async function extractAndValidateISO(filePath) {
   let command;
   if (isInDebugMode()) {
     command = Command.sidecar(
@@ -74,30 +74,13 @@ export async function extractISO(filePath) {
       { cwd: "bin" }
     );
   } else {
-    command = Command.sidecar("bin/extractor", [filePath, "--extract"], {
-      cwd: "bin",
-    });
-  }
-
-  return await command.execute();
-}
-
-/**
- * @param {String} filePath
- * @returns {Promise<ChildProcess>}
- */
-export async function validateGameData(filePath) {
-  let command;
-  if (isInDebugMode()) {
     command = Command.sidecar(
       "bin/extractor",
-      [filePath, "--validate", "--proj-path", debugPath],
-      { cwd: "bin" }
+      [filePath, "--extract", "--validate"],
+      {
+        cwd: "bin",
+      }
     );
-  } else {
-    command = Command.sidecar("bin/extractor", [filePath, "--validate"], {
-      cwd: "bin",
-    });
   }
 
   return await command.execute();

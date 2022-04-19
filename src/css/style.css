@@ -246,7 +246,11 @@ body {
 }
 
 .content {
-  padding: 2em;
+  padding-left: 2em;
+  padding-right: 2em;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  overflow: auto;
 }
 
 .logContainer {
@@ -289,4 +293,16 @@ details > summary:hover {
 ul.no-decoration {
   list-style-type: none;
   padding-left: 2em;
+}
+
+.error-row {
+  background-color: #782323;
+  padding: 1em;
+  border-radius: 0.25em;
+  margin-top: 0.5em;
+}
+
+.error-row * {
+  margin: 0;
+  padding: 0;
 }
