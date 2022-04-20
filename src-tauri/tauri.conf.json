@@ -21,7 +21,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "resources": [],
+      "resources": ["data/"],
       "externalBin": ["bin/extractor", "bin/gk", "bin/goalc", "bin/glewinfo"],
       "copyright": "",
       "category": "DeveloperTool",
