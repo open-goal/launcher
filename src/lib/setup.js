@@ -37,9 +37,9 @@ export async function isAVXSupported() {
     return RequirementStatus.Unknown;
   }
   if (highestSIMD.toLowerCase().startsWith("avx")) {
-    return RequirementStatus.Met;
+    return true;
   }
-  return RequirementStatus.Failed;
+  return false;
 }
 
 export async function isOpenGLVersionSupported(version) {
@@ -53,19 +53,19 @@ export async function isOpenGLVersionSupported(version) {
     sidecarOptions
   );
   try {
-    let output = await command.execute();
+    const output = await command.execute();
     if (output.code === 0) {
-      return RequirementStatus.Met;
+      return true;
     }
-    return RequirementStatus.Failed;
+    return false;
   } catch (e) {
-    return RequirementStatus.Failed;
+    throw new Error('ERROR MESSAGE');
   }
 }
 
 /**
  * @param {String} filePath
- * @returns {Promise<ChildProcess>}
+ * @returns {Promise<Boolean>}
  */
 export async function extractAndValidateISO(filePath) {
   let command;
@@ -83,12 +83,17 @@ export async function extractAndValidateISO(filePath) {
     );
   }
 
-  return await command.execute();
+  console.log(command);
+  const output = await command.execute();
+  if (output.code === 0) {
+    return true;
+  }
+  throw new Error("ERROR MESSAGE");
 }
 
 /**
  * @param {String} filePath
- * @returns {Promise<ChildProcess>}
+ * @returns {Promise<Boolean>}
  */
 export async function decompileGameData(filePath) {
   let command;
@@ -106,12 +111,16 @@ export async function decompileGameData(filePath) {
     );
   }
 
-  return await command.execute();
+  const output = await command.execute();
+  if (output.code === 0) {
+    return true;
+  }
+  throw new Error("ERROR MESSAGE");
 }
 
 /**
  * @param {String} filePath
- * @returns {Promise<ChildProcess>}
+ * @returns {Promise<Boolean>}
  */
 export async function compileGame(filePath) {
   let command;
@@ -129,5 +138,9 @@ export async function compileGame(filePath) {
     );
   }
 
-  return await command.execute();
+  const output = await command.execute();
+  if (output.code === 0) {
+    return true;
+  }
+  throw new Error("ERROR MESSAGE");
 }

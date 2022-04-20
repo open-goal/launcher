@@ -9,30 +9,30 @@
   <div class="games">
     <div class="jak-1 nav-item active">
       <Link to="/jak1" data-tooltip="Jak & Daxter: The Precursor Legacy">
-        <img src={logoJak1} alt="Jak - TPL">
+        <img src={logoJak1} alt="Jak - TPL" />
       </Link>
     </div>
     <div class="jak-2 nav-item disabled">
-      <Link to="/jak2" data-tooltip="Jak 2 - Not Available!">
-        <img src={logoJak2} alt="Jak 2">
+      <Link to="" data-tooltip="Jak 2 - Not Available!">
+        <img src={logoJak2} alt="Jak 2" />
       </Link>
     </div>
     <div class="jak-3 nav-item disabled">
-      <Link to="/jak2" data-tooltip="Jak 3 - Not Available!">
-        <img src={logoJak3} alt="Jak 3">
+      <Link to="" data-tooltip="Jak 3 - Not Available!">
+        <img src={logoJak3} alt="Jak 3" />
       </Link>
     </div>
   </div>
-  <div class="spacer"></div>
+  <div class="spacer" />
   <div class="controls">
     <div class="console nav-item">
-      <Link to="/console" data-tooltip="Toggle Debug Console">
-        <i class="bi bi-terminal-fill"></i>
+      <Link to="" data-tooltip="Toggle Debug Console">
+        <i class="bi bi-terminal-fill" />
       </Link>
     </div>
     <div class="settings nav-item">
-      <Link to="/settings" data-tooltip="Settings">
-        <i class="bi bi-sliders"></i>
+      <Link to="" data-tooltip="Settings">
+        <i class="bi bi-sliders" />
       </Link>
     </div>
   </div>

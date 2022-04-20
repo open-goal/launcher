@@ -21,8 +21,15 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "resources": ["data/"],
-      "externalBin": ["bin/extractor", "bin/gk", "bin/goalc", "bin/glewinfo"],
+      "resources": [
+        "data/"
+      ],
+      "externalBin": [
+        "bin/extractor",
+        "bin/gk",
+        "bin/goalc",
+        "bin/glewinfo"
+      ],
       "copyright": "",
       "category": "DeveloperTool",
       "shortDescription": "",
@@ -63,30 +70,32 @@
         ]
       },
       "shell": {
-        "scope": [{
-          "name": "bin/extractor",
-          "sidecar": true,
-          "cmd": "ignored",
-          "args": true
-        },
-        {
-          "name": "bin/gk",
-          "sidecar": true,
-          "cmd": "ignored",
-          "args": true
-        },
-        {
-          "name": "bin/goalc",
-          "sidecar": true,
-          "cmd": "ignored",
-          "args": true
-        },
-        {
-          "name": "bin/glewinfo",
-          "sidecar": true,
-          "cmd": "ignored",
-          "args": true
-        }]
+        "scope": [
+          {
+            "name": "bin/extractor",
+            "sidecar": true,
+            "cmd": "ignored",
+            "args": true
+          },
+          {
+            "name": "bin/gk",
+            "sidecar": true,
+            "cmd": "ignored",
+            "args": true
+          },
+          {
+            "name": "bin/goalc",
+            "sidecar": true,
+            "cmd": "ignored",
+            "args": true
+          },
+          {
+            "name": "bin/glewinfo",
+            "sidecar": true,
+            "cmd": "ignored",
+            "args": true
+          }
+        ]
       }
     },
     "windows": [
