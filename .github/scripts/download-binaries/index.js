@@ -1,19 +1,19 @@
 import { Octokit } from "@octokit/rest";
 import { throttling } from "@octokit/plugin-throttling";
 import { retry } from "@octokit/plugin-retry";
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
 
 Octokit.plugin(throttling);
 Octokit.plugin(retry);
 const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
-  userAgent: 'open-goal/jak-project',
+  userAgent: "open-goal/jak-project",
   log: {
-    debug: () => { },
-    info: () => { },
+    debug: () => {},
+    info: () => {},
     warn: console.warn,
-    error: console.error
+    error: console.error,
   },
   throttle: {
     onRateLimit: (retryAfter, options) => {
@@ -33,7 +33,7 @@ const octokit = new Octokit({
         `Abuse detected for request ${options.method} ${options.url}`
       );
     },
-  }
+  },
 });
 
 let requestedVersion = process.env.JAK_PROJ_VERSION;
@@ -41,33 +41,26 @@ let release = undefined;
 if (requestedVersion === "latest") {
   const { data: releaseData } = await octokit.rest.repos.getLatestRelease({
     owner: "open-goal",
-    repo: "jak-project"
+    repo: "jak-project",
   });
   release = releaseData;
 } else {
   const { data: releaseData } = await octokit.rest.repos.getReleaseByTag({
     owner: "open-goal",
     repo: "jak-project",
-    tag: requestedVersion
+    tag: requestedVersion,
   });
   release = releaseData;
 }
 
 let platform = process.env.PLATFORM;
-if (platform.includes("windows")) {
-  platform = "windows";
-} else if (platform.includes("linux")) {
-  platform = "linux";
-} else {
-  platform = "macos";
-}
 
 // Get all assets
 const { data: releaseAssets } = await octokit.rest.repos.listReleaseAssets({
   owner: "open-goal",
   repo: "jak-project",
   release_id: release.id,
-  per_page: 100
+  per_page: 100,
 });
 
 // Find the right one and download it to the right folder
@@ -80,9 +73,12 @@ for (var i = 0; i < releaseAssets.length; i++) {
       repo: "jak-project",
       asset_id: asset.id,
       headers: {
-        "Accept": "application/octet-stream"
-      }
+        Accept: "application/octet-stream",
+      },
     });
-    await fs.promises.writeFile(path.join(downloadDir, asset.name), Buffer.from(assetDownload.data));
+    await fs.promises.writeFile(
+      path.join(downloadDir, asset.name),
+      Buffer.from(assetDownload.data)
+    );
   }
 }

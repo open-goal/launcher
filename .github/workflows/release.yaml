@@ -1,91 +1,95 @@
 name: Release
 
 on:
-  repository_dispatch:
-    types: [releaseLauncher]
-  workflow_dispatch:
-    inputs:
-      bump:
-        description: 'Semver Bump Type'
-        required: true
-        default: 'patch'
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
+  push:
+    tags:
+      - v*
 
 jobs:
   publish-tauri:
+    if: github.repository == 'open-goal/launcher'
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-latest, windows-latest]
+        include:
+          - platform: ubuntu-latest
+            os: linux
+          - platform: windows-latest
+            os: windows
 
     runs-on: ${{ matrix.platform }}
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BOT_PAT }}
 
-    - name: setup node
-      uses: actions/setup-node@v1
-      with:
-        node-version: 16
+      - name: setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
 
-    - name: install Rust stable
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
+      - name: install Rust stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
 
-    - name: install dependencies (ubuntu only)
-      if: matrix.platform == 'ubuntu-latest'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
+      - name: install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
 
-    - name: install app dependencies and build it
-      run: |
-        npm ci
-        npm run build
+      - name: install app dependencies
+        run: |
+          npm ci
+          npm run build
 
-    - name: download jak-project release
-      env:
-        JAK_PROJ_VERSION: latest
-        PLATFORM: ${{ matrix.platform }}
-        DOWNLOAD_DIR: "./"
-      run: |
-        pushd ./.github/scripts/download-binaries
-        npm ci
-        popd
-        node ./.github/scripts/download-binaries/index.js
+      - name: download jak-project release
+        env:
+          JAK_PROJ_VERSION: latest
+          PLATFORM: ${{ matrix.os }}
+          DOWNLOAD_DIR: "./"
+        run: |
+          pushd ./.github/scripts/download-binaries
+          npm ci
+          popd
+          node ./.github/scripts/download-binaries/index.js
 
-    - name: prepare resources for build
-      if: matrix.platform == 'windows-latest'
-      run: |
-        mv ./opengoal*.zip ./opengoal.zip
-        tar -xf opengoal.zip
-        cp ./out/*.exe ./src-tauri/bin
-        cp ./third-party/glew_2.1.0/windows/glewinfo.exe ./src-tauri/bin
-        cp -r ./out/data ./src-tauri
+      - name: prepare resources for build
+        if: matrix.os == 'windows'
+        run: |
+          mv ./opengoal*.zip ./opengoal.zip
+          tar -xf opengoal.zip
+          mkdir -p ./src-tauri/bin/
+          cp ./out/*.exe ./src-tauri/bin || true
+          cp ./third-party/glew_2.1.0/windows/glewinfo.exe ./src-tauri/bin
+          cp -r ./out/data ./src-tauri
+          ls ./src-tauri
+          ls ./src-tauri/bin
+          ls ./src-tauri/data
 
-    - name: prepare resources for build
-      if: matrix.platform == 'ubuntu-latest'
-      run: |
-        mv ./opengoal*.tar.gz ./opengoal.tar.gz
-        tar -xf opengoal.tar.gz
-        cp ./out/* ./src-tauri/bin
-        rm ./src-tauri/bin/data/
-        cp ./third-party/glew_2.1.0/linux/glewinfo ./src-tauri/bin
-        cp -r ./out/data ./src-tauri
+      - name: prepare resources for build
+        if: matrix.os == 'linux'
+        run: |
+          mv ./opengoal*.tar.gz ./opengoal.tar.gz
+          tar -xf opengoal.tar.gz
+          mkdir -p ./src-tauri/bin/
+          cp ./out/* ./src-tauri/bin || true
+          cp ./third-party/glew_2.1.0/linux/glewinfo ./src-tauri/bin
+          cp -r ./out/data ./src-tauri
+          ls ./src-tauri
+          ls ./src-tauri/bin
+          ls ./src-tauri/data
 
-    - uses: tauri-apps/tauri-action@v0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-      with:
-        tagName: "v__VERSION__"
-        releaseName: "OpenGOAL Launcher v__VERSION__"
-        releaseBody: "See the assets to download this version and install."
-        releaseDraft: true
-        prerelease: false
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+        with:
+          tagName: "v__VERSION__"
+          releaseName: "OpenGOAL Launcher v__VERSION__"
+          releaseBody: "See the assets to download this version and install."
+          releaseDraft: true # TODO - when we are ready to go live, make them non draft
+          prerelease: false
 
-    # TODO - update a json file in the repo that will allow auto-updating
+    # TODO - update a json file in the repo that will allow auto-updating, change the repo to release

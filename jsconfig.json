@@ -23,7 +23,7 @@
     "paths": {
       "$lib/*": ["./src/lib/*"],
       "$assets/*": ["./src/assets/*"],
-      "/src/*": ["./src/*"],
+      "/src/*": ["./src/*"]
     },
     /**
      * Typecheck JS in `.svelte` and `.js` files by default.
@@ -35,5 +35,5 @@
    * Use global.d.ts instead of compilerOptions.types
    * to avoid limiting type declarations.
    */
-  "include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.svelte"],
+  "include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.svelte"]
 }

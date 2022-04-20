@@ -47,7 +47,11 @@ export async function isOpenGLVersionSupported(version) {
     return RequirementStatus.Unknown;
   }
   // Otherwise, query for the version
-  let command = Command.sidecar("bin/glewinfo", ["-version", version], sidecarOptions);
+  let command = Command.sidecar(
+    "bin/glewinfo",
+    ["-version", version],
+    sidecarOptions
+  );
   try {
     let output = await command.execute();
     if (output.code === 0) {
@@ -95,7 +99,11 @@ export async function decompileGameData(filePath) {
       sidecarOptions
     );
   } else {
-    command = Command.sidecar("bin/extractor", [filePath, "--decompile"], sidecarOptions);
+    command = Command.sidecar(
+      "bin/extractor",
+      [filePath, "--decompile"],
+      sidecarOptions
+    );
   }
 
   return await command.execute();
@@ -114,7 +122,11 @@ export async function compileGame(filePath) {
       sidecarOptions
     );
   } else {
-    command = Command.sidecar("bin/extractor", [filePath, "--compile"], sidecarOptions);
+    command = Command.sidecar(
+      "bin/extractor",
+      [filePath, "--compile"],
+      sidecarOptions
+    );
   }
 
   return await command.execute();

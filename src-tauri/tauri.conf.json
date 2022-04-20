@@ -1,7 +1,7 @@
 {
   "package": {
     "productName": "opengoal-launcher",
-    "version": "0.1.0"
+    "version": "0.2.2"
   },
   "build": {
     "distDir": "../dist",
@@ -51,7 +51,7 @@
         "https://raw.githubusercontent.com/open-goal/launcher/main/.tauri/latest-release.json"
       ],
       "dialog": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDI4QjhCQjgwMDlCQkQxNTQKUldSVTBic0pnTHU0S0xncTN0Q0ZnUW1uTHJuakVhWkt6UVJQa3lEc3U5dERUREZkSUdLV1VLRUQK"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJGQjRCQzI1N0I4REZBMzIKUldReStvMTdKYnkwditmb2IvK3hJUm9xdjJMMlN2N2tRejlON0djdE03YnhGOHlaTzVwUy9IY2YK"
     },
     "allowlist": {
       "all": true,
