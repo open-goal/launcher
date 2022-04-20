@@ -1,13 +1,18 @@
 <script>
+  // Assets
+  import bgVideo from '$assets/videos/background.webm';
+  // Other Imports
   import { onMount } from "svelte";
-  import { Router, Link, Route } from "svelte-routing";
+  import { Router, Route } from "svelte-routing";
   import Jak1 from "/src/routes/Jak1.svelte";
   import Jak1_Setup from "/src/routes/setup/Jak1.svelte";
   import Sidebar from "/src/components/Sidebar.svelte";
-  import { initConfig } from "/src/lib/config";
-  import { isInDebugMode } from "/src/lib/setup";
+  import { initConfig } from "$lib/config";
+  import { isInDebugMode } from "$lib/setup";
 
   export let url = "";
+
+  let revokeSpecificActions = false;
 
   // Events
   onMount(async () => {
@@ -15,15 +20,30 @@
   });
 
   if (!isInDebugMode()) {
+    revokeSpecificActions = true;
     // Disable Right Click
-    document.addEventListener("contextmenu", (event) => event.preventDefault());
+    document.addEventListener("contextmenu", (event) => {
+      if (revokeSpecificActions) {
+        event.preventDefault();
+      }
+    });
     // Disable Refreshing (F5 / Ctrl+R)
     document.addEventListener("keydown", (e) => {
       if (e.code == "F5") {
-        e.preventDefault();
+        if (revokeSpecificActions) {
+          e.preventDefault();
+        }
       }
       if (e.code == "KeyR" && e.ctrlKey) {
-        e.preventDefault();
+        if (revokeSpecificActions) {
+          e.preventDefault();
+        }
+      }
+      // super secret keybind to reverse the above so we can debug a release version
+      // Shift+Ctrl F12
+      if (e.code == "F12" && e.ctrlKey && e.shiftKey) {
+        revokeSpecificActions = false;
+        console.log("hello world");
       }
     });
   }
@@ -35,7 +55,7 @@
       <div class="overlay" />
       <video
         id="backgroundVideo"
-        src="/src/assets/videos/background.mp4"
+        src={bgVideo}
         autoplay
         muted
         loop
@@ -51,3 +71,4 @@
     </div>
   </main>
 </Router>
+

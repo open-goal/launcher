@@ -1,7 +1,7 @@
 {
   "package": {
     "productName": "opengoal-launcher",
-    "version": "0.1.0"
+    "version": "0.2.2"
   },
   "build": {
     "distDir": "../dist",
@@ -21,7 +21,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "resources": [],
+      "resources": ["data/"],
       "externalBin": ["bin/extractor", "bin/gk", "bin/goalc", "bin/glewinfo"],
       "copyright": "",
       "category": "DeveloperTool",
@@ -46,7 +46,12 @@
       }
     },
     "updater": {
-      "active": false
+      "active": true,
+      "endpoints": [
+        "https://raw.githubusercontent.com/open-goal/launcher/main/.tauri/latest-release.json"
+      ],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJGQjRCQzI1N0I4REZBMzIKUldReStvMTdKYnkwditmb2IvK3hJUm9xdjJMMlN2N2tRejlON0djdE03YnhGOHlaTzVwUy9IY2YK"
     },
     "allowlist": {
       "all": true,

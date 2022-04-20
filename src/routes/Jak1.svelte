@@ -1,8 +1,10 @@
 <script>
+  // Assets
+  import logo from '$assets/images/logo.png';
   import { onMount } from 'svelte';
   import { Link } from "svelte-routing";
-  import { getInstallStatus, SupportedGame } from '/src/lib/config';
-  import { launchGame } from '/src/lib/launch';
+  import { getInstallStatus, SupportedGame } from '$lib/config';
+  import { launchGame } from '$lib/launch';
 
   // State
   let gameInstalled = false;
@@ -22,7 +24,7 @@
 
 <div class="flex-center">
   <div class="logo">
-    <img id="logo" width="65%" src="/src/assets/images/logo.png">
+    <img id="logo" width="65%" src={logo} alt="OpenGOAL">
   </div>
   <div id="launcherControls">
     {#if gameInstalled}

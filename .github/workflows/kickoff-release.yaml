@@ -1,0 +1,48 @@
+name: Kick off Release
+
+on:
+  repository_dispatch:
+    types: [releaseLauncher]
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Semver Bump Type"
+        required: true
+        default: "patch"
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  kick-off-release:
+    if: github.repository == 'open-goal/launcher'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+
+      - name: bump versions with new tag value
+        id: version-bump
+        run: |
+          npm version ${{ github.event.inputs.bump }} --no-git-tag-version
+          NEW_VERSION=$(awk '/version/{gsub(/("|",)/,"",$2);print $2}' package.json)
+          sed -i "/APP_VERSION/c\version = \""$NEW_VERSION"\" # APP_VERSION" ./src-tauri/Cargo.toml
+          sed -i "/\"version\":/c\    \"version\": \""$NEW_VERSION"\"" ./src-tauri/tauri.conf.json
+          echo "##[set-output name=new_version;]${NEW_VERSION}"
+
+      - name: commit version bump
+        uses: EndBug/add-and-commit@v8
+        with:
+          default_author: github_actor
+          author_name: "OpenGOALBot"
+          author_email: "OpenGOALBot@users.noreply.github.com"
+          message: "Bump to version - ${{ steps.version-bump.outputs.new_version }}"
+          tag: "v${{ steps.version-bump.outputs.new_version }}"

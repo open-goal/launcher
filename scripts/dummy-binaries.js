@@ -12,6 +12,7 @@ if (existsSync("./src-tauri/bin")) {
 }
 // Recreate the directory
 mkdirSync("./src-tauri/bin");
+mkdirSync("./src-tauri/data");
 // Create empty executables
 let extension = "";
 if (process.platform === "win32") {
@@ -21,3 +22,4 @@ writeFileSync(`./src-tauri/bin/extractor${extension}`, "dummy");
 writeFileSync(`./src-tauri/bin/gk${extension}`, "dummy");
 writeFileSync(`./src-tauri/bin/goalc${extension}`, "dummy");
 writeFileSync(`./src-tauri/bin/glewinfo${extension}`, "dummy");
+writeFileSync(`./src-tauri/data/something.txt`, "dummy");

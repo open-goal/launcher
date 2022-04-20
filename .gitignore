@@ -28,3 +28,5 @@ bundle-test/
 imgui.ini
 game_config/
 out/
+*.zip
+*.tar.gz
