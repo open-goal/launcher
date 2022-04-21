@@ -1,18 +1,19 @@
 <script>
   import "../css/progress.css";
-  let progressPercent = 10;
-  export let status;
+  export let step;
 </script>
 
 <section>
   <div class="status">
-    <h2>{status}</h2>
+    <h2>{step.status}</h2>
   </div>
 
-  <div class="progress">
-    <div
-      class="progress-bar progress-bar-animated"
-      style="width: {progressPercent}%"
-    />
-  </div>
+  {#if step.percent >= 0}
+    <div class="progress">
+      <div
+        class="progress-bar progress-bar-animated"
+        style="width: {step.percent}%"
+      />
+    </div>
+  {/if}
 </section>

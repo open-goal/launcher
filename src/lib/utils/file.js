@@ -11,7 +11,7 @@ export async function fileExists(path) {
   }
 }
 
-export async function filePrompt(title) {
+export async function filePrompt() {
   // TODO - pull strings out into args
   const path = await open({
     multiple: false,
@@ -22,7 +22,7 @@ export async function filePrompt(title) {
   if (path) {
     return path;
   }
-  return null;
+  throw new Error('No ISO File Selected!');
 }
 
 export async function clearInstallLogs(supportedGame, text) {

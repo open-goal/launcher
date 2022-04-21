@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import { Link, navigate } from "svelte-routing";
+  import { Link } from "svelte-routing";
   import { filePrompt } from "$lib/utils/file";
   import {
     compileGame,
@@ -10,7 +10,6 @@
     isOpenGLVersionSupported,
   } from "$lib/setup";
   import { SupportedGame, setInstallStatus } from "$lib/config";
-  import { InstallationStatus, RequirementStatus } from "$lib/setup";
   import {
     appendToInstallLog,
     appendToInstallErrorLog,
@@ -18,70 +17,85 @@
   } from "$lib/utils/file";
 
   import Progress from "../../components/Progress.svelte";
+  import { message } from "@tauri-apps/api/dialog";
 
-  let setupStarted = false;
   let setupInProgress = false;
   let isoPath;
 
-  // let requirementChecks = [
-  //   {
-  //     status: RequirementStatus.Checking,
-  //     text: `CPU Supports&nbsp;<a href="https://en.wikipedia.org/wiki/Advanced_Vector_Extensions" target="_blank"><strong>AVX or AVX2</strong></a>`,
-  //     check: async () => await isAVXSupported(),
-  //   },
-  //   {
-  //     status: RequirementStatus.Checking,
-  //     text: `GPU Supports&nbsp;OpenGL&nbsp;<span class="orange-text"><strong>4.3</strong></span>`,
-  //     check: async () => await isOpenGLVersionSupported("4.3"),
-  //   },
-  // ];
+  const progressSteps = {
+    avxSupported: { status: "AVX SUPPORTED", percent: 10 },
+    openGLSupported: { status: "OPENGL SUPPORTED", percent: 20 },
+    checkCompatible: { status: "Checking Compatibility", percent: 0 },
+    awaitingISO: { status: "Awaiting ISO File", percent: 20 },
+    extractingISO: {
+      status: "Extracting and Validating ISO contents",
+      percent: 40,
+    },
+    decompiling: { status: "Decompiling the game", percent: 60 },
+    compiling: { status: "Compiling the game", percent: 80 },
+    ready: { status: "Ready to Play!", percent: 100 },
+  };
 
-  // let currStep = 0;
-  // let installSteps = [
-  //   {
-  //     status: InstallationStatus.Pending,
-  //     text: "Extracting and Validating ISO",
-  //     logs: "",
-  //     errorLogs: "",
-  //   },
-  //   {
-  //     status: InstallationStatus.Pending,
-  //     text: "Decompiling the Game",
-  //     logs: "",
-  //     errorLogs: "",
-  //   },
-  //   {
-  //     status: InstallationStatus.Pending,
-  //     text: "Compiling the Game",
-  //     logs: "",
-  //     errorLogs: "",
-  //   },
-  // ];
+  const progressErrors = {
+    noISO: { status: "No ISO File Selected!", percent: -1 },
+  };
 
-  let installErrors = [];
+  let currentStatus = {};
 
   async function areRequirementsMet() {
     const res = await Promise.resolve()
-      .then(isAVXSupported)
-      .then(isOpenGLVersionSupported("4.3"))
-      .catch((err) => console.log(err));
-    console.log(res);
+      .then(async () => await isAVXSupported())
+      .then(() => (currentStatus = progressSteps.avxSupported))
+      .then(async () => await isOpenGLVersionSupported("4.3"))
+      .then(() => (currentStatus = progressSteps.openGLSupported))
+      .catch((err) => {
+        currentStatus = { status: err.message, percent: -1 };
+        console.error(err);
+      });
 
     return res;
   }
 
   async function installProcess() {
     await clearInstallLogs(SupportedGame.Jak1);
-
+    currentStatus = progressSteps.awaitingISO;
     const res = await Promise.resolve()
-      // .then(filePrompt)
-      .then(await extractAndValidateISO(isoPath))
-      .then(await decompileGameData(isoPath))
-      .then(await compileGame(isoPath))
-      .catch((err) => console.log(err));
-    console.log(res);
+      .then(async () => (isoPath = await filePrompt()))
+      .then(async () => {
+        currentStatus = progressSteps.extractingISO;
+        await extractAndValidateISO(isoPath);
+      })
+      .then(async () => {
+        currentStatus = progressSteps.decompiling;
+        await decompileGameData(isoPath);
+      })
+      .then(async () => {
+        currentStatus = progressSteps.compiling;
+        await compileGame(isoPath);
+      })
+      .then(async () => {
+        currentStatus = progressSteps.ready;
+        await setInstallStatus(SupportedGame.Jak1, true);
+        await message("READY TO PLAY");
+      })
+      .catch((err) => {
+        console.error(err);
+        currentStatus = { status: err.message, percent: -1 };
+      });
 
     return res;
+  }
+
+  onMount(async () => {
+    currentStatus = progressSteps.checkCompatible;
+    // in the future i want to save the requirements met in the settings.json store file so it doesnt need to be run every time
+    // then the requirements met function can check against the store data to avoid running the external bins each time
+    await areRequirementsMet();
+    await installProcess();
+  });
+
+  function onClickBrowse() {
+    installProcess();
   }
   // function handleError(output) {
   //   if (output.code === 0) {
@@ -190,45 +204,25 @@
   //   setupInProgress = false;
   //   isoPath = undefined;
   // }
-
-  // Events
-
-  async function onClickBrowse() {
-    isoPath = await filePrompt();
-    installProcess();
-  }
-
-  const progressSteps = {
-    checkCompatible: "Checking compatibility",
-    awaitingISO: "Awaiting ISO File",
-    extractingISO: "Extracting and Validating ISO contents",
-    decompiling: "Decompiling",
-    compiling: "Compiling",
-    ready: "Ready",
-  };
-
-  let status = "";
 </script>
 
 <div class="content">
-  <Progress status="mike jones" />
-  {#if areRequirementsMet()}
-    <div>
+  <Progress step={currentStatus} />
+  <div style="text-align:center">
+    {#if currentStatus.status === "No ISO File Selected!"}
       <button class="btn" disabled={setupInProgress} on:click={onClickBrowse}>
         Browse for ISO
       </button>
-      <Link to="/jak1">
-        <button class="btn">Cancel</button>
-      </Link>
-      <span id="filePathLabel" />
-    </div>
-    {#if setupStarted}
-      <div class="row">
-        <details>
-          <summary>Installation Logs</summary>
-          <div class="logContainer" />
-        </details>
-      </div>
     {/if}
-  {/if}
+    <Link to="/jak1">
+      <button class="btn">Cancel</button>
+    </Link>
+    <span id="filePathLabel" />
+  </div>
+  <div class="row">
+    <details>
+      <summary>Installation Logs</summary>
+      <div class="logContainer" />
+    </details>
+  </div>
 </div>

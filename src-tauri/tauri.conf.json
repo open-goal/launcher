@@ -104,7 +104,9 @@
         "width": 800,
         "height": 600,
         "resizable": false,
-        "fullscreen": false
+        "fullscreen": false,
+        "x": 1750,
+        "y": 0
       }
     ],
     "security": {

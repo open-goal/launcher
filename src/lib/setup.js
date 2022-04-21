@@ -3,48 +3,42 @@ import { resourceDir } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
 import { getHighestSimd } from "$lib/commands";
 
-export class InstallationStatus {
-  static Pending = Symbol("pending");
-  static InProgress = Symbol("inprogress");
-  static Failed = Symbol("failed");
-  static Success = Symbol("success");
-}
-
-export class RequirementStatus {
-  static Unknown = Symbol("unknown");
-  static Met = Symbol("met");
-  static Failed = Symbol("failed");
-  static Checking = Symbol("checking");
-}
+let debugPath;
+let sidecarOptions = {};
 
 export function isInDebugMode() {
   return process.env.NODE_ENV === "development";
 }
 
-let debugPath;
-let sidecarOptions = {};
 if (isInDebugMode()) {
   // TODO - this is kind of a total hack
   let path = await resourceDir();
   debugPath = path.split("launcher")[0].split("?\\")[1];
-  debugPath += "\\launcher\\bundle-test\\data";
+  // debugPath += "\\launcher\\bundle-test\\data";\
+  debugPath += "launcher\\src-tauri\\data\\"
   sidecarOptions = { cwd: "bin" };
 }
 
 export async function isAVXSupported() {
-  let highestSIMD = await getHighestSimd();
+  const highestSIMD = await getHighestSimd();
   if (highestSIMD === undefined) {
-    return RequirementStatus.Unknown;
+    return true;
+    // return RequirementStatus.Unknown;
   }
   if (highestSIMD.toLowerCase().startsWith("avx")) {
     return true;
   }
-  return false;
+  throw new Error('UNSUPPORTED AVX');
 }
 
+/**
+ * @param {String} version
+ * @returns {Promise<Boolean>}
+ */
 export async function isOpenGLVersionSupported(version) {
   if ((await os.platform()) === "darwin") {
-    return RequirementStatus.Unknown;
+    throw new Error("Unsupported OS!");
+    // return RequirementStatus.Unknown;
   }
   // Otherwise, query for the version
   let command = Command.sidecar(
@@ -52,15 +46,11 @@ export async function isOpenGLVersionSupported(version) {
     ["-version", version],
     sidecarOptions
   );
-  try {
-    const output = await command.execute();
-    if (output.code === 0) {
-      return true;
-    }
-    return false;
-  } catch (e) {
-    throw new Error('ERROR MESSAGE');
+  const output = await command.execute();
+  if (output.code === 0) {
+    return true;
   }
+  throw new Error('UNSUPPORTED OPENGL VERSION');
 }
 
 /**
@@ -70,6 +60,7 @@ export async function isOpenGLVersionSupported(version) {
 export async function extractAndValidateISO(filePath) {
   let command;
   if (isInDebugMode()) {
+    console.log(debugPath);
     command = Command.sidecar(
       "bin/extractor",
       [filePath, "--extract", "--proj-path", debugPath],
@@ -83,12 +74,11 @@ export async function extractAndValidateISO(filePath) {
     );
   }
 
-  console.log(command);
   const output = await command.execute();
   if (output.code === 0) {
     return true;
   }
-  throw new Error("ERROR MESSAGE");
+  throw new Error(`Extractor exited with code: ${output.code}`);
 }
 
 /**
@@ -115,7 +105,7 @@ export async function decompileGameData(filePath) {
   if (output.code === 0) {
     return true;
   }
-  throw new Error("ERROR MESSAGE");
+  throw new Error(`Decompiler exited with code: ${output.code}`);
 }
 
 /**
@@ -142,5 +132,5 @@ export async function compileGame(filePath) {
   if (output.code === 0) {
     return true;
   }
-  throw new Error("ERROR MESSAGE");
+  throw new Error(`Compiler exited with code: ${output.code}`);
 }

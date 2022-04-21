@@ -31,6 +31,13 @@ export class SupportedGame {
   static allGames = [this.Jak1, this.Jak2, this.Jak3, this.JakX];
 }
 
+// const supportedGame = {
+//   Jak1: "Jak 1",
+//   Jak2: "Jak 2",
+//   Jak3: "Jak 3",
+//   JakX: "Jak X",
+// }
+
 class GameConfig {
   isInstalled = false;
   isActive = false;
