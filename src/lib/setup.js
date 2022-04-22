@@ -23,7 +23,6 @@ export async function isAVXSupported() {
   const highestSIMD = await getHighestSimd();
   if (highestSIMD === undefined) {
     return true;
-    // return RequirementStatus.Unknown;
   }
   if (highestSIMD.toLowerCase().startsWith("avx")) {
     return true;
