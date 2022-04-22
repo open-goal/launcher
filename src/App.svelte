@@ -5,6 +5,7 @@
   import { onMount } from "svelte";
   import { Router, Route } from "svelte-routing";
   import Jak1 from "/src/routes/Jak1.svelte";
+  import Settings from "./routes/Settings.svelte";
   import Sidebar from "/src/components/Sidebar.svelte";
   import { initConfig } from "$lib/config";
   import { isInDebugMode } from "$lib/setup";
@@ -59,6 +60,7 @@
       <div id="main">
         <Route path="/" component={Jak1} />
         <Route path="/jak1" component={Jak1} />
+        <Route path="/settings" component={Settings} />
       </div>
     </div>
   </main>

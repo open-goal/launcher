@@ -8,7 +8,7 @@
 <nav id="sidebar">
   <div class="games">
     <div class="jak-1 nav-item active">
-      <Link to="/jak1" data-tooltip="Jak & Daxter: The Precursor Legacy">
+      <Link to="jak1" data-tooltip="Jak & Daxter: The Precursor Legacy">
         <img src={logoJak1} alt="Jak - TPL" />
       </Link>
     </div>
@@ -31,7 +31,7 @@
       </Link>
     </div>
     <div class="settings nav-item">
-      <Link to="" data-tooltip="Settings">
+      <Link to="settings" data-tooltip="Settings">
         <i class="bi bi-sliders" />
       </Link>
     </div>

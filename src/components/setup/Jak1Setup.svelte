@@ -1,9 +1,9 @@
 <script>
   import { message } from "@tauri-apps/api/dialog";
   import { onMount } from "svelte";
-  import { Link } from "svelte-routing";
+  import { Link, navigate } from "svelte-routing";
   import { filePrompt } from "$lib/utils/file";
-  import { SupportedGame, setInstallStatus } from "$lib/config";
+  import { setInstallStatus } from "$lib/config";
   import { clearInstallLogs } from "$lib/utils/file";
   import {
     compileGame,
@@ -15,7 +15,11 @@
   // components
   import Progress from "./Progress.svelte";
   // constants
-  import { SETUP_SUCCESS, SETUP_ERROR } from "../../lib/constants";
+  import {
+    SETUP_SUCCESS,
+    SETUP_ERROR,
+    SUPPORTED_GAME,
+  } from "../../lib/constants";
 
   let isoPath;
 
@@ -42,7 +46,7 @@
   }
 
   async function installProcess() {
-    await clearInstallLogs(SupportedGame.Jak1);
+    await clearInstallLogs(SUPPORTED_GAME.Jak1);
     currentStatus = SETUP_SUCCESS.awaitingISO;
     const res = await Promise.resolve()
       .then(async () => (isoPath = await filePrompt()))
@@ -60,8 +64,9 @@
       })
       .then(async () => {
         setStatus(SETUP_SUCCESS.ready);
-        await setInstallStatus(SupportedGame.Jak1, true);
+        await setInstallStatus(SUPPORTED_GAME.Jak1, true);
         await message("READY TO PLAY");
+        navigate("/", { replace: true });
       })
       .catch((err) => {
         console.error(err);
@@ -74,6 +79,7 @@
   onMount(async () => {
     // in the future i want to save the requirements met in the settings.json store file so it doesnt need to be run every time
     // then the requirements met function can check against the store data to avoid running the external bins each time
+    // gotta revise this in the future because this will still run the install process even if the user doesnt meet the requirements
     await areRequirementsMet();
     await installProcess();
   });
@@ -86,6 +92,7 @@
 <div class="content">
   <Progress step={currentStatus} />
   <div style="text-align:center">
+    <!-- have to edit this conditional in the future but for now its okay -->
     {#if currentStatus.status === "No ISO File Selected!"}
       <button class="btn" on:click={onClickBrowse}> Browse for ISO </button>
     {/if}
