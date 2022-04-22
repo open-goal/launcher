@@ -27,12 +27,12 @@ export async function filePrompt() {
 
 export async function clearInstallLogs(supportedGame, text) {
   const dir = await logDir();
-  let fileName = `${supportedGame.name}-install.log`;
+  let fileName = `${supportedGame}-install.log`;
   let fullPath = await join(dir, fileName);
   if (await fileExists(fullPath)) {
     await writeFile({ contents: "", path: fullPath });
   }
-  fileName = `${supportedGame.name}-install-errors.log`;
+  fileName = `${supportedGame}-install-errors.log`;
   fullPath = await join(dir, fileName);
   if (await fileExists(fullPath)) {
     await writeFile({ contents: "", path: fullPath });
@@ -41,7 +41,7 @@ export async function clearInstallLogs(supportedGame, text) {
 
 export async function appendToInstallLog(supportedGame, text) {
   const dir = await logDir();
-  const fileName = `${supportedGame.name}-install.log`;
+  const fileName = `${supportedGame}-install.log`;
   const fullPath = await join(dir, fileName);
   console.log(`[OG]: Writing logs to ${fullPath}`);
   let contents = "";
@@ -56,7 +56,7 @@ export async function appendToInstallLog(supportedGame, text) {
 
 export async function appendToInstallErrorLog(supportedGame, text) {
   const dir = await logDir();
-  const fileName = `${supportedGame.name}-install-errors.log`;
+  const fileName = `${supportedGame}-install-errors.log`;
   const fullPath = await join(dir, fileName);
   console.log(`[OG]: Writing logs to ${fullPath}`);
   let contents = "";
