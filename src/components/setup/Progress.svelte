@@ -1,5 +1,5 @@
 <script>
-  import "../css/progress.css";
+  import "./progress.css";
   export let step;
 </script>
 
