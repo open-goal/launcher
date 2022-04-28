@@ -2,7 +2,6 @@ import { Octokit } from "@octokit/rest";
 import { throttling } from "@octokit/plugin-throttling";
 import { retry } from "@octokit/plugin-retry";
 import * as fs from "fs";
-import * as path from "path";
 
 Octokit.plugin(throttling);
 Octokit.plugin(retry);
@@ -36,12 +35,36 @@ const octokit = new Octokit({
   },
 });
 
-let releaseId = process.env.RELEASE_ID;
-const { data: releaseData } = await octokit.rest.repos.getRelease({
+let tagToSearchFor = process.env.TAG_VALUE.split("refs/tags/")[1];
+
+const { data: releaseData } = await octokit.rest.repos.getReleaseByTag({
   owner: "open-goal",
-  repo: "launcher",
-  release_id: releaseId,
+  repo: "jak-project",
+  tag: tagToSearchFor
 });
 
-// does the tauri action auto take it out of draft?
-// gotta test...
+if (releaseData === undefined) {
+  console.log(`Could not find release with tag name: ${tagToSearchFor}`);
+  process.exit(1);
+}
+
+// TODO - no macOS yet
+const releaseMeta = {
+  "name": releaseData.tag_name,
+  "notes": "UPDATE",
+  "pub_date": releaseData.created_at,
+  "platforms": {
+    "linux": {
+      "signature": "",
+      "url": `https://github.com/open-goal/launcher/releases/download/${releaseData.tag_name}/opengoal-launcher-linux.AppImage.tar.gz`
+    },
+    "win64": {
+      "signature": "",
+      "url": `https://github.com/open-goal/launcher/releases/download/${releaseData.tag_name}/opengoal-launcher-windows.x64.msi.zip`
+    }
+  }
+}
+
+fs.writeFileSync("./.tauri/latest-release.json", JSON.stringify(releaseMeta, null, 2));
+
+// TODO - take the release out of draft when we are ready to actually publish!
