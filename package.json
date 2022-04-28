@@ -13,7 +13,9 @@
     "update-bin": "node ./scripts/update-binaries.js && npm run package",
     "lint": "npx prettier --check .",
     "format": "npx prettier --write .",
-    "mock-bin": "node ./scripts/dummy-binaries.js"
+    "mock-bin": "node ./scripts/dummy-binaries.js",
+    "prepare-release-config": "node ./scripts/merge-config.js",
+    "release": "npm run prepare-release-config && npm run tauri build -- --config ./.tauri/release-config.combined.json"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
