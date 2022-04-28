@@ -55,6 +55,10 @@ jobs:
           popd
           node ./.github/scripts/download-binaries/index.js
 
+      - name: prepare release config
+        run: |
+          npm run prepare-release-config
+
       - name: prepare resources for build
         if: matrix.os == 'windows'
         run: |
@@ -86,6 +90,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
         with:
+          configPath: "./.tauri/release-config.combined.json"
           tagName: "v__VERSION__"
           releaseName: "OpenGOAL Launcher v__VERSION__"
           releaseBody: "See the assets to download this version and install."
