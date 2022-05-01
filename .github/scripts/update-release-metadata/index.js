@@ -40,7 +40,7 @@ let tagToSearchFor = process.env.TAG_VALUE.split("refs/tags/")[1];
 const { data: recentReleases } = await octokit.rest.repos.listReleases({
   owner: "open-goal",
   repo: "launcher",
-  per_page: 100
+  per_page: 100,
 });
 
 let release = undefined;
@@ -64,11 +64,18 @@ const releaseMeta = {
   platforms: {
     linux: {
       signature: "",
-      url: `https://github.com/open-goal/launcher/releases/download/${release.tag_name}/opengoal-launcher_${tagToSearchFor.replace("v", "")}_amd64.AppImage.tar.gz`,
+      url: `https://github.com/open-goal/launcher/releases/download/${
+        release.tag_name
+      }/opengoal-launcher_${tagToSearchFor.replace(
+        "v",
+        ""
+      )}_amd64.AppImage.tar.gz`,
     },
     win64: {
       signature: "",
-      url: `https://github.com/open-goal/launcher/releases/download/${release.tag_name}/opengoal-launcher_${tagToSearchFor.replace("v", "")}_x64_en-US.msi.zip`,
+      url: `https://github.com/open-goal/launcher/releases/download/${
+        release.tag_name
+      }/opengoal-launcher_${tagToSearchFor.replace("v", "")}_x64_en-US.msi.zip`,
     },
   },
 };
@@ -81,5 +88,5 @@ await octokit.rest.repos.updateRelease({
   owner: "open-goal",
   repo: "launcher",
   release_id: release.id,
-  draft: false
+  draft: false,
 });
