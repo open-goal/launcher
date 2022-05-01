@@ -37,37 +37,49 @@ const octokit = new Octokit({
 
 let tagToSearchFor = process.env.TAG_VALUE.split("refs/tags/")[1];
 
-const { data: releaseData } = await octokit.rest.repos.getReleaseByTag({
+const { data: recentReleases } = await octokit.rest.repos.listReleases({
   owner: "open-goal",
-  repo: "jak-project",
-  tag: tagToSearchFor,
+  repo: "launcher",
+  per_page: 100
 });
 
-if (releaseData === undefined) {
+let release = undefined;
+for (var i = 0; i < recentReleases.length; i++) {
+  if (recentReleases[i].tag_name == tagToSearchFor) {
+    release = recentReleases[i];
+    break;
+  }
+}
+
+if (release === undefined) {
   console.log(`Could not find release with tag name: ${tagToSearchFor}`);
   process.exit(1);
 }
 
 // TODO - no macOS yet
 const releaseMeta = {
-  name: releaseData.tag_name,
+  name: release.tag_name,
   notes: "UPDATE",
-  pub_date: releaseData.created_at,
+  pub_date: release.created_at,
   platforms: {
     linux: {
       signature: "",
-      url: `https://github.com/open-goal/launcher/releases/download/${releaseData.tag_name}/opengoal-launcher-linux.AppImage.tar.gz`,
+      url: `https://github.com/open-goal/launcher/releases/download/${release.tag_name}/opengoal-launcher_${tagToSearchFor.replace("v", "")}_amd64.AppImage.tar.gz`,
     },
     win64: {
       signature: "",
-      url: `https://github.com/open-goal/launcher/releases/download/${releaseData.tag_name}/opengoal-launcher-windows.x64.msi.zip`,
+      url: `https://github.com/open-goal/launcher/releases/download/${release.tag_name}/opengoal-launcher_${tagToSearchFor.replace("v", "")}_x64_en-US.msi.zip`,
     },
   },
 };
-
 fs.writeFileSync(
   "./.tauri/latest-release.json",
   JSON.stringify(releaseMeta, null, 2)
 );
 
-// TODO - take the release out of draft when we are ready to actually publish!
+await octokit.rest.repos.updateRelease({
+  owner: "open-goal",
+  repo: "launcher",
+  release_id: release.id,
+  draft: false
+});
