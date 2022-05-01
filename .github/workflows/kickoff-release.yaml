@@ -44,5 +44,5 @@ jobs:
           default_author: github_actor
           author_name: "OpenGOALBot"
           author_email: "OpenGOALBot@users.noreply.github.com"
-          message: "Bump to version - ${{ steps.version-bump.outputs.new_version }}"
+          message: "release: bump to version - ${{ steps.version-bump.outputs.new_version }}"
           tag: "v${{ steps.version-bump.outputs.new_version }}"

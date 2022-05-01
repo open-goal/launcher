@@ -16,7 +16,7 @@ export async function filePrompt(title) {
   const path = await open({
     multiple: false,
     directory: false,
-    filters: [{ extensions: ["ISO"], name: "Jak ISO File" }],
+    filters: [{ extensions: ["ISO", "iso"], name: "Jak ISO File" }],
   });
 
   if (path) {
