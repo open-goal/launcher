@@ -1,11 +1,11 @@
 <script>
   // Assets
-  import bgVideo from '$assets/videos/background.webm';
+  import bgVideo from "$assets/videos/background.webm";
   // Other Imports
   import { onMount } from "svelte";
   import { Router, Route } from "svelte-routing";
   import Jak1 from "/src/routes/Jak1.svelte";
-  import Jak1_Setup from "/src/routes/setup/Jak1.svelte";
+  import Settings from "./routes/Settings.svelte";
   import Sidebar from "/src/components/Sidebar.svelte";
   import { initConfig } from "$lib/config";
   import { isInDebugMode } from "$lib/setup";
@@ -53,22 +53,15 @@
   <main>
     <div class="video-container">
       <div class="overlay" />
-      <video
-        id="backgroundVideo"
-        src={bgVideo}
-        autoplay
-        muted
-        loop
-      />
+      <video id="backgroundVideo" src={bgVideo} autoplay muted loop />
     </div>
     <div class="container">
       <Sidebar />
       <div id="main">
         <Route path="/" component={Jak1} />
         <Route path="/jak1" component={Jak1} />
-        <Route path="/setup/jak1" component={Jak1_Setup} />
+        <Route path="/settings" component={Settings} />
       </div>
     </div>
   </main>
 </Router>
-

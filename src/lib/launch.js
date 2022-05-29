@@ -11,7 +11,8 @@ let debugPath;
 if (isInDebugMode()) {
   let path = await resourceDir();
   debugPath = path.split("launcher")[0].split("?\\")[1];
-  debugPath += "\\launcher\\bundle-test\\data";
+  // debugPath += "\\launcher\\bundle-test\\data";
+  debugPath += "\\launcher\\src-tauri\\data";
 }
 
 export async function launchGame() {
@@ -27,5 +28,5 @@ export async function launchGame() {
       cwd: "bin",
     });
   }
-  command.execute();
+  await command.execute();
 }
