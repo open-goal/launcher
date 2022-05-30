@@ -1,5 +1,5 @@
 <script>
-  import { launchGame } from "$lib/launch";
+  import { launchGame } from "$lib/launch.ts";
 
   function onClickConfig() {
     alert("TODO");

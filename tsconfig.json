@@ -1,8 +1,10 @@
 {
+  "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "moduleResolution": "node",
     "target": "esnext",
     "module": "esnext",
+    "resolveJsonModule": true,
     /**
      * svelte-preprocess cannot figure out whether you have
      * a value or a type, so tell TypeScript to enforce using
@@ -10,7 +12,6 @@
      */
     "importsNotUsedAsValues": "error",
     "isolatedModules": true,
-    "resolveJsonModule": true,
     /**
      * To have warnings / errors of the Svelte compiler at the
      * correct position, enable source maps by default.
@@ -21,9 +22,15 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "$lib/*": ["./src/lib/*"],
-      "$assets/*": ["./src/assets/*"],
-      "/src/*": ["./src/*"]
+      "$lib/*": [
+        "./src/lib/*"
+      ],
+      "$assets/*": [
+        "./src/assets/*"
+      ],
+      "/src/*": [
+        "./src/*"
+      ]
     },
     /**
      * Typecheck JS in `.svelte` and `.js` files by default.
@@ -35,5 +42,23 @@
    * Use global.d.ts instead of compilerOptions.types
    * to avoid limiting type declarations.
    */
-  "include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.svelte"]
+  "include": [
+    "src/**/*.d.ts",
+    "src/**/*.js",
+    "src/**/*.svelte",
+    "svelte.config.js",
+    "src/main.ts",
+    "src/lib/launch.ts",
+    "src/lib/setup.ts",
+    "src/lib/launch.ys",
+    "src/lib/constants.ts",
+    "src/lib/config.ts",
+    "src/lib/commands.ts",
+    "src/lib/utils/file.ts"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }
