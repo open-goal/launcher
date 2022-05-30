@@ -45,79 +45,7 @@ body {
 
 .container {
   display: flex;
-}
-
-#sidebar {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: var(--bg-blue);
-  opacity: 75%;
-  transition: 500ms ease;
-  width: 10vw;
-  max-width: 10vw;
-}
-
-#sidebar:hover {
-  opacity: 100%;
-}
-
-.games {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-around;
-  height: 50vh;
-}
-
-.nav-item {
-  margin: 0 5px;
-  filter: grayscale(100%);
-  transition: 500ms ease;
-  opacity: 50%;
-}
-
-.nav-item.active {
-  filter: grayscale(0%);
-}
-
-.nav-item:hover {
-  filter: grayscale(0%);
-  opacity: 100%;
-  cursor: pointer;
-}
-
-.nav-item.disabled:hover,
-.nav-item.disabled {
-  cursor: not-allowed;
-  filter: grayscale(100%);
-}
-
-.nav-item a::before,
-.nav-item a::after {
-  --scale: 0;
-  position: absolute;
-  transform: translateX(55px) scale(var(--scale));
-  transition: 200ms ease;
-  transform-origin: left center;
-}
-
-.nav-item a::before {
-  padding: 0.5rem;
-  width: max-content;
-  background: #333;
-  color: white;
-  content: attr(data-tooltip);
-  border-radius: 0.3rem;
-  text-align: center;
-}
-
-.nav-item a:hover::before {
-  --scale: 1;
-}
-
-.nav-item img {
-  width: 100%;
+  flex-wrap: wrap;
 }
 
 .spacer {
@@ -140,12 +68,23 @@ body {
 
 #main {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   flex-direction: column;
-  height: 100vh;
+  height: 95vh;
   width: 90vw;
   max-width: 90vw;
   overflow-y: auto;
+}
+
+#footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 5vh;
+  width: 90vw;
+  max-width: 90vw;
+  background-color: var(--bg-blue);
 }
 
 .flex-center {
@@ -155,7 +94,7 @@ body {
   text-align: center;
 }
 
-.flex-center > div {
+.flex-center>div {
   margin: 15px 0;
 }
 
@@ -221,6 +160,7 @@ body {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -259,7 +199,7 @@ body {
   margin-bottom: 1em;
 }
 
-details > summary:hover {
+details>summary:hover {
   cursor: pointer;
 }
 

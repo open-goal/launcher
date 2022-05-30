@@ -6,9 +6,10 @@
   import { Router, Route } from "svelte-routing";
   import Jak1 from "/src/routes/Jak1.svelte";
   import Settings from "./routes/Settings.svelte";
-  import Sidebar from "/src/components/Sidebar.svelte";
+  import Sidebar from "./components/siderbar/Sidebar.svelte";
   import { initConfig } from "$lib/config";
   import { isInDebugMode } from "$lib/setup";
+  import Statusbar from "./components/statusbar/Statusbar.svelte";
 
   export let url = "";
 
@@ -57,10 +58,15 @@
     </div>
     <div class="container">
       <Sidebar />
-      <div id="main">
-        <Route path="/" component={Jak1} />
-        <Route path="/jak1" component={Jak1} />
-        <Route path="/settings" component={Settings} />
+      <div class="test">
+        <div id="main">
+          <Route path="/" component={Jak1} />
+          <Route path="/jak1" component={Jak1} />
+          <Route path="/settings" component={Settings} />
+        </div>
+        <div id="footer">
+          <Statusbar status="Downloading assets..." />
+        </div>
       </div>
     </div>
   </main>
