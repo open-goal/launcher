@@ -2,4 +2,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 5vh;
+  width: 90vw;
+  max-width: 90vw;
+  background-color: var(--bg-blue);
 }

@@ -10,6 +10,7 @@
   import { initConfig } from "$lib/config";
   import { isInDebugMode } from "$lib/setup";
   import Statusbar from "./components/statusbar/Statusbar.svelte";
+  import Background from "./components/background/Background.svelte";
 
   export let url = "";
 
@@ -50,12 +51,11 @@
   }
 </script>
 
+<!-- TODO - Rewrite this to be more concise and simple, reduce nested crap -->
 <Router {url}>
   <main>
-    <div class="video-container">
-      <div class="overlay" />
-      <video id="backgroundVideo" src={bgVideo} autoplay muted loop />
-    </div>
+    <!-- TODO - pass background component current active game -->
+    <Background {bgVideo} />
     <div class="container">
       <Sidebar />
       <div class="test">
@@ -64,9 +64,7 @@
           <Route path="/jak1" component={Jak1} />
           <Route path="/settings" component={Settings} />
         </div>
-        <div id="footer">
-          <Statusbar status="Downloading assets..." />
-        </div>
+        <Statusbar status="Downloading assets..." />
       </div>
     </div>
   </main>
