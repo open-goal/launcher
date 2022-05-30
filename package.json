@@ -13,11 +13,13 @@
     "update-bin": "node ./scripts/update-binaries.js && npm run package",
     "lint": "npx prettier --check .",
     "format": "npx prettier --write .",
-    "mock-bin": "node ./scripts/dummy-binaries.js"
+    "mock-bin": "node ./scripts/dummy-binaries.js",
+    "prepare-release-config": "node ./scripts/merge-config.js",
+    "release": "npm run prepare-release-config && npm run tauri build -- --config ./.tauri/release-config.combined.json"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
-    "@tauri-apps/cli": "^1.0.0-rc.8",
+    "@tauri-apps/cli": "^1.0.0-rc.9",
     "@tauri-apps/tauricon": "github:tauri-apps/tauricon",
     "execa": "^6.1.0",
     "prettier": "2.6.2",
@@ -26,7 +28,7 @@
     "svelte-routing": "^1.6.0"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1.0.0-rc.3",
+    "@tauri-apps/api": "^1.0.0-rc.4",
     "tauri-plugin-store-api": "github:tauri-apps/tauri-plugin-store"
   }
 }

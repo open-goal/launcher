@@ -37,7 +37,7 @@ jobs:
         if: matrix.platform == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev libglew2.1 patchelf
 
       - name: install app dependencies
         run: |
@@ -54,6 +54,10 @@ jobs:
           npm ci
           popd
           node ./.github/scripts/download-binaries/index.js
+
+      - name: prepare release config
+        run: |
+          npm run prepare-release-config
 
       - name: prepare resources for build
         if: matrix.os == 'windows'
@@ -86,10 +90,46 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
         with:
+          configPath: "./.tauri/release-config.combined.json"
           tagName: "v__VERSION__"
           releaseName: "OpenGOAL Launcher v__VERSION__"
           releaseBody: "See the assets to download this version and install."
-          releaseDraft: true # TODO - when we are ready to go live, make them non draft
+          releaseDraft: true
           prerelease: false
 
-    # TODO - update a json file in the repo that will allow auto-updating, change the repo to release
+  update-release-meta:
+    if: github.repository == 'open-goal/launcher'
+    needs: publish-tauri
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          ref: main
+
+      - name: setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+
+      - name: update release metadata and publish the release
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
+          TAG_VALUE: ${{ github.REF }}
+        run: |
+          pushd ./.github/scripts/update-release-metadata
+          npm ci
+          popd
+          node ./.github/scripts/update-release-metadata/index.js
+
+      - name: commit release metadata change
+        uses: EndBug/add-and-commit@v8
+        with:
+          default_author: github_actor
+          author_name: "OpenGOALBot"
+          author_email: "OpenGOALBot@users.noreply.github.com"
+          message: "release: update release metadata to latest"

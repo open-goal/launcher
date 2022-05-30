@@ -47,9 +47,11 @@
 
   async function installProcess() {
     await clearInstallLogs(SUPPORTED_GAME.Jak1);
-    currentStatus = SETUP_SUCCESS.awaitingISO;
     const res = await Promise.resolve()
-      .then(async () => (isoPath = await filePrompt()))
+      .then(async () => {
+        setStatus(SETUP_SUCCESS.awaitingISO);
+        isoPath = await filePrompt();
+      })
       .then(async () => {
         setStatus(SETUP_SUCCESS.extractingISO);
         await extractAndValidateISO(isoPath);
