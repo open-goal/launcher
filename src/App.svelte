@@ -7,10 +7,10 @@
   import Jak1 from "/src/routes/Jak1.svelte";
   import Settings from "./routes/Settings.svelte";
   import Sidebar from "./components/siderbar/Sidebar.svelte";
-  import { initConfig } from "$lib/config";
-  import { isInDebugMode } from "$lib/setup";
   import Statusbar from "./components/statusbar/Statusbar.svelte";
   import Background from "./components/background/Background.svelte";
+  import { initConfig } from "$lib/config";
+  import { isInDebugMode } from "$lib/setup";
 
   export let url = "";
 
@@ -53,19 +53,17 @@
 
 <!-- TODO - Rewrite this to be more concise and simple, reduce nested crap -->
 <Router {url}>
-  <main>
+  <div class="container">
+    <Sidebar />
     <!-- TODO - pass background component current active game -->
     <Background {bgVideo} />
-    <div class="container">
-      <Sidebar />
-      <div class="test">
-        <div id="main">
-          <Route path="/" component={Jak1} />
-          <Route path="/jak1" component={Jak1} />
-          <Route path="/settings" component={Settings} />
-        </div>
-        <Statusbar status="Downloading assets..." />
+    <div class="test">
+      <div id="main">
+        <Route path="/" component={Jak1} />
+        <Route path="/jak1" component={Jak1} />
+        <Route path="/settings" component={Settings} />
       </div>
+      <!-- <Statusbar status="Downloading assets..." /> -->
     </div>
-  </main>
+  </div>
 </Router>
