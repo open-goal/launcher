@@ -79,10 +79,11 @@
   }
 
   onMount(async () => {
+    // TODO - app crashes after checking requirements
     // in the future i want to save the requirements met in the settings.json store file so it doesnt need to be run every time
     // then the requirements met function can check against the store data to avoid running the external bins each time
     // gotta revise this in the future because this will still run the install process even if the user doesnt meet the requirements
-    await areRequirementsMet();
+    // await areRequirementsMet();
     await installProcess();
   });
 
