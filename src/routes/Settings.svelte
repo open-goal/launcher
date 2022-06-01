@@ -1,5 +1,4 @@
-<svelte:head>
-  <title>OpenGOAL Launcher - Settings</title>
-</svelte:head>
+<script>
+</script>
 
 <h1>TODO!</h1>

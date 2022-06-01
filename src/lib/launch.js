@@ -11,12 +11,14 @@ let debugPath;
 if (isInDebugMode()) {
   let path = await resourceDir();
   debugPath = path.split("launcher")[0].split("?\\")[1];
-  debugPath += "\\launcher\\bundle-test\\data";
+  // debugPath += "launcher\\bundle-test\\data";
+  debugPath += "launcher\\src-tauri\\data";
 }
 
 export async function launchGame() {
   let command;
   if (isInDebugMode()) {
+    console.log(debugPath);
     command = Command.sidecar(
       "bin/gk",
       ["-boot", "-fakeiso", "-debug", "-proj-path", debugPath],
@@ -27,5 +29,7 @@ export async function launchGame() {
       cwd: "bin",
     });
   }
-  command.execute();
+  let output = await command.execute();
+  console.log(output.stdout);
+  console.log(output.stderr);
 }
