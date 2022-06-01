@@ -30,12 +30,12 @@ fn highest_simd() -> Result<String, CommandError> {
 }
 
 #[command]
-pub fn open__dir(dir: String) {
-  return open__appdir(dir);
+pub fn open_dir(dir: String) {
+  return open_appdir(dir);
 }
 
 #[cfg(target_os = "windows")]
-fn open__appdir(dir: String) {
+fn open_appdir(dir: String) {
   println!("Opening directory");
   Command::new("explorer")
     .arg(dir) // <- Specify the directory you'd like to open.
@@ -44,7 +44,7 @@ fn open__appdir(dir: String) {
 }
 
 #[cfg(target_os = "linux")]
-fn open__appdir(dir: String) {
+fn open_appdir(dir: String) {
   println!("Opening directory");
   Command::new("xdg-open")
     .arg(dir) // <- Specify the directory you'd like to open.
@@ -53,7 +53,7 @@ fn open__appdir(dir: String) {
 }
 
 #[cfg(target_os = "macos")]
-fn open__appdir(dir: String) {
+fn open_appdir(dir: String) {
   println!("Opening directory");
   Command::new("open")
     .arg(dir) // <- Specify the directory you'd like to open.

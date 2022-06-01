@@ -3,12 +3,13 @@
   import { appDir } from "@tauri-apps/api/path";
 </script>
 
-<div>
-  <h1>TODO!</h1>
+<!-- TODO - STYLE THIS PAGE -->
+<div class="flex-center">
+  <h1>Settings</h1>
   {#await appDir() then directory}
-    <button class="btn" on:click={() => openDir(directory)}
-      >Open App Directory</button
+    <button class="btn" on:click={() => openDir(directory)}>
+      <i class="bi bi-folder" />
+      Open App Directory</button
     >
-    <p>{directory}</p>
   {/await}
 </div>

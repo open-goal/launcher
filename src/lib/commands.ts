@@ -14,7 +14,7 @@ export async function getHighestSimd() {
 
 export async function openDir(dir) {
   try {
-    return await invoke("open__dir", { dir });
+    return await invoke("open_dir", { dir });
   } catch (e) {
     console.log(e);
   }
