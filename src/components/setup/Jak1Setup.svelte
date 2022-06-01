@@ -67,7 +67,6 @@
       .then(async () => {
         setStatus(SETUP_SUCCESS.ready);
         await setInstallStatus(SUPPORTED_GAME.Jak1, true);
-        await message("READY TO PLAY");
         navigate("/", { replace: true });
       })
       .catch((err) => {
@@ -77,30 +76,19 @@
 
     return res;
   }
-
-  onMount(async () => {
-    // TODO - app crashes after checking requirements
-    // in the future i want to save the requirements met in the settings.json store file so it doesnt need to be run every time
-    // then the requirements met function can check against the store data to avoid running the external bins each time
-    // gotta revise this in the future because this will still run the install process even if the user doesnt meet the requirements
-    // await areRequirementsMet();
-    await installProcess();
-  });
-
-  function onClickBrowse() {
-    installProcess();
-  }
 </script>
 
 <div class="content">
   <Progress step={currentStatus} />
   <div style="text-align:center">
-    <!-- have to edit this conditional in the future but for now its okay -->
-    {#if currentStatus.status === "No ISO File Selected!"}
-      <button class="btn" on:click={onClickBrowse}> Browse for ISO </button>
+    <!-- TODO - !requirementsMet then dont render the setup button  -->
+    {#if currentStatus.status === undefined || currentStatus.status === SETUP_ERROR.noISO.status}
+      <button class="btn" on:click={async () => await installProcess()}>
+        Setup
+      </button>
     {/if}
-    <Link to="/jak1">
+    <!-- <Link to="/jak1">
       <button class="btn">Cancel</button>
-    </Link>
+    </Link> -->
   </div>
 </div>
