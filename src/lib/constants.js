@@ -13,10 +13,10 @@ export const SETUP_SUCCESS = {
 };
 
 export const SETUP_ERROR = {
-  unsupportedAVX: { status: 'UNSUPPORTED AVX', percent: -1 },
+  unsupportedAVX: { status: "UNSUPPORTED AVX", percent: -1 },
   noISO: { status: "No ISO File Selected!", percent: -1 },
   unsupportedOS: { status: "Unsupported OS!", percent: -1 },
-  unsupportedOpenGL: { status: 'UNSUPPORTED OPENGL VERSION', percent: -1 }
+  unsupportedOpenGL: { status: "UNSUPPORTED OPENGL VERSION", percent: -1 },
 };
 
 export const SUPPORTED_GAME = {
@@ -24,4 +24,4 @@ export const SUPPORTED_GAME = {
   Jak2: "Jak 2",
   Jak3: "Jak 3",
   JakX: "Jak X",
-}
+};

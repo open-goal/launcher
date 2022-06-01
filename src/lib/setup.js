@@ -14,8 +14,8 @@ if (isInDebugMode()) {
   // TODO - this is kind of a total hack
   let path = await resourceDir();
   debugPath = path.split("launcher")[0].split("?\\")[1];
-  // debugPath += "\\launcher\\bundle-test\\data";\
-  debugPath += "launcher\\src-tauri\\data\\"
+  // debugPath += "launcher\\bundle-test\\data";
+  debugPath += "launcher\\src-tauri\\data\\";
   sidecarOptions = { cwd: "bin" };
 }
 
@@ -27,7 +27,7 @@ export async function isAVXSupported() {
   if (highestSIMD.toLowerCase().startsWith("avx")) {
     return true;
   }
-  throw new Error('UNSUPPORTED AVX');
+  throw new Error("UNSUPPORTED AVX");
 }
 
 /**
@@ -49,7 +49,7 @@ export async function isOpenGLVersionSupported(version) {
   if (output.code === 0) {
     return true;
   }
-  throw new Error('UNSUPPORTED OPENGL VERSION');
+  throw new Error("UNSUPPORTED OPENGL VERSION");
 }
 
 /**
@@ -59,10 +59,10 @@ export async function isOpenGLVersionSupported(version) {
 export async function extractAndValidateISO(filePath) {
   let command;
   if (isInDebugMode()) {
-    console.log(debugPath);
+    console.log(filePath);
     command = Command.sidecar(
       "bin/extractor",
-      [filePath, "--extract", "--proj-path", debugPath],
+      [filePath, "--extract", "--validate", "--proj-path", debugPath],
       sidecarOptions
     );
   } else {
@@ -74,6 +74,8 @@ export async function extractAndValidateISO(filePath) {
   }
 
   const output = await command.execute();
+  console.log(output.stdout);
+  console.log(output.stderr);
   if (output.code === 0) {
     return true;
   }
@@ -104,6 +106,8 @@ export async function decompileGameData(filePath) {
   if (output.code === 0) {
     return true;
   }
+  console.log(output.stdout);
+  console.log(output.stderr);
   throw new Error(`Decompiler exited with code: ${output.code}`);
 }
 
@@ -128,6 +132,8 @@ export async function compileGame(filePath) {
   }
 
   const output = await command.execute();
+  console.log(output.stdout);
+  console.log(output.stderr);
   if (output.code === 0) {
     return true;
   }
