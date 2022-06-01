@@ -19,14 +19,14 @@ class GameConfig {
 class LauncherConfig {
   version = "1.0";
   requirements = {
-    "avx": null,
-    "openGL": null
+    avx: null,
+    openGL: null,
   };
   games = {
     [SUPPORTED_GAME.Jak1]: GameConfig.createActive(),
     [SUPPORTED_GAME.Jak2]: new GameConfig(),
     [SUPPORTED_GAME.Jak3]: new GameConfig(),
-    [SUPPORTED_GAME.JakX]: new GameConfig()
+    [SUPPORTED_GAME.JakX]: new GameConfig(),
   };
 }
 

@@ -22,7 +22,7 @@ export async function filePrompt() {
   if (path) {
     return path;
   }
-  throw new Error('No ISO File Selected!');
+  throw new Error("No ISO File Selected!");
 }
 
 export async function clearInstallLogs(supportedGame, text) {

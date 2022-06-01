@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
-    "@tauri-apps/cli": "^1.0.0-rc.9",
+    "@tauri-apps/cli": "^1.0.0-rc.13",
     "@tauri-apps/tauricon": "github:tauri-apps/tauricon",
     "@tsconfig/svelte": "^3.0.0",
     "execa": "^6.1.0",
@@ -30,7 +30,7 @@
     "vite": "^2.9.2"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1.0.0-rc.4",
+    "@tauri-apps/api": "^1.0.0-rc.6",
     "tauri-plugin-store-api": "github:tauri-apps/tauri-plugin-store"
   }
 }
