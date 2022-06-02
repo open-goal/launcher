@@ -11,10 +11,9 @@ export function isInDebugMode() {
 }
 
 if (isInDebugMode()) {
-  // TODO - this is kind of a total hack
+  // NOTE - this is kind of a total hack
   let path = await resourceDir();
   debugPath = path.split("launcher")[0].split("?\\")[1];
-  // debugPath += "launcher\\bundle-test\\data";
   debugPath += "launcher\\src-tauri\\data\\";
   sidecarOptions = { cwd: "bin" };
 }
