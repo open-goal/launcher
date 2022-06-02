@@ -67,6 +67,10 @@ body {
   margin: 15px 0;
 }
 
+.mt-1 {
+  margin-top: 1em;
+}
+
 .btn {
   text-align: center;
   background: linear-gradient(to top, #f3b33f, #fbec4f);
@@ -82,15 +86,18 @@ body {
   color: black;
 }
 
+.btn.md {
+  min-width: 100px;
+  padding: 10px 0;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
 .btn.lg {
   min-width: 200px;
   padding: 10px 0;
   font-weight: bold;
   font-size: x-large;
-}
-
-.btn:not(:last-child) {
-  margin-right: 1em;
 }
 
 .btn:enabled:active {
