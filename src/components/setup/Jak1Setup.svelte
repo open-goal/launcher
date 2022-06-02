@@ -1,5 +1,4 @@
 <script>
-  import { onMount } from "svelte";
   import { navigate } from "svelte-routing";
   import { filePrompt } from "$lib/utils/file";
   import { setInstallStatus } from "$lib/config";
@@ -25,8 +24,6 @@
   let currentStatus = {};
   const setStatus = (status) => (currentStatus = status);
 
-  let installInProgress = false;
-
   async function areRequirementsMet() {
     try {
       setStatus(SETUP_SUCCESS.checkCompatible);
@@ -34,61 +31,47 @@
       setStatus(SETUP_SUCCESS.avxSupported);
       await isOpenGLVersionSupported("4.3");
       setStatus(SETUP_SUCCESS.openGLSupported);
+      return true;
     } catch (err) {
       // TODO - if they aren't met, it would be nice to display which ones aren't
       setStatus({ status: err.message, percent: -1 });
+      return false;
     }
   }
 
+  // TODO - set status from inside each install step function
   async function installProcess() {
-    await clearInstallLogs(SUPPORTED_GAME.Jak1);
-    const res = await Promise.resolve()
-      .then(async () => {
-        setStatus(SETUP_SUCCESS.awaitingISO);
-        isoPath = await filePrompt();
-      })
-      .then(async () => {
-        setStatus(SETUP_SUCCESS.extractingISO);
-        await extractAndValidateISO(isoPath);
-      })
-      .then(async () => {
-        setStatus(SETUP_SUCCESS.decompiling);
-        await decompileGameData(isoPath);
-      })
-      .then(async () => {
-        setStatus(SETUP_SUCCESS.compiling);
-        await compileGame(isoPath);
-      })
-      .then(async () => {
-        setStatus(SETUP_SUCCESS.ready);
-        await setInstallStatus(SUPPORTED_GAME.Jak1, true);
-        navigate("/", { replace: true });
-      })
-      .catch((err) => {
-        console.error(err);
-        setStatus({ status: err.message, percent: -1 });
-      });
-
-    return res;
+    try {
+      await clearInstallLogs(SUPPORTED_GAME.Jak1);
+      setStatus(SETUP_SUCCESS.awaitingISO);
+      isoPath = await filePrompt();
+      setStatus(SETUP_SUCCESS.extractingISO);
+      await extractAndValidateISO(isoPath);
+      setStatus(SETUP_SUCCESS.decompiling);
+      await decompileGameData(isoPath);
+      setStatus(SETUP_SUCCESS.compiling);
+      await compileGame(isoPath);
+      setStatus(SETUP_SUCCESS.ready);
+      await setInstallStatus(SUPPORTED_GAME.Jak1, true);
+      navigate("/", { replace: true });
+    } catch (err) {
+      console.log(err.message);
+      setStatus({ status: err.message, percent: -1 });
+      return false;
+    }
   }
-
-  onMount(async () => {
-    // TODO - use (requirements met) conditional rendering below
-    // if requirements met: show setup button
-    // else: display which requirement isn't met (AVX/OpenGL/Both)
-    // await areRequirementsMet();
-    // await installProcess();
-  });
 </script>
 
 <div class="content">
+  <!-- TODO - DONT INCLUDE REQUIREMENTS MET IN PROGRESS BAR -->
   <Progress step={currentStatus} />
   <div style="text-align:center">
-    <!-- TODO - !requirementsMet then dont render the setup button  -->
-    {#if currentStatus.status === undefined || currentStatus.status === SETUP_ERROR.noISO.status}
-      <button class="btn" on:click={async () => await installProcess()}>
-        Setup
-      </button>
-    {/if}
+    {#await areRequirementsMet() then requirementsMet}
+      {#if requirementsMet && (currentStatus.status === SETUP_SUCCESS.openGLSupported.status || currentStatus.status === SETUP_ERROR.noISO.status)}
+        <button class="btn" on:click={async () => await installProcess()}>
+          Setup
+        </button>
+      {/if}
+    {/await}
   </div>
 </div>
