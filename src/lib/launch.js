@@ -27,7 +27,5 @@ export async function launchGame() {
       cwd: "bin",
     });
   }
-  let output = await command.execute();
-  console.log(output.stdout);
-  console.log(output.stderr);
+  command.spawn();
 }

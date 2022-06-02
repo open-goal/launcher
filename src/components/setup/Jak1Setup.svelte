@@ -26,23 +26,19 @@
   let currentStatus = {};
   const setStatus = (status) => (currentStatus = status);
 
-  async function areRequirementsMet() {
-    const res = await Promise.resolve()
-      .then(async () => {
-        setStatus(SETUP_SUCCESS.checkCompatible);
-        await isAVXSupported();
-        setStatus(SETUP_SUCCESS.avxSupported);
-      })
-      .then(async () => {
-        await isOpenGLVersionSupported("4.3");
-        setStatus(SETUP_SUCCESS.openGLSupported);
-      })
-      .catch((err) => {
-        setStatus({ status: err.message, percent: -1 });
-        console.error(err);
-      });
+  let installInProgress = false;
 
-    return res;
+  async function areRequirementsMet() {
+    try {
+      setStatus(SETUP_SUCCESS.checkCompatible);
+      await isAVXSupported();
+      setStatus(SETUP_SUCCESS.avxSupported);
+      await isOpenGLVersionSupported("4.3");
+      setStatus(SETUP_SUCCESS.openGLSupported);
+    } catch (err) {
+      // TODO - if they aren't met, it would be nice to display which ones aren't
+      setStatus({ status: err.message, percent: -1 });
+    }
   }
 
   async function installProcess() {
