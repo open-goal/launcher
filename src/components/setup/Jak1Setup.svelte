@@ -19,8 +19,6 @@
     SUPPORTED_GAME,
   } from "../../lib/constants";
 
-  let isoPath;
-
   let currentStatus = {};
   const setStatus = (status) => (currentStatus = status);
 
@@ -41,6 +39,7 @@
 
   // TODO - set status from inside each install step function
   async function installProcess() {
+    let isoPath;
     try {
       await clearInstallLogs(SUPPORTED_GAME.Jak1);
       setStatus(SETUP_SUCCESS.awaitingISO);
