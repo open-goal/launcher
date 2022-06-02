@@ -1,6 +1,4 @@
 <script>
-  import { message } from "@tauri-apps/api/dialog";
-  import { onMount } from "svelte";
   import { Link, navigate } from "svelte-routing";
   import { filePrompt } from "$lib/utils/file";
   import { setInstallStatus } from "$lib/config";
