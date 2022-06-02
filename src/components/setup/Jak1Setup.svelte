@@ -18,21 +18,21 @@
     SETUP_ERROR,
     SUPPORTED_GAME,
   } from "../../lib/constants";
+  import InstallStore from "../../stores/InstallStore";
 
-  let currentStatus = {};
-  const setStatus = (status) => (currentStatus = status);
+  let isInstalling;
+  InstallStore.subscribe((data) => {
+    [{ isInstalling }] = data;
+  });
 
   async function areRequirementsMet() {
     try {
-      setStatus(SETUP_SUCCESS.checkCompatible);
       await isAVXSupported();
-      setStatus(SETUP_SUCCESS.avxSupported);
       await isOpenGLVersionSupported("4.3");
-      setStatus(SETUP_SUCCESS.openGLSupported);
       return true;
     } catch (err) {
-      // TODO - if they aren't met, it would be nice to display which ones aren't
-      setStatus({ status: err.message, percent: -1 });
+      // TODO - MAKE SURE FUNCTIONS USING ENUMS WHEN THROWING ERRORS
+      // InstallStore.set([{ currentStatus: err.message }]);
       return false;
     }
   }
@@ -40,22 +40,20 @@
   // TODO - set status from inside each install step function
   async function installProcess() {
     let isoPath;
+    InstallStore.set([{ isInstalling: true }]);
     try {
       await clearInstallLogs(SUPPORTED_GAME.Jak1);
-      setStatus(SETUP_SUCCESS.awaitingISO);
       isoPath = await filePrompt();
-      setStatus(SETUP_SUCCESS.extractingISO);
       await extractAndValidateISO(isoPath);
-      setStatus(SETUP_SUCCESS.decompiling);
       await decompileGameData(isoPath);
-      setStatus(SETUP_SUCCESS.compiling);
       await compileGame(isoPath);
-      setStatus(SETUP_SUCCESS.ready);
       await setInstallStatus(SUPPORTED_GAME.Jak1, true);
       navigate("/", { replace: true });
+      InstallStore.set([{ isInstalling: false }]);
     } catch (err) {
-      console.log(err.message);
-      setStatus({ status: err.message, percent: -1 });
+      // TODO - MAKE SURE FUNCTIONS USING ENUMS WHEN THROWING ERRORS
+      // InstallStore.set([{ currentStatus: err.message }]);
+      InstallStore.set([{ isInstalling: false }]);
       return false;
     }
   }
@@ -63,10 +61,10 @@
 
 <div class="content">
   <!-- TODO - DONT INCLUDE REQUIREMENTS MET IN PROGRESS BAR -->
-  <Progress step={currentStatus} />
+  <Progress />
   <div style="text-align:center">
     {#await areRequirementsMet() then requirementsMet}
-      {#if requirementsMet && (currentStatus.status === SETUP_SUCCESS.openGLSupported.status || currentStatus.status === SETUP_ERROR.noISO.status)}
+      {#if requirementsMet && !isInstalling}
         <button class="btn" on:click={async () => await installProcess()}>
           Setup
         </button>
