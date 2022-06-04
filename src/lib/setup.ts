@@ -114,11 +114,11 @@ export async function decompileGameData(filePath) {
   }
 
   const output = await command.execute();
+  console.log(output.stdout);
+  console.log(output.stderr);
   if (output.code === 0) {
     return true;
   }
-  console.log(output.stdout);
-  console.log(output.stderr);
   throw new Error(`Decompiler exited with code: ${output.code}`);
 }
 
