@@ -4,9 +4,11 @@
 </script>
 
 <section>
-  <div class="status">
-    <h2>{step.status}</h2>
-  </div>
+  {#if step.status !== undefined}
+    <div class="status">
+      <h2>{step.status}</h2>
+    </div>
+  {/if}
 
   {#if step.percent >= 0}
     <div class="progress">

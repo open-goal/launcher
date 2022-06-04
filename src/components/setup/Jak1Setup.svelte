@@ -1,7 +1,5 @@
 <script>
-  import { message } from "@tauri-apps/api/dialog";
-  import { onMount } from "svelte";
-  import { Link, navigate } from "svelte-routing";
+  import { navigate } from "svelte-routing";
   import { filePrompt } from "$lib/utils/file";
   import { setInstallStatus } from "$lib/config";
   import { clearInstallLogs } from "$lib/utils/file";
@@ -21,12 +19,8 @@
     SUPPORTED_GAME,
   } from "../../lib/constants";
 
-  let isoPath;
-
   let currentStatus = {};
   const setStatus = (status) => (currentStatus = status);
-
-  let installInProgress = false;
 
   async function areRequirementsMet() {
     try {
@@ -35,67 +29,48 @@
       setStatus(SETUP_SUCCESS.avxSupported);
       await isOpenGLVersionSupported("4.3");
       setStatus(SETUP_SUCCESS.openGLSupported);
+      return true;
     } catch (err) {
       // TODO - if they aren't met, it would be nice to display which ones aren't
       setStatus({ status: err.message, percent: -1 });
+      return false;
     }
   }
 
+  // TODO - set status from inside each install step function
   async function installProcess() {
-    await clearInstallLogs(SUPPORTED_GAME.Jak1);
-    const res = await Promise.resolve()
-      .then(async () => {
-        setStatus(SETUP_SUCCESS.awaitingISO);
-        isoPath = await filePrompt();
-      })
-      .then(async () => {
-        setStatus(SETUP_SUCCESS.extractingISO);
-        await extractAndValidateISO(isoPath);
-      })
-      .then(async () => {
-        setStatus(SETUP_SUCCESS.decompiling);
-        await decompileGameData(isoPath);
-      })
-      .then(async () => {
-        setStatus(SETUP_SUCCESS.compiling);
-        await compileGame(isoPath);
-      })
-      .then(async () => {
-        setStatus(SETUP_SUCCESS.ready);
-        await setInstallStatus(SUPPORTED_GAME.Jak1, true);
-        await message("READY TO PLAY");
-        navigate("/", { replace: true });
-      })
-      .catch((err) => {
-        console.error(err);
-        setStatus({ status: err.message, percent: -1 });
-      });
-
-    return res;
-  }
-
-  onMount(async () => {
-    // TODO - in the future i want to save the requirements met in the settings.json store file so it doesnt need to be run every time
-    // then the requirements met function can check against the store data to avoid running the external bins each time
-    // gotta revise this in the future because this will still run the install process even if the user doesnt meet the requirements
-    await areRequirementsMet();
-    await installProcess();
-  });
-
-  function onClickBrowse() {
-    installProcess();
+    let isoPath;
+    try {
+      await clearInstallLogs(SUPPORTED_GAME.Jak1);
+      setStatus(SETUP_SUCCESS.awaitingISO);
+      isoPath = await filePrompt();
+      setStatus(SETUP_SUCCESS.extractingISO);
+      await extractAndValidateISO(isoPath);
+      setStatus(SETUP_SUCCESS.decompiling);
+      await decompileGameData(isoPath);
+      setStatus(SETUP_SUCCESS.compiling);
+      await compileGame(isoPath);
+      setStatus(SETUP_SUCCESS.ready);
+      await setInstallStatus(SUPPORTED_GAME.Jak1, true);
+      navigate("/", { replace: true });
+    } catch (err) {
+      console.log(err.message);
+      setStatus({ status: err.message, percent: -1 });
+      return false;
+    }
   }
 </script>
 
 <div class="content">
+  <!-- TODO - DONT INCLUDE REQUIREMENTS MET IN PROGRESS BAR -->
   <Progress step={currentStatus} />
   <div style="text-align:center">
-    <!-- have to edit this conditional in the future but for now its okay -->
-    {#if currentStatus.status === "No ISO File Selected!"}
-      <button class="btn" on:click={onClickBrowse}> Browse for ISO </button>
-    {/if}
-    <Link to="/jak1">
-      <button class="btn">Cancel</button>
-    </Link>
+    {#await areRequirementsMet() then requirementsMet}
+      {#if requirementsMet && (currentStatus.status === SETUP_SUCCESS.openGLSupported.status || currentStatus.status === SETUP_ERROR.noISO.status)}
+        <button class="btn" on:click={async () => await installProcess()}>
+          Setup
+        </button>
+      {/if}
+    {/await}
   </div>
 </div>

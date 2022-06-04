@@ -1,11 +1,11 @@
-use tauri::{command};
-
+use std::process::Command;
+use tauri::command;
 
 #[derive(Debug, serde::Serialize)]
 pub enum CommandError {
   ArchitectureNotx86,
   AVXNotSupported,
-  Unknown
+  Unknown,
 }
 
 #[command]
@@ -27,4 +27,36 @@ fn highest_simd() -> Result<String, CommandError> {
 #[cfg(not(target_arch = "x86_64"))]
 fn highest_simd() -> Result<String, CommandError> {
   return Err(CommandError::ArchitectureNotx86);
+}
+
+#[command]
+pub fn open_dir(dir: String) {
+  return open_appdir(dir);
+}
+
+#[cfg(target_os = "windows")]
+fn open_appdir(dir: String) {
+  println!("Opening directory");
+  Command::new("explorer")
+    .arg(dir) // <- Specify the directory you'd like to open.
+    .spawn()
+    .unwrap();
+}
+
+#[cfg(target_os = "linux")]
+fn open_appdir(dir: String) {
+  println!("Opening directory");
+  Command::new("xdg-open")
+    .arg(dir) // <- Specify the directory you'd like to open.
+    .spawn()
+    .unwrap();
+}
+
+#[cfg(target_os = "macos")]
+fn open_appdir(dir: String) {
+  println!("Opening directory");
+  Command::new("open")
+    .arg(dir) // <- Specify the directory you'd like to open.
+    .spawn()
+    .unwrap();
 }
