@@ -2,7 +2,7 @@ import { SETUP_SUCCESS, SETUP_ERROR } from "$lib/constants";
 import { open } from "@tauri-apps/api/dialog";
 import { createDir, readTextFile, writeFile } from "@tauri-apps/api/fs";
 import { dirname, join, logDir } from "@tauri-apps/api/path";
-import InstallStore from '../../stores/InstallStore';
+import { InstallStatus } from '../../stores/InstallStore';
 
 
 export async function fileExists(path) {
@@ -16,7 +16,7 @@ export async function fileExists(path) {
 
 export async function filePrompt() {
   // TODO - pull strings out into args
-  InstallStore.set([{ currentStatus: SETUP_SUCCESS.awaitingISO }]);
+  InstallStatus.update(() => SETUP_SUCCESS.awaitingISO);
   const path = await open({
     multiple: false,
     directory: false,
@@ -26,7 +26,7 @@ export async function filePrompt() {
   if (path) {
     return path;
   }
-  InstallStore.set([{ currentStatus: SETUP_ERROR.noISO }]);
+  InstallStatus.update(() => SETUP_ERROR.noISO);
   throw new Error("No ISO File Selected!");
 }
 

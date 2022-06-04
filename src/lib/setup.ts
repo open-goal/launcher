@@ -2,7 +2,7 @@ import { Command } from "@tauri-apps/api/shell";
 import { resourceDir } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
 import { getHighestSimd } from "$lib/commands";
-import InstallStore from '../stores/InstallStore';
+import { InstallStatus } from '../stores/InstallStore';
 import { SETUP_SUCCESS, SETUP_ERROR } from "$lib/constants";
 
 
@@ -24,14 +24,14 @@ if (isInDebugMode()) {
 export async function isAVXSupported() {
   const highestSIMD = await getHighestSimd();
   if (highestSIMD === undefined) {
-    InstallStore.set([{ currentStatus: SETUP_SUCCESS.avxSupported }]);
+    InstallStatus.update(() => SETUP_SUCCESS.avxSupported);
     return true;
   }
   if (highestSIMD.toLowerCase().startsWith("avx")) {
-    InstallStore.set([{ currentStatus: SETUP_SUCCESS.avxSupported }]);
+    InstallStatus.set(SETUP_SUCCESS.avxSupported);
     return true;
   }
-  InstallStore.set([{ currentStatus: SETUP_ERROR.unsupportedAVX }]);
+  InstallStatus.update(() => SETUP_ERROR.unsupportedAVX);
   throw new Error("UNSUPPORTED AVX");
 }
 
@@ -41,7 +41,7 @@ export async function isAVXSupported() {
  */
 export async function isOpenGLVersionSupported(version) {
   if ((await os.platform()) === "darwin") {
-    InstallStore.set([{ currentStatus: SETUP_ERROR.unsupportedOS }]);
+    InstallStatus.update(() => SETUP_ERROR.unsupportedOS)
     throw new Error("Unsupported OS!");
     // return RequirementStatus.Unknown;
   }
@@ -53,10 +53,10 @@ export async function isOpenGLVersionSupported(version) {
   );
   const output = await command.execute();
   if (output.code === 0) {
-    InstallStore.set([{ currentStatus: SETUP_SUCCESS.openGLSupported }]);
+    InstallStatus.update(() => SETUP_SUCCESS.openGLSupported)
     return true;
   }
-  InstallStore.set([{ currentStatus: SETUP_ERROR.unsupportedOpenGL }]);
+  InstallStatus.update(() => SETUP_ERROR.unsupportedOpenGL)
   throw new Error("UNSUPPORTED OPENGL VERSION");
 }
 
@@ -67,7 +67,7 @@ export async function isOpenGLVersionSupported(version) {
 export async function extractAndValidateISO(filePath) {
   let command;
 
-  InstallStore.set([{ currentStatus: SETUP_SUCCESS.extractingISO }]);
+  InstallStatus.update(() => SETUP_SUCCESS.extractingISO)
   if (isInDebugMode()) {
     console.log(filePath);
     command = Command.sidecar(
@@ -98,7 +98,7 @@ export async function extractAndValidateISO(filePath) {
  */
 export async function decompileGameData(filePath) {
   let command;
-  InstallStore.set([{ currentStatus: SETUP_SUCCESS.decompiling }]);
+  InstallStatus.update(() => SETUP_SUCCESS.decompiling);
   if (isInDebugMode()) {
     command = Command.sidecar(
       "bin/extractor",
@@ -128,7 +128,7 @@ export async function decompileGameData(filePath) {
  */
 export async function compileGame(filePath) {
   let command;
-  InstallStore.set([{ currentStatus: SETUP_SUCCESS.compiling }]);
+  InstallStatus.update(() => SETUP_SUCCESS.compiling);
   if (isInDebugMode()) {
     command = Command.sidecar(
       "bin/extractor",
@@ -147,7 +147,7 @@ export async function compileGame(filePath) {
   console.log(output.stdout);
   console.log(output.stderr);
   if (output.code === 0) {
-    InstallStore.set([{ currentStatus: SETUP_SUCCESS.ready }]);
+    InstallStatus.update(() => SETUP_SUCCESS.ready);
     return true;
   }
   throw new Error(`Compiler exited with code: ${output.code}`);

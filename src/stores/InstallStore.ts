@@ -1,11 +1,4 @@
 import { writable } from 'svelte/store';
 
-const InstallStore = writable([
-  {
-    isInstalling: false,
-  }, {
-    currentStatus: { status: "", percent: 0 }
-  }
-]);
-
-export default InstallStore;
+export const InstallStatus = writable({ status: undefined, percent: undefined })
+export const isInstalling = writable(false);

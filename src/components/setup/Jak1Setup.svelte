@@ -13,17 +13,8 @@
   // components
   import Progress from "./Progress.svelte";
   // constants
-  import {
-    SETUP_SUCCESS,
-    SETUP_ERROR,
-    SUPPORTED_GAME,
-  } from "../../lib/constants";
-  import InstallStore from "../../stores/InstallStore";
-
-  let isInstalling;
-  InstallStore.subscribe((data) => {
-    [{ isInstalling }] = data;
-  });
+  import { SETUP_ERROR, SUPPORTED_GAME } from "../../lib/constants";
+  import { InstallStatus, isInstalling } from "../../stores/InstallStore";
 
   async function areRequirementsMet() {
     try {
@@ -32,7 +23,7 @@
       return true;
     } catch (err) {
       // TODO - MAKE SURE FUNCTIONS USING ENUMS WHEN THROWING ERRORS
-      // InstallStore.set([{ currentStatus: err.message }]);
+      // InstallStore.update(err.message);
       return false;
     }
   }
@@ -40,7 +31,7 @@
   // TODO - set status from inside each install step function
   async function installProcess() {
     let isoPath;
-    InstallStore.set([{ isInstalling: true }]);
+    isInstalling.update(() => true);
     try {
       await clearInstallLogs(SUPPORTED_GAME.Jak1);
       isoPath = await filePrompt();
@@ -48,12 +39,13 @@
       await decompileGameData(isoPath);
       await compileGame(isoPath);
       await setInstallStatus(SUPPORTED_GAME.Jak1, true);
+      // TODO - RETHINK THIS NAVIGATE LOGIC
       navigate("/", { replace: true });
-      InstallStore.set([{ isInstalling: false }]);
+      isInstalling.update(() => false);
     } catch (err) {
       // TODO - MAKE SURE FUNCTIONS USING ENUMS WHEN THROWING ERRORS
-      // InstallStore.set([{ currentStatus: err.message }]);
-      InstallStore.set([{ isInstalling: false }]);
+      // InstallStatus.update(() => err.message);
+      isInstalling.update(() => false);
       return false;
     }
   }
@@ -63,12 +55,15 @@
   <!-- TODO - DONT INCLUDE REQUIREMENTS MET IN PROGRESS BAR -->
   <Progress />
   <div style="text-align:center">
-    {#await areRequirementsMet() then requirementsMet}
-      {#if requirementsMet && !isInstalling}
-        <button class="btn" on:click={async () => await installProcess()}>
-          Setup
-        </button>
-      {/if}
-    {/await}
+    <!-- TODO - STOP THIS FROM RETRIGGER REQUIREMENTS CHECK ON PAGE CHANGE -->
+    {#if !$isInstalling}
+      {#await areRequirementsMet() then requirementsMet}
+        {#if requirementsMet}
+          <button class="btn" on:click={async () => await installProcess()}>
+            Setup
+          </button>
+        {/if}
+      {/await}
+    {/if}
   </div>
 </div>
