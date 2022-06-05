@@ -1,5 +1,6 @@
 <script>
   // Assets
+  import { fade } from "svelte/transition";
   import { getInstallStatus } from "$lib/config";
   import Setup from "../components/setup/Jak1Setup.svelte";
   import Jak1Main from "../components/games/Jak1Main.svelte";
@@ -11,7 +12,7 @@
   const gameInstalled = async () => await getInstallStatus(SUPPORTED_GAME.Jak1);
 </script>
 
-<div class="flex-center">
+<div class="flex-center" in:fade>
   <Logo />
   {#await gameInstalled() then installed}
     {#if installed}
