@@ -1,4 +1,4 @@
-<script>
+<script type="ts">
   import { navigate } from "svelte-routing";
   import { filePrompt } from "$lib/utils/file";
   import { setInstallStatus } from "$lib/config";
@@ -13,7 +13,7 @@
   // components
   import Progress from "./Progress.svelte";
   // constants
-  import { SETUP_ERROR, SUPPORTED_GAME } from "../../lib/constants";
+  import { SETUP_ERROR, SupportedGame } from "../../lib/constants";
   import { InstallStatus, isInstalling } from "../../stores/InstallStore";
 
   async function areRequirementsMet() {
@@ -30,17 +30,17 @@
 
   // TODO - set status from inside each install step function
   async function installProcess() {
-    let isoPath;
+    let isoPath: string | string[];
     isInstalling.update(() => true);
     try {
-      await clearInstallLogs(SUPPORTED_GAME.Jak1);
+      await clearInstallLogs(SupportedGame.Jak1);
       isoPath = await filePrompt();
       await extractAndValidateISO(isoPath);
       await decompileGameData(isoPath);
       await compileGame(isoPath);
-      await setInstallStatus(SUPPORTED_GAME.Jak1, true);
+      await setInstallStatus(SupportedGame.Jak1, true);
       // TODO - RETHINK THIS NAVIGATE LOGIC
-      navigate("/", { replace: true });
+      navigate("/jak1", { replace: true });
       isInstalling.update(() => false);
     } catch (err) {
       // TODO - MAKE SURE FUNCTIONS USING ENUMS WHEN THROWING ERRORS
@@ -52,7 +52,7 @@
 </script>
 
 <div class="content">
-  <!-- TODO - DONT INCLUDE REQUIREMENTS MET IN PROGRESS BAR -->
+  <!-- TODO - EXCLUDE REQUIREMENTS MET FROM PROGRESS BAR -->
   <Progress />
   <div style="text-align:center">
     <!-- TODO - STOP THIS FROM RETRIGGER REQUIREMENTS CHECK ON PAGE CHANGE -->

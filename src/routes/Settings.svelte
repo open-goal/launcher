@@ -2,6 +2,9 @@
   import { fade } from "svelte/transition";
   import { openDir } from "$lib/commands";
   import { appDir } from "@tauri-apps/api/path";
+
+  // NOTE: added this to shut up the console warning
+  export let location;
 </script>
 
 <!-- TODO - STYLE THIS PAGE -->

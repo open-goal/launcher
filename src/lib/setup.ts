@@ -6,7 +6,7 @@ import { InstallStatus } from '../stores/InstallStore';
 import { SETUP_SUCCESS, SETUP_ERROR } from "$lib/constants";
 
 
-let debugPath;
+let debugPath: string;
 let sidecarOptions = {};
 
 export function isInDebugMode() {
@@ -39,7 +39,7 @@ export async function isAVXSupported() {
  * @param {String} version
  * @returns {Promise<Boolean>}
  */
-export async function isOpenGLVersionSupported(version) {
+export async function isOpenGLVersionSupported(version: string): Promise<boolean> {
   if ((await os.platform()) === "darwin") {
     InstallStatus.update(() => SETUP_ERROR.unsupportedOS)
     throw new Error("Unsupported OS!");
@@ -64,8 +64,8 @@ export async function isOpenGLVersionSupported(version) {
  * @param {String} filePath
  * @returns {Promise<Boolean>}
  */
-export async function extractAndValidateISO(filePath) {
-  let command;
+export async function extractAndValidateISO(filePath: string): Promise<boolean> {
+  let command: Command;
 
   InstallStatus.update(() => SETUP_SUCCESS.extractingISO)
   if (isInDebugMode()) {
@@ -84,8 +84,8 @@ export async function extractAndValidateISO(filePath) {
   }
 
   const output = await command.execute();
-  console.log(output.stdout);
-  console.log(output.stderr);
+  if (output.stdout) console.log(output.stdout);
+  if (output.stderr) console.log(output.stderr);
   if (output.code === 0) {
     return true;
   }
@@ -96,8 +96,8 @@ export async function extractAndValidateISO(filePath) {
  * @param {String} filePath
  * @returns {Promise<Boolean>}
  */
-export async function decompileGameData(filePath) {
-  let command;
+export async function decompileGameData(filePath: string): Promise<boolean> {
+  let command: Command;
   InstallStatus.update(() => SETUP_SUCCESS.decompiling);
   if (isInDebugMode()) {
     command = Command.sidecar(
@@ -114,8 +114,8 @@ export async function decompileGameData(filePath) {
   }
 
   const output = await command.execute();
-  console.log(output.stdout);
-  console.log(output.stderr);
+  if (output.stdout) console.log(output.stdout);
+  if (output.stderr) console.log(output.stderr);
   if (output.code === 0) {
     return true;
   }
@@ -126,8 +126,8 @@ export async function decompileGameData(filePath) {
  * @param {String} filePath
  * @returns {Promise<Boolean>}
  */
-export async function compileGame(filePath) {
-  let command;
+export async function compileGame(filePath: string): Promise<Boolean> {
+  let command: Command;
   InstallStatus.update(() => SETUP_SUCCESS.compiling);
   if (isInDebugMode()) {
     command = Command.sidecar(
@@ -144,8 +144,8 @@ export async function compileGame(filePath) {
   }
 
   const output = await command.execute();
-  console.log(output.stdout);
-  console.log(output.stderr);
+  if (output.stdout) console.log(output.stdout);
+  if (output.stderr) console.log(output.stderr);
   if (output.code === 0) {
     InstallStatus.update(() => SETUP_SUCCESS.ready);
     return true;

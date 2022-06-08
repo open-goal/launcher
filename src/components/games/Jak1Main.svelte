@@ -1,6 +1,6 @@
 <script>
   import { setInstallStatus } from "$lib/config";
-  import { SUPPORTED_GAME } from "$lib/constants";
+  import { SupportedGame } from "$lib/constants";
   import { navigate } from "svelte-routing";
   import { launchGame } from "$lib/launch";
 
@@ -11,8 +11,8 @@
   }
 
   async function onClickUninstall() {
-    await setInstallStatus(SUPPORTED_GAME.Jak1, false);
-    navigate("/jak1", { replace: true });
+    await setInstallStatus(SupportedGame.Jak1, false);
+    navigate("/", { replace: true });
   }
 </script>
 

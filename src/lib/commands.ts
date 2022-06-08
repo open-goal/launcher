@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/tauri";
 
-export async function getHighestSimd() {
+export async function getHighestSimd(): Promise<string> {
   try {
     return await invoke("get_highest_simd");
   } catch (e) {
@@ -12,7 +12,7 @@ export async function getHighestSimd() {
   }
 }
 
-export async function openDir(dir) {
+export async function openDir(dir: string): Promise<void> {
   try {
     return await invoke("open_dir", { dir });
   } catch (e) {

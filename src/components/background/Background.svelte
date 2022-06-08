@@ -1,5 +1,5 @@
-<script>
-  export let bgVideo;
+<script type="ts">
+  export let bgVideo: string;
   import "./background.css";
 </script>
 
