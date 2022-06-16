@@ -4,10 +4,9 @@
   // Other Imports
   import { onMount } from "svelte";
   import { Router, Route } from "svelte-routing";
-  import Jak1 from "/src/routes/Jak1.svelte";
+  import Jak1 from "./routes/Jak1.svelte";
   import Settings from "./routes/Settings.svelte";
-  import Sidebar from "./components/siderbar/Sidebar.svelte";
-  import Statusbar from "./components/statusbar/Statusbar.svelte";
+  import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
   import { initConfig } from "$lib/config";
   import { isInDebugMode } from "$lib/setup";
