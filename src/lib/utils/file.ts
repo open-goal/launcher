@@ -2,7 +2,7 @@ import { SETUP_SUCCESS, SETUP_ERROR, SupportedGame } from "$lib/constants";
 import { open } from "@tauri-apps/api/dialog";
 import { createDir, readTextFile, writeFile } from "@tauri-apps/api/fs";
 import { dirname, join, logDir } from "@tauri-apps/api/path";
-import { InstallStatus } from '../../stores/InstallStore';
+import { InstallStatus, Console } from '../../stores/InstallStore';
 
 
 export async function fileExists(path: string): Promise<boolean> {
@@ -31,6 +31,7 @@ export async function filePrompt(): Promise<string | string[]> {
 }
 
 export async function clearInstallLogs(supportedGame: SupportedGame) {
+  Console.set(null);
   const dir = await logDir();
   let fileName = `${supportedGame}-install.log`;
   let fullPath = await join(dir, fileName);
@@ -55,6 +56,7 @@ export async function appendToInstallLog(supportedGame: SupportedGame, text: str
   }
   contents = await readTextFile(fullPath);
   contents += text;
+  Console.update(() => contents);
   await writeFile({ contents: contents, path: fullPath });
 }
 
@@ -69,5 +71,6 @@ export async function appendToInstallErrorLog(supportedGame: SupportedGame, text
   }
   contents = await readTextFile(fullPath);
   contents += text;
+  Console.update(() => contents);
   await writeFile({ contents: contents, path: fullPath });
 }
