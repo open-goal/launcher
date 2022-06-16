@@ -12,7 +12,7 @@
 
   async function onClickUninstall() {
     await setInstallStatus(SupportedGame.Jak1, false);
-    navigate("/jak1", { replace: true });
+    navigate(0);
   }
 </script>
 

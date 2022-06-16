@@ -39,9 +39,10 @@
       await decompileGameData(isoPath);
       await compileGame(isoPath);
       await setInstallStatus(SupportedGame.Jak1, true);
-      // TODO - RETHINK THIS NAVIGATE LOGIC
-      navigate("/jak1", { replace: true });
+      // NOTE - CHANGED THIS NAVIGATE, BUT I STILL THINK IT CAN BE BETTER
       isInstalling.update(() => false);
+      navigate(0);
+      return;
     } catch (err) {
       // TODO - MAKE SURE FUNCTIONS USING ENUMS WHEN THROWING ERRORS
       // InstallStatus.update(() => err.message);
