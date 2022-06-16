@@ -3,7 +3,8 @@ import { resourceDir } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
 import { getHighestSimd } from "$lib/commands";
 import { InstallStatus } from '../stores/InstallStore';
-import { SETUP_SUCCESS, SETUP_ERROR } from "$lib/constants";
+import { SETUP_SUCCESS, SETUP_ERROR, SupportedGame } from "$lib/constants";
+import { appendToInstallErrorLog, appendToInstallLog } from "$lib/utils/file";
 
 
 let debugPath: string;
@@ -84,8 +85,8 @@ export async function extractAndValidateISO(filePath: string): Promise<boolean> 
   }
 
   const output = await command.execute();
-  if (output.stdout) console.log(output.stdout);
-  if (output.stderr) console.log(output.stderr);
+  if (output.stdout) console.log(output.stdout), await appendToInstallLog(SupportedGame.Jak1, output.stdout);
+  if (output.stderr) console.log(output.stderr), await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
   if (output.code === 0) {
     return true;
   }
@@ -114,8 +115,8 @@ export async function decompileGameData(filePath: string): Promise<boolean> {
   }
 
   const output = await command.execute();
-  if (output.stdout) console.log(output.stdout);
-  if (output.stderr) console.log(output.stderr);
+  if (output.stdout) console.log(output.stdout), await appendToInstallLog(SupportedGame.Jak1, output.stdout);
+  if (output.stderr) console.log(output.stderr), await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
   if (output.code === 0) {
     return true;
   }
@@ -144,8 +145,8 @@ export async function compileGame(filePath: string): Promise<Boolean> {
   }
 
   const output = await command.execute();
-  if (output.stdout) console.log(output.stdout);
-  if (output.stderr) console.log(output.stderr);
+  if (output.stdout) console.log(output.stdout), await appendToInstallLog(SupportedGame.Jak1, output.stdout);
+  if (output.stderr) console.log(output.stderr), await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
   if (output.code === 0) {
     InstallStatus.update(() => SETUP_SUCCESS.ready);
     return true;
