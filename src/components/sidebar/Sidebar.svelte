@@ -2,7 +2,7 @@
   import logoJak1 from "$assets/images/jak-tpl.webp";
   import logoJak2 from "$assets/images/jak-2.webp";
   import logoJak3 from "$assets/images/jak-3.webp";
-  import { Link } from "svelte-routing";
+  import { Link } from "svelte-navigator";
   import "./sidebar.css";
 </script>
 

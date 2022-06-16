@@ -3,15 +3,13 @@
   import bgVideo from "$assets/videos/background.webm";
   // Other Imports
   import { onMount } from "svelte";
-  import { Router, Route } from "svelte-routing";
+  import { Router, Route } from "svelte-navigator";
   import Jak1 from "./routes/Jak1.svelte";
   import Settings from "./routes/Settings.svelte";
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
   import { initConfig } from "$lib/config";
   import { isInDebugMode } from "$lib/setup";
-
-  export let url = "";
 
   let revokeSpecificActions = false;
 
@@ -51,7 +49,7 @@
 </script>
 
 <!-- TODO - Rewrite this to be more concise and simple, reduce nested crap -->
-<Router {url}>
+<Router>
   <div class="container">
     <Sidebar />
     <!-- TODO - pass background component current active game -->
@@ -62,7 +60,6 @@
         <Route path="/jak1" component={Jak1} />
         <Route path="/settings" component={Settings} />
       </div>
-      <!-- <Statusbar status="Downloading assets..." /> -->
     </div>
   </div>
 </Router>

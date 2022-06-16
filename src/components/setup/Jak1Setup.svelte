@@ -1,5 +1,5 @@
 <script type="ts">
-  import { navigate } from "svelte-routing";
+  import { navigate } from "svelte-navigator";
   import { filePrompt } from "$lib/utils/file";
   import { setInstallStatus } from "$lib/config";
   import { clearInstallLogs } from "$lib/utils/file";
