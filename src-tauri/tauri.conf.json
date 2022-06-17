@@ -88,8 +88,20 @@
         "height": 600,
         "resizable": false,
         "fullscreen": false,
+        "visible": true,
         "x": 1750,
         "y": 0
+      },
+      {
+        "width": 600,
+        "height": 120,
+        "center": true,
+        "decorations": false,
+        "resizable": false,
+        "fullscreen": false,
+        "url": "splashscreen.html",
+        "label": "splashscreen",
+        "visible": false
       }
     ],
     "security": {

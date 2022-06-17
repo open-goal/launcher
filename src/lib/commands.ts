@@ -19,3 +19,11 @@ export async function openDir(dir: string): Promise<void> {
     console.log(e);
   }
 }
+
+export async function closeSplashScreen() {
+  try {
+    invoke('close_splashscreen');
+  } catch (e) {
+    console.log(e);
+  }
+}
