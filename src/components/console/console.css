@@ -7,6 +7,6 @@
   font-family: monospace;
 }
 
-details>summary:hover {
+details > summary:hover {
   cursor: pointer;
 }

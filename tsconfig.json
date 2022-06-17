@@ -22,15 +22,9 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "$lib/*": [
-        "./src/lib/*"
-      ],
-      "$assets/*": [
-        "./src/assets/*"
-      ],
-      "/src/*": [
-        "./src/*"
-      ]
+      "$lib/*": ["./src/lib/*"],
+      "$assets/*": ["./src/assets/*"],
+      "/src/*": ["./src/*"]
     },
     /**
      * Typecheck JS in `.svelte` and `.js` files by default.

@@ -2,10 +2,9 @@ import { Command } from "@tauri-apps/api/shell";
 import { resourceDir } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
 import { getHighestSimd } from "$lib/commands";
-import { InstallStatus } from '../stores/InstallStore';
+import { InstallStatus } from "../stores/InstallStore";
 import { SETUP_SUCCESS, SETUP_ERROR, SupportedGame } from "$lib/constants";
 import { appendToInstallErrorLog, appendToInstallLog } from "$lib/utils/file";
-
 
 let debugPath: string;
 let sidecarOptions = {};
@@ -40,9 +39,11 @@ export async function isAVXSupported() {
  * @param {String} version
  * @returns {Promise<Boolean>}
  */
-export async function isOpenGLVersionSupported(version: string): Promise<boolean> {
+export async function isOpenGLVersionSupported(
+  version: string
+): Promise<boolean> {
   if ((await os.platform()) === "darwin") {
-    InstallStatus.update(() => SETUP_ERROR.unsupportedOS)
+    InstallStatus.update(() => SETUP_ERROR.unsupportedOS);
     throw new Error("Unsupported OS!");
     // return RequirementStatus.Unknown;
   }
@@ -54,10 +55,10 @@ export async function isOpenGLVersionSupported(version: string): Promise<boolean
   );
   const output = await command.execute();
   if (output.code === 0) {
-    InstallStatus.update(() => SETUP_SUCCESS.openGLSupported)
+    InstallStatus.update(() => SETUP_SUCCESS.openGLSupported);
     return true;
   }
-  InstallStatus.update(() => SETUP_ERROR.unsupportedOpenGL)
+  InstallStatus.update(() => SETUP_ERROR.unsupportedOpenGL);
   throw new Error("UNSUPPORTED OPENGL VERSION");
 }
 
@@ -65,10 +66,12 @@ export async function isOpenGLVersionSupported(version: string): Promise<boolean
  * @param {String} filePath
  * @returns {Promise<Boolean>}
  */
-export async function extractAndValidateISO(filePath: string): Promise<boolean> {
+export async function extractAndValidateISO(
+  filePath: string
+): Promise<boolean> {
   let command: Command;
 
-  InstallStatus.update(() => SETUP_SUCCESS.extractingISO)
+  InstallStatus.update(() => SETUP_SUCCESS.extractingISO);
   if (isInDebugMode()) {
     console.log(filePath);
     command = Command.sidecar(
@@ -85,8 +88,12 @@ export async function extractAndValidateISO(filePath: string): Promise<boolean> 
   }
 
   const output = await command.execute();
-  if (output.stdout) console.log(output.stdout), await appendToInstallLog(SupportedGame.Jak1, output.stdout);
-  if (output.stderr) console.log(output.stderr), await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
+  if (output.stdout)
+    console.log(output.stdout),
+      await appendToInstallLog(SupportedGame.Jak1, output.stdout);
+  if (output.stderr)
+    console.log(output.stderr),
+      await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
   if (output.code === 0) {
     return true;
   }
@@ -115,8 +122,12 @@ export async function decompileGameData(filePath: string): Promise<boolean> {
   }
 
   const output = await command.execute();
-  if (output.stdout) console.log(output.stdout), await appendToInstallLog(SupportedGame.Jak1, output.stdout);
-  if (output.stderr) console.log(output.stderr), await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
+  if (output.stdout)
+    console.log(output.stdout),
+      await appendToInstallLog(SupportedGame.Jak1, output.stdout);
+  if (output.stderr)
+    console.log(output.stderr),
+      await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
   if (output.code === 0) {
     return true;
   }
@@ -145,8 +156,12 @@ export async function compileGame(filePath: string): Promise<Boolean> {
   }
 
   const output = await command.execute();
-  if (output.stdout) console.log(output.stdout), await appendToInstallLog(SupportedGame.Jak1, output.stdout);
-  if (output.stderr) console.log(output.stderr), await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
+  if (output.stdout)
+    console.log(output.stdout),
+      await appendToInstallLog(SupportedGame.Jak1, output.stdout);
+  if (output.stderr)
+    console.log(output.stderr),
+      await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
   if (output.code === 0) {
     InstallStatus.update(() => SETUP_SUCCESS.ready);
     return true;

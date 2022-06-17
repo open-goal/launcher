@@ -11,7 +11,7 @@ class GameConfig {
 // TODO: LINK REQUIREMENTS TO CHECK REQUIREMENTS FUNCTION TO AVOID RUNNING FUNCTION IF REQUIREMENTS ARE MET
 class LauncherConfig {
   version = "1.0";
-  requirements: { avx: boolean | null, openGL: boolean | null } = {
+  requirements: { avx: boolean | null; openGL: boolean | null } = {
     avx: null,
     openGL: null,
   };
@@ -37,7 +37,9 @@ async function validVersion(version: string): Promise<boolean> {
   if (!(await store.has("version"))) {
     return false;
   }
-  let [storedMajor, storedMinor]: string[] = (await store.get("version")).split(".");
+  let [storedMajor, storedMinor]: string[] = (await store.get("version")).split(
+    "."
+  );
   if (major != storedMajor) {
     return false;
   }
@@ -66,7 +68,9 @@ export async function initConfig() {
  * @param {string} supportedGame
  * @returns {Promise<boolean>}
  */
-export async function getInstallStatus(supportedGame: SupportedGame): Promise<boolean> {
+export async function getInstallStatus(
+  supportedGame: SupportedGame
+): Promise<boolean> {
   await store.load();
   if (!(await validVersion("1.0"))) {
     return false;
@@ -98,7 +102,10 @@ export async function getLastActiveGame(): Promise<SupportedGame> {
  * @param {boolean} installed
  * @returns
  */
-export async function setInstallStatus(supportedGame: SupportedGame, installed: boolean): Promise<void> {
+export async function setInstallStatus(
+  supportedGame: SupportedGame,
+  installed: boolean
+): Promise<void> {
   await store.load();
   if (!(await validVersion("1.0"))) {
     return;
