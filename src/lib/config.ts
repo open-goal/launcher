@@ -122,13 +122,19 @@ export async function setInstallStatus(
   await store.save();
 }
 
-export async function setRequirementsMet(avx: boolean = null, openGL: boolean = null) {
+export async function setRequirementsMet(
+  avx: boolean = null,
+  openGL: boolean = null
+) {
   await store.load();
-  await store.set("requirements", { avx, openGL })
+  await store.set("requirements", { avx, openGL });
   await store.save();
 }
 
-export async function areRequirementsMet() {
+/**
+ * Checks the user config file to see if avx and openGL requirements are met.
+ */
+export async function areRequirementsMet(): Promise<Boolean> {
   await store.load();
   let requirements = await store.get("requirements");
   if (!requirements.avx) {

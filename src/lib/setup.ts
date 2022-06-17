@@ -60,7 +60,7 @@ export async function checkRequirements(): Promise<Boolean> {
   try {
     await isAVXSupported();
     await isOpenGLVersionSupported("4.3");
-    await setRequirementsMet(true, true)
+    await setRequirementsMet(true, true);
     return true;
   } catch (err) {
     return false;

@@ -1,7 +1,7 @@
 <script type="ts">
   import { navigate } from "svelte-navigator";
   import { filePrompt } from "$lib/utils/file";
-  import { setInstallStatus } from "$lib/config";
+  import { areRequirementsMet, setInstallStatus } from "$lib/config";
   import { clearInstallLogs } from "$lib/utils/file";
   import {
     compileGame,
@@ -39,14 +39,16 @@
 </script>
 
 <div class="content">
-  <!-- TODO - EXCLUDE REQUIREMENTS MET FROM PROGRESS BAR -->
   <Progress />
   <div style="text-align:center">
-    <!-- TODO - STOP THIS FROM RETRIGGER REQUIREMENTS CHECK ON PAGE CHANGE -->
     {#if !$isInstalling}
-      <button class="btn" on:click={async () => await installProcess()}>
-        Setup
-      </button>
+      {#await areRequirementsMet then requirementsMet}
+        {#if requirementsMet}
+          <button class="btn" on:click={async () => await installProcess()}>
+            Setup
+          </button>
+        {/if}
+      {/await}
     {/if}
   </div>
 </div>

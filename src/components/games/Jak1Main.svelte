@@ -1,5 +1,5 @@
 <script>
-  import { areRequirementsMet, setInstallStatus } from "$lib/config";
+  import { setInstallStatus } from "$lib/config";
   import { SupportedGame } from "$lib/constants";
   import { navigate } from "svelte-navigator";
   import { launchGame } from "$lib/launch";
@@ -14,8 +14,6 @@
     await setInstallStatus(SupportedGame.Jak1, false);
     navigate(0);
   }
-
-  areRequirementsMet();
 </script>
 
 <div id="launcherControls">
