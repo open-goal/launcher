@@ -97,11 +97,12 @@
         "height": 120,
         "center": true,
         "decorations": false,
+        "transparent": true,
         "resizable": false,
         "fullscreen": false,
         "url": "splashscreen.html",
         "label": "splashscreen",
-        "visible": false
+        "visible": true
       }
     ],
     "security": {
