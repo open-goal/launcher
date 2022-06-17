@@ -22,7 +22,7 @@ export async function openDir(dir: string): Promise<void> {
 
 export async function closeSplashScreen() {
   try {
-    invoke('close_splashscreen');
+    invoke("close_splashscreen");
   } catch (e) {
     console.log(e);
   }
