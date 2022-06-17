@@ -5,6 +5,7 @@ import { getHighestSimd } from "$lib/commands";
 import { InstallStatus } from "../stores/InstallStore";
 import { SETUP_SUCCESS, SETUP_ERROR, SupportedGame } from "$lib/constants";
 import { appendToInstallErrorLog, appendToInstallLog } from "$lib/utils/file";
+import { setRequirementsMet } from "./config";
 
 let debugPath: string;
 let sidecarOptions = {};
@@ -55,10 +56,11 @@ export async function isOpenGLVersionSupported(
   throw new Error("UNSUPPORTED OPENGL VERSION");
 }
 
-export async function areRequirementsMet(): Promise<Boolean> {
+export async function checkRequirements(): Promise<Boolean> {
   try {
     await isAVXSupported();
     await isOpenGLVersionSupported("4.3");
+    await setRequirementsMet(true, true)
     return true;
   } catch (err) {
     return false;

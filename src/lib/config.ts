@@ -2,6 +2,7 @@ import { createDir, writeFile } from "@tauri-apps/api/fs";
 import { appDir, join } from "@tauri-apps/api/path";
 import { Store } from "tauri-plugin-store-api";
 import { SupportedGame } from "./constants";
+import { isAVXSupported } from "./setup";
 import { fileExists } from "./utils/file";
 
 class GameConfig {
@@ -119,4 +120,25 @@ export async function setInstallStatus(
   gameConfigs[supportedGame].isInstalled = installed;
   await store.set("games", gameConfigs);
   await store.save();
+}
+
+export async function setRequirementsMet(avx: boolean = null, openGL: boolean = null) {
+  await store.load();
+  await store.set("requirements", { avx, openGL })
+  await store.save();
+}
+
+export async function areRequirementsMet() {
+  await store.load();
+  let requirements = await store.get("requirements");
+  if (!requirements.avx) {
+    console.log("Unsupported AVX");
+    return false;
+  }
+  if (!requirements.openGL) {
+    console.log("Unsupported OpenGL");
+    return false;
+  }
+
+  return true;
 }

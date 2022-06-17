@@ -9,7 +9,8 @@
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
   import { initConfig } from "$lib/config";
-  import { areRequirementsMet, isInDebugMode } from "$lib/setup";
+  import { checkRequirements, isInDebugMode } from "$lib/setup";
+  import { areRequirementsMet } from "$lib/config";
   import { closeSplashScreen } from "$lib/commands";
 
   let revokeSpecificActions = false;
@@ -17,7 +18,9 @@
   // Events
   onMount(async () => {
     await initConfig();
-    await areRequirementsMet();
+    if (!(await areRequirementsMet())) {
+      await checkRequirements();
+    }
     await closeSplashScreen();
   });
 
