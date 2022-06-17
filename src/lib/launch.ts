@@ -6,7 +6,7 @@ function isInDebugMode() {
 }
 
 // NOTE - this is kind of a total hack - likely windows only currently
-let debugPath;
+let debugPath: string;
 if (isInDebugMode()) {
   let path = await resourceDir();
   debugPath = path.split("launcher")[0].split("?\\")[1];
@@ -14,7 +14,7 @@ if (isInDebugMode()) {
 }
 
 export async function launchGame() {
-  let command;
+  let command: Command;
   if (isInDebugMode()) {
     console.log(debugPath);
     command = Command.sidecar(

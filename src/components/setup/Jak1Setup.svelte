@@ -1,5 +1,5 @@
-<script>
-  import { navigate } from "svelte-routing";
+<script type="ts">
+  import { navigate } from "svelte-navigator";
   import { filePrompt } from "$lib/utils/file";
   import { setInstallStatus } from "$lib/config";
   import { clearInstallLogs } from "$lib/utils/file";
@@ -13,64 +13,58 @@
   // components
   import Progress from "./Progress.svelte";
   // constants
-  import {
-    SETUP_SUCCESS,
-    SETUP_ERROR,
-    SUPPORTED_GAME,
-  } from "../../lib/constants";
-
-  let currentStatus = {};
-  const setStatus = (status) => (currentStatus = status);
+  import { SETUP_ERROR, SupportedGame } from "../../lib/constants";
+  import { InstallStatus, isInstalling } from "../../stores/InstallStore";
 
   async function areRequirementsMet() {
     try {
-      setStatus(SETUP_SUCCESS.checkCompatible);
       await isAVXSupported();
-      setStatus(SETUP_SUCCESS.avxSupported);
       await isOpenGLVersionSupported("4.3");
-      setStatus(SETUP_SUCCESS.openGLSupported);
       return true;
     } catch (err) {
-      // TODO - if they aren't met, it would be nice to display which ones aren't
-      setStatus({ status: err.message, percent: -1 });
+      // TODO - MAKE SURE FUNCTIONS USING ENUMS WHEN THROWING ERRORS
+      // InstallStore.update(err.message);
       return false;
     }
   }
 
   // TODO - set status from inside each install step function
   async function installProcess() {
-    let isoPath;
+    let isoPath: string | string[];
+    isInstalling.update(() => true);
     try {
-      await clearInstallLogs(SUPPORTED_GAME.Jak1);
-      setStatus(SETUP_SUCCESS.awaitingISO);
+      await clearInstallLogs(SupportedGame.Jak1);
       isoPath = await filePrompt();
-      setStatus(SETUP_SUCCESS.extractingISO);
       await extractAndValidateISO(isoPath);
-      setStatus(SETUP_SUCCESS.decompiling);
       await decompileGameData(isoPath);
-      setStatus(SETUP_SUCCESS.compiling);
       await compileGame(isoPath);
-      setStatus(SETUP_SUCCESS.ready);
-      await setInstallStatus(SUPPORTED_GAME.Jak1, true);
-      navigate("/", { replace: true });
+      await setInstallStatus(SupportedGame.Jak1, true);
+      // NOTE - CHANGED THIS NAVIGATE, BUT I STILL THINK IT CAN BE BETTER
+      isInstalling.update(() => false);
+      navigate(0);
+      return;
     } catch (err) {
-      console.log(err.message);
-      setStatus({ status: err.message, percent: -1 });
+      // TODO - MAKE SURE FUNCTIONS USING ENUMS WHEN THROWING ERRORS
+      // InstallStatus.update(() => err.message);
+      isInstalling.update(() => false);
       return false;
     }
   }
 </script>
 
 <div class="content">
-  <!-- TODO - DONT INCLUDE REQUIREMENTS MET IN PROGRESS BAR -->
-  <Progress step={currentStatus} />
+  <!-- TODO - EXCLUDE REQUIREMENTS MET FROM PROGRESS BAR -->
+  <Progress />
   <div style="text-align:center">
-    {#await areRequirementsMet() then requirementsMet}
-      {#if requirementsMet && (currentStatus.status === SETUP_SUCCESS.openGLSupported.status || currentStatus.status === SETUP_ERROR.noISO.status)}
-        <button class="btn" on:click={async () => await installProcess()}>
-          Setup
-        </button>
-      {/if}
-    {/await}
+    <!-- TODO - STOP THIS FROM RETRIGGER REQUIREMENTS CHECK ON PAGE CHANGE -->
+    {#if !$isInstalling}
+      {#await areRequirementsMet() then requirementsMet}
+        {#if requirementsMet}
+          <button class="btn" on:click={async () => await installProcess()}>
+            Setup
+          </button>
+        {/if}
+      {/await}
+    {/if}
   </div>
 </div>

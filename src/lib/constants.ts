@@ -1,3 +1,4 @@
+// TODO: update setup status messages to use typescript
 export const SETUP_SUCCESS = {
   avxSupported: { status: "AVX SUPPORTED", percent: 10 },
   openGLSupported: { status: "OPENGL SUPPORTED", percent: 20 },
@@ -19,9 +20,9 @@ export const SETUP_ERROR = {
   unsupportedOpenGL: { status: "UNSUPPORTED OPENGL VERSION", percent: -1 },
 };
 
-export const SUPPORTED_GAME = {
-  Jak1: "Jak 1",
-  Jak2: "Jak 2",
-  Jak3: "Jak 3",
-  JakX: "Jak X",
-};
+export const enum SupportedGame {
+  Jak1 = "Jak 1",
+  Jak2 = "Jak 2",
+  Jak3 = "Jak 3",
+  JakX = "Jak X",
+}

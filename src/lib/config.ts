@@ -1,33 +1,27 @@
 import { createDir, writeFile } from "@tauri-apps/api/fs";
 import { appDir, join } from "@tauri-apps/api/path";
 import { Store } from "tauri-plugin-store-api";
-import { SUPPORTED_GAME } from "./constants";
+import { SupportedGame } from "./constants";
 import { fileExists } from "./utils/file";
 
 class GameConfig {
-  isInstalled = false;
-  isActive = false;
-
-  static createActive() {
-    let val = new GameConfig();
-    val.isActive = true;
-    return val;
-  }
+  isInstalled: boolean = false;
 }
 
 // TODO: LINK REQUIREMENTS TO CHECK REQUIREMENTS FUNCTION TO AVOID RUNNING FUNCTION IF REQUIREMENTS ARE MET
 class LauncherConfig {
   version = "1.0";
-  requirements = {
+  requirements: { avx: boolean | null; openGL: boolean | null } = {
     avx: null,
     openGL: null,
   };
   games = {
-    [SUPPORTED_GAME.Jak1]: GameConfig.createActive(),
-    [SUPPORTED_GAME.Jak2]: new GameConfig(),
-    [SUPPORTED_GAME.Jak3]: new GameConfig(),
-    [SUPPORTED_GAME.JakX]: new GameConfig(),
+    [SupportedGame.Jak1]: new GameConfig(),
+    [SupportedGame.Jak2]: new GameConfig(),
+    [SupportedGame.Jak3]: new GameConfig(),
+    [SupportedGame.JakX]: new GameConfig(),
   };
+  lastActiveGame: SupportedGame;
 }
 
 const store = new Store("settings.json");
@@ -37,13 +31,15 @@ const store = new Store("settings.json");
  * @param {*} version "<major>.<minor>"
  * @returns True if majors match, and expected minor greater than or equal to stored.  False otherwise, or if no version can be found
  */
-async function validVersion(version) {
+async function validVersion(version: string): Promise<boolean> {
   let [major, minor] = version.split(".");
   await store.load();
   if (!(await store.has("version"))) {
     return false;
   }
-  let [storedMajor, storedMinor] = (await store.get("version")).split(".");
+  let [storedMajor, storedMinor]: string[] = (await store.get("version")).split(
+    "."
+  );
   if (major != storedMajor) {
     return false;
   }
@@ -72,12 +68,15 @@ export async function initConfig() {
  * @param {string} supportedGame
  * @returns {Promise<boolean>}
  */
-export async function getInstallStatus(supportedGame) {
+export async function getInstallStatus(
+  supportedGame: SupportedGame
+): Promise<boolean> {
   await store.load();
   if (!(await validVersion("1.0"))) {
     return false;
   }
-  const gameConfigs = await store.get("games");
+  // TODO: create a proper type for gameConfigs
+  const gameConfigs: object = await store.get("games");
   if (gameConfigs == null || !(supportedGame in gameConfigs)) {
     return false;
   }
@@ -86,20 +85,16 @@ export async function getInstallStatus(supportedGame) {
 
 /**
  * The last game that was considered active in the launcher
- * @returns {Promise<String | null>}
+ * @returns {Promise<SupportedGame | null>}
  */
-export async function getLastActiveGame() {
+export async function getLastActiveGame(): Promise<SupportedGame> {
   await store.load();
   if (!(await validVersion("1.0"))) {
     return null;
   }
-  // Look through all games, find first active game
-  for (const game in SUPPORTED_GAME) {
-    const gameConfig = await store.get(game);
-    if (gameConfig.isActive) {
-      return game;
-    }
-  }
+
+  const lastActiveGame: SupportedGame = await store.get("lastActiveGame");
+  return lastActiveGame;
 }
 
 /**
@@ -107,12 +102,17 @@ export async function getLastActiveGame() {
  * @param {boolean} installed
  * @returns
  */
-export async function setInstallStatus(supportedGame, installed) {
+export async function setInstallStatus(
+  supportedGame: SupportedGame,
+  installed: boolean
+): Promise<void> {
   await store.load();
   if (!(await validVersion("1.0"))) {
     return;
   }
-  let gameConfigs = await store.get("games");
+  // TODO: create a proper type for gameConfigs
+  let gameConfigs: object = await store.get("games");
+  // NOTE: Do we need this conditional? Considering we generate the store file this condition should never happen.
   if (gameConfigs == null || !(supportedGame in gameConfigs)) {
     return;
   }

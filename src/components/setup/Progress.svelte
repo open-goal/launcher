@@ -1,20 +1,31 @@
 <script>
   import "./progress.css";
-  export let step;
+  import { InstallStatus } from "../../stores/InstallStore";
+  import { tweened } from "svelte/motion";
+  import { cubicOut } from "svelte/easing";
+
+  const progress = tweened($InstallStatus.percent, {
+    duration: 1000,
+    easing: cubicOut,
+  });
+
+  InstallStatus.subscribe((InstallStatus) => {
+    progress.update(() => InstallStatus.percent);
+  });
 </script>
 
 <section>
-  {#if step.status !== undefined}
+  {#if $InstallStatus.status !== undefined}
     <div class="status">
-      <h2>{step.status}</h2>
+      <h2>{$InstallStatus.status}</h2>
     </div>
   {/if}
 
-  {#if step.percent >= 0}
+  {#if $InstallStatus.percent >= 0}
     <div class="progress">
       <div
         class="progress-bar progress-bar-animated"
-        style="width: {step.percent}%"
+        style="width: {$progress}%"
       />
     </div>
   {/if}

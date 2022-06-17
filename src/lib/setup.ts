@@ -2,8 +2,11 @@ import { Command } from "@tauri-apps/api/shell";
 import { resourceDir } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
 import { getHighestSimd } from "$lib/commands";
+import { InstallStatus } from "../stores/InstallStore";
+import { SETUP_SUCCESS, SETUP_ERROR, SupportedGame } from "$lib/constants";
+import { appendToInstallErrorLog, appendToInstallLog } from "$lib/utils/file";
 
-let debugPath;
+let debugPath: string;
 let sidecarOptions = {};
 
 export function isInDebugMode() {
@@ -21,11 +24,14 @@ if (isInDebugMode()) {
 export async function isAVXSupported() {
   const highestSIMD = await getHighestSimd();
   if (highestSIMD === undefined) {
+    InstallStatus.update(() => SETUP_SUCCESS.avxSupported);
     return true;
   }
   if (highestSIMD.toLowerCase().startsWith("avx")) {
+    InstallStatus.set(SETUP_SUCCESS.avxSupported);
     return true;
   }
+  InstallStatus.update(() => SETUP_ERROR.unsupportedAVX);
   throw new Error("UNSUPPORTED AVX");
 }
 
@@ -33,8 +39,11 @@ export async function isAVXSupported() {
  * @param {String} version
  * @returns {Promise<Boolean>}
  */
-export async function isOpenGLVersionSupported(version) {
+export async function isOpenGLVersionSupported(
+  version: string
+): Promise<boolean> {
   if ((await os.platform()) === "darwin") {
+    InstallStatus.update(() => SETUP_ERROR.unsupportedOS);
     throw new Error("Unsupported OS!");
     // return RequirementStatus.Unknown;
   }
@@ -46,8 +55,10 @@ export async function isOpenGLVersionSupported(version) {
   );
   const output = await command.execute();
   if (output.code === 0) {
+    InstallStatus.update(() => SETUP_SUCCESS.openGLSupported);
     return true;
   }
+  InstallStatus.update(() => SETUP_ERROR.unsupportedOpenGL);
   throw new Error("UNSUPPORTED OPENGL VERSION");
 }
 
@@ -55,8 +66,12 @@ export async function isOpenGLVersionSupported(version) {
  * @param {String} filePath
  * @returns {Promise<Boolean>}
  */
-export async function extractAndValidateISO(filePath) {
-  let command;
+export async function extractAndValidateISO(
+  filePath: string
+): Promise<boolean> {
+  let command: Command;
+
+  InstallStatus.update(() => SETUP_SUCCESS.extractingISO);
   if (isInDebugMode()) {
     console.log(filePath);
     command = Command.sidecar(
@@ -73,8 +88,12 @@ export async function extractAndValidateISO(filePath) {
   }
 
   const output = await command.execute();
-  console.log(output.stdout);
-  console.log(output.stderr);
+  if (output.stdout)
+    console.log(output.stdout),
+      await appendToInstallLog(SupportedGame.Jak1, output.stdout);
+  if (output.stderr)
+    console.log(output.stderr),
+      await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
   if (output.code === 0) {
     return true;
   }
@@ -85,8 +104,9 @@ export async function extractAndValidateISO(filePath) {
  * @param {String} filePath
  * @returns {Promise<Boolean>}
  */
-export async function decompileGameData(filePath) {
-  let command;
+export async function decompileGameData(filePath: string): Promise<boolean> {
+  let command: Command;
+  InstallStatus.update(() => SETUP_SUCCESS.decompiling);
   if (isInDebugMode()) {
     command = Command.sidecar(
       "bin/extractor",
@@ -102,11 +122,15 @@ export async function decompileGameData(filePath) {
   }
 
   const output = await command.execute();
+  if (output.stdout)
+    console.log(output.stdout),
+      await appendToInstallLog(SupportedGame.Jak1, output.stdout);
+  if (output.stderr)
+    console.log(output.stderr),
+      await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
   if (output.code === 0) {
     return true;
   }
-  console.log(output.stdout);
-  console.log(output.stderr);
   throw new Error(`Decompiler exited with code: ${output.code}`);
 }
 
@@ -114,8 +138,9 @@ export async function decompileGameData(filePath) {
  * @param {String} filePath
  * @returns {Promise<Boolean>}
  */
-export async function compileGame(filePath) {
-  let command;
+export async function compileGame(filePath: string): Promise<Boolean> {
+  let command: Command;
+  InstallStatus.update(() => SETUP_SUCCESS.compiling);
   if (isInDebugMode()) {
     command = Command.sidecar(
       "bin/extractor",
@@ -131,9 +156,14 @@ export async function compileGame(filePath) {
   }
 
   const output = await command.execute();
-  console.log(output.stdout);
-  console.log(output.stderr);
+  if (output.stdout)
+    console.log(output.stdout),
+      await appendToInstallLog(SupportedGame.Jak1, output.stdout);
+  if (output.stderr)
+    console.log(output.stderr),
+      await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
   if (output.code === 0) {
+    InstallStatus.update(() => SETUP_SUCCESS.ready);
     return true;
   }
   throw new Error(`Compiler exited with code: ${output.code}`);

@@ -2,7 +2,7 @@
   import logoJak1 from "$assets/images/jak-tpl.webp";
   import logoJak2 from "$assets/images/jak-2.webp";
   import logoJak3 from "$assets/images/jak-3.webp";
-  import { Link } from "svelte-routing";
+  import { Link } from "svelte-navigator";
   import "./sidebar.css";
 </script>
 
@@ -14,22 +14,22 @@
       </Link>
     </div>
     <div class="jak-2 nav-item disabled">
-      <Link to="" data-tooltip="Jak 2 - Not Available!">
+      <!-- <Link to="no" data-tooltip="Jak 2"> -->
         <img src={logoJak2} alt="Jak 2" />
-      </Link>
+      <!-- </Link> -->
     </div>
     <div class="jak-3 nav-item disabled">
-      <Link to="" data-tooltip="Jak 3 - Not Available!">
+      <!-- <Link to="no" data-tooltip="Jak 3"> -->
         <img src={logoJak3} alt="Jak 3" />
-      </Link>
+      <!-- </Link> -->
     </div>
   </div>
   <div class="spacer" />
   <div class="controls">
-    <div class="console nav-item">
-      <Link to="" data-tooltip="Toggle Debug Console">
+    <div class="console nav-item disabled">
+      <!-- <Link to="" data-tooltip="Toggle Debug Console"> -->
         <i class="bi bi-terminal-fill" />
-      </Link>
+      <!-- </Link> -->
     </div>
     <div class="settings nav-item">
       <Link to="settings" data-tooltip="Settings">
