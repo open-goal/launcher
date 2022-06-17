@@ -88,7 +88,7 @@
         "height": 600,
         "resizable": false,
         "fullscreen": false,
-        "visible": true,
+        "visible": false,
         "x": 1750,
         "y": 0
       },
