@@ -89,8 +89,7 @@
         "resizable": false,
         "fullscreen": false,
         "visible": false,
-        "x": 1750,
-        "y": 0
+        "center": true
       },
       {
         "width": 600,
