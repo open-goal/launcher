@@ -15,6 +15,7 @@
   import { InstallStatus, isInstalling } from "../../stores/InstallStore";
 
   // TODO - set status from inside each install step function
+  // TODO: MOVE THIS FUNCTION TO THE LIB DIR AND DELETE IMPORTS
   async function installProcess() {
     let isoPath: string | string[];
     isInstalling.update(() => true);
@@ -42,13 +43,9 @@
   <Progress />
   <div style="text-align:center">
     {#if !$isInstalling}
-      {#await areRequirementsMet then requirementsMet}
-        {#if requirementsMet}
-          <button class="btn" on:click={async () => await installProcess()}>
-            Setup
-          </button>
-        {/if}
-      {/await}
+      <button class="btn" on:click={async () => await installProcess()}>
+        Setup
+      </button>
     {/if}
   </div>
 </div>
