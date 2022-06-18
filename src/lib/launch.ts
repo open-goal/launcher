@@ -23,9 +23,7 @@ export async function launchGame() {
       { cwd: "bin" }
     );
   } else {
-    command = Command.sidecar("bin/gk", ["-boot", "-fakeiso", "-debug"], {
-      cwd: "bin",
-    });
+    command = Command.sidecar("bin/gk", ["-boot", "-fakeiso", "-debug"]);
   }
   command.spawn();
 }
