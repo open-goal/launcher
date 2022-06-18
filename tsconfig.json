@@ -48,7 +48,8 @@
     "src/lib/constants.ts",
     "src/lib/config.ts",
     "src/lib/commands.ts",
-    "src/lib/utils/file.ts"
+    "src/lib/utils/file.ts",
+    "src/splash/splash.ts"
   ],
   "references": [
     {

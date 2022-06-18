@@ -16,13 +16,13 @@
   let revokeSpecificActions = false;
 
   // Events
-  onMount(async () => {
-    await initConfig();
-    if (!(await areRequirementsMet())) {
-      await checkRequirements();
-    }
-    await closeSplashScreen();
-  });
+  // onMount(async () => {
+  //   await initConfig();
+  //   if (!(await areRequirementsMet())) {
+  //     await checkRequirements();
+  //   }
+  //   await closeSplashScreen();
+  // });
 
   if (!isInDebugMode()) {
     revokeSpecificActions = true;

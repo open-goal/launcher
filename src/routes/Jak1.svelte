@@ -22,7 +22,7 @@
       <Jak1Main />
     {:else}
       <!-- TODO: MOVE THIS ELSE INTO ITS OWN ROUTE -->
-      {#await areRequirementsMet() then requirementsMet}
+      {#await areRequirementsMet then requirementsMet}
         {#if requirementsMet}
           <Setup />
           <Console />

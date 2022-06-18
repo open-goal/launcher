@@ -129,6 +129,8 @@ export async function setRequirementsMet(
   await store.load();
   await store.set("requirements", { avx, openGL });
   await store.save();
+
+  return;
 }
 
 /**

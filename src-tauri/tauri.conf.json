@@ -99,7 +99,7 @@
         "transparent": true,
         "resizable": false,
         "fullscreen": false,
-        "url": "splashscreen.html",
+        "url": "./src/splash/index.html",
         "label": "splashscreen",
         "visible": true
       }
