@@ -62,7 +62,7 @@ const releaseMeta = {
   notes: "UPDATE",
   pub_date: release.created_at,
   platforms: {
-    linux: {
+    "linux-x86_64": {
       signature: "",
       url: `https://github.com/open-goal/launcher/releases/download/${
         release.tag_name
@@ -71,7 +71,7 @@ const releaseMeta = {
         ""
       )}_amd64.AppImage`,
     },
-    win64: {
+    "windows-x86_64": {
       signature: "",
       url: `https://github.com/open-goal/launcher/releases/download/${
         release.tag_name

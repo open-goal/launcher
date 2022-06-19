@@ -3,11 +3,11 @@
   "notes": "UPDATE",
   "pub_date": "2022-06-19T00:58:05Z",
   "platforms": {
-    "linux": {
+    "linux-x86_64": {
       "signature": "",
       "url": "https://github.com/open-goal/launcher/releases/download/v0.2.5/opengoal-launcher_0.2.5_amd64.AppImage"
     },
-    "win64": {
+    "windows-x86_64": {
       "signature": "",
       "url": "https://github.com/open-goal/launcher/releases/download/v0.2.5/opengoal-launcher_0.2.5_x64_en-US.msi"
     }
