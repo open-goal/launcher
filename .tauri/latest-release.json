@@ -8,7 +8,7 @@
       "url": "https://github.com/open-goal/launcher/releases/download/v0.2.6/opengoal-launcher_0.2.6_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVReStvMTdKYnkwdnplcTZ3RERlb0dYdzJmZ0piQ09jeSs1YVhLa0FYVjRVTEViTHhkSUhmVGxScGpjZVBtVFB1N2thWERUN2dmblhCNk9BYjVBR0lPNzBCOWNUNFh4dndJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjU1NjA4NjM5CWZpbGU6RDpcYVxsYXVuY2hlclxsYXVuY2hlclxzcmMtdGF1cmlcdGFyZ2V0XHJlbGVhc2VcYnVuZGxlL21zaS9vcGVuZ29hbC1sYXVuY2hlcl8wLjIuNl94NjRfZW4tVVMubXNpLnppcAp3VngxeDNNYW1BdUtpQ3VPbHpiSFBkOGxOdVZxODlXdnRFR2lzWEdkOEplblkwR01WcmRTYXpWOTcyemJBMVBsN1NiSVNXUTVRRDNEeExJWWFCallEUT09Cg==",
+      "signature": "https://github.com/open-goal/launcher/releases/download/v0.2.6/opengoal-launcher_0.2.6_x64_en-US.msi.zip.sig",
       "url": "https://github.com/open-goal/launcher/releases/download/v0.2.6/opengoal-launcher_0.2.6_x64_en-US.msi.zip"
     }
   }
