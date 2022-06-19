@@ -1,15 +1,16 @@
 {
-  "name": "v0.2.5",
+  "name": "v0.2.6",
   "notes": "UPDATE",
-  "pub_date": "2022-06-19T00:58:05Z",
+  "pub_date": "2022-06-19T02:59:33Z",
   "platforms": {
     "linux-x86_64": {
       "signature": "",
-      "url": "https://github.com/open-goal/launcher/releases/download/v0.2.5/opengoal-launcher_0.2.5_amd64.AppImage"
+      "url": "https://github.com/open-goal/launcher/releases/download/v0.2.6/opengoal-launcher_0.2.6_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
       "signature": "",
-      "url": "https://github.com/open-goal/launcher/releases/download/v0.2.5/opengoal-launcher_0.2.5_x64_en-US.msi"
+      "url": "https://github.com/open-goal/launcher/releases/download/v0.2.6/opengoal-launcher_0.2.6_x64_en-US.msi.zip"
     }
   }
 }
+
