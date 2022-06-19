@@ -1,7 +1,7 @@
 <script>
   // Assets
   import { fade } from "svelte/transition";
-  import { getInstallStatus } from "$lib/config";
+  import { areRequirementsMet, getInstallStatus } from "$lib/config";
   import Setup from "../components/setup/Jak1Setup.svelte";
   import Jak1Main from "../components/games/Jak1Main.svelte";
   import Console from "../components/console/Console.svelte";
@@ -21,8 +21,19 @@
     {#if installed}
       <Jak1Main />
     {:else}
-      <Setup />
-      <Console />
+      <!-- TODO: MOVE THIS ELSE INTO ITS OWN ROUTE -->
+      {#await areRequirementsMet then requirementsMet}
+        {#if requirementsMet}
+          <Setup />
+          <Console />
+        {:else}
+          <!-- TODO: MAKE AN ERROR PAGE TO PROPERLY DISPLAY THE MISSING REQUIREMENT(S) -->
+          <p>
+            You do not meet the requirements to play this game: Missing
+            AVX/OpenGL Support
+          </p>
+        {/if}
+      {/await}
     {/if}
   {/await}
 </div>

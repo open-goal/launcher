@@ -5,6 +5,7 @@ import { getHighestSimd } from "$lib/commands";
 import { InstallStatus } from "../stores/InstallStore";
 import { SETUP_SUCCESS, SETUP_ERROR, SupportedGame } from "$lib/constants";
 import { appendToInstallErrorLog, appendToInstallLog } from "$lib/utils/file";
+import { setRequirementsMet } from "./config";
 
 let debugPath: string;
 let sidecarOptions = {};
@@ -24,14 +25,11 @@ if (isInDebugMode()) {
 export async function isAVXSupported() {
   const highestSIMD = await getHighestSimd();
   if (highestSIMD === undefined) {
-    InstallStatus.update(() => SETUP_SUCCESS.avxSupported);
     return true;
   }
   if (highestSIMD.toLowerCase().startsWith("avx")) {
-    InstallStatus.set(SETUP_SUCCESS.avxSupported);
     return true;
   }
-  InstallStatus.update(() => SETUP_ERROR.unsupportedAVX);
   throw new Error("UNSUPPORTED AVX");
 }
 
@@ -43,9 +41,7 @@ export async function isOpenGLVersionSupported(
   version: string
 ): Promise<boolean> {
   if ((await os.platform()) === "darwin") {
-    InstallStatus.update(() => SETUP_ERROR.unsupportedOS);
     throw new Error("Unsupported OS!");
-    // return RequirementStatus.Unknown;
   }
   // Otherwise, query for the version
   let command = Command.sidecar(
@@ -55,11 +51,20 @@ export async function isOpenGLVersionSupported(
   );
   const output = await command.execute();
   if (output.code === 0) {
-    InstallStatus.update(() => SETUP_SUCCESS.openGLSupported);
     return true;
   }
-  InstallStatus.update(() => SETUP_ERROR.unsupportedOpenGL);
   throw new Error("UNSUPPORTED OPENGL VERSION");
+}
+
+export async function checkRequirements(): Promise<Boolean> {
+  try {
+    await isAVXSupported();
+    await isOpenGLVersionSupported("4.3");
+    await setRequirementsMet(true, true);
+    return true;
+  } catch (err) {
+    return false;
+  }
 }
 
 /**

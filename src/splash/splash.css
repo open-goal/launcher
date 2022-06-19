@@ -1,0 +1,9 @@
+body {
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  background-image: url("$assets/images/logo.png");
+  background-repeat: no-repeat;
+  background-size: 100vw;
+  background-position: top;
+}

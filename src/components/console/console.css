@@ -7,6 +7,19 @@
   font-family: monospace;
 }
 
+details {
+  min-width: 75vw;
+  max-width: 75vw;
+}
+
+summary {
+  text-align: center;
+}
+
+.logContainer {
+  text-align: start;
+}
+
 details > summary:hover {
   cursor: pointer;
 }

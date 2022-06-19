@@ -9,14 +9,20 @@
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
   import { initConfig } from "$lib/config";
-  import { isInDebugMode } from "$lib/setup";
+  import { checkRequirements, isInDebugMode } from "$lib/setup";
+  import { areRequirementsMet } from "$lib/config";
+  import { closeSplashScreen } from "$lib/commands";
 
   let revokeSpecificActions = false;
 
   // Events
-  onMount(async () => {
-    await initConfig();
-  });
+  // onMount(async () => {
+  //   await initConfig();
+  //   if (!(await areRequirementsMet())) {
+  //     await checkRequirements();
+  //   }
+  //   await closeSplashScreen();
+  // });
 
   if (!isInDebugMode()) {
     revokeSpecificActions = true;
@@ -54,12 +60,10 @@
     <Sidebar />
     <!-- TODO - pass background component current active game -->
     <Background {bgVideo} />
-    <div class="test">
-      <div id="main">
-        <Route path="/" component={Jak1} />
-        <Route path="/jak1" component={Jak1} />
-        <Route path="/settings" component={Settings} />
-      </div>
+    <div id="main">
+      <Route path="/" component={Jak1} />
+      <Route path="/jak1" component={Jak1} />
+      <Route path="/settings" component={Settings} />
     </div>
   </div>
 </Router>

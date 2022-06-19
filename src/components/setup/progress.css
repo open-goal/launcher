@@ -3,7 +3,7 @@
   overflow: hidden;
   height: 30px;
   background-color: #ecf0f1;
-  width: 75%;
+  min-width: 45vw;
   margin: 20px auto;
 }
 

@@ -1,5 +1,6 @@
 use std::process::Command;
 use tauri::command;
+use tauri::Manager;
 
 #[derive(Debug, serde::Serialize)]
 pub enum CommandError {
@@ -59,4 +60,14 @@ fn open_appdir(dir: String) {
     .arg(dir) // <- Specify the directory you'd like to open.
     .spawn()
     .unwrap();
+}
+
+#[tauri::command]
+pub async fn close_splashscreen(window: tauri::Window) {
+  // Close splashscreen
+  if let Some(splashscreen) = window.get_window("splashscreen") {
+    splashscreen.close().unwrap();
+  }
+  // Show main window
+  window.get_window("main").unwrap().show().unwrap();
 }
