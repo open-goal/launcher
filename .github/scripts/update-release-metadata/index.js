@@ -69,19 +69,19 @@ const releaseMeta = {
       }/opengoal-launcher_${tagToSearchFor.replace(
         "v",
         ""
-      )}_amd64.AppImage`,
+      )}_amd64.AppImage.tar.gz`,
     },
     "windows-x86_64": {
       signature: "",
       url: `https://github.com/open-goal/launcher/releases/download/${
         release.tag_name
-      }/opengoal-launcher_${tagToSearchFor.replace("v", "")}_x64_en-US.msi`,
+      }/opengoal-launcher_${tagToSearchFor.replace("v", "")}_x64_en-US.msi.zip`,
     },
   },
 };
 fs.writeFileSync(
   "./.tauri/latest-release.json",
-  JSON.stringify(releaseMeta, null, 2) + "\n"
+  JSON.stringify(releaseMeta, null, 2) + "\n\n"
 );
 
 await octokit.rest.repos.updateRelease({

@@ -13,8 +13,7 @@
     "bundle": {
       "active": true,
       "targets": [
-        "msi",
-        "appimage"
+        "all"
       ],
       "identifier": "opengoal-launcher",
       "icon": [
