@@ -5,11 +5,11 @@
   "platforms": {
     "linux": {
       "signature": "",
-      "url": "https://github.com/open-goal/launcher/releases/download/v0.2.5/opengoal-launcher_0.2.5_amd64.AppImage.tar.gz"
+      "url": "https://github.com/open-goal/launcher/releases/download/v0.2.5/opengoal-launcher_0.2.5_amd64.AppImage"
     },
     "win64": {
       "signature": "",
-      "url": "https://github.com/open-goal/launcher/releases/download/v0.2.5/opengoal-launcher_0.2.5_x64_en-US.msi.zip"
+      "url": "https://github.com/open-goal/launcher/releases/download/v0.2.5/opengoal-launcher_0.2.5_x64_en-US.msi"
     }
   }
 }

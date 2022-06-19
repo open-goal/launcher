@@ -69,13 +69,13 @@ const releaseMeta = {
       }/opengoal-launcher_${tagToSearchFor.replace(
         "v",
         ""
-      )}_amd64.AppImage.tar.gz`,
+      )}_amd64.AppImage`,
     },
     win64: {
       signature: "",
       url: `https://github.com/open-goal/launcher/releases/download/${
         release.tag_name
-      }/opengoal-launcher_${tagToSearchFor.replace("v", "")}_x64_en-US.msi.zip`,
+      }/opengoal-launcher_${tagToSearchFor.replace("v", "")}_x64_en-US.msi`,
     },
   },
 };
