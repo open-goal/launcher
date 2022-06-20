@@ -9,6 +9,7 @@ mod commands;
 use commands::close_splashscreen;
 use commands::get_highest_simd;
 use commands::open_dir;
+use commands::copy_dir;
 
 fn main() {
   tauri::Builder::default()
@@ -16,6 +17,7 @@ fn main() {
     .invoke_handler(tauri::generate_handler![
       get_highest_simd,
       open_dir,
+      copy_dir,
       close_splashscreen
     ])
     .run(tauri::generate_context!())

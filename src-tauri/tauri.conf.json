@@ -48,7 +48,9 @@
         "scope": [
           "$APP/",
           "$APP/iso/*",
-          "$APP/*"
+          "$APP/*",
+          "$APP/**/*",
+          "$RESOURCE/**/*"
         ]
       },
       "shell": {

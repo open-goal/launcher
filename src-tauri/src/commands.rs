@@ -1,4 +1,6 @@
+use std::path::Path;
 use std::process::Command;
+use std::{io, fs};
 use tauri::command;
 use tauri::Manager;
 
@@ -33,6 +35,25 @@ fn highest_simd() -> Result<String, CommandError> {
 #[command]
 pub fn open_dir(dir: String) {
   return open_appdir(dir);
+}
+
+fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<()> {
+  fs::create_dir_all(&dst)?;
+  for entry in fs::read_dir(src)? {
+      let entry = entry?;
+      let ty = entry.file_type()?;
+      if ty.is_dir() {
+          copy_dir_all(entry.path(), dst.as_ref().join(entry.file_name()))?;
+      } else {
+          fs::copy(entry.path(), dst.as_ref().join(entry.file_name()))?;
+      }
+  }
+  Ok(())
+}
+
+#[command]
+pub fn copy_dir(dir_src: String, dir_dest: String) -> bool {
+  return copy_dir_all(dir_src, dir_dest).is_ok();
 }
 
 #[cfg(target_os = "windows")]

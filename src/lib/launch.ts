@@ -1,5 +1,5 @@
 import { Command } from "@tauri-apps/api/shell";
-import { resourceDir } from "@tauri-apps/api/path";
+import { appDir, resourceDir } from "@tauri-apps/api/path";
 
 function isInDebugMode() {
   return process.env.NODE_ENV === "development";
@@ -15,15 +15,13 @@ if (isInDebugMode()) {
 
 export async function launchGame() {
   let command: Command;
-  if (isInDebugMode()) {
-    console.log(debugPath);
-    command = Command.sidecar(
-      "bin/gk",
-      ["-boot", "-fakeiso", "-debug", "-proj-path", debugPath],
-      { cwd: "bin" }
-    );
-  } else {
-    command = Command.sidecar("bin/gk", ["-boot", "-fakeiso", "-debug"]);
-  }
+  const appDirPath = await appDir();
+  command = Command.sidecar("bin/gk", [
+    "-boot",
+    "-fakeiso",
+    "-debug",
+    "-proj-path",
+    `${appDirPath}data`,
+  ]);
   command.spawn();
 }
