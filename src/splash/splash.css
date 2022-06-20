@@ -1,9 +1,23 @@
 body {
-  padding: 0;
-  margin: 0;
+  height: 100vh;
   overflow: hidden;
-  background-image: url("$assets/images/logo.png");
-  background-repeat: no-repeat;
-  background-size: 100vw;
-  background-position: top;
+  margin: 0;
+  color: white;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
+  font-size: 1.5em;
+}
+
+.splash-logo {
+  height: 75vh;
+}
+
+.splash-logo img {
+  object-fit: contain;
+  height: 100%;
+  width: 100%;
+}
+
+.splash-status {
+  text-align: center;
 }
