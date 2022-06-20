@@ -30,3 +30,4 @@ game_config/
 out/
 *.zip
 *.tar.gz
+glewinfo.txt
