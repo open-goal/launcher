@@ -56,6 +56,43 @@ if (release === undefined) {
   process.exit(1);
 }
 
+// Retrieve linux and windows signatures
+const { data: releaseAssets } = await octokit.rest.repos.listReleaseAssets({
+  owner: "open-goal",
+  repo: "launcher",
+  release_id: release.id,
+  per_page: 100,
+});
+
+let linuxSignature = "";
+let windowsSignature = "";
+for (var i = 0; i < releaseAssets.length; i++) {
+  const asset = releaseAssets[i];
+  console.log(asset.name);
+  if (asset.name.toLowerCase().endsWith("appimage.tar.gz.sig")) {
+    const assetDownload = await octokit.rest.repos.getReleaseAsset({
+      owner: "open-goal",
+      repo: "launcher",
+      asset_id: asset.id,
+      headers: {
+        Accept: "application/octet-stream",
+      },
+    });
+    linuxSignature = Buffer.from(assetDownload.data).toString();
+  }
+  if (asset.name.toLowerCase().endsWith("msi.zip.sig")) {
+    const assetDownload = await octokit.rest.repos.getReleaseAsset({
+      owner: "open-goal",
+      repo: "launcher",
+      asset_id: asset.id,
+      headers: {
+        Accept: "application/octet-stream",
+      },
+    });
+    windowsSignature = Buffer.from(assetDownload.data).toString();
+  }
+}
+
 // TODO - no macOS yet
 const releaseMeta = {
   name: release.tag_name,
@@ -63,7 +100,7 @@ const releaseMeta = {
   pub_date: release.created_at,
   platforms: {
     "linux-x86_64": {
-      signature: "",
+      signature: linuxSignature,
       url: `https://github.com/open-goal/launcher/releases/download/${
         release.tag_name
       }/opengoal-launcher_${tagToSearchFor.replace(
@@ -72,7 +109,7 @@ const releaseMeta = {
       )}_amd64.AppImage.tar.gz`,
     },
     "windows-x86_64": {
-      signature: "",
+      signature: windowsSignature,
       url: `https://github.com/open-goal/launcher/releases/download/${
         release.tag_name
       }/opengoal-launcher_${tagToSearchFor.replace("v", "")}_x64_en-US.msi.zip`,
