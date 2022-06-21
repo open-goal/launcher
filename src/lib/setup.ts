@@ -1,5 +1,5 @@
 import { Command } from "@tauri-apps/api/shell";
-import { resourceDir } from "@tauri-apps/api/path";
+import { appDir, resourceDir } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
 import { getHighestSimd } from "$lib/commands";
 import { InstallStatus } from "../stores/InstallStore";
@@ -7,19 +7,10 @@ import { SETUP_SUCCESS, SETUP_ERROR, SupportedGame } from "$lib/constants";
 import { appendToInstallErrorLog, appendToInstallLog } from "$lib/utils/file";
 import { setRequirementsMet } from "./config";
 
-let debugPath: string;
 let sidecarOptions = {};
 
 export function isInDebugMode() {
   return process.env.NODE_ENV === "development";
-}
-
-if (isInDebugMode()) {
-  // NOTE - this is kind of a total hack
-  let path = await resourceDir();
-  debugPath = path.split("launcher")[0].split("?\\")[1];
-  debugPath += "launcher\\src-tauri\\data\\";
-  sidecarOptions = { cwd: "bin" };
 }
 
 export async function isAVXSupported() {
@@ -44,11 +35,7 @@ export async function isOpenGLVersionSupported(
     throw new Error("Unsupported OS!");
   }
   // Otherwise, query for the version
-  let command = Command.sidecar(
-    "bin/glewinfo",
-    ["-version", version],
-    sidecarOptions
-  );
+  let command = Command.sidecar("bin/glewinfo", ["-version", version]);
   const output = await command.execute();
   if (output.code === 0) {
     return true;
@@ -77,20 +64,14 @@ export async function extractAndValidateISO(
   let command: Command;
 
   InstallStatus.update(() => SETUP_SUCCESS.extractingISO);
-  if (isInDebugMode()) {
-    console.log(filePath);
-    command = Command.sidecar(
-      "bin/extractor",
-      [filePath, "--extract", "--validate", "--proj-path", debugPath],
-      sidecarOptions
-    );
-  } else {
-    command = Command.sidecar(
-      "bin/extractor",
-      [filePath, "--extract", "--validate"],
-      sidecarOptions
-    );
-  }
+  const appDirPath = await appDir();
+  command = Command.sidecar("bin/extractor", [
+    filePath,
+    "--extract",
+    "--validate",
+    "--proj-path",
+    `${appDirPath}data`,
+  ]);
 
   const output = await command.execute();
   if (output.stdout)
@@ -112,19 +93,13 @@ export async function extractAndValidateISO(
 export async function decompileGameData(filePath: string): Promise<boolean> {
   let command: Command;
   InstallStatus.update(() => SETUP_SUCCESS.decompiling);
-  if (isInDebugMode()) {
-    command = Command.sidecar(
-      "bin/extractor",
-      [filePath, "--decompile", "--proj-path", debugPath],
-      sidecarOptions
-    );
-  } else {
-    command = Command.sidecar(
-      "bin/extractor",
-      [filePath, "--decompile"],
-      sidecarOptions
-    );
-  }
+  const appDirPath = await appDir();
+  command = Command.sidecar("bin/extractor", [
+    filePath,
+    "--decompile",
+    "--proj-path",
+    `${appDirPath}data`,
+  ]);
 
   const output = await command.execute();
   if (output.stdout)
@@ -146,19 +121,12 @@ export async function decompileGameData(filePath: string): Promise<boolean> {
 export async function compileGame(filePath: string): Promise<Boolean> {
   let command: Command;
   InstallStatus.update(() => SETUP_SUCCESS.compiling);
-  if (isInDebugMode()) {
-    command = Command.sidecar(
-      "bin/extractor",
-      [filePath, "--compile", "--proj-path", debugPath],
-      sidecarOptions
-    );
-  } else {
-    command = Command.sidecar(
-      "bin/extractor",
-      [filePath, "--compile"],
-      sidecarOptions
-    );
-  }
+  const appDirPath = await appDir();
+  command = Command.sidecar(
+    "bin/extractor",
+    [filePath, "--compile", "--proj-path", `${appDirPath}data`],
+    sidecarOptions
+  );
 
   const output = await command.execute();
   if (output.stdout)
