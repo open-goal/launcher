@@ -8,21 +8,30 @@
   import Settings from "./routes/Settings.svelte";
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
-  import { initConfig } from "$lib/config";
-  import { checkRequirements, isInDebugMode } from "$lib/setup";
-  import { areRequirementsMet } from "$lib/config";
-  import { closeSplashScreen } from "$lib/commands";
+  import { isInDebugMode } from "$lib/setup";
+  import { appWindow } from "@tauri-apps/api/window";
+  import { isInstalling } from "./stores/InstallStore";
 
   let revokeSpecificActions = false;
 
   // Events
-  // onMount(async () => {
-  //   await initConfig();
-  //   if (!(await areRequirementsMet())) {
-  //     await checkRequirements();
-  //   }
-  //   await closeSplashScreen();
-  // });
+  onMount(async () => {
+    // TODO - tauri doesn't seem to handle this event being unlistented to properly (go back to closing the window)
+    // - need to make an issue
+    // For now, we'll just handle all close events ourselves
+    await appWindow.listen("tauri://close-requested", async () => {
+      if ($isInstalling) {
+        const confirmed = await confirm(
+          "Installation still in progress, are you sure you want to exit?"
+        );
+        if (confirmed) {
+          await appWindow.close();
+        }
+        return;
+      }
+      await appWindow.close();
+    });
+  });
 
   if (!isInDebugMode()) {
     revokeSpecificActions = true;

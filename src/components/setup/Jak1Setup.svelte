@@ -1,7 +1,7 @@
 <script type="ts">
   import { navigate } from "svelte-navigator";
   import { filePrompt } from "$lib/utils/file";
-  import { areRequirementsMet, setInstallStatus } from "$lib/config";
+  import { setInstallStatus } from "$lib/config";
   import { clearInstallLogs } from "$lib/utils/file";
   import {
     compileGame,
@@ -11,8 +11,8 @@
   // components
   import Progress from "./Progress.svelte";
   // constants
-  import { SETUP_ERROR, SupportedGame } from "../../lib/constants";
-  import { InstallStatus, isInstalling } from "../../stores/InstallStore";
+  import { SupportedGame } from "../../lib/constants";
+  import { isInstalling } from "../../stores/InstallStore";
 
   // TODO - set status from inside each install step function
   // TODO: MOVE THIS FUNCTION TO THE LIB DIR AND DELETE IMPORTS
@@ -26,8 +26,8 @@
       await decompileGameData(isoPath);
       await compileGame(isoPath);
       await setInstallStatus(SupportedGame.Jak1, true);
-      // NOTE - CHANGED THIS NAVIGATE, BUT I STILL THINK IT CAN BE BETTER
       isInstalling.update(() => false);
+      // NOTE - CHANGED THIS NAVIGATE, BUT I STILL THINK IT CAN BE BETTER
       navigate(0);
       return;
     } catch (err) {

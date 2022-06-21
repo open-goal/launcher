@@ -8,9 +8,6 @@
   import Logo from "../components/Logo.svelte";
   import { SupportedGame } from "$lib/constants";
 
-  // NOTE: added this to shut up the console warning
-  export let location;
-
   // State
   const gameInstalled = async () => await getInstallStatus(SupportedGame.Jak1);
 </script>
