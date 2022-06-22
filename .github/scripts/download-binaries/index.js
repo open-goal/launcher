@@ -89,6 +89,6 @@ const binaryBundleMeta = {
   version: requestedVersion,
 };
 fs.writeFileSync(
-  "./out/metadata.json",
+  "./metadata.json",
   JSON.stringify(binaryBundleMeta, null, 2) + "\n"
 );

@@ -32,3 +32,4 @@ test/out/
 *.zip
 *.tar.gz
 glewinfo.txt
+/metadata.json
