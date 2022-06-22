@@ -24,7 +24,7 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
 
       - name: setup node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16
 
@@ -120,7 +120,7 @@ jobs:
           ref: main
 
       - name: setup node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16
 
