@@ -44,6 +44,7 @@ if (requestedVersion === "latest") {
     repo: "jak-project",
   });
   release = releaseData;
+  requestedVersion = releaseData.tag_name;
 } else {
   const { data: releaseData } = await octokit.rest.repos.getReleaseByTag({
     owner: "open-goal",
@@ -82,3 +83,12 @@ for (var i = 0; i < releaseAssets.length; i++) {
     );
   }
 }
+
+// Write out the version we grabbed
+const binaryBundleMeta = {
+  version: requestedVersion,
+};
+fs.writeFileSync(
+  "./out/metadata.json",
+  JSON.stringify(binaryBundleMeta, null, 2) + "\n"
+);

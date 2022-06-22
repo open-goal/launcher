@@ -118,7 +118,7 @@ const releaseMeta = {
 };
 fs.writeFileSync(
   "./.tauri/latest-release.json",
-  JSON.stringify(releaseMeta, null, 2) + "\n\n"
+  JSON.stringify(releaseMeta, null, 2) + "\n"
 );
 
 await octokit.rest.repos.updateRelease({
