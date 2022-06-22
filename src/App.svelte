@@ -1,6 +1,6 @@
 <script>
   // Assets
-  import bgVideo from "$assets/videos/background.webm";
+  import bgVideo from "$assets/videos/background.mp4";
   // Other Imports
   import { onMount } from "svelte";
   import { Router, Route } from "svelte-navigator";

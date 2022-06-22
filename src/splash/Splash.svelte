@@ -3,7 +3,7 @@
   import { areRequirementsMet, initConfig } from "$lib/config";
   import { checkRequirements } from "$lib/setup";
   import { onMount } from "svelte";
-  import logo from "$assets/images/logo.png";
+  import logo from "$assets/images/logo.webp";
   import "./splash.css";
 import { copyDataDirectory, isDataDirectoryUpToDate } from "$lib/utils/file";
 
