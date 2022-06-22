@@ -27,7 +27,8 @@ dist-ssr
 bundle-test/
 imgui.ini
 game_config/
-out/
+test/out/
+/out/
 *.zip
 *.tar.gz
 glewinfo.txt
