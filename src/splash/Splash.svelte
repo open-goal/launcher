@@ -1,11 +1,16 @@
 <script>
   import { closeSplashScreen } from "$lib/commands";
-  import { areRequirementsMet, initConfig } from "$lib/config";
+  import {
+    areRequirementsMet,
+    initConfig,
+    isGameInstallLatest,
+  } from "$lib/config";
   import { checkRequirements } from "$lib/setup";
   import { onMount } from "svelte";
   import logo from "$assets/images/logo.webp";
   import "./splash.css";
-import { copyDataDirectory, isDataDirectoryUpToDate } from "$lib/utils/file";
+  import { copyDataDirectory, isDataDirectoryUpToDate } from "$lib/utils/file";
+  import { SupportedGame } from "$lib/constants";
 
   let dataFilesCopied = false;
   let unableToCopy = false;
@@ -16,33 +21,40 @@ import { copyDataDirectory, isDataDirectoryUpToDate } from "$lib/utils/file";
     if (!(await areRequirementsMet())) {
       await checkRequirements();
     }
+    if (!(await isGameInstallLatest(SupportedGame.Jak1))) {
+      // copy latest tools to the proper directory
+      // await copyDataDirectory();
+      // re-decompile game
+      // compile game
+      // update settings.json with latest tools version from metadata.json
+    }
     // See if we've copied the files to the AppDir yet
-    dataFilesCopied = await isDataDirectoryUpToDate();
-    if (dataFilesCopied) {
-      // Lies!
-      setTimeout(async function() { await closeSplashScreen() },2500);
-    } else {
-      // Copy the files
-      let ok = await copyDataDirectory();
-      if (!ok) {
+    if (!(await isDataDirectoryUpToDate())) {
+      try {
+        await copyDataDirectory();
+        dataFilesCopied = true;
+      } catch (err) {
+        console.log(err);
         unableToCopy = true;
-      } else {
-        await closeSplashScreen();
       }
     }
+    // sleep 2.5 seconds then close splash screen
+    setTimeout(async function () {
+      await closeSplashScreen();
+    }, 2500);
   });
 </script>
 
 <div class="splash-logo">
-  <img src={logo}>
+  <img src={logo} alt="" />
 </div>
 <div class="splash-status">
   {#if !dataFilesCopied}
     Copying Data Files...
     {#if unableToCopy}
-    Error - Unable to Copy Data Files
+      Error - Unable to Copy Data Files
     {/if}
   {:else}
-  Checking Data Files...
+    Checking Data Files...
   {/if}
 </div>
