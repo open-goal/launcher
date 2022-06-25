@@ -149,7 +149,6 @@ export async function areRequirementsMet(): Promise<Boolean> {
     console.log("Unsupported OpenGL");
     return false;
   }
-
   return true;
 }
 
@@ -161,19 +160,19 @@ export async function getGameInstallVersion(game: SupportedGame): Promise<String
 }
 
 export async function getLatestToolsVersion(): Promise<String> {
-  const data = await readTextFile("metadata.json", { dir: BaseDirectory.Resource });
+  const data = await readTextFile("metadata.json", { dir: BaseDirectory.App });
   const { version } = JSON.parse(data);
   return version;
 }
 
-export async function isGameInstallLatest(game: SupportedGame): Promise<Boolean> {
+export async function shouldUpdateGameInstall(game: SupportedGame): Promise<Boolean> {
   const installVersion = await getGameInstallVersion(game);
   const toolsVersion = await getLatestToolsVersion();
 
-  if (installVersion === toolsVersion) return true;
+  if (installVersion === toolsVersion) return false;
 
   console.log("Tools version is different than install verison");
   console.log("Tools: ", toolsVersion);
   console.log("Installed: ", installVersion);
-  return false
+  return true
 }

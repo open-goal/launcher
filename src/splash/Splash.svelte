@@ -3,14 +3,19 @@
   import {
     areRequirementsMet,
     initConfig,
-    isGameInstallLatest,
+    shouldUpdateGameInstall,
   } from "$lib/config";
-  import { checkRequirements } from "$lib/setup";
+  import {
+    checkRequirements,
+    compileGame,
+    decompileGameData,
+  } from "$lib/setup";
   import { onMount } from "svelte";
   import logo from "$assets/images/logo.webp";
   import "./splash.css";
   import { copyDataDirectory, isDataDirectoryUpToDate } from "$lib/utils/file";
   import { SupportedGame } from "$lib/constants";
+  import { appDir, join } from "@tauri-apps/api/path";
 
   let dataFilesCopied = false;
   let unableToCopy = false;
@@ -20,13 +25,6 @@
     await initConfig();
     if (!(await areRequirementsMet())) {
       await checkRequirements();
-    }
-    if (!(await isGameInstallLatest(SupportedGame.Jak1))) {
-      // copy latest tools to the proper directory
-      // await copyDataDirectory();
-      // re-decompile game
-      // compile game
-      // update settings.json with latest tools version from metadata.json
     }
     // See if we've copied the files to the AppDir yet
     if (!(await isDataDirectoryUpToDate())) {
@@ -38,10 +36,25 @@
         unableToCopy = true;
       }
     }
-    // sleep 2.5 seconds then close splash screen
-    setTimeout(async function () {
-      await closeSplashScreen();
-    }, 2500);
+
+    if (await shouldUpdateGameInstall(SupportedGame.Jak1)) {
+      // copy latest tools to the proper directory
+      const isoPath = await join(await appDir(), "/data/extracted_iso/");
+      try {
+        await copyDataDirectory();
+        dataFilesCopied = true;
+      } catch (err) {
+        console.log(err);
+        unableToCopy = true;
+      }
+      // decompile & compile game
+      await decompileGameData(isoPath);
+      await compileGame(isoPath);
+      // update settings.json with latest tools version from metadata.json
+    }
+
+    await new Promise((res) => setTimeout(res, 2500));
+    await closeSplashScreen();
   });
 </script>
 

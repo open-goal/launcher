@@ -1,11 +1,12 @@
 import { Command } from "@tauri-apps/api/shell";
-import { appDir, resourceDir } from "@tauri-apps/api/path";
+import { appDir } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
 import { getHighestSimd } from "$lib/commands";
 import { InstallStatus } from "../stores/InstallStore";
 import { SETUP_SUCCESS, SETUP_ERROR, SupportedGame } from "$lib/constants";
 import { appendToInstallErrorLog, appendToInstallLog } from "$lib/utils/file";
 import { setRequirementsMet } from "./config";
+import { BaseDirectory, copyFile } from "@tauri-apps/api/fs";
 
 let sidecarOptions = {};
 
@@ -52,6 +53,12 @@ export async function checkRequirements(): Promise<Boolean> {
   } catch (err) {
     return false;
   }
+}
+
+export async function saveISO(filePath: string): Promise<any> {
+  const appDirPath = await appDir();
+  await copyFile(filePath, `${appDirPath}/jak.iso`, { dir: BaseDirectory.App });
+  return;
 }
 
 /**
