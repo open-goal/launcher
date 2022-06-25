@@ -3,6 +3,7 @@
   import {
     areRequirementsMet,
     initConfig,
+    setGameInstallVersion,
     shouldUpdateGameInstall,
   } from "$lib/config";
   import {
@@ -52,8 +53,8 @@
       await decompileGameData(isoPath);
       await compileGame(isoPath);
       // update settings.json with latest tools version from metadata.json
+      await setGameInstallVersion(SupportedGame.Jak1);
     }
-
     await new Promise((res) => setTimeout(res, 2500));
     await closeSplashScreen();
   });

@@ -159,6 +159,15 @@ export async function getGameInstallVersion(game: SupportedGame): Promise<String
   return version;
 }
 
+export async function setGameInstallVersion(game: SupportedGame) {
+  const version = await getLatestToolsVersion();
+  await store.load();
+  let games: GameConfig = await store.get("games");
+  games[game].version = version;
+  await store.set("games", games);
+  return await store.save();
+}
+
 export async function getLatestToolsVersion(): Promise<String> {
   const data = await readTextFile("metadata.json", { dir: BaseDirectory.App });
   const { version } = JSON.parse(data);
