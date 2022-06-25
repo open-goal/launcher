@@ -2,7 +2,6 @@ import { createDir, writeFile } from "@tauri-apps/api/fs";
 import { appDir, join } from "@tauri-apps/api/path";
 import { Store } from "tauri-plugin-store-api";
 import { SupportedGame } from "./constants";
-import { isAVXSupported } from "./setup";
 import { fileExists } from "./utils/file";
 
 class GameConfig {

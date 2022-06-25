@@ -7,14 +7,13 @@
     compileGame,
     decompileGameData,
     extractAndValidateISO,
-  } from "$lib/setup";
+  } from "$lib/setup/setup";
   // components
   import Progress from "./Progress.svelte";
   // constants
-  import { SupportedGame } from "../../lib/constants";
-  import { isInstalling } from "../../stores/InstallStore";
+  import { SupportedGame } from "$lib/constants";
+  import { InstallStatus, isInstalling } from "../../stores/InstallStore";
 
-  // TODO - set status from inside each install step function
   // TODO: MOVE THIS FUNCTION TO THE LIB DIR AND DELETE IMPORTS
   async function installProcess() {
     let isoPath: string | string[];
@@ -31,8 +30,12 @@
       navigate(0);
       return;
     } catch (err) {
-      // TODO - MAKE SURE FUNCTIONS USING ENUMS WHEN THROWING ERRORS
-      // InstallStatus.update(() => err.message);
+      console.log(`[OG]: Error encountered - ${err}`);
+      let errStatus = {
+        status: err,
+        percent: undefined,
+      };
+      InstallStatus.update(() => errStatus);
       isInstalling.update(() => false);
       return false;
     }
