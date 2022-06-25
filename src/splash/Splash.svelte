@@ -16,6 +16,7 @@
   import { copyDataDirectory, isDataDirectoryUpToDate } from "$lib/utils/file";
   import { SupportedGame } from "$lib/constants";
   import { appDir, join } from "@tauri-apps/api/path";
+  import { InstallStatus } from "../stores/InstallStore";
 
   let dataFilesCopied = false;
   let unableToCopy = false;
@@ -69,5 +70,6 @@
     {/if}
   {:else}
     Checking Data Files...
+    {$InstallStatus.status}
   {/if}
 </div>
