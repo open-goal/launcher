@@ -120,7 +120,7 @@ export async function decompileGameData(filePath: string): Promise<boolean> {
     isInstalling.update(() => false);
     return true;
   }
-  isInstalling.update(() => false)
+  isInstalling.update(() => false);
   throw new Error(`Decompiler exited with code: ${output.code}`);
 }
 

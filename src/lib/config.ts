@@ -1,4 +1,9 @@
-import { BaseDirectory, createDir, readTextFile, writeFile } from "@tauri-apps/api/fs";
+import {
+  BaseDirectory,
+  createDir,
+  readTextFile,
+  writeFile,
+} from "@tauri-apps/api/fs";
 import { appDir, join, homeDir } from "@tauri-apps/api/path";
 import { Store } from "tauri-plugin-store-api";
 import { SupportedGame } from "./constants";
@@ -152,7 +157,9 @@ export async function areRequirementsMet(): Promise<Boolean> {
   return true;
 }
 
-export async function getGameInstallVersion(game: SupportedGame): Promise<String> {
+export async function getGameInstallVersion(
+  game: SupportedGame
+): Promise<String> {
   await store.load();
   let games: GameConfig = await store.get("games");
   const { version } = games[game];
@@ -174,7 +181,9 @@ export async function getLatestToolsVersion(): Promise<String> {
   return version;
 }
 
-export async function shouldUpdateGameInstall(game: SupportedGame): Promise<Boolean> {
+export async function shouldUpdateGameInstall(
+  game: SupportedGame
+): Promise<Boolean> {
   const installVersion = await getGameInstallVersion(game);
   const toolsVersion = await getLatestToolsVersion();
 
@@ -183,5 +192,5 @@ export async function shouldUpdateGameInstall(game: SupportedGame): Promise<Bool
   console.log("Tools version is different than install verison");
   console.log("Tools: ", toolsVersion);
   console.log("Installed: ", installVersion);
-  return true
+  return true;
 }
