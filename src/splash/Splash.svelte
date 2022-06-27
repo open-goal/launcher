@@ -71,6 +71,7 @@
     {/if}
   {:else}
     Checking Data Files...
+    <br />
     {$InstallStatus.status}
   {/if}
 </div>
