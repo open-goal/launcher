@@ -2,7 +2,7 @@ import { Command } from "@tauri-apps/api/shell";
 import { appDir } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
 import { getHighestSimd } from "$lib/commands";
-import { InstallStatus, isInstalling } from "../../stores/InstallStore";
+import { InstallStatus, isInstalling } from "../../stores/AppStore";
 import { SETUP_SUCCESS, SETUP_ERROR, SupportedGame } from "$lib/constants";
 import { appendToInstallErrorLog, appendToInstallLog } from "$lib/utils/file";
 import { setRequirementsMet } from "../config";

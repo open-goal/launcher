@@ -1,5 +1,5 @@
 <script>
-  import { Console } from "../../stores/InstallStore";
+  import { Console } from "../../stores/AppStore";
   import "./console.css";
 </script>
 

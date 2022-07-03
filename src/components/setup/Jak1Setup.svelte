@@ -12,7 +12,7 @@
   import Progress from "./Progress.svelte";
   // constants
   import { SupportedGame } from "$lib/constants";
-  import { InstallStatus, isInstalling } from "../../stores/InstallStore";
+import { InstallStatus, isInstalling } from "/src/stores/AppStore";
 
   // TODO: MOVE THIS FUNCTION TO THE LIB DIR AND DELETE IMPORTS
   async function installProcess() {

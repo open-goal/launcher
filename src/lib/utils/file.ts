@@ -16,7 +16,7 @@ import {
   logDir,
   resourceDir,
 } from "@tauri-apps/api/path";
-import { InstallStatus, Console } from "../../stores/InstallStore";
+import { InstallStatus, Console } from "../../stores/AppStore";
 
 export async function fileExists(path: string): Promise<boolean> {
   try {
@@ -51,6 +51,10 @@ export async function filePrompt(): Promise<string> {
   }
 
   return path;
+}
+
+export async function dataDirectoryExists(): Promise<boolean> {
+  return await dirExists(await join(await appDir(), "data"));
 }
 
 export async function isDataDirectoryUpToDate(): Promise<boolean> {

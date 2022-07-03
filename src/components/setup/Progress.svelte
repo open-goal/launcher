@@ -1,6 +1,6 @@
 <script>
   import "./progress.css";
-  import { InstallStatus } from "../../stores/InstallStore";
+  import { InstallStatus } from "../../stores/AppStore";
   import { tweened } from "svelte/motion";
   import { cubicOut } from "svelte/easing";
 
