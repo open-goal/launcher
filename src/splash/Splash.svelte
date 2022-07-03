@@ -10,7 +10,7 @@
     checkRequirements,
     compileGame,
     decompileGameData,
-  } from "$lib/setup";
+  } from "$lib/setup/setup";
   import { onMount } from "svelte";
   import logo from "$assets/images/logo.webp";
   import "./splash.css";

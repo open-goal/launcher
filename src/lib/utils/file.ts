@@ -3,8 +3,6 @@ import { SETUP_SUCCESS, SETUP_ERROR, SupportedGame } from "$lib/constants";
 import { invoke } from "@tauri-apps/api";
 import { open } from "@tauri-apps/api/dialog";
 import {
-  BaseDirectory,
-  copyFile,
   createDir,
   readDir,
   readTextFile,
@@ -39,26 +37,6 @@ export async function dirExists(path: string): Promise<boolean> {
 }
 
 export async function filePrompt(): Promise<string> {
-  const resourceDirPath = await resourceDir();
-  console.log(resourceDirPath);
-
-  const dataDirPath = await dataDir();
-  console.log(dataDirPath);
-
-  const appDirPath = await appDir();
-  console.log(appDirPath);
-
-  // try {
-  //   let src = `${resourceDirPath.replaceAll("\\\\?\\", "")}data`;
-  //   let dst = `${appDirPath}data`;
-  //   console.log(src);
-  //   console.log(dst);
-  //   let ok = await invoke("copy_dir", { dirSrc: src, dirDest: dst });
-  //   console.log(ok);
-  // } catch (e) {
-  //   console.log(e);
-  // }
-
   // TODO - pull strings out into args
   InstallStatus.update(() => SETUP_SUCCESS.awaitingISO);
   const path = await open({

@@ -5,9 +5,9 @@
   import { getGameInstallVersion } from "$lib/config";
   import { SupportedGame } from "$lib/constants";
   import { getVersion } from "@tauri-apps/api/app";
-  import { decompileGameData, compileGame } from "$lib/setup";
+  import { decompileGameData, compileGame } from "$lib/setup/setup";
   import { onMount } from "svelte";
-  import { InstallStatus, isInstalling } from "../stores/InstallStore";
+  import { isInstalling } from "../stores/InstallStore";
 
   // NOTE: added this to shut up the console warning
   export let location;

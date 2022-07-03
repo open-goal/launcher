@@ -8,7 +8,7 @@
   import Settings from "./routes/Settings.svelte";
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
-  import { isInDebugMode } from "$lib/setup";
+  import { isInDebugMode } from "$lib/setup/setup";
   import { appWindow } from "@tauri-apps/api/window";
   import { isInstalling } from "./stores/InstallStore";
 

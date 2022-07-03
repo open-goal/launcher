@@ -2,11 +2,12 @@ import { Command } from "@tauri-apps/api/shell";
 import { appDir } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
 import { getHighestSimd } from "$lib/commands";
-import { InstallStatus, isInstalling } from "../stores/InstallStore";
+import { InstallStatus, isInstalling } from "../../stores/InstallStore";
 import { SETUP_SUCCESS, SETUP_ERROR, SupportedGame } from "$lib/constants";
 import { appendToInstallErrorLog, appendToInstallLog } from "$lib/utils/file";
-import { setRequirementsMet } from "./config";
+import { setRequirementsMet } from "../config";
 import { BaseDirectory, copyFile } from "@tauri-apps/api/fs";
+import { resolveErrorCode } from "./setup_errors";
 
 let sidecarOptions = {};
 
@@ -61,6 +62,15 @@ export async function saveISO(filePath: string): Promise<any> {
   return;
 }
 
+async function handleErrorCode(code: number, stepName: string) {
+  isInstalling.update(() => false);
+  const explaination = await resolveErrorCode(code);
+  if (explaination === undefined) {
+    throw new Error(`${stepName} exited with unexpected code: ${code}`);
+  }
+  throw new Error(explaination);
+}
+
 /**
  * @param {String} filePath
  * @returns {Promise<Boolean>}
@@ -81,16 +91,17 @@ export async function extractAndValidateISO(
   ]);
 
   const output = await command.execute();
-  if (output.stdout)
-    console.log(output.stdout),
-      await appendToInstallLog(SupportedGame.Jak1, output.stdout);
-  if (output.stderr)
-    console.log(output.stderr),
-      await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
+  if (output.stdout) {
+    await appendToInstallLog(SupportedGame.Jak1, output.stdout);
+  }
+  if (output.stderr) {
+    await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
+  }
   if (output.code === 0) {
     return true;
   }
-  throw new Error(`Extractor exited with code: ${output.code}`);
+
+  handleErrorCode(output.code, "Extraction");
 }
 
 /**
@@ -110,18 +121,16 @@ export async function decompileGameData(filePath: string): Promise<boolean> {
   ]);
 
   const output = await command.execute();
-  if (output.stdout)
-    console.log(output.stdout),
-      await appendToInstallLog(SupportedGame.Jak1, output.stdout);
-  if (output.stderr)
-    console.log(output.stderr),
-      await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
+  if (output.stdout) {
+    await appendToInstallLog(SupportedGame.Jak1, output.stdout);
+  }
+  if (output.stderr) {
+    await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
+  }
   if (output.code === 0) {
-    isInstalling.update(() => false);
     return true;
   }
-  isInstalling.update(() => false);
-  throw new Error(`Decompiler exited with code: ${output.code}`);
+  handleErrorCode(output.code, "Decompiler");
 }
 
 /**
@@ -140,17 +149,15 @@ export async function compileGame(filePath: string): Promise<Boolean> {
   );
 
   const output = await command.execute();
-  if (output.stdout)
-    console.log(output.stdout),
-      await appendToInstallLog(SupportedGame.Jak1, output.stdout);
-  if (output.stderr)
-    console.log(output.stderr),
-      await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
+  if (output.stdout) {
+    await appendToInstallLog(SupportedGame.Jak1, output.stdout);
+  }
+  if (output.stderr) {
+    await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
+  }
   if (output.code === 0) {
     InstallStatus.update(() => SETUP_SUCCESS.ready);
-    isInstalling.update(() => false);
     return true;
   }
-  isInstalling.update(() => false);
-  throw new Error(`Compiler exited with code: ${output.code}`);
+  handleErrorCode(output.code, "Compiler");
 }
