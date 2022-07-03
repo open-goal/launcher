@@ -2,10 +2,11 @@ import { Command } from "@tauri-apps/api/shell";
 import { appDir } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
 import { getHighestSimd } from "$lib/commands";
-import { InstallStatus } from "../../stores/InstallStore";
-import { SETUP_SUCCESS, SupportedGame } from "$lib/constants";
+import { InstallStatus, isInstalling } from "../../stores/InstallStore";
+import { SETUP_SUCCESS, SETUP_ERROR, SupportedGame } from "$lib/constants";
 import { appendToInstallErrorLog, appendToInstallLog } from "$lib/utils/file";
 import { setRequirementsMet } from "../config";
+import { BaseDirectory, copyFile } from "@tauri-apps/api/fs";
 import { resolveErrorCode } from "./setup_errors";
 
 let sidecarOptions = {};
@@ -55,7 +56,14 @@ export async function checkRequirements(): Promise<Boolean> {
   }
 }
 
+export async function saveISO(filePath: string): Promise<any> {
+  const appDirPath = await appDir();
+  await copyFile(filePath, `${appDirPath}/jak.iso`, { dir: BaseDirectory.App });
+  return;
+}
+
 async function handleErrorCode(code: number, stepName: string) {
+  isInstalling.update(() => false);
   const explaination = await resolveErrorCode(code);
   if (explaination === undefined) {
     throw new Error(`${stepName} exited with unexpected code: ${code}`);
@@ -103,6 +111,7 @@ export async function extractAndValidateISO(
 export async function decompileGameData(filePath: string): Promise<boolean> {
   let command: Command;
   InstallStatus.update(() => SETUP_SUCCESS.decompiling);
+  isInstalling.update(() => true);
   const appDirPath = await appDir();
   command = Command.sidecar("bin/extractor", [
     filePath,
@@ -131,6 +140,7 @@ export async function decompileGameData(filePath: string): Promise<boolean> {
 export async function compileGame(filePath: string): Promise<Boolean> {
   let command: Command;
   InstallStatus.update(() => SETUP_SUCCESS.compiling);
+  isInstalling.update(() => true);
   const appDirPath = await appDir();
   command = Command.sidecar(
     "bin/extractor",

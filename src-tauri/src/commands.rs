@@ -1,6 +1,6 @@
 use std::path::Path;
 use std::process::Command;
-use std::{io, fs};
+use std::{fs, io};
 use tauri::command;
 use tauri::Manager;
 
@@ -12,12 +12,12 @@ pub enum CommandError {
 }
 
 #[command]
-pub fn get_highest_simd() -> Result<String, CommandError> {
-  return highest_simd();
+pub async fn get_highest_simd() -> Result<String, CommandError> {
+  return highest_simd().await;
 }
 
 #[cfg(target_arch = "x86_64")]
-fn highest_simd() -> Result<String, CommandError> {
+async fn highest_simd() -> Result<String, CommandError> {
   if is_x86_feature_detected!("avx2") {
     return Ok("AVX2".to_string());
   } else if is_x86_feature_detected!("avx") {
@@ -40,19 +40,19 @@ pub fn open_dir(dir: String) {
 fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<()> {
   fs::create_dir_all(&dst)?;
   for entry in fs::read_dir(src)? {
-      let entry = entry?;
-      let ty = entry.file_type()?;
-      if ty.is_dir() {
-          copy_dir_all(entry.path(), dst.as_ref().join(entry.file_name()))?;
-      } else {
-          fs::copy(entry.path(), dst.as_ref().join(entry.file_name()))?;
-      }
+    let entry = entry?;
+    let ty = entry.file_type()?;
+    if ty.is_dir() {
+      copy_dir_all(entry.path(), dst.as_ref().join(entry.file_name()))?;
+    } else {
+      fs::copy(entry.path(), dst.as_ref().join(entry.file_name()))?;
+    }
   }
   Ok(())
 }
 
 #[command]
-pub fn copy_dir(dir_src: String, dir_dest: String) -> bool {
+pub async fn copy_dir(dir_src: String, dir_dest: String) -> bool {
   return copy_dir_all(dir_src, dir_dest).is_ok();
 }
 
