@@ -55,6 +55,14 @@ export async function checkRequirements(): Promise<Boolean> {
   }
 }
 
+async function handleErrorCode(code: number, stepName: string) {
+  const explaination = await resolveErrorCode(code);
+  if (explaination === undefined) {
+    throw new Error(`${stepName} exited with unexpected code: ${code}`);
+  }
+  throw new Error(explaination);
+}
+
 /**
  * @param {String} filePath
  * @returns {Promise<Boolean>}
@@ -85,11 +93,7 @@ export async function extractAndValidateISO(
     return true;
   }
 
-  const explaination = await resolveErrorCode(output.code);
-  if (explaination === undefined) {
-    throw new Error(`Extractor exited with unexpected code: ${output.code}`);
-  }
-  throw new Error(explaination);
+  handleErrorCode(output.code, "Extraction");
 }
 
 /**
@@ -117,11 +121,7 @@ export async function decompileGameData(filePath: string): Promise<boolean> {
   if (output.code === 0) {
     return true;
   }
-  const explaination = await resolveErrorCode(output.code);
-  if (explaination === undefined) {
-    throw new Error(`Decompiler exited with unexpected code: ${output.code}`);
-  }
-  throw new Error(explaination);
+  handleErrorCode(output.code, "Decompiler");
 }
 
 /**
@@ -149,9 +149,5 @@ export async function compileGame(filePath: string): Promise<Boolean> {
     InstallStatus.update(() => SETUP_SUCCESS.ready);
     return true;
   }
-  const explaination = await resolveErrorCode(output.code);
-  if (explaination === undefined) {
-    throw new Error(`Compiler exited with unexpected code: ${output.code}`);
-  }
-  throw new Error(explaination);
+  handleErrorCode(output.code, "Compiler");
 }
