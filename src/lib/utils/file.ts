@@ -53,26 +53,39 @@ export async function filePrompt(): Promise<string> {
   return path;
 }
 
-// TODO - we need to copy over something to let us detect when the user updates and we need to copy again
-// - this could be as simple as a json file with a version (launcher version)
 export async function isDataDirectoryUpToDate(): Promise<boolean> {
+  const resourceDirPath = await resourceDir();
   const appDirPath = await appDir();
-  console.log(appDirPath);
-
-  return dirExists(`${appDirPath}data`);
+  // There should be a `metadata.json` which will help us know if the directory is out of date
+  // aka, does the app have updated files compared to what the user has in their appDir.
+  const userMetaPath = await join(appDirPath, "data", "metadata.json");
+  const appMetaPath = await join(resourceDirPath, "data", "metadata.json");
+  if (!(await fileExists(userMetaPath))) {
+    console.log(
+      `[Launcher]: Couldn't locate user's metadata file at '${userMetaPath}'`
+    );
+    return false;
+  }
+  // If it's there, read it in and check the version, compare with the app's
+  const userMetaVersion = JSON.parse(await readTextFile(userMetaPath)).version;
+  const appMetaVersion = JSON.parse(await readTextFile(appMetaPath)).version;
+  if (userMetaVersion != appMetaVersion) {
+    console.log(
+      `[Launcher]: User version ${userMetaVersion} does not match app version ${appMetaVersion}`
+    );
+    return false;
+  }
+  // NOTE - the user can of course mess up their directory more, but we can only hold their hands so much
+  // TODO - better to add some sort of "verify local data" feature in the app imo
+  return true;
 }
 
 export async function copyDataDirectory(): Promise<boolean> {
   const resourceDirPath = await resourceDir();
-  console.log(resourceDirPath);
-
   const appDirPath = await appDir();
-  console.log(appDirPath);
 
   let src = `${resourceDirPath.replaceAll("\\\\?\\", "")}data`;
   let dst = `${appDirPath}data`;
-  console.log(src);
-  console.log(dst);
 
   try {
     await copyDirectory(src, dst);

@@ -175,7 +175,9 @@ export async function setGameInstallVersion(game: SupportedGame) {
 }
 
 export async function getLatestToolsVersion(): Promise<String> {
-  const data = await readTextFile("metadata.json", { dir: BaseDirectory.App });
+  const appDirPath = await appDir();
+  const userMetaPath = await join(appDirPath, "data", "metadata.json");
+  const data = await readTextFile(userMetaPath);
   const { version } = JSON.parse(data);
   return version;
 }
@@ -184,9 +186,14 @@ export async function shouldUpdateGameInstall(
   game: SupportedGame
 ): Promise<Boolean> {
   const installVersion = await getGameInstallVersion(game);
+  if (installVersion === null || installVersion === undefined) {
+    return false;
+  }
   const toolsVersion = await getLatestToolsVersion();
 
-  if (installVersion === toolsVersion) return false;
+  if (installVersion === toolsVersion) {
+    return false;
+  }
 
   console.log("Tools version is different than install verison");
   console.log("Tools: ", toolsVersion);

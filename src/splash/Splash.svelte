@@ -29,6 +29,8 @@
       await checkRequirements();
     }
     // See if we've copied the files to the AppDir yet
+    // TODO - I don't think this should be done on the Splash -- load the app and let the user consent to the move
+    // replace the "play" button or something?
     if (!(await isDataDirectoryUpToDate())) {
       try {
         await copyDataDirectory();
@@ -38,7 +40,6 @@
         unableToCopy = true;
       }
     }
-
     if (await shouldUpdateGameInstall(SupportedGame.Jak1)) {
       // copy latest tools to the proper directory
       const isoPath = await join(await appDir(), "/data/extracted_iso/");
