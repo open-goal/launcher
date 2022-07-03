@@ -26,14 +26,14 @@
   </div>
   <div class="spacer" />
   <div class="controls">
-    <div class="console nav-item disabled">
-      <!-- <Link to="" data-tooltip="Toggle Debug Console"> -->
+    <!-- <div class="console nav-item disabled">
+      <Link to="" data-tooltip="Toggle Debug Console">
         <i class="bi bi-terminal-fill" />
-      <!-- </Link> -->
-    </div>
+      </Link>
+    </div> -->
     <div class="settings nav-item">
       <Link to="settings" data-tooltip="Settings">
-        <i class="bi bi-sliders" />
+        <i class="fa-solid fa-gear"></i>
       </Link>
     </div>
   </div>
