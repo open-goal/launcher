@@ -1,3 +1,4 @@
+import { copyDirectory } from "$lib/commands";
 import { SETUP_SUCCESS, SETUP_ERROR, SupportedGame } from "$lib/constants";
 import { invoke } from "@tauri-apps/api";
 import { open } from "@tauri-apps/api/dialog";
@@ -96,12 +97,8 @@ export async function copyDataDirectory(): Promise<boolean> {
   console.log(dst);
 
   try {
-    let ok = await invoke("copy_dir", { dirSrc: src, dirDest: dst });
-    if (ok === true) {
-      return true;
-    } else {
-      return false;
-    }
+    await copyDirectory(src, dst);
+    return true;
   } catch (e) {
     return false;
   }

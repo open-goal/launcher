@@ -27,3 +27,11 @@ export async function closeSplashScreen() {
     console.log(e);
   }
 }
+
+export async function copyDirectory(source: string, destination: string) {
+  try {
+    return await invoke("copy_dir", { dirSrc: source, dirDest: destination });
+  } catch (e) {
+    console.log(e);
+  }
+}

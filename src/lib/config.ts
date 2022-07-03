@@ -1,5 +1,10 @@
-import { createDir, writeFile } from "@tauri-apps/api/fs";
-import { appDir, join } from "@tauri-apps/api/path";
+import {
+  BaseDirectory,
+  createDir,
+  readTextFile,
+  writeFile,
+} from "@tauri-apps/api/fs";
+import { appDir, join, homeDir } from "@tauri-apps/api/path";
 import { Store } from "tauri-plugin-store-api";
 import { SupportedGame } from "./constants";
 import { isAVXSupported } from "./setup";
@@ -7,6 +12,7 @@ import { fileExists } from "./utils/file";
 
 class GameConfig {
   isInstalled: boolean = false;
+  version: string = null;
 }
 
 // TODO: LINK REQUIREMENTS TO CHECK REQUIREMENTS FUNCTION TO AVOID RUNNING FUNCTION IF REQUIREMENTS ARE MET
@@ -139,14 +145,52 @@ export async function setRequirementsMet(
 export async function areRequirementsMet(): Promise<Boolean> {
   await store.load();
   let requirements = await store.get("requirements");
-  if (!requirements.avx) {
+  let { avx, openGL } = requirements;
+  if (!avx) {
     console.log("Unsupported AVX");
     return false;
   }
-  if (!requirements.openGL) {
+  if (!openGL) {
     console.log("Unsupported OpenGL");
     return false;
   }
+  return true;
+}
 
+export async function getGameInstallVersion(
+  game: SupportedGame
+): Promise<String> {
+  await store.load();
+  let games: GameConfig = await store.get("games");
+  const { version } = games[game];
+  return version;
+}
+
+export async function setGameInstallVersion(game: SupportedGame) {
+  const version = await getLatestToolsVersion();
+  await store.load();
+  let games: GameConfig = await store.get("games");
+  games[game].version = version;
+  await store.set("games", games);
+  return await store.save();
+}
+
+export async function getLatestToolsVersion(): Promise<String> {
+  const data = await readTextFile("metadata.json", { dir: BaseDirectory.App });
+  const { version } = JSON.parse(data);
+  return version;
+}
+
+export async function shouldUpdateGameInstall(
+  game: SupportedGame
+): Promise<Boolean> {
+  const installVersion = await getGameInstallVersion(game);
+  const toolsVersion = await getLatestToolsVersion();
+
+  if (installVersion === toolsVersion) return false;
+
+  console.log("Tools version is different than install verison");
+  console.log("Tools: ", toolsVersion);
+  console.log("Installed: ", installVersion);
   return true;
 }
