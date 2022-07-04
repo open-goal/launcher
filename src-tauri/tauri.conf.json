@@ -17,7 +17,7 @@
         "appimage",
         "updater"
       ],
-      "identifier": "opengoal-launcher",
+      "identifier": "OpenGOAL-Launcher",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
