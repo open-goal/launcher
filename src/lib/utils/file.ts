@@ -16,7 +16,7 @@ import {
   logDir,
   resourceDir,
 } from "@tauri-apps/api/path";
-import { InstallStatus, Console } from "../stores/AppStore";
+import { InstallStatus, ProcessLogs } from "../stores/AppStore";
 
 export async function fileExists(path: string): Promise<boolean> {
   try {
@@ -38,6 +38,7 @@ export async function dirExists(path: string): Promise<boolean> {
 }
 
 export async function filePrompt(): Promise<string> {
+  // TODO - shouldn't be ISO specific in this function
   // TODO - pull strings out into args
   InstallStatus.update(() => SETUP_SUCCESS.awaitingISO);
   const path = await open({
@@ -53,6 +54,8 @@ export async function filePrompt(): Promise<string> {
 
   return path;
 }
+
+// TODO - move this stuff into a separate file, this isn't generic file util stuff anymore
 
 export async function dataDirectoryExists(): Promise<boolean> {
   return await dirExists(await join(await appDir(), "data"));
@@ -100,8 +103,10 @@ export async function copyDataDirectory(): Promise<boolean> {
   }
 }
 
+// TODO - move this to a logging file and replace all `console.logs` in the entire project
+
 export async function clearInstallLogs(supportedGame: SupportedGame) {
-  Console.set(null);
+  ProcessLogs.set(null);
   const dir = await logDir();
   let fileName = `${supportedGame}-install.log`;
   let fullPath = await join(dir, fileName);
@@ -126,10 +131,11 @@ export async function appendToInstallLog(
   let contents: string;
   if (!(await fileExists(fullPath))) {
     await createDir(await dirname(fullPath), { recursive: true });
+  } else {
+    contents = await readTextFile(fullPath);
   }
-  contents = await readTextFile(fullPath);
   contents += text;
-  Console.update(() => contents);
+  ProcessLogs.update(() => contents);
   await writeFile({ contents: contents, path: fullPath });
 }
 
@@ -144,9 +150,10 @@ export async function appendToInstallErrorLog(
   let contents: string;
   if (!(await fileExists(fullPath))) {
     await createDir(await dirname(fullPath), { recursive: true });
+  } else {
+    contents = await readTextFile(fullPath);
   }
-  contents = await readTextFile(fullPath);
   contents += text;
-  Console.update(() => contents);
+  ProcessLogs.update(() => contents);
   await writeFile({ contents: contents, path: fullPath });
 }

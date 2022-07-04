@@ -1,6 +1,6 @@
 <script type="ts">
   import { areRequirementsMet } from "$lib/config";
-  import { gameNeedsReinstall, isInstalling } from "$lib/stores/AppStore";
+  import { gameNeedsReinstall, isInstalling, ProcessLogs } from "$lib/stores/AppStore";
   import { fullInstallation, recompileGame } from "$lib/setup/setup";
   // components
   import Progress from "./Progress.svelte";
@@ -45,7 +45,9 @@
           {/if}
         {:else}
           <Progress />
-          <LogViewer />
+        {/if}
+        {#if $ProcessLogs}
+        <LogViewer />
         {/if}
       {/if}
     </div>

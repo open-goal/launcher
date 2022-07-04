@@ -1,10 +1,5 @@
-import {
-  BaseDirectory,
-  createDir,
-  readTextFile,
-  writeFile,
-} from "@tauri-apps/api/fs";
-import { appDir, join, homeDir } from "@tauri-apps/api/path";
+import { createDir, readTextFile, writeFile } from "@tauri-apps/api/fs";
+import { appDir, join } from "@tauri-apps/api/path";
 import { Store } from "tauri-plugin-store-api";
 import { SupportedGame } from "./constants";
 import { fileExists } from "./utils/file";
@@ -159,6 +154,8 @@ export async function areRequirementsMet(): Promise<boolean> {
 export async function getGameInstallVersion(
   game: SupportedGame
 ): Promise<String> {
+  // TODO - this can fail on first time startup from splash (where the config is init)
+  // no idea why yet
   await store.load();
   let games: GameConfig = await store.get("games");
   const { version } = games[game];

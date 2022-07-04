@@ -15,7 +15,7 @@
 
   let isGameInstalled = false;
 
-  let dataDirOutOfDate = false;
+  let dataDirUpToDate = false;
   let updatingDataDir = false;
   let errorText = "";
 
@@ -28,14 +28,14 @@
       activeGame = fromRoute($params["game_name"]);
     }
 
-    isGameInstalled = true; // await getInstallStatus(activeGame);
+    isGameInstalled = await getInstallStatus(activeGame);
 
     // Do some checks before the user can play the game
     // First, let's see if their data directory needs updating
     // we do it here so we can get the user's consent
-    dataDirOutOfDate = false; // await isDataDirectoryUpToDate();
-    // If it's not, we'll do the second check now, does their game need to be re-compiled?
-    if (!dataDirOutOfDate) {
+    dataDirUpToDate = await isDataDirectoryUpToDate();
+    // If it's up to date we'll do the second check now, does their game need to be re-compiled?
+    if (dataDirUpToDate) {
       if (await shouldUpdateGameInstall(activeGame)) {
         // await recompileGame(activeGame);
         gameNeedsReinstall.update(() => true);
@@ -66,7 +66,7 @@
       {getGameTitle(activeGame)}
     </h1>
     {#if isGameInstalled && !$gameNeedsReinstall}
-      {#if dataDirOutOfDate}
+      {#if !dataDirUpToDate}
         <p>Local data files must be synced up in-order to proceed</p>
         <p>
           This may overwrite any custom changes to the game's code or textures

@@ -1,13 +1,13 @@
 <script>
-  import { Console } from "$lib/stores/AppStore";
+  import { ProcessLogs } from "$lib/stores/AppStore";
 </script>
 
 <div class="row">
   <details>
     <summary>Installation Logs</summary>
     <div class="logContainer">
-      {#if $Console}
-        {$Console}
+      {#if $ProcessLogs}
+        {$ProcessLogs}
       {/if}
     </div>
   </details>

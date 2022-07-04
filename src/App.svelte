@@ -71,9 +71,9 @@ import { loadTranslations } from "$lib/translations/translations";
     <!-- TODO - pass background component current active game -->
     <Background {bgVideo} />
     <div id="main">
-      <Route path="/" component={Game} let:params />
-      <Route path="/:game_name" component={Game} let:params />
-      <Route path="/settings" component={Settings} />
+      <Route path="/" component={Game} primary={false} let:params />
+      <Route path="/:game_name" component={Game} primary={false} let:params />
+      <Route path="/settings" component={Settings} primary={false} />
     </div>
   </div>
 </Router>

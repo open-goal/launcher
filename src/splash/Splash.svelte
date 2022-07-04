@@ -1,18 +1,10 @@
 <script>
   import { closeSplashScreen } from "$lib/rpc/commands";
-  import {
-    areRequirementsMet,
-    initConfig,
-  } from "$lib/config";
-  import {
-    checkRequirements,
-  } from "$lib/setup/setup";
+  import { areRequirementsMet, initConfig } from "$lib/config";
+  import { checkRequirements } from "$lib/setup/setup";
   import { onMount } from "svelte";
   import logo from "$assets/images/icon.webp";
-  import {
-    copyDataDirectory,
-    dataDirectoryExists
-  } from "$lib/utils/file";
+  import { copyDataDirectory, dataDirectoryExists } from "$lib/utils/file";
 
   let currentProgress = 0;
   let currentStatusText = "Initializing Config";
@@ -54,12 +46,22 @@
   </div>
   <div class="splash-status-text">{currentStatusText}</div>
   <div>
-    <div class="splash-status-bar fg" style="width: {currentProgress}%"></div>
-    <div class="splash-status-bar bg"></div>
+    <div class="splash-status-bar fg" style="width: {currentProgress}%" />
+    <div class="splash-status-bar bg" />
   </div>
 </div>
 
 <style>
+  @font-face {
+    font-family: "Roboto Mono";
+    src: url("/src/assets/fonts/Roboto_Mono/static/RobotoMono-Regular.ttf");
+  }
+  @font-face {
+    font-family: "Roboto Mono";
+    src: url("/src/assets/fonts/Roboto_Mono/static/RobotoMono-Bold.ttf");
+    font-weight: 700;
+  }
+
   .content {
     color: white;
   }
@@ -78,8 +80,9 @@
 
   .splash-status-text {
     text-align: center;
-    font-family: monospace;
-    margin-bottom: 1em;
+    font-family: "Roboto Mono", monospace;
+    font-size: 8pt;
+    margin-bottom: 1.5em;
   }
 
   .splash-status-bar {
