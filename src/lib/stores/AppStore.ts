@@ -5,7 +5,5 @@ export const InstallStatus = writable({
   percent: undefined,
 });
 export const isInstalling = writable(false);
-
-export const dataFilesOutOfDate = writable(false);
-
+export const gameNeedsReinstall = writable(false);
 export const Console = writable();

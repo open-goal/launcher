@@ -1,4 +1,4 @@
-import { copyDirectory } from "$lib/commands";
+import { copyDirectory } from "$lib/rpc/commands";
 import { SETUP_SUCCESS, SETUP_ERROR, SupportedGame } from "$lib/constants";
 import { invoke } from "@tauri-apps/api";
 import { open } from "@tauri-apps/api/dialog";
@@ -16,7 +16,7 @@ import {
   logDir,
   resourceDir,
 } from "@tauri-apps/api/path";
-import { InstallStatus, Console } from "../../stores/AppStore";
+import { InstallStatus, Console } from "../stores/AppStore";
 
 export async function fileExists(path: string): Promise<boolean> {
   try {
@@ -29,6 +29,7 @@ export async function fileExists(path: string): Promise<boolean> {
 
 export async function dirExists(path: string): Promise<boolean> {
   try {
+    // NOTE - this isn't case sensitive!
     await readDir(path);
     return true;
   } catch (err) {

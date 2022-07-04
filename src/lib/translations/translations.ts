@@ -1,5 +1,5 @@
-import { Convert } from "./translation_conversion";
-import type { TranslationSchema } from "./translation_conversion";
+import { Convert } from "./translation_schema";
+import type { TranslationSchema } from "./translation_schema";
 import english from "$assets/translations/english.json";
 
 let supportedTranslations = ["english"];

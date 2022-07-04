@@ -1,5 +1,5 @@
 <script>
-  import { closeSplashScreen } from "$lib/commands";
+  import { closeSplashScreen } from "$lib/rpc/commands";
   import {
     areRequirementsMet,
     initConfig,
@@ -11,10 +11,8 @@
   import logo from "$assets/images/icon.webp";
   import {
     copyDataDirectory,
-    dataDirectoryExists,
-    isDataDirectoryUpToDate,
+    dataDirectoryExists
   } from "$lib/utils/file";
-  import { dataFilesOutOfDate } from "../stores/AppStore";
 
   let currentProgress = 0;
   let currentStatusText = "Initializing Config";
@@ -42,34 +40,11 @@
         currentStatusText = `Error - ${err}`;
         return;
       }
-    } else {
-      // - otherwise, we'll check it to see if it needs updating
-      // we don't actually do the copy here, let the user consent to it later
-      const outOfDate = await isDataDirectoryUpToDate();
-      dataFilesOutOfDate.update(() => outOfDate);
     }
     currentStatusText = "Finishing Up";
     currentProgress = 100;
     await new Promise((res) => setTimeout(res, 2500));
     await closeSplashScreen();
-
-    // TODO - check this in the actual game route, not here!
-    // if (await shouldUpdateGameInstall(SupportedGame.Jak1)) {
-    //   // copy latest tools to the proper directory
-    //   const isoPath = await join(await appDir(), "/data/extracted_iso/");
-    //   try {
-    //     await copyDataDirectory();
-    //     dataFilesCopied = true;
-    //   } catch (err) {
-    //     console.log(err);
-    //     unableToCopy = true;
-    //   }
-    //   // decompile & compile game
-    //   await decompileGameData(isoPath);
-    //   await compileGame(isoPath);
-    //   // update settings.json with latest tools version from metadata.json
-    //   await setGameInstallVersion(SupportedGame.Jak1);
-    // }
   });
 </script>
 
