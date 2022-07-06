@@ -14,6 +14,7 @@
     await initConfig();
     currentStatusText = "Checking Requirements";
     currentProgress = 10;
+    // NOTE - potentially has problems if the user changes hardware
     if (!(await areRequirementsMet())) {
       await checkRequirements();
     }

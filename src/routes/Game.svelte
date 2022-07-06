@@ -58,6 +58,10 @@
     }
     updatingDataDir = false;
   }
+
+  async function updateGameState(evt) {
+    isGameInstalled = await getInstallStatus(activeGame);
+  }
 </script>
 
 {#if componentLoaded}
@@ -81,7 +85,7 @@
           {errorText}
         {/if}
       {:else}
-        <GameContent {activeGame} />
+        <GameContent {activeGame} on:change={updateGameState}/>
       {/if}
     {:else}
       {#if $gameNeedsReinstall}
@@ -89,7 +93,7 @@
         <p>The game must be re-installed before you can proceed</p>
         <p>Save files and settings will not be modified</p>
       {/if}
-      <GameSetup {activeGame} />
+      <GameSetup {activeGame} on:change={updateGameState} />
     {/if}
   </div>
 {:else}

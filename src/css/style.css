@@ -112,6 +112,8 @@ body {
   padding: 10px 0;
   font-weight: bold;
   font-size: 1rem;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
 }
 
 .btn.lg {

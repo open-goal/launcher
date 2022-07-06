@@ -8,9 +8,11 @@
   import type { SupportedGame } from "$lib/constants";
   import LogViewer from "./LogViewer.svelte";
   import Requirements from "./Requirements.svelte";
-  import { onMount } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
 
   export let activeGame: SupportedGame;
+
+  const dispatch = createEventDispatcher();
 
   let componentLoaded = false;
   let requirementsMet = false;
@@ -19,6 +21,13 @@
     requirementsMet = await areRequirementsMet();
     componentLoaded = true;
   });
+
+  async function fullInstall() {
+    const installationSuccess = await fullInstallation(activeGame);
+    if (installationSuccess) {
+      dispatch('change');
+    }
+  }
 </script>
 
 {#if componentLoaded}
@@ -38,7 +47,7 @@
           {:else}
             <button
               class="btn"
-              on:click={async () => await fullInstallation(activeGame)}
+              on:click={fullInstall}
             >
               Setup
             </button>

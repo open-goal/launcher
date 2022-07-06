@@ -2,8 +2,6 @@
   import { fade } from "svelte/transition";
   import { openDir } from "$lib/rpc/commands";
   import { appDir } from "@tauri-apps/api/path";
-  import { getGameInstallVersion } from "$lib/config";
-  import { SupportedGame } from "$lib/constants";
   import { getVersion } from "@tauri-apps/api/app";
 
 </script>

@@ -171,7 +171,7 @@ export async function compileGame(filePath: string): Promise<Boolean> {
   handleErrorCode(output.code, "Compiler");
 }
 
-export async function fullInstallation(game: SupportedGame) {
+export async function fullInstallation(game: SupportedGame): Promise<boolean> {
   let isoPath: string | string[];
   isInstalling.update(() => true);
   try {
@@ -182,8 +182,8 @@ export async function fullInstallation(game: SupportedGame) {
     await compileGame(isoPath);
     await setInstallStatus(game, true);
     isInstalling.update(() => false);
-    // TODO - there used to be a refresh here, shouldn't be required
-    // if our app is properly reactive, see if this can be eliminated
+    await setGameInstallVersion(game);
+    return true;
   } catch (err) {
     console.log(`[OG]: Error encountered - ${err}`);
     let errStatus = {
@@ -192,6 +192,7 @@ export async function fullInstallation(game: SupportedGame) {
     };
     InstallStatus.update(() => errStatus);
     isInstalling.update(() => false);
+    return false;
   }
 }
 

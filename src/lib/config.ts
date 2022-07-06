@@ -76,7 +76,7 @@ export async function getInstallStatus(
   if (!(await validVersion("1.0"))) {
     return false;
   }
-  // TODO: create a proper type for gameConfigs
+  // TODO: create a proper type for gameConfigs - exists with 'LauncherConfig'
   const gameConfigs: object = await store.get("games");
   if (gameConfigs == null || !(supportedGame in gameConfigs)) {
     return false;
@@ -111,7 +111,7 @@ export async function setInstallStatus(
   if (!(await validVersion("1.0"))) {
     return;
   }
-  // TODO: create a proper type for gameConfigs
+  // TODO: create a proper type for gameConfigs - 'LauncherConfig'
   let gameConfigs: object = await store.get("games");
   // NOTE: Do we need this conditional? Considering we generate the store file this condition should never happen.
   if (gameConfigs == null || !(supportedGame in gameConfigs)) {
@@ -129,7 +129,6 @@ export async function setRequirementsMet(
   await store.load();
   await store.set("requirements", { avx, openGL });
   await store.save();
-
   return;
 }
 
@@ -139,12 +138,31 @@ export async function setRequirementsMet(
 export async function areRequirementsMet(): Promise<boolean> {
   await store.load();
   let requirements = await store.get("requirements");
-  let { avx, openGL } = requirements;
-  if (!avx) {
+  if (!["avx"]) {
     console.log("Unsupported AVX");
     return false;
   }
-  if (!openGL) {
+  if (!requirements["openGL"]) {
+    console.log("Unsupported OpenGL");
+    return false;
+  }
+  return true;
+}
+
+export async function isAVXRequirementMet(): Promise<boolean> {
+  await store.load();
+  let requirements = await store.get("requirements");
+  if (!["avx"]) {
+    console.log("Unsupported AVX");
+    return false;
+  }
+  return true;
+}
+
+export async function isOpenGLRequirementMet(): Promise<boolean> {
+  await store.load();
+  let requirements = await store.get("requirements");
+  if (!requirements["openGL"]) {
     console.log("Unsupported OpenGL");
     return false;
   }

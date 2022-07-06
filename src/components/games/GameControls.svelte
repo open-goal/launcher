@@ -1,12 +1,24 @@
 <script type="ts">
   import { getGameInstallVersion, setInstallStatus } from "$lib/config";
-  import { SupportedGame } from "$lib/constants";
-  import { navigate } from "svelte-navigator";
+  import { getInternalName, SupportedGame } from "$lib/constants";
   import { launchGame } from "$lib/launch";
+  import { openDir } from "$lib/rpc/commands";
   import { compileGame, decompileGameData } from "$lib/setup/setup";
-  import { appDir, join } from "@tauri-apps/api/path";
+  import { appDir, configDir, join } from "@tauri-apps/api/path";
+import { createEventDispatcher, onMount } from "svelte";
 
   export let activeGame: SupportedGame;
+
+  const dispatch = createEventDispatcher();
+  let componentLoaded = false;
+  let configPath = undefined;
+  let gameVersion = undefined;
+
+  onMount(async () => {
+    gameVersion = await getGameInstallVersion(activeGame);
+    configPath = await join(await configDir(), "OpenGOAL", getInternalName(activeGame));
+    componentLoaded = true;
+  });
 
   function onClickPlay() {
     launchGame();
@@ -14,9 +26,7 @@
 
   async function onClickUninstall() {
     await setInstallStatus(SupportedGame.Jak1, false);
-    // TODO - this is essentially a refresh, shouldn't be required
-    // if our app is properly reactive, see if this can be eliminated
-    navigate(0);
+    dispatch('change');
   }
 
   async function onClickDecompile() {
@@ -32,16 +42,16 @@
   }
 </script>
 
+{#if componentLoaded}
 <div id="launcherControls">
   <button class="btn lg" on:click={onClickPlay}>Play</button>
-  {#await getGameInstallVersion(activeGame) then version}
-    <p>Game Version: {version}</p>
-  {/await}
-  <!-- TODO - add an "open saves/settings folder" -->
+  <p>Game Version: {gameVersion}</p>
   <!-- TODO - when clicking decompile/compile -- show logs -->
   <div class="mt-1">
+    <button class="btn md" on:click={() => openDir(configPath)}>Settings and Saves</button>
     <button class="btn md" on:click={onClickDecompile}>Decompile</button>
     <button class="btn md" on:click={onClickCompile}>Compile</button>
     <button class="btn md" on:click={onClickUninstall}>Uninstall</button>
   </div>
 </div>
+{/if}
