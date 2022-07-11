@@ -36,7 +36,8 @@
   overflow: hidden;
   height: 30px;
   background-color: #ecf0f1;
-  min-width: 45vw;
+  width: 45vw;
+  max-width: 45vw;
   margin: 20px auto;
 }
 
