@@ -136,23 +136,16 @@ export async function setRequirementsMet(
  * Checks the user config file to see if avx and openGL requirements are met.
  */
 export async function areRequirementsMet(): Promise<boolean> {
-  await store.load();
-  let requirements = await store.get("requirements");
-  if (!["avx"]) {
-    console.log("Unsupported AVX");
-    return false;
+  if (await isAVXRequirementMet() && await isOpenGLRequirementMet()) {
+    return true;
   }
-  if (!requirements["openGL"]) {
-    console.log("Unsupported OpenGL");
-    return false;
-  }
-  return true;
+  return false;
 }
 
 export async function isAVXRequirementMet(): Promise<boolean> {
   await store.load();
   let requirements = await store.get("requirements");
-  if (!["avx"]) {
+  if (!requirments["avx"]) {
     console.log("Unsupported AVX");
     return false;
   }
