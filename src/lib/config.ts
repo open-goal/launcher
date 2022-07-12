@@ -145,7 +145,7 @@ export async function areRequirementsMet(): Promise<boolean> {
 export async function isAVXRequirementMet(): Promise<boolean> {
   await store.load();
   let requirements = await store.get("requirements");
-  if (!requirments["avx"]) {
+  if (!requirements["avx"]) {
     console.log("Unsupported AVX");
     return false;
   }
