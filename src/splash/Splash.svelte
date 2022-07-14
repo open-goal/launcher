@@ -1,77 +1,103 @@
 <script>
-  import { closeSplashScreen } from "$lib/commands";
-  import {
-    areRequirementsMet,
-    initConfig,
-    setGameInstallVersion,
-    shouldUpdateGameInstall,
-  } from "$lib/config";
-  import {
-    checkRequirements,
-    compileGame,
-    decompileGameData,
-  } from "$lib/setup/setup";
+  import { closeSplashScreen } from "$lib/rpc/commands";
+  import { areRequirementsMet, initConfig } from "$lib/config";
+  import { checkRequirements } from "$lib/setup/setup";
   import { onMount } from "svelte";
-  import logo from "$assets/images/logo.webp";
-  import "./splash.css";
-  import { copyDataDirectory, isDataDirectoryUpToDate } from "$lib/utils/file";
-  import { SupportedGame } from "$lib/constants";
-  import { appDir, join } from "@tauri-apps/api/path";
-  import { InstallStatus } from "../stores/InstallStore";
+  import logo from "$assets/images/icon.webp";
+  import { copyDataDirectory, dataDirectoryExists } from "$lib/utils/file";
 
-  let dataFilesCopied = false;
-  let unableToCopy = false;
+  let currentProgress = 0;
+  let currentStatusText = "Initializing Config";
 
   // Events
   onMount(async () => {
     await initConfig();
+    currentStatusText = "Checking Requirements";
+    currentProgress = 10;
+    // NOTE - potentially has problems if the user changes hardware
     if (!(await areRequirementsMet())) {
       await checkRequirements();
     }
-    // See if we've copied the files to the AppDir yet
-    if (!(await isDataDirectoryUpToDate())) {
-      try {
-        await copyDataDirectory();
-        dataFilesCopied = true;
-      } catch (err) {
-        console.log(err);
-        unableToCopy = true;
-      }
-    }
+    currentStatusText = "Checking Data Files";
+    currentProgress = 25;
 
-    if (await shouldUpdateGameInstall(SupportedGame.Jak1)) {
-      // copy latest tools to the proper directory
-      const isoPath = await join(await appDir(), "/data/extracted_iso/");
+    // Check if the data directory exists or not
+    // - if it doesn't this is the users first launch, so lets copy it
+    if (!(await dataDirectoryExists())) {
       try {
+        currentStatusText = "Copying Data Files";
+        currentProgress = 50;
         await copyDataDirectory();
-        dataFilesCopied = true;
       } catch (err) {
         console.log(err);
-        unableToCopy = true;
+        currentStatusText = `Error - ${err}`;
+        return;
       }
-      // decompile & compile game
-      await decompileGameData(isoPath);
-      await compileGame(isoPath);
-      // update settings.json with latest tools version from metadata.json
-      await setGameInstallVersion(SupportedGame.Jak1);
     }
+    currentStatusText = "Finishing Up";
+    currentProgress = 100;
     await new Promise((res) => setTimeout(res, 2500));
     await closeSplashScreen();
   });
 </script>
 
-<div class="splash-logo">
-  <img src={logo} alt="" />
+<div class="content">
+  <div class="splash-logo">
+    <img src={logo} alt="" />
+  </div>
+  <div class="splash-status-text">{currentStatusText}</div>
+  <div>
+    <div class="splash-status-bar fg" style="width: {currentProgress}%" />
+    <div class="splash-status-bar bg" />
+  </div>
 </div>
-<div class="splash-status">
-  {#if !dataFilesCopied}
-    Copying Data Files...
-    {#if unableToCopy}
-      Error - Unable to Copy Data Files
-    {/if}
-  {:else}
-    Checking Data Files...
-    <br />
-    {$InstallStatus.status}
-  {/if}
-</div>
+
+<style>
+  @font-face {
+    font-family: "Roboto Mono";
+    src: url("/src/assets/fonts/Roboto_Mono/static/RobotoMono-Regular.ttf");
+  }
+  @font-face {
+    font-family: "Roboto Mono";
+    src: url("/src/assets/fonts/Roboto_Mono/static/RobotoMono-Bold.ttf");
+    font-weight: 700;
+  }
+
+  .content {
+    color: white;
+  }
+
+  .splash-logo {
+    height: 65vh;
+    margin-bottom: 1em;
+    padding: 10px;
+  }
+
+  .splash-logo img {
+    object-fit: contain;
+    height: 100%;
+    width: 100%;
+  }
+
+  .splash-status-text {
+    text-align: center;
+    font-family: "Roboto Mono", monospace;
+    font-size: 8pt;
+    margin-bottom: 1.5em;
+  }
+
+  .splash-status-bar {
+    width: 100%;
+    height: 15px;
+  }
+
+  .splash-status-bar.bg {
+    background-color: #775500;
+    position: absolute;
+  }
+  .splash-status-bar.fg {
+    background-color: #ffb807;
+    position: absolute;
+    z-index: 999;
+  }
+</style>

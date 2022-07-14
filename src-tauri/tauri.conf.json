@@ -17,7 +17,7 @@
         "appimage",
         "updater"
       ],
-      "identifier": "opengoal-launcher",
+      "identifier": "OpenGOAL-Launcher",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -95,9 +95,9 @@
         "center": true
       },
       {
-        "title": "OpenGOAL Launcher",
-        "width": 600,
-        "height": 200,
+        "title": "OpenGOAL Launcher - Splash",
+        "width": 200,
+        "height": 300,
         "center": true,
         "decorations": false,
         "transparent": true,

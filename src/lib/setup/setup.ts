@@ -1,11 +1,20 @@
 import { Command } from "@tauri-apps/api/shell";
-import { appDir } from "@tauri-apps/api/path";
+import { appDir, join } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
-import { getHighestSimd } from "$lib/commands";
-import { InstallStatus, isInstalling } from "../../stores/InstallStore";
-import { SETUP_SUCCESS, SETUP_ERROR, SupportedGame } from "$lib/constants";
-import { appendToInstallErrorLog, appendToInstallLog } from "$lib/utils/file";
-import { setRequirementsMet } from "../config";
+import { getHighestSimd } from "$lib/rpc/commands";
+import { InstallStatus, isInstalling } from "../stores/AppStore";
+import { SETUP_SUCCESS, SupportedGame } from "$lib/constants";
+import {
+  appendToInstallErrorLog,
+  appendToInstallLog,
+  clearInstallLogs,
+  filePrompt,
+} from "$lib/utils/file";
+import {
+  setGameInstallVersion,
+  setInstallStatus,
+  setRequirementsMet,
+} from "../config";
 import { BaseDirectory, copyFile } from "@tauri-apps/api/fs";
 import { resolveErrorCode } from "./setup_errors";
 
@@ -160,4 +169,55 @@ export async function compileGame(filePath: string): Promise<Boolean> {
     return true;
   }
   handleErrorCode(output.code, "Compiler");
+}
+
+export async function fullInstallation(game: SupportedGame): Promise<boolean> {
+  let isoPath: string | string[];
+  isInstalling.update(() => true);
+  try {
+    await clearInstallLogs(game);
+    isoPath = await filePrompt();
+    await extractAndValidateISO(isoPath);
+    await decompileGameData(isoPath);
+    await compileGame(isoPath);
+    await setInstallStatus(game, true);
+    isInstalling.update(() => false);
+    await setGameInstallVersion(game);
+    return true;
+  } catch (err) {
+    console.log(`[OG]: Error encountered - ${err}`);
+    let errStatus = {
+      status: err,
+      percent: undefined,
+    };
+    InstallStatus.update(() => errStatus);
+    isInstalling.update(() => false);
+    return false;
+  }
+}
+
+export async function recompileGame(game: SupportedGame) {
+  // TODO - this assumes their files are in this folder, this is potentially wrong now!
+  // ensure the extractor outputs to a sensible folder (per game)
+  // and we are grabbing the right one
+  const isoPath = await join(await appDir(), "data", "extracted_iso");
+  // TODO - probably should check the dir exists
+  isInstalling.update(() => true);
+  try {
+    await clearInstallLogs(game);
+    // decompile & compile game
+    await decompileGameData(isoPath);
+    await compileGame(isoPath);
+    // update settings.json with latest tools version from metadata.json
+    await setGameInstallVersion(game);
+    isInstalling.update(() => false);
+  } catch (err) {
+    console.log(`[OG]: Error encountered - ${err}`);
+    let errStatus = {
+      status: err,
+      percent: undefined,
+    };
+    InstallStatus.update(() => errStatus);
+    isInstalling.update(() => false);
+  }
 }

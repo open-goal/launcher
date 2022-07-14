@@ -1,15 +1,37 @@
+@font-face {
+  font-family: "Staatliches";
+  src: url("/src/assets/fonts/Staatliches/Staatliches-Regular.ttf");
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("/src/assets/fonts/Lato/Lato-Regular.ttf");
+}
+
+@font-face {
+  font-family: "Lato";
+  src: url("/src/assets/fonts/Lato/Lato-Bold.ttf");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("/src/assets/fonts/Roboto_Mono/static/RobotoMono-Regular.ttf");
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("/src/assets/fonts/Roboto_Mono/static/RobotoMono-Bold.ttf");
+  font-weight: 700;
+}
+
 * {
   -webkit-user-drag: none;
-  font-family: "Oswald", sans-serif;
+  font-family: "Staatliches", sans-serif;
 }
 
 :root {
   --bg-blue: #1b202b;
-}
-
-@font-face {
-  font-family: "Oswald";
-  src: url("/src/assets/fonts/Oswald-VariableFont_wght.ttf");
 }
 
 body {
@@ -80,7 +102,6 @@ body {
   padding-right: 1em;
   font-size: 1em;
   border: black 1px solid;
-  font-weight: 700;
   border-radius: 5px;
   transition: all 0.1s ease;
   color: black;
@@ -91,6 +112,8 @@ body {
   padding: 10px 0;
   font-weight: bold;
   font-size: 1rem;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
 }
 
 .btn.lg {

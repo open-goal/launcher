@@ -37,21 +37,11 @@
    * to avoid limiting type declarations.
    */
   "include": [
-    "src/**/*.d.ts",
-    "src/**/*.js",
-    "src/**/*.ts",
-    "src/**/*.svelte",
-    "svelte.config.js",
-    "src/main.ts",
-    "src/lib/launch.ts",
-    "src/lib/setup/setup.ts",
-    "src/lib/setup/setup_errors.ts",
-    "src/lib/launch.ys",
-    "src/lib/constants.ts",
-    "src/lib/config.ts",
-    "src/lib/commands.ts",
-    "src/lib/utils/file.ts",
-    "src/splash/splash.ts"
+    "./src/**/*.d.ts",
+    "./src/**/*.js",
+    "./src/**/*.ts",
+    "./src/**/*.svelte",
+    "./svelte.config.js"
   ],
   "references": [
     {

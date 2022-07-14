@@ -4,13 +4,14 @@
   // Other Imports
   import { onMount } from "svelte";
   import { Router, Route } from "svelte-navigator";
-  import Jak1 from "./routes/Jak1.svelte";
+  import Game from "./routes/Game.svelte";
   import Settings from "./routes/Settings.svelte";
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
   import { isInDebugMode } from "$lib/setup/setup";
   import { appWindow } from "@tauri-apps/api/window";
-  import { isInstalling } from "./stores/InstallStore";
+  import { isInstalling } from "./lib/stores/AppStore";
+import { loadTranslations } from "$lib/translations/translations";
 
   let revokeSpecificActions = false;
 
@@ -70,9 +71,9 @@
     <!-- TODO - pass background component current active game -->
     <Background {bgVideo} />
     <div id="main">
-      <Route path="/" component={Jak1} />
-      <Route path="/jak1" component={Jak1} />
-      <Route path="/settings" component={Settings} />
+      <Route path="/" component={Game} primary={false} let:params />
+      <Route path="/:game_name" component={Game} primary={false} let:params />
+      <Route path="/settings" component={Settings} primary={false} />
     </div>
   </div>
 </Router>

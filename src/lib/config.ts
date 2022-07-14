@@ -1,10 +1,5 @@
-import {
-  BaseDirectory,
-  createDir,
-  readTextFile,
-  writeFile,
-} from "@tauri-apps/api/fs";
-import { appDir, join, homeDir } from "@tauri-apps/api/path";
+import { createDir, readTextFile, writeFile } from "@tauri-apps/api/fs";
+import { appDir, join } from "@tauri-apps/api/path";
 import { Store } from "tauri-plugin-store-api";
 import { SupportedGame } from "./constants";
 import { fileExists } from "./utils/file";
@@ -81,7 +76,7 @@ export async function getInstallStatus(
   if (!(await validVersion("1.0"))) {
     return false;
   }
-  // TODO: create a proper type for gameConfigs
+  // TODO: create a proper type for gameConfigs - exists with 'LauncherConfig'
   const gameConfigs: object = await store.get("games");
   if (gameConfigs == null || !(supportedGame in gameConfigs)) {
     return false;
@@ -116,7 +111,7 @@ export async function setInstallStatus(
   if (!(await validVersion("1.0"))) {
     return;
   }
-  // TODO: create a proper type for gameConfigs
+  // TODO: create a proper type for gameConfigs - 'LauncherConfig'
   let gameConfigs: object = await store.get("games");
   // NOTE: Do we need this conditional? Considering we generate the store file this condition should never happen.
   if (gameConfigs == null || !(supportedGame in gameConfigs)) {
@@ -134,22 +129,33 @@ export async function setRequirementsMet(
   await store.load();
   await store.set("requirements", { avx, openGL });
   await store.save();
-
   return;
 }
 
 /**
  * Checks the user config file to see if avx and openGL requirements are met.
  */
-export async function areRequirementsMet(): Promise<Boolean> {
+export async function areRequirementsMet(): Promise<boolean> {
+  if ((await isAVXRequirementMet()) && (await isOpenGLRequirementMet())) {
+    return true;
+  }
+  return false;
+}
+
+export async function isAVXRequirementMet(): Promise<boolean> {
   await store.load();
   let requirements = await store.get("requirements");
-  let { avx, openGL } = requirements;
-  if (!avx) {
+  if (!requirements["avx"]) {
     console.log("Unsupported AVX");
     return false;
   }
-  if (!openGL) {
+  return true;
+}
+
+export async function isOpenGLRequirementMet(): Promise<boolean> {
+  await store.load();
+  let requirements = await store.get("requirements");
+  if (!requirements["openGL"]) {
     console.log("Unsupported OpenGL");
     return false;
   }
@@ -159,6 +165,8 @@ export async function areRequirementsMet(): Promise<Boolean> {
 export async function getGameInstallVersion(
   game: SupportedGame
 ): Promise<String> {
+  // TODO - this can fail on first time startup from splash (where the config is init)
+  // no idea why yet
   await store.load();
   let games: GameConfig = await store.get("games");
   const { version } = games[game];
@@ -175,7 +183,9 @@ export async function setGameInstallVersion(game: SupportedGame) {
 }
 
 export async function getLatestToolsVersion(): Promise<String> {
-  const data = await readTextFile("metadata.json", { dir: BaseDirectory.App });
+  const appDirPath = await appDir();
+  const userMetaPath = await join(appDirPath, "data", "metadata.json");
+  const data = await readTextFile(userMetaPath);
   const { version } = JSON.parse(data);
   return version;
 }
@@ -184,9 +194,14 @@ export async function shouldUpdateGameInstall(
   game: SupportedGame
 ): Promise<Boolean> {
   const installVersion = await getGameInstallVersion(game);
+  if (installVersion === null || installVersion === undefined) {
+    return false;
+  }
   const toolsVersion = await getLatestToolsVersion();
 
-  if (installVersion === toolsVersion) return false;
+  if (installVersion === toolsVersion) {
+    return false;
+  }
 
   console.log("Tools version is different than install verison");
   console.log("Tools: ", toolsVersion);
