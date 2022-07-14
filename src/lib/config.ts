@@ -136,7 +136,7 @@ export async function setRequirementsMet(
  * Checks the user config file to see if avx and openGL requirements are met.
  */
 export async function areRequirementsMet(): Promise<boolean> {
-  if (await isAVXRequirementMet() && await isOpenGLRequirementMet()) {
+  if ((await isAVXRequirementMet()) && (await isOpenGLRequirementMet())) {
     return true;
   }
   return false;
