@@ -3,20 +3,15 @@ import { appDir, join } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
 import { getHighestSimd } from "$lib/rpc/commands";
 import { InstallStatus, isInstalling } from "../stores/AppStore";
-import { SETUP_SUCCESS, SupportedGame } from "$lib/constants";
-import {
-  appendToInstallErrorLog,
-  appendToInstallLog,
-  clearInstallLogs,
-  filePrompt,
-} from "$lib/utils/file";
+import { SETUP_ERROR, SETUP_SUCCESS, SupportedGame } from "$lib/constants";
+import { filePrompt } from "$lib/utils/file";
 import {
   setGameInstallVersion,
   setInstallStatus,
   setRequirementsMet,
 } from "../config";
-import { BaseDirectory, copyFile } from "@tauri-apps/api/fs";
 import { resolveErrorCode } from "./setup_errors";
+import { installLog, log } from "$lib/utils/log";
 
 let sidecarOptions = {};
 
@@ -51,6 +46,11 @@ export async function isOpenGLVersionSupported(
   if (output.code === 0) {
     return true;
   }
+  log.error("opengl requirement check failed", {
+    statusCode: output.code,
+    stdout: output.stdout,
+    stderr: output.stderr,
+  });
   throw new Error("UNSUPPORTED OPENGL VERSION");
 }
 
@@ -65,12 +65,6 @@ export async function checkRequirements(): Promise<Boolean> {
   }
 }
 
-export async function saveISO(filePath: string): Promise<any> {
-  const appDirPath = await appDir();
-  await copyFile(filePath, `${appDirPath}/jak.iso`, { dir: BaseDirectory.App });
-  return;
-}
-
 async function handleErrorCode(code: number, stepName: string) {
   isInstalling.update(() => false);
   const explaination = await resolveErrorCode(code);
@@ -78,6 +72,17 @@ async function handleErrorCode(code: number, stepName: string) {
     throw new Error(`${stepName} exited with unexpected code: ${code}`);
   }
   throw new Error(explaination);
+}
+
+async function isoPrompt(): Promise<string> {
+  InstallStatus.update(() => SETUP_SUCCESS.awaitingISO);
+  const path = await filePrompt(["ISO", "iso"], "Jak ISO File");
+  if (path === null) {
+    InstallStatus.update(() => SETUP_ERROR.noISO);
+    throw new Error("No ISO File Selected!");
+  }
+
+  return path;
 }
 
 /**
@@ -101,10 +106,14 @@ export async function extractAndValidateISO(
 
   const output = await command.execute();
   if (output.stdout) {
-    await appendToInstallLog(SupportedGame.Jak1, output.stdout);
+    installLog.info(output.stdout, {
+      game: SupportedGame.Jak1,
+    });
   }
   if (output.stderr) {
-    await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
+    installLog.error(output.stderr, {
+      game: SupportedGame.Jak1,
+    });
   }
   if (output.code === 0) {
     return true;
@@ -131,10 +140,14 @@ export async function decompileGameData(filePath: string): Promise<boolean> {
 
   const output = await command.execute();
   if (output.stdout) {
-    await appendToInstallLog(SupportedGame.Jak1, output.stdout);
+    installLog.info(output.stdout, {
+      game: SupportedGame.Jak1,
+    });
   }
   if (output.stderr) {
-    await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
+    installLog.error(output.stderr, {
+      game: SupportedGame.Jak1,
+    });
   }
   if (output.code === 0) {
     return true;
@@ -159,10 +172,14 @@ export async function compileGame(filePath: string): Promise<Boolean> {
 
   const output = await command.execute();
   if (output.stdout) {
-    await appendToInstallLog(SupportedGame.Jak1, output.stdout);
+    installLog.info(output.stdout, {
+      game: SupportedGame.Jak1,
+    });
   }
   if (output.stderr) {
-    await appendToInstallErrorLog(SupportedGame.Jak1, output.stdout);
+    installLog.error(output.stderr, {
+      game: SupportedGame.Jak1,
+    });
   }
   if (output.code === 0) {
     InstallStatus.update(() => SETUP_SUCCESS.ready);
@@ -175,8 +192,7 @@ export async function fullInstallation(game: SupportedGame): Promise<boolean> {
   let isoPath: string | string[];
   isInstalling.update(() => true);
   try {
-    await clearInstallLogs(game);
-    isoPath = await filePrompt();
+    isoPath = await isoPrompt();
     await extractAndValidateISO(isoPath);
     await decompileGameData(isoPath);
     await compileGame(isoPath);
@@ -185,7 +201,9 @@ export async function fullInstallation(game: SupportedGame): Promise<boolean> {
     await setGameInstallVersion(game);
     return true;
   } catch (err) {
-    console.log(`[OG]: Error encountered - ${err}`);
+    installLog.error("unexpected error encountered", {
+      error: err,
+    });
     let errStatus = {
       status: err,
       percent: undefined,
@@ -204,7 +222,6 @@ export async function recompileGame(game: SupportedGame) {
   // TODO - probably should check the dir exists
   isInstalling.update(() => true);
   try {
-    await clearInstallLogs(game);
     // decompile & compile game
     await decompileGameData(isoPath);
     await compileGame(isoPath);
@@ -212,7 +229,9 @@ export async function recompileGame(game: SupportedGame) {
     await setGameInstallVersion(game);
     isInstalling.update(() => false);
   } catch (err) {
-    console.log(`[OG]: Error encountered - ${err}`);
+    installLog.error("unexpected error encountered", {
+      error: err,
+    });
     let errStatus = {
       status: err,
       percent: undefined,

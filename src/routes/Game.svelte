@@ -6,8 +6,11 @@
   import GameContent from "../components/games/GameControls.svelte";
   import GameSetup from "../components/games/setup/GameSetup.svelte";
   import { onMount } from "svelte";
-  import { copyDataDirectory, isDataDirectoryUpToDate } from "$lib/utils/file";
   import { gameNeedsReinstall } from "$lib/stores/AppStore";
+  import {
+    copyDataDirectory,
+    isDataDirectoryUpToDate,
+  } from "$lib/utils/data-files";
 
   const params = useParams();
   let activeGame = SupportedGame.Jak1;
@@ -85,7 +88,7 @@
           {errorText}
         {/if}
       {:else}
-        <GameContent {activeGame} on:change={updateGameState}/>
+        <GameContent {activeGame} on:change={updateGameState} />
       {/if}
     {:else}
       {#if $gameNeedsReinstall}
@@ -97,5 +100,5 @@
     {/if}
   </div>
 {:else}
-<!-- TODO - component library - spinner -->
+  <!-- TODO - component library - spinner -->
 {/if}
