@@ -1,5 +1,5 @@
 <script type="ts">
-  import { getGameInstallVersion, setInstallStatus } from "$lib/config";
+  import { launcherConfig } from "$lib/config";
   import { getInternalName, SupportedGame } from "$lib/constants";
   import { launchGame } from "$lib/launch";
   import { openDir } from "$lib/rpc/commands";
@@ -15,7 +15,7 @@ import { createEventDispatcher, onMount } from "svelte";
   let gameVersion = undefined;
 
   onMount(async () => {
-    gameVersion = await getGameInstallVersion(activeGame);
+    gameVersion = await launcherConfig.getGameInstallVersion(activeGame);
     configPath = await join(await configDir(), "OpenGOAL", getInternalName(activeGame));
     componentLoaded = true;
   });
@@ -25,7 +25,7 @@ import { createEventDispatcher, onMount } from "svelte";
   }
 
   async function onClickUninstall() {
-    await setInstallStatus(SupportedGame.Jak1, false);
+    await launcherConfig.setInstallStatus(SupportedGame.Jak1, false);
     dispatch('change');
   }
 
@@ -45,7 +45,7 @@ import { createEventDispatcher, onMount } from "svelte";
 {#if componentLoaded}
 <div id="launcherControls">
   <button class="btn lg" on:click={onClickPlay}>Play</button>
-  <p>Game Version: {gameVersion}</p>
+  <p class="text-shadow">Game Version: {gameVersion}</p>
   <!-- TODO - when clicking decompile/compile -- show logs -->
   <div class="mt-1">
     <button class="btn md" on:click={() => openDir(configPath)}>Settings and Saves</button>
@@ -55,3 +55,9 @@ import { createEventDispatcher, onMount } from "svelte";
   </div>
 </div>
 {/if}
+
+<style>
+  .text-shadow {
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+  }
+</style>
