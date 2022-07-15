@@ -1,23 +1,37 @@
-<script>
+<script lang="ts">
   import logoJak1 from "$assets/images/jak-tpl.webp";
   import logoJak2 from "$assets/images/jak-2.webp";
   import logoJak3 from "$assets/images/jak-3.webp";
-  import { Link } from "svelte-navigator";
+  import { link } from "svelte-navigator";
+  import { useLocation } from "svelte-navigator";
+
+  let location = useLocation();
+
+  function itemActiveClass(currPathname: string, validPathnames: string[]): string {
+    console.log($location);
+    console.log(currPathname);
+    console.log(validPathnames);
+    if (validPathnames.includes(currPathname)) {
+      console.log("YE!");
+      return "active";
+    }
+    return "";
+  }
 </script>
 
 <nav id="sidebar">
   <div class="games">
-    <div class="jak-1 nav-item active">
-      <Link to="/jak1" data-tooltip="Jak & Daxter: The Precursor Legacy">
+    <div class="jak-1 nav-item {itemActiveClass($location.pathname, ["/", "/jak1"])}">
+      <a href="/jak1" use:link data-tooltip="Jak & Daxter: The Precursor Legacy">
         <img src={logoJak1} alt="Jak - TPL" />
-      </Link>
+      </a>
     </div>
-    <div class="jak-2 nav-item disabled">
+    <div class="jak-2 nav-item disabled {itemActiveClass($location.pathname, ["/jak2"])}">
       <!-- <Link to="no" data-tooltip="Jak 2"> -->
         <img src={logoJak2} alt="Jak 2" />
       <!-- </Link> -->
     </div>
-    <div class="jak-3 nav-item disabled">
+    <div class="jak-3 nav-item disabled {itemActiveClass($location.pathname, ["/jak3"])}">
       <!-- <Link to="no" data-tooltip="Jak 3"> -->
         <img src={logoJak3} alt="Jak 3" />
       <!-- </Link> -->
@@ -30,10 +44,10 @@
         <i class="bi bi-terminal-fill" />
       </Link>
     </div> -->
-    <div class="settings nav-item">
-      <Link to="settings" data-tooltip="Settings">
+    <div class="settings nav-item {itemActiveClass($location.pathname, ["/settings"])}">
+      <a href="/settings" use:link data-tooltip="Settings">
         <i class="fa-solid fa-gear"></i>
-      </Link>
+      </a>
     </div>
   </div>
 </nav>
@@ -110,6 +124,19 @@
 
 .nav-item img {
   width: 100%;
+}
+
+.controls {
+  margin-bottom: 2em;
+  justify-content: flex-end;
+}
+
+.settings.active i {
+  color: #f18c31;
+}
+
+.settings:hover i {
+  color: #f18c31;
 }
 
 </style>
