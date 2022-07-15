@@ -11,7 +11,7 @@
   import { isInDebugMode } from "$lib/setup/setup";
   import { appWindow } from "@tauri-apps/api/window";
   import { isInstalling } from "./lib/stores/AppStore";
-import { loadTranslations } from "$lib/translations/translations";
+import { log } from "$lib/utils/log";
 
   let revokeSpecificActions = false;
 
@@ -58,7 +58,7 @@ import { loadTranslations } from "$lib/translations/translations";
       // Shift+Ctrl F12
       if (e.code == "F12" && e.ctrlKey && e.shiftKey) {
         revokeSpecificActions = false;
-        console.log("hello world");
+        log.info("Hello World - Dev Tools Enabled!");
       }
     });
   }

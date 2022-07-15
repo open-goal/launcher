@@ -4,7 +4,8 @@
   import { checkRequirements } from "$lib/setup/setup";
   import { onMount } from "svelte";
   import logo from "$assets/images/icon.webp";
-  import { copyDataDirectory, dataDirectoryExists } from "$lib/utils/file";
+import { copyDataDirectory, dataDirectoryExists } from "$lib/utils/data-files";
+import { log } from "$lib/utils/log";
 
   let currentProgress = 0;
   let currentStatusText = "Initializing Config";
@@ -29,7 +30,9 @@
         currentProgress = 50;
         await copyDataDirectory();
       } catch (err) {
-        console.log(err);
+        log.error("error encountered when copying data files", {
+          error: err
+        });
         currentStatusText = `Error - ${err}`;
         return;
       }
