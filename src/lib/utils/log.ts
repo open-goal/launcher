@@ -56,6 +56,7 @@ export class Logger {
     ) {
       await this.writeToFile();
       this.lastFlush = new Date();
+      this.buffer = [];
     }
   }
 
