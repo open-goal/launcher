@@ -23,7 +23,7 @@ fn main() {
     ])
     .build(tauri::generate_context!())
     .expect("error building tauri app")
-    .run(|app_handle, event| match event {
+    .run(|_app_handle, event| match event {
       RunEvent::ExitRequested { .. } => {
         std::process::exit(0);
       }
