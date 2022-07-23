@@ -6,4 +6,4 @@ export const InstallStatus = writable({
 });
 export const isInstalling = writable(false);
 export const gameNeedsReinstall = writable(false);
-export const ProcessLogs = writable();
+export const ProcessLogs = writable("");

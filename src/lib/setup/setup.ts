@@ -5,16 +5,10 @@ import { getHighestSimd } from "$lib/rpc/commands";
 import { InstallStatus, isInstalling } from "../stores/AppStore";
 import { SETUP_ERROR, SETUP_SUCCESS, SupportedGame } from "$lib/constants";
 import { filePrompt } from "$lib/utils/file";
-import {
-  appendToInstallErrorLog,
-  appendToInstallLog,
-  clearInstallLogs,
-  filePrompt,
-} from "$lib/utils/file";
 import { launcherConfig } from "$lib/config";
-import { BaseDirectory, copyFile } from "@tauri-apps/api/fs";
 import { resolveErrorCode } from "./setup_errors";
 import { installLog, log } from "$lib/utils/log";
+import { ProcessLogs } from "$lib/stores/AppStore";
 
 let sidecarOptions = {};
 
@@ -114,11 +108,13 @@ export async function extractAndValidateISO(
     installLog.info(output.stdout, {
       game: SupportedGame.Jak1,
     });
+    ProcessLogs.update((currLogs) => currLogs + output.stdout);
   }
   if (output.stderr) {
     installLog.error(output.stderr, {
       game: SupportedGame.Jak1,
     });
+    ProcessLogs.update((currLogs) => currLogs + output.stderr);
   }
   if (output.code === 0) {
     return true;
@@ -148,11 +144,13 @@ export async function decompileGameData(filePath: string): Promise<boolean> {
     installLog.info(output.stdout, {
       game: SupportedGame.Jak1,
     });
+    ProcessLogs.update((currLogs) => currLogs + output.stdout);
   }
   if (output.stderr) {
     installLog.error(output.stderr, {
       game: SupportedGame.Jak1,
     });
+    ProcessLogs.update((currLogs) => currLogs + output.stderr);
   }
   if (output.code === 0) {
     return true;
@@ -180,11 +178,13 @@ export async function compileGame(filePath: string): Promise<Boolean> {
     installLog.info(output.stdout, {
       game: SupportedGame.Jak1,
     });
+    ProcessLogs.update((currLogs) => currLogs + output.stdout);
   }
   if (output.stderr) {
     installLog.error(output.stderr, {
       game: SupportedGame.Jak1,
     });
+    ProcessLogs.update((currLogs) => currLogs + output.stderr);
   }
   if (output.code === 0) {
     InstallStatus.update(() => SETUP_SUCCESS.ready);
@@ -198,6 +198,7 @@ export async function fullInstallation(game: SupportedGame): Promise<boolean> {
   isInstalling.update(() => true);
   try {
     isoPath = await isoPrompt();
+    ProcessLogs.update(() => "");
     await extractAndValidateISO(isoPath);
     await decompileGameData(isoPath);
     await compileGame(isoPath);
