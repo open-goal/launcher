@@ -1,5 +1,5 @@
 <script>
-  import { InstallStatus } from "../../../lib/stores/AppStore";
+  import { InstallStatus } from "$lib/stores/AppStore";
   import { tweened } from "svelte/motion";
   import { cubicOut } from "svelte/easing";
 

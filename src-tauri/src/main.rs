@@ -4,7 +4,6 @@
 )]
 
 use tauri::RunEvent;
-use tauri_plugin_store::PluginBuilder;
 
 mod commands;
 use commands::close_splashscreen;
@@ -14,7 +13,6 @@ use commands::copy_dir;
 
 fn main() {
   tauri::Builder::default()
-    .plugin(PluginBuilder::default().build())
     .invoke_handler(tauri::generate_handler![
       get_highest_simd,
       open_dir,

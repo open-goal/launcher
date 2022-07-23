@@ -5,13 +5,10 @@ import { getHighestSimd } from "$lib/rpc/commands";
 import { InstallStatus, isInstalling } from "../stores/AppStore";
 import { SETUP_ERROR, SETUP_SUCCESS, SupportedGame } from "$lib/constants";
 import { filePrompt } from "$lib/utils/file";
-import {
-  setGameInstallVersion,
-  setInstallStatus,
-  setRequirementsMet,
-} from "../config";
+import { launcherConfig } from "$lib/config";
 import { resolveErrorCode } from "./setup_errors";
 import { installLog, log } from "$lib/utils/log";
+import { ProcessLogs } from "$lib/stores/AppStore";
 
 let sidecarOptions = {};
 
@@ -27,7 +24,7 @@ export async function isAVXSupported() {
   if (highestSIMD.toLowerCase().startsWith("avx")) {
     return true;
   }
-  throw new Error("UNSUPPORTED AVX");
+  return false;
 }
 
 /**
@@ -38,7 +35,8 @@ export async function isOpenGLVersionSupported(
   version: string
 ): Promise<boolean> {
   if ((await os.platform()) === "darwin") {
-    throw new Error("Unsupported OS!");
+    // TODO - log!
+    return false;
   }
   // Otherwise, query for the version
   let command = Command.sidecar("bin/glewinfo", ["-version", version]);
@@ -47,21 +45,22 @@ export async function isOpenGLVersionSupported(
     return true;
   }
   log.error("opengl requirement check failed", {
+    version: version,
     statusCode: output.code,
     stdout: output.stdout,
     stderr: output.stderr,
   });
-  throw new Error("UNSUPPORTED OPENGL VERSION");
+  return false;
 }
 
-export async function checkRequirements(): Promise<Boolean> {
+export async function checkRequirements(): Promise<void> {
   try {
-    await isAVXSupported();
-    await isOpenGLVersionSupported("4.3");
-    await setRequirementsMet(true, true);
-    return true;
+    const isAVX = await isAVXSupported();
+    const isOpenGL = await isOpenGLVersionSupported("4.3");
+    console.log(`avx - ${isAVX} opengl - ${isOpenGL}`);
+    await launcherConfig.setRequirementsMet(isAVX, isOpenGL);
   } catch (err) {
-    return false;
+    await launcherConfig.setRequirementsMet(false, false);
   }
 }
 
@@ -109,11 +108,13 @@ export async function extractAndValidateISO(
     installLog.info(output.stdout, {
       game: SupportedGame.Jak1,
     });
+    ProcessLogs.update((currLogs) => currLogs + output.stdout);
   }
   if (output.stderr) {
     installLog.error(output.stderr, {
       game: SupportedGame.Jak1,
     });
+    ProcessLogs.update((currLogs) => currLogs + output.stderr);
   }
   if (output.code === 0) {
     return true;
@@ -143,11 +144,13 @@ export async function decompileGameData(filePath: string): Promise<boolean> {
     installLog.info(output.stdout, {
       game: SupportedGame.Jak1,
     });
+    ProcessLogs.update((currLogs) => currLogs + output.stdout);
   }
   if (output.stderr) {
     installLog.error(output.stderr, {
       game: SupportedGame.Jak1,
     });
+    ProcessLogs.update((currLogs) => currLogs + output.stderr);
   }
   if (output.code === 0) {
     return true;
@@ -175,11 +178,13 @@ export async function compileGame(filePath: string): Promise<Boolean> {
     installLog.info(output.stdout, {
       game: SupportedGame.Jak1,
     });
+    ProcessLogs.update((currLogs) => currLogs + output.stdout);
   }
   if (output.stderr) {
     installLog.error(output.stderr, {
       game: SupportedGame.Jak1,
     });
+    ProcessLogs.update((currLogs) => currLogs + output.stderr);
   }
   if (output.code === 0) {
     InstallStatus.update(() => SETUP_SUCCESS.ready);
@@ -193,12 +198,13 @@ export async function fullInstallation(game: SupportedGame): Promise<boolean> {
   isInstalling.update(() => true);
   try {
     isoPath = await isoPrompt();
+    ProcessLogs.update(() => "");
     await extractAndValidateISO(isoPath);
     await decompileGameData(isoPath);
     await compileGame(isoPath);
-    await setInstallStatus(game, true);
+    await launcherConfig.setInstallStatus(game, true);
     isInstalling.update(() => false);
-    await setGameInstallVersion(game);
+    await launcherConfig.setGameInstallVersion(game);
     return true;
   } catch (err) {
     installLog.error("unexpected error encountered", {
@@ -226,7 +232,7 @@ export async function recompileGame(game: SupportedGame) {
     await decompileGameData(isoPath);
     await compileGame(isoPath);
     // update settings.json with latest tools version from metadata.json
-    await setGameInstallVersion(game);
+    await launcherConfig.setGameInstallVersion(game);
     isInstalling.update(() => false);
   } catch (err) {
     installLog.error("unexpected error encountered", {

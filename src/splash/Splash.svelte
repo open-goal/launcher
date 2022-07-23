@@ -1,7 +1,5 @@
 <script>
   import { closeSplashScreen } from "$lib/rpc/commands";
-  import { areRequirementsMet, initConfig } from "$lib/config";
-  import { checkRequirements } from "$lib/setup/setup";
   import { onMount } from "svelte";
   import logo from "$assets/images/icon.webp";
 import { copyDataDirectory, dataDirectoryExists } from "$lib/utils/data-files";
@@ -12,13 +10,6 @@ import { log } from "$lib/utils/log";
 
   // Events
   onMount(async () => {
-    await initConfig();
-    currentStatusText = "Checking Requirements";
-    currentProgress = 10;
-    // NOTE - potentially has problems if the user changes hardware
-    if (!(await areRequirementsMet())) {
-      await checkRequirements();
-    }
     currentStatusText = "Checking Data Files";
     currentProgress = 25;
 

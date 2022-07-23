@@ -1,6 +1,6 @@
 <script>
   import { fade } from "svelte/transition";
-  import { getInstallStatus, shouldUpdateGameInstall } from "$lib/config";
+  import { launcherConfig } from "$lib/config";
   import { fromRoute, getGameTitle, SupportedGame } from "$lib/constants";
   import { useParams } from "svelte-navigator";
   import GameContent from "../components/games/GameControls.svelte";
@@ -31,7 +31,7 @@
       activeGame = fromRoute($params["game_name"]);
     }
 
-    isGameInstalled = await getInstallStatus(activeGame);
+    isGameInstalled = await launcherConfig.getInstallStatus(activeGame);
 
     // Do some checks before the user can play the game
     // First, let's see if their data directory needs updating
@@ -39,7 +39,7 @@
     dataDirUpToDate = await isDataDirectoryUpToDate();
     // If it's up to date we'll do the second check now, does their game need to be re-compiled?
     if (dataDirUpToDate) {
-      if (await shouldUpdateGameInstall(activeGame)) {
+      if (await launcherConfig.shouldUpdateGameInstall(activeGame)) {
         // await recompileGame(activeGame);
         gameNeedsReinstall.update(() => true);
       }
@@ -53,7 +53,7 @@
     try {
       await copyDataDirectory();
       // Now that the directory is up to date, let's see if they need to reinstall the game
-      if (await shouldUpdateGameInstall(activeGame)) {
+      if (await launcherConfig.shouldUpdateGameInstall(activeGame)) {
         gameNeedsReinstall.update(() => true);
       }
     } catch (err) {
@@ -63,13 +63,13 @@
   }
 
   async function updateGameState(evt) {
-    isGameInstalled = await getInstallStatus(activeGame);
+    isGameInstalled = await launcherConfig.getInstallStatus(activeGame);
   }
 </script>
 
 {#if componentLoaded}
   <div class="flex-center" in:fade>
-    <h1>
+    <h1 class="text-shadow">
       {getGameTitle(activeGame)}
     </h1>
     {#if isGameInstalled && !$gameNeedsReinstall}
@@ -102,3 +102,9 @@
 {:else}
   <!-- TODO - component library - spinner -->
 {/if}
+
+<style>
+  .text-shadow {
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+  }
+</style>

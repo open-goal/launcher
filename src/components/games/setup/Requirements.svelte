@@ -1,5 +1,5 @@
 <script type="ts">
-import { isAVXRequirementMet, isOpenGLRequirementMet } from "$lib/config";
+import { launcherConfig } from "$lib/config";
 
 import { onMount } from "svelte";
 
@@ -9,8 +9,8 @@ import { onMount } from "svelte";
   let isOpenGLMet = false;
 
   onMount(async () => {
-    isAVXMet = await isAVXRequirementMet();
-    isOpenGLMet = await isOpenGLRequirementMet();
+    isAVXMet = await launcherConfig.isAVXRequirementMet();
+    isOpenGLMet = await launcherConfig.isOpenGLRequirementMet();
     componentLoaded = true;
   });
 </script>

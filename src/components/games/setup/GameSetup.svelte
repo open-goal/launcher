@@ -1,7 +1,7 @@
 <script type="ts">
-  import { areRequirementsMet } from "$lib/config";
+  import { launcherConfig } from "$lib/config";
   import { gameNeedsReinstall, isInstalling, ProcessLogs } from "$lib/stores/AppStore";
-  import { fullInstallation, recompileGame } from "$lib/setup/setup";
+  import { checkRequirements, fullInstallation, recompileGame } from "$lib/setup/setup";
   // components
   import Progress from "./Progress.svelte";
   // constants
@@ -18,7 +18,11 @@
   let requirementsMet = false;
 
   onMount(async () => {
-    requirementsMet = await areRequirementsMet();
+    // NOTE - potentially has problems if the user changes hardware
+    if (!(await launcherConfig.areRequirementsMet())) {
+      await checkRequirements();
+    }
+    requirementsMet = await launcherConfig.areRequirementsMet();
     componentLoaded = true;
   });
 
