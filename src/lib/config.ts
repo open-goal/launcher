@@ -3,6 +3,7 @@ import { appDir, join } from "@tauri-apps/api/path";
 import { Store } from "tauri-plugin-store-api";
 import { SupportedGame } from "./constants";
 import { fileExists } from "./utils/file";
+import { log } from "./utils/log";
 
 class GameConfig {
   isInstalled: boolean = false;
@@ -54,13 +55,13 @@ export async function initConfig() {
   const path = await join(await appDir(), "settings.json");
   let configExists = await fileExists(path);
   if (!configExists) {
-    console.log("[Launcher]: Settings file not found or could not be loaded!");
+    log.info("settings file not found or could not be loaded!");
     await createDir(await appDir(), { recursive: true });
     await writeFile({
       contents: JSON.stringify(new LauncherConfig(), null, 2),
       path: path,
     });
-    console.log("[Launcher]: Settings file initialized");
+    log.info("settings file initialized");
   }
 }
 
@@ -146,7 +147,7 @@ export async function isAVXRequirementMet(): Promise<boolean> {
   await store.load();
   let requirements = await store.get("requirements");
   if (!requirements["avx"]) {
-    console.log("Unsupported AVX");
+    log.error("requirement false - AVX unsupported");
     return false;
   }
   return true;
@@ -156,7 +157,7 @@ export async function isOpenGLRequirementMet(): Promise<boolean> {
   await store.load();
   let requirements = await store.get("requirements");
   if (!requirements["openGL"]) {
-    console.log("Unsupported OpenGL");
+    log.error("requirement false - OpenGL unsupported");
     return false;
   }
   return true;
@@ -203,8 +204,9 @@ export async function shouldUpdateGameInstall(
     return false;
   }
 
-  console.log("Tools version is different than install verison");
-  console.log("Tools: ", toolsVersion);
-  console.log("Installed: ", installVersion);
+  log.warn("Tools version is different than install verison", {
+    tools: toolsVersion,
+    installed: installVersion,
+  });
   return true;
 }

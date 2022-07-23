@@ -45,6 +45,7 @@ jobs:
           ls ./src-tauri/data/
 
       - uses: tauri-apps/tauri-action@v0
+        timeout-minutes: 30
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
