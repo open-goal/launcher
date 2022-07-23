@@ -2,6 +2,7 @@ import { createDir, readTextFile, writeFile } from "@tauri-apps/api/fs";
 import { appDir, join } from "@tauri-apps/api/path";
 import { SupportedGame } from "./constants";
 import { fileExists } from "./utils/file";
+import { log } from "./utils/log";
 
 interface Serializable<T> {
   deserialize(input: Object): T;
@@ -88,9 +89,7 @@ export class LauncherConfig implements Serializable<LauncherConfig> {
 
   private async saveConfigToFile() {
     if (!this._loaded) {
-      console.log(
-        "[Launcher]: Config not loaded when trying to save, initializing it first!"
-      );
+      log.info("config not loaded when trying to save, initializing it first!");
       await this.loadConfigFromFile();
       return;
     }
@@ -99,7 +98,7 @@ export class LauncherConfig implements Serializable<LauncherConfig> {
       contents: JSON.stringify(this, null, 2),
       path: path,
     });
-    console.log("[Launcher]: Settings file saved");
+    log.info("settings file initialized");
   }
 
   /**
@@ -170,6 +169,7 @@ export class LauncherConfig implements Serializable<LauncherConfig> {
   async isAVXRequirementMet(): Promise<boolean> {
     await this.loadConfigFromFile();
     if (!this.validVersion("1.0")) {
+      log.error("requirement false - AVX unsupported");
       return false;
     }
     return this.requirements.avx;
@@ -178,6 +178,7 @@ export class LauncherConfig implements Serializable<LauncherConfig> {
   async isOpenGLRequirementMet(): Promise<boolean> {
     await this.loadConfigFromFile();
     if (!this.validVersion("1.0")) {
+      log.error("requirement false - OpenGL 4.3 unsupported");
       return false;
     }
     return this.requirements.openGL;
@@ -212,9 +213,10 @@ export class LauncherConfig implements Serializable<LauncherConfig> {
       return false;
     }
 
-    console.log("Tools version is different than install verison");
-    console.log("Tools: ", toolsVersion);
-    console.log("Installed: ", installVersion);
+    log.warn("Tools version is different than install verison", {
+      tools: toolsVersion,
+      installed: installVersion,
+    });
     return true;
   }
 

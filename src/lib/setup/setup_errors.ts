@@ -1,6 +1,7 @@
 import { fileExists } from "../utils/file";
 import { appDir, join } from "@tauri-apps/api/path";
 import { readTextFile } from "@tauri-apps/api/fs";
+import { log } from "$lib/utils/log";
 
 interface ErrorCodeMetadataEntry {
   msg: string;
@@ -20,9 +21,9 @@ export async function resolveErrorCode(
       "error-code-metadata.json"
     );
     if (!(await fileExists(errorMetadataPath))) {
-      console.log(
-        `[OG]: Could not locate error metadata file at ${errorMetadataPath}`
-      );
+      log.warn("could not locate error metadata file at path", {
+        path: errorMetadataPath,
+      });
       return undefined;
     }
     const jsonData = JSON.parse(await readTextFile(errorMetadataPath));
