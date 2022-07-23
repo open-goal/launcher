@@ -2,8 +2,18 @@ import { Command } from "@tauri-apps/api/shell";
 import { appDir, join } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
 import { getHighestSimd } from "$lib/rpc/commands";
-import { InstallStatus, isInstalling } from "../stores/AppStore";
-import { SETUP_ERROR, SETUP_SUCCESS, SupportedGame } from "$lib/constants";
+import {
+  InstallStatus,
+  isCompiling,
+  isDecompiling,
+  isInstalling,
+} from "../stores/AppStore";
+import {
+  getInternalName,
+  SETUP_ERROR,
+  SETUP_SUCCESS,
+  SupportedGame,
+} from "$lib/constants";
 import { filePrompt } from "$lib/utils/file";
 import { launcherConfig } from "$lib/config";
 import { resolveErrorCode } from "./setup_errors";
@@ -130,7 +140,7 @@ export async function extractAndValidateISO(
 export async function decompileGameData(filePath: string): Promise<boolean> {
   let command: Command;
   InstallStatus.update(() => SETUP_SUCCESS.decompiling);
-  isInstalling.update(() => true);
+  isDecompiling.update(() => true);
   const appDirPath = await appDir();
   command = Command.sidecar("bin/extractor", [
     filePath,
@@ -152,6 +162,7 @@ export async function decompileGameData(filePath: string): Promise<boolean> {
     });
     ProcessLogs.update((currLogs) => currLogs + output.stderr);
   }
+  isDecompiling.update(() => false);
   if (output.code === 0) {
     return true;
   }
@@ -165,7 +176,7 @@ export async function decompileGameData(filePath: string): Promise<boolean> {
 export async function compileGame(filePath: string): Promise<Boolean> {
   let command: Command;
   InstallStatus.update(() => SETUP_SUCCESS.compiling);
-  isInstalling.update(() => true);
+  isCompiling.update(() => true);
   const appDirPath = await appDir();
   command = Command.sidecar(
     "bin/extractor",
@@ -186,8 +197,8 @@ export async function compileGame(filePath: string): Promise<Boolean> {
     });
     ProcessLogs.update((currLogs) => currLogs + output.stderr);
   }
+  isCompiling.update(() => false);
   if (output.code === 0) {
-    InstallStatus.update(() => SETUP_SUCCESS.ready);
     return true;
   }
   handleErrorCode(output.code, "Compiler");
@@ -204,6 +215,7 @@ export async function fullInstallation(game: SupportedGame): Promise<boolean> {
     await compileGame(isoPath);
     await launcherConfig.setInstallStatus(game, true);
     isInstalling.update(() => false);
+    InstallStatus.update(() => SETUP_SUCCESS.ready);
     await launcherConfig.setGameInstallVersion(game);
     return true;
   } catch (err) {
@@ -221,10 +233,12 @@ export async function fullInstallation(game: SupportedGame): Promise<boolean> {
 }
 
 export async function recompileGame(game: SupportedGame) {
-  // TODO - this assumes their files are in this folder, this is potentially wrong now!
-  // ensure the extractor outputs to a sensible folder (per game)
-  // and we are grabbing the right one
-  const isoPath = await join(await appDir(), "data", "extracted_iso");
+  const isoPath = await join(
+    await appDir(),
+    "data",
+    "iso_data",
+    getInternalName(game)
+  );
   // TODO - probably should check the dir exists
   isInstalling.update(() => true);
   try {

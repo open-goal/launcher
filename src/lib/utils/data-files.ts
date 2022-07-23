@@ -26,7 +26,7 @@ export async function isDataDirectoryUpToDate(): Promise<boolean> {
   const appMetaVersion = JSON.parse(await readTextFile(appMetaPath)).version;
   if (userMetaVersion != appMetaVersion) {
     log.warn("user version does not match app version", {
-      userVersion: userMetaPath,
+      userVersion: userMetaVersion,
       appVersion: appMetaVersion,
     });
     return false;
