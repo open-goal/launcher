@@ -64,6 +64,7 @@
 
   async function updateGameState(evt) {
     isGameInstalled = await launcherConfig.getInstallStatus(activeGame);
+    dataDirUpToDate = await isDataDirectoryUpToDate();
   }
 </script>
 
