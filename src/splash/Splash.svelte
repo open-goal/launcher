@@ -2,8 +2,11 @@
   import { closeSplashScreen } from "$lib/rpc/commands";
   import { onMount } from "svelte";
   import logo from "$assets/images/icon.webp";
-import { copyDataDirectory, dataDirectoryExists } from "$lib/utils/data-files";
-import { log } from "$lib/utils/log";
+  import {
+    copyDataDirectory,
+    dataDirectoryExists,
+  } from "$lib/utils/data-files";
+  import { log } from "$lib/utils/log";
 
   let currentProgress = 0;
   let currentStatusText = "Initializing Config";
@@ -22,7 +25,7 @@ import { log } from "$lib/utils/log";
         await copyDataDirectory();
       } catch (err) {
         log.error("error encountered when copying data files", {
-          error: err
+          error: err,
         });
         currentStatusText = `Error - ${err}`;
         return;

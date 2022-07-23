@@ -19,7 +19,6 @@ export async function launchGame() {
   command = Command.sidecar("bin/gk", [
     "-boot",
     "-fakeiso",
-    "-debug",
     "-proj-path",
     `${appDirPath}data`,
   ]);

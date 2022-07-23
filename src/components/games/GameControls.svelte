@@ -5,7 +5,13 @@
   import { openDir } from "$lib/rpc/commands";
   import { compileGame, decompileGameData } from "$lib/setup/setup";
   import { appDir, configDir, join } from "@tauri-apps/api/path";
-import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
+  import LogViewer from "./setup/LogViewer.svelte";
+  import {
+    isCompiling,
+    isDecompiling,
+    ProcessLogs,
+  } from "$lib/stores/AppStore";
 
   export let activeGame: SupportedGame;
 
@@ -16,7 +22,11 @@ import { createEventDispatcher, onMount } from "svelte";
 
   onMount(async () => {
     gameVersion = await launcherConfig.getGameInstallVersion(activeGame);
-    configPath = await join(await configDir(), "OpenGOAL", getInternalName(activeGame));
+    configPath = await join(
+      await configDir(),
+      "OpenGOAL",
+      getInternalName(activeGame)
+    );
     componentLoaded = true;
   });
 
@@ -25,39 +35,74 @@ import { createEventDispatcher, onMount } from "svelte";
   }
 
   async function onClickUninstall() {
-    await launcherConfig.setInstallStatus(SupportedGame.Jak1, false);
-    dispatch('change');
+    await launcherConfig.setInstallStatus(activeGame, false);
+    dispatch("change");
   }
 
   async function onClickDecompile() {
-    // TODO - ensure this path is correct!
-    const isoPath = await join(await appDir(), "data", "extracted_iso");
+    ProcessLogs.update(() => "");
+    const isoPath = await join(
+      await appDir(),
+      "data",
+      "iso_data",
+      getInternalName(activeGame)
+    );
     await decompileGameData(isoPath);
   }
 
   async function onClickCompile() {
-    // TODO - ensure this path is correct!
-    const isoPath = await join(await appDir(), "data", "extracted_iso");
+    ProcessLogs.update(() => "");
+    const isoPath = await join(
+      await appDir(),
+      "data",
+      "iso_data",
+      getInternalName(activeGame)
+    );
     await compileGame(isoPath);
   }
 </script>
 
 {#if componentLoaded}
-<div id="launcherControls">
-  <button class="btn lg" on:click={onClickPlay}>Play</button>
-  <p class="text-shadow">Game Version: {gameVersion}</p>
-  <!-- TODO - when clicking decompile/compile -- show logs -->
-  <div class="mt-1">
-    <button class="btn md" on:click={() => openDir(configPath)}>Settings and Saves</button>
-    <button class="btn md" on:click={onClickDecompile}>Decompile</button>
-    <button class="btn md" on:click={onClickCompile}>Compile</button>
-    <button class="btn md" on:click={onClickUninstall}>Uninstall</button>
+  <div id="launcherControls">
+    <button
+      class="btn lg"
+      on:click={onClickPlay}
+      disabled={$isDecompiling || $isCompiling}>Play</button
+    >
+    <p class="text-shadow">Game Version: {gameVersion}</p>
+    <div class="mt-1">
+      <button class="btn md" on:click={() => openDir(configPath)}
+        >Settings and Saves</button
+      >
+      <button
+        class="btn md"
+        on:click={onClickDecompile}
+        disabled={$isDecompiling || $isCompiling}>Decompile</button
+      >
+      <button
+        class="btn md"
+        on:click={onClickCompile}
+        disabled={$isCompiling || $isDecompiling}>Compile</button
+      >
+      <button
+        class="btn md"
+        on:click={onClickUninstall}
+        disabled={$isDecompiling || $isCompiling}>Uninstall</button
+      >
+    </div>
+    {#if $isDecompiling || $isCompiling}
+      <!-- TODO - some sort of spinner component instead -->
+      <div class="mt-1">Please Wait</div>
+    {/if}
+    {#if $ProcessLogs}
+      <LogViewer />
+    {/if}
   </div>
-</div>
 {/if}
 
 <style>
   .text-shadow {
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+      1px 1px 0 #000;
   }
 </style>

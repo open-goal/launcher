@@ -103,7 +103,7 @@ const releaseMeta = {
       signature: linuxSignature,
       url: `https://github.com/open-goal/launcher/releases/download/${
         release.tag_name
-      }/opengoal-launcher_${tagToSearchFor.replace(
+      }/OpenGOAL-Launcher_${tagToSearchFor.replace(
         "v",
         ""
       )}_amd64.AppImage.tar.gz`,
@@ -112,7 +112,7 @@ const releaseMeta = {
       signature: windowsSignature,
       url: `https://github.com/open-goal/launcher/releases/download/${
         release.tag_name
-      }/opengoal-launcher_${tagToSearchFor.replace("v", "")}_x64_en-US.msi.zip`,
+      }/OpenGOAL-Launcher_${tagToSearchFor.replace("v", "")}_x64_en-US.msi.zip`,
     },
   },
 };

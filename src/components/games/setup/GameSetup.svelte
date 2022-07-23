@@ -1,7 +1,15 @@
 <script type="ts">
   import { launcherConfig } from "$lib/config";
-  import { gameNeedsReinstall, isInstalling, ProcessLogs } from "$lib/stores/AppStore";
-  import { checkRequirements, fullInstallation, recompileGame } from "$lib/setup/setup";
+  import {
+    gameNeedsReinstall,
+    isInstalling,
+    ProcessLogs,
+  } from "$lib/stores/AppStore";
+  import {
+    checkRequirements,
+    fullInstallation,
+    recompileGame,
+  } from "$lib/setup/setup";
   // components
   import Progress from "./Progress.svelte";
   // constants
@@ -29,7 +37,7 @@
   async function fullInstall() {
     const installationSuccess = await fullInstallation(activeGame);
     if (installationSuccess) {
-      dispatch('change');
+      dispatch("change");
     }
   }
 </script>
@@ -49,18 +57,13 @@
               Update Install
             </button>
           {:else}
-            <button
-              class="btn"
-              on:click={fullInstall}
-            >
-              Setup
-            </button>
+            <button class="btn" on:click={fullInstall}> Setup </button>
           {/if}
         {:else}
           <Progress />
         {/if}
         {#if $ProcessLogs}
-        <LogViewer />
+          <LogViewer />
         {/if}
       {/if}
     </div>

@@ -5,7 +5,7 @@ import {
   readDir,
 } from "@tauri-apps/api/fs";
 import { logDir, join, dirname, basename } from "@tauri-apps/api/path";
-import { fileExists } from "./file";
+import { dirExists, fileExists } from "./file";
 
 enum LogLevel {
   Debug = "debug",
@@ -92,6 +92,13 @@ export class Logger {
 
   private async rotateLogFile(): Promise<string> {
     const dir = await logDir();
+    const logDirExists = await dirExists(dir);
+    if (!logDirExists) {
+      await createDir(await dirname(dir), { recursive: true });
+      // The directory didn't exist, so it has no files!
+      return `${this.fileNamePrefix}_0.log`;
+    }
+
     const logFiles = await readDir(dir);
     let numLogs = 0;
     let oldestLogIndex = 0;
