@@ -3,6 +3,7 @@
   windows_subsystem = "windows"
 )]
 
+use tauri::RunEvent;
 use tauri_plugin_store::PluginBuilder;
 
 mod commands;
@@ -20,6 +21,12 @@ fn main() {
       copy_dir,
       close_splashscreen
     ])
-    .run(tauri::generate_context!())
-    .expect("error while running tauri application");
+    .build(tauri::generate_context!())
+    .expect("error building tauri app")
+    .run(|_app_handle, event| match event {
+      RunEvent::ExitRequested { .. } => {
+        std::process::exit(0);
+      }
+      _ => (),
+    })
 }
