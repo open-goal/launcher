@@ -1,15 +1,15 @@
 {
-  "name": "v0.2.11",
+  "name": "v0.3.0",
   "notes": "UPDATE",
-  "pub_date": "2022-07-23T19:01:23Z",
+  "pub_date": "2022-07-23T19:23:17Z",
   "platforms": {
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVReStvMTdKYnkwdi93ek9nUm1zSjlRdTVHNWNrVHVvZXoyUU1DazlSaTJBYTg3MU85UHJsK3RRaEU3ekRXMm5HT3FCWnpuV3haY3V6a2NDYUlNaEp1RjhVb1BES1FkZmdVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjU4NjAzNjM2CWZpbGU6b3BlbmdvYWwtbGF1bmNoZXJfMC4yLjExX2FtZDY0LkFwcEltYWdlLnRhci5negp1d1hzNm9JMzZZcldhSnFKQVl2aXZkZVpsY1VBeW5SOGtzOXUvV0dJanpwMkZVck1sYTZ6MkFpTGoxRlpSYjRqdzhJT2Z2Z2FJZXEzVVRpRUxoZThCZz09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v0.2.11/opengoal-launcher_0.2.11_amd64.AppImage.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVReStvMTdKYnkwdndXdHNRUU9qS2JMMVJJa3lmRktGVFBkZ3gxTDRaNXFJQktMczA3b1VkNFhGRUcwSXA5c2RmdC9qUHhNL05hdjRsZTAzbmJObHBCTkt5aUp6T0I5dlFRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjU4NjA0OTc2CWZpbGU6b3BlbmdvYWwtbGF1bmNoZXJfMC4zLjBfYW1kNjQuQXBwSW1hZ2UudGFyLmd6CnJKOURiSG4yYzdWUUNQdXdlYm80elVseS8xdHk5TTZLRnp1eHYvcEpjbUhTN3U4a29obE9QY1hMNDN5bDhPRDBDTWpRTndTS2ZhZkxHQ3NGZmlCL0FnPT0K",
+      "url": "https://github.com/open-goal/launcher/releases/download/v0.3.0/opengoal-launcher_0.3.0_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVReStvMTdKYnkwdjgzYlFyL1FYcmwrdU9GVjhtcGc0RTdvSWdwZGs5cWRVaWdCU0Y4MEozend5U1BlNFZRVURlcFExV1RSL1lmcWZ3RXROT0RVQy9Hb0JXT1BUc0txMndFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjU4NjAzODM3CWZpbGU6b3BlbmdvYWwtbGF1bmNoZXJfMC4yLjExX3g2NF9lbi1VUy5tc2kuemlwCkdLcC9HN0w2Zkkza0c0SWdxNDVObHQyYkRJNXY2LzU5L09BQk5mNHRtejZLdDQrWngzM0hJOFEyZTNmTFk1blR3bFd4UVh2cmhRZjVkSXJLZ3daK0JRPT0K",
-      "url": "https://github.com/open-goal/launcher/releases/download/v0.2.11/opengoal-launcher_0.2.11_x64_en-US.msi.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVReStvMTdKYnkwdnh6S3diQ0pEVktmWjlkTW5zNTNnRDlKUDBkN292SytMR1QrbmprYUMwR1NVNld1TGgyeW55d1JiMDY1MVY3NUk2SWJ5M3hFUjJqZDVyNTBpcTFIeWdzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjU4NjA1Mzc5CWZpbGU6b3BlbmdvYWwtbGF1bmNoZXJfMC4zLjBfeDY0X2VuLVVTLm1zaS56aXAKY2NxNWp2UjdzUDJXS2dkNzN0TDdQV2NVMEh5RWRyUUR6cTBKdTRRWk5acW52VzdudkVUTVJMKzZGSkJKTmlxMXp2YXJsWEYrSVlETkMzSGRIWnFsRHc9PQo=",
+      "url": "https://github.com/open-goal/launcher/releases/download/v0.3.0/opengoal-launcher_0.3.0_x64_en-US.msi.zip"
     }
   }
 }
