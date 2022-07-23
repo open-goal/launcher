@@ -3,7 +3,6 @@
   import { openDir } from "$lib/rpc/commands";
   import { appDir } from "@tauri-apps/api/path";
   import { getVersion } from "@tauri-apps/api/app";
-
 </script>
 
 <!-- TODO - STYLE THIS PAGE -->

@@ -11,7 +11,7 @@
   import { isInDebugMode } from "$lib/setup/setup";
   import { appWindow } from "@tauri-apps/api/window";
   import { isInstalling } from "./lib/stores/AppStore";
-import { log } from "$lib/utils/log";
+  import { log } from "$lib/utils/log";
 
   let revokeSpecificActions = false;
 
