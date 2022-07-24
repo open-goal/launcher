@@ -6,7 +6,7 @@ A launcher for users to install and run the OpenGOAL project with ease
 
 ## Preview
 
-![Launcher Preview](./docs//screenshots/screenshot.png)
+![Launcher Preview](./docs//screenshots/launcher.png)
 
 ## Disclaimer
 
