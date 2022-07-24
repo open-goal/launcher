@@ -35,8 +35,11 @@
   }
 
   async function onClickUninstall() {
-    await launcherConfig.setInstallStatus(activeGame, false);
-    dispatch("change");
+    const confirmed = confirm("Are you sure you want to uninstall?");
+    if (confirmed) {
+      await launcherConfig.setInstallStatus(activeGame, false);
+      dispatch("change");
+    }
   }
 
   async function onClickDecompile() {

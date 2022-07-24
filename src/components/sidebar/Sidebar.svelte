@@ -23,20 +23,20 @@
       </a>
     </div>
     <div
-      class="jak-2 nav-item disabled"
+      class="jak-2 nav-item disabled hidden"
       class:active={["/jak2"].includes($location.pathname)}
     >
-      <!-- <Link to="no" data-tooltip="Jak 2"> -->
-      <img src={logoJak2} alt="Jak 2" />
-      <!-- </Link> -->
+      <a href="/jak2" use:link data-tooltip="Jak 2">
+        <img src={logoJak2} alt="Jak 2" />
+      </a>
     </div>
     <div
-      class="jak-3 nav-item disabled"
+      class="jak-3 nav-item disabled hidden"
       class:active={["/jak3"].includes($location.pathname)}
     >
-      <!-- <Link to="no" data-tooltip="Jak 3"> -->
-      <img src={logoJak3} alt="Jak 3" />
-      <!-- </Link> -->
+      <a href="/jak3" use:link data-tooltip="Jak 3">
+        <img src={logoJak3} alt="Jak 3" />
+      </a>
     </div>
   </div>
   <div class="spacer" />
@@ -142,5 +142,9 @@
 
   .settings:hover i {
     color: #f18c31;
+  }
+
+  .hidden {
+    visibility: hidden;
   }
 </style>
