@@ -31,6 +31,11 @@ jobs:
         with:
           toolchain: stable
 
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: tauri-build-${{ matrix.platform }}
+          workspaces: src-tauri
+
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-latest'
         run: |
