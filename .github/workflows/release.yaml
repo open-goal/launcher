@@ -23,28 +23,35 @@ jobs:
         with:
           token: ${{ secrets.BOT_PAT }}
 
-      - name: setup node
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: npm
 
-      - name: install Rust stable
+      - name: Install Rust Stable
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
 
-      - name: install dependencies (ubuntu only)
+      - uses: Swatinem/rust-cache@v2
+        name: Cache Rust Build
+        with:
+          shared-key: tauri-build-${{ matrix.platform }}
+          workspaces: src-tauri
+
+      - name: Install Linux Dependencies
         if: matrix.platform == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev libglew2.1 patchelf
 
-      - name: install app dependencies
+      - name: Install NPM Dependencies
         run: |
           npm ci
           npm run build
 
-      - name: download jak-project release
+      - name: Download jak-project Release
         env:
           JAK_PROJ_VERSION: latest
           PLATFORM: ${{ matrix.os }}
@@ -55,11 +62,11 @@ jobs:
           popd
           node ./.github/scripts/download-binaries/index.js
 
-      - name: prepare release config
+      - name: Prepare Release Config
         run: |
           npm run prepare-release-config
 
-      - name: prepare resources for build
+      - name: Prepare Resources for Build
         if: matrix.os == 'windows'
         run: |
           mv ./opengoal*.zip ./opengoal.zip
@@ -76,7 +83,7 @@ jobs:
           ls ./src-tauri/bin
           ls ./src-tauri/data
 
-      - name: prepare resources for build
+      - name: Prepare Resources for Build
         if: matrix.os == 'linux'
         run: |
           mv ./opengoal*.tar.gz ./opengoal.tar.gz
@@ -94,6 +101,7 @@ jobs:
           ls ./src-tauri/data
 
       - uses: tauri-apps/tauri-action@v0
+        name: Build Tauri App
         timeout-minutes: 30
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
