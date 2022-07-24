@@ -1,7 +1,5 @@
-import { SETUP_SUCCESS, SETUP_ERROR } from "$lib/constants";
 import { open } from "@tauri-apps/api/dialog";
 import { readDir, readTextFile } from "@tauri-apps/api/fs";
-import { InstallStatus } from "../stores/AppStore";
 
 export async function fileExists(path: string): Promise<boolean> {
   try {
