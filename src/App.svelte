@@ -22,7 +22,7 @@
     // For now, we'll just handle all close events ourselves
     await appWindow.listen("tauri://close-requested", async () => {
       if ($isInstalling) {
-        const confirmed = confirm(
+        const confirmed = await confirm(
           "Installation still in progress, are you sure you want to exit?"
         );
         if (confirmed) {

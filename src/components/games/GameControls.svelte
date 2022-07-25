@@ -35,7 +35,7 @@
   }
 
   async function onClickUninstall() {
-    const confirmed = confirm("Are you sure you want to uninstall?");
+    const confirmed = await confirm("Are you sure you want to uninstall?");
     if (confirmed) {
       await launcherConfig.setInstallStatus(activeGame, false);
       dispatch("change");
