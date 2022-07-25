@@ -22,13 +22,26 @@ export class Logger {
   logFileName: string = undefined;
   maxFileRotate: number = 10;
   buffer: string[] = [];
-  lastFlush: Date = undefined;
-  flushMillisecondInterval: number = 2500;
+  flushMillisecondInterval: number = 500;
+  flushImmediately: boolean = false;
+  flushInterval: any;
 
-  constructor(metadata: Object, level: LogLevel, fileNamePrefix: string) {
+  constructor(
+    metadata: Object,
+    level: LogLevel,
+    fileNamePrefix: string,
+    flushImmediately: boolean
+  ) {
     this.metadata = metadata;
     this.level = level;
     this.fileNamePrefix = fileNamePrefix;
+    this.flushImmediately = flushImmediately;
+    if (!this.flushImmediately) {
+      this.flushInterval = setInterval(
+        this.flushBuffer.bind(this),
+        this.flushMillisecondInterval
+      );
+    }
   }
 
   private logMessage(msg: string, level: LogLevel, meta?: Object): string {
@@ -45,18 +58,21 @@ export class Logger {
     return JSON.stringify(val);
   }
 
-  private async flushToFile(logData: string) {
-    this.buffer.push(logData);
-    // Flush if we havn't in X amount of time
-    if (
-      this.buffer.length > 0 &&
-      (this.lastFlush === undefined ||
-        this.lastFlush.valueOf() >
-          new Date().valueOf() + this.flushMillisecondInterval)
-    ) {
+  private async flushBuffer() {
+    if (this.buffer.length > 0) {
       await this.writeToFile();
-      this.lastFlush = new Date();
-      this.buffer = [];
+    }
+    this.buffer = [];
+  }
+
+  private async appendToBuffer(logData: string) {
+    if (logData === undefined) {
+      return;
+    }
+    this.buffer.push(logData);
+    // Flush immediately if configured to do so
+    if (this.flushImmediately) {
+      this.flushBuffer();
     }
   }
 
@@ -120,7 +136,12 @@ export class Logger {
   }
 
   child(meta: Object): Logger {
-    let newLogger = new Logger(this.metadata, this.level, this.fileNamePrefix);
+    let newLogger = new Logger(
+      this.metadata,
+      this.level,
+      this.fileNamePrefix,
+      this.flushImmediately
+    );
     let newMeta = this.metadata;
     for (const [key, value] of Object.entries(meta)) {
       newMeta[key] = `${value}`;
@@ -134,7 +155,7 @@ export class Logger {
     if (this.level <= LogLevel.Debug) {
       const logData = this.logMessage(msg, LogLevel.Debug, meta);
       console.log(logData);
-      this.flushToFile(logData);
+      this.appendToBuffer(logData);
     }
   }
 
@@ -142,7 +163,7 @@ export class Logger {
     if (this.level <= LogLevel.Info) {
       const logData = this.logMessage(msg, LogLevel.Info, meta);
       console.log(logData);
-      this.flushToFile(logData);
+      this.appendToBuffer(logData);
     }
   }
 
@@ -150,7 +171,7 @@ export class Logger {
     if (this.level <= LogLevel.Warn) {
       const logData = this.logMessage(msg, LogLevel.Warn, meta);
       console.warn(logData);
-      this.flushToFile(logData);
+      this.appendToBuffer(logData);
     }
   }
 
@@ -158,7 +179,7 @@ export class Logger {
     if (this.level <= LogLevel.Error) {
       const logData = this.logMessage(msg, LogLevel.Error, meta);
       console.error(logData);
-      this.flushToFile(logData);
+      this.appendToBuffer(logData);
     }
   }
 }
@@ -168,7 +189,8 @@ export const log = new Logger(
     name: "launcher",
   },
   LogLevel.Debug,
-  "launcher"
+  "launcher",
+  false
 );
 
 export const installLog = new Logger(
@@ -176,5 +198,6 @@ export const installLog = new Logger(
     name: "launcher-install",
   },
   LogLevel.Debug,
-  "launcher-install"
+  "launcher-install",
+  true
 );
