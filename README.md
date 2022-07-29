@@ -12,6 +12,13 @@ A launcher for users to install and run the OpenGOAL project with ease
 
 Users are required to provide their own copy of the ISO file in order to run the game.
 
+## Features
+- [x] Auto Updates
+- [x] Windows Support
+- [ ] Linux Support
+- [ ] Texture Pack Management
+- [ ] Controller/Keyboard Remapping (maybe)
+
 ## Resources
 
 - [OpenGOAL Github Organization](https://github.com/open-goal/)
