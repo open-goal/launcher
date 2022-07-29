@@ -22,7 +22,7 @@ Users are required to provide their own copy of the ISO file in order to run the
 ## Resources
 
 - [OpenGOAL Github Organization](https://github.com/open-goal/)
-- [OpenGOAL Documentation](https://open-goal.github.io/)
+- [OpenGOAL Documentation](https://opengoal.dev/)
 - [OpenGOAL Discord](https://discord.gg/twBEFbMnqw)
 
 ## Development
