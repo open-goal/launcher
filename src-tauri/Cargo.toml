@@ -1,6 +1,6 @@
 [package]
 name = "app"
-version = "1.0.0" # APP_VERSION
+version = "1.0.1" # APP_VERSION
 description = "A Tauri App"
 authors = ["OpenGOAL"]
 license = "ISC"
