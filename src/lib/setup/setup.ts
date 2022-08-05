@@ -3,6 +3,7 @@ import { appDir, join } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
 import { getHighestSimd } from "$lib/rpc/commands";
 import {
+  gameNeedsReinstall,
   InstallStatus,
   isCompiling,
   isDecompiling,
@@ -217,6 +218,7 @@ export async function fullInstallation(game: SupportedGame): Promise<boolean> {
     isInstalling.update(() => false);
     InstallStatus.update(() => SETUP_SUCCESS.ready);
     await launcherConfig.setGameInstallVersion(game);
+    gameNeedsReinstall.update(() => false);
     return true;
   } catch (err) {
     installLog.error("unexpected error encountered", {
@@ -247,6 +249,8 @@ export async function recompileGame(game: SupportedGame) {
     await compileGame(isoPath);
     // update settings.json with latest tools version from metadata.json
     await launcherConfig.setGameInstallVersion(game);
+    await launcherConfig.setInstallStatus(game, true);
+    gameNeedsReinstall.update(() => false);
     isInstalling.update(() => false);
   } catch (err) {
     installLog.error("unexpected error encountered", {
