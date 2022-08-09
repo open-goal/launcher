@@ -1,11 +1,11 @@
 [package]
-name = "app"
+name = "opengoal-launcher"
 version = "1.0.1" # APP_VERSION
-description = "A Tauri App"
+description = "A frontend for the OpenGOAL project"
 authors = ["OpenGOAL"]
 license = "ISC"
 repository = "https://github.com/open-goal/launcher"
-default-run = "app"
+default-run = "opengoal-launcher"
 edition = "2021"
 rust-version = "1.61"
 

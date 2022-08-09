@@ -234,7 +234,7 @@ export async function fullInstallation(game: SupportedGame): Promise<boolean> {
   }
 }
 
-export async function recompileGame(game: SupportedGame) {
+export async function recompileGame(game: SupportedGame): Promise<boolean> {
   const isoPath = await join(
     await appDir(),
     "data",
@@ -252,6 +252,7 @@ export async function recompileGame(game: SupportedGame) {
     await launcherConfig.setInstallStatus(game, true);
     gameNeedsReinstall.update(() => false);
     isInstalling.update(() => false);
+    return true;
   } catch (err) {
     installLog.error("unexpected error encountered", {
       error: err,
@@ -262,5 +263,6 @@ export async function recompileGame(game: SupportedGame) {
     };
     InstallStatus.update(() => errStatus);
     isInstalling.update(() => false);
+    return false;
   }
 }

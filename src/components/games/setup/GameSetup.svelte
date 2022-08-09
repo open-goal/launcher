@@ -35,8 +35,15 @@
   });
 
   async function fullInstall() {
-    const installationSuccess = await fullInstallation(activeGame);
-    if (installationSuccess) {
+    const success = await fullInstallation(activeGame);
+    if (success) {
+      dispatch("change");
+    }
+  }
+
+  async function updateGame() {
+    const success = await recompileGame(activeGame);
+    if (success) {
       dispatch("change");
     }
   }
@@ -50,12 +57,7 @@
       {:else}
         {#if !$isInstalling}
           {#if $gameNeedsReinstall}
-            <button
-              class="btn"
-              on:click={async () => await recompileGame(activeGame)}
-            >
-              Update Install
-            </button>
+            <button class="btn" on:click={updateGame}> Update Install </button>
           {:else}
             <button class="btn" on:click={fullInstall}> Setup </button>
           {/if}
