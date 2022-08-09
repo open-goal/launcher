@@ -13,6 +13,7 @@ A launcher for users to install and run the OpenGOAL project with ease
 Users are required to provide their own copy of the ISO file in order to run the game.
 
 ## Features
+
 - [x] Auto Updates
 - [x] Windows Support
 - [ ] Linux Support

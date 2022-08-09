@@ -28,6 +28,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: npm
+
+      - name: Install Rust Stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
 
       - name: bump versions with new tag value
         id: version-bump
@@ -36,6 +42,8 @@ jobs:
           NEW_VERSION=$(awk '/version/{gsub(/("|",)/,"",$2);print $2}' package.json)
           sed -i "/APP_VERSION/c\version = \""$NEW_VERSION"\" # APP_VERSION" ./src-tauri/Cargo.toml
           sed -i "/\"version\":/c\    \"version\": \""$NEW_VERSION"\"" ./src-tauri/tauri.conf.json
+          cd ./src-tauri
+          cargo check
           echo "##[set-output name=new_version;]${NEW_VERSION}"
 
       - name: commit version bump

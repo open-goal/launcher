@@ -9,12 +9,9 @@ on:
       - main
 
 jobs:
-  tauri:
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [ubuntu-latest]
-    runs-on: ${{ matrix.platform }}
+  formatter:
+    name: 📝 Formatting
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
@@ -23,6 +20,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: npm
 
       - name: install dependencies and check formatting
         run: |
