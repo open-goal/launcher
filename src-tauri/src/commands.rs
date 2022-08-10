@@ -1,8 +1,7 @@
-use std::path::Path;
 use std::process::Command;
-use std::{fs, io};
 use tauri::command;
 use tauri::Manager;
+use fs_extra::dir::copy;
 
 #[derive(Debug, serde::Serialize)]
 pub enum CommandError {
@@ -37,23 +36,16 @@ pub fn open_dir(dir: String) {
   return open_appdir(dir);
 }
 
-fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<()> {
-  fs::create_dir_all(&dst)?;
-  for entry in fs::read_dir(src)? {
-    let entry = entry?;
-    let ty = entry.file_type()?;
-    if ty.is_dir() {
-      copy_dir_all(entry.path(), dst.as_ref().join(entry.file_name()))?;
-    } else {
-      fs::copy(entry.path(), dst.as_ref().join(entry.file_name()))?;
-    }
-  }
-  Ok(())
-}
-
 #[command]
 pub async fn copy_dir(dir_src: String, dir_dest: String) -> bool {
-  return copy_dir_all(dir_src, dir_dest).is_ok();
+  let mut options = fs_extra::dir::CopyOptions::new();
+  options.copy_inside = true;
+  options.overwrite = true;
+  options.content_only = true;
+  if let Err(_e) = copy(dir_src, dir_dest, &options) {
+    return false;
+  }
+  return true;
 }
 
 #[cfg(target_os = "windows")]
