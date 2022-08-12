@@ -76,9 +76,7 @@
     {#if isGameInstalled && !$gameNeedsReinstall}
       {#if !dataDirUpToDate}
         <p>Local data files must be synced up in-order to proceed</p>
-        <p>
-          This may overwrite any custom changes to the game's code or textures
-        </p>
+        <p>This may overwrite any modifications to the game's source code</p>
         <p>Save files and settings will not be modified</p>
         {#if !updatingDataDir}
           <button class="btn" on:click={syncDataDirectory}>
@@ -94,7 +92,7 @@
     {:else}
       {#if $gameNeedsReinstall}
         <p>Game installed with a previous version of OpenGOAL</p>
-        <p>The game must be re-installed before you can proceed</p>
+        <p>The game must be updated before you can proceed</p>
         <p>Save files and settings will not be modified</p>
       {/if}
       <GameSetup {activeGame} on:change={updateGameState} />
