@@ -35,11 +35,6 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Install Linux Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev libglew2.1 patchelf
-
       - name: bump versions with new tag value
         id: version-bump
         run: |
@@ -48,7 +43,7 @@ jobs:
           sed -i "/APP_VERSION/c\version = \""$NEW_VERSION"\" # APP_VERSION" ./src-tauri/Cargo.toml
           sed -i "/\"version\":/c\    \"version\": \""$NEW_VERSION"\"" ./src-tauri/tauri.conf.json
           cd ./src-tauri
-          cargo check
+          cargo generate-lockfile
           echo "##[set-output name=new_version;]${NEW_VERSION}"
 
       - name: commit version bump
