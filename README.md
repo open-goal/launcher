@@ -2,7 +2,7 @@
 
 ## Description
 
-A launcher for users to install and run the OpenGOAL project with ease
+A launcher for users to install and run the OpenGOAL project with ease.
 
 ## Preview
 
@@ -18,7 +18,7 @@ Users are required to provide their own copy of the ISO file in order to run the
 - [x] Windows Support
 - [ ] Linux Support
 - [ ] Texture Pack Management
-- [ ] Controller/Keyboard Remapping (maybe)
+- [ ] Custom Level Management
 
 ## Resources
 
@@ -28,7 +28,7 @@ Users are required to provide their own copy of the ISO file in order to run the
 
 ## Development
 
-We are using Tauri to build a native app, but still with simple Web technology. You will need to setup the prerequesites using the instructions here https://tauri.studio/docs/getting-started/prerequisites
+We are using Tauri to build a native cross-platform app with simple Web technology. You will need to setup the prerequesites using the instructions here https://tauri.studio/docs/getting-started/prerequisites
 
 > Additionally, this presumes your environment has WebView2 (windows) or webkit2 (linux) already available. This is a requirement for end-users as well! Many modern OSes already ship with such a thing, but it's something we'll need to investigate.
 

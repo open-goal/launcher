@@ -1,4 +1,5 @@
 import { log } from "$lib/utils/log";
+import { appDir, join } from "@tauri-apps/api/path";
 import { invoke } from "@tauri-apps/api/tauri";
 
 export async function getHighestSimd(): Promise<string> {
@@ -32,6 +33,23 @@ export async function closeSplashScreen() {
 export async function copyDirectory(source: string, destination: string) {
   try {
     return await invoke("copy_dir", { dirSrc: source, dirDest: destination });
+  } catch (e) {
+    log.error(e);
+  }
+}
+
+export async function extractTextures(texturesArray: Array<String>) {
+  try {
+    return await invoke("extract_textures", { texturesArray });
+  } catch (e) {
+    log.error(e);
+  }
+}
+
+export async function getAllTexturePacks() {
+  const textureZipDir = await join(await appDir(), "data/texture_zips/");
+  try {
+    return await invoke("get_all_texture_packs", { dir: textureZipDir });
   } catch (e) {
     log.error(e);
   }

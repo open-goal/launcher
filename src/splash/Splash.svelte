@@ -5,6 +5,7 @@
   import {
     copyDataDirectory,
     dataDirectoryExists,
+    createTexturesDir,
   } from "$lib/utils/data-files";
   import { log } from "$lib/utils/log";
 
@@ -23,6 +24,7 @@
         currentStatusText = "Copying Data Files";
         currentProgress = 50;
         await copyDataDirectory();
+        await createTexturesDir();
       } catch (err) {
         log.error("error encountered when copying data files", {
           error: err,

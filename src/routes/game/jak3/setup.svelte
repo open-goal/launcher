@@ -1,0 +1,2 @@
+THIS IS SETUP PAGE
+<a href="./">BACK TO MAIN PAGE</a>

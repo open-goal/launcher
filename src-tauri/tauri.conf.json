@@ -1,49 +1,16 @@
 {
-  "package": {
-    "productName": "OpenGOAL-Launcher",
-    "version": "1.0.1"
-  },
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
-    "distDir": "../dist",
-    "devPath": "http://localhost:3000/",
-    "beforeDevCommand": "npm run package && npm run dev",
-    "beforeBuildCommand": "npm run package && npm run build"
+    "beforeBuildCommand": "npm run rename-bin && npm run build",
+    "beforeDevCommand": "npm run rename-bin && npm run dev",
+    "devPath": "http://localhost:3000",
+    "distDir": "../build"
+  },
+  "package": {
+    "productName": "opengoal-launcher",
+    "version": "1.0.0"
   },
   "tauri": {
-    "bundle": {
-      "active": true,
-      "targets": [
-        "msi",
-        "appimage",
-        "updater"
-      ],
-      "identifier": "OpenGOAL-Launcher",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "resources": [
-        "data/"
-      ],
-      "externalBin": [
-        "bin/extractor",
-        "bin/gk",
-        "bin/goalc",
-        "bin/glewinfo"
-      ],
-      "copyright": "",
-      "category": "DeveloperTool",
-      "shortDescription": "",
-      "longDescription": "",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
-      }
-    },
     "allowlist": {
       "all": true,
       "fs": {
@@ -84,15 +51,62 @@
         ]
       }
     },
+    "bundle": {
+      "active": true,
+      "category": "DeveloperTool",
+      "copyright": "",
+      "deb": {
+        "depends": []
+      },
+      "externalBin": [
+        "bin/extractor",
+        "bin/gk",
+        "bin/goalc",
+        "bin/glewinfo"
+      ],
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "identifier": "OpenGOAL-Launcher",
+      "longDescription": "",
+      "macOS": {
+        "entitlements": null,
+        "exceptionDomain": "",
+        "frameworks": [],
+        "providerShortName": null,
+        "signingIdentity": null
+      },
+      "resources": [
+        "data/"
+      ],
+      "shortDescription": "",
+      "targets": [
+        "msi",
+        "appimage",
+        "updater"
+      ],
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": ""
+      }
+    },
+    "security": {
+      "csp": null
+    },
     "windows": [
       {
-        "title": "OpenGOAL Launcher",
-        "width": 800,
-        "height": 600,
-        "resizable": false,
         "fullscreen": false,
-        "visible": false,
-        "center": true
+        "height": 600,
+        "resizable": true,
+        "visible": true,
+        "center": true,
+        "title": "OpenGOAL Launcher",
+        "width": 800
       },
       {
         "title": "OpenGOAL Launcher - Splash",
@@ -105,11 +119,8 @@
         "fullscreen": false,
         "url": "./src/splash/index.html",
         "label": "splashscreen",
-        "visible": true
+        "visible": false
       }
-    ],
-    "security": {
-      "csp": null
-    }
+    ]
   }
 }

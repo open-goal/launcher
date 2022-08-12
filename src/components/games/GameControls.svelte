@@ -3,8 +3,8 @@
   import { getInternalName, SupportedGame } from "$lib/constants";
   import { launchGame } from "$lib/launch";
   import { openDir } from "$lib/rpc/commands";
-  import { compileGame, decompileGameData } from "$lib/setup/setup";
-  import { appDir, configDir, join } from "@tauri-apps/api/path";
+  import { compileFromFile, decompileFromFile } from "$lib/setup/setup";
+  import { configDir, join } from "@tauri-apps/api/path";
   import { createEventDispatcher, onMount } from "svelte";
   import LogViewer from "./setup/LogViewer.svelte";
   import {
@@ -44,24 +44,12 @@
 
   async function onClickDecompile() {
     ProcessLogs.update(() => "");
-    const isoPath = await join(
-      await appDir(),
-      "data",
-      "iso_data",
-      getInternalName(activeGame)
-    );
-    await decompileGameData(isoPath);
+    await decompileFromFile(activeGame);
   }
 
   async function onClickCompile() {
     ProcessLogs.update(() => "");
-    const isoPath = await join(
-      await appDir(),
-      "data",
-      "iso_data",
-      getInternalName(activeGame)
-    );
-    await compileGame(isoPath);
+    await compileFromFile(activeGame);
   }
 </script>
 

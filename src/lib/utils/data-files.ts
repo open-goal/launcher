@@ -1,5 +1,5 @@
 import { copyDirectory } from "$lib/rpc/commands";
-import { readTextFile } from "@tauri-apps/api/fs";
+import { BaseDirectory, createDir, readTextFile } from "@tauri-apps/api/fs";
 import { join, appDir, resourceDir } from "@tauri-apps/api/path";
 import { dirExists, fileExists } from "./file";
 import { log } from "./log";
@@ -49,4 +49,16 @@ export async function copyDataDirectory(): Promise<boolean> {
   } catch (e) {
     return false;
   }
+}
+
+export async function createTexturesDir(): Promise<boolean> {
+  const appDirPath = await appDir();
+  const textureDir = await join(appDirPath, "data", "texture_replacements");
+  if (!await fileExists(textureDir)) {
+    await createDir('data/texture_replacements', { dir: BaseDirectory.App });
+    log.info("Initialized texture_replacement directory.");
+    return true;
+  }
+  log.info("Texture_replacement directory already exists.");
+  return false;
 }
