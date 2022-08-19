@@ -96,7 +96,7 @@ for (var i = 0; i < releaseAssets.length; i++) {
 // TODO - no macOS yet
 const releaseMeta = {
   name: release.tag_name,
-  notes: "UPDATE",
+  notes: "Release Notes TODO",
   pub_date: release.created_at,
   platforms: {
     "linux-x86_64": {

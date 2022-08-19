@@ -53,7 +53,7 @@ jobs:
 
       - name: Download jak-project Release
         env:
-          JAK_PROJ_VERSION: latest
+          JAK_PROJ_VERSION: "^0.0.0"
           PLATFORM: ${{ matrix.os }}
           DOWNLOAD_DIR: "./"
         run: |
