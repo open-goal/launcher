@@ -38,14 +38,12 @@ const octokit = new Octokit({
 });
 
 async function getAllReleases() {
-  return await octokit
-    .paginate(octokit.rest.repos.listReleases, {
-      owner: "open-goal",
-      repo: "jak-project",
-      per_page: 100
-    });
+  return await octokit.paginate(octokit.rest.repos.listReleases, {
+    owner: "open-goal",
+    repo: "jak-project",
+    per_page: 100,
+  });
 }
-
 
 let requestedVersion = process.env.JAK_PROJ_VERSION;
 let release = undefined;
@@ -58,14 +56,20 @@ if (requestedVersion === "latest") {
 } else {
   if (requestedVersion.startsWith("^")) {
     // Caret syntax, search for the maximum minor/patch without changing major
-    let [major, minor, patch] = requestedVersion.replace("^", "").split(".").map(str => parseInt(str));
+    let [major, minor, patch] = requestedVersion
+      .replace("^", "")
+      .split(".")
+      .map((str) => parseInt(str));
     // Releases are not guaranteed to be in order, so we have to get them all and find the max
     let highestMinor = -1;
     let highestPatch = -1;
     let pickedRelease = undefined;
     let releases = await getAllReleases();
     for (const release of releases) {
-      let [tagMajor, tagMinor, tagPatch] = release.tag_name.replace("v", "").split(".").map(str => parseInt(str));
+      let [tagMajor, tagMinor, tagPatch] = release.tag_name
+        .replace("v", "")
+        .split(".")
+        .map((str) => parseInt(str));
       if (tagMajor != major) {
         continue;
       }
@@ -73,8 +77,7 @@ if (requestedVersion === "latest") {
         highestMinor = tagMinor;
         highestPatch = tagPatch;
         pickedRelease = release;
-      }
-      else if (tagPatch > highestPatch && tagMinor == highestMinor) {
+      } else if (tagPatch > highestPatch && tagMinor == highestMinor) {
         highestPatch = tagPatch;
         pickedRelease = release;
       }
