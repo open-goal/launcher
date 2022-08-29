@@ -36,4 +36,4 @@ export async function launchGameInDebug() {
     `${appDirPath}data`,
   ]);
   command.spawn();
-} 
+}
