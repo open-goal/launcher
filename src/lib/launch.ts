@@ -28,6 +28,8 @@ export async function launchGame() {
 export async function openREPL() {
   const appDirPath = await appDir();
   let command: Command = Command.sidecar("bin/goalc", [
+    "--startup-cmd",
+    "(mi)",
     "-proj-path",
     `${appDirPath}data`,
   ]);
