@@ -30,7 +30,7 @@ export async function openREPL() {
   let command: Command = Command.sidecar("bin/goalc", [
     "--startup-cmd",
     "(mi)",
-    "-proj-path",
+    "--proj-path",
     `${appDirPath}data`,
   ]);
   command.spawn();
