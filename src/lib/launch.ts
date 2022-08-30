@@ -24,3 +24,12 @@ export async function launchGame() {
   ]);
   command.spawn();
 }
+
+export async function openREPL() {
+  const appDirPath = await appDir();
+  let command: Command = Command.sidecar("bin/goalc", [
+    "-proj-path",
+    `${appDirPath}data`,
+  ]);
+  command.spawn();
+}

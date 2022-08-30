@@ -1,7 +1,7 @@
 <script type="ts">
   import { launcherConfig } from "$lib/config";
   import { getInternalName, SupportedGame } from "$lib/constants";
-  import { launchGame } from "$lib/launch";
+  import { launchGame, openREPL } from "$lib/launch";
   import { openDir } from "$lib/rpc/commands";
   import { compileGame, decompileGameData } from "$lib/setup/setup";
   import { appDir, configDir, join } from "@tauri-apps/api/path";
@@ -32,6 +32,10 @@
 
   function onClickPlay() {
     launchGame();
+  }
+
+  async function onClickOpenREPL() {
+    await openREPL();
   }
 
   async function onClickUninstall() {
@@ -87,6 +91,7 @@
         on:click={onClickCompile}
         disabled={$isCompiling || $isDecompiling}>Compile</button
       >
+      <button class="btn md" on:click={onClickOpenREPL}>Open REPL</button>
       <button
         class="btn md"
         on:click={onClickUninstall}
