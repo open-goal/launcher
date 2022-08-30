@@ -3,7 +3,11 @@
   import { getInternalName, SupportedGame } from "$lib/constants";
   import { launchGame } from "$lib/launch";
   import { openDir } from "$lib/rpc/commands";
-  import { compileGame, decompileGameData } from "$lib/setup/setup";
+  import {
+    compileGame,
+    decompileGameData,
+    uninstallGame,
+  } from "$lib/setup/setup";
   import { appDir, configDir, join } from "@tauri-apps/api/path";
   import { createEventDispatcher, onMount } from "svelte";
   import LogViewer from "./setup/LogViewer.svelte";
@@ -38,6 +42,7 @@
     const confirmed = await confirm("Are you sure you want to uninstall?");
     if (confirmed) {
       await launcherConfig.setInstallStatus(activeGame, false);
+      await uninstallGame(activeGame);
       dispatch("change");
     }
   }
