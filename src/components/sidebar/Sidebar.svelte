@@ -61,7 +61,7 @@
   #sidebar {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 90vh;
     background-color: var(--bg-blue);
     opacity: 75%;
     transition: 500ms ease;

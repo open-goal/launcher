@@ -2,7 +2,6 @@
   import { fade } from "svelte/transition";
   import { openDir } from "$lib/rpc/commands";
   import { appDir } from "@tauri-apps/api/path";
-  import { getVersion } from "@tauri-apps/api/app";
 </script>
 
 <!-- TODO - STYLE THIS PAGE -->
@@ -13,8 +12,5 @@
       <i class="bi bi-folder" />
       Open App Directory</button
     >
-  {/await}
-  {#await getVersion() then version}
-    <p>App Version: {version}</p>
   {/await}
 </div>

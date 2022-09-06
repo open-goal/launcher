@@ -18,10 +18,8 @@
   const dispatch = createEventDispatcher();
   let componentLoaded = false;
   let configPath = undefined;
-  let gameVersion = undefined;
 
   onMount(async () => {
-    gameVersion = await launcherConfig.getGameInstallVersion(activeGame);
     configPath = await join(
       await configDir(),
       "OpenGOAL",
@@ -72,7 +70,6 @@
       on:click={onClickPlay}
       disabled={$isDecompiling || $isCompiling}>Play</button
     >
-    <p class="text-shadow">Game Version: {gameVersion}</p>
     <div class="mt-1">
       <button class="btn md" on:click={() => openDir(configPath)}
         >Settings and Saves</button
@@ -102,10 +99,3 @@
     {/if}
   </div>
 {/if}
-
-<style>
-  .text-shadow {
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
-      1px 1px 0 #000;
-  }
-</style>

@@ -12,6 +12,7 @@
   import { appWindow } from "@tauri-apps/api/window";
   import { isInstalling } from "./lib/stores/AppStore";
   import { log } from "$lib/utils/log";
+  import Header from "./components/header/Header.svelte";
 
   let revokeSpecificActions = false;
 
@@ -66,6 +67,7 @@
 
 <!-- TODO - Rewrite this to be more concise and simple, reduce nested crap -->
 <Router>
+  <Header />
   <div class="container">
     <Sidebar />
     <!-- TODO - pass background component current active game -->
