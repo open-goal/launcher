@@ -1,7 +1,7 @@
 <script type="ts">
   import { launcherConfig } from "$lib/config";
   import { getInternalName, SupportedGame } from "$lib/constants";
-  import { launchGame } from "$lib/launch";
+  import { launchGame, launchGameInDebug } from "$lib/launch";
   import { openDir } from "$lib/rpc/commands";
   import { compileGame, decompileGameData } from "$lib/setup/setup";
   import { appDir, configDir, join } from "@tauri-apps/api/path";
@@ -32,6 +32,10 @@
 
   function onClickPlay() {
     launchGame();
+  }
+
+  function onClickBootDebug() {
+    launchGameInDebug();
   }
 
   async function onClickUninstall() {
@@ -76,6 +80,11 @@
     <div class="mt-1">
       <button class="btn md" on:click={() => openDir(configPath)}
         >Settings and Saves</button
+      >
+      <button
+        class="btn md"
+        on:click={onClickBootDebug}
+        disabled={$isDecompiling || $isCompiling}>Boot in Debug</button
       >
       <button
         class="btn md"

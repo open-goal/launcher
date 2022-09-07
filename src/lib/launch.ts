@@ -24,3 +24,16 @@ export async function launchGame() {
   ]);
   command.spawn();
 }
+
+export async function launchGameInDebug() {
+  let command: Command;
+  const appDirPath = await appDir();
+  command = Command.sidecar("bin/gk", [
+    "-boot",
+    "-fakeiso",
+    "-debug",
+    "-proj-path",
+    `${appDirPath}data`,
+  ]);
+  command.spawn();
+}
