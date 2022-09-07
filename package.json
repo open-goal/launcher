@@ -18,15 +18,24 @@
     "release": "npm run prepare-release-config && npm run tauri build -- --config ./.tauri/release-config.combined.json"
   },
   "devDependencies": {
+    "@floating-ui/dom": "^1.0.1",
+    "@popperjs/core": "^2.11.6",
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.49",
     "@tauri-apps/cli": "^1.0.5",
     "@tauri-apps/tauricon": "github:tauri-apps/tauricon",
     "@tsconfig/svelte": "^3.0.0",
+    "autoprefixer": "^10.4.7",
+    "classnames": "^2.3.1",
     "execa": "^6.1.0",
+    "flowbite": "^1.5.3",
+    "flowbite-svelte": "^0.26.16",
+    "postcss": "^8.4.14",
+    "postcss-load-config": "^4.0.1",
     "prettier": "^2.7.1",
     "prettier-plugin-svelte": "^2.7.0",
     "svelte": "^3.49.0",
     "svelte-preprocess": "^4.10.7",
+    "tailwindcss": "^3.1.5",
     "vite": "^2.9.14"
   },
   "dependencies": {
