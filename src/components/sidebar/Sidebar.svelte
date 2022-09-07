@@ -62,7 +62,7 @@
     display: flex;
     flex-direction: column;
     height: 90vh;
-    background-color: var(--bg-blue);
+    background-color: #222222;
     opacity: 75%;
     transition: 500ms ease;
     width: 10vw;

@@ -9,7 +9,7 @@
   <h1>Settings</h1>
   {#await appDir() then directory}
     <button class="btn" on:click={() => openDir(directory)}>
-      <i class="bi bi-folder" />
+      <i class="fa fa-folder" />
       Open App Directory</button
     >
   {/await}
