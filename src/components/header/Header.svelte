@@ -5,6 +5,7 @@
   import { launcherConfig } from "$lib/config";
   import { SupportedGame } from "$lib/constants";
   import { getVersion } from "@tauri-apps/api/app";
+  import { link } from "svelte-navigator";
   let gameVersion;
   let launcherVerison;
   // TODO: get the active game rigged up here properly
@@ -34,7 +35,11 @@
 
   <div class="flex space-x-4 text-xl ml-auto">
     <!-- TODO: Conditional rendering of the alert bell. One case would be if there is an update available. -->
-    <i class="fa-solid fa-bell hover:text-emerald-600 hover:cursor-pointer" />
+    <a href="/alerts" use:link
+      ><i
+        class="fa-solid fa-bell hover:text-emerald-600 hover:cursor-pointer"
+      /></a
+    >
     <i
       class="fa fa-window-minimize hover:text-amber-600 hover:cursor-pointer"
       on:click={() => appWindow.minimize()}
