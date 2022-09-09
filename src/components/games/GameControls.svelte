@@ -1,7 +1,7 @@
 <script type="ts">
   import { launcherConfig } from "$lib/config";
   import { getInternalName, SupportedGame } from "$lib/constants";
-  import { launchGame } from "$lib/launch";
+  import { launchGame, launchGameInDebug } from "$lib/launch";
   import { openDir } from "$lib/rpc/commands";
   import { compileGame, decompileGameData } from "$lib/setup/setup";
   import { appDir, configDir, join } from "@tauri-apps/api/path";
@@ -49,6 +49,10 @@
     launchGame();
   }
 
+  function onClickBootDebug() {
+    launchGameInDebug();
+  }
+
   async function onClickUninstall() {
     const confirmed = await confirm("Are you sure you want to uninstall?");
     if (confirmed) {
@@ -94,7 +98,9 @@
       ><Chevron placement="top">Extras</Chevron></Button
     >
     <Dropdown placement="top">
-      <DropdownItem href="#">Boot In Debug</DropdownItem>
+      <DropdownItem href="#" on:click={onClickBootDebug}
+        >Boot In Debug</DropdownItem
+      >
       <DropdownItem href="#">Open REPL</DropdownItem>
       <DropdownDivider />
       <!-- NOTE: Wrapped these two dropdown items in a tags for the use:link, otherwise the dropdownitem doesnt support it -->
