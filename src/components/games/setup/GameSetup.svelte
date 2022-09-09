@@ -17,6 +17,7 @@
   import LogViewer from "./LogViewer.svelte";
   import Requirements from "./Requirements.svelte";
   import { createEventDispatcher, onMount } from "svelte";
+  import { Button } from "flowbite-svelte";
 
   export let activeGame: SupportedGame;
 
@@ -57,9 +58,15 @@
       {:else}
         {#if !$isInstalling}
           {#if $gameNeedsReinstall}
-            <button class="btn" on:click={updateGame}> Update Install </button>
+            <Button
+              class="!rounded-none !bg-[#222222] text-xl"
+              on:click={updateGame}>Update Install</Button
+            >
           {:else}
-            <button class="btn" on:click={fullInstall}> Setup </button>
+            <Button
+              class="!rounded-none !w-56 !bg-[#222222] text-xl"
+              on:click={fullInstall}>Install</Button
+            >
           {/if}
         {:else}
           <Progress />
