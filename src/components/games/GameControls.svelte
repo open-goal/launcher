@@ -13,6 +13,16 @@
     ProcessLogs,
   } from "$lib/stores/AppStore";
 
+  import {
+    Button,
+    ButtonGroup,
+    Chevron,
+    Dropdown,
+    DropdownItem,
+    DropdownDivider,
+    Spinner,
+  } from "flowbite-svelte";
+
   export let activeGame: SupportedGame;
 
   const dispatch = createEventDispatcher();
@@ -64,38 +74,51 @@
 </script>
 
 {#if componentLoaded}
-  <div id="launcherControls">
-    <button
-      class="btn lg"
-      on:click={onClickPlay}
-      disabled={$isDecompiling || $isCompiling}>Play</button
+  <ButtonGroup>
+    <Button on:click={onClickPlay} disabled={$isDecompiling || $isCompiling}
+      >Play</Button
     >
-    <div class="mt-1">
-      <button class="btn md" on:click={() => openDir(configPath)}
-        >Settings and Saves</button
+    <!-- <Button on:click={() => openDir(configPath)}>Settings and Saves</Button> -->
+    <!-- <Button
+      on:click={onClickDecompile}
+      disabled={$isDecompiling || $isCompiling}>Decompile</Button
+    > -->
+    <!-- <Button on:click={onClickCompile} disabled={$isCompiling || $isDecompiling}
+      >Compile</Button
+    > -->
+    <!-- <Button
+      on:click={onClickUninstall}
+      disabled={$isDecompiling || $isCompiling}>Uninstall</Button
+    > -->
+
+    <Button><Chevron>Extras</Chevron></Button>
+    <Dropdown>
+      <DropdownItem>Boot In Debug</DropdownItem>
+      <DropdownItem>Open REPL</DropdownItem>
+      <DropdownDivider />
+      <DropdownItem>Texture Packs</DropdownItem>
+      <DropdownItem>Mods</DropdownItem>
+    </Dropdown>
+
+    <Button><Chevron><i class="fa fa-cog" /></Chevron></Button>
+    <Dropdown>
+      <DropdownItem on:click={() => openDir(configPath)}
+        >Open Settings & Saves</DropdownItem
       >
-      <button
-        class="btn md"
-        on:click={onClickDecompile}
-        disabled={$isDecompiling || $isCompiling}>Decompile</button
+      <DropdownItem on:click={() => openDir(configPath)}
+        >Open Screenshots Directory</DropdownItem
       >
-      <button
-        class="btn md"
-        on:click={onClickCompile}
-        disabled={$isCompiling || $isDecompiling}>Compile</button
-      >
-      <button
-        class="btn md"
-        on:click={onClickUninstall}
-        disabled={$isDecompiling || $isCompiling}>Uninstall</button
-      >
-    </div>
-    {#if $isDecompiling || $isCompiling}
-      <!-- TODO - some sort of spinner component instead -->
-      <div class="mt-1">Please Wait</div>
-    {/if}
-    {#if $ProcessLogs}
-      <LogViewer />
-    {/if}
-  </div>
+      <DropdownDivider />
+      <DropdownItem on:click={() => onClickDecompile()}>Decompile</DropdownItem>
+      <DropdownItem on:click={() => onClickCompile()}>Compile</DropdownItem>
+      <DropdownDivider />
+      <DropdownItem on:click={() => onClickUninstall()}>Uninstall</DropdownItem>
+    </Dropdown>
+  </ButtonGroup>
+  {#if $isDecompiling || $isCompiling}
+    <Spinner />
+  {/if}
+  {#if $ProcessLogs}
+    <LogViewer />
+  {/if}
 {/if}

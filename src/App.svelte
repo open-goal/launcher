@@ -65,13 +65,12 @@
   }
 </script>
 
-<!-- TODO - Rewrite this to be more concise and simple, reduce nested crap -->
 <Router>
   <Header />
+  <!-- TODO - pass background component current active game -->
+  <Background {bgVideo} />
   <div class="container">
     <Sidebar />
-    <!-- TODO - pass background component current active game -->
-    <Background {bgVideo} />
     <div id="main">
       <Route path="/" component={Game} primary={false} let:params />
       <Route path="/:game_name" component={Game} primary={false} let:params />
