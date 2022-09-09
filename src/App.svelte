@@ -66,15 +66,13 @@
 </script>
 
 <Router>
-  <Header />
-  <!-- TODO - pass background component current active game -->
-  <Background {bgVideo} />
-  <div class="container">
+  <div class="container h-screen max-w-none">
+    <!-- TODO - pass background component current active game -->
+    <Background {bgVideo} />
+    <Header />
     <Sidebar />
-    <div id="main">
-      <Route path="/" component={Game} primary={false} let:params />
-      <Route path="/:game_name" component={Game} primary={false} let:params />
-      <Route path="/settings" component={Settings} primary={false} />
-    </div>
+    <Route path="/" component={Game} primary={false} let:params />
+    <Route path="/:game_name" component={Game} primary={false} let:params />
+    <Route path="/settings" component={Settings} primary={false} />
   </div>
 </Router>

@@ -1,5 +1,4 @@
 <script>
-  import { fade } from "svelte/transition";
   import { launcherConfig } from "$lib/config";
   import { fromRoute, getGameTitle, SupportedGame } from "$lib/constants";
   import { useParams } from "svelte-navigator";
@@ -69,8 +68,8 @@
 </script>
 
 {#if componentLoaded}
-  <div class="flex-center" in:fade>
-    <h1 class="text-shadow">
+  <div class="flex flex-col justify-end items-end h-5/6 pr-7">
+    <h1 class="text-shadow text-3xl pb-2">
       {getGameTitle(activeGame)}
     </h1>
     {#if isGameInstalled && !$gameNeedsReinstall}

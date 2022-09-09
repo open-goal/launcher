@@ -28,12 +28,18 @@
   const dispatch = createEventDispatcher();
   let componentLoaded = false;
   let configPath = undefined;
+  let screenshotsPath = undefined;
 
   onMount(async () => {
     configPath = await join(
       await configDir(),
       "OpenGOAL",
       getInternalName(activeGame)
+    );
+
+    screenshotsPath = await join(
+      await configDir(),
+      "OpenGOAL-Launcher/data/screenshots"
     );
     componentLoaded = true;
   });
@@ -73,46 +79,48 @@
   }
 </script>
 
+<!-- add larger font to the play button -->
 {#if componentLoaded}
   <ButtonGroup>
-    <Button on:click={onClickPlay} disabled={$isDecompiling || $isCompiling}
-      >Play</Button
+    <Button
+      class="w-56"
+      color="dark"
+      on:click={onClickPlay}
+      disabled={$isDecompiling || $isCompiling}>Play</Button
     >
-    <!-- <Button on:click={() => openDir(configPath)}>Settings and Saves</Button> -->
-    <!-- <Button
-      on:click={onClickDecompile}
-      disabled={$isDecompiling || $isCompiling}>Decompile</Button
-    > -->
-    <!-- <Button on:click={onClickCompile} disabled={$isCompiling || $isDecompiling}
-      >Compile</Button
-    > -->
-    <!-- <Button
-      on:click={onClickUninstall}
-      disabled={$isDecompiling || $isCompiling}>Uninstall</Button
-    > -->
 
-    <Button><Chevron>Extras</Chevron></Button>
-    <Dropdown>
-      <DropdownItem>Boot In Debug</DropdownItem>
-      <DropdownItem>Open REPL</DropdownItem>
+    <Button disabled={$isDecompiling || $isCompiling}
+      ><Chevron placement="top">Extras</Chevron></Button
+    >
+    <Dropdown placement="top">
+      <DropdownItem href="#">Boot In Debug</DropdownItem>
+      <DropdownItem href="#">Open REPL</DropdownItem>
       <DropdownDivider />
-      <DropdownItem>Texture Packs</DropdownItem>
-      <DropdownItem>Mods</DropdownItem>
+      <DropdownItem href="/textures">Texture Packs</DropdownItem>
+      <DropdownItem href="#">Mods</DropdownItem>
     </Dropdown>
 
-    <Button><Chevron><i class="fa fa-cog" /></Chevron></Button>
-    <Dropdown>
-      <DropdownItem on:click={() => openDir(configPath)}
+    <Button disabled={$isDecompiling || $isCompiling}
+      ><Chevron placement="top"><i class="fa fa-cog" /></Chevron></Button
+    >
+    <Dropdown placement="top">
+      <DropdownItem href="#" on:click={() => openDir(configPath)}
         >Open Settings & Saves</DropdownItem
       >
-      <DropdownItem on:click={() => openDir(configPath)}
+      <DropdownItem href="#" on:click={() => openDir(screenshotsPath)}
         >Open Screenshots Directory</DropdownItem
       >
       <DropdownDivider />
-      <DropdownItem on:click={() => onClickDecompile()}>Decompile</DropdownItem>
-      <DropdownItem on:click={() => onClickCompile()}>Compile</DropdownItem>
+      <DropdownItem href="#" on:click={() => onClickDecompile()}
+        >Decompile</DropdownItem
+      >
+      <DropdownItem href="#" on:click={() => onClickCompile()}
+        >Compile</DropdownItem
+      >
       <DropdownDivider />
-      <DropdownItem on:click={() => onClickUninstall()}>Uninstall</DropdownItem>
+      <DropdownItem href="#" color="red" on:click={() => onClickUninstall()}
+        >Uninstall</DropdownItem
+      >
     </Dropdown>
   </ButtonGroup>
   {#if $isDecompiling || $isCompiling}

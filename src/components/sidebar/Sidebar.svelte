@@ -7,7 +7,7 @@
 </script>
 
 <div
-  class="w-20 h-full bg-[#222222] px-1 absolute opacity-75 hover:opacity-100 duration-500"
+  class="w-20 h-full bg-[#222222] px-1 absolute left-0 opacity-75 hover:opacity-100 duration-500"
 >
   <ul class="flex flex-col space-y-6 relative px-1 py-5">
     <li class="relative">
