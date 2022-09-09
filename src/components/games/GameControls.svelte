@@ -88,7 +88,7 @@
 {#if componentLoaded}
   <ButtonGroup>
     <Button
-      class="w-56"
+      class="w-56 !rounded-none"
       color="dark"
       on:click={onClickPlay}
       disabled={$isDecompiling || $isCompiling}>Play</Button
@@ -97,7 +97,7 @@
     <Button disabled={$isDecompiling || $isCompiling}
       ><Chevron placement="top">Extras</Chevron></Button
     >
-    <Dropdown placement="top">
+    <Dropdown class="!rounded-none" placement="top">
       <DropdownItem href="#" on:click={onClickBootDebug}
         >Boot In Debug</DropdownItem
       >
@@ -111,10 +111,10 @@
       </a>
     </Dropdown>
 
-    <Button disabled={$isDecompiling || $isCompiling}
+    <Button class="!rounded-none" disabled={$isDecompiling || $isCompiling}
       ><Chevron placement="top"><i class="fa fa-cog" /></Chevron></Button
     >
-    <Dropdown placement="top">
+    <Dropdown class="!rounded-none" placement="top">
       <DropdownItem href="#" on:click={() => openDir(configPath)}
         >Open Settings & Saves</DropdownItem
       >
