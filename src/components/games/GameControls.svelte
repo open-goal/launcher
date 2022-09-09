@@ -12,6 +12,7 @@
     isDecompiling,
     ProcessLogs,
   } from "$lib/stores/AppStore";
+  import { link } from "svelte-navigator";
 
   import {
     Button,
@@ -96,8 +97,12 @@
       <DropdownItem href="#">Boot In Debug</DropdownItem>
       <DropdownItem href="#">Open REPL</DropdownItem>
       <DropdownDivider />
-      <DropdownItem href="/textures">Texture Packs</DropdownItem>
-      <DropdownItem href="#">Mods</DropdownItem>
+      <!-- NOTE: Wrapped these two dropdown items in a tags for the use:link, otherwise the dropdownitem doesnt support it -->
+      <a use:link href="/textures"><DropdownItem>Texture Packs</DropdownItem></a
+      >
+      <a use:link href="/mods">
+        <DropdownItem>Mods</DropdownItem>
+      </a>
     </Dropdown>
 
     <Button disabled={$isDecompiling || $isCompiling}
