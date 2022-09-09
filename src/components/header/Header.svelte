@@ -34,13 +34,13 @@
 
   <div class="flex space-x-4 text-xl ml-auto">
     <!-- TODO: Conditional rendering of the alert bell. One case would be if there is an update available. -->
-    <i class="fa-solid fa-bell hover:text-emerald-600" />
+    <i class="fa-solid fa-bell hover:text-emerald-600 hover:cursor-pointer" />
     <i
-      class="fa fa-window-minimize hover:text-amber-600"
+      class="fa fa-window-minimize hover:text-amber-600 hover:cursor-pointer"
       on:click={() => appWindow.minimize()}
     />
     <i
-      class="fa-solid fa-times hover:text-red-600"
+      class="fa-solid fa-times hover:text-red-600 hover:cursor-pointer"
       on:click={() => appWindow.close()}
     />
   </div>

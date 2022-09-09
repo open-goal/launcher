@@ -266,3 +266,23 @@ export async function recompileGame(game: SupportedGame): Promise<boolean> {
     return false;
   }
 }
+
+export async function decompileFromFile(activeGame: SupportedGame) {
+  const isoPath = await join(
+    await appDir(),
+    "data",
+    "iso_data",
+    getInternalName(activeGame)
+  );
+  await decompileGameData(isoPath);
+}
+
+export async function compileFromFile(activeGame: SupportedGame) {
+  const isoPath = await join(
+    await appDir(),
+    "data",
+    "iso_data",
+    getInternalName(activeGame)
+  );
+  await compileGame(isoPath);
+}
