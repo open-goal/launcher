@@ -20,6 +20,7 @@
       <div slot="extra">
         <div class="flex flex-col gap-2">
           <Button
+            class="!rounded-none"
             size="md"
             outline
             color="green"
@@ -29,6 +30,7 @@
             Open Launcher Install Directory
           </Button>
           <Button
+            class="!rounded-none"
             size="md"
             outline
             color="green"

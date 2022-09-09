@@ -15,6 +15,7 @@
         </div>
         <div class="flex flex-col gap-2">
           <Button
+            class="!rounded-none"
             href="https://github.com/open-goal/launcher/issues"
             target="_blank"
             rel="noreferrer noopener"
@@ -23,6 +24,7 @@
             color="blue">Report Launcher Issue</Button
           >
           <Button
+            class="!rounded-none"
             href="https://github.com/open-goal/jak-project/issues"
             target="_blank"
             rel="noreferrer noopener"
@@ -31,6 +33,7 @@
             color="blue">Report Game Issue</Button
           >
           <Button
+            class="!rounded-none"
             href="https://discord.gg/VZbXMHXzWv"
             target="_blank"
             rel="noreferrer noopener"
