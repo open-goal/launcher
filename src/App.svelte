@@ -13,6 +13,8 @@
   import { isInstalling } from "./lib/stores/AppStore";
   import { log } from "$lib/utils/log";
   import Header from "./components/header/Header.svelte";
+  import Faq from "./routes/FAQ.svelte";
+  import Textures from "./routes/Textures.svelte";
 
   let revokeSpecificActions = false;
 
@@ -74,5 +76,7 @@
     <Route path="/" component={Game} primary={false} let:params />
     <Route path="/:game_name" component={Game} primary={false} let:params />
     <Route path="/settings" component={Settings} primary={false} />
+    <Route path="/faq" component={Faq} primary={false} />
+    <Route path="/textures" component={Textures} primary={false} />
   </div>
 </Router>
