@@ -8,6 +8,7 @@
   import { decompileFromFile } from "$lib/setup/setup";
   import { confirm } from "@tauri-apps/api/dialog";
   import {
+    Alert,
     Table,
     TableBody,
     TableBodyCell,
@@ -105,15 +106,15 @@
 
 <div class="ml-20">
   <div class="flex flex-col h-5/6 p-8">
-    <Table hoverable={true}>
-      <TableHead>
-        <TableHeadCell class="!p-4" />
-        <TableHeadCell>Author</TableHeadCell>
-        <TableHeadCell>Description</TableHeadCell>
-        <TableHeadCell>Version</TableHeadCell>
-      </TableHead>
-      <TableBody class="divide-y">
-        {#if packs}
+    {#if packs && packs.length > 0}
+      <Table hoverable={true}>
+        <TableHead>
+          <TableHeadCell class="!p-4" />
+          <TableHeadCell>Author</TableHeadCell>
+          <TableHeadCell>Description</TableHeadCell>
+          <TableHeadCell>Version</TableHeadCell>
+        </TableHead>
+        <TableBody class="divide-y">
           {#each packs as pack}
             <TableBodyRow id={pack.path}>
               <TableBodyCell class="!p-4">
@@ -124,13 +125,17 @@
               <TableBodyCell>{pack.version}</TableBodyCell>
             </TableBodyRow>
           {/each}
-        {/if}
-      </TableBody>
-    </Table>
+        </TableBody>
+      </Table>
+    {:else}
+      <Alert color="yellow" accent rounded={false}
+        >No Texture Packs Installed, get started by adding a pack below.</Alert
+      >
+    {/if}
   </div>
   <div class="flex px-8">
     <ButtonGroup>
-      <Button color="green" {disabled} on:click={handleAddTexturePack}
+      <Button size="md" color="green" {disabled} on:click={handleAddTexturePack}
         >Add Pack</Button
       >
       <Button
