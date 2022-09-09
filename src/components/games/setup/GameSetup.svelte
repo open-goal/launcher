@@ -68,7 +68,7 @@
     {/if}
   </div>
 {:else}
-  <div class="flex flex-col justify-center items-center ml-20 p-8">
+  <div class="flex flex-col justify-content ml-20 p-8">
     <Progress />
     {#if $ProcessLogs}
       <LogViewer />

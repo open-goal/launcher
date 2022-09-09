@@ -1,43 +1,47 @@
 <script>
   import { ProcessLogs } from "$lib/stores/AppStore";
+  import { AccordionItem } from "flowbite-svelte";
 </script>
 
-<div class="row">
-  <details>
-    <summary>Installation Logs</summary>
-    <div class="logContainer">
-      {#if $ProcessLogs}
-        {$ProcessLogs}
-      {/if}
-    </div>
-  </details>
-</div>
+<AccordionItem
+  class="bg-[#222222] border-[#222222] !rounded-none"
+  slotClass="py-0 border-[#222222]"
+  flush
+  id="1"
+>
+  <h2 slot="header" class="px-4 text-white text-xl">Installation Logs</h2>
+  <div
+    slot="body"
+    class="bg-[#222222] px-4 max-h-64 overflow-y-scroll scrollbar"
+  >
+    <p class="py-4">
+      {$ProcessLogs}
+    </p>
+  </div>
+</AccordionItem>
 
 <style>
-  .logContainer {
-    max-height: 10em;
-    min-height: 100px;
-    overflow-y: scroll;
-    padding: 1em;
-    background: black;
-    white-space: pre-wrap;
-    font-family: monospace;
-  }
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
 
-  details {
-    min-width: 75vw;
-    max-width: 75vw;
-  }
+  @layer utilities {
+    .scrollbar::-webkit-scrollbar {
+      width: 20px;
+      height: 20px;
+    }
 
-  summary {
-    text-align: center;
-  }
+    .scrollbar::-webkit-scrollbar-track {
+      background: #222222;
+    }
 
-  .logContainer {
-    text-align: start;
-  }
+    .scrollbar::-webkit-scrollbar-thumb {
+      background: #e0cbcb;
+      border: 3px solid #222222;
+    }
 
-  details > summary:hover {
-    cursor: pointer;
+    .scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #c0a0b9;
+    }
   }
 </style>
