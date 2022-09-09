@@ -68,42 +68,35 @@
 </script>
 
 {#if componentLoaded}
-  <div class="flex flex-col justify-end items-end h-5/6 pr-7">
-    <h1 class="text-shadow text-3xl pb-2">
-      {getGameTitle(activeGame)}
-    </h1>
-    {#if isGameInstalled && !$gameNeedsReinstall}
-      {#if !dataDirUpToDate}
-        <p>Local data files must be synced up in-order to proceed</p>
-        <p>This may overwrite any modifications to the game's source code</p>
-        <p>Save files and settings will not be modified</p>
-        {#if !updatingDataDir}
-          <button class="btn" on:click={syncDataDirectory}>
-            Sync Data Files
-          </button>
-        {/if}
-        {#if errorText != ""}
-          {errorText}
-        {/if}
-      {:else}
-        <GameContent {activeGame} on:change={updateGameState} />
+  {#if isGameInstalled && !$gameNeedsReinstall}
+    {#if !dataDirUpToDate}
+      <p>Local data files must be synced up in-order to proceed</p>
+      <p>This may overwrite any modifications to the game's source code</p>
+      <p>Save files and settings will not be modified</p>
+      {#if !updatingDataDir}
+        <button class="btn" on:click={syncDataDirectory}>
+          Sync Data Files
+        </button>
+      {/if}
+      {#if errorText != ""}
+        {errorText}
       {/if}
     {:else}
-      {#if $gameNeedsReinstall}
-        <p>Game installed with a previous version of OpenGOAL</p>
-        <p>The game must be updated before you can proceed</p>
-        <p>Save files and settings will not be modified</p>
-      {/if}
-      <GameSetup {activeGame} on:change={updateGameState} />
+      <div class="flex flex-col justify-end items-end h-5/6 pr-7">
+        <h1 class="text-3xl pb-2">
+          {getGameTitle(activeGame)}
+        </h1>
+        <GameContent {activeGame} on:change={updateGameState} />
+      </div>
     {/if}
-  </div>
+  {:else}
+    {#if $gameNeedsReinstall}
+      <p>Game installed with a previous version of OpenGOAL</p>
+      <p>The game must be updated before you can proceed</p>
+      <p>Save files and settings will not be modified</p>
+    {/if}
+    <GameSetup {activeGame} on:change={updateGameState} />
+  {/if}
 {:else}
   <!-- TODO - component library - spinner -->
 {/if}
-
-<style>
-  .text-shadow {
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
-      1px 1px 0 #000;
-  }
-</style>

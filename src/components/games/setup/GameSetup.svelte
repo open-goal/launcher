@@ -13,7 +13,7 @@
   // components
   import Progress from "./Progress.svelte";
   // constants
-  import type { SupportedGame } from "$lib/constants";
+  import { getGameTitle, type SupportedGame } from "$lib/constants";
   import LogViewer from "./LogViewer.svelte";
   import Requirements from "./Requirements.svelte";
   import { createEventDispatcher, onMount } from "svelte";
@@ -23,7 +23,6 @@
 
   const dispatch = createEventDispatcher();
 
-  let componentLoaded = false;
   let requirementsMet = false;
 
   onMount(async () => {
@@ -32,7 +31,6 @@
       await checkRequirements();
     }
     requirementsMet = await launcherConfig.areRequirementsMet();
-    componentLoaded = true;
   });
 
   async function fullInstall() {
@@ -50,33 +48,30 @@
   }
 </script>
 
-{#if componentLoaded}
-  <div class="content">
-    <div style="text-align:center">
-      {#if !requirementsMet}
-        <Requirements />
-      {:else}
-        {#if !$isInstalling}
-          {#if $gameNeedsReinstall}
-            <Button
-              class="!rounded-none !bg-[#222222] text-xl"
-              on:click={updateGame}>Update Install</Button
-            >
-          {:else}
-            <Button
-              class="!rounded-none !w-56 !bg-[#222222] text-xl"
-              on:click={fullInstall}>Install</Button
-            >
-          {/if}
-        {:else}
-          <Progress />
-        {/if}
-        {#if $ProcessLogs}
-          <LogViewer />
-        {/if}
-      {/if}
-    </div>
+{#if !requirementsMet}
+  <Requirements />
+{:else if !$isInstalling}
+  <div class="flex flex-col justify-end items-end h-5/6 pr-7">
+    <h1 class="text-3xl pb-2">
+      {getGameTitle(activeGame)}
+    </h1>
+    {#if $gameNeedsReinstall}
+      <Button
+        class="!rounded-none !w-56 !bg-[#222222] text-xl"
+        on:click={updateGame}>Update Install</Button
+      >
+    {:else}
+      <Button
+        class="!rounded-none !w-56 !bg-[#222222] text-xl"
+        on:click={fullInstall}>Install</Button
+      >
+    {/if}
   </div>
 {:else}
-  <!-- TODO - component library - spinner -->
+  <div class="flex flex-col justify-center items-center ml-20 p-8">
+    <Progress />
+    {#if $ProcessLogs}
+      <LogViewer />
+    {/if}
+  </div>
 {/if}
