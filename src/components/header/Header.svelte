@@ -25,11 +25,11 @@
     <p>OpenGOAL</p>
   </div>
 
-  <div class="border-l border-[#9f9f9f] h-10 m-2" />
+  <div class="border-l border-[#9f9f9f] h-8 m-2" />
 
   <div class="flex flex-col text-[#9f9f9f]">
-    <p>v{launcherVerison} Launcher</p>
-    <p>{gameVersion} Tools</p>
+    <p class="text-sm">v{launcherVerison} Launcher</p>
+    <p class="text-sm">{gameVersion} Tools</p>
   </div>
 
   <div class="flex space-x-4 text-xl ml-auto">
