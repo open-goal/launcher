@@ -36,6 +36,21 @@
     packs = await getAllTexturePacks();
   });
 
+  async function handleSelectedPacks(pack) {
+    if (!selectedTexturePacks.find((packs) => packs === pack)) {
+      console.log("Pack not in the selected textures array, adding it now.");
+      selectedTexturePacks.push(pack);
+      selectedTexturePacks = selectedTexturePacks;
+    } else {
+      console.log(
+        "Pack exists in the selected textures array, removing it now."
+      );
+      selectedTexturePacks = selectedTexturePacks.filter(
+        (packs) => packs !== pack
+      );
+    }
+  }
+
   async function handleAddTexturePack() {
     try {
       await texturePackPrompt();
@@ -118,7 +133,10 @@
           {#each packs as pack}
             <TableBodyRow id={pack.path}>
               <TableBodyCell class="!p-4">
-                <Checkbox />
+                <Checkbox
+                  on:click={() => handleSelectedPacks(pack.path)}
+                  {disabled}
+                />
               </TableBodyCell>
               <TableBodyCell>{pack.author}</TableBodyCell>
               <TableBodyCell>{pack.description}</TableBodyCell>
@@ -140,7 +158,7 @@
       >
       <Button
         color="red"
-        disabled={disabled || selectedTexturePacks.length == 0}
+        disabled={disabled || selectedTexturePacks.length === 0}
         on:click={handleDeleteTexturePack}>Delete Pack</Button
       >
       <Button color="dark" {disabled} on:click={handleCompileTextures}
