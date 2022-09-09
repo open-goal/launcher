@@ -16,98 +16,32 @@
   });
 </script>
 
-<header data-tauri-drag-region>
-  <div id="logo">
-    <img src={icon} alt="" />
+<header
+  class="flex flex-row h-12 bg-[#101010] pl-2 pr-4 items-center"
+  data-tauri-drag-region
+>
+  <div class="flex flex-row items-center space-x-2 text-2xl">
+    <img class="h-10" src={icon} alt="" />
     <p>OpenGOAL</p>
   </div>
 
-  <div id="break" />
+  <div class="border-l border-[#9f9f9f] h-10 m-2" />
 
-  <div id="versions">
+  <div class="flex flex-col space-y-0 text-[#9f9f9f]">
     <p>v{launcherVerison} Launcher</p>
     <p>{gameVersion} Tools</p>
   </div>
 
-  <div id="buttons">
+  <div class="flex space-x-4 text-xl ml-auto">
     <!-- TODO: Conditional rendering of the alert bell. One case would be if there is an update available. -->
-    <!-- <i class="fa-solid fa-bell" /> -->
-    <i class="fa fa-window-minimize" on:click={() => appWindow.minimize()} />
-    <i class="fa-solid fa-times" on:click={() => appWindow.close()} />
+    <i class="fa-solid fa-bell hover:text-emerald-600" />
+    <i
+      class="fa fa-window-minimize hover:text-amber-600"
+      on:click={() => appWindow.minimize()}
+    />
+    <i
+      class="fa-solid fa-times hover:text-red-600"
+      on:click={() => appWindow.close()}
+    />
   </div>
 </header>
-
-<style>
-  header {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    height: 50px;
-    background-color: #101010;
-    padding: 5px;
-  }
-
-  #logo {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-  }
-
-  #logo img {
-    height: 45px;
-  }
-
-  #logo p {
-    padding: 10px;
-    /* TODO: Update text to proper font */
-    font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
-      sans-serif;
-  }
-
-  #break {
-    border-left: 2px solid #9f9f9f;
-    height: 90%;
-    margin: 10px;
-  }
-
-  #versions {
-    padding: 5px;
-  }
-
-  #versions p {
-    margin: 0;
-    padding: 2px 0px;
-    /* TODO: Update text to proper font */
-    font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
-      sans-serif;
-    color: #9f9f9f;
-  }
-
-  #buttons {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-left: auto;
-    flex-basis: 0;
-  }
-
-  #buttons i {
-    display: flex;
-    justify-content: center;
-    width: 25px;
-    font-size: 20px;
-    padding: 10px;
-  }
-
-  #buttons i:hover {
-    background-color: #9f9f9f;
-  }
-
-  #buttons i:nth-last-child(2):hover {
-    color: orange;
-  }
-
-  #buttons i:last-child:hover {
-    color: red;
-  }
-</style>
