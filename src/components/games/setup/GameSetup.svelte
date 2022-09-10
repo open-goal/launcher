@@ -55,17 +55,11 @@
     <h1 class="text-3xl pb-2">
       {getGameTitle(activeGame)}
     </h1>
-    {#if $gameNeedsReinstall}
-      <Button
-        class="!rounded-none !w-56 !bg-[#222222] text-xl"
-        on:click={updateGame}>Update Install</Button
-      >
-    {:else}
-      <Button
-        class="!rounded-none !w-56 !bg-[#222222] text-xl"
-        on:click={fullInstall}>Install</Button
-      >
-    {/if}
+    <Button
+      class="!rounded-none !w-56 !bg-[#222222] text-xl"
+      on:click={$gameNeedsReinstall ? updateGame : fullInstall}
+      >{$gameNeedsReinstall ? "Update Install" : "Install"}</Button
+    >
   </div>
 {:else}
   <div class="flex flex-col justify-content ml-20 p-8">

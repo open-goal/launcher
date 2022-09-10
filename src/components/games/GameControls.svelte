@@ -6,7 +6,6 @@
   import { compileGame, decompileGameData } from "$lib/setup/setup";
   import { appDir, configDir, join } from "@tauri-apps/api/path";
   import { createEventDispatcher, onMount } from "svelte";
-  import LogViewer from "./setup/LogViewer.svelte";
   import {
     isCompiling,
     isDecompiling,
@@ -84,12 +83,10 @@
   }
 </script>
 
-<!-- add larger font to the play button -->
 {#if componentLoaded}
   <ButtonGroup>
     <Button
-      class="w-56 !rounded-none"
-      color="dark"
+      class="w-56 !rounded-none !bg-[#222222] border-none !text-white hover:!text-blue-500 !text-2xl"
       on:click={onClickPlay}
       disabled={$isDecompiling || $isCompiling}>Play</Button
     >
@@ -136,8 +133,5 @@
   </ButtonGroup>
   {#if $isDecompiling || $isCompiling}
     <Spinner />
-  {/if}
-  {#if $ProcessLogs}
-    <LogViewer />
   {/if}
 {/if}

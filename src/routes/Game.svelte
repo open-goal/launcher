@@ -83,7 +83,7 @@
       {/if}
     {:else}
       <div class="flex flex-col justify-end items-end h-5/6 pr-7">
-        <h1 class="text-3xl pb-2">
+        <h1 class="text-4xl pb-2 drop-shadow-2xl shadow-black">
           {getGameTitle(activeGame)}
         </h1>
         <GameContent {activeGame} on:change={updateGameState} />
