@@ -5,7 +5,7 @@
 <div class="ml-20">
   <div class="flex flex-col h-5/6 p-8">
     <Alert color="dark" rounded={false}>
-      <span class="text-lg font-medium text-blue-700 dark:text-blue-800"
+      <span class="text-lg font-medium text-black-900 dark:text-blue-800"
         >Help & Support</span
       >
       <div slot="extra">
