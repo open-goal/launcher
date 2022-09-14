@@ -52,7 +52,7 @@
   <Requirements />
 {:else if !$isInstalling}
   <div class="flex flex-col justify-end items-end h-5/6 pr-7">
-    <h1 class="text-3xl pb-2">
+    <h1 class="text-3xl pb-2 drop-shadow-text">
       {getGameTitle(activeGame)}
     </h1>
     <Button

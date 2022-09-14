@@ -6,10 +6,10 @@
   import GameSetup from "../components/games/setup/GameSetup.svelte";
   import { onMount } from "svelte";
   import { gameNeedsReinstall } from "$lib/stores/AppStore";
-  import {
-    copyDataDirectory,
-    isDataDirectoryUpToDate,
-  } from "$lib/utils/data-files";
+  import { isDataDirectoryUpToDate } from "$lib/utils/data-files";
+  import Outdated from "../components/games/setup/Outdated.svelte";
+  import Reinstall from "../components/games/setup/Reinstall.svelte";
+  import { Spinner } from "flowbite-svelte";
 
   const params = useParams();
   let activeGame = SupportedGame.Jak1;
@@ -19,7 +19,6 @@
 
   let dataDirUpToDate = false;
   let updatingDataDir = false;
-  let errorText = "";
 
   onMount(async () => {
     if (
@@ -39,27 +38,11 @@
     // If it's up to date we'll do the second check now, does their game need to be re-compiled?
     if (dataDirUpToDate) {
       if (await launcherConfig.shouldUpdateGameInstall(activeGame)) {
-        // await recompileGame(activeGame);
         gameNeedsReinstall.update(() => true);
       }
     }
     componentLoaded = true;
   });
-
-  async function syncDataDirectory() {
-    updatingDataDir = true;
-    errorText = "";
-    try {
-      await copyDataDirectory();
-      // Now that the directory is up to date, let's see if they need to reinstall the game
-      if (await launcherConfig.shouldUpdateGameInstall(activeGame)) {
-        gameNeedsReinstall.update(() => true);
-      }
-    } catch (err) {
-      errorText = `Error encountered when syncing data files - ${err}`;
-    }
-    updatingDataDir = false;
-  }
 
   async function updateGameState(evt) {
     isGameInstalled = await launcherConfig.getInstallStatus(activeGame);
@@ -70,17 +53,7 @@
 {#if componentLoaded}
   {#if isGameInstalled && !$gameNeedsReinstall}
     {#if !dataDirUpToDate}
-      <p>Local data files must be synced up in-order to proceed</p>
-      <p>This may overwrite any modifications to the game's source code</p>
-      <p>Save files and settings will not be modified</p>
-      {#if !updatingDataDir}
-        <button class="btn" on:click={syncDataDirectory}>
-          Sync Data Files
-        </button>
-      {/if}
-      {#if errorText != ""}
-        {errorText}
-      {/if}
+      <Outdated {updatingDataDir} {activeGame} />
     {:else}
       <div class="flex flex-col justify-end items-end h-5/6 pr-7">
         <h1 class="text-4xl pb-2 drop-shadow-text">
@@ -90,13 +63,14 @@
       </div>
     {/if}
   {:else}
+    <!-- TODO: THIS BLOCK HERE KINDA SUCKS AND IDK HOW TO FIX IT -->
     {#if $gameNeedsReinstall}
-      <p>Game installed with a previous version of OpenGOAL</p>
-      <p>The game must be updated before you can proceed</p>
-      <p>Save files and settings will not be modified</p>
+      <Reinstall />
     {/if}
     <GameSetup {activeGame} on:change={updateGameState} />
   {/if}
 {:else}
-  <!-- TODO - component library - spinner -->
+  <div class="ml-20">
+    <Spinner />
+  </div>
 {/if}
