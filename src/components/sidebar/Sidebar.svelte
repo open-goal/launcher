@@ -1,7 +1,7 @@
 <script lang="ts">
   import logoJak1 from "$assets/images/jak-tpl.webp";
-  import logoJak2 from "$assets/images/jak-2.webp";
-  import logoJak3 from "$assets/images/jak-3.webp";
+  // import logoJak2 from "$assets/images/jak-2.webp";
+  // import logoJak3 from "$assets/images/jak-3.webp";
   import { link } from "svelte-navigator";
   import { Tooltip } from "flowbite-svelte";
 </script>
@@ -27,7 +27,7 @@
         >
       </a>
     </li>
-    <li>
+    <!-- <li>
       <a
         class="flex items-center grayscale hover:grayscale-0 hover:opacity-100 duration-500"
         href="/jak2"
@@ -44,8 +44,8 @@
           tipClass="px-2 truncate">Jak 2</Tooltip
         >
       </a>
-    </li>
-    <li>
+    </li> -->
+    <!-- <li>
       <a
         class="flex items-center grayscale hover:grayscale-0 hover:opacity-100 duration-500"
         href="/jak3"
@@ -62,7 +62,7 @@
           tipClass="px-2 truncate">Jak 3</Tooltip
         >
       </a>
-    </li>
+    </li> -->
     <li class="fixed bottom-24 left-6">
       <a
         class="flex items-center justify-center opacity-75 grayscale hover:grayscale-0 hover:opacity-100 text-orange-400 duration-500"
