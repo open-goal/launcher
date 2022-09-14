@@ -20,6 +20,7 @@ import { launcherConfig } from "$lib/config";
 import { resolveErrorCode } from "./setup_errors";
 import { installLog, log } from "$lib/utils/log";
 import { ProcessLogs } from "$lib/stores/AppStore";
+import { removeDir } from "@tauri-apps/api/fs";
 
 let sidecarOptions = {};
 
@@ -285,4 +286,20 @@ export async function compileFromFile(activeGame: SupportedGame) {
     getInternalName(activeGame)
   );
   await compileGame(isoPath);
+}
+
+export async function uninstallGame(game: SupportedGame) {
+  const dataDir = await join(await appDir(), "data");
+  try {
+    const t0 = await join(dataDir, "decompiler_out", getInternalName(game));
+    const t1 = await join(dataDir, "iso_data", getInternalName(game));
+    const t2 = await join(dataDir, "out", getInternalName(game));
+    const targets = [t0, t1, t2];
+    for (const target of targets) {
+      console.log("Deleting folder: ", target);
+      await removeDir(target, { recursive: true });
+    }
+  } catch (error) {
+    console.error(error);
+  }
 }
