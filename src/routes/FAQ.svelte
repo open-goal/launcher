@@ -10,8 +10,8 @@
       >
       <div slot="extra">
         <div class="mt-2 mb-4 text-sm text-blue-700 dark:text-blue-800">
-          TODO ---- Fill this out with some COOL text about HELPING people WITH
-          THE GAME.
+          Please use the discord search feature to see if your question has
+          already been answered
         </div>
         <div class="flex flex-col gap-2">
           <Button

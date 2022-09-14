@@ -57,7 +57,9 @@
     </h1>
     <Button
       class="!rounded-none !w-56 !bg-[#222222] text-xl"
-      on:click={$gameNeedsReinstall ? updateGame : fullInstall}
+      on:click={$gameNeedsReinstall
+        ? async () => await updateGame()
+        : async () => await fullInstall()}
       >{$gameNeedsReinstall ? "Update Install" : "Install"}</Button
     >
   </div>

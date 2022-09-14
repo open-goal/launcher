@@ -29,7 +29,6 @@
 
   let packs: Array<TexturePack> = [];
   let selectedTexturePacks: string[] = [];
-  $: console.log("selected packs", selectedTexturePacks);
   $: disabled = false;
 
   onMount(async () => {
@@ -38,13 +37,11 @@
 
   async function handleSelectedPacks(pack) {
     if (!selectedTexturePacks.find((packs) => packs === pack)) {
-      console.log("Pack not in the selected textures array, adding it now.");
+      // add pack to be compiled
       selectedTexturePacks.push(pack);
       selectedTexturePacks = selectedTexturePacks;
     } else {
-      console.log(
-        "Pack exists in the selected textures array, removing it now."
-      );
+      // remove pack from to be compiled
       selectedTexturePacks = selectedTexturePacks.filter(
         (packs) => packs !== pack
       );
@@ -161,7 +158,10 @@
         disabled={disabled || selectedTexturePacks.length === 0}
         on:click={handleDeleteTexturePack}>Delete Pack</Button
       >
-      <Button color="dark" {disabled} on:click={handleCompileTextures}
+      <Button
+        color="dark"
+        {disabled}
+        on:click={async () => await handleCompileTextures()}
         >Compile Changes</Button
       >
     </ButtonGroup>
