@@ -85,6 +85,9 @@
 
 {#if componentLoaded}
   <ButtonGroup>
+    {#if $isDecompiling || $isCompiling}
+      <Spinner class="min-h-full mx-2" />
+    {/if}
     <Button
       class="w-56 !rounded-none !bg-[#222222] border-none !text-white hover:!text-blue-500 !text-2xl"
       on:click={onClickPlay}
@@ -103,9 +106,9 @@
       <!-- NOTE: Wrapped these two dropdown items in a tags for the use:link, otherwise the dropdownitem doesnt support it -->
       <a use:link href="/textures"><DropdownItem>Texture Packs</DropdownItem></a
       >
-      <a use:link href="/mods">
+      <!-- <a use:link href="/mods">
         <DropdownItem>Mods</DropdownItem>
-      </a>
+      </a> -->
     </Dropdown>
 
     <Button class="!rounded-none" disabled={$isDecompiling || $isCompiling}
@@ -119,10 +122,10 @@
         >Open Screenshots Directory</DropdownItem
       >
       <DropdownDivider />
-      <DropdownItem href="#" on:click={() => onClickDecompile()}
+      <DropdownItem href="#" on:click={async () => await onClickDecompile()}
         >Decompile</DropdownItem
       >
-      <DropdownItem href="#" on:click={() => onClickCompile()}
+      <DropdownItem href="#" on:click={async () => await onClickCompile()}
         >Compile</DropdownItem
       >
       <DropdownDivider />
@@ -131,7 +134,4 @@
       >
     </Dropdown>
   </ButtonGroup>
-  {#if $isDecompiling || $isCompiling}
-    <Spinner />
-  {/if}
 {/if}
