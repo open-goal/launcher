@@ -14,7 +14,7 @@
     slot="body"
     class="bg-[#222222] px-4 max-h-64 overflow-y-scroll scrollbar"
   >
-    <p class="py-4">
+    <p class="py-4 text-clip overflow-hidden">
       {$ProcessLogs}
     </p>
   </div>
