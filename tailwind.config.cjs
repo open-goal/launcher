@@ -5,7 +5,11 @@ const config = {
   ],
 
   theme: {
-    extend: {},
+    extend: {
+      dropShadow: {
+        text: "5px 5px 5px rgba(0, 0, 0, 1)",
+      },
+    },
   },
 
   plugins: [require("flowbite/plugin")],
