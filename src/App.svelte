@@ -15,7 +15,7 @@
   import Header from "./components/header/Header.svelte";
   import Faq from "./routes/FAQ.svelte";
   import Textures from "./routes/Textures.svelte";
-  import Alerts from "./routes/Alerts.svelte";
+  import Update from "./routes/Update.svelte";
 
   let revokeSpecificActions = false;
 
@@ -79,6 +79,6 @@
     <Route path="/settings" component={Settings} primary={false} />
     <Route path="/faq" component={Faq} primary={false} />
     <Route path="/textures" component={Textures} primary={false} />
-    <Route path="/alerts" component={Alerts} primary={false} />
+    <Route path="/update" component={Update} primary={false} />
   </div>
 </Router>

@@ -6,14 +6,20 @@
   import { SupportedGame } from "$lib/constants";
   import { getVersion } from "@tauri-apps/api/app";
   import { link } from "svelte-navigator";
+  import { checkUpdate } from "@tauri-apps/api/updater";
+  import { Tooltip } from "flowbite-svelte";
   let gameVersion;
   let launcherVerison;
   // TODO: get the active game rigged up here properly
   let activeGame = SupportedGame.Jak1;
 
+  let shouldUpdateApp;
+
   onMount(async () => {
     gameVersion = await launcherConfig.getGameInstallVersion(activeGame);
     launcherVerison = await getVersion();
+    const { shouldUpdate, manifest } = await checkUpdate();
+    shouldUpdateApp = shouldUpdate;
   });
 </script>
 
@@ -34,12 +40,16 @@
   </div>
 
   <div class="flex space-x-4 text-xl ml-auto">
-    <!-- TODO: Conditional rendering of the alert bell. One case would be if there is an update available. -->
-    <a href="/alerts" use:link
-      ><i
-        class="fa-solid fa-bell hover:text-emerald-600 hover:cursor-pointer"
-      /></a
-    >
+    {#if shouldUpdateApp}
+      <a href="/update" use:link
+        ><i
+          class="fa-solid fa-bell text-yellow-300 animate-pulse hover:cursor-pointer hover:animate-none"
+        />
+        <Tooltip arrow={false} placement="bottom" style="dark"
+          >Update Available</Tooltip
+        >
+      </a>
+    {/if}
     <i
       class="fa fa-window-minimize hover:text-amber-600 hover:cursor-pointer"
       on:click={() => appWindow.minimize()}
