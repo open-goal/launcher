@@ -6,20 +6,18 @@
   import { SupportedGame } from "$lib/constants";
   import { getVersion } from "@tauri-apps/api/app";
   import { link } from "svelte-navigator";
-  import { checkUpdate } from "@tauri-apps/api/updater";
   import { Tooltip } from "flowbite-svelte";
+  import { handleCheckUpdate } from "$lib/utils/updates";
+  import { UpdateStore } from "$lib/stores/AppStore";
   let gameVersion;
   let launcherVerison;
   // TODO: get the active game rigged up here properly
   let activeGame = SupportedGame.Jak1;
 
-  let shouldUpdateApp;
-
   onMount(async () => {
     gameVersion = await launcherConfig.getGameInstallVersion(activeGame);
     launcherVerison = await getVersion();
-    const { shouldUpdate, manifest } = await checkUpdate();
-    shouldUpdateApp = shouldUpdate;
+    await handleCheckUpdate();
   });
 </script>
 
@@ -40,7 +38,7 @@
   </div>
 
   <div class="flex space-x-4 text-xl ml-auto">
-    {#if shouldUpdateApp}
+    {#if $UpdateStore.shouldUpdate}
       <a href="/update" use:link
         ><i
           class="fa-solid fa-bell text-yellow-300 animate-pulse hover:cursor-pointer hover:animate-none"

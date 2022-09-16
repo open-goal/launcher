@@ -3,6 +3,7 @@
   import { appDir } from "@tauri-apps/api/path";
   import { Alert, Button } from "flowbite-svelte";
   import { onMount } from "svelte";
+  import { handleCheckUpdate } from "$lib/utils/updates";
 
   let directory = undefined;
 
@@ -38,6 +39,16 @@
           >
             <i class="fa fa-folder mx-1" />
             Open Logs Directory
+          </Button>
+          <Button
+            class="!rounded-none"
+            size="md"
+            outline
+            color="green"
+            on:click={async () => await handleCheckUpdate()}
+          >
+            <i class="fa fa fa-download mx-1" />
+            Check For Updates
           </Button>
           <!-- TODO: Add a button that lets users change the install directory -->
         </div>
