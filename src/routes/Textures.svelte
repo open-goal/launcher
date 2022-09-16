@@ -117,7 +117,7 @@
 </script>
 
 <div class="ml-20">
-  <div class="flex flex-col h-5/6 p-8">
+  <div class="flex flex-col h-[560px] max-h-[560px] p-8 gap-2">
     {#if packs && packs.length > 0}
       <Table hoverable={true}>
         <TableHead>
@@ -147,18 +147,22 @@
         >No Texture Packs Installed, get started by adding a pack below.</Alert
       >
     {/if}
-  </div>
-  <div class="flex px-8">
-    <ButtonGroup>
-      <Button size="md" color="green" {disabled} on:click={handleAddTexturePack}
-        >Add Pack</Button
+    <ButtonGroup class="ml-auto mt-auto">
+      <Button
+        size="md"
+        class="!rounded-none"
+        color="green"
+        {disabled}
+        on:click={handleAddTexturePack}>Add Pack</Button
       >
       <Button
+        class="!rounded-none"
         color="red"
         disabled={disabled || selectedTexturePacks.length === 0}
         on:click={handleDeleteTexturePack}>Delete Pack</Button
       >
       <Button
+        class="!rounded-none"
         color="dark"
         {disabled}
         on:click={async () => await handleCompileTextures()}
