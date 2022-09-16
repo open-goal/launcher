@@ -5,7 +5,7 @@
   import GameContent from "../components/games/GameControls.svelte";
   import GameSetup from "../components/games/setup/GameSetup.svelte";
   import { onMount } from "svelte";
-  import { gameNeedsReinstall } from "$lib/stores/AppStore";
+  import { gameNeedsReinstall, isInstalling } from "$lib/stores/AppStore";
   import { isDataDirectoryUpToDate } from "$lib/utils/data-files";
   import Outdated from "../components/games/setup/Outdated.svelte";
   import Reinstall from "../components/games/setup/Reinstall.svelte";
@@ -55,7 +55,8 @@
     {#if !dataDirUpToDate}
       <Outdated {updatingDataDir} {activeGame} />
     {:else}
-      <div class="flex flex-col justify-end items-end h-5/6 pr-7">
+      <!-- NOTE: 560px height is 600px (total) - 40px (header) -->
+      <div class="flex flex-col justify-end items-end h-[560px] pb-7 pr-7">
         <h1 class="text-4xl pb-2 drop-shadow-text">
           {getGameTitle(activeGame)}
         </h1>
@@ -63,11 +64,12 @@
       </div>
     {/if}
   {:else}
-    <!-- TODO: THIS BLOCK HERE KINDA SUCKS AND IDK HOW TO FIX IT -->
-    {#if $gameNeedsReinstall}
-      <Reinstall />
-    {/if}
-    <GameSetup {activeGame} on:change={updateGameState} />
+    <div class="flex flex-col h-[560px] ml-20 p-7">
+      {#if $gameNeedsReinstall && !$isInstalling}
+        <Reinstall />
+      {/if}
+      <GameSetup {activeGame} on:change={updateGameState} />
+    </div>
   {/if}
 {:else}
   <div class="ml-20">

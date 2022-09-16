@@ -13,19 +13,16 @@
 </script>
 
 <div class="space-y-2">
-  <Alert
-    class="flex justify-center rounded-none"
-    accent
-    color={isAVXMet ? "green" : "red"}
-  >
+  <Alert class="flex" accent rounded={false} color={isAVXMet ? "green" : "red"}>
     <span class="font-bold"
       >Your CPU {isAVXMet ? "supports" : "doesn't support"} AVX</span
     >
   </Alert>
 
   <Alert
-    class="flex flex-col rounded-none"
+    class="flex flex-col"
     accent
+    rounded={false}
     color={isOpenGLMet ? "green" : "red"}
   >
     <span class="font-bold"

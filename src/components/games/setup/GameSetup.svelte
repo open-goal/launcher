@@ -51,7 +51,7 @@
 {#if !requirementsMet}
   <Requirements />
 {:else if !$isInstalling}
-  <div class="flex flex-col justify-end items-end h-5/6 pr-7">
+  <div class="flex flex-col justify-end items-end mt-auto">
     <h1 class="text-3xl pb-2 drop-shadow-text">
       {getGameTitle(activeGame)}
     </h1>
@@ -64,7 +64,7 @@
     >
   </div>
 {:else}
-  <div class="flex flex-col justify-content ml-20 p-8">
+  <div class="flex flex-col justify-content">
     <Progress />
     {#if $ProcessLogs}
       <LogViewer />
