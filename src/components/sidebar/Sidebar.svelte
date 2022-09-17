@@ -2,8 +2,13 @@
   import logoJak1 from "$assets/images/jak-tpl.webp";
   // import logoJak2 from "$assets/images/jak-2.webp";
   // import logoJak3 from "$assets/images/jak-3.webp";
-  import { link } from "svelte-navigator";
+  import { link, useLocation } from "svelte-navigator";
   import { Tooltip } from "flowbite-svelte";
+
+  const location = useLocation();
+  $: pathname = $location.pathname;
+
+  $: console.log(pathname);
 </script>
 
 <div
@@ -12,7 +17,9 @@
   <ul class="flex flex-col space-y-12 px-1 py-5">
     <li>
       <a
-        class="flex items-center grayscale hover:grayscale-0 hover:opacity-100 duration-500"
+        class="flex items-center {pathname == '/jak1'
+          ? ''
+          : 'grayscale'} hover:grayscale-0 hover:opacity-100 duration-500"
         href="/jak1"
         use:link
         data-mdb-ripple="true"
@@ -29,7 +36,9 @@
     </li>
     <!-- <li>
       <a
-        class="flex items-center grayscale hover:grayscale-0 hover:opacity-100 duration-500"
+        class="flex items-center {pathname == '/jak2'
+          ? ''
+          : 'grayscale'} hover:grayscale-0 hover:opacity-100 duration-500"
         href="/jak2"
         use:link
         data-mdb-ripple="true"
@@ -44,10 +53,12 @@
           tipClass="px-2 truncate">Jak 2</Tooltip
         >
       </a>
-    </li> -->
-    <!-- <li>
+    </li>
+    <li>
       <a
-        class="flex items-center grayscale hover:grayscale-0 hover:opacity-100 duration-500"
+        class="flex items-center {pathname == '/jak3'
+          ? ''
+          : 'grayscale'} hover:grayscale-0 hover:opacity-100 duration-500"
         href="/jak3"
         use:link
         data-mdb-ripple="true"
@@ -65,7 +76,10 @@
     </li> -->
     <li class="fixed bottom-24 left-6">
       <a
-        class="flex items-center justify-center opacity-75 grayscale hover:grayscale-0 hover:opacity-100 text-orange-400 duration-500"
+        class="flex items-center justify-center opacity-75 {pathname ==
+        '/settings'
+          ? 'opacity-100'
+          : 'grayscale'} hover:grayscale-0 hover:opacity-100 text-orange-400 duration-500"
         href="/settings"
         use:link
         data-mdb-ripple="true"
@@ -83,7 +97,9 @@
 
     <li class="fixed bottom-5 left-6">
       <a
-        class="flex items-center justify-center opacity-75 grayscale hover:grayscale-0 hover:opacity-100 text-orange-400 duration-500"
+        class="flex items-center justify-center opacity-75 {pathname == '/faq'
+          ? 'opacity-100'
+          : 'grayscale'} hover:grayscale-0 hover:opacity-100 text-orange-400 duration-500"
         href="/faq"
         use:link
         data-mdb-ripple="true"
