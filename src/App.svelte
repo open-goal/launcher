@@ -70,7 +70,7 @@
   <div class="container">
     <Sidebar />
     <!-- TODO - pass background component current active game -->
-    <Background bgVideo={bgVideo} bgVideoPoster={bgVideoPoster} />
+    <Background {bgVideo} {bgVideoPoster} />
     <div id="main">
       <Route path="/" component={Game} primary={false} let:params />
       <Route path="/:game_name" component={Game} primary={false} let:params />

@@ -5,7 +5,14 @@
 
 <div class="video-container">
   <div class="overlay" />
-  <video id="backgroundVideo" poster={bgVideoPoster} src={bgVideo} autoplay muted loop />
+  <video
+    id="backgroundVideo"
+    poster={bgVideoPoster}
+    src={bgVideo}
+    autoplay
+    muted
+    loop
+  />
 </div>
 
 <style>

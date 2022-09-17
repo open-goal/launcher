@@ -13,8 +13,8 @@ if (process.platform === "win32") {
 
 async function main() {
   // TODO - i get a SIGABRT on linux calling this (but i can run it myself perfectly fine...)
-  // const rustInfo = (await execa("rustc", ["-vV"])).stdout;
-  const targetTriple = "x86_64-unknown-linux-gnu"; // /host: (\S+)/g.exec(rustInfo)[1];
+  const rustInfo = (await execa("rustc", ["-vV"])).stdout;
+  const targetTriple = /host: (\S+)/g.exec(rustInfo)[1];
   if (!targetTriple) {
     console.error("Failed to determine platform target triple");
   }
