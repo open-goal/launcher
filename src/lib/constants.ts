@@ -2,14 +2,15 @@ import { TranslatedStrings } from "./translations/translations";
 
 // TODO: update setup status messages to use typescript
 export const SETUP_SUCCESS = {
-  awaitingISO: { status: "Awaiting ISO File", percent: 0 },
+  awaitingISO: { status: "Awaiting ISO File", percent: 0, step: 0 },
   extractingISO: {
     status: "Extracting and Validating ISO contents",
     percent: 25,
+    step: 1,
   },
-  decompiling: { status: "Decompiling the game", percent: 50 },
-  compiling: { status: "Compiling the game", percent: 75 },
-  ready: { status: "Ready to Play!", percent: 100 },
+  decompiling: { status: "Decompiling the game", percent: 50, step: 2 },
+  compiling: { status: "Compiling the game", percent: 75, step: 3 },
+  ready: { status: "Ready to Play!", percent: 100, step: 4 },
 };
 
 export const SETUP_ERROR = {

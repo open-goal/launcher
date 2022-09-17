@@ -106,7 +106,7 @@
       <DropdownItem href="#" on:click={onClickBootDebug}
         >Boot In Debug</DropdownItem
       >
-      <DropdownItem href="#">Open REPL</DropdownItem>
+      <!-- <DropdownItem href="#">Open REPL</DropdownItem> -->
       <DropdownDivider />
       <!-- NOTE: Wrapped these two dropdown items in a tags for the use:link, otherwise the dropdownitem doesnt support it -->
       <a use:link href="/textures"><DropdownItem>Texture Packs</DropdownItem></a
