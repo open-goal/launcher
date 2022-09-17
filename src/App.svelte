@@ -1,7 +1,7 @@
 <script>
   // Assets
   import bgVideo from "$assets/videos/background.mp4";
-  import bgVideoPoster from "$assets/images/logo.webp"; // TODO - take a screenshot of the video
+  import bgVideoPoster from "$assets/images/background-jak1-fallback.webp";
   // Other Imports
   import { onMount } from "svelte";
   import { Router, Route } from "svelte-navigator";
