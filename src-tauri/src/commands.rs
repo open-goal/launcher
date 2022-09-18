@@ -114,7 +114,10 @@ pub async fn extract_textures(app_handle: tauri::AppHandle, textures_array: Vec<
         let archive: Vec<u8> = fs::read(&path.clone()).unwrap();
         // The third parameter allows you to strip away toplevel directories.
         // If `archive` contained a single directory, its contents would be extracted instead.
-        zip_extract::extract(Cursor::new(archive), &target_dir, true);
+        match zip_extract::extract(Cursor::new(archive), &target_dir, true) {
+            Ok(_) => continue,
+            Err(err) => println!("{:?}", err),
+        }
     }
 }
 
