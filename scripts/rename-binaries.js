@@ -12,6 +12,7 @@ if (process.platform === "win32") {
 }
 
 async function main() {
+  // TODO - i get a SIGABRT on linux calling this (but i can run it myself perfectly fine...)
   const rustInfo = (await execa("rustc", ["-vV"])).stdout;
   const targetTriple = /host: (\S+)/g.exec(rustInfo)[1];
   if (!targetTriple) {
