@@ -1,7 +1,7 @@
 <script>
   // Assets
   import bgVideo from "$assets/videos/background.mp4";
-  import bgPoster from "$assets/backgrounds/village1.png";
+  import bgPoster from "$assets/images/village1.webp";
   // Other Imports
   import { onMount } from "svelte";
   import { Router, Route } from "svelte-navigator";
