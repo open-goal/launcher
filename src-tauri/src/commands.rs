@@ -2,7 +2,6 @@ use fs_extra::dir::copy;
 use serde::{Deserialize, Serialize};
 use std::io::prelude::*;
 use std::io::Cursor;
-// use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command;
 use std::{fs, io};
