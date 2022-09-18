@@ -136,7 +136,9 @@
                 />
               </TableBodyCell>
               <TableBodyCell>{pack.author}</TableBodyCell>
-              <TableBodyCell>{pack.description}</TableBodyCell>
+              <TableBodyCell tdClass="overflow-clip"
+                >{pack.description}</TableBodyCell
+              >
               <TableBodyCell>{pack.version}</TableBodyCell>
             </TableBodyRow>
           {/each}

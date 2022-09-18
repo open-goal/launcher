@@ -3,7 +3,7 @@ import { writable } from "svelte/store";
 export const InstallStatus = writable({
   status: undefined,
   percent: undefined,
-  step: 0
+  step: 0,
 });
 export const isInstalling = writable(false);
 export const isDecompiling = writable(false);
