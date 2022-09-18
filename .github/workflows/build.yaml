@@ -9,6 +9,7 @@ on:
   pull_request:
     branches:
       - main
+      - dev/new-ui
 
 jobs:
   build:
