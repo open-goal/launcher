@@ -41,7 +41,7 @@ export async function copyDirectory(source: string, destination: string) {
 export async function openREPL() {
   const appDirPath = await appDir();
   try {
-    return await invoke("open_repl", { dir: `${appDirPath}data` });
+    return await invoke("open_repl", { projPath: `${appDirPath}data`, currDir: appDirPath });
   } catch (e) {
     log.error(e);
   }
