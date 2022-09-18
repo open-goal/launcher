@@ -1,10 +1,18 @@
 <script type="ts">
   export let bgVideo: string;
+  export let bgVideoPoster: string;
 </script>
 
 <div class="video-container">
   <div class="overlay" />
-  <video id="backgroundVideo" src={bgVideo} autoplay muted loop />
+  <video
+    id="backgroundVideo"
+    poster={bgVideoPoster}
+    src={bgVideo}
+    autoplay
+    muted
+    loop
+  />
 </div>
 
 <style>
@@ -26,6 +34,8 @@
 
   #backgroundVideo {
     z-index: -1;
-    height: 100vh;
+    object-fit: fill;
+    width: 100%;
+    height: 100%;
   }
 </style>
