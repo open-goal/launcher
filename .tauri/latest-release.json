@@ -1,6 +1,6 @@
 {
   "name": "v1.5.0",
-  "notes": "Release Notes TODO",
+  "notes": "{\"jak_proj_tag\":\"v0.1.29\",\"changes\":{\"jak_project\":[],\"launcher\":[]}}",
   "pub_date": "2022-09-07T23:08:16Z",
   "platforms": {
     "linux-x86_64": {
