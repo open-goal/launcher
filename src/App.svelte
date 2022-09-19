@@ -1,7 +1,7 @@
 <script>
   // Assets
   import bgVideo from "$assets/videos/background.mp4";
-  import bgPoster from "$assets/images/village1.webp";
+  import bgVideoPoster from "$assets/images/background-jak1-fallback.webp";
   // Other Imports
   import { onMount } from "svelte";
   import { Router, Route } from "svelte-navigator";
@@ -72,7 +72,7 @@
 <Router>
   <div class="container h-screen max-w-none">
     <!-- TODO - pass background component current active game -->
-    <Background {bgVideo} {bgPoster} />
+    <Background {bgVideo} {bgVideoPoster} />
     <Header />
     <Sidebar />
     <Route path="/" component={Game} primary={false} let:params />

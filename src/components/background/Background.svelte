@@ -1,12 +1,12 @@
 <script type="ts">
   export let bgVideo: string;
-  export let bgPoster: string;
+  export let bgVideoPoster: string;
 </script>
 
 <div class="height-screen">
   <video
     class="absolute -z-50 object-fill h-screen"
-    poster={bgPoster}
+    poster={bgVideoPoster}
     src={bgVideo}
     autoplay
     muted
