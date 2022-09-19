@@ -103,9 +103,11 @@
       ><Chevron placement="top">Extras</Chevron></Button
     >
     <Dropdown class="!rounded-none" placement="top">
+      {#if !($isDecompiling ||$isCompiling)}
       <DropdownItem href="#" on:click={onClickBootDebug}
         >Boot In Debug</DropdownItem
       >
+      {/if}
       <!-- <DropdownItem href="#">Open REPL</DropdownItem> -->
       <DropdownDivider />
       <!-- NOTE: Wrapped these two dropdown items in a tags for the use:link, otherwise the dropdownitem doesnt support it -->
@@ -126,6 +128,7 @@
       <DropdownItem href="#" on:click={() => openDir(screenshotsPath)}
         >Open Screenshots Directory</DropdownItem
       >
+      {#if !($isDecompiling ||$isCompiling)}
       <DropdownDivider />
       <DropdownItem href="#" on:click={async () => await onClickDecompile()}
         >Decompile</DropdownItem
@@ -137,6 +140,7 @@
       <DropdownItem href="#" color="red" on:click={() => onClickUninstall()}
         >Uninstall</DropdownItem
       >
+      {/if}
     </Dropdown>
   </ButtonGroup>
 {/if}

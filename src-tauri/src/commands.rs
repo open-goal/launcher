@@ -2,6 +2,7 @@ use fs_extra::dir::copy;
 use serde::{Deserialize, Serialize};
 use std::io::prelude::*;
 use std::io::Cursor;
+use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command;
 use std::{fs, io};
@@ -140,7 +141,15 @@ pub fn read_texture_json_file(file_path: PathBuf) -> Result<TexturePack, io::Err
 
 #[tauri::command]
 pub fn get_all_texture_packs(dir: String) -> Vec<TexturePack> {
+    let dir_path = Path::new(&dir).exists();
+    if !dir_path {
+        println!("Textures directory doesn't exist, creating it now.");
+        fs::create_dir(dir.clone()).unwrap();
+        return Vec::new();
+    }
+
     let entries = fs::read_dir(dir).unwrap();
+
     let mut texture_pack_data: Vec<TexturePack> = Vec::new();
     for entry in entries {
         let path = entry.unwrap().path();
