@@ -103,10 +103,10 @@
       ><Chevron placement="top">Extras</Chevron></Button
     >
     <Dropdown class="!rounded-none" placement="top">
-      {#if !($isDecompiling ||$isCompiling)}
-      <DropdownItem href="#" on:click={onClickBootDebug}
-        >Boot In Debug</DropdownItem
-      >
+      {#if !($isDecompiling || $isCompiling)}
+        <DropdownItem href="#" on:click={onClickBootDebug}
+          >Boot In Debug</DropdownItem
+        >
       {/if}
       <!-- <DropdownItem href="#">Open REPL</DropdownItem> -->
       <DropdownDivider />
@@ -128,18 +128,18 @@
       <DropdownItem href="#" on:click={() => openDir(screenshotsPath)}
         >Open Screenshots Directory</DropdownItem
       >
-      {#if !($isDecompiling ||$isCompiling)}
-      <DropdownDivider />
-      <DropdownItem href="#" on:click={async () => await onClickDecompile()}
-        >Decompile</DropdownItem
-      >
-      <DropdownItem href="#" on:click={async () => await onClickCompile()}
-        >Compile</DropdownItem
-      >
-      <DropdownDivider />
-      <DropdownItem href="#" color="red" on:click={() => onClickUninstall()}
-        >Uninstall</DropdownItem
-      >
+      {#if !($isDecompiling || $isCompiling)}
+        <DropdownDivider />
+        <DropdownItem href="#" on:click={async () => await onClickDecompile()}
+          >Decompile</DropdownItem
+        >
+        <DropdownItem href="#" on:click={async () => await onClickCompile()}
+          >Compile</DropdownItem
+        >
+        <DropdownDivider />
+        <DropdownItem href="#" color="red" on:click={() => onClickUninstall()}
+          >Uninstall</DropdownItem
+        >
       {/if}
     </Dropdown>
   </ButtonGroup>
