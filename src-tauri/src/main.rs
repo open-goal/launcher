@@ -6,10 +6,9 @@
 use tauri::RunEvent;
 
 mod commands;
-use commands::{
-    close_splashscreen, copy_dir, extract_textures, get_all_texture_packs, get_highest_simd,
-    open_dir,
-};
+mod textures;
+use commands::{close_splashscreen, copy_dir, get_highest_simd, open_dir};
+use textures::{extract_textures, get_all_texture_packs};
 
 fn main() {
     tauri::Builder::default()
