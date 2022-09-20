@@ -49,7 +49,7 @@
       </a>
     {/if}
     <i
-      class="fa fa-window-minimize hover:text-amber-600 hover:cursor-pointer"
+      class="fa fa-window-minimize hover:text-amber-600 hover:cursor-pointer text-sm"
       on:click={() => appWindow.minimize()}
     />
     <i
