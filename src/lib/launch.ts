@@ -1,5 +1,6 @@
 import { Command } from "@tauri-apps/api/shell";
-import { appDir, resourceDir } from "@tauri-apps/api/path";
+import { appDir, join, logDir, resourceDir } from "@tauri-apps/api/path";
+import { writeFile } from "@tauri-apps/api/fs";
 
 function isInDebugMode() {
   return process.env.NODE_ENV === "development";
@@ -22,7 +23,19 @@ export async function launchGame() {
     "-proj-path",
     `${appDirPath}data`,
   ]);
-  command.spawn();
+  // TODO - likely better to move this into Rust so we can pipe the logs instead
+  // of waiting for the process to exit
+  //
+  // TODO - this should take the game-name (the `gk` command needs to eventually anyway!)
+  //
+  // NOTE - Doing it in rust may also continue to tee logs when the launcher process is terminated
+  // but I'm not 100% sure on this
+  const gameProcess = await command.execute();
+  const dir = await logDir();
+  const logFileStdout = await join(dir, "game-stdout.log");
+  await writeFile({ contents: gameProcess.stdout, path: logFileStdout });
+  const logFileStderr = await join(dir, "game-stderr.log");
+  await writeFile({ contents: gameProcess.stderr, path: logFileStderr });
 }
 
 export async function launchGameInDebug() {
@@ -35,5 +48,10 @@ export async function launchGameInDebug() {
     "-proj-path",
     `${appDirPath}data`,
   ]);
-  command.spawn();
+  const gameProcess = await command.execute();
+  const dir = await logDir();
+  const logFileStdout = await join(dir, "game-stdout.log");
+  await writeFile({ contents: gameProcess.stdout, path: logFileStdout });
+  const logFileStderr = await join(dir, "game-stderr.log");
+  await writeFile({ contents: gameProcess.stderr, path: logFileStderr });
 }
