@@ -94,7 +94,7 @@ export class Logger {
         contents = "";
       }
     } else {
-      await createDir(await dirname(fullPath), { recursive: true });
+      await createDir(dir, { recursive: true });
     }
 
     // Build up the string to append and write it
@@ -110,7 +110,7 @@ export class Logger {
     const dir = await logDir();
     const logDirExists = await dirExists(dir);
     if (!logDirExists) {
-      await createDir(await dirname(dir), { recursive: true });
+      await createDir(dir, { recursive: true });
       // The directory didn't exist, so it has no files!
       return `${this.fileNamePrefix}_0.log`;
     }

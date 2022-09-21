@@ -1,6 +1,13 @@
 import { Command } from "@tauri-apps/api/shell";
-import { appDir, join, logDir, resourceDir } from "@tauri-apps/api/path";
-import { writeFile } from "@tauri-apps/api/fs";
+import {
+  appDir,
+  dirname,
+  join,
+  logDir,
+  resourceDir,
+} from "@tauri-apps/api/path";
+import { createDir, writeFile } from "@tauri-apps/api/fs";
+import { dirExists } from "./utils/file";
 
 function isInDebugMode() {
   return process.env.NODE_ENV === "development";
@@ -31,7 +38,13 @@ export async function launchGame() {
   // NOTE - Doing it in rust may also continue to tee logs when the launcher process is terminated
   // but I'm not 100% sure on this
   const gameProcess = await command.execute();
+
   const dir = await logDir();
+  const logDirExists = await dirExists(dir);
+  if (!logDirExists) {
+    await createDir(dir, { recursive: true });
+  }
+
   const logFileStdout = await join(dir, "game-stdout.log");
   await writeFile({ contents: gameProcess.stdout, path: logFileStdout });
   const logFileStderr = await join(dir, "game-stderr.log");
@@ -49,7 +62,13 @@ export async function launchGameInDebug() {
     `${appDirPath}data`,
   ]);
   const gameProcess = await command.execute();
+
   const dir = await logDir();
+  const logDirExists = await dirExists(dir);
+  if (!logDirExists) {
+    await createDir(dir, { recursive: true });
+  }
+
   const logFileStdout = await join(dir, "game-stdout.log");
   await writeFile({ contents: gameProcess.stdout, path: logFileStdout });
   const logFileStderr = await join(dir, "game-stderr.log");
