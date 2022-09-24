@@ -34,3 +34,4 @@ test/out/
 glewinfo.txt
 /metadata.json
 .svelte-kit/
+glew-cmake/
