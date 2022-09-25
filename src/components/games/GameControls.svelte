@@ -40,8 +40,8 @@
 
   async function onClickOpenREPL() {
     await openREPL();
-      }
-      
+  }
+
   function onClickBootDebug() {
     launchGameInDebug();
   }
