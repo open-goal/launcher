@@ -31,6 +31,6 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^1.0.2",
-    "svelte-navigator": "^3.1.6"
+    "svelte-navigator": "^3.2.2"
   }
 }
