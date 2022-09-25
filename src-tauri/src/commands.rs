@@ -1,5 +1,4 @@
 use fs_extra::dir::copy;
-use std::os::windows::process::CommandExt;
 use std::path::PathBuf;
 use std::process::Command;
 use tauri::command;
