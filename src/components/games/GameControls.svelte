@@ -10,26 +10,40 @@
   } from "$lib/setup/setup";
   import { appDir, configDir, join } from "@tauri-apps/api/path";
   import { createEventDispatcher, onMount } from "svelte";
-  import LogViewer from "./setup/LogViewer.svelte";
   import {
     isCompiling,
     isDecompiling,
     ProcessLogs,
   } from "$lib/stores/AppStore";
+  import { link } from "svelte-navigator";
+
+  import {
+    Button,
+    ButtonGroup,
+    Chevron,
+    Dropdown,
+    DropdownItem,
+    DropdownDivider,
+    Spinner,
+  } from "flowbite-svelte";
 
   export let activeGame: SupportedGame;
 
   const dispatch = createEventDispatcher();
   let componentLoaded = false;
   let configPath = undefined;
-  let gameVersion = undefined;
+  let screenshotsPath = undefined;
 
   onMount(async () => {
-    gameVersion = await launcherConfig.getGameInstallVersion(activeGame);
     configPath = await join(
       await configDir(),
       "OpenGOAL",
       getInternalName(activeGame)
+    );
+
+    screenshotsPath = await join(
+      await configDir(),
+      "OpenGOAL-Launcher/data/screenshots"
     );
     componentLoaded = true;
   });
@@ -75,51 +89,58 @@
 </script>
 
 {#if componentLoaded}
-  <div id="launcherControls">
-    <button
-      class="btn lg"
-      on:click={onClickPlay}
-      disabled={$isDecompiling || $isCompiling}>Play</button
-    >
-    <p class="text-shadow">Game Version: {gameVersion}</p>
-    <div class="mt-1">
-      <button class="btn md" on:click={() => openDir(configPath)}
-        >Settings and Saves</button
-      >
-      <button
-        class="btn md"
-        on:click={onClickBootDebug}
-        disabled={$isDecompiling || $isCompiling}>Boot in Debug</button
-      >
-      <button
-        class="btn md"
-        on:click={onClickDecompile}
-        disabled={$isDecompiling || $isCompiling}>Decompile</button
-      >
-      <button
-        class="btn md"
-        on:click={onClickCompile}
-        disabled={$isCompiling || $isDecompiling}>Compile</button
-      >
-      <button
-        class="btn md"
-        on:click={onClickUninstall}
-        disabled={$isDecompiling || $isCompiling}>Uninstall</button
-      >
-    </div>
+  <ButtonGroup>
     {#if $isDecompiling || $isCompiling}
-      <!-- TODO - some sort of spinner component instead -->
-      <div class="mt-1">Please Wait</div>
+      <Spinner class="min-h-full mx-2" />
     {/if}
-    {#if $ProcessLogs}
-      <LogViewer />
-    {/if}
-  </div>
-{/if}
+    <Button
+      class="w-56 !rounded-none !bg-[#222222] border-none !text-white hover:!text-blue-500 !text-2xl"
+      on:click={onClickPlay}
+      disabled={$isDecompiling || $isCompiling}>Play</Button
+    >
 
-<style>
-  .text-shadow {
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
-      1px 1px 0 #000;
-  }
-</style>
+    <Button disabled={$isDecompiling || $isCompiling}
+      ><Chevron placement="top">Extras</Chevron></Button
+    >
+    <Dropdown class="!rounded-none" placement="top">
+      {#if !($isDecompiling || $isCompiling)}
+        <DropdownItem href="#" on:click={onClickBootDebug}
+          >Boot In Debug</DropdownItem
+        >
+      {/if}
+      <!-- <DropdownItem href="#">Open REPL</DropdownItem> -->
+      <DropdownDivider />
+      <!-- NOTE: Wrapped these two dropdown items in a tags for the use:link, otherwise the dropdownitem doesnt support it -->
+      <a use:link href="/textures"><DropdownItem>Texture Packs</DropdownItem></a
+      >
+      <!-- <a use:link href="/mods">
+        <DropdownItem>Mods</DropdownItem>
+      </a> -->
+    </Dropdown>
+
+    <Button class="!rounded-none" disabled={$isDecompiling || $isCompiling}
+      ><Chevron placement="top"><i class="fa fa-cog" /></Chevron></Button
+    >
+    <Dropdown class="!rounded-none" placement="top">
+      <DropdownItem href="#" on:click={() => openDir(configPath)}
+        >Open Settings & Saves</DropdownItem
+      >
+      <DropdownItem href="#" on:click={() => openDir(screenshotsPath)}
+        >Open Screenshots Directory</DropdownItem
+      >
+      {#if !($isDecompiling || $isCompiling)}
+        <DropdownDivider />
+        <DropdownItem href="#" on:click={async () => await onClickDecompile()}
+          >Decompile</DropdownItem
+        >
+        <DropdownItem href="#" on:click={async () => await onClickCompile()}
+          >Compile</DropdownItem
+        >
+        <DropdownDivider />
+        <DropdownItem href="#" color="red" on:click={() => onClickUninstall()}
+          >Uninstall</DropdownItem
+        >
+      {/if}
+    </Dropdown>
+  </ButtonGroup>
+{/if}

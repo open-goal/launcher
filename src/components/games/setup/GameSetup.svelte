@@ -13,16 +13,16 @@
   // components
   import Progress from "./Progress.svelte";
   // constants
-  import type { SupportedGame } from "$lib/constants";
+  import { getGameTitle, type SupportedGame } from "$lib/constants";
   import LogViewer from "./LogViewer.svelte";
   import Requirements from "./Requirements.svelte";
   import { createEventDispatcher, onMount } from "svelte";
+  import { Button } from "flowbite-svelte";
 
   export let activeGame: SupportedGame;
 
   const dispatch = createEventDispatcher();
 
-  let componentLoaded = false;
   let requirementsMet = false;
 
   onMount(async () => {
@@ -31,7 +31,6 @@
       await checkRequirements();
     }
     requirementsMet = await launcherConfig.areRequirementsMet();
-    componentLoaded = true;
   });
 
   async function fullInstall() {
@@ -49,27 +48,26 @@
   }
 </script>
 
-{#if componentLoaded}
-  <div class="content">
-    <div style="text-align:center">
-      {#if !requirementsMet}
-        <Requirements />
-      {:else}
-        {#if !$isInstalling}
-          {#if $gameNeedsReinstall}
-            <button class="btn" on:click={updateGame}> Update Install </button>
-          {:else}
-            <button class="btn" on:click={fullInstall}> Setup </button>
-          {/if}
-        {:else}
-          <Progress />
-        {/if}
-        {#if $ProcessLogs}
-          <LogViewer />
-        {/if}
-      {/if}
-    </div>
+{#if !requirementsMet}
+  <Requirements />
+{:else if !$isInstalling}
+  <div class="flex flex-col justify-end items-end mt-auto">
+    <h1 class="text-3xl pb-2 drop-shadow-text">
+      {getGameTitle(activeGame)}
+    </h1>
+    <Button
+      class="!rounded-none !w-56 !bg-[#222222] text-xl"
+      on:click={$gameNeedsReinstall
+        ? async () => await updateGame()
+        : async () => await fullInstall()}
+      >{$gameNeedsReinstall ? "Update Install" : "Install"}</Button
+    >
   </div>
 {:else}
-  <!-- TODO - component library - spinner -->
+  <div class="flex flex-col justify-content">
+    <Progress />
+    {#if $ProcessLogs}
+      <LogViewer />
+    {/if}
+  </div>
 {/if}

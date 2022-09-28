@@ -1,16 +1,15 @@
 <script>
-  import { fade } from "svelte/transition";
   import { launcherConfig } from "$lib/config";
   import { fromRoute, getGameTitle, SupportedGame } from "$lib/constants";
   import { useParams } from "svelte-navigator";
   import GameContent from "../components/games/GameControls.svelte";
   import GameSetup from "../components/games/setup/GameSetup.svelte";
   import { onMount } from "svelte";
-  import { gameNeedsReinstall } from "$lib/stores/AppStore";
-  import {
-    copyDataDirectory,
-    isDataDirectoryUpToDate,
-  } from "$lib/utils/data-files";
+  import { gameNeedsReinstall, isInstalling } from "$lib/stores/AppStore";
+  import { isDataDirectoryUpToDate } from "$lib/utils/data-files";
+  import Outdated from "../components/games/setup/Outdated.svelte";
+  import Reinstall from "../components/games/setup/Reinstall.svelte";
+  import { Spinner } from "flowbite-svelte";
 
   const params = useParams();
   let activeGame = SupportedGame.Jak1;
@@ -20,7 +19,6 @@
 
   let dataDirUpToDate = false;
   let updatingDataDir = false;
-  let errorText = "";
 
   onMount(async () => {
     if (
@@ -40,27 +38,11 @@
     // If it's up to date we'll do the second check now, does their game need to be re-compiled?
     if (dataDirUpToDate) {
       if (await launcherConfig.shouldUpdateGameInstall(activeGame)) {
-        // await recompileGame(activeGame);
         gameNeedsReinstall.update(() => true);
       }
     }
     componentLoaded = true;
   });
-
-  async function syncDataDirectory() {
-    updatingDataDir = true;
-    errorText = "";
-    try {
-      await copyDataDirectory();
-      // Now that the directory is up to date, let's see if they need to reinstall the game
-      if (await launcherConfig.shouldUpdateGameInstall(activeGame)) {
-        gameNeedsReinstall.update(() => true);
-      }
-    } catch (err) {
-      errorText = `Error encountered when syncing data files - ${err}`;
-    }
-    updatingDataDir = false;
-  }
 
   async function updateGameState(evt) {
     isGameInstalled = await launcherConfig.getInstallStatus(activeGame);
@@ -69,42 +51,28 @@
 </script>
 
 {#if componentLoaded}
-  <div class="flex-center" in:fade>
-    <h1 class="text-shadow">
-      {getGameTitle(activeGame)}
-    </h1>
-    {#if isGameInstalled && !$gameNeedsReinstall}
-      {#if !dataDirUpToDate}
-        <p>Local data files must be synced up in-order to proceed</p>
-        <p>This may overwrite any modifications to the game's source code</p>
-        <p>Save files and settings will not be modified</p>
-        {#if !updatingDataDir}
-          <button class="btn" on:click={syncDataDirectory}>
-            Sync Data Files
-          </button>
-        {/if}
-        {#if errorText != ""}
-          {errorText}
-        {/if}
-      {:else}
-        <GameContent {activeGame} on:change={updateGameState} />
-      {/if}
+  {#if isGameInstalled && !$gameNeedsReinstall}
+    {#if !dataDirUpToDate}
+      <Outdated {updatingDataDir} {activeGame} />
     {:else}
-      {#if $gameNeedsReinstall}
-        <p>Game installed with a previous version of OpenGOAL</p>
-        <p>The game must be updated before you can proceed</p>
-        <p>Save files and settings will not be modified</p>
+      <!-- NOTE: 560px height is 600px (total) - 40px (header) -->
+      <div class="flex flex-col justify-end items-end h-[560px] pb-7 pr-7">
+        <h1 class="text-4xl pb-2 drop-shadow-text">
+          {getGameTitle(activeGame)}
+        </h1>
+        <GameContent {activeGame} on:change={updateGameState} />
+      </div>
+    {/if}
+  {:else}
+    <div class="flex flex-col h-[560px] ml-20 p-7">
+      {#if $gameNeedsReinstall && !$isInstalling}
+        <Reinstall />
       {/if}
       <GameSetup {activeGame} on:change={updateGameState} />
-    {/if}
-  </div>
+    </div>
+  {/if}
 {:else}
-  <!-- TODO - component library - spinner -->
+  <div class="ml-20">
+    <Spinner />
+  </div>
 {/if}
-
-<style>
-  .text-shadow {
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
-      1px 1px 0 #000;
-  }
-</style>

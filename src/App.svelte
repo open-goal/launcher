@@ -13,6 +13,10 @@
   import { appWindow } from "@tauri-apps/api/window";
   import { isInstalling } from "./lib/stores/AppStore";
   import { log } from "$lib/utils/log";
+  import Header from "./components/header/Header.svelte";
+  import Faq from "./routes/FAQ.svelte";
+  import Textures from "./routes/Textures.svelte";
+  import Update from "./routes/Update.svelte";
 
   let revokeSpecificActions = false;
 
@@ -65,16 +69,17 @@
   }
 </script>
 
-<!-- TODO - Rewrite this to be more concise and simple, reduce nested crap -->
 <Router>
-  <div class="container">
-    <Sidebar />
+  <div class="container h-screen max-w-none">
     <!-- TODO - pass background component current active game -->
     <Background {bgVideo} {bgVideoPoster} />
-    <div id="main">
-      <Route path="/" component={Game} primary={false} let:params />
-      <Route path="/:game_name" component={Game} primary={false} let:params />
-      <Route path="/settings" component={Settings} primary={false} />
-    </div>
+    <Header />
+    <Sidebar />
+    <Route path="/" component={Game} primary={false} let:params />
+    <Route path="/:game_name" component={Game} primary={false} let:params />
+    <Route path="/settings" component={Settings} primary={false} />
+    <Route path="/faq" component={Faq} primary={false} />
+    <Route path="/textures" component={Textures} primary={false} />
+    <Route path="/update" component={Update} primary={false} />
   </div>
 </Router>

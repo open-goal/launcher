@@ -1,9 +1,7 @@
 <script type="ts">
   import { launcherConfig } from "$lib/config";
-
   import { onMount } from "svelte";
-
-  let componentLoaded = false;
+  import { Alert } from "flowbite-svelte";
 
   let isAVXMet = false;
   let isOpenGLMet = false;
@@ -11,62 +9,33 @@
   onMount(async () => {
     isAVXMet = await launcherConfig.isAVXRequirementMet();
     isOpenGLMet = await launcherConfig.isOpenGLRequirementMet();
-    componentLoaded = true;
   });
 </script>
 
-{#if componentLoaded}
-  <div class="row">
-    <p class="description">OpenGOAL Requires the following requirements:</p>
-    <ul class="requirements-list">
-      <li>
-        {#if isAVXMet}
-          ✅ CPU Supports <a
-            class="help-link"
-            target="_blank"
-            href="https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#CPUs_with_AVX"
-            >AVX</a
-          >
-        {:else}
-          ❌ CPU Does NOT Support <a
-            class="help-link"
-            target="_blank"
-            href="https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#CPUs_with_AVX"
-            >AVX</a
-          >
-        {/if}
-      </li>
-      <li>
-        {#if isOpenGLMet}
-          ✅ GPU Supports <a
-            class="help-link"
-            target="_blank"
-            href="https://en.wikipedia.org/wiki/OpenGL#OpenGL_4.3">OpenGL 4.3</a
-          >
-        {:else}
-          ❌ GPU does NOT Support <a
-            class="help-link"
-            target="_blank"
-            href="https://en.wikipedia.org/wiki/OpenGL#OpenGL_4.3">OpenGL 4.3</a
-          >
-        {/if}
-      </li>
-    </ul>
-  </div>
-{/if}
+<div class="space-y-2">
+  <Alert class="flex" accent rounded={false} color={isAVXMet ? "green" : "red"}>
+    <span class="font-bold"
+      >Your CPU {isAVXMet ? "supports" : "doesn't support"} AVX</span
+    >
+  </Alert>
 
-<style>
-  .description {
-    font-size: 1.5em;
-    font-weight: 700;
-  }
-
-  .requirements-list {
-    list-style: none;
-    font-size: 1.25em;
-  }
-
-  .help-link {
-    color: #ffc301;
-  }
-</style>
+  <Alert
+    class="flex flex-col"
+    accent
+    rounded={false}
+    color={isOpenGLMet ? "green" : "red"}
+  >
+    <span class="font-bold"
+      >Your GPU {isOpenGLMet ? "supports" : "doesn't support"} OpenGL 4.3</span
+    >
+    {#if !isOpenGLMet}
+      <ul class="mt-0 ml-8 list-disc list-inside">
+        <li>Please try updating your graphics card drivers</li>
+        <li>
+          If your drivers are up to date, you are unable to play due to a
+          hardware limitation
+        </li>
+      </ul>
+    {/if}
+  </Alert>
+</div>

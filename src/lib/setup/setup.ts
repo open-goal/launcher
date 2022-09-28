@@ -268,6 +268,26 @@ export async function recompileGame(game: SupportedGame): Promise<boolean> {
   }
 }
 
+export async function decompileFromFile(activeGame: SupportedGame) {
+  const isoPath = await join(
+    await appDir(),
+    "data",
+    "iso_data",
+    getInternalName(activeGame)
+  );
+  await decompileGameData(isoPath);
+}
+
+export async function compileFromFile(activeGame: SupportedGame) {
+  const isoPath = await join(
+    await appDir(),
+    "data",
+    "iso_data",
+    getInternalName(activeGame)
+  );
+  await compileGame(isoPath);
+}
+
 export async function uninstallGame(game: SupportedGame) {
   const dataDir = await join(await appDir(), "data");
   try {
@@ -276,6 +296,7 @@ export async function uninstallGame(game: SupportedGame) {
     const t2 = await join(dataDir, "out", getInternalName(game));
     const targets = [t0, t1, t2];
     for (const target of targets) {
+      console.log("Deleting folder: ", target);
       await removeDir(target, { recursive: true });
     }
   } catch (error) {

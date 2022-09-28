@@ -95,7 +95,8 @@
         "resizable": false,
         "fullscreen": false,
         "visible": false,
-        "center": true
+        "center": true,
+        "decorations": false
       },
       {
         "title": "OpenGOAL Launcher - Splash",
