@@ -1,4 +1,5 @@
 import { log } from "$lib/utils/log";
+import { appDir } from "@tauri-apps/api/path";
 import { invoke } from "@tauri-apps/api/tauri";
 
 export async function getHighestSimd(): Promise<string> {
@@ -32,6 +33,18 @@ export async function closeSplashScreen() {
 export async function copyDirectory(source: string, destination: string) {
   try {
     return await invoke("copy_dir", { dirSrc: source, dirDest: destination });
+  } catch (e) {
+    log.error(e);
+  }
+}
+
+export async function openREPL() {
+  const appDirPath = await appDir();
+  try {
+    return await invoke("open_repl", {
+      projPath: `${appDirPath}data`,
+      currDir: appDirPath,
+    });
   } catch (e) {
     log.error(e);
   }
