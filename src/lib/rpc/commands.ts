@@ -1,4 +1,5 @@
 import { log } from "$lib/utils/log";
+import { appDir } from "@tauri-apps/api/path";
 import { invoke } from "@tauri-apps/api/tauri";
 import { appDir, join } from "@tauri-apps/api/path";
 
@@ -50,6 +51,18 @@ export async function getAllTexturePacks() {
   const textureZipDir = await join(await appDir(), "data/texture_zips/");
   try {
     return await invoke("get_all_texture_packs", { dir: textureZipDir });
+  } catch (e) {
+    log.error(e);
+  }
+}
+
+export async function openREPL() {
+  const appDirPath = await appDir();
+  try {
+    return await invoke("open_repl", {
+      projPath: `${appDirPath}data`,
+      currDir: appDirPath,
+    });
   } catch (e) {
     log.error(e);
   }

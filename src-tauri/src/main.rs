@@ -7,7 +7,7 @@ use tauri::RunEvent;
 
 mod commands;
 mod textures;
-use commands::{close_splashscreen, copy_dir, get_highest_simd, open_dir};
+use commands::{close_splashscreen, copy_dir, get_highest_simd, open_dir, open_repl};
 use textures::{extract_textures, get_all_texture_packs};
 
 fn main() {
@@ -18,7 +18,8 @@ fn main() {
             copy_dir,
             close_splashscreen,
             extract_textures,
-            get_all_texture_packs
+            get_all_texture_packs,
+            open_repl
         ])
         .build(tauri::generate_context!())
         .expect("error building tauri app")

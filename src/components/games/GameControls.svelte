@@ -2,7 +2,7 @@
   import { launcherConfig } from "$lib/config";
   import { getInternalName, SupportedGame } from "$lib/constants";
   import { launchGame, launchGameInDebug } from "$lib/launch";
-  import { openDir } from "$lib/rpc/commands";
+  import { openDir, openREPL } from "$lib/rpc/commands";
   import {
     compileGame,
     decompileGameData,
@@ -50,6 +50,10 @@
 
   function onClickPlay() {
     launchGame();
+  }
+
+  async function onClickOpenREPL() {
+    await openREPL();
   }
 
   function onClickBootDebug() {
