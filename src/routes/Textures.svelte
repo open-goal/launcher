@@ -18,6 +18,7 @@
     Checkbox,
     ButtonGroup,
     Button,
+    Tooltip,
   } from "flowbite-svelte";
 
   interface TexturePack {
@@ -157,18 +158,24 @@
         {disabled}
         on:click={handleAddTexturePack}>Add Pack</Button
       >
+      <Tooltip rounded={false}>Add a new pack to the table</Tooltip>
       <Button
         class="!rounded-none"
         color="red"
         disabled={disabled || selectedTexturePacks.length === 0}
         on:click={handleDeleteTexturePack}>Delete Pack</Button
       >
+      <Tooltip rounded={false}>Delete selected pack(s) from the table</Tooltip>
       <Button
         class="!rounded-none"
         color="dark"
         {disabled}
         on:click={async () => await handleCompileTextures()}
         >Compile Changes</Button
+      >
+      <Tooltip rounded={false}
+        >Compile the game with the selected packs in the order they were
+        selected</Tooltip
       >
     </ButtonGroup>
   </div>
