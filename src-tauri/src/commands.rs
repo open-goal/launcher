@@ -92,7 +92,7 @@ pub async fn close_splashscreen(window: tauri::Window) {
 pub async fn open_repl(proj_path: PathBuf, curr_dir: PathBuf) {
     tauri::async_runtime::spawn(async move {
         use std::process::Command as StdCommand;
-        let repl = StdCommand::new("cmd.exe")
+        let _repl = StdCommand::new("cmd.exe")
             .args([
                 "/K",
                 "start",
@@ -111,7 +111,7 @@ pub async fn open_repl(proj_path: PathBuf, curr_dir: PathBuf) {
 pub async fn open_repl(proj_path: PathBuf, curr_dir: PathBuf) {
     tauri::async_runtime::spawn(async move {
         use tauri::api::process::Command;
-        let tauri_cmd = Command::new_sidecar("goalc")
+        let _repl = Command::new_sidecar("goalc")
             .unwrap()
             .current_dir(curr_dir)
             .args(["--proj-path", proj_path.to_str().as_ref().unwrap()])

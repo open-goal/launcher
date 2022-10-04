@@ -1,5 +1,4 @@
 import { log } from "$lib/utils/log";
-import { appDir } from "@tauri-apps/api/path";
 import { invoke } from "@tauri-apps/api/tauri";
 import { appDir, join } from "@tauri-apps/api/path";
 
