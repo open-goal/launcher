@@ -7,8 +7,6 @@
 
   const location = useLocation();
   $: pathname = $location.pathname;
-
-  $: console.log(pathname);
 </script>
 
 <div
@@ -27,6 +25,7 @@
       >
         <img src={logoJak1} alt="Jak - TPL" />
         <Tooltip
+          rounded={false}
           arrow={false}
           placement="right"
           style="dark"
@@ -47,6 +46,7 @@
       >
         <img src={logoJak2} alt="Jak2" />
         <Tooltip
+          rounded={false}
           arrow={false}
           placement="right"
           style="dark"
@@ -67,6 +67,7 @@
       >
         <img src={logoJak3} alt="Jak3" />
         <Tooltip
+          rounded={false}
           arrow={false}
           placement="right"
           style="dark"
@@ -87,6 +88,7 @@
       >
         <i class="fa-solid fa-gear text-3xl" />
         <Tooltip
+          rounded={false}
           arrow={false}
           placement="right"
           style="dark"
@@ -107,6 +109,7 @@
       >
         <i class="fa fa-question-circle text-3xl" />
         <Tooltip
+          rounded={false}
           arrow={false}
           placement="right"
           style="dark"
