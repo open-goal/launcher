@@ -132,7 +132,7 @@ export async function extractAndValidateISO(
     return true;
   }
 
-  handleErrorCode(output.code, "Extraction");
+  await handleErrorCode(output.code, "Extraction");
 }
 
 /**
@@ -168,7 +168,7 @@ export async function decompileGameData(filePath: string): Promise<boolean> {
   if (output.code === 0) {
     return true;
   }
-  handleErrorCode(output.code, "Decompiler");
+  await handleErrorCode(output.code, "Decompiler");
 }
 
 /**
@@ -203,7 +203,7 @@ export async function compileGame(filePath: string): Promise<Boolean> {
   if (output.code === 0) {
     return true;
   }
-  handleErrorCode(output.code, "Compiler");
+  await handleErrorCode(output.code, "Compiler");
 }
 
 export async function fullInstallation(game: SupportedGame): Promise<boolean> {
