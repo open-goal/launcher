@@ -84,12 +84,23 @@ function changesFromBody(releaseBody) {
       i++;
     }
     description = description.join(" ");
-    // Create the change
-    changes.push({
-      description: description,
-      contributor: contributor,
-      pullRequestUrl: pullRequestUrl,
-    });
+
+    // Check if the pull request has already been added
+    let duplicate = false;
+    for (const entry of changes) {
+      if (entry.pullRequestUrl === pullRequestUrl) {
+        duplicate = true;
+        break;
+      }
+    }
+    if (!duplicate) {
+      // Create the change
+      changes.push({
+        description: description,
+        contributor: contributor,
+        pullRequestUrl: pullRequestUrl,
+      });
+    }
   }
   return changes;
 }
