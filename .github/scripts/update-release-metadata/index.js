@@ -35,32 +35,127 @@ const octokit = new Octokit({
   },
 });
 
-let tagToSearchFor = process.env.TAG_VALUE.split("refs/tags/")[1];
+// Parse out changes from the markdown body
+/*
 
-const { data: recentReleases } = await octokit.rest.repos.listReleases({
-  owner: "open-goal",
-  repo: "launcher",
-  per_page: 100,
-});
+## What's Changed
+* jak1/speedruns: Some final touches for speedrunning in jak 1 by @xTVaser in https://github.com/open-goal/jak-project/pull/1830
 
-let release = undefined;
-for (var i = 0; i < recentReleases.length; i++) {
-  if (recentReleases[i].tag_name == tagToSearchFor) {
-    release = recentReleases[i];
-    break;
+**Full Changelog**: https://github.com/open-goal/jak-project/compare/v0.1.28...v0.1.29
+
+*/
+// Releases take the following format, if there is no `What's Changed` then it's a superfluous release, no changes
+function changesFromBody(releaseBody) {
+  // Simple parsing to try and stay as little tied to the auto-format as possible
+  // Iterate through the lines, grab all github pull request links
+  let changes = [];
+  const lines = releaseBody.split("\r\n");
+  for (const line of lines) {
+    // check if the string contains a pull request link
+    if (!line.toLowerCase().match(/.*github.com\/[^/]*\/[^/]*\/pull.*/)) {
+      continue;
+    }
+    // Parse out the critical parts of the line
+    let description = [];
+    let contributor = null;
+    let pullRequestUrl = null;
+    const words = line.replace(/^(\* )/, "").split(" ");
+    let i = 0;
+    while (i < words.length) {
+      const word = words[i];
+      if (word == "by") {
+        // found contributor, the next word should be the contributor
+        if (i + 1 < words.length) {
+          contributor = words[i + 1].replace(/^(@)/, "");
+          i++;
+        }
+        continue;
+      }
+      if (word == "in") {
+        // found url, the next word should be the link
+        if (i + 1 < words.length) {
+          pullRequestUrl = words[i + 1];
+          i++;
+        }
+        continue;
+      }
+      // Otherwise, just add it to the description
+      description.push(word);
+      i++;
+    }
+    description = description.join(" ");
+
+    // Check if the pull request has already been added
+    let duplicate = false;
+    for (const entry of changes) {
+      if (entry.pullRequestUrl === pullRequestUrl) {
+        duplicate = true;
+        break;
+      }
+    }
+    if (!duplicate) {
+      // Create the change
+      changes.push({
+        description: description,
+        contributor: contributor,
+        pullRequestUrl: pullRequestUrl,
+      });
+    }
   }
+  return changes;
 }
 
-if (release === undefined) {
-  console.log(`Could not find release with tag name: ${tagToSearchFor}`);
+// Get all values from workflow
+const releaseId = process.env.RELEASE_ID;
+const jakProjectTag = process.env.JAK_PROJ_TAG;
+
+if (releaseId === undefined || releaseId === "") {
+  console.log("You didn't provide RELEASE_ID");
   process.exit(1);
+}
+
+if (jakProjectTag === undefined || jakProjectTag === "") {
+  console.log("You didn't provide JAK_PROJ_TAG");
+  process.exit(1);
+}
+
+// Pull down the `launcher` release metadata
+const launcherRelease = await octokit.rest.repos.release({
+  owner: "open-goal",
+  repo: "launcher",
+  release_id: releaseId,
+});
+
+if (launcherRelease === undefined) {
+  console.log(`Couldn't find launcher release with id ${releaseId}`);
+  process.exit(1);
+}
+
+// Get changes for the launcher
+const launcherChanges = changesFromBody(launcherRelease.body);
+
+// Let's see if we've updated the jak-project version by looking at what we currently have in the file
+const currentReleaseNotes = JSON.parse(
+  JSON.parse(fs.readFileSync("./.tauri/latest-release.json")).notes
+);
+let jakProjectChanges = [];
+if (currentReleaseNotes.jak_proj_tag !== jakProjectTag) {
+  // we've changed versions, let's go grab the release notes from there and prepare them
+  // this check is done so we don't add jak-project release notes to releases that havn't actually changed anything
+  // it'd be possible to skip these in the launcher's frontend but better to absorb that pain here
+  const jakProjectRelease = await octokit.rest.repos.getReleaseByTag({
+    owner: "open-goal",
+    repo: "jak-project",
+    tag: jakProjectTag,
+  });
+  jakProjectChanges = changesFromBody(jakProjectRelease.body);
 }
 
 // Retrieve linux and windows signatures
 const { data: releaseAssets } = await octokit.rest.repos.listReleaseAssets({
   owner: "open-goal",
   repo: "launcher",
-  release_id: release.id,
+  release_id: releaseId,
   per_page: 100,
 });
 
@@ -68,7 +163,6 @@ let linuxSignature = "";
 let windowsSignature = "";
 for (var i = 0; i < releaseAssets.length; i++) {
   const asset = releaseAssets[i];
-  console.log(asset.name);
   if (asset.name.toLowerCase().endsWith("appimage.tar.gz.sig")) {
     const assetDownload = await octokit.rest.repos.getReleaseAsset({
       owner: "open-goal",
@@ -95,14 +189,20 @@ for (var i = 0; i < releaseAssets.length; i++) {
 
 // TODO - no macOS yet
 const releaseMeta = {
-  name: release.tag_name,
-  notes: "Release Notes TODO",
-  pub_date: release.created_at,
+  name: launcherRelease.tag_name,
+  notes: JSON.stringify({
+    jak_proj_tag: jakProjectTag,
+    changes: {
+      jak_project: jakProjectChanges,
+      launcher: launcherChanges,
+    },
+  }),
+  pub_date: launcherRelease.created_at,
   platforms: {
     "linux-x86_64": {
       signature: linuxSignature,
       url: `https://github.com/open-goal/launcher/releases/download/${
-        release.tag_name
+        launcherRelease.tag_name
       }/OpenGOAL-Launcher_${tagToSearchFor.replace(
         "v",
         ""
@@ -111,7 +211,7 @@ const releaseMeta = {
     "windows-x86_64": {
       signature: windowsSignature,
       url: `https://github.com/open-goal/launcher/releases/download/${
-        release.tag_name
+        launcherRelease.tag_name
       }/OpenGOAL-Launcher_${tagToSearchFor.replace("v", "")}_x64_en-US.msi.zip`,
     },
   },
@@ -121,9 +221,10 @@ fs.writeFileSync(
   JSON.stringify(releaseMeta, null, 2) + "\n"
 );
 
+// Publish the release
 await octokit.rest.repos.updateRelease({
   owner: "open-goal",
   repo: "launcher",
-  release_id: release.id,
+  release_id: launcherRelease.id,
   draft: false,
 });

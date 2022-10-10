@@ -4,6 +4,7 @@ import { retry } from "@octokit/plugin-retry";
 import * as fs from "fs";
 import * as path from "path";
 import { exit } from "process";
+import * as core from "@actions/core";
 
 Octokit.plugin(throttling);
 Octokit.plugin(retry);
@@ -141,3 +142,5 @@ fs.writeFileSync(
   "./metadata.json",
   JSON.stringify(binaryBundleMeta, null, 2) + "\n"
 );
+// Set the output in the github actions step as well
+core.setOutput("jak_project_tag", release.tag_name);

@@ -6,17 +6,40 @@ on:
       - v*
 
 jobs:
-  publish-tauri:
+  create-release:
     if: github.repository == 'open-goal/launcher'
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.get_release_id.outputs.release_id }}
+    steps:
+      # Create the release, use `gh` CLI so we can auto generate the notes
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
+        run: |
+          TAG_VAL=$(echo ${{ github.REF }} | awk -F'refs/tags/' '{print $2}')
+          gh release create ${TAG_VAL} --generate-notes --draft --repo open-goal/launcher
+      # Get the internal ID of the release so that Tauri's action can use it to upload assets
+      - name: Get Release ID
+        id: get_release_id
+        run: |
+          TAG_VAL=$(echo ${{ github.REF }} | awk -F'refs/tags/' '{print $2}')
+          RELEASE_ID=$(gh release view "$TAG_VAL" --repo open-goal/launcher --json id --template '{{.id}}')
+          echo "##[set-output name=release_id;]${RELEASE_ID}"
+
+  build-app:
+    if: github.repository == 'open-goal/launcher'
+    needs: [create-release]
+    outputs:
+      jak_project_tag: ${{ steps.download_jak_project_binaries.outputs.jak_project_tag }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - platform: ubuntu-latest
+          - platform: ubuntu-20.04
             os: linux
-          - platform: windows-latest
+          - platform: ubuntu-20.04
             os: windows
-
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v3
@@ -52,6 +75,7 @@ jobs:
           npm run build
 
       - name: Download jak-project Release
+        id: download_jak_project_binaries
         env:
           JAK_PROJ_VERSION: "^0.0.0"
           PLATFORM: ${{ matrix.os }}
@@ -76,7 +100,7 @@ jobs:
           ls ./artifact-out/data
           mkdir -p ./src-tauri/bin/
           cp ./artifact-out/*.exe ./src-tauri/bin || true
-          cp ./third-party/glew_2.1.0/windows/glewinfo.exe ./src-tauri/bin
+          cp ./third-party/glew_2.2.0/windows/glewinfo.exe ./src-tauri/bin
           cp -r ./artifact-out/data ./src-tauri
           mv ./metadata.json ./src-tauri/data/metadata.json
           ls ./src-tauri
@@ -93,7 +117,7 @@ jobs:
           ls ./artifact-out/data
           mkdir -p ./src-tauri/bin/
           cp ./artifact-out/* ./src-tauri/bin || true
-          cp ./third-party/glew_2.1.0/linux/glewinfo ./src-tauri/bin
+          cp ./third-party/glew_2.2.0/linux/glewinfo ./src-tauri/bin
           cp -r ./artifact-out/data ./src-tauri
           mv ./metadata.json ./src-tauri/data/metadata.json
           ls ./src-tauri
@@ -108,20 +132,12 @@ jobs:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
         with:
           configPath: "./.tauri/release-config.combined.json"
-          tagName: "v__VERSION__"
-          releaseName: "OpenGOAL Launcher v__VERSION__"
-          releaseBody: "See the assets to download this version and install."
-          releaseDraft: true
-          prerelease: false
+          releaseId: ${{needs.create-release.outputs.release_id}}
 
-  update-release-meta:
+  publish-release:
     if: github.repository == 'open-goal/launcher'
-    needs: publish-tauri
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [ubuntu-latest]
-    runs-on: ${{ matrix.platform }}
+    needs: [create-release, build-app]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -132,11 +148,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: npm
 
       - name: update release metadata and publish the release
         env:
           GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
-          TAG_VALUE: ${{ github.REF }}
+          RELEASE_ID: ${{needs.create-release.outputs.release_id}}
+          JAK_PROJ_TAG: ${{needs.build-app.outputs.jak_project_tag}}
         run: |
           pushd ./.github/scripts/update-release-metadata
           npm ci
