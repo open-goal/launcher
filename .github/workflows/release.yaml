@@ -77,6 +77,7 @@ jobs:
           mkdir -p ./src-tauri/bin/
           cp ./artifact-out/*.exe ./src-tauri/bin || true
           cp ./third-party/glew_2.2.0/windows/glewinfo.exe ./src-tauri/bin
+          chmod +x ./src-tauri/bin/*
           cp -r ./artifact-out/data ./src-tauri
           mv ./metadata.json ./src-tauri/data/metadata.json
           ls ./src-tauri
