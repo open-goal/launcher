@@ -64,7 +64,7 @@ jobs:
           workspaces: src-tauri
 
       - name: Install Linux Dependencies
-        if: matrix.platform == 'ubuntu-latest'
+        if: matrix.platform == 'ubuntu-20.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev libglew2.1 patchelf
@@ -80,6 +80,7 @@ jobs:
           JAK_PROJ_VERSION: "^0.0.0"
           PLATFORM: ${{ matrix.os }}
           DOWNLOAD_DIR: "./"
+          GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
         run: |
           pushd ./.github/scripts/download-binaries
           npm ci
@@ -101,6 +102,7 @@ jobs:
           mkdir -p ./src-tauri/bin/
           cp ./artifact-out/*.exe ./src-tauri/bin || true
           cp ./third-party/glew_2.2.0/windows/glewinfo.exe ./src-tauri/bin
+          chmod +x ./src-tauri/bin/*
           cp -r ./artifact-out/data ./src-tauri
           mv ./metadata.json ./src-tauri/data/metadata.json
           ls ./src-tauri
