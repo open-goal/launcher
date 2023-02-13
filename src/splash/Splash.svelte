@@ -7,12 +7,16 @@
     dataDirectoryExists,
   } from "$lib/utils/data-files";
   import { log } from "$lib/utils/log";
+  import { invoke } from "@tauri-apps/api/tauri";
 
   let currentProgress = 0;
   let currentStatusText = "Initializing Config";
 
   // Events
   onMount(async () => {
+    await invoke("test_config_command", { "test": "hello world!?!?!@?#?!?@" });
+
+
     currentStatusText = "Checking Data Files";
     currentProgress = 25;
 
@@ -34,7 +38,7 @@
     currentStatusText = "Finishing Up";
     currentProgress = 100;
     await new Promise((res) => setTimeout(res, 2500));
-    await closeSplashScreen();
+    // await closeSplashScreen();
   });
 </script>
 
