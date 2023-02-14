@@ -1,6 +1,6 @@
 // Main config management for the app, doing it in rust because
 // serde provides a much nicer interface for dealing with the file than doing
-// it all ourselves
+// it all ourselves in typescript
 //
 // Read the config, if it's not there, we'll generate a default
 //
@@ -9,7 +9,7 @@
 //
 // serde does not support defaultLiterals yet - https://github.com/serde-rs/serde/issues/368
 
-use std::fs;
+use std::{fs, path::PathBuf};
 
 use log::{error, info, warn};
 use serde::{Deserialize, Serialize};
@@ -91,24 +91,33 @@ impl Requirements {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LauncherConfig {
+  #[serde(skip_serializing)]
+  #[serde(skip_deserializing)]
+  settings_path: Option<PathBuf>,
+
   #[serde(default = "default_version")]
   pub version: Option<String>,
   pub requirements: Requirements,
   pub games: SupportedGames,
   pub last_active_game: Option<SupportedGame>,
+  pub installation_dir: Option<String>,
 }
+
+// TODO - what is _loaded?
 
 fn default_version() -> Option<String> {
   Some("1.0".to_string())
 }
 
 impl LauncherConfig {
-  fn default() -> Self {
+  fn default(_settings_path: Option<PathBuf>) -> Self {
     Self {
+      settings_path: _settings_path,
       version: default_version(),
       requirements: Requirements::default(),
       games: SupportedGames::default(),
       last_active_game: None,
+      installation_dir: None,
     }
   }
 
@@ -116,42 +125,60 @@ impl LauncherConfig {
     match config_dir {
       Some(config_dir) => {
         let settings_path = &config_dir.join("settings.json");
-        info!("Loading configuration at path: {}", settings_path.display());
+        log::info!("Loading configuration at path: {}", settings_path.display());
         if !settings_path.exists() {
-          error!("Could not locate settings file, using defaults");
-          return LauncherConfig::default();
+          log::error!("Could not locate settings file, using defaults");
+          return LauncherConfig::default(Some(settings_path.to_path_buf()));
         }
         // Read the file
         let content = match fs::read_to_string(settings_path) {
           Ok(content) => content,
           Err(err) => {
-            error!("Could not read settings.json file: {}, using defaults", err);
-            return LauncherConfig::default();
+            log::error!("Could not read settings.json file: {}, using defaults", err);
+            return LauncherConfig::default(Some(settings_path.to_path_buf()));
           }
         };
 
         // Serialize from json
         match serde_json::from_str::<LauncherConfig>(&content) {
-          Ok(config) => {
+          Ok(mut config) => {
             log::info!(
               "Successfully loaded settings file, version {}, app starting up",
               config.version.as_ref().unwrap()
             );
+            config.settings_path = Some(settings_path.to_path_buf());
             return config;
           }
           Err(err) => {
-            error!(
+            log::error!(
               "Could not parse settings.json file: {}, using defaults",
               err
             );
-            return LauncherConfig::default();
+            return LauncherConfig::default(Some(settings_path.to_path_buf()));
           }
         };
       }
       None => {
-        warn!("Not loading configuration, no path provided. Using defaults");
-        LauncherConfig::default()
+        log::warn!("Not loading configuration, no path provided. Using defaults");
+        LauncherConfig::default(None)
       }
     }
+  }
+
+  pub fn save_config(&self) {
+    match &self.settings_path {
+      None => {
+        log::warn!("Can't save the settings file, as no path was initialized!");
+      }
+      Some(path) => {
+        let file = fs::File::create(path).expect("TODO");
+        serde_json::to_writer_pretty(file, &self);
+      }
+    }
+  }
+
+  pub fn set_install_directory(&mut self, new_dir: String) {
+    self.installation_dir = Some(new_dir);
+    self.save_config();
   }
 }

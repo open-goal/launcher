@@ -3,14 +3,17 @@
   windows_subsystem = "windows"
 )]
 
-use std::env;
-
 use tauri::{Manager, RunEvent};
+
+use std::env;
 
 mod commands;
 mod config;
 mod textures;
-use commands::{close_splashscreen, copy_dir, get_highest_simd, open_dir, open_repl};
+use commands::{
+  close_splashscreen, copy_dir, get_highest_simd, get_install_directory, open_dir, open_repl,
+  set_install_directory,
+};
 use textures::{extract_textures, get_all_texture_packs};
 pub type FFIResult<T> = Result<T, String>;
 
@@ -30,12 +33,16 @@ fn main() {
       //
       // This allows us to avoid hacky globals, and pass around information (in this case, the config)
       // to the relevant places
-      app.manage(config::config::LauncherConfig::load_config(
-        app.path_resolver().app_config_dir(),
+      app.manage(std::sync::Mutex::new(
+        config::config::LauncherConfig::load_config(app.path_resolver().app_config_dir()),
       ));
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
+      // Config Related
+      get_install_directory,
+      set_install_directory,
+      // Requirements Checking
       get_highest_simd,
       open_dir,
       copy_dir,
