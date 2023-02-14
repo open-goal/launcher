@@ -3,31 +3,39 @@
   windows_subsystem = "windows"
 )]
 
-use config::config::LauncherConfig;
-use tauri::{RunEvent, Manager};
+use std::env;
+
+use tauri::{Manager, RunEvent};
 
 mod commands;
 mod config;
 mod textures;
 use commands::{close_splashscreen, copy_dir, get_highest_simd, open_dir, open_repl};
 use textures::{extract_textures, get_all_texture_packs};
-
 pub type FFIResult<T> = Result<T, String>;
 
-#[tauri::command]
-async fn test_config_command(config: tauri::State<'_, LauncherConfig>, test: String) -> FFIResult<()> {
-    println!("{} | {}", config.version, test);
-    Ok(())
-}
-
 fn main() {
+  if env::var_os("RUST_LOG").is_none() {
+    env::set_var("RUST_LOG", "debug");
+  }
+
+  pretty_env_logger::init();
+
   tauri::Builder::default()
     .setup(|app| {
-      app.manage(config::config::LauncherConfig::init_config(app.path_resolver().app_config_dir()));
+      // Load the config (or initialize it with defaults)
+      //
+      // Tauri is pretty cool - you can "manage" as many instances of structs as you want (so long as it's only 1 per type)
+      // Then commands can retrieve said managed structs via `tauri::State`
+      //
+      // This allows us to avoid hacky globals, and pass around information (in this case, the config)
+      // to the relevant places
+      app.manage(config::config::LauncherConfig::load_config(
+        app.path_resolver().app_config_dir(),
+      ));
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
-        test_config_command,
       get_highest_simd,
       open_dir,
       copy_dir,
