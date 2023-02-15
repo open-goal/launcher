@@ -30,11 +30,14 @@
       // If not -- let's ask the user to set one up
       // This is part of what allows for the user to install the games and such wherever they want
       currentStatusText = "Pick an Installation Folder";
+      // TODO - change to a save dialog instead
       const new_install_dir = await folderPrompt("Pick an Installation Folder");
       // TODO - put invokes into a nice typescript interface
       if (new_install_dir !== undefined) {
         await invoke("set_install_directory", {"newDir": new_install_dir});
         // TODO - we are kinda assuming it succeeded here, improve that
+        // - what if the install directory no longer exists
+        // - what if what they provide isn't writable?
         installationDirSet = true;
         finishSplash();
       }
@@ -66,7 +69,7 @@
   }
 </script>
 
-<div class="content">
+<div class="content" data-tauri-drag-region>
   <div class="splash-logo">
     <img src={logo} alt="" draggable="false" />
   </div>

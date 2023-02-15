@@ -77,7 +77,7 @@
     <Sidebar />
     <Route path="/" component={Game} primary={false} let:params />
     <Route path="/:game_name" component={Game} primary={false} let:params />
-    <Route path="/settings" component={Settings} primary={false} />
+    <Route path="/settings/:tab" component={Settings} primary={false} let:params />
     <Route path="/faq" component={Faq} primary={false} />
     <Route path="/textures" component={Textures} primary={false} />
     <Route path="/update" component={Update} primary={false} />

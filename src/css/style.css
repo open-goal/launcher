@@ -1,17 +1,6 @@
 @font-face {
-  font-family: "Staatliches";
-  src: url("/src/assets/fonts/Staatliches/Staatliches-Regular.ttf");
-}
-
-@font-face {
-  font-family: "Lato";
-  src: url("/src/assets/fonts/Lato/Lato-Regular.ttf");
-}
-
-@font-face {
-  font-family: "Lato";
-  src: url("/src/assets/fonts/Lato/Lato-Bold.ttf");
-  font-weight: 700;
+  font-family: "Inter";
+  src: url("/src/assets/fonts/Inter/Inter.ttf");
 }
 
 @font-face {
@@ -27,7 +16,7 @@
 
 * {
   -webkit-user-drag: none;
-  font-family: "Staatliches", sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 body {
@@ -51,4 +40,20 @@ body {
   border-radius: 5px;
   transition: all 0.1s ease;
   color: black;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #18181b;
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #18181b;
+  border-radius: 2px;
+  border: 3px solid #c2410c;
 }

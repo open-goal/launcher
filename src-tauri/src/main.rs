@@ -33,9 +33,9 @@ fn main() {
       //
       // This allows us to avoid hacky globals, and pass around information (in this case, the config)
       // to the relevant places
-      app.manage(std::sync::Mutex::new(
-        config::config::LauncherConfig::load_config(app.path_resolver().app_config_dir()),
-      ));
+      app.manage(std::sync::Mutex::new(config::LauncherConfig::load_config(
+        app.path_resolver().app_config_dir(),
+      )));
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![

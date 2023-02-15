@@ -6,7 +6,7 @@ use std::sync::Mutex;
 use tauri::command;
 use tauri::Manager;
 
-use crate::config::config::LauncherConfig;
+use crate::config::LauncherConfig;
 
 #[tauri::command]
 pub fn get_install_directory(config: tauri::State<Mutex<LauncherConfig>>) -> Option<String> {

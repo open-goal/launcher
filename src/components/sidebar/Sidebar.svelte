@@ -1,6 +1,6 @@
 <script lang="ts">
   import logoJak1 from "$assets/images/jak-tpl.webp";
-  // import logoJak2 from "$assets/images/jak-2.webp";
+  import logoJak2 from "$assets/images/jak-2.webp";
   // import logoJak3 from "$assets/images/jak-3.webp";
   import { link, useLocation } from "svelte-navigator";
   import { Tooltip } from "flowbite-svelte";
@@ -10,7 +10,11 @@
 </script>
 
 <div
-  class="w-20 h-full bg-[#222222] px-1 absolute left-0 opacity-75 hover:opacity-100 duration-500 z-10"
+  class="w-20 h-full bg-[#101010] px-1 absolute left-0 {pathname.startsWith(
+    '/settings'
+  )
+    ? ''
+    : 'opacity-75 hover:opacity-100 duration-500 '} z-10"
 >
   <ul class="flex flex-col space-y-12 px-1 py-5">
     <li>
@@ -23,17 +27,13 @@
         data-mdb-ripple="true"
         data-mdb-ripple-color="dark"
       >
-        <img src={logoJak1} alt="Jak - TPL" />
-        <Tooltip
-          rounded={false}
-          arrow={false}
-          placement="right"
-          style="dark"
-          tipClass="px-2 truncate">Jak and Daxter: The Precursor Legacy</Tooltip
+        <img src={logoJak1} alt="Jak - The Precursor Legacy" />
+        <Tooltip placement="right"
+          >Jak&nbsp;and&nbsp;Daxter:&nbsp;The&nbsp;Precursor&nbsp;Legacy</Tooltip
         >
       </a>
     </li>
-    <!-- <li>
+    <li>
       <a
         class="flex items-center {pathname == '/jak2'
           ? ''
@@ -42,18 +42,12 @@
         use:link
         data-mdb-ripple="true"
         data-mdb-ripple-color="dark"
-        disabled
       >
-        <img src={logoJak2} alt="Jak2" />
-        <Tooltip
-          rounded={false}
-          arrow={false}
-          placement="right"
-          style="dark"
-          tipClass="px-2 truncate">Jak 2</Tooltip
-        >
+        <img src={logoJak2} alt="Jak 2" />
+        <Tooltip placement="right" style="dark">Jak 2</Tooltip>
       </a>
     </li>
+    <!--
     <li>
       <a
         class="flex items-center {pathname == '/jak3'
@@ -77,22 +71,19 @@
     </li> -->
     <li class="fixed bottom-24 left-6">
       <a
-        class="flex items-center justify-center opacity-75 {pathname ==
-        '/settings'
+        class="flex items-center justify-center opacity-75 {pathname.startsWith(
+          '/settings'
+        )
           ? 'opacity-100'
           : 'grayscale'} hover:grayscale-0 hover:opacity-100 text-orange-400 duration-500"
-        href="/settings"
+        href="/settings/general"
         use:link
         data-mdb-ripple="true"
         data-mdb-ripple-color="dark"
       >
         <i class="fa-solid fa-gear text-3xl" />
-        <Tooltip
-          rounded={false}
-          arrow={false}
-          placement="right"
-          style="dark"
-          tipClass="px-2 truncate">Settings</Tooltip
+        <Tooltip rounded={false} arrow={false} placement="right" style="dark"
+          >Settings</Tooltip
         >
       </a>
     </li>
@@ -108,12 +99,8 @@
         data-mdb-ripple-color="dark"
       >
         <i class="fa fa-question-circle text-3xl" />
-        <Tooltip
-          rounded={false}
-          arrow={false}
-          placement="right"
-          style="dark"
-          tipClass="px-2 truncate">FAQ</Tooltip
+        <Tooltip rounded={false} arrow={false} placement="right" style="dark"
+          >FAQ</Tooltip
         >
       </a>
     </li>
