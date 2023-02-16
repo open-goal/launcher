@@ -2,6 +2,7 @@
   import logoJak1 from "$assets/images/jak-tpl.webp";
   import logoJak2 from "$assets/images/jak-2.webp";
   // import logoJak3 from "$assets/images/jak-3.webp";
+  import Icon from '@iconify/svelte';
   import { link, useLocation } from "svelte-navigator";
   import { Tooltip } from "flowbite-svelte";
 
@@ -14,7 +15,7 @@
     '/settings'
   )
     ? ''
-    : 'opacity-75 hover:opacity-100 duration-500 '} z-10"
+    : 'opacity-50 hover:opacity-100 duration-500 '} z-10"
 >
   <ul class="flex flex-col space-y-12 px-1 py-5">
     <li>
@@ -81,7 +82,7 @@
         data-mdb-ripple="true"
         data-mdb-ripple-color="dark"
       >
-        <i class="fa-solid fa-gear text-3xl" />
+        <Icon icon="material-symbols:settings" width={36} height={36} />
         <Tooltip rounded={false} arrow={false} placement="right" style="dark"
           >Settings</Tooltip
         >
@@ -98,7 +99,7 @@
         data-mdb-ripple="true"
         data-mdb-ripple-color="dark"
       >
-        <i class="fa fa-question-circle text-3xl" />
+        <Icon icon="material-symbols:contact-support" width={36} height={36} />
         <Tooltip rounded={false} arrow={false} placement="right" style="dark"
           >FAQ</Tooltip
         >

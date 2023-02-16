@@ -33,7 +33,7 @@
       <Tabs
         style="underline"
         divider={false}
-        contentClass="p-4 pt-0 rounded-lg dark:bg-gray-800 mt-2 pb-20 overflow-y-auto"
+        contentClass="p-4 pt-0 rounded-lg mt-2 pb-20 overflow-y-auto"
       >
         <TabItem
           open={!activeTab || activeTab === "general"}

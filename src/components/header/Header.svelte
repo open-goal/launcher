@@ -7,6 +7,7 @@
   import { getVersion } from "@tauri-apps/api/app";
   import { Link } from "svelte-navigator";
   import { Tooltip } from "flowbite-svelte";
+  import Icon from "@iconify/svelte";
   import { handleCheckUpdate } from "$lib/utils/updates";
   import { UpdateStore } from "$lib/stores/AppStore";
   let gameVersion;
@@ -47,21 +48,20 @@
 
   <div class="flex flex-col text-orange-500">
     <p class="font-mono text-sm hover:text-orange-300">
-      <Link class="font-mono" to="">> Update Available!</Link>
+      <!-- TODO - gotta make a tauri update page -->
+      <Link class="font-mono" to="TODO">> Update Available!</Link>
     </p>
     <p class="font-mono text-sm hover:text-orange-300">
-      <Link class="font-mono" to="">> Update Available!</Link>
+      <Link class="font-mono" to="/settings/versions">> Update Available!</Link>
     </p>
   </div>
 
   <div class="flex space-x-4 text-xl ml-auto">
-    <i
-      class="fa fa-window-minimize hover:text-amber-600 hover:cursor-pointer text-sm"
-      on:click={() => appWindow.minimize()}
-    />
-    <i
-      class="fa-solid fa-times hover:text-red-600 hover:cursor-pointer"
-      on:click={() => appWindow.close()}
-    />
+    <button class="hover:text-amber-600" on:click={() => appWindow.minimize()}>
+      <Icon icon="material-symbols:chrome-minimize" width="24" height="24" />
+    </button>
+    <button class="hover:text-red-600" on:click={() => appWindow.close()}>
+      <Icon icon="ic:baseline-close" width="24" height="24" />
+    </button>
   </div>
 </header>
