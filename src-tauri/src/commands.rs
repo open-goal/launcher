@@ -2,28 +2,37 @@ use fs_extra::dir::copy;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::process::Command;
-use std::sync::Mutex;
 use tauri::command;
 use tauri::Manager;
 
 use crate::config::LauncherConfig;
 
+pub mod versions;
+
 #[tauri::command]
-pub fn get_install_directory(config: tauri::State<Mutex<LauncherConfig>>) -> Option<String> {
+pub async fn get_install_directory(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<Option<String>, ()> {
   // Ideally we'd want to use MutexGuard but that doesn't sit nicely with tauri's commands
   // Instead, we manage the lock ourselves
   // TODO - switch to tokio and async functions which apparently work better
-  let config_lock: std::sync::MutexGuard<LauncherConfig> = config.lock().unwrap();
+  let config_lock = config.lock().await;
   match config_lock.installation_dir {
-    None => None,
-    Some(_) => Some(config_lock.installation_dir.as_ref().unwrap().to_string()),
+    None => Ok(None),
+    Some(_) => Ok(Some(
+      config_lock.installation_dir.as_ref().unwrap().to_string(),
+    )),
   }
 }
 
 #[tauri::command]
-pub fn set_install_directory(config: tauri::State<Mutex<LauncherConfig>>, new_dir: String) {
-  let mut config_lock: std::sync::MutexGuard<LauncherConfig> = config.lock().unwrap();
+pub async fn set_install_directory(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  new_dir: String,
+) -> Result<(), ()> {
+  let mut config_lock = config.lock().await;
   config_lock.set_install_directory(new_dir);
+  Ok(())
 }
 
 #[derive(Serialize, Deserialize, Debug)]
