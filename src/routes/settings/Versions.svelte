@@ -11,11 +11,18 @@
   import Icon from "@iconify/svelte";
   import { onMount } from "svelte";
   import { each } from "svelte/internal";
-  import { downloadOfficialVersion, listDownloadedOfficialVersions } from "$lib/rpc/versions";
+  import {
+    downloadOfficialVersion,
+    getActiveVersion,
+    listDownloadedVersions,
+    openVersionFolder,
+    saveActiveVersionChange,
+    VersionFolders,
+  } from "$lib/rpc/versions";
 
   let componentLoaded = false;
-  let currentOfficialVersion = "v0.1.31";
-  let selectedOfficialVersion = "v0.1.31";
+  let currentOfficialVersion = undefined;
+  let selectedOfficialVersion = undefined;
 
   const tabItemActiveClasses =
     "inline-block text-sm font-bold text-center disabled:cursor-not-allowed p-4 text-orange-500 border-b-2 border-orange-500 dark:text-orange-500 dark:border-orange-500";
@@ -28,12 +35,14 @@
     githubLink: string | undefined;
     downloadUrl: string | undefined; // TODO - windows/mac/linux
     isDownloaded: boolean;
-    isActive: boolean;
   }
 
   let officialReleases: Release[] = [];
 
   onMount(async () => {
+    // TODO - check when this is null
+    currentOfficialVersion = await getActiveVersion();
+    selectedOfficialVersion = currentOfficialVersion;
     await refreshOfficialVersionList(undefined);
     // TODO - spinner
     componentLoaded = true;
@@ -41,7 +50,9 @@
 
   async function refreshOfficialVersionList(evt) {
     // Check the backend to see if the folder has any versions
-    const installedVersions = await listDownloadedOfficialVersions();
+    const installedVersions = await listDownloadedVersions(
+      VersionFolders.OFFICIAL
+    );
     officialReleases = [];
     for (const version of installedVersions) {
       officialReleases = [
@@ -51,8 +62,7 @@
           date: undefined,
           githubLink: undefined,
           downloadUrl: undefined,
-          isDownloaded: true,
-          isActive: true, // TODO
+          isDownloaded: true
         },
       ];
     }
@@ -75,7 +85,8 @@
         if (existingRelease.version == release.tag_name) {
           existingRelease.date = release.published_at;
           existingRelease.githubLink = release.html_url;
-          existingRelease.downloadUrl = "https://github.com/open-goal/jak-project/releases/download/v0.1.32/opengoal-windows-v0.1.32.zip";
+          existingRelease.downloadUrl =
+            "https://github.com/open-goal/jak-project/releases/download/v0.1.32/opengoal-windows-v0.1.32.zip";
           foundExistingRelease = true;
           break;
         }
@@ -89,24 +100,28 @@
           version: release.tag_name,
           date: release.published_at,
           githubLink: release.html_url,
-          downloadUrl: "https://github.com/open-goal/jak-project/releases/download/v0.1.32/opengoal-windows-v0.1.32.zip",
-          isDownloaded: false,
-          isActive: false, // TODO
+          downloadUrl:
+            "https://github.com/open-goal/jak-project/releases/download/v0.1.32/opengoal-windows-v0.1.32.zip",
+          isDownloaded: false
         },
       ];
     }
 
     // Sort releases by published date
-    officialReleases.sort((a, b) => b.date.localeCompare(a.date));
+    officialReleases = officialReleases.sort((a, b) => b.date.localeCompare(a.date));
+    selectedOfficialVersion = "v0.1.32";
   }
 
   async function saveOfficialVersionChange(evt) {
-    // TODO - tauri side
-
+    await saveActiveVersionChange(
+      VersionFolders.OFFICIAL,
+      selectedOfficialVersion
+    );
+    currentOfficialVersion = selectedOfficialVersion;
   }
 
   async function openOfficialVersionFolder(evt) {
-    // TODO - tauri side
+    openVersionFolder(VersionFolders.OFFICIAL);
   }
 
   async function onDownloadOfficialVersion(version: String, url: String) {
@@ -135,16 +150,19 @@
         </div>
         <div class="flex">
           {#if currentOfficialVersion != selectedOfficialVersion}
-          <Button class="!p-2 mr-2 dark:bg-green-500 hover:dark:bg-green-600" on:click={saveOfficialVersionChange}>
-            <Icon
-              icon="material-symbols:save"
-              width="20"
-              height="20"
-              alt="save official version change"
-            />
-          </Button>
+            <Button
+              btnClass="!p-2 mr-2 rounded-md dark:bg-green-500 hover:dark:bg-green-600"
+              on:click={saveOfficialVersionChange}
+            >
+              <Icon
+                icon="material-symbols:save"
+                width="20"
+                height="20"
+                alt="save official version change"
+              />
+            </Button>
           {/if}
-          <Button class="!p-2 mr-2" on:click={refreshOfficialVersionList}>
+          <Button btnClass="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600" on:click={refreshOfficialVersionList}>
             <Icon
               icon="material-symbols:refresh"
               width="20"
@@ -152,7 +170,7 @@
               alt="refresh official version list"
             />
           </Button>
-          <Button class="!p-2">
+          <Button btnClass="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600" on:click={openOfficialVersionFolder}>
             <Icon
               icon="material-symbols:folder-open-rounded"
               width="20"
@@ -174,23 +192,32 @@
           <TableHeadCell>Date</TableHeadCell>
           <TableHeadCell>Github Link</TableHeadCell>
         </TableHead>
-        <TableBody class="divide-y">
-          {#each officialReleases as release}
+        <TableBody tableBodyClass="divide-y">
+          {#each officialReleases as release (release.version)}
             <TableBodyRow>
-              <TableBodyCell class="!p-4 py-0">
-                <Radio
-                  class="disabled:cursor-not-allowed"
-                  bind:group={selectedOfficialVersion}
-                  value={release.version}
-                  disabled={!release.isDownloaded}
-                  name="official-release"
-                />
+              <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium">
+                {#if release.isDownloaded}
+                  <Radio
+                    class="disabled:cursor-not-allowed p-0"
+                    bind:group={selectedOfficialVersion}
+                    value={release.version}
+                    disabled={!release.isDownloaded}
+                    name="official-release"
+                  />
+                {/if}
               </TableBodyCell>
               <TableBodyCell
-                tdClass="px-6 py-0 whitespace-nowrap font-medium"
+                tdClass="px-6 py-2 whitespace-nowrap font-medium"
                 style="line-height: 0;"
               >
-                <Button class="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0" on:click={() => onDownloadOfficialVersion(release.version, release.downloadUrl)}>
+                <Button
+                  btnClass="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0"
+                  on:click={() =>
+                    onDownloadOfficialVersion(
+                      release.version,
+                      release.downloadUrl
+                    )}
+                >
                   {#if release.isDownloaded}
                     <Icon
                       icon="ic:baseline-delete-forever"
@@ -199,17 +226,22 @@
                       color="red"
                     />
                   {:else}
-                    <Icon icon="ic:baseline-download" color="#00d500" width="24" height="24" />
+                    <Icon
+                      icon="ic:baseline-download"
+                      color="#00d500"
+                      width="24"
+                      height="24"
+                    />
                   {/if}
                 </Button>
               </TableBodyCell>
-              <TableBodyCell tdClass="px-6 py-0 whitespace-nowrap font-medium"
+              <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium"
                 >{release.version}</TableBodyCell
               >
-              <TableBodyCell tdClass="px-6 py-0 whitespace-nowrap font-medium"
+              <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium"
                 >{new Date(release.date).toLocaleDateString()}</TableBodyCell
               >
-              <TableBodyCell tdClass="px-6 py-0 whitespace-nowrap font-medium"
+              <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium"
                 ><a href={release.githubLink} target="_blank" rel="noreferrer"
                   ><Icon icon="mdi:github" width="24" height="24" /></a
                 >

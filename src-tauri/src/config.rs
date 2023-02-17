@@ -38,6 +38,7 @@ impl SupportedGame {
 pub struct GameConfig {
   is_installed: bool,
   version: Option<String>,
+  version_folder: Option<String>,
 }
 
 impl GameConfig {
@@ -45,6 +46,7 @@ impl GameConfig {
     Self {
       is_installed: false,
       version: None,
+      version_folder: None,
     }
   }
 }
@@ -101,6 +103,8 @@ pub struct LauncherConfig {
   pub games: SupportedGames,
   pub last_active_game: Option<SupportedGame>,
   pub installation_dir: Option<String>,
+  pub active_version: Option<String>,
+  pub active_version_folder: Option<String>,
 }
 
 // TODO - what is _loaded?
@@ -118,6 +122,8 @@ impl LauncherConfig {
       games: SupportedGames::default(),
       last_active_game: None,
       installation_dir: None,
+      active_version: None,
+      active_version_folder: Some("official".to_string()),
     }
   }
 
@@ -179,6 +185,16 @@ impl LauncherConfig {
 
   pub fn set_install_directory(&mut self, new_dir: String) {
     self.installation_dir = Some(new_dir);
+    self.save_config();
+  }
+
+  pub fn set_active_version(&mut self, new_version: String) {
+    self.active_version = Some(new_version);
+    self.save_config();
+  }
+
+  pub fn set_active_version_folder(&mut self, new_version_folder: String) {
+    self.active_version_folder = Some(new_version_folder);
     self.save_config();
   }
 }

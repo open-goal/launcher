@@ -28,9 +28,6 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "resources": [
-        "data/"
-      ],
       "externalBin": [
         "bin/extractor",
         "bin/gk",

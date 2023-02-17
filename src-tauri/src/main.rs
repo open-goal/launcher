@@ -10,6 +10,7 @@ use std::env;
 mod commands;
 mod config;
 mod textures;
+mod util;
 use commands::{
   close_splashscreen, copy_dir, get_highest_simd, get_install_directory, open_dir, open_repl,
   set_install_directory,
@@ -19,6 +20,8 @@ use textures::{extract_textures, get_all_texture_packs};
 pub type FFIResult<T> = Result<T, String>;
 
 fn main() {
+  // TODO - switch to https://github.com/daboross/fern so we can setup easy logging
+  // to a file as well
   if env::var_os("RUST_LOG").is_none() {
     env::set_var("RUST_LOG", "debug");
   }
@@ -44,8 +47,12 @@ fn main() {
       get_install_directory,
       set_install_directory,
       // Version Management,
-      commands::versions::list_downloaded_official_versions,
+      commands::versions::list_downloaded_versions,
       commands::versions::download_official_version,
+      commands::versions::go_to_version_folder,
+      commands::versions::save_active_version_change,
+      commands::versions::get_active_version,
+      commands::versions::get_active_version_folder,
       // Requirements Checking
       get_highest_simd,
       open_dir,
