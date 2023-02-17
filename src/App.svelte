@@ -1,7 +1,4 @@
 <script>
-  // Assets
-  import bgVideo from "$assets/videos/background.mp4";
-  import bgVideoPoster from "$assets/images/background-jak1-fallback.webp";
   // Other Imports
   import { onMount } from "svelte";
   import { Router, Route } from "svelte-navigator";
@@ -17,6 +14,7 @@
   import Faq from "./routes/FAQ.svelte";
   import Textures from "./routes/Textures.svelte";
   import Update from "./routes/Update.svelte";
+  import GameInProgress from "./components/games/GameInProgress.svelte";
 
   let revokeSpecificActions = false;
 
@@ -71,12 +69,12 @@
 
 <Router>
   <div class="container h-screen max-w-none">
-    <!-- TODO - pass background component current active game -->
-    <Background {bgVideo} {bgVideoPoster} />
+    <Background />
     <Header />
     <Sidebar />
     <Route path="/" component={Game} primary={false} let:params />
     <Route path="/:game_name" component={Game} primary={false} let:params />
+    <Route path="/jak2" component={GameInProgress} primary={false} let:params />
     <Route path="/settings/:tab" component={Settings} primary={false} let:params />
     <Route path="/faq" component={Faq} primary={false} />
     <Route path="/textures" component={Textures} primary={false} />
