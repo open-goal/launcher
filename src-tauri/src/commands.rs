@@ -5,6 +5,8 @@ use std::process::Command;
 use tauri::command;
 use tauri::Manager;
 
+use crate::util::open_dir_in_os;
+
 pub mod config;
 pub mod extractor;
 pub mod game;
@@ -40,7 +42,7 @@ fn highest_simd() -> Result<String, CommandError> {
 
 #[command]
 pub fn open_dir(dir: String) {
-  return open_appdir(dir);
+  return open_dir_in_os(dir);
 }
 
 #[command]
@@ -53,33 +55,6 @@ pub async fn copy_dir(dir_src: String, dir_dest: String) -> bool {
     return false;
   }
   return true;
-}
-
-#[cfg(target_os = "windows")]
-fn open_appdir(dir: String) {
-  println!("Opening directory");
-  Command::new("explorer")
-    .arg(dir) // <- Specify the directory you'd like to open.
-    .spawn()
-    .unwrap();
-}
-
-#[cfg(target_os = "linux")]
-fn open_appdir(dir: String) {
-  println!("Opening directory");
-  Command::new("xdg-open")
-    .arg(dir) // <- Specify the directory you'd like to open.
-    .spawn()
-    .unwrap();
-}
-
-#[cfg(target_os = "macos")]
-fn open_appdir(dir: String) {
-  println!("Opening directory");
-  Command::new("open")
-    .arg(dir) // <- Specify the directory you'd like to open.
-    .spawn()
-    .unwrap();
 }
 
 #[tauri::command]

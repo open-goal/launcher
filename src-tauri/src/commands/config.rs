@@ -51,7 +51,7 @@ pub async fn finalize_installation(
   game_name: String,
 ) -> Result<(), ()> {
   let mut config_lock = config.lock().await;
-  config_lock.update_installed_game_version(game_name);
+  config_lock.update_installed_game_version(game_name, true);
   Ok(())
 }
 

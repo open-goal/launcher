@@ -202,27 +202,47 @@ impl LauncherConfig {
   // with the old format
   //
   // I think there should be an enum involved here somewhere/somehow
-  pub fn update_installed_game_version(&mut self, game_name: String) {
+  pub fn update_installed_game_version(&mut self, game_name: String, installed: bool) {
     match game_name.as_str() {
       "jak1" => {
-        self.games.jak1.is_installed = true;
-        self.games.jak1.version = self.active_version.clone();
-        self.games.jak1.version_folder = self.active_version_folder.clone();
+        self.games.jak1.is_installed = installed;
+        if installed {
+          self.games.jak1.version = self.active_version.clone();
+          self.games.jak1.version_folder = self.active_version_folder.clone();
+        } else {
+          self.games.jak1.version = None;
+          self.games.jak1.version_folder = None;
+        }
       }
       "jak2" => {
-        self.games.jak2.is_installed = true;
-        self.games.jak2.version = self.active_version.clone();
-        self.games.jak2.version_folder = self.active_version_folder.clone();
+        self.games.jak2.is_installed = installed;
+        if installed {
+          self.games.jak2.version = self.active_version.clone();
+          self.games.jak2.version_folder = self.active_version_folder.clone();
+        } else {
+          self.games.jak2.version = None;
+          self.games.jak2.version_folder = None;
+        }
       }
       "jak3" => {
-        self.games.jak3.is_installed = true;
-        self.games.jak3.version = self.active_version.clone();
-        self.games.jak3.version_folder = self.active_version_folder.clone();
+        self.games.jak3.is_installed = installed;
+        if installed {
+          self.games.jak3.version = self.active_version.clone();
+          self.games.jak3.version_folder = self.active_version_folder.clone();
+        } else {
+          self.games.jak3.version = None;
+          self.games.jak3.version_folder = None;
+        }
       }
       "jakx" => {
-        self.games.jakx.is_installed = true;
-        self.games.jakx.version = self.active_version.clone();
-        self.games.jakx.version_folder = self.active_version_folder.clone();
+        self.games.jakx.is_installed = installed;
+        if installed {
+          self.games.jakx.version = self.active_version.clone();
+          self.games.jakx.version_folder = self.active_version_folder.clone();
+        } else {
+          self.games.jakx.version = None;
+          self.games.jakx.version_folder = None;
+        }
       }
       _ => {}
     }

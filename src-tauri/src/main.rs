@@ -56,6 +56,7 @@ fn main() {
       commands::extractor::run_decompiler,
       commands::extractor::run_compiler,
       commands::game::launch_game,
+      commands::game::uninstall_game,
       // Requirements Checking
       get_highest_simd,
       open_dir,
