@@ -114,11 +114,6 @@ if (releaseId === undefined || releaseId === "") {
   process.exit(1);
 }
 
-if (jakProjectTag === undefined || jakProjectTag === "") {
-  console.log("You didn't provide JAK_PROJ_TAG");
-  process.exit(1);
-}
-
 // Pull down the `launcher` release metadata
 const launcherRelease = await octokit.rest.repos.release({
   owner: "open-goal",
@@ -133,23 +128,6 @@ if (launcherRelease === undefined) {
 
 // Get changes for the launcher
 const launcherChanges = changesFromBody(launcherRelease.body);
-
-// Let's see if we've updated the jak-project version by looking at what we currently have in the file
-const currentReleaseNotes = JSON.parse(
-  JSON.parse(fs.readFileSync("./.tauri/latest-release.json")).notes
-);
-let jakProjectChanges = [];
-if (currentReleaseNotes.jak_proj_tag !== jakProjectTag) {
-  // we've changed versions, let's go grab the release notes from there and prepare them
-  // this check is done so we don't add jak-project release notes to releases that havn't actually changed anything
-  // it'd be possible to skip these in the launcher's frontend but better to absorb that pain here
-  const jakProjectRelease = await octokit.rest.repos.getReleaseByTag({
-    owner: "open-goal",
-    repo: "jak-project",
-    tag: jakProjectTag,
-  });
-  jakProjectChanges = changesFromBody(jakProjectRelease.body);
-}
 
 // Retrieve linux and windows signatures
 const { data: releaseAssets } = await octokit.rest.repos.listReleaseAssets({
@@ -192,10 +170,7 @@ const releaseMeta = {
   name: launcherRelease.tag_name,
   notes: JSON.stringify({
     jak_proj_tag: jakProjectTag,
-    changes: {
-      jak_project: jakProjectChanges,
-      launcher: launcherChanges,
-    },
+    changes: launcherChanges,
   }),
   pub_date: launcherRelease.created_at,
   platforms: {
