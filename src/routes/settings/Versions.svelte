@@ -10,7 +10,6 @@
   } from "flowbite-svelte";
   import Icon from "@iconify/svelte";
   import { onMount } from "svelte";
-  import { each } from "svelte/internal";
   import {
     downloadOfficialVersion,
     getActiveVersion,

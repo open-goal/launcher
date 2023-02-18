@@ -28,7 +28,9 @@
 </script>
 
 <div class="ml-20">
-  <div class="flex flex-col h-screen bg-slate-900">
+  <!-- TODO - the static height here is kinda a hack, it's because the
+    header and the rest of the layout aren't within a shared container -->
+  <div class="flex flex-col h-[544px] bg-slate-900">
     <!-- https://flowbite-svelte.com/components/tab#Tabs_with_icons -->
       <Tabs
         style="underline"
