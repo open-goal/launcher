@@ -6,7 +6,6 @@
   import Settings from "./routes/Settings.svelte";
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
-  import { isInDebugMode } from "$lib/setup/setup";
   import { appWindow } from "@tauri-apps/api/window";
   import { isInstalling } from "./lib/stores/AppStore";
   import { log } from "$lib/utils/log";
@@ -15,6 +14,7 @@
   import Textures from "./routes/Textures.svelte";
   import Update from "./routes/Update.svelte";
   import GameInProgress from "./components/games/GameInProgress.svelte";
+  import { isInDebugMode } from "$lib/utils/common";
 
   let revokeSpecificActions = false;
 
@@ -75,7 +75,12 @@
     <Route path="/" component={Game} primary={false} let:params />
     <Route path="/:game_name" component={Game} primary={false} let:params />
     <Route path="/jak2" component={GameInProgress} primary={false} let:params />
-    <Route path="/settings/:tab" component={Settings} primary={false} let:params />
+    <Route
+      path="/settings/:tab"
+      component={Settings}
+      primary={false}
+      let:params
+    />
     <Route path="/faq" component={Faq} primary={false} />
     <Route path="/textures" component={Textures} primary={false} />
     <Route path="/update" component={Update} primary={false} />

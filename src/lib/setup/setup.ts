@@ -2,33 +2,13 @@ import { Command } from "@tauri-apps/api/shell";
 import { appDir, join } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
 import { getHighestSimd } from "$lib/rpc/commands";
-import {
-  gameNeedsReinstall,
-  InstallStatus,
-  isCompiling,
-  isDecompiling,
-  isInstalling,
-} from "../stores/AppStore";
-import {
-  getInternalName,
-  SETUP_ERROR,
-  SETUP_SUCCESS,
-  SupportedGame,
-} from "$lib/constants";
-import { filePrompt } from "$lib/utils/file";
-import { launcherConfig } from "$lib/config";
+import { isInstalling } from "../stores/AppStore";
+import { getInternalName, SupportedGame } from "$lib/constants";
 import { resolveErrorCode } from "./setup_errors";
 import { installLog, log } from "$lib/utils/log";
-import { ProcessLogs } from "$lib/stores/AppStore";
 import { removeDir } from "@tauri-apps/api/fs";
 
-let sidecarOptions = {};
-
 export interface InstallationStatus {}
-
-export function isInDebugMode() {
-  return process.env.NODE_ENV === "development";
-}
 
 export async function isAVXSupported() {
   const highestSIMD = await getHighestSimd();
@@ -72,9 +52,10 @@ export async function checkRequirements(): Promise<void> {
     const isAVX = await isAVXSupported();
     const isOpenGL = await isOpenGLVersionSupported("4.3");
     console.log(`avx - ${isAVX} opengl - ${isOpenGL}`);
-    await launcherConfig.setRequirementsMet(isAVX, isOpenGL);
+    // TODO - fix
+    // await launcherConfig.setRequirementsMet(isAVX, isOpenGL);
   } catch (err) {
-    await launcherConfig.setRequirementsMet(false, false);
+    // await launcherConfig.setRequirementsMet(false, false);
   }
 }
 
@@ -85,40 +66,4 @@ async function handleErrorCode(code: number, stepName: string) {
     throw new Error(`${stepName} exited with unexpected code: ${code}`);
   }
   throw new Error(explaination);
-}
-
-export async function decompileFromFile(activeGame: SupportedGame) {
-  const isoPath = await join(
-    await appDir(),
-    "data",
-    "iso_data",
-    getInternalName(activeGame)
-  );
-  await decompileGameData(isoPath);
-}
-
-export async function compileFromFile(activeGame: SupportedGame) {
-  const isoPath = await join(
-    await appDir(),
-    "data",
-    "iso_data",
-    getInternalName(activeGame)
-  );
-  await compileGame(isoPath);
-}
-
-export async function uninstallGame(game: SupportedGame) {
-  const dataDir = await join(await appDir(), "data");
-  try {
-    const t0 = await join(dataDir, "decompiler_out", getInternalName(game));
-    const t1 = await join(dataDir, "iso_data", getInternalName(game));
-    const t2 = await join(dataDir, "out", getInternalName(game));
-    const targets = [t0, t1, t2];
-    for (const target of targets) {
-      console.log("Deleting folder: ", target);
-      await removeDir(target, { recursive: true });
-    }
-  } catch (error) {
-    console.error(error);
-  }
 }
