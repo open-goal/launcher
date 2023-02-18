@@ -5,35 +5,10 @@ use std::process::Command;
 use tauri::command;
 use tauri::Manager;
 
-use crate::config::LauncherConfig;
-
+pub mod config;
+pub mod extractor;
+pub mod game;
 pub mod versions;
-
-#[tauri::command]
-pub async fn get_install_directory(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<Option<String>, ()> {
-  // Ideally we'd want to use MutexGuard but that doesn't sit nicely with tauri's commands
-  // Instead, we manage the lock ourselves
-  // TODO - switch to tokio and async functions which apparently work better
-  let config_lock = config.lock().await;
-  match config_lock.installation_dir {
-    None => Ok(None),
-    Some(_) => Ok(Some(
-      config_lock.installation_dir.as_ref().unwrap().to_string(),
-    )),
-  }
-}
-
-#[tauri::command]
-pub async fn set_install_directory(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  new_dir: String,
-) -> Result<(), ()> {
-  let mut config_lock = config.lock().await;
-  config_lock.set_install_directory(new_dir);
-  Ok(())
-}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum CommandError {

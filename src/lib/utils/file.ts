@@ -38,6 +38,14 @@ export async function filePrompt(
   return path;
 }
 
+export async function isoPrompt(): Promise<string | undefined> {
+  const path = await filePrompt(["ISO", "iso"], "Jak ISO File");
+  if (path === null) {
+    return undefined;
+  }
+  return path;
+}
+
 export async function folderPrompt(title: string): Promise<string | undefined> {
   const path = await open({
     title: title,

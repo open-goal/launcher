@@ -11,10 +11,7 @@ mod commands;
 mod config;
 mod textures;
 mod util;
-use commands::{
-  close_splashscreen, copy_dir, get_highest_simd, get_install_directory, open_dir, open_repl,
-  set_install_directory,
-};
+use commands::{close_splashscreen, copy_dir, get_highest_simd, open_dir, open_repl};
 use textures::{extract_textures, get_all_texture_packs};
 
 pub type FFIResult<T> = Result<T, String>;
@@ -43,16 +40,22 @@ fn main() {
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
-      // Config Related
-      get_install_directory,
-      set_install_directory,
-      // Version Management,
+      commands::config::get_install_directory,
+      commands::config::set_install_directory,
+      commands::config::is_avx_requirement_met,
+      commands::config::is_opengl_requirement_met,
+      commands::config::finalize_installation,
+      commands::config::is_game_installed,
       commands::versions::list_downloaded_versions,
       commands::versions::download_official_version,
       commands::versions::go_to_version_folder,
       commands::versions::save_active_version_change,
       commands::versions::get_active_version,
       commands::versions::get_active_version_folder,
+      commands::extractor::extract_and_validate_iso,
+      commands::extractor::run_decompiler,
+      commands::extractor::run_compiler,
+      commands::game::launch_game,
       // Requirements Checking
       get_highest_simd,
       open_dir,

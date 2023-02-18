@@ -36,9 +36,9 @@ impl SupportedGame {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GameConfig {
-  is_installed: bool,
-  version: Option<String>,
-  version_folder: Option<String>,
+  pub is_installed: bool,
+  pub version: Option<String>,
+  pub version_folder: Option<String>,
 }
 
 impl GameConfig {
@@ -54,13 +54,13 @@ impl GameConfig {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SupportedGames {
   #[serde(rename = "Jak 1")]
-  jak1: GameConfig,
+  pub jak1: GameConfig,
   #[serde(rename = "Jak 2")]
-  jak2: GameConfig,
+  pub jak2: GameConfig,
   #[serde(rename = "Jak 3")]
-  jak3: GameConfig,
+  pub jak3: GameConfig,
   #[serde(rename = "Jak X")]
-  jakx: GameConfig,
+  pub jakx: GameConfig,
 }
 
 impl SupportedGames {
@@ -76,9 +76,9 @@ impl SupportedGames {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Requirements {
-  avx: Option<bool>,
+  pub avx: Option<bool>,
   #[serde(rename = "openGL")]
-  opengl: Option<bool>,
+  pub opengl: Option<bool>,
 }
 
 impl Requirements {
@@ -196,5 +196,54 @@ impl LauncherConfig {
   pub fn set_active_version_folder(&mut self, new_version_folder: String) {
     self.active_version_folder = Some(new_version_folder);
     self.save_config();
+  }
+
+  // TODO - this pattern isn't great.  It's made worse by trying to be backwards compatible though
+  // with the old format
+  //
+  // I think there should be an enum involved here somewhere/somehow
+  pub fn update_installed_game_version(&mut self, game_name: String) {
+    match game_name.as_str() {
+      "jak1" => {
+        self.games.jak1.is_installed = true;
+        self.games.jak1.version = self.active_version.clone();
+        self.games.jak1.version_folder = self.active_version_folder.clone();
+      }
+      "jak2" => {
+        self.games.jak2.is_installed = true;
+        self.games.jak2.version = self.active_version.clone();
+        self.games.jak2.version_folder = self.active_version_folder.clone();
+      }
+      "jak3" => {
+        self.games.jak3.is_installed = true;
+        self.games.jak3.version = self.active_version.clone();
+        self.games.jak3.version_folder = self.active_version_folder.clone();
+      }
+      "jakx" => {
+        self.games.jakx.is_installed = true;
+        self.games.jakx.version = self.active_version.clone();
+        self.games.jakx.version_folder = self.active_version_folder.clone();
+      }
+      _ => {}
+    }
+    self.save_config();
+  }
+
+  pub fn is_game_installed(&self, game_name: String) -> bool {
+    match game_name.as_str() {
+      "jak1" => {
+        return self.games.jak1.is_installed;
+      }
+      "jak2" => {
+        return self.games.jak2.is_installed;
+      }
+      "jak3" => {
+        return self.games.jak3.is_installed;
+      }
+      "jakx" => {
+        return self.games.jakx.is_installed;
+      }
+      _ => false,
+    }
   }
 }
