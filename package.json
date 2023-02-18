@@ -23,7 +23,7 @@
     "@iconify/svelte": "^3.1.0",
     "@popperjs/core": "^2.11.6",
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.49",
-    "@tauri-apps/cli": "^1.2.2",
+    "@tauri-apps/cli": "^1.2.3",
     "@tauri-apps/tauricon": "github:tauri-apps/tauricon",
     "@tsconfig/svelte": "^3.0.0",
     "autoprefixer": "^10.4.7",

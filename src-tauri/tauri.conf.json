@@ -29,9 +29,6 @@
         "icons/icon.ico"
       ],
       "externalBin": [
-        "bin/extractor",
-        "bin/gk",
-        "bin/goalc",
         "bin/glewinfo"
       ],
       "copyright": "",
