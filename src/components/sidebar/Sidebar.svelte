@@ -39,7 +39,11 @@
 <div class={getNavStyle($location.pathname)}>
   <ul class="flex flex-col space-y-12 px-1 py-5">
     <li>
-      <a class={getNavItemStyle("jak1", $location.pathname)} href="/jak1" use:link>
+      <a
+        class={getNavItemStyle("jak1", $location.pathname)}
+        href="/jak1"
+        use:link
+      >
         <img src={logoJak1} alt="Jak - The Precursor Legacy" />
         <Tooltip placement="right"
           >Jak&nbsp;and&nbsp;Daxter:&nbsp;The&nbsp;Precursor&nbsp;Legacy</Tooltip
@@ -47,7 +51,11 @@
       </a>
     </li>
     <li>
-      <a class={getNavItemStyle("jak2", $location.pathname)} href="/jak2" use:link>
+      <a
+        class={getNavItemStyle("jak2", $location.pathname)}
+        href="/jak2"
+        use:link
+      >
         <img src={logoJak2} alt="Jak 2" />
         <Tooltip placement="right" style="dark">Jak 2</Tooltip>
       </a>
@@ -66,7 +74,11 @@
     </li>
 
     <li class="fixed bottom-5 left-6">
-      <a class={getNavItemStyle("faq", $location.pathname)} href="/faq" use:link>
+      <a
+        class={getNavItemStyle("faq", $location.pathname)}
+        href="/faq"
+        use:link
+      >
         <Icon icon="material-symbols:contact-support" width={36} height={36} />
         <Tooltip rounded={false} arrow={false} placement="right" style="dark"
           >FAQ</Tooltip

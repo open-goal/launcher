@@ -1,28 +1,59 @@
-<script>
+<script lang="ts">
   import { appWindow } from "@tauri-apps/api/window";
   import icon from "$assets/images/icon.png";
   import { onMount } from "svelte";
-  import { launcherConfig } from "$lib/config";
-  import { SupportedGame } from "$lib/constants";
   import { getVersion } from "@tauri-apps/api/app";
   import { Link } from "svelte-navigator";
-  import { Tooltip } from "flowbite-svelte";
   import Icon from "@iconify/svelte";
-  import { handleCheckUpdate } from "$lib/utils/updates";
   import { UpdateStore } from "$lib/stores/AppStore";
-  let gameVersion;
-  let launcherVerison;
-  // TODO: get the active game rigged up here properly
-  let activeGame = SupportedGame.Jak1;
+  import { checkUpdate } from "@tauri-apps/api/updater";
+  import { isInDebugMode } from "$lib/utils/common";
+  import { getActiveVersion, getActiveVersionFolder } from "$lib/rpc/versions";
+  import { getLatestOfficialRelease } from "$lib/utils/github";
+  let launcherVerison = undefined;
+  let toolingVersion = undefined;
 
   onMount(async () => {
-    // TODO - check for updates
-    gameVersion = await launcherConfig.getGameInstallVersion(activeGame);
-    if (gameVersion.startsWith("v")) {
-      gameVersion = gameVersion.slice(1);
+    // Get current versions
+    launcherVerison = `v${await getVersion()}`;
+    toolingVersion = await getActiveVersion();
+
+    // Check for a launcher update
+    // TODO - skip this while doing local development
+    // I think it won't work unless the updater is in the configuration, which of course has other issues
+    if (!isInDebugMode()) {
+      const updateResult = await checkUpdate();
+      console.log("??");
+      if (updateResult.shouldUpdate) {
+        $UpdateStore.launcher = {
+          updateAvailable: true,
+          versionNumber: updateResult.manifest.version,
+          date: updateResult.manifest.date,
+          changeLog: JSON.parse(updateResult.manifest.body),
+        };
+        console.log("OG: Launcher Update Available");
+      } else {
+        $UpdateStore.launcher = {
+          updateAvailable: false,
+          versionNumber: undefined,
+          date: undefined,
+          changeLog: [],
+        };
+        console.log("OG: Launcher is up to date");
+      }
     }
-    launcherVerison = await getVersion();
-    await handleCheckUpdate();
+
+    // Check for an update to the tooling (right now, only if it's official)
+    const selectedVersionFolder = await getActiveVersionFolder();
+    if (selectedVersionFolder === "official") {
+      const latestToolingVersion = await getLatestOfficialRelease();
+      if (toolingVersion !== latestToolingVersion.version) {
+        $UpdateStore.selectedTooling = {
+          updateAvailable: true,
+          versionNumber: latestToolingVersion.version,
+        };
+      }
+    }
   });
 </script>
 
@@ -37,23 +68,37 @@
 
   <div class="border-l border-[#9f9f9f] h-8 m-2" />
 
-  <div class="flex flex-col text-neutral-300 mr-2 pointer-events-none">
-    <p class="font-mono text-sm">v{launcherVerison}</p>
-    <p class="font-mono text-sm">v{gameVersion}</p>
-  </div>
-
   <div class="flex flex-col text-neutral-500 mr-2 pointer-events-none">
     <p class="font-mono text-sm">Launcher</p>
     <p class="font-mono text-sm">Tooling</p>
   </div>
 
-  <div class="flex flex-col text-orange-500">
-    <p class="font-mono text-sm hover:text-orange-300">
-      <!-- TODO - gotta make a tauri update page -->
-      <Link class="font-mono" to="TODO">> Update Available!</Link>
+  <div class="flex flex-col text-neutral-300 mr-2 pointer-events-none">
+    <p class="font-mono text-sm">
+      {launcherVerison === undefined ? "unknown" : launcherVerison}
     </p>
-    <p class="font-mono text-sm hover:text-orange-300">
-      <Link class="font-mono" to="/settings/versions">> Update Available!</Link>
+    <p class="font-mono text-sm">
+      {toolingVersion === undefined ? "unknown" : toolingVersion}
+    </p>
+  </div>
+
+  <div class="flex flex-col text-orange-500 pointer-events-none">
+    <p
+      class="font-mono text-sm hover:text-orange-300 {$UpdateStore.launcher
+        .updateAvailable
+        ? 'pointer-events-auto'
+        : 'invisible pointer-events-none'}"
+    >
+      <Link class="font-mono" to="/update">> Update Available!</Link>
+    </p>
+    <p
+      class="font-mono text-sm hover:text-orange-300 {$UpdateStore
+        .selectedTooling.updateAvailable
+        ? 'pointer-events-auto'
+        : 'invisible pointer-events-none'}"
+    >
+      <Link class="font-mono " to="/settings/versions">> Update Available!</Link
+      >
     </p>
   </div>
 
