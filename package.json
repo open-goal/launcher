@@ -22,7 +22,7 @@
     "@tauri-apps/cli": "^1.2.2",
     "@tauri-apps/tauricon": "github:tauri-apps/tauricon",
     "@tsconfig/svelte": "^3.0.0",
-    "execa": "^6.1.0",
+    "execa": "^7.0.0",
     "prettier": "^2.8.4",
     "prettier-plugin-svelte": "^2.9.0",
     "svelte": "^3.55.1",
