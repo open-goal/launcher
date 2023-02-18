@@ -1,26 +1,26 @@
 <script lang="ts">
-  import { InstallStatus } from "$lib/stores/AppStore";
+  import { InstallationProgress } from "$lib/stores/AppStore";
   import Icon from "@iconify/svelte";
-  // $: progress = $InstallStatus;
+  $: progress = $InstallationProgress;
 
   // NOTE - useful for debugging:
-  let installationProgress = {
-    currentStep: 0,
-    steps: [
-      {
-        status: "success",
-      },
-      {
-        status: "pending",
-      },
-      {
-        status: "queued",
-      },
-      {
-        status: "queued",
-      },
-    ],
-  };
+  // let progress = {
+  //   currentStep: 0,
+  //   steps: [
+  //     {
+  //       status: "success",
+  //     },
+  //     {
+  //       status: "pending",
+  //     },
+  //     {
+  //       status: "queued",
+  //     },
+  //     {
+  //       status: "queued",
+  //     },
+  //   ],
+  // };
 
   const iconContainerStyle =
     "w-10 h-10 mx-auto border-solid border-2 border-slate-800 bg-slate-900 rounded-full text-lg text-white flex justify-center items-center";
@@ -29,8 +29,7 @@
     "w-full rounded items-center align-middle align-center flex-1";
 
   // TODO - this pattern indicates these should probably be their own components...
-  function progressIcon(stepNum: number) {
-    const currentStatus = installationProgress.steps[stepNum].status;
+  function progressIcon(currentStatus: string) {
     if (currentStatus === "success") {
       return "material-symbols:check";
     } else if (currentStatus === "pending") {
@@ -41,17 +40,15 @@
     return "mdi:hourglass";
   }
 
-  function progressIconStyle(stepNum: number) {
+  function progressIconStyle(currentStatus: string) {
     let style = "";
-    const currentStatus = installationProgress.steps[stepNum].status;
     if (currentStatus === "pending") {
       style += " animate-pulse";
     }
     return style;
   }
 
-  function progressIconColor(stepNum: number) {
-    const currentStatus = installationProgress.steps[stepNum].status;
+  function progressIconColor(currentStatus: string) {
     if (currentStatus === "success") {
       return "#22c55e";
     } else if (currentStatus === "pending") {
@@ -62,9 +59,8 @@
     return "#737373";
   }
 
-  function progressBarStyle(stepNum: number) {
+  function progressBarStyle(currentStatus: string) {
     let style = "w-full py-1 rounded";
-    const currentStatus = installationProgress.steps[stepNum].status;
     if (currentStatus === "success") {
       style += " bg-green-500";
     } else if (currentStatus === "pending") {
@@ -87,9 +83,9 @@
         <!-- EXTRACTING AND VERIFYING -->
         <div class={iconContainerStyle}>
           <Icon
-            class={progressIconStyle(0)}
-            icon={progressIcon(0)}
-            color={progressIconColor(0)}
+            class={progressIconStyle(progress.steps[0].status)}
+            icon={progressIcon(progress.steps[0].status)}
+            color={progressIconColor(progress.steps[0].status)}
             width={28}
             height={28}
           />
@@ -106,15 +102,15 @@
           style="width: calc(100% - 2.5rem - 1rem); top: 50%; transform: translate(-50%, -50%)"
         >
           <div class={progressBarContainerStyle}>
-            <div class={progressBarStyle(0)} />
+            <div class={progressBarStyle(progress.steps[0].status)} />
           </div>
         </div>
         <!-- DECOMPILING -->
         <div class={iconContainerStyle}>
           <Icon
-            class={progressIconStyle(1)}
-            icon={progressIcon(1)}
-            color={progressIconColor(1)}
+            class={progressIconStyle(progress.steps[1].status)}
+            icon={progressIcon(progress.steps[1].status)}
+            color={progressIconColor(progress.steps[1].status)}
             width={28}
             height={28}
           />
@@ -129,15 +125,15 @@
           style="width: calc(100% - 2.5rem - 1rem); top: 50%; transform: translate(-50%, -50%)"
         >
           <div class={progressBarContainerStyle}>
-            <div class={progressBarStyle(1)} />
+            <div class={progressBarStyle(progress.steps[1].status)} />
           </div>
         </div>
         <!-- COMPILING -->
         <div class={iconContainerStyle}>
           <Icon
-            class={progressIconStyle(2)}
-            icon={progressIcon(2)}
-            color={progressIconColor(2)}
+            class={progressIconStyle(progress.steps[2].status)}
+            icon={progressIcon(progress.steps[2].status)}
+            color={progressIconColor(progress.steps[2].status)}
             width={28}
             height={28}
           />
@@ -152,15 +148,15 @@
           style="width: calc(100% - 2.5rem - 1rem); top: 50%; transform: translate(-50%, -50%)"
         >
           <div class={progressBarContainerStyle}>
-            <div class={progressBarStyle(2)} />
+            <div class={progressBarStyle(progress.steps[2].status)} />
           </div>
         </div>
         <!-- READY -->
         <div class={iconContainerStyle}>
           <Icon
-            class={progressIconStyle(3)}
-            icon={progressIcon(3)}
-            color={progressIconColor(3)}
+            class={progressIconStyle(progress.steps[3].status)}
+            icon={progressIcon(progress.steps[3].status)}
+            color={progressIconColor(progress.steps[3].status)}
             width={28}
             height={28}
           />

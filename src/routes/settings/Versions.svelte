@@ -18,6 +18,10 @@
     saveActiveVersionChange,
     VersionFolders,
   } from "$lib/rpc/versions";
+  import {
+    listOfficialReleases,
+    type OfficialRelease,
+  } from "$lib/utils/github";
 
   let componentLoaded = false;
   let currentOfficialVersion = undefined;
@@ -28,15 +32,7 @@
   const tabItemInactiveClasses =
     "inline-block text-sm font-normal text-center disabled:cursor-not-allowed p-4 border-b-2 border-transparent text-gray-400 hover:text-orange-300 hover:border-orange-500 dark:hover:text-orange-300 dark:text-orange-400";
 
-  interface Release {
-    version: string;
-    date: string | undefined;
-    githubLink: string | undefined;
-    downloadUrl: string | undefined; // TODO - windows/mac/linux
-    isDownloaded: boolean;
-  }
-
-  let officialReleases: Release[] = [];
+  let officialReleases: OfficialRelease[] = [];
 
   onMount(async () => {
     // TODO - check when this is null
@@ -61,7 +57,7 @@
           date: undefined,
           githubLink: undefined,
           downloadUrl: undefined,
-          isDownloaded: true
+          isDownloaded: true,
         },
       ];
     }
@@ -69,21 +65,14 @@
     // TODO - "no releases found"
 
     // Merge that with the actual current releases on github
-    // TODO - handle rate limiting
-    // TODO - long term - handle pagination (more than 100 releases)
-    // TODO - even longer term - extract this out into an API we control (avoid github rate limiting) -- will be needed for unofficial releases as well anyway
-    const resp = await fetch(
-      "https://api.github.com/repos/open-goal/jak-project/releases?per_page=100"
-    );
-    // TODO - handle error
-    const githubReleases = await resp.json();
+    const githubReleases = await listOfficialReleases();
     for (const release of githubReleases) {
       // Look to see if we already have this release downloaded and we just have to fill in some metadata about it
       let foundExistingRelease = false;
       for (const existingRelease of officialReleases) {
-        if (existingRelease.version == release.tag_name) {
-          existingRelease.date = release.published_at;
-          existingRelease.githubLink = release.html_url;
+        if (existingRelease.version === release.version) {
+          existingRelease.date = release.date;
+          existingRelease.githubLink = release.githubLink;
           existingRelease.downloadUrl =
             "https://github.com/open-goal/jak-project/releases/download/v0.1.32/opengoal-windows-v0.1.32.zip";
           foundExistingRelease = true;
@@ -96,18 +85,20 @@
       officialReleases = [
         ...officialReleases,
         {
-          version: release.tag_name,
-          date: release.published_at,
-          githubLink: release.html_url,
+          version: release.version,
+          date: release.date,
+          githubLink: release.githubLink,
           downloadUrl:
             "https://github.com/open-goal/jak-project/releases/download/v0.1.32/opengoal-windows-v0.1.32.zip",
-          isDownloaded: false
+          isDownloaded: false,
         },
       ];
     }
 
     // Sort releases by published date
-    officialReleases = officialReleases.sort((a, b) => b.date.localeCompare(a.date));
+    officialReleases = officialReleases.sort((a, b) =>
+      b.date.localeCompare(a.date)
+    );
     selectedOfficialVersion = "v0.1.32";
   }
 
@@ -150,7 +141,7 @@
         <div class="flex">
           {#if currentOfficialVersion != selectedOfficialVersion}
             <Button
-              btnClass="!p-2 mr-2 rounded-md dark:bg-green-500 hover:dark:bg-green-600"
+              btnClass="!p-2 mr-2 rounded-md dark:bg-green-500 hover:dark:bg-green-600 text-slate-900"
               on:click={saveOfficialVersionChange}
             >
               <Icon
@@ -161,7 +152,10 @@
               />
             </Button>
           {/if}
-          <Button btnClass="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600" on:click={refreshOfficialVersionList}>
+          <Button
+            btnClass="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
+            on:click={refreshOfficialVersionList}
+          >
             <Icon
               icon="material-symbols:refresh"
               width="20"
@@ -169,7 +163,10 @@
               alt="refresh official version list"
             />
           </Button>
-          <Button btnClass="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600" on:click={openOfficialVersionFolder}>
+          <Button
+            btnClass="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600  text-slate-900"
+            on:click={openOfficialVersionFolder}
+          >
             <Icon
               icon="material-symbols:folder-open-rounded"
               width="20"
@@ -189,7 +186,7 @@
           </TableHeadCell>
           <TableHeadCell>Version</TableHeadCell>
           <TableHeadCell>Date</TableHeadCell>
-          <TableHeadCell>Github Link</TableHeadCell>
+          <TableHeadCell>Changes Link</TableHeadCell>
         </TableHead>
         <TableBody tableBodyClass="divide-y">
           {#each officialReleases as release (release.version)}
@@ -267,7 +264,7 @@
           </p>
         </div>
         <div class="flex">
-          <Button class="!p-2 mr-2 dark:bg-orange-600 dark:hover:bg-orange-500">
+          <Button btnClass="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900">
             <Icon
               icon="material-symbols:refresh"
               width="20"
@@ -275,7 +272,7 @@
               alt="refresh official version list"
             />
           </Button>
-          <Button class="!p-2 dark:bg-orange-600 dark:hover:bg-orange-500">
+          <Button btnClass="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900">
             <Icon
               icon="material-symbols:folder-open-rounded"
               width="20"
@@ -303,7 +300,7 @@
           </p>
         </div>
         <div class="flex">
-          <Button class="!p-2 mr-2 dark:bg-orange-600 dark:hover:bg-orange-500">
+          <Button btnClass="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900">
             <Icon
               icon="material-symbols:refresh"
               width="20"
@@ -311,7 +308,7 @@
               alt="refresh official version list"
             />
           </Button>
-          <Button class="!p-2 dark:bg-orange-600 dark:hover:bg-orange-500">
+          <Button btnClass="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900">
             <Icon
               icon="material-symbols:folder-open-rounded"
               width="20"

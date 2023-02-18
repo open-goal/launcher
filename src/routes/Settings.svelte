@@ -32,35 +32,35 @@
     header and the rest of the layout aren't within a shared container -->
   <div class="flex flex-col h-[544px] bg-slate-900">
     <!-- https://flowbite-svelte.com/components/tab#Tabs_with_icons -->
-      <Tabs
-        style="underline"
-        divider={false}
-        contentClass="p-4 pt-0 rounded-lg mt-2 pb-20 overflow-y-auto"
+    <Tabs
+      style="underline"
+      divider={false}
+      contentClass="p-4 pt-0 rounded-lg mt-2 pb-20 overflow-y-auto"
+    >
+      <TabItem
+        open={!activeTab || activeTab === "general"}
+        title="General"
+        activeClasses={tabItemActiveClasses}
+        inactiveClasses={tabItemInactiveClasses}
       >
-        <TabItem
-          open={!activeTab || activeTab === "general"}
-          title="General"
-          activeClasses={tabItemActiveClasses}
-          inactiveClasses={tabItemInactiveClasses}
-        >
-          <General />
-        </TabItem>
-        <TabItem
-          open={activeTab === "folders"}
-          title="Folders"
-          activeClasses={tabItemActiveClasses}
-          inactiveClasses={tabItemInactiveClasses}
-        >
-          <Folders />
-        </TabItem>
-        <TabItem
-          open={activeTab === "versions"}
-          title="Version Management"
-          activeClasses={tabItemActiveClasses}
-          inactiveClasses={tabItemInactiveClasses}
-        >
-          <Versions />
-        </TabItem>
-      </Tabs>
+        <General />
+      </TabItem>
+      <TabItem
+        open={activeTab === "folders"}
+        title="Folders"
+        activeClasses={tabItemActiveClasses}
+        inactiveClasses={tabItemInactiveClasses}
+      >
+        <Folders />
+      </TabItem>
+      <TabItem
+        open={activeTab === "versions"}
+        title="Version Management"
+        activeClasses={tabItemActiveClasses}
+        inactiveClasses={tabItemInactiveClasses}
+      >
+        <Versions />
+      </TabItem>
+    </Tabs>
   </div>
 </div>

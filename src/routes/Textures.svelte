@@ -5,7 +5,6 @@
   import { appDir, join } from "@tauri-apps/api/path";
   import { removeDir, removeFile } from "@tauri-apps/api/fs";
   import { SupportedGame } from "$lib/constants";
-  import { decompileFromFile } from "$lib/setup/setup";
   import { confirm } from "@tauri-apps/api/dialog";
   import {
     Alert,
@@ -32,8 +31,10 @@
   let selectedTexturePacks: string[] = [];
   $: disabled = false;
 
+  // TODO - deferring this work
+
   onMount(async () => {
-    packs = await getAllTexturePacks();
+    // packs = await getAllTexturePacks();
   });
 
   async function handleSelectedPacks(pack) {
@@ -52,7 +53,7 @@
   async function handleAddTexturePack() {
     try {
       await texturePackPrompt();
-      packs = await getAllTexturePacks();
+      // packs = await getAllTexturePacks();
     } catch (error) {
       console.error(error);
     }
@@ -108,7 +109,7 @@
       // extract texture packs in (proper) order to texture_replacements (proper order: for overridding purposes)
       await extractTextures(selectedTexturePacks);
       // await decompile game (similar to GameControls function, maybe that function should be moved into a seperate file)
-      await decompileFromFile(SupportedGame.Jak1);
+      // await decompileFromFile(SupportedGame.Jak1);
       // should be ready to play (fingers crossed)
     } catch (err) {
       console.error(err);
@@ -119,7 +120,8 @@
 
 <div class="ml-20">
   <div class="flex flex-col h-[560px] max-h-[560px] p-8 gap-2">
-    {#if packs && packs.length > 0}
+    TODO
+    <!-- {#if packs && packs.length > 0}
       <Table hoverable={true}>
         <TableHead>
           <TableHeadCell class="!p-4" />
@@ -177,6 +179,6 @@
         >Compile the game with the selected packs in the order they were
         selected</Tooltip
       >
-    </ButtonGroup>
+    </ButtonGroup> -->
   </div>
 </div>

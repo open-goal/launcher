@@ -1,19 +1,10 @@
 <script>
-  import { launcherConfig } from "$lib/config";
-  import {
-    fromRoute,
-    getGameTitle,
-    getInternalName,
-    SupportedGame,
-  } from "$lib/constants";
+  import { fromRoute, getInternalName, SupportedGame } from "$lib/constants";
   import { useParams } from "svelte-navigator";
   import GameControls from "../components/games/GameControls.svelte";
   import GameSetup from "../components/games/setup/GameSetup.svelte";
   import { onMount } from "svelte";
-  import { gameNeedsReinstall, isInstalling } from "$lib/stores/AppStore";
   import { isDataDirectoryUpToDate } from "$lib/utils/data-files";
-  import Outdated from "../components/games/setup/Outdated.svelte";
-  import Reinstall from "../components/games/setup/Reinstall.svelte";
   import { Spinner } from "flowbite-svelte";
   import { isGameInstalled } from "$lib/rpc/config";
 
@@ -49,8 +40,8 @@
   });
 
   async function updateGameState(evt) {
-    gameInstalled = await launcherConfig.getInstallStatus(activeGame);
-    dataDirUpToDate = await isDataDirectoryUpToDate();
+    gameInstalled = await isGameInstalled(getInternalName(activeGame));
+    // TODO - check data dir?
   }
 </script>
 

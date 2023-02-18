@@ -1,13 +1,13 @@
 <script>
   import { ProcessLogs } from "$lib/stores/AppStore";
-  import Icon from '@iconify/svelte';
+  import Icon from "@iconify/svelte";
   import { Accordion, AccordionItem } from "flowbite-svelte";
 </script>
 
 <Accordion class="log-accordian" defaultClass="p-0">
   <AccordionItem class="bg-slate-900 rounded p-[1rem]">
     <span slot="header" class="text font-semibold text-white flex gap-2">
-      <Icon icon="mdi:file-document-outline" width={24}/>
+      <Icon icon="mdi:file-document-outline" width={24} />
       <span>Logs</span>
     </span>
     <div

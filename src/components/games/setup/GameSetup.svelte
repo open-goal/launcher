@@ -1,10 +1,5 @@
 <script type="ts">
-  import { launcherConfig } from "$lib/config";
-  import {
-    gameNeedsReinstall,
-    isInstalling,
-    ProcessLogs,
-  } from "$lib/stores/AppStore";
+  import { ProcessLogs, InstallationProgress } from "$lib/stores/AppStore";
   import { checkRequirements } from "$lib/setup/setup";
   // components
   import Progress from "./Progress.svelte";
@@ -31,28 +26,43 @@
 
   onMount(async () => {
     // NOTE - potentially has problems if the user changes hardware
-    if (!(await launcherConfig.areRequirementsMet())) {
-      await checkRequirements();
-    }
-    requirementsMet = await launcherConfig.areRequirementsMet();
+    // TODO
+    // if (!(await launcherConfig.areRequirementsMet())) {
+    //   await checkRequirements();
+    // }
+    requirementsMet = true; //await launcherConfig.areRequirementsMet();
   });
 
   async function installViaISO() {
     const isoPath = await isoPrompt();
     if (isoPath !== undefined) {
       installing = true;
+      // TODO - reset installation steps
       ProcessLogs.update(() => "");
       // TODO - handle errors and such
       // TODO - get rid of hard-coding
+      // TODO - methods!
+      $InstallationProgress.currentStep = 0;
+      $InstallationProgress.steps[0].status = "pending";
       await extractAndValidateISO(isoPath, "jak1");
+      $InstallationProgress.steps[0].status = "success";
+      $InstallationProgress.currentStep = 1;
+      $InstallationProgress.steps[1].status = "pending";
       await runDecompiler(isoPath, "jak1");
+      $InstallationProgress.steps[1].status = "success";
+      $InstallationProgress.currentStep = 2;
+      $InstallationProgress.steps[2].status = "pending";
       await runCompiler(isoPath, "jak1");
-
+      $InstallationProgress.steps[2].status = "success";
+      $InstallationProgress.currentStep = 3;
+      $InstallationProgress.steps[3].status = "pending";
       await finalizeInstallation("jak1");
-      // if (success) {
-      //   dispatch("change");
-      // }
+      $InstallationProgress.steps[3].status = "success";
     }
+  }
+
+  async function dispatchSetupEvent() {
+    dispatch("change");
   }
 </script>
 
@@ -67,6 +77,16 @@
       <LogViewer />
     {/if}
   </div>
+  {#if $InstallationProgress.currentStep === 3 && $InstallationProgress.steps[3].status === "success"}
+    <div class="flex flex-col justify-end items-end mt-auto">
+      <div class="flex flex-row gap-2">
+        <Button
+          btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+          on:click={async () => await dispatchSetupEvent()}>Continue</Button
+        >
+      </div>
+    </div>
+  {/if}
 {:else}
   <div class="flex flex-col justify-end items-end mt-auto">
     <h1

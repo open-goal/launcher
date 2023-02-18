@@ -26,7 +26,7 @@
 </script>
 
 <div class="ml-20">
-  <div class="flex flex-col h-[560px] max-h-[560px] p-8 gap-2">
+  <div class="flex flex-col h-[544px] p-8 gap-2">
     {#if $UpdateStore.shouldUpdate}
       <Table hoverable={true}>
         <caption
