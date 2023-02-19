@@ -12,7 +12,12 @@
     DropdownDivider,
     Helper,
   } from "flowbite-svelte";
-  import { launchGame, resetGameSettings, uninstallGame } from "$lib/rpc/game";
+  import {
+    launchGame,
+    openREPL,
+    resetGameSettings,
+    uninstallGame,
+  } from "$lib/rpc/game";
 
   export let activeGame: SupportedGame;
 
@@ -21,7 +26,10 @@
   let settingsDir = undefined;
   let savesDir = undefined;
 
+  let isLinux = false;
+
   onMount(async () => {
+    isLinux = (await platform()) === "linux";
     settingsDir = await join(
       await configDir(),
       "OpenGOAL",
@@ -68,6 +76,19 @@
     <Dropdown placement="top-end" frameClass="!bg-slate-900">
       <DropdownItem
         on:click={async () => {
+          launchGame(getInternalName(activeGame), true);
+        }}>Play&nbsp;in&nbsp;Debug&nbsp;Mode</DropdownItem
+      >
+      {#if !isLinux}
+        <DropdownItem
+          on:click={async () => {
+            openREPL(getInternalName(activeGame));
+          }}>Open REPL</DropdownItem
+        >
+      {/if}
+      <DropdownDivider />
+      <DropdownItem
+        on:click={async () => {
           dispatch("job", {
             type: "decompile",
           });
@@ -97,12 +118,6 @@
       <Icon icon="material-symbols:settings" width={24} height={24} />
     </Button>
     <Dropdown placement="top-end" frameClass="!bg-slate-900">
-      <DropdownItem
-        on:click={async () => {
-          launchGame(getInternalName(activeGame), true);
-        }}>Play&nbsp;in&nbsp;Debug&nbsp;Mode</DropdownItem
-      >
-      <DropdownDivider />
       <!-- TODO - screenshot folder? how do we even configure where those go? -->
       <DropdownItem
         on:click={async () => {

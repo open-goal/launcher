@@ -11,7 +11,7 @@ mod commands;
 mod config;
 mod textures;
 mod util;
-use commands::{close_splashscreen, copy_dir, get_highest_simd, open_dir, open_repl};
+use commands::{close_splashscreen, copy_dir, get_highest_simd, open_dir};
 use textures::{extract_textures, get_all_texture_packs};
 
 pub type FFIResult<T> = Result<T, String>;
@@ -58,14 +58,14 @@ fn main() {
       commands::game::launch_game,
       commands::game::uninstall_game,
       commands::game::reset_game_settings,
+      commands::game::open_repl,
       // Requirements Checking
       get_highest_simd,
       open_dir,
       copy_dir,
       close_splashscreen,
       extract_textures,
-      get_all_texture_packs,
-      open_repl
+      get_all_texture_packs
     ])
     .build(tauri::generate_context!())
     .expect("error building tauri app")

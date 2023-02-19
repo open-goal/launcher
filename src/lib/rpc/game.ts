@@ -33,3 +33,13 @@ export async function resetGameSettings(gameName: string): Promise<void> {
     console.log("TODO AH!");
   }
 }
+
+export async function openREPL(gameName: string): Promise<void> {
+  try {
+    return await invoke("open_repl", {
+      gameName: gameName,
+    });
+  } catch (e) {
+    console.log("TODO AH!");
+  }
+}
