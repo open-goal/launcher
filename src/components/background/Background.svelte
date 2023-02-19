@@ -1,17 +1,27 @@
 <script lang="ts">
   import bgVideoJak1 from "$assets/videos/background-jak1.mp4";
-  // TODO - remake the poster images to be the actual first frame, at the same dimensions
+  // TODO - remake the poster images to be the actual first frame, with the same dimensions
   import bgVideoPosterJak1 from "$assets/images/background-jak1-fallback.webp";
   import bgVideoJak2 from "$assets/videos/background-jak2.webm";
   import bgVideoPosterJak2 from "$assets/images/background-jak2-fallback.png";
   import { useLocation } from "svelte-navigator";
   import { isGameInstalled } from "$lib/rpc/config";
+  import { onMount } from "svelte";
+  import { listen } from "@tauri-apps/api/event";
 
   const location = useLocation();
   $: $location.pathname, updateStyle();
-  // TODO - also update once installation completes (store / dispatch?)
 
   let style = "";
+
+  onMount(async () => {
+    const unlistenInstalled = await listen("gameInstalled", (event) => {
+      updateStyle();
+    });
+    const unlistenUninstalled = await listen("gameUninstalled", (event) => {
+      updateStyle();
+    });
+  });
 
   async function updateStyle(): Promise<void> {
     let newStyle = "absolute -z-50 object-fill h-screen";

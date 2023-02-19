@@ -1,5 +1,7 @@
 use std::{path::Path, process::Command};
 
+use tauri::Manager;
+
 use crate::config::LauncherConfig;
 
 #[tauri::command]
@@ -41,6 +43,7 @@ pub async fn launch_game(
 #[tauri::command]
 pub async fn uninstall_game(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  app_handle: tauri::AppHandle,
   game_name: String,
 ) -> Result<(), ()> {
   let mut config_lock = config.lock().await;
@@ -53,6 +56,7 @@ pub async fn uninstall_game(
       std::fs::remove_dir_all(data_folder.join("iso_data"));
       std::fs::remove_dir_all(data_folder.join("out"));
       config_lock.update_installed_game_version(game_name, false);
+      app_handle.emit_all("gameUninstalled", {}).unwrap();
       Ok(())
     }
   }

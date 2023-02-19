@@ -1,4 +1,5 @@
 use crate::config::LauncherConfig;
+use tauri::Manager;
 
 #[tauri::command]
 pub async fn get_install_directory(
@@ -48,10 +49,12 @@ pub async fn is_opengl_requirement_met(
 #[tauri::command]
 pub async fn finalize_installation(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  app_handle: tauri::AppHandle,
   game_name: String,
 ) -> Result<(), ()> {
   let mut config_lock = config.lock().await;
   config_lock.update_installed_game_version(game_name, true);
+  app_handle.emit_all("gameInstalled", {}).unwrap();
   Ok(())
 }
 
