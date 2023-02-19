@@ -18,30 +18,13 @@ async function main() {
   if (!targetTriple) {
     console.error("Failed to determine platform target triple");
   }
-  if (existsSync(`src-tauri/bin/extractor${extension}`)) {
-    renameSync(
-      `src-tauri/bin/extractor${extension}`,
-      `src-tauri/bin/extractor-${targetTriple}${extension}`
-    );
-  }
-  if (existsSync(`src-tauri/bin/gk${extension}`)) {
-    renameSync(
-      `src-tauri/bin/gk${extension}`,
-      `src-tauri/bin/gk-${targetTriple}${extension}`
-    );
-  }
-  if (existsSync(`src-tauri/bin/goalc${extension}`)) {
-    renameSync(
-      `src-tauri/bin/goalc${extension}`,
-      `src-tauri/bin/goalc-${targetTriple}${extension}`
-    );
-  }
   if (existsSync(`src-tauri/bin/glewinfo${extension}`)) {
     renameSync(
       `src-tauri/bin/glewinfo${extension}`,
       `src-tauri/bin/glewinfo-${targetTriple}${extension}`
     );
   }
+  // TODO else move the binary from third-party into the right spot
 }
 
 main().catch((e) => {

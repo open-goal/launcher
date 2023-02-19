@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import { getGameTitle, getInternalName, SupportedGame } from "$lib/constants";
   import { openDir } from "$lib/rpc/commands";
   import Icon from "@iconify/svelte";

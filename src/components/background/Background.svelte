@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import bgVideoJak1 from "$assets/videos/background-jak1.mp4";
   // TODO - remake the poster images to be the actual first frame, at the same dimensions
   import bgVideoPosterJak1 from "$assets/images/background-jak1-fallback.webp";

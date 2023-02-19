@@ -1,6 +1,5 @@
-<script type="ts">
+<script lang="ts">
   import { ProcessLogs, InstallationProgress } from "$lib/stores/AppStore";
-  import { checkRequirements } from "$lib/setup/setup";
   // components
   import Progress from "./Progress.svelte";
   // constants

@@ -1,7 +1,6 @@
-<script>
+<script lang="ts">
   import { Alert, Button, Spinner } from "flowbite-svelte";
   import { copyDataDirectory } from "$lib/utils/data-files";
-  import { launcherConfig } from "$lib/config";
   import { gameNeedsReinstall } from "$lib/stores/AppStore";
 
   export let updatingDataDir;
