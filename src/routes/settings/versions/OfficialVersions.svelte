@@ -239,7 +239,7 @@
                     color="red"
                   />
                 {:else if release.isBeingDownloaded}
-                  <Spinner color="yellow" size={"6"}/>
+                  <Spinner color="yellow" size={"6"} />
                 {:else}
                   <Icon
                     icon="ic:baseline-download"
@@ -257,8 +257,17 @@
               >{new Date(release.date).toLocaleDateString()}</TableBodyCell
             >
             <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium"
-              ><a class="inline-block" href={release.githubLink} target="_blank" rel="noreferrer"
-                ><Icon class="inline" icon="mdi:github" width="24" height="24"/></a
+              ><a
+                class="inline-block"
+                href={release.githubLink}
+                target="_blank"
+                rel="noreferrer"
+                ><Icon
+                  class="inline"
+                  icon="mdi:github"
+                  width="24"
+                  height="24"
+                /></a
               >
             </TableBodyCell>
           </TableBodyRow>

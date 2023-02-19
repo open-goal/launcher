@@ -67,9 +67,7 @@
         use:link
       >
         <Icon icon="material-symbols:settings" width={36} height={36} />
-        <Tooltip placement="right" style="dark"
-          >Settings</Tooltip
-        >
+        <Tooltip placement="right" style="dark">Settings</Tooltip>
       </a>
     </li>
 
@@ -80,8 +78,7 @@
         use:link
       >
         <Icon icon="material-symbols:contact-support" width={36} height={36} />
-        <Tooltip placement="right" style="dark"
-          >Support&nbsp;&&nbsp;FAQ</Tooltip
+        <Tooltip placement="right" style="dark">Support&nbsp;&&nbsp;FAQ</Tooltip
         >
       </a>
     </li>

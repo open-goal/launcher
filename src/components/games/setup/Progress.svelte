@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { progressTracker, type ProgressStatus } from "$lib/stores/ProgressStore";
+  import {
+    progressTracker,
+    type ProgressStatus,
+  } from "$lib/stores/ProgressStore";
   import Icon from "@iconify/svelte";
   $: progress = $progressTracker;
 
@@ -62,7 +65,7 @@
       <div class="grow">
         <div class="relative mb-2">
           <!-- BAR (skipped for first element) -->
-            {#if i !== 0}
+          {#if i !== 0}
             <div
               class="absolute flex align-center items-center align-middle content-center"
               style="width: calc(100% - 2.5rem - 1rem); top: 50%; transform: translate(-50%, -50%)"

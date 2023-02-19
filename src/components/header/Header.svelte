@@ -63,7 +63,7 @@
 >
   <div class="flex flex-row items-center space-x-2 pointer-events-none">
     <img class="h-8" src={icon} alt="" />
-    <p class="font-black tracking-tight text-lg">OpenGOAL</p>
+    <p class="font-black text-white tracking-tight text-lg">OpenGOAL</p>
   </div>
 
   <div class="border-l border-[#9f9f9f] h-8 m-2" />

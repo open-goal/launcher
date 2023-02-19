@@ -63,6 +63,37 @@
     <Button
       btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
     >
+      Advanced
+    </Button>
+    <Dropdown placement="top-end" frameClass="!bg-slate-900">
+      <DropdownItem
+        on:click={async () => {
+          dispatch("job", {
+            type: "decompile",
+          });
+        }}
+        >Decompile
+        <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
+        <Helper helperClass="!text-neutral-400 !text-xs"
+          >Extracts game assets (ie. to apply texture replacements)</Helper
+        ></DropdownItem
+      >
+      <DropdownItem
+        on:click={async () => {
+          dispatch("job", {
+            type: "compile",
+          });
+        }}
+        >Compile
+        <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
+        <Helper helperClass="!text-neutral-400 !text-xs"
+          >Rebuild the game. (ie. after modifying OpenGOAL source code)
+        </Helper></DropdownItem
+      >
+    </Dropdown>
+    <Button
+      btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+    >
       <Icon icon="material-symbols:settings" width={24} height={24} />
     </Button>
     <Dropdown placement="top-end" frameClass="!bg-slate-900">
@@ -84,34 +115,22 @@
         }}>Open&nbsp;Saves&nbsp;Folder</DropdownItem
       >
       <DropdownDivider />
-      <DropdownItem
-        on:click={async () => {
-          dispatch('job', {
-            type: "decompile"
-          })
-        }}
-        >Decompile
-        <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-        <Helper helperClass="!text-neutral-400 !text-xs"
-          >Extracts game assets (ie. to apply texture replacements)</Helper
-        ></DropdownItem
-      >
-      <DropdownItem
-        on:click={async () => {
-          dispatch('job', {
-            type: "compile"
-          })
-        }}
-        >Compile
-        <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-        <Helper helperClass="!text-neutral-400 !text-xs"
-          >Rebuild the game. (ie. after modifying OpenGOAL source code)
-          </Helper
-        ></DropdownItem
-      >
-      <DropdownDivider />
       <!-- TODO - verify installation -->
       <!-- <DropdownItem>Verify&nbsp;Install</DropdownItem> -->
+      <DropdownItem
+        on:click={async () => {
+          // Get confirmation
+          // TODO - probably move these confirms into the actual launcher itself
+          const confirmed = await confirm(
+            "Are you sure you want to uninstall?",
+            { title: "OpenGOAL Launcher", type: "warning" }
+          );
+          if (confirmed) {
+            await uninstallGame(getInternalName(activeGame));
+            dispatch("change");
+          }
+        }}>Reset Settings</DropdownItem
+      >
       <DropdownItem
         on:click={async () => {
           // Get confirmation

@@ -13,7 +13,10 @@
     runDecompiler,
   } from "$lib/rpc/extractor";
   import { folderPrompt, isoPrompt } from "$lib/utils/file";
-  import { finalizeInstallation, isOpenGLRequirementMet } from "$lib/rpc/config";
+  import {
+    finalizeInstallation,
+    isOpenGLRequirementMet,
+  } from "$lib/rpc/config";
   import { progressTracker } from "$lib/stores/ProgressStore";
 
   export let activeGame: SupportedGame;
@@ -31,7 +34,9 @@
   async function install(viaFolder: boolean) {
     let sourcePath = "";
     if (viaFolder) {
-      sourcePath = await folderPrompt("Select a folder with your ISO's data extracted");
+      sourcePath = await folderPrompt(
+        "Select a folder with your ISO's data extracted"
+      );
     } else {
       sourcePath = await isoPrompt();
     }
@@ -40,21 +45,21 @@
       // Initialize the installation steps for this particular config
       progressTracker.init([
         {
-          status: 'queued',
-          label: 'Extract and Verify'
+          status: "queued",
+          label: "Extract and Verify",
         },
         {
-          status: 'queued',
-          label: 'Decompile'
+          status: "queued",
+          label: "Decompile",
         },
         {
-          status: 'queued',
-          label: 'Compile'
+          status: "queued",
+          label: "Compile",
         },
         {
-          status: 'queued',
-          label: 'Done'
-        }
+          status: "queued",
+          label: "Done",
+        },
       ]);
       // TODO - handle errors
       progressTracker.start();

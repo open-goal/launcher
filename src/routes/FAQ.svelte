@@ -1,6 +1,6 @@
 <script>
   import { Button } from "flowbite-svelte";
-  import Icon from '@iconify/svelte';
+  import Icon from "@iconify/svelte";
 </script>
 
 <div class="ml-20">
@@ -33,19 +33,28 @@
         btnClass="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
         href="https://discord.gg/VZbXMHXzWv"
         target="_blank"
-        rel="noreferrer noopener"><Icon class="inline-block" icon="ic:baseline-discord" width={20} />&nbsp;Discord</Button
+        rel="noreferrer noopener"
+        ><Icon
+          class="inline-block"
+          icon="ic:baseline-discord"
+          width={20}
+        />&nbsp;Discord</Button
       >
       <Button
         btnClass="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
         href="https://github.com/open-goal/launcher/issues/new"
         target="_blank"
-        rel="noreferrer noopener"><Icon class="inline-block" icon="mdi:github"  width={20}/>&nbsp;Report Launcher Issue</Button
+        rel="noreferrer noopener"
+        ><Icon class="inline-block" icon="mdi:github" width={20} />&nbsp;Report
+        Launcher Issue</Button
       >
       <Button
         btnClass="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
         href="https://github.com/open-goal/jak-project/issues/new/choose"
         target="_blank"
-        rel="noreferrer noopener"><Icon class="inline-block" icon="mdi:github"  width={20}/>&nbsp;Report Game Issue</Button
+        rel="noreferrer noopener"
+        ><Icon class="inline-block" icon="mdi:github" width={20} />&nbsp;Report
+        Game Issue</Button
       >
     </div>
   </div>

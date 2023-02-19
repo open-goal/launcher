@@ -62,11 +62,19 @@
         <Spinner color="yellow" size={"12"} />
       </div>
     {:else if !gameInstalled}
-      <GameSetup activeGame={activeGame} on:change={updateGameState} />
+      <GameSetup {activeGame} on:change={updateGameState} />
     {:else if gameJobToRun !== undefined}
-      <GameJob activeGame={activeGame} jobType={gameJobToRun} on:jobFinished={gameJobFinished}/>
+      <GameJob
+        {activeGame}
+        jobType={gameJobToRun}
+        on:jobFinished={gameJobFinished}
+      />
     {:else}
-      <GameControls {activeGame} on:change={updateGameState} on:job={runGameJob} />
+      <GameControls
+        {activeGame}
+        on:change={updateGameState}
+        on:job={runGameJob}
+      />
     {/if}
   </div>
 </div>
