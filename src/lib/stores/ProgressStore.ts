@@ -1,6 +1,11 @@
 import { writable } from "svelte/store";
 
-export type ProgressStatus = "success" | "queued" | "pending" | "failed";
+export type ProgressStatus =
+  | "inactive"
+  | "success"
+  | "queued"
+  | "pending"
+  | "failed";
 
 export interface ProgressStep {
   status: ProgressStatus;
@@ -16,7 +21,7 @@ interface ProgressTracker {
 
 const storeValue: ProgressTracker = {
   currentStep: 0,
-  overallStatus: "queued",
+  overallStatus: "inactive",
   steps: [],
   logs: [],
 };
@@ -29,7 +34,7 @@ function createProgressTracker() {
     init: (steps: ProgressStep[]) =>
       update((val) => {
         val.currentStep = 0;
-        val.overallStatus = "queued";
+        val.overallStatus = "inactive";
         val.steps = steps;
         val.logs = [];
         return val;

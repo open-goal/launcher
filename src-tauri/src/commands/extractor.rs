@@ -51,17 +51,27 @@ pub async fn run_decompiler(
   match &config_lock.installation_dir {
     None => Ok(()),
     Some(path) => {
+      let install_path = Path::new(path);
+      let data_folder = install_path.join("active/jak1/data");
+
+      let mut source_path = path_to_iso;
+      if source_path.is_empty() {
+        // TODO - we could probably be more explicit here using a param
+        source_path = data_folder
+          .join("iso_data/jak1")
+          .to_string_lossy()
+          .to_string();
+      }
+
       // TODO - be smarter
       // TODO - make folder if it doesnt exist
       // TODO - copy over the data folder
       // TODO - log it to a file
-      let install_path = Path::new(path);
       let binary_dir = install_path.join("versions/official/v0.1.32/");
-      let data_folder = install_path.join("active/jak1/data");
       let executable_location = binary_dir.join("extractor.exe");
       let output = Command::new(&executable_location)
         .args([
-          path_to_iso,
+          source_path,
           "--decompile".to_string(),
           "--proj-path".to_string(),
           data_folder.to_string_lossy().into_owned(),
@@ -84,17 +94,26 @@ pub async fn run_compiler(
   match &config_lock.installation_dir {
     None => Ok(()),
     Some(path) => {
+      let install_path = Path::new(path);
+      let data_folder = install_path.join("active/jak1/data");
+
+      let mut source_path = path_to_iso;
+      if source_path.is_empty() {
+        // TODO - we could probably be more explicit here using a param
+        source_path = data_folder
+          .join("iso_data/jak1")
+          .to_string_lossy()
+          .to_string();
+      }
       // TODO - be smarter
       // TODO - make folder if it doesnt exist
       // TODO - copy over the data folder
       // TODO - log it to a file
-      let install_path = Path::new(path);
       let binary_dir = install_path.join("versions/official/v0.1.32/");
-      let data_folder = install_path.join("active/jak1/data");
       let executable_location = binary_dir.join("extractor.exe");
       let output = Command::new(&executable_location)
         .args([
-          path_to_iso,
+          source_path,
           "--compile".to_string(),
           "--proj-path".to_string(),
           data_folder.to_string_lossy().into_owned(),

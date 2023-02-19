@@ -58,8 +58,8 @@
 <div class="w-full py-6">
   <div class="flex">
     {#each progress.steps as step, i}
-      <!-- NOTE - this breaks down if there is only 1 step, or probably if you have a huge number of steps -->
-      <div class="w-1/{progress.steps.length}">
+      <!-- NOTE - this will break if you add too many steps! -->
+      <div class="grow">
         <div class="relative mb-2">
           <!-- BAR (skipped for first element) -->
             {#if i !== 0}

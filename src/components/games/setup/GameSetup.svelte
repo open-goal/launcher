@@ -74,8 +74,6 @@
   }
 </script>
 
-<!-- TODO - allow passing a folder path -->
-
 {#if !requirementsMet}
   <Requirements />
 {:else if installing}

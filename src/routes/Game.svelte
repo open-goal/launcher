@@ -7,15 +7,15 @@
   import { isDataDirectoryUpToDate } from "$lib/utils/data-files";
   import { Spinner } from "flowbite-svelte";
   import { isGameInstalled } from "$lib/rpc/config";
+  import { progressTracker } from "$lib/stores/ProgressStore";
+  import GameJob from "../components/games/job/GameJob.svelte";
 
   const params = useParams();
   let activeGame = SupportedGame.Jak1;
   let componentLoaded = false;
 
   let gameInstalled = false;
-
-  let dataDirUpToDate = false;
-  let updatingDataDir = false;
+  let gameJobToRun = undefined;
 
   onMount(async () => {
     // Figure out what game we are displaying
@@ -43,6 +43,14 @@
     gameInstalled = await isGameInstalled(getInternalName(activeGame));
     // TODO - check data dir?
   }
+
+  async function runGameJob(event) {
+    gameJobToRun = event.detail.type;
+  }
+
+  async function gameJobFinished() {
+    gameJobToRun = undefined;
+  }
 </script>
 
 <div class="ml-20">
@@ -54,9 +62,11 @@
         <Spinner color="yellow" size={"12"} />
       </div>
     {:else if !gameInstalled}
-      <GameSetup {activeGame} on:change={updateGameState} />
+      <GameSetup activeGame={activeGame} on:change={updateGameState} />
+    {:else if gameJobToRun !== undefined}
+      <GameJob activeGame={activeGame} jobType={gameJobToRun} on:jobFinished={gameJobFinished}/>
     {:else}
-      <GameControls {activeGame} on:change={updateGameState} />
+      <GameControls {activeGame} on:change={updateGameState} on:job={runGameJob} />
     {/if}
   </div>
 </div>

@@ -86,7 +86,9 @@
       <DropdownDivider />
       <DropdownItem
         on:click={async () => {
-          await openDir(settingsDir);
+          dispatch('job', {
+            type: "decompile"
+          })
         }}
         >Decompile
         <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
@@ -96,7 +98,9 @@
       >
       <DropdownItem
         on:click={async () => {
-          await openDir(settingsDir);
+          dispatch('job', {
+            type: "compile"
+          })
         }}
         >Compile
         <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
