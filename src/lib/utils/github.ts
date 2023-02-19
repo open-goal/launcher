@@ -4,6 +4,7 @@ export interface OfficialRelease {
   githubLink: string | undefined;
   downloadUrl: string | undefined; // TODO - windows/mac/linux
   isDownloaded: boolean;
+  isBeingDownloaded: boolean;
 }
 
 export async function listOfficialReleases(): Promise<OfficialRelease[]> {
@@ -26,6 +27,7 @@ export async function listOfficialReleases(): Promise<OfficialRelease[]> {
       downloadUrl:
         "https://github.com/open-goal/jak-project/releases/download/v0.1.32/opengoal-windows-v0.1.32.zip",
       isDownloaded: false,
+      isBeingDownloaded: false,
     });
   }
 
@@ -47,5 +49,6 @@ export async function getLatestOfficialRelease(): Promise<OfficialRelease> {
     // TODO - HACK
     downloadUrl: undefined,
     isDownloaded: false,
+    isBeingDownloaded: false,
   };
 }
