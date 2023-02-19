@@ -7,7 +7,6 @@
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
   import { appWindow } from "@tauri-apps/api/window";
-  import { isInstalling } from "./lib/stores/AppStore";
   import { log } from "$lib/utils/log";
   import Header from "./components/header/Header.svelte";
   import Faq from "./routes/FAQ.svelte";
@@ -24,15 +23,7 @@
     // - need to make an issue
     // For now, we'll just handle all close events ourselves
     await appWindow.listen("tauri://close-requested", async () => {
-      if ($isInstalling) {
-        const confirmed = await confirm(
-          "Installation still in progress, are you sure you want to exit?"
-        );
-        if (confirmed) {
-          await appWindow.close();
-        }
-        return;
-      }
+      // TODO - confirm during an install
       await appWindow.close();
     });
   });

@@ -21,14 +21,18 @@ pub async fn extract_and_validate_iso(
       let binary_dir = install_path.join("versions/official/v0.1.32/");
       let data_folder = install_path.join("active/jak1/data");
       let executable_location = binary_dir.join("extractor.exe");
+      let mut args = vec![
+        path_to_iso.clone(),
+        "--extract".to_string(),
+        "--validate".to_string(),
+        "--proj-path".to_string(),
+        data_folder.to_string_lossy().into_owned(),
+      ];
+      if Path::new(&path_to_iso.clone()).is_dir() {
+        args.push("--folder".to_string());
+      }
       let output = Command::new(&executable_location)
-        .args([
-          path_to_iso,
-          "--extract".to_string(),
-          "--validate".to_string(),
-          "--proj-path".to_string(),
-          data_folder.to_string_lossy().into_owned(),
-        ])
+        .args(args)
         .current_dir(binary_dir)
         .output()
         .expect("failed to execute process");

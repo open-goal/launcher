@@ -1,6 +1,5 @@
 import { open } from "@tauri-apps/api/dialog";
 import { readDir, readTextFile } from "@tauri-apps/api/fs";
-import { title } from "process";
 
 export async function fileExists(path: string): Promise<boolean> {
   try {

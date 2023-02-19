@@ -1,35 +1,17 @@
 import { Command } from "@tauri-apps/api/shell";
-import { appDir, join } from "@tauri-apps/api/path";
 import { os } from "@tauri-apps/api";
-import { getHighestSimd } from "$lib/rpc/commands";
-import { isInstalling } from "../stores/AppStore";
-import { getInternalName, SupportedGame } from "$lib/constants";
 import { resolveErrorCode } from "./setup_errors";
 import { installLog, log } from "$lib/utils/log";
-import { removeDir } from "@tauri-apps/api/fs";
 
-export interface InstallationStatus {}
-
-export async function isAVXSupported() {
-  const highestSIMD = await getHighestSimd();
-  if (highestSIMD === undefined) {
-    return true;
-  }
-  if (highestSIMD.toLowerCase().startsWith("avx")) {
-    return true;
-  }
-  return false;
-}
-
-/**
- * @param {String} version
- * @returns {Promise<Boolean>}
- */
+// We'll leave this check here since it's the only thing still using a sidecar
+//
+// TODO - longterm, we should build this validation checking into the `extractor`
+// because other things like Vulkan don't have a glewinfo equivalent
 export async function isOpenGLVersionSupported(
   version: string
 ): Promise<boolean> {
   if ((await os.platform()) === "darwin") {
-    // TODO - log!
+    console.log("[OG]: MacOS isn't supported, OpenGL won't work here!");
     return false;
   }
   // Otherwise, query for the version
@@ -47,23 +29,11 @@ export async function isOpenGLVersionSupported(
   return false;
 }
 
-export async function checkRequirements(): Promise<void> {
-  try {
-    const isAVX = await isAVXSupported();
-    const isOpenGL = await isOpenGLVersionSupported("4.3");
-    console.log(`avx - ${isAVX} opengl - ${isOpenGL}`);
-    // TODO - fix
-    // await launcherConfig.setRequirementsMet(isAVX, isOpenGL);
-  } catch (err) {
-    // await launcherConfig.setRequirementsMet(false, false);
-  }
-}
-
 async function handleErrorCode(code: number, stepName: string) {
-  isInstalling.update(() => false);
-  const explaination = await resolveErrorCode(code);
-  if (explaination === undefined) {
-    throw new Error(`${stepName} exited with unexpected code: ${code}`);
-  }
-  throw new Error(explaination);
+  // isInstalling.update(() => false);
+  // const explaination = await resolveErrorCode(code);
+  // if (explaination === undefined) {
+  //   throw new Error(`${stepName} exited with unexpected code: ${code}`);
+  // }
+  // throw new Error(explaination);
 }
