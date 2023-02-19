@@ -1,6 +1,6 @@
 use std::{path::Path, process::Command};
 
-use tauri::Manager;
+use tauri::{api::path::config_dir, Manager};
 
 use crate::config::LauncherConfig;
 
@@ -58,6 +58,29 @@ pub async fn uninstall_game(
       config_lock.update_installed_game_version(game_name, false);
       app_handle.emit_all("gameUninstalled", {}).unwrap();
       Ok(())
+    }
+  }
+}
+
+#[tauri::command]
+pub async fn reset_game_settings(game_name: String) -> Result<(), ()> {
+  let config_dir = config_dir();
+  match &config_dir {
+    None => Ok(()),
+    Some(path) => {
+      let path_to_settings = path
+        .join("OpenGOAL")
+        .join(game_name)
+        .join("settings")
+        .join("pc-settings.gc");
+      if path_to_settings.exists() {
+        let mut backup_file = path_to_settings.clone();
+        backup_file.set_file_name("pc-settings.old.gc");
+        std::fs::rename(path_to_settings, backup_file);
+        Ok(())
+      } else {
+        Ok(())
+      }
     }
   }
 }

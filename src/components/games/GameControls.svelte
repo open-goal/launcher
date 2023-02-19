@@ -12,7 +12,7 @@
     DropdownDivider,
     Helper,
   } from "flowbite-svelte";
-  import { launchGame, uninstallGame } from "$lib/rpc/game";
+  import { launchGame, resetGameSettings, uninstallGame } from "$lib/rpc/game";
 
   export let activeGame: SupportedGame;
 
@@ -119,16 +119,7 @@
       <!-- <DropdownItem>Verify&nbsp;Install</DropdownItem> -->
       <DropdownItem
         on:click={async () => {
-          // Get confirmation
-          // TODO - probably move these confirms into the actual launcher itself
-          const confirmed = await confirm(
-            "Are you sure you want to uninstall?",
-            { title: "OpenGOAL Launcher", type: "warning" }
-          );
-          if (confirmed) {
-            await uninstallGame(getInternalName(activeGame));
-            dispatch("change");
-          }
+          await resetGameSettings(getInternalName(activeGame));
         }}>Reset Settings</DropdownItem
       >
       <DropdownItem

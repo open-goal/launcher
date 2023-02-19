@@ -23,3 +23,13 @@ export async function uninstallGame(gameName: string): Promise<void> {
     console.log("TODO AH!");
   }
 }
+
+export async function resetGameSettings(gameName: string): Promise<void> {
+  try {
+    return await invoke("reset_game_settings", {
+      gameName: gameName,
+    });
+  } catch (e) {
+    console.log("TODO AH!");
+  }
+}
