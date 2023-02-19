@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { ProcessLogs, InstallationProgress } from "$lib/stores/AppStore";
   // components
   import Progress from "./Progress.svelte";
   // constants
@@ -13,8 +12,9 @@
     runCompiler,
     runDecompiler,
   } from "$lib/rpc/extractor";
-  import { isoPrompt } from "$lib/utils/file";
-  import { finalizeInstallation } from "$lib/rpc/config";
+  import { folderPrompt, isoPrompt } from "$lib/utils/file";
+  import { finalizeInstallation, isOpenGLRequirementMet } from "$lib/rpc/config";
+  import { progressTracker } from "$lib/stores/ProgressStore";
 
   export let activeGame: SupportedGame;
 
@@ -24,39 +24,48 @@
   let installing = false;
 
   onMount(async () => {
-    // NOTE - potentially has problems if the user changes hardware
-    // TODO
-    // if (!(await launcherConfig.areRequirementsMet())) {
-    //   await checkRequirements();
-    // }
-    requirementsMet = true; //await launcherConfig.areRequirementsMet();
+    // TODO - properly check requirements
+    requirementsMet = true;
   });
 
-  async function installViaISO() {
-    const isoPath = await isoPrompt();
-    if (isoPath !== undefined) {
+  async function install(viaFolder: boolean) {
+    let sourcePath = "";
+    if (viaFolder) {
+      sourcePath = await folderPrompt("Select a folder with your ISO's data extracted");
+    } else {
+      sourcePath = await isoPrompt();
+    }
+    if (sourcePath !== undefined) {
       installing = true;
-      // TODO - reset installation steps
-      ProcessLogs.update(() => "");
-      // TODO - handle errors and such
-      // TODO - get rid of hard-coding
-      // TODO - methods!
-      $InstallationProgress.currentStep = 0;
-      $InstallationProgress.steps[0].status = "pending";
-      await extractAndValidateISO(isoPath, "jak1");
-      $InstallationProgress.steps[0].status = "success";
-      $InstallationProgress.currentStep = 1;
-      $InstallationProgress.steps[1].status = "pending";
-      await runDecompiler(isoPath, "jak1");
-      $InstallationProgress.steps[1].status = "success";
-      $InstallationProgress.currentStep = 2;
-      $InstallationProgress.steps[2].status = "pending";
-      await runCompiler(isoPath, "jak1");
-      $InstallationProgress.steps[2].status = "success";
-      $InstallationProgress.currentStep = 3;
-      $InstallationProgress.steps[3].status = "pending";
+      // Initialize the installation steps for this particular config
+      progressTracker.init([
+        {
+          status: 'queued',
+          label: 'Extract and Verify'
+        },
+        {
+          status: 'queued',
+          label: 'Decompile'
+        },
+        {
+          status: 'queued',
+          label: 'Compile'
+        },
+        {
+          status: 'queued',
+          label: 'Done'
+        }
+      ]);
+      // TODO - handle errors
+      progressTracker.start();
+      await extractAndValidateISO(sourcePath, "jak1");
+      progressTracker.proceed();
+      await runDecompiler(sourcePath, "jak1");
+      progressTracker.proceed();
+      await runCompiler(sourcePath, "jak1");
+      progressTracker.proceed();
       await finalizeInstallation("jak1");
-      $InstallationProgress.steps[3].status = "success";
+      progressTracker.proceed();
     }
   }
 
@@ -72,11 +81,11 @@
 {:else if installing}
   <div class="flex flex-col justify-content">
     <Progress />
-    {#if $ProcessLogs}
+    {#if $progressTracker.logs}
       <LogViewer />
     {/if}
   </div>
-  {#if $InstallationProgress.currentStep === 3 && $InstallationProgress.steps[3].status === "success"}
+  {#if $progressTracker.overallStatus === "success"}
     <div class="flex flex-col justify-end items-end mt-auto">
       <div class="flex flex-row gap-2">
         <Button

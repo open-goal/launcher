@@ -13,9 +13,9 @@
     try {
       await copyDataDirectory();
       // Now that the directory is up to date, let's see if they need to reinstall the game
-      if (await launcherConfig.shouldUpdateGameInstall(activeGame)) {
-        gameNeedsReinstall.update(() => true);
-      }
+      // if (await launcherConfig.shouldUpdateGameInstall(activeGame)) {
+      //   gameNeedsReinstall.update(() => true);
+      // }
     } catch (err) {
       errorText = `Error encountered when syncing data files - ${err}`;
     }

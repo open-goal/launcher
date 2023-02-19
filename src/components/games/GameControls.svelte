@@ -4,7 +4,6 @@
   import Icon from "@iconify/svelte";
   import { configDir, join } from "@tauri-apps/api/path";
   import { createEventDispatcher, onMount } from "svelte";
-  import { isCompiling, isDecompiling } from "$lib/stores/AppStore";
   import { confirm } from "@tauri-apps/api/dialog";
   import {
     Button,
@@ -51,8 +50,7 @@
       btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       on:click={async () => {
         launchGame(getInternalName(activeGame), false);
-      }}
-      disabled={$isDecompiling || $isCompiling}>Play</Button
+      }}>Play</Button
     >
     <!-- TODO - texture replacements left out for now, get everything else working end-to-end first -->
     <!-- <Button
@@ -67,7 +65,7 @@
     >
       <Icon icon="material-symbols:settings" width={24} height={24} />
     </Button>
-    <Dropdown placement="top-end" frameClass="mr-1">
+    <Dropdown placement="top-end" frameClass="!bg-slate-900">
       <DropdownItem
         on:click={async () => {
           launchGame(getInternalName(activeGame), true);
@@ -103,7 +101,8 @@
         >Compile
         <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
         <Helper helperClass="!text-neutral-400 !text-xs"
-          >Rebuild the game. (ie. after modifying OpenGOAL source code)</Helper
+          >Rebuild the game. (ie. after modifying OpenGOAL source code)
+          </Helper
         ></DropdownItem
       >
       <DropdownDivider />

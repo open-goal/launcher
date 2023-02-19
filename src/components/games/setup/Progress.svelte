@@ -1,26 +1,7 @@
 <script lang="ts">
-  import { InstallationProgress } from "$lib/stores/AppStore";
+  import { progressTracker, type ProgressStatus } from "$lib/stores/ProgressStore";
   import Icon from "@iconify/svelte";
-  $: progress = $InstallationProgress;
-
-  // NOTE - useful for debugging:
-  // let progress = {
-  //   currentStep: 0,
-  //   steps: [
-  //     {
-  //       status: "success",
-  //     },
-  //     {
-  //       status: "pending",
-  //     },
-  //     {
-  //       status: "queued",
-  //     },
-  //     {
-  //       status: "queued",
-  //     },
-  //   ],
-  // };
+  $: progress = $progressTracker;
 
   const iconContainerStyle =
     "w-10 h-10 mx-auto border-solid border-2 border-slate-800 bg-slate-900 rounded-full text-lg text-white flex justify-center items-center";
@@ -29,7 +10,7 @@
     "w-full rounded items-center align-middle align-center flex-1";
 
   // TODO - this pattern indicates these should probably be their own components...
-  function progressIcon(currentStatus: string) {
+  function progressIcon(currentStatus: ProgressStatus) {
     if (currentStatus === "success") {
       return "material-symbols:check";
     } else if (currentStatus === "pending") {
@@ -40,7 +21,7 @@
     return "mdi:hourglass";
   }
 
-  function progressIconStyle(currentStatus: string) {
+  function progressIconStyle(currentStatus: ProgressStatus) {
     let style = "";
     if (currentStatus === "pending") {
       style += " animate-pulse";
@@ -48,7 +29,7 @@
     return style;
   }
 
-  function progressIconColor(currentStatus: string) {
+  function progressIconColor(currentStatus: ProgressStatus) {
     if (currentStatus === "success") {
       return "#22c55e";
     } else if (currentStatus === "pending") {
@@ -59,7 +40,7 @@
     return "#737373";
   }
 
-  function progressBarStyle(currentStatus: string) {
+  function progressBarStyle(currentStatus: ProgressStatus) {
     let style = "w-full py-1 rounded";
     if (currentStatus === "success") {
       style += " bg-green-500";
@@ -74,95 +55,39 @@
   }
 </script>
 
-<!-- ripped this component from online: https://tailwindcomponents.com/component/wizard-steps-bar-with-tailwind-css -->
-
 <div class="w-full py-6">
   <div class="flex">
-    <div class="w-1/4">
-      <div class="relative mb-2">
-        <!-- EXTRACTING AND VERIFYING -->
-        <div class={iconContainerStyle}>
-          <Icon
-            class={progressIconStyle(progress.steps[0].status)}
-            icon={progressIcon(progress.steps[0].status)}
-            color={progressIconColor(progress.steps[0].status)}
-            width={28}
-            height={28}
-          />
-        </div>
-      </div>
-      <div class={stepLabelStyle}>
-        Extracting<br />and Verifying
-      </div>
-    </div>
-    <div class="w-1/4">
-      <div class="relative mb-2">
-        <div
-          class="absolute flex align-center items-center align-middle content-center"
-          style="width: calc(100% - 2.5rem - 1rem); top: 50%; transform: translate(-50%, -50%)"
-        >
-          <div class={progressBarContainerStyle}>
-            <div class={progressBarStyle(progress.steps[0].status)} />
+    {#each progress.steps as step, i}
+      <!-- NOTE - this breaks down if there is only 1 step, or probably if you have a huge number of steps -->
+      <div class="w-1/{progress.steps.length}">
+        <div class="relative mb-2">
+          <!-- BAR (skipped for first element) -->
+            {#if i !== 0}
+            <div
+              class="absolute flex align-center items-center align-middle content-center"
+              style="width: calc(100% - 2.5rem - 1rem); top: 50%; transform: translate(-50%, -50%)"
+            >
+              <div class={progressBarContainerStyle}>
+                <div class={progressBarStyle(progress.steps[i - 1].status)} />
+              </div>
+            </div>
+          {/if}
+          <!-- ICON -->
+          <div class={iconContainerStyle}>
+            <Icon
+              class={progressIconStyle(step.status)}
+              icon={progressIcon(step.status)}
+              color={progressIconColor(step.status)}
+              width={28}
+              height={28}
+            />
           </div>
         </div>
-        <!-- DECOMPILING -->
-        <div class={iconContainerStyle}>
-          <Icon
-            class={progressIconStyle(progress.steps[1].status)}
-            icon={progressIcon(progress.steps[1].status)}
-            color={progressIconColor(progress.steps[1].status)}
-            width={28}
-            height={28}
-          />
+        <!-- LABEL -->
+        <div class={stepLabelStyle}>
+          {step.label}
         </div>
       </div>
-      <div class={stepLabelStyle}>Decompiling</div>
-    </div>
-    <div class="w-1/4">
-      <div class="relative mb-2">
-        <div
-          class="absolute flex align-center items-center align-middle content-center"
-          style="width: calc(100% - 2.5rem - 1rem); top: 50%; transform: translate(-50%, -50%)"
-        >
-          <div class={progressBarContainerStyle}>
-            <div class={progressBarStyle(progress.steps[1].status)} />
-          </div>
-        </div>
-        <!-- COMPILING -->
-        <div class={iconContainerStyle}>
-          <Icon
-            class={progressIconStyle(progress.steps[2].status)}
-            icon={progressIcon(progress.steps[2].status)}
-            color={progressIconColor(progress.steps[2].status)}
-            width={28}
-            height={28}
-          />
-        </div>
-      </div>
-      <div class={stepLabelStyle}>Compiling</div>
-    </div>
-    <div class="w-1/4">
-      <div class="relative mb-2">
-        <div
-          class="absolute flex align-center items-center align-middle content-center"
-          style="width: calc(100% - 2.5rem - 1rem); top: 50%; transform: translate(-50%, -50%)"
-        >
-          <div class={progressBarContainerStyle}>
-            <div class={progressBarStyle(progress.steps[2].status)} />
-          </div>
-        </div>
-        <!-- READY -->
-        <div class={iconContainerStyle}>
-          <Icon
-            class={progressIconStyle(progress.steps[3].status)}
-            icon={progressIcon(progress.steps[3].status)}
-            color={progressIconColor(progress.steps[3].status)}
-            width={28}
-            height={28}
-          />
-        </div>
-      </div>
-      <div class={stepLabelStyle}>Done</div>
-    </div>
+    {/each}
   </div>
 </div>

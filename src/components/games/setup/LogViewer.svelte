@@ -1,5 +1,5 @@
 <script>
-  import { ProcessLogs } from "$lib/stores/AppStore";
+  import { progressTracker } from "$lib/stores/ProgressStore";
   import Icon from "@iconify/svelte";
   import { Accordion, AccordionItem } from "flowbite-svelte";
 </script>
@@ -15,7 +15,7 @@
       class="bg-slate-900 px-4 max-h-60 overflow-y-scroll scrollbar"
     >
       <p class="py-4 text-clip overflow-hidden font-mono">
-        {$ProcessLogs}
+        {$progressTracker.logs}
       </p>
     </div>
   </AccordionItem>
