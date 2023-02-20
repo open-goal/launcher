@@ -4,11 +4,16 @@
   import GameControls from "../components/games/GameControls.svelte";
   import GameSetup from "../components/games/setup/GameSetup.svelte";
   import { onMount } from "svelte";
-  import { isDataDirectoryUpToDate } from "$lib/utils/data-files";
   import { Spinner } from "flowbite-svelte";
-  import { isGameInstalled } from "$lib/rpc/config";
-  import { progressTracker } from "$lib/stores/ProgressStore";
+  import {
+    getActiveVersion,
+    getActiveVersionFolder,
+    getInstalledVersion,
+    getInstalledVersionFolder,
+    isGameInstalled,
+  } from "$lib/rpc/config";
   import GameJob from "../components/games/job/GameJob.svelte";
+  import GameUpdate from "../components/games/setup/GameUpdate.svelte";
 
   const params = useParams();
   let activeGame = SupportedGame.Jak1;
@@ -16,6 +21,13 @@
 
   let gameInstalled = false;
   let gameJobToRun = undefined;
+
+  let installedVersion;
+  let installedVersionFolder;
+  let activeVersion;
+  let activeVersionFolder;
+
+  let versionMismatchDetected = false;
 
   onMount(async () => {
     // Figure out what game we are displaying
@@ -35,6 +47,22 @@
     // Next step, check if there is a version mismatch
     // - they installed the game before with a different version than what they currently have selected
     // - prompt them to either reinstall OR go and select their previous version
+    if (gameInstalled) {
+      installedVersion = await getInstalledVersion(getInternalName(activeGame));
+      installedVersionFolder = await getInstalledVersionFolder(
+        getInternalName(activeGame)
+      );
+      activeVersion = await getActiveVersion(getInternalName(activeGame));
+      activeVersionFolder = await getActiveVersionFolder(
+        getInternalName(activeGame)
+      );
+      if (
+        installedVersion !== activeVersion ||
+        installedVersionFolder !== activeVersionFolder
+      ) {
+        versionMismatchDetected = true;
+      }
+    }
 
     componentLoaded = true;
   });
@@ -50,6 +78,7 @@
 
   async function gameJobFinished() {
     gameJobToRun = undefined;
+    versionMismatchDetected = false;
   }
 </script>
 
@@ -69,6 +98,8 @@
         jobType={gameJobToRun}
         on:jobFinished={gameJobFinished}
       />
+    {:else if versionMismatchDetected}
+      <GameUpdate {activeGame} {installedVersion} {installedVersionFolder} {activeVersion} {activeVersionFolder} on:job={runGameJob} />
     {:else}
       <GameControls
         {activeGame}

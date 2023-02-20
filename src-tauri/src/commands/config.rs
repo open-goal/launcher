@@ -64,5 +64,36 @@ pub async fn is_game_installed(
   game_name: String,
 ) -> Result<bool, ()> {
   let config_lock = config.lock().await;
-  Ok((config_lock.is_game_installed(game_name)))
+  Ok(config_lock.is_game_installed(game_name))
+}
+
+#[tauri::command]
+pub async fn get_installed_version(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+) -> Result<String, ()> {
+  let config_lock = config.lock().await;
+  // TODO - seriously, convert the config into a damn map
+  match game_name.as_str() {
+    "jak1" => Ok(config_lock.games.jak1.version.clone().unwrap()),
+    "jak2" => Ok(config_lock.games.jak2.version.clone().unwrap()),
+    "jak3" => Ok(config_lock.games.jak3.version.clone().unwrap()),
+    "jakx" => Ok(config_lock.games.jakx.version.clone().unwrap()),
+    _ => Ok("".to_string()),
+  }
+}
+
+#[tauri::command]
+pub async fn get_installed_version_folder(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+) -> Result<String, ()> {
+  let config_lock = config.lock().await;
+  match game_name.as_str() {
+    "jak1" => Ok(config_lock.games.jak1.version_folder.clone().unwrap()),
+    "jak2" => Ok(config_lock.games.jak2.version_folder.clone().unwrap()),
+    "jak3" => Ok(config_lock.games.jak3.version_folder.clone().unwrap()),
+    "jakx" => Ok(config_lock.games.jakx.version_folder.clone().unwrap()),
+    _ => Ok("".to_string()),
+  }
 }

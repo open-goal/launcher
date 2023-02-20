@@ -14,6 +14,7 @@
     listDownloadedVersions,
   } from "$lib/rpc/versions";
   import { getLatestOfficialRelease } from "$lib/utils/github";
+  import { listen } from "@tauri-apps/api/event";
 
   let launcherVerison = undefined;
   let toolingVersion = undefined;
@@ -71,6 +72,13 @@
         }
       }
     }
+
+    const unlistenInstalled = await listen(
+      "toolingVersionChanged",
+      async (event) => {
+        toolingVersion = await getActiveVersion();
+      }
+    );
   });
 </script>
 

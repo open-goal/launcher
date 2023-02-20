@@ -99,7 +99,6 @@
     officialReleases = officialReleases.sort((a, b) =>
       b.date.localeCompare(a.date)
     );
-    selectedOfficialVersion = "v0.1.32";
   }
 
   async function saveOfficialVersionChange(evt) {

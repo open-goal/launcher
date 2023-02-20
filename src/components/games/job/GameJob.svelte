@@ -9,19 +9,18 @@
   import type { Job } from "$lib/jobs/jobs";
   import { getInternalName, type SupportedGame } from "$lib/constants";
   import { runCompiler, runDecompiler } from "$lib/rpc/extractor";
+  import { finalizeInstallation } from "$lib/rpc/config";
 
   export let activeGame: SupportedGame;
   export let jobType: Job;
 
   const dispatch = createEventDispatcher();
 
-  let running = false;
-
   // This is basically a stripped down `GameSetup` component that doesn't care about user initiation
   // requirement checking, etc
   //
   // It's used to provide almost the same interface as the normal installation, with logs, etc
-  // but for arbitrary jobs.  Such as decompiling, or compiling.
+  // but for arbitrary jobs.  Such as updating versions, decompiling, or compiling.
   onMount(async () => {
     if (jobType === "decompile") {
       progressTracker.init([
@@ -52,6 +51,28 @@
       progressTracker.start();
       await runCompiler("", getInternalName(activeGame));
       progressTracker.proceed();
+      progressTracker.proceed();
+    } else if (jobType === "updateGame") {
+      progressTracker.init([
+        {
+          status: "queued",
+          label: "Decompile",
+        },
+        {
+          status: "queued",
+          label: "Compile",
+        },
+        {
+          status: "queued",
+          label: "Done",
+        },
+      ]);
+      progressTracker.start();
+      await runDecompiler("", getInternalName(activeGame));
+      progressTracker.proceed();
+      await runCompiler("", getInternalName(activeGame));
+      progressTracker.proceed();
+      await finalizeInstallation("jak1");
       progressTracker.proceed();
     }
   });

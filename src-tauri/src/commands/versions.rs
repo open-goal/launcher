@@ -1,5 +1,6 @@
 use futures_util::StreamExt;
 use std::{io::Cursor, path::Path};
+use tauri::Manager;
 use tokio::{fs::File, io::AsyncWriteExt};
 
 use crate::{config::LauncherConfig, util};
@@ -102,6 +103,7 @@ pub async fn go_to_version_folder(
 #[tauri::command]
 pub async fn save_active_version_change(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  app_handle: tauri::AppHandle,
   version_folder: String,
   new_active_version: String,
 ) -> Result<(), ()> {
@@ -109,6 +111,7 @@ pub async fn save_active_version_change(
   // TODO - error checking
   config_lock.set_active_version_folder(version_folder);
   config_lock.set_active_version(new_active_version);
+  app_handle.emit_all("toolingVersionChanged", {}).unwrap();
   Ok(())
 }
 

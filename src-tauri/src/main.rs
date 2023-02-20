@@ -46,6 +46,8 @@ fn main() {
       commands::config::is_opengl_requirement_met,
       commands::config::finalize_installation,
       commands::config::is_game_installed,
+      commands::config::get_installed_version,
+      commands::config::get_installed_version_folder,
       commands::versions::list_downloaded_versions,
       commands::versions::download_official_version,
       commands::versions::go_to_version_folder,
