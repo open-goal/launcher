@@ -1,6 +1,6 @@
 <script lang="ts">
   import { appWindow } from "@tauri-apps/api/window";
-  import icon from "$assets/images/icon.png";
+  import logo from "$assets/images/icon.png";
   import { onMount } from "svelte";
   import { getVersion } from "@tauri-apps/api/app";
   import { Link } from "svelte-navigator";
@@ -8,8 +8,13 @@
   import { UpdateStore } from "$lib/stores/AppStore";
   import { checkUpdate } from "@tauri-apps/api/updater";
   import { isInDebugMode } from "$lib/utils/common";
-  import { getActiveVersion, getActiveVersionFolder } from "$lib/rpc/versions";
+  import {
+    getActiveVersion,
+    getActiveVersionFolder,
+    listDownloadedVersions,
+  } from "$lib/rpc/versions";
   import { getLatestOfficialRelease } from "$lib/utils/github";
+
   let launcherVerison = undefined;
   let toolingVersion = undefined;
 
@@ -23,7 +28,6 @@
     // I think it won't work unless the updater is in the configuration, which of course has other issues
     if (!isInDebugMode()) {
       const updateResult = await checkUpdate();
-      console.log("??");
       if (updateResult.shouldUpdate) {
         $UpdateStore.launcher = {
           updateAvailable: true,
@@ -48,10 +52,23 @@
     if (selectedVersionFolder === "official") {
       const latestToolingVersion = await getLatestOfficialRelease();
       if (toolingVersion !== latestToolingVersion.version) {
-        $UpdateStore.selectedTooling = {
-          updateAvailable: true,
-          versionNumber: latestToolingVersion.version,
-        };
+        // Check that we havn't already downloaded it
+        let alreadyHaveRelease = false;
+        const downloadedOfficialVersions = await listDownloadedVersions(
+          "official"
+        );
+        for (const releaseVersion of downloadedOfficialVersions) {
+          if (releaseVersion === toolingVersion) {
+            alreadyHaveRelease = true;
+            break;
+          }
+        }
+        if (!alreadyHaveRelease) {
+          $UpdateStore.selectedTooling = {
+            updateAvailable: true,
+            versionNumber: latestToolingVersion.version,
+          };
+        }
       }
     }
   });
@@ -62,7 +79,7 @@
   data-tauri-drag-region
 >
   <div class="flex flex-row items-center space-x-2 pointer-events-none">
-    <img class="h-8" src={icon} alt="" />
+    <img class="h-8" src={logo} alt="" />
     <p class="font-black text-white tracking-tight text-lg">OpenGOAL</p>
   </div>
 

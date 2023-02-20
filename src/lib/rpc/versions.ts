@@ -1,10 +1,6 @@
 import { invoke } from "@tauri-apps/api/tauri";
 
-export enum VersionFolders {
-  OFFICIAL = "official",
-  UNOFFICIAL = "unofficial",
-  DEVEL = "devel",
-}
+export type VersionFolders = "official" | "unofficial" | "devel";
 
 export async function listDownloadedVersions(
   folder: VersionFolders

@@ -16,7 +16,6 @@
     listDownloadedVersions,
     openVersionFolder,
     saveActiveVersionChange,
-    VersionFolders,
   } from "$lib/rpc/versions";
   import {
     listOfficialReleases,
@@ -45,7 +44,7 @@
   async function refreshOfficialVersionList(evt) {
     // Check the backend to see if the folder has any versions
     const installedVersions = await listDownloadedVersions(
-      VersionFolders.OFFICIAL
+      "official"
     );
     officialReleases = [];
     for (const version of installedVersions) {
@@ -105,14 +104,14 @@
 
   async function saveOfficialVersionChange(evt) {
     await saveActiveVersionChange(
-      VersionFolders.OFFICIAL,
+      "official",
       selectedOfficialVersion
     );
     currentOfficialVersion = selectedOfficialVersion;
   }
 
   async function openOfficialVersionFolder(evt) {
-    openVersionFolder(VersionFolders.OFFICIAL);
+    openVersionFolder("official");
   }
 
   async function onDownloadOfficialVersion(version: String, url: String) {
