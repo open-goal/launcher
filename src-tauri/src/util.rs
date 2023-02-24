@@ -1,5 +1,7 @@
 use std::process::Command;
 
+pub mod zip;
+
 #[cfg(target_os = "windows")]
 const FILE_OPENING_PROGRAM: &str = "explorer";
 #[cfg(target_os = "linux")]

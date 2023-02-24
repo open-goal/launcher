@@ -61,6 +61,7 @@ fn main() {
       commands::game::uninstall_game,
       commands::game::reset_game_settings,
       commands::game::open_repl,
+      commands::support::generate_support_package,
       // Requirements Checking
       get_highest_simd,
       open_dir,

@@ -1,6 +1,7 @@
 <script>
   import { Button } from "flowbite-svelte";
   import Icon from "@iconify/svelte";
+  import { generateSupportPackage } from "$lib/rpc/support";
 </script>
 
 <div class="ml-20">
@@ -15,9 +16,9 @@
     <div class="flex flex-row mt-1">
       <Button
         btnClass="border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
-        href="https://github.com/open-goal/launcher/issues/new"
-        target="_blank"
-        rel="noreferrer noopener">Download Support Package</Button
+        on:click={() => {
+          generateSupportPackage();
+        }}>Download Support Package</Button
       >
     </div>
     <p class="mt-3 text-sm">

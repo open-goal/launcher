@@ -1,7 +1,5 @@
 use fs_extra::dir::copy;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
-use std::process::Command;
 use tauri::command;
 use tauri::Manager;
 
@@ -10,6 +8,7 @@ use crate::util::open_dir_in_os;
 pub mod config;
 pub mod extractor;
 pub mod game;
+pub mod support;
 pub mod versions;
 
 #[derive(Serialize, Deserialize, Debug)]

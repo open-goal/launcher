@@ -1,4 +1,4 @@
-import { open } from "@tauri-apps/api/dialog";
+import { open, save } from "@tauri-apps/api/dialog";
 import { readDir, readTextFile } from "@tauri-apps/api/fs";
 
 export async function fileExists(path: string): Promise<boolean> {
@@ -35,6 +35,15 @@ export async function filePrompt(
   }
 
   return path;
+}
+
+export async function saveFilePrompt(
+  fileType: string,
+  fileExtensions: string[]
+): Promise<string | null> {
+  return await save({
+    filters: [{ name: fileType, extensions: fileExtensions }],
+  });
 }
 
 export async function isoPrompt(): Promise<string | undefined> {

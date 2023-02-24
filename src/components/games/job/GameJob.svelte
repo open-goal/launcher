@@ -4,12 +4,13 @@
   // constants
   import LogViewer from "../setup/LogViewer.svelte";
   import { createEventDispatcher, onMount } from "svelte";
-  import { Button } from "flowbite-svelte";
+  import { Alert, Button } from "flowbite-svelte";
   import { progressTracker } from "$lib/stores/ProgressStore";
   import type { Job } from "$lib/jobs/jobs";
   import { getInternalName, type SupportedGame } from "$lib/constants";
   import { runCompiler, runDecompiler } from "$lib/rpc/extractor";
   import { finalizeInstallation } from "$lib/rpc/config";
+  import { generateSupportPackage } from "$lib/rpc/support";
 
   export let activeGame: SupportedGame;
   export let jobType: Job;
@@ -97,4 +98,16 @@
       >
     </div>
   </div>
+{:else if $progressTracker.overallStatus === "failed"}
+<div class="flex flex-col justify-end items-end mt-auto">
+  <div class="flex flex-row gap-2">
+    <Alert color="red" class="dark:bg-slate-900" accent={true}>
+      <span class="font-medium text-red-500">Installation has failed! </span><span class="text-white"> If you reach out for help, please download and attach the support package</span>
+    </Alert>
+    <Button
+      btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+      on:click={async () => await generateSupportPackage()}>Download Support Package</Button
+    >
+  </div>
+</div>
 {/if}
