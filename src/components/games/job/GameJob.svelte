@@ -54,6 +54,7 @@
       progressTracker.proceed();
       progressTracker.proceed();
     } else if (jobType === "updateGame") {
+      // TODO - update data dir
       progressTracker.init([
         {
           status: "queued",

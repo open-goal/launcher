@@ -11,10 +11,6 @@ mod commands;
 mod config;
 mod textures;
 mod util;
-use commands::{close_splashscreen, copy_dir, get_highest_simd, open_dir};
-use textures::{extract_textures, get_all_texture_packs};
-
-pub type FFIResult<T> = Result<T, String>;
 
 fn main() {
   // TODO - switch to https://github.com/daboross/fern so we can setup easy logging
@@ -40,35 +36,30 @@ fn main() {
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
-      commands::config::get_install_directory,
-      commands::config::set_install_directory,
-      commands::config::is_avx_requirement_met,
-      commands::config::is_opengl_requirement_met,
+      commands::binaries::extract_and_validate_iso,
+      commands::binaries::launch_game,
+      commands::binaries::open_repl,
+      commands::binaries::run_compiler,
+      commands::binaries::run_decompiler,
       commands::config::finalize_installation,
-      commands::config::is_game_installed,
-      commands::config::get_installed_version,
+      commands::config::get_active_version_folder,
+      commands::config::get_active_version,
+      commands::config::get_install_directory,
       commands::config::get_installed_version_folder,
-      commands::versions::list_downloaded_versions,
-      commands::versions::download_official_version,
-      commands::versions::go_to_version_folder,
-      commands::versions::save_active_version_change,
-      commands::versions::get_active_version,
-      commands::versions::get_active_version_folder,
-      commands::extractor::extract_and_validate_iso,
-      commands::extractor::run_decompiler,
-      commands::extractor::run_compiler,
-      commands::game::launch_game,
-      commands::game::uninstall_game,
+      commands::config::get_installed_version,
+      commands::config::is_avx_requirement_met,
+      commands::config::is_avx_supported,
+      commands::config::is_game_installed,
+      commands::config::is_opengl_requirement_met,
+      commands::config::save_active_version_change,
+      commands::config::set_install_directory,
       commands::game::reset_game_settings,
-      commands::game::open_repl,
+      commands::game::uninstall_game,
       commands::support::generate_support_package,
-      // Requirements Checking
-      get_highest_simd,
-      open_dir,
-      copy_dir,
-      close_splashscreen,
-      extract_textures,
-      get_all_texture_packs
+      commands::versions::download_version,
+      commands::versions::go_to_version_folder,
+      commands::versions::list_downloaded_versions,
+      commands::window::close_splashscreen
     ])
     .build(tauri::generate_context!())
     .expect("error building tauri app")

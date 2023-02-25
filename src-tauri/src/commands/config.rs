@@ -1,16 +1,16 @@
 use crate::config::LauncherConfig;
 use tauri::Manager;
 
+use super::CommandError;
+
 #[tauri::command]
 pub async fn get_install_directory(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<Option<String>, ()> {
+) -> Result<Option<String>, CommandError> {
   let config_lock = config.lock().await;
-  match config_lock.installation_dir {
+  match &config_lock.installation_dir {
     None => Ok(None),
-    Some(_) => Ok(Some(
-      config_lock.installation_dir.as_ref().unwrap().to_string(),
-    )),
+    Some(dir) => Ok(Some(dir.to_string())),
   }
 }
 
@@ -18,27 +18,50 @@ pub async fn get_install_directory(
 pub async fn set_install_directory(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   new_dir: String,
-) -> Result<(), ()> {
+) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
-  config_lock.set_install_directory(new_dir);
+  config_lock.set_install_directory(new_dir).map_err(|_| {
+    CommandError::Configuration(format!("Unable to persist installation directory"))
+  })?;
   Ok(())
+}
+
+#[tauri::command]
+pub async fn is_avx_supported() -> Result<bool, ()> {
+  if is_x86_feature_detected!("avx") || is_x86_feature_detected!("avx2") {
+    return Ok(true);
+  } else {
+    return Ok(false);
+  }
 }
 
 #[tauri::command]
 pub async fn is_avx_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<Option<bool>, ()> {
-  let config_lock = config.lock().await;
+) -> Result<bool, CommandError> {
+  let mut config_lock = config.lock().await;
   match config_lock.requirements.avx {
-    None => Ok(None),
-    Some(_) => Ok(config_lock.requirements.avx),
+    None => {
+      if is_x86_feature_detected!("avx") || is_x86_feature_detected!("avx2") {
+        config_lock.requirements.avx = Some(false);
+      } else {
+        config_lock.requirements.avx = Some(false);
+      }
+      config_lock.save_config().map_err(|_| {
+        CommandError::Configuration(format!("Unable to persist avx requirement change"))
+      })?;
+      Ok(config_lock.requirements.avx.unwrap_or(false))
+    }
+    Some(val) => Ok(val),
   }
 }
 
+// TODO - investigate moving the OpenGL check into the rust layer via `wgpu`
+// for now, we return potentially undefined so the frontend can update the value via sidecar
 #[tauri::command]
 pub async fn is_opengl_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<Option<bool>, ()> {
+) -> Result<Option<bool>, CommandError> {
   let config_lock = config.lock().await;
   match config_lock.requirements.opengl {
     None => Ok(None),
@@ -47,14 +70,32 @@ pub async fn is_opengl_requirement_met(
 }
 
 #[tauri::command]
+pub async fn set_opengl_requirement_met(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  requirement_met: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .set_opengl_requirement_met(requirement_met)
+    .map_err(|_| {
+      CommandError::Configuration(format!("Unable to persist opengl requirement change"))
+    })?;
+  Ok(())
+}
+
+#[tauri::command]
 pub async fn finalize_installation(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
   game_name: String,
-) -> Result<(), ()> {
+) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
-  config_lock.update_installed_game_version(game_name, true);
-  app_handle.emit_all("gameInstalled", {}).unwrap();
+  config_lock
+    .update_installed_game_version(game_name, true)
+    .map_err(|_| {
+      CommandError::Configuration(format!("Unable to persist game installation status"))
+    })?;
+  app_handle.emit_all("gameInstalled", {})?;
   Ok(())
 }
 
@@ -62,7 +103,7 @@ pub async fn finalize_installation(
 pub async fn is_game_installed(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: String,
-) -> Result<bool, ()> {
+) -> Result<bool, CommandError> {
   let config_lock = config.lock().await;
   Ok(config_lock.is_game_installed(game_name))
 }
@@ -71,7 +112,7 @@ pub async fn is_game_installed(
 pub async fn get_installed_version(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: String,
-) -> Result<String, ()> {
+) -> Result<String, CommandError> {
   let config_lock = config.lock().await;
   // TODO - seriously, convert the config into a damn map
   match game_name.as_str() {
@@ -87,8 +128,9 @@ pub async fn get_installed_version(
 pub async fn get_installed_version_folder(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: String,
-) -> Result<String, ()> {
+) -> Result<String, CommandError> {
   let config_lock = config.lock().await;
+  // TODO - seriously, convert the config into a damn map
   match game_name.as_str() {
     "jak1" => Ok(config_lock.games.jak1.version_folder.clone().unwrap()),
     "jak2" => Ok(config_lock.games.jak2.version_folder.clone().unwrap()),
@@ -96,4 +138,40 @@ pub async fn get_installed_version_folder(
     "jakx" => Ok(config_lock.games.jakx.version_folder.clone().unwrap()),
     _ => Ok("".to_string()),
   }
+}
+
+#[tauri::command]
+pub async fn save_active_version_change(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  app_handle: tauri::AppHandle,
+  version_folder: String,
+  new_active_version: String,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .set_active_version_folder(version_folder)
+    .map_err(|_| {
+      CommandError::Configuration(format!("Unable to persist active version folder change"))
+    })?;
+  config_lock
+    .set_active_version(new_active_version)
+    .map_err(|_| CommandError::Configuration(format!("Unable to persist active version change")))?;
+  app_handle.emit_all("toolingVersionChanged", {})?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn get_active_version(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<Option<String>, CommandError> {
+  let config_lock = config.lock().await;
+  Ok(config_lock.active_version.clone())
+}
+
+#[tauri::command]
+pub async fn get_active_version_folder(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<Option<String>, CommandError> {
+  let config_lock = config.lock().await;
+  Ok(config_lock.active_version_folder.clone())
 }

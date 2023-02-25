@@ -36,7 +36,7 @@
     </ul>
     <p class="mb-3">
       You can either update the game to this new version (no save data will be
-      lost) or you can change your active version to match
+      lost) or you can rollback your active version to match
     </p>
     <div
       class="justify-center items-center space-y-4 sm:flex sm:space-y-0 sm:space-x-4"

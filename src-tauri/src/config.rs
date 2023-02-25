@@ -11,8 +11,17 @@
 
 use std::{fs, path::PathBuf};
 
-use log::{error, info, warn};
 use serde::{Deserialize, Serialize};
+
+#[derive(Debug, thiserror::Error)]
+pub enum ConfigError {
+  #[error(transparent)]
+  IO(#[from] std::io::Error),
+  #[error(transparent)]
+  JSONError(#[from] serde_json::Error),
+  #[error("{0}")]
+  Configuration(String),
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum SupportedGame {
@@ -171,38 +180,57 @@ impl LauncherConfig {
     }
   }
 
-  pub fn save_config(&self) {
-    match &self.settings_path {
+  pub fn save_config(&self) -> Result<(), ConfigError> {
+    let settings_path = match &self.settings_path {
       None => {
         log::warn!("Can't save the settings file, as no path was initialized!");
+        return Err(ConfigError::Configuration(format!(
+          "No settings path defined, unable to save settings!"
+        )));
       }
-      Some(path) => {
-        let file = fs::File::create(path).expect("TODO");
-        serde_json::to_writer_pretty(file, &self);
-      }
-    }
+      Some(path) => path,
+    };
+    let file = fs::File::create(settings_path)?;
+    serde_json::to_writer_pretty(file, &self)?;
+    Ok(())
   }
 
-  pub fn set_install_directory(&mut self, new_dir: String) {
+  pub fn set_install_directory(&mut self, new_dir: String) -> Result<(), ConfigError> {
     self.installation_dir = Some(new_dir);
-    self.save_config();
+    self.save_config()?;
+    Ok(())
   }
 
-  pub fn set_active_version(&mut self, new_version: String) {
+  pub fn set_opengl_requirement_met(&mut self, new_val: bool) -> Result<(), ConfigError> {
+    self.requirements.opengl = Some(new_val);
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_active_version(&mut self, new_version: String) -> Result<(), ConfigError> {
     self.active_version = Some(new_version);
-    self.save_config();
+    self.save_config()?;
+    Ok(())
   }
 
-  pub fn set_active_version_folder(&mut self, new_version_folder: String) {
+  pub fn set_active_version_folder(
+    &mut self,
+    new_version_folder: String,
+  ) -> Result<(), ConfigError> {
     self.active_version_folder = Some(new_version_folder);
-    self.save_config();
+    self.save_config()?;
+    Ok(())
   }
 
-  // TODO - this pattern isn't great.  It's made worse by trying to be backwards compatible though
-  // with the old format
+  // TODO - this pattern isn't great.  It's made awkward by trying to be backwards compatible
+  // with the old format though
   //
   // I think there should be an enum involved here somewhere/somehow
-  pub fn update_installed_game_version(&mut self, game_name: String, installed: bool) {
+  pub fn update_installed_game_version(
+    &mut self,
+    game_name: String,
+    installed: bool,
+  ) -> Result<(), ConfigError> {
     match game_name.as_str() {
       "jak1" => {
         self.games.jak1.is_installed = installed;
@@ -246,7 +274,8 @@ impl LauncherConfig {
       }
       _ => {}
     }
-    self.save_config();
+    self.save_config()?;
+    Ok(())
   }
 
   pub fn is_game_installed(&self, game_name: String) -> bool {

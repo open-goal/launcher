@@ -1,132 +1,144 @@
-use futures_util::StreamExt;
-use std::{io::Cursor, path::Path};
-use tauri::Manager;
-use tokio::{fs::File, io::AsyncWriteExt};
+use std::path::Path;
 
-use crate::{config::LauncherConfig, util};
+use crate::{
+  config::LauncherConfig,
+  util::{
+    file::{create_dir, delete_dir_or_folder},
+    network::download_file,
+    os::open_dir_in_os,
+    zip::extract_and_delete_zip_file,
+  },
+};
+
+use super::CommandError;
 
 #[tauri::command]
 pub async fn list_downloaded_versions(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   version_folder: String,
-) -> Result<Vec<String>, ()> {
+) -> Result<Vec<String>, CommandError> {
   let config_lock = config.lock().await;
-  match &config_lock.installation_dir {
-    None => Ok(Vec::new()),
-    Some(path) => {
-      let expected_path = Path::new(path).join("versions").join(version_folder);
-      if !expected_path.is_dir() {
-        Ok(Vec::new())
-      } else {
-        match std::fs::read_dir(expected_path) {
-          Err(_) => Ok(Vec::new()),
-          Ok(entries) => Ok(
-            entries
-              .filter_map(|e| {
-                e.ok().and_then(|d| {
-                  let p = d.path();
-                  if p.is_dir() {
-                    Some(
-                      p.file_name()
-                        .map(|name| name.to_string_lossy().into_owned())
-                        .unwrap_or("".into()),
-                    )
-                  } else {
-                    None
-                  }
-                })
-              })
-              .collect(),
-          ),
-        }
-      }
-    }
+  let install_path = match &config_lock.installation_dir {
+    None => return Ok(Vec::new()),
+    Some(path) => Path::new(path),
+  };
+
+  let expected_path = Path::new(install_path)
+    .join("versions")
+    .join(version_folder);
+  if !expected_path.exists() || !expected_path.is_dir() {
+    log::info!(
+      "No {} folder found, returning no releases",
+      expected_path.display()
+    );
+    return Ok(Vec::new());
   }
+
+  let entries = std::fs::read_dir(&expected_path).map_err(|_| {
+    CommandError::VersionManagement(format!(
+      "Unable to read versions from {}",
+      expected_path.display()
+    ))
+  })?;
+  Ok(
+    entries
+      .filter_map(|e| {
+        e.ok().and_then(|d| {
+          let p = d.path();
+          if p.is_dir() {
+            Some(
+              p.file_name()
+                .map(|name| name.to_string_lossy().into_owned())
+                .unwrap_or("".into()),
+            )
+          } else {
+            None
+          }
+        })
+      })
+      .collect(),
+  )
 }
 
 #[tauri::command]
-pub async fn download_official_version(
+pub async fn download_version(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   version: String,
+  version_folder: String,
   url: String,
-) -> Result<(), bool> {
+) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
-  match &config_lock.installation_dir {
-    None => Ok(()),
-    Some(path) => {
-      // TODO - severe lack of safety here!
-      // TODO - make the dir and the file name
-      let expected_path = Path::new(&path).join("versions/official/test.zip");
-      let client = reqwest::Client::new();
-      let mut req = client.get(url);
-      let res = req.send().await.expect("");
-      let total = res.content_length().expect("");
-
-      let mut file = File::create(expected_path).await.expect("");
-      let mut stream = res.bytes_stream();
-
-      while let Some(chunk) = stream.next().await {
-        let chunk = chunk.expect("");
-        file.write_all(&chunk).await.expect("");
-      }
-
-      let target_dir = Path::new(&path).join("versions/official/").join(version);
-
-      let zip_path = Path::new(&path).join("versions/official/test.zip");
-
-      let archive: Vec<u8> = std::fs::read(&zip_path.clone()).unwrap();
-      zip_extract::extract(Cursor::new(archive), &target_dir, true).expect("");
-
-      std::fs::remove_file(zip_path).expect("TODO");
-
-      Ok(())
+  let install_path = match &config_lock.installation_dir {
+    None => {
+      return Err(CommandError::VersionManagement(format!(
+        "Cannot install version, no installation directory set"
+      )))
     }
-  }
+    Some(path) => Path::new(path),
+  };
+
+  let dest_dir = install_path
+    .join("versions")
+    .join(&version_folder)
+    .join(&version);
+
+  // Delete the directory if it exists, and create it from scratch
+  delete_dir_or_folder(&dest_dir).map_err(|_| {
+    CommandError::VersionManagement(format!(
+      "Unable to prepare destination folder '{}' for download",
+      dest_dir.display()
+    ))
+  })?;
+  create_dir(&dest_dir).map_err(|_| {
+    CommandError::VersionManagement(format!(
+      "Unable to prepare destination folder '{}' for download",
+      dest_dir.display()
+    ))
+  })?;
+
+  let download_path = install_path
+    .join("versions")
+    .join(version_folder)
+    .join(format!("{}.zip", version));
+
+  // Download the file
+  download_file(&url, &download_path).await.map_err(|_| {
+    CommandError::VersionManagement(format!("Unable to successfully download version"))
+  })?;
+
+  // Extract the zip file
+  extract_and_delete_zip_file(&download_path, &dest_dir).map_err(|_| {
+    CommandError::VersionManagement(format!("Unable to successfully extract downloaded version"))
+  })?;
+  Ok(())
 }
 
 #[tauri::command]
 pub async fn go_to_version_folder(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   version_folder: String,
-) -> Result<(), ()> {
+) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
-  match &config_lock.installation_dir {
-    None => Err(()),
-    Some(path) => {
-      let expected_path = Path::new(path).join("versions").join(version_folder);
-      util::open_dir_in_os(expected_path.to_string_lossy().into_owned());
-      Ok(())
+  let install_path = match &config_lock.installation_dir {
+    None => {
+      return Err(CommandError::VersionManagement(format!(
+        "Cannot go to version folder, no installation directory set"
+      )))
     }
-  }
-}
+    Some(path) => Path::new(path),
+  };
 
-#[tauri::command]
-pub async fn save_active_version_change(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  app_handle: tauri::AppHandle,
-  version_folder: String,
-  new_active_version: String,
-) -> Result<(), ()> {
-  let mut config_lock = config.lock().await;
-  // TODO - error checking
-  config_lock.set_active_version_folder(version_folder);
-  config_lock.set_active_version(new_active_version);
-  app_handle.emit_all("toolingVersionChanged", {}).unwrap();
+  let folder_path = Path::new(install_path)
+    .join("versions")
+    .join(version_folder);
+  create_dir(&folder_path).map_err(|_| {
+    CommandError::VersionManagement(format!(
+      "Unable to go to create version folder '{}' in order to open it",
+      folder_path.display()
+    ))
+  })?;
+
+  open_dir_in_os(folder_path.to_string_lossy().into_owned())
+    .map_err(|_| CommandError::VersionManagement(format!("Unable to go to open folder in OS")))?;
   Ok(())
-}
-
-#[tauri::command]
-pub async fn get_active_version(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<Option<String>, ()> {
-  let config_lock = config.lock().await;
-  Ok(config_lock.active_version.clone())
-}
-
-#[tauri::command]
-pub async fn get_active_version_folder(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<Option<String>, ()> {
-  let config_lock = config.lock().await;
-  Ok(config_lock.active_version_folder.clone())
 }

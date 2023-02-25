@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::{
   fs,
-  io::{self, Cursor, Read},
+  io::{self, Read},
   path::{Path, PathBuf},
 };
 

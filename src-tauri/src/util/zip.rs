@@ -1,9 +1,10 @@
+use std::io::Cursor;
+use std::path::PathBuf;
 use std::{
   fs::File,
   io::{Read, Write},
   path::Path,
 };
-
 use walkdir::WalkDir;
 use zip::write::FileOptions;
 
@@ -13,7 +14,7 @@ pub fn append_dir_contents_to_zip(
   internal_folder: &str,
 ) -> zip::result::ZipResult<()> {
   if !dir.exists() {
-    Result::<(), ()>::Err(());
+    return Result::Ok(());
   }
 
   let iter = WalkDir::new(dir).into_iter().filter_map(|e| e.ok());
@@ -74,5 +75,15 @@ pub fn append_file_to_zip(
   zip_file.write_all(&buffer)?;
   buffer.clear();
 
+  Result::Ok(())
+}
+
+pub fn extract_and_delete_zip_file(
+  zip_path: &PathBuf,
+  extract_dir: &PathBuf,
+) -> Result<(), zip_extract::ZipExtractError> {
+  let archive: Vec<u8> = std::fs::read(zip_path)?;
+  zip_extract::extract(Cursor::new(archive), extract_dir, true)?;
+  std::fs::remove_file(zip_path)?;
   Result::Ok(())
 }
