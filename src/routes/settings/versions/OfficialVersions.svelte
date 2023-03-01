@@ -43,9 +43,7 @@
 
   async function refreshOfficialVersionList(evt) {
     // Check the backend to see if the folder has any versions
-    const installedVersions = await listDownloadedVersions(
-      "official"
-    );
+    const installedVersions = await listDownloadedVersions("official");
     officialReleases = [];
     for (const version of installedVersions) {
       officialReleases = [
@@ -102,10 +100,7 @@
   }
 
   async function saveOfficialVersionChange(evt) {
-    await saveActiveVersionChange(
-      "official",
-      selectedOfficialVersion
-    );
+    await saveActiveVersionChange("official", selectedOfficialVersion);
     currentOfficialVersion = selectedOfficialVersion;
   }
 

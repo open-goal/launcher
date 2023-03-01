@@ -4,7 +4,9 @@
   <div
     class="flex flex-col h-[544px] justify-center items-center p-5 text-center"
   >
-    <h1 class="text-2xl font-black mb-5 text-outline">Jak 2 is Currently in Development</h1>
+    <h1 class="text-2xl font-black mb-5 text-outline">
+      Jak 2 is Currently in Development
+    </h1>
     <p class="mb-10">
       In the meantime, check out our latest progress reports showcasing what
       we've accomplished so far

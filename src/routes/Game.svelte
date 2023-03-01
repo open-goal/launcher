@@ -99,7 +99,14 @@
         on:jobFinished={gameJobFinished}
       />
     {:else if versionMismatchDetected}
-      <GameUpdate {activeGame} {installedVersion} {installedVersionFolder} {activeVersion} {activeVersionFolder} on:job={runGameJob} />
+      <GameUpdate
+        {activeGame}
+        {installedVersion}
+        {installedVersionFolder}
+        {activeVersion}
+        {activeVersionFolder}
+        on:job={runGameJob}
+      />
     {:else}
       <GameControls
         {activeGame}

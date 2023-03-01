@@ -18,7 +18,7 @@
     resetGameSettings,
     uninstallGame,
   } from "$lib/rpc/game";
-  import {platform} from "@tauri-apps/api/os";
+  import { platform } from "@tauri-apps/api/os";
 
   export let activeGame: SupportedGame;
 
