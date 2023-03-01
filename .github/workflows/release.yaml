@@ -50,7 +50,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: npm
+          cache: yarn
 
       - name: Install Rust Stable
         uses: actions-rs/toolchain@v1
@@ -71,25 +71,11 @@ jobs:
 
       - name: Install NPM Dependencies
         run: |
-          npm ci
-          npm run build
-
-      - name: Download jak-project Release
-        id: download_jak_project_binaries
-        env:
-          JAK_PROJ_VERSION: "^0.0.0"
-          PLATFORM: ${{ matrix.os }}
-          DOWNLOAD_DIR: "./"
-          GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
-        run: |
-          pushd ./.github/scripts/download-binaries
-          npm ci
-          popd
-          node ./.github/scripts/download-binaries/index.js
+          yarn install --frozen-lockfile
+          yarn build
 
       - name: Prepare Release Config
-        run: |
-          npm run prepare-release-config
+        run: yarn prepare-release-config
 
       - name: Prepare Resources for Build
         if: matrix.os == 'windows'
@@ -150,7 +136,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: npm
+          cache: yarn
 
       - name: update release metadata and publish the release
         env:
@@ -158,10 +144,8 @@ jobs:
           RELEASE_ID: ${{needs.create-release.outputs.release_id}}
           JAK_PROJ_TAG: ${{needs.build-app.outputs.jak_project_tag}}
         run: |
-          pushd ./.github/scripts/update-release-metadata
-          npm ci
-          popd
-          node ./.github/scripts/update-release-metadata/index.js
+          yarn install --frozen-lockfile
+          yarn update-release-meta
 
       - name: commit release metadata change
         uses: EndBug/add-and-commit@v9

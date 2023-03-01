@@ -21,9 +21,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: npm
+          cache: yarn
 
       - name: install dependencies and check formatting
         run: |
-          npm ci
-          npm run lint
+          yarn install --frozen-lockfile
+          yarn lint
