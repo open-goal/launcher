@@ -18,7 +18,7 @@ Users are required to provide their own copy of the ISO file in order to run the
 - [x] Windows Support
 - [x] Linux Support
 - [ ] Mac Support (TBD -- Not Planned)
-- [x] Texture Pack Management
+- [ ] Texture Pack Management (Soon)
 - [ ] Mod Management
 
 ## Resources
