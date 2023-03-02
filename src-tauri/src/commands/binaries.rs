@@ -1,9 +1,10 @@
+use std::io::{BufRead, BufReader};
 use std::{
   path::{Path, PathBuf},
   process::Command,
 };
 
-use crate::config::LauncherConfig;
+use crate::{config::LauncherConfig, util::file::create_dir};
 
 use super::CommandError;
 
@@ -101,9 +102,35 @@ fn get_exec_location(
   })
 }
 
+fn create_log_file(
+  app_handle: &tauri::AppHandle,
+  name: &str,
+  append: bool,
+) -> Result<std::fs::File, CommandError> {
+  let log_path = &match app_handle.path_resolver().app_log_dir() {
+    None => {
+      return Err(CommandError::Installation(format!(
+        "Could not determine path to save installation logs"
+      )))
+    }
+    Some(path) => path.clone(),
+  };
+  create_dir(&log_path)?;
+  let mut file_options = std::fs::OpenOptions::new();
+  file_options.create(true);
+  if append {
+    file_options.append(true);
+  } else {
+    file_options.write(true).truncate(true);
+  }
+  let file = file_options.open(log_path.join(name))?;
+  Ok(file)
+}
+
 #[tauri::command]
 pub async fn extract_and_validate_iso(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  app_handle: tauri::AppHandle,
   path_to_iso: String,
   game_name: String,
 ) -> Result<(), CommandError> {
@@ -123,18 +150,24 @@ pub async fn extract_and_validate_iso(
   if Path::new(&path_to_iso.clone()).is_dir() {
     args.push("--folder".to_string());
   }
-  // TODO - tee logs and handle error codes
+
+  // This is the first install step, reset the file
+  let log_file = create_log_file(&app_handle, "extractor.log", false)?;
+
+  // TODO - exit codes
   let output = Command::new(exec_info.executable_path)
     .args(args)
     .current_dir(exec_info.executable_dir)
-    .output()
-    .expect("failed to execute process");
+    .stdout(log_file.try_clone().unwrap())
+    .stderr(log_file)
+    .output()?;
   Ok(())
 }
 
 #[tauri::command]
 pub async fn run_decompiler(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  app_handle: tauri::AppHandle,
   path_to_iso: String,
   game_name: String,
 ) -> Result<(), CommandError> {
@@ -153,7 +186,8 @@ pub async fn run_decompiler(
       .to_string();
   }
 
-  // TODO - tee logs and handle error codes
+  // TODO - handle error codes
+  let log_file = create_log_file(&app_handle, "extractor.log", true)?;
   let output = Command::new(&exec_info.executable_path)
     .args([
       source_path,
@@ -161,15 +195,17 @@ pub async fn run_decompiler(
       "--proj-path".to_string(),
       data_folder.to_string_lossy().into_owned(),
     ])
+    .stdout(log_file.try_clone().unwrap())
+    .stderr(log_file)
     .current_dir(exec_info.executable_dir)
-    .output()
-    .expect("failed to execute process");
+    .output()?;
   Ok(())
 }
 
 #[tauri::command]
 pub async fn run_compiler(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  app_handle: tauri::AppHandle,
   path_to_iso: String,
   game_name: String,
 ) -> Result<(), CommandError> {
@@ -188,7 +224,8 @@ pub async fn run_compiler(
       .to_string();
   }
 
-  // TODO - tee logs and handle error codes
+  // TODO - handle error codes
+  let log_file = create_log_file(&app_handle, "extractor.log", true)?;
   let output = Command::new(&exec_info.executable_path)
     .args([
       source_path,
@@ -196,9 +233,10 @@ pub async fn run_compiler(
       "--proj-path".to_string(),
       data_folder.to_string_lossy().into_owned(),
     ])
+    .stdout(log_file.try_clone().unwrap())
+    .stderr(log_file)
     .current_dir(exec_info.executable_dir)
-    .output()
-    .expect("failed to execute process");
+    .output()?;
   Ok(())
 }
 
@@ -216,7 +254,7 @@ pub async fn open_repl(
 
   let data_folder = get_data_dir(&config_info, &game_name)?;
   let exec_info = get_exec_location(&config_info, "goalc")?;
-  // TODO - handle error
+  // TODO - handle error codes
   let output = Command::new("cmd")
     .args([
       "/K",
@@ -226,14 +264,14 @@ pub async fn open_repl(
       &data_folder.to_string_lossy().into_owned(),
     ])
     .current_dir(exec_info.executable_dir)
-    .spawn()
-    .expect("failed to execute process");
+    .spawn()?;
   Ok(())
 }
 
 #[tauri::command]
 pub async fn launch_game(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  app_handle: tauri::AppHandle,
   game_name: String,
   in_debug: bool,
 ) -> Result<(), CommandError> {
@@ -250,11 +288,13 @@ pub async fn launch_game(
   }
   args.push("-proj-path".to_string());
   args.push(data_folder.to_string_lossy().into_owned());
-  // TODO - tee logs for SURE
+  // TODO - handle error codes
+  let log_file = create_log_file(&app_handle, "game.log", false)?;
   let output = Command::new(exec_info.executable_path)
     .args(args)
+    .stdout(log_file.try_clone().unwrap())
+    .stderr(log_file)
     .current_dir(exec_info.executable_dir)
-    .spawn()
-    .expect("failed to execute process");
+    .spawn()?;
   Ok(())
 }

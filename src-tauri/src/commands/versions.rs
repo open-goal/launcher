@@ -3,7 +3,7 @@ use std::path::Path;
 use crate::{
   config::LauncherConfig,
   util::{
-    file::{create_dir, delete_dir_or_folder},
+    file::{create_dir, delete_dir},
     network::download_file,
     os::open_dir_in_os,
     zip::extract_and_delete_zip_file,
@@ -83,7 +83,7 @@ pub async fn download_version(
     .join(&version);
 
   // Delete the directory if it exists, and create it from scratch
-  delete_dir_or_folder(&dest_dir).map_err(|_| {
+  delete_dir(&dest_dir).map_err(|_| {
     CommandError::VersionManagement(format!(
       "Unable to prepare destination folder '{}' for download",
       dest_dir.display()
