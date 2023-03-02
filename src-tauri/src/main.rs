@@ -3,7 +3,9 @@
   windows_subsystem = "windows"
 )]
 
+use fern::colors::{Color, ColoredLevelConfig};
 use tauri::{Manager, RunEvent};
+use util::file::create_dir;
 
 use std::env;
 
@@ -13,16 +15,55 @@ mod textures;
 mod util;
 
 fn main() {
-  // TODO - switch to https://github.com/daboross/fern so we can setup easy logging
-  // to a file as well
-  if env::var_os("RUST_LOG").is_none() {
-    env::set_var("RUST_LOG", "debug");
-  }
-
-  pretty_env_logger::init();
-
   tauri::Builder::default()
     .setup(|app| {
+      // Setup Logging
+      let log_path = app
+        .path_resolver()
+        .app_log_dir()
+        .expect("Could not determine log path");
+      create_dir(&log_path)?;
+
+      // configure colors for the whole line
+      let colors_line = ColoredLevelConfig::new()
+        .error(Color::Red)
+        .warn(Color::Yellow)
+        // we actually don't need to specify the color for debug and info, they are white by default
+        .info(Color::White)
+        .debug(Color::White)
+        // depending on the terminals color scheme, this is the same as the background color
+        .trace(Color::BrightBlack);
+
+      // configure colors for the name of the level.
+      // since almost all of them are the same as the color for the whole line, we
+      // just clone `colors_line` and overwrite our changes
+      let colors_level = colors_line.clone().info(Color::Green);
+      fern::Dispatch::new()
+        // Perform allocation-free log formatting
+        .format(move |out, message, record| {
+          out.finish(format_args!(
+            "{color_line}[{date}][{target}][{level}{color_line}] {message}\x1B[0m",
+            color_line = format_args!(
+              "\x1B[{}m",
+              colors_line.get_color(&record.level()).to_fg_str()
+            ),
+            date = chrono::Local::now().format("%H:%M:%S"),
+            target = record.target(),
+            level = colors_level.color(record.level()),
+            message = message,
+          ));
+        })
+        // Add blanket level filter -
+        .level(log::LevelFilter::Debug)
+        // - and per-module overrides
+        // .level_for("opengoal-launcher", log::LevelFilter::Debug)
+        // Output to stdout, files, and other Dispatch configurations
+        .chain(std::io::stdout())
+        .chain(fern::DateBased::new(log_path, "/%Y-%m-%d_app.log"))
+        // Apply globally
+        .apply()
+        .expect("Could not setup logs");
+      log::info!("Logging Initialized");
       // Load the config (or initialize it with defaults)
       //
       // Tauri is pretty cool - you can "manage" as many instances of structs as you want (so long as it's only 1 per type)
