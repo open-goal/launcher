@@ -43,15 +43,6 @@ pub async fn set_install_directory(
 }
 
 #[tauri::command]
-pub async fn is_avx_supported() -> Result<bool, ()> {
-  if is_x86_feature_detected!("avx") || is_x86_feature_detected!("avx2") {
-    return Ok(true);
-  } else {
-    return Ok(false);
-  }
-}
-
-#[tauri::command]
 pub async fn is_avx_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<bool, CommandError> {

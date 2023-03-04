@@ -47,9 +47,17 @@ export async function isAVXRequirementMet(): Promise<boolean> {
   }
 }
 
-export async function isOpenGLRequirementMet(): Promise<boolean> {
+export async function isOpenGLRequirementMet(): Promise<boolean | boolean> {
   try {
     return await invoke("is_opengl_requirement_met", {});
+  } catch (e) {
+    console.log("TODO AH!");
+  }
+}
+
+export async function setOpenGLRequirementMet(val: boolean): Promise<void> {
+  try {
+    return await invoke("set_opengl_requirement_met", { requirementMet: val });
   } catch (e) {
     console.log("TODO AH!");
   }

@@ -15,10 +15,13 @@
   import { folderPrompt, isoPrompt } from "$lib/utils/file";
   import {
     finalizeInstallation,
+    isAVXRequirementMet,
     isOpenGLRequirementMet,
+    setOpenGLRequirementMet,
   } from "$lib/rpc/config";
   import { progressTracker } from "$lib/stores/ProgressStore";
   import { generateSupportPackage } from "$lib/rpc/support";
+  import { isOpenGLVersionSupported } from "$lib/sidecars/glewinfo";
 
   export let activeGame: SupportedGame;
 
@@ -28,8 +31,14 @@
   let installing = false;
 
   onMount(async () => {
-    // TODO - properly check requirements
-    requirementsMet = true;
+    // Check requirements
+    const isAvxMet = await isAVXRequirementMet();
+    let isOpenGLMet = await isOpenGLRequirementMet();
+    if (isOpenGLMet === null) {
+      isOpenGLMet = await isOpenGLVersionSupported("4.3");
+      await setOpenGLRequirementMet(isOpenGLMet);
+    }
+    requirementsMet = isAvxMet && isOpenGLMet;
   });
 
   async function install(viaFolder: boolean) {
