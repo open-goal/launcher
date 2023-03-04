@@ -21,23 +21,22 @@ fn main() {
       let log_path = app
         .path_resolver()
         .app_log_dir()
-        .expect("Could not determine log path");
+        .expect("Could not determine log path")
+        .join("app");
       create_dir(&log_path)?;
 
       // configure colors for the whole line
       let colors_line = ColoredLevelConfig::new()
         .error(Color::Red)
         .warn(Color::Yellow)
-        // we actually don't need to specify the color for debug and info, they are white by default
-        .info(Color::White)
-        .debug(Color::White)
-        // depending on the terminals color scheme, this is the same as the background color
-        .trace(Color::BrightBlack);
+        .info(Color::Cyan)
+        .debug(Color::Green)
+        .trace(Color::White);
 
       // configure colors for the name of the level.
       // since almost all of them are the same as the color for the whole line, we
       // just clone `colors_line` and overwrite our changes
-      let colors_level = colors_line.clone().info(Color::Green);
+      let colors_level = colors_line.clone().info(Color::Cyan);
       fern::Dispatch::new()
         // Perform allocation-free log formatting
         .format(move |out, message, record| {
@@ -59,7 +58,8 @@ fn main() {
         // .level_for("opengoal-launcher", log::LevelFilter::Debug)
         // Output to stdout, files, and other Dispatch configurations
         .chain(std::io::stdout())
-        .chain(fern::DateBased::new(log_path, "/%Y-%m-%d_app.log"))
+        // TODO - might need to periodically cleanup logs automatically (else this dir will get huge)
+        .chain(fern::DateBased::new(log_path, "/%Y-%m-%d.log"))
         // Apply globally
         .apply()
         .expect("Could not setup logs");
@@ -77,6 +77,7 @@ fn main() {
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
+      commands::binaries::update_data_directory,
       commands::binaries::extract_and_validate_iso,
       commands::binaries::launch_game,
       commands::binaries::open_repl,
@@ -98,6 +99,7 @@ fn main() {
       commands::game::uninstall_game,
       commands::support::generate_support_package,
       commands::versions::download_version,
+      commands::versions::remove_version,
       commands::versions::go_to_version_folder,
       commands::versions::list_downloaded_versions,
       commands::window::close_splashscreen

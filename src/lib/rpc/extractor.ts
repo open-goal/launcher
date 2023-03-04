@@ -1,5 +1,15 @@
 import { invoke } from "@tauri-apps/api/tauri";
 
+export async function updateDataDirectory(gameName: string): Promise<void> {
+  try {
+    return await invoke("update_data_directory", {
+      gameName: gameName,
+    });
+  } catch (e) {
+    console.log("TODO AH!");
+  }
+}
+
 export async function extractAndValidateISO(
   pathToIso: string,
   gameName: string

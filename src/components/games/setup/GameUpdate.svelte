@@ -21,14 +21,14 @@
       Version Mismatch Detected!
     </h5>
     <p class="text-base text-gray-500 dark:text-gray-400 mb-1">
-      The game has already been installed with...
+      The game is already installed with...
     </p>
     <ul class="list-disc list-inside mb-2">
       <li>Version: <strong>{installedVersion}</strong></li>
       <li>Type: <strong>{installedVersionFolder}</strong></li>
     </ul>
     <p class="text-base text-gray-500 dark:text-gray-400 mb-1">
-      ...but you have currently have selected
+      ...but you currently have selected
     </p>
     <ul class="list-disc list-inside mb-5">
       <li>Version: <strong>{activeVersion}</strong></li>

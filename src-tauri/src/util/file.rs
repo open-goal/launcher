@@ -21,3 +21,14 @@ pub fn delete_file(path: &PathBuf) -> Result<(), std::io::Error> {
   }
   Ok(())
 }
+
+pub fn overwrite_dir(src: &PathBuf, dst: &PathBuf) -> Result<(), fs_extra::error::Error> {
+  if src.exists() {
+    let mut options = fs_extra::dir::CopyOptions::new();
+    options.copy_inside = true;
+    options.overwrite = true;
+    options.content_only = true;
+    fs_extra::dir::copy(src, dst, &options)?;
+  }
+  Ok(())
+}

@@ -18,14 +18,15 @@
 
   let launcherVerison = undefined;
   let toolingVersion = undefined;
+  let toolingVersionType = undefined;
 
   onMount(async () => {
     // Get current versions
     launcherVerison = `v${await getVersion()}`;
     toolingVersion = await getActiveVersion();
+    toolingVersionType = await getActiveVersionFolder();
 
     // Check for a launcher update
-    // TODO - skip this while doing local development
     // I think it won't work unless the updater is in the configuration, which of course has other issues
     if (!isInDebugMode()) {
       const updateResult = await checkUpdate();
@@ -48,9 +49,20 @@
       }
     }
 
+    await checkIfLatestVersionInstalled();
+
+    const unlistenInstalled = await listen(
+      "toolingVersionChanged",
+      async (event) => {
+        toolingVersion = await getActiveVersion();
+        toolingVersionType = await getActiveVersionFolder();
+      }
+    );
+  });
+
+  async function checkIfLatestVersionInstalled() {
     // Check for an update to the tooling (right now, only if it's official)
-    const selectedVersionFolder = await getActiveVersionFolder();
-    if (selectedVersionFolder === "official") {
+    if (toolingVersionType === "official") {
       const latestToolingVersion = await getLatestOfficialRelease();
       if (toolingVersion !== latestToolingVersion.version) {
         // Check that we havn't already downloaded it
@@ -59,7 +71,7 @@
           "official"
         );
         for (const releaseVersion of downloadedOfficialVersions) {
-          if (releaseVersion === toolingVersion) {
+          if (releaseVersion === latestToolingVersion.version) {
             alreadyHaveRelease = true;
             break;
           }
@@ -72,14 +84,7 @@
         }
       }
     }
-
-    const unlistenInstalled = await listen(
-      "toolingVersionChanged",
-      async (event) => {
-        toolingVersion = await getActiveVersion();
-      }
-    );
-  });
+  }
 </script>
 
 <header
@@ -104,6 +109,11 @@
     </p>
     <p class="font-mono text-sm">
       {toolingVersion === undefined ? "unknown" : toolingVersion}
+      {#if toolingVersionType === "unofficial"}
+        (unf)
+      {:else if toolingVersionType === "devel"}
+        (dev)
+      {/if}
     </p>
   </div>
 

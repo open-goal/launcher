@@ -1,14 +1,19 @@
-use std::io::{BufRead, BufReader};
 use std::{
+  collections::HashMap,
   path::{Path, PathBuf},
   process::Command,
 };
 
-use crate::{config::LauncherConfig, util::file::create_dir};
+use log::info;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+
+use crate::{
+  config::LauncherConfig,
+  util::file::{create_dir, overwrite_dir},
+};
 
 use super::CommandError;
-
-// TODO - update data dir command
 
 fn bin_ext(filename: &str) -> String {
   if cfg!(windows) {
@@ -55,6 +60,84 @@ fn common_prelude(
     active_version: active_version.clone(),
     active_version_folder: active_version_folder.clone(),
   })
+}
+
+#[tauri::command]
+pub async fn update_data_directory(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+) -> Result<(), CommandError> {
+  let config_lock = config.lock().await;
+  let config_info = common_prelude(&config_lock)?;
+
+  let src_dir = config_info
+    .install_path
+    .join("versions")
+    .join(config_info.active_version_folder)
+    .join(config_info.active_version)
+    .join("data");
+
+  let dst_dir = config_info
+    .install_path
+    .join("active")
+    .join(game_name)
+    .join("data");
+
+  info!("Copying {} into {}", src_dir.display(), dst_dir.display());
+
+  overwrite_dir(&src_dir, &dst_dir).map_err(|err| {
+    CommandError::Installation(format!(
+      "Unable to copy data directory: '{}'",
+      err.to_string()
+    ))
+  })?;
+
+  Ok(())
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct LauncherErrorCode {
+  msg: String,
+}
+
+fn get_error_codes(config: &CommonConfigData) -> HashMap<i32, LauncherErrorCode> {
+  let json_file = config
+    .install_path
+    .join("active")
+    .join("launcher")
+    .join("error-code-metadata.json");
+  if !json_file.exists() {
+    return HashMap::new();
+  } else {
+    let file_contents = match std::fs::read_to_string(json_file) {
+      Ok(content) => content,
+      Err(_err) => {
+        return HashMap::new();
+      }
+    };
+    let json: Value = match serde_json::from_str(&file_contents) {
+      Ok(json) => json,
+      Err(_err) => {
+        return HashMap::new();
+      }
+    };
+
+    if let Value::Object(map) = json {
+      let mut result: HashMap<i32, LauncherErrorCode> = HashMap::new();
+      for (key, value) in map {
+        let Ok(error_code) = serde_json::from_value(value) else {
+          continue;
+        };
+        let Ok(code) = key.parse::<i32>() else {
+          continue;
+        };
+        result.insert(code, error_code);
+      }
+      return result;
+    } else {
+      return HashMap::new();
+    }
+  }
 }
 
 fn get_data_dir(

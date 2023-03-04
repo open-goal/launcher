@@ -1,50 +1,88 @@
 <script lang="ts">
-  import Icon from "@iconify/svelte";
-  import { Button, TabItem } from "flowbite-svelte";
+  import { onMount } from "svelte";
+  import {
+  getActiveVersion,
+  getActiveVersionFolder,
+    listDownloadedVersions,
+    openVersionFolder,
+    removeVersion,
+    saveActiveVersionChange,
+  } from "$lib/rpc/versions";
+  import VersionList from "./VersionList.svelte";
+  import type { ReleaseInfo } from "$lib/utils/github";
+  import { VersionStore } from "$lib/stores/VersionStore";
 
-  const tabItemActiveClasses =
-    "inline-block text-sm font-bold text-center disabled:cursor-not-allowed p-4 text-orange-500 border-b-2 border-orange-500 dark:text-orange-500 dark:border-orange-500";
-  const tabItemInactiveClasses =
-    "inline-block text-sm font-normal text-center disabled:cursor-not-allowed p-4 border-b-2 border-transparent text-gray-400 hover:text-orange-300 hover:border-orange-500 dark:hover:text-orange-300 dark:text-orange-400";
+  let versionsLoaded = false;
+
+  let releases: ReleaseInfo[] = [];
+
+  onMount(async () => {
+    await refreshVersionList();
+  });
+
+  async function refreshVersionList() {
+    versionsLoaded = false;
+    // Reset store to defaults (TODO, move this to a store method)
+    $VersionStore.activeVersionType = await getActiveVersionFolder();
+    $VersionStore.activeVersionName = await getActiveVersion();
+    if ($VersionStore.activeVersionType === "devel") {
+      $VersionStore.selectedVersions.devel = $VersionStore.activeVersionName;
+    }
+    // Check the backend to see if the folder has any versions
+    const installedVersions = await listDownloadedVersions("devel");
+    releases = [];
+    for (const version of installedVersions) {
+      releases = [
+        ...releases,
+        {
+          releaseType: "devel",
+          version: version,
+          date: undefined,
+          githubLink: undefined,
+          downloadUrl: undefined,
+          isDownloaded: true,
+          pendingAction: false,
+        },
+      ];
+    }
+    versionsLoaded = true;
+  }
+
+  async function onSaveVersionChange(evt: any) {
+    await saveActiveVersionChange("devel", $VersionStore.selectedVersions.devel);
+    // TODO if save was successful
+    $VersionStore.activeVersionType = "devel";
+    $VersionStore.activeVersionName = $VersionStore.selectedVersions.devel;
+    $VersionStore.selectedVersions.official = undefined;
+    $VersionStore.selectedVersions.unofficial = undefined;
+  }
+
+  async function onOpenVersionFolder(evt: any) {
+    openVersionFolder("devel");
+  }
+
+  async function onRemoveVersion(event: any) {
+    // Mark that release as being downloaded
+    for (const release of releases) {
+      if (release.version === event.detail.version) {
+        release.pendingAction = true;
+      }
+    }
+    releases = releases;
+    await removeVersion(event.detail.version, "devel");
+    refreshVersionList();
+  }
 </script>
 
-<TabItem
-  activeClasses={tabItemActiveClasses}
-  inactiveClasses={tabItemInactiveClasses}
->
-  <span slot="title">Development</span>
-  <p class="text-sm text-gray-400 dark:text-gray-300">
-    This list serves as a convenient area to stage, manage and test new releases
-    (either official or unofficial)
-  </p>
-  <div class="flex items-center mt-2 mb-2">
-    <div class="grow">
-      <p class="text-sm text-gray-400 dark:text-gray-300">
-        This list will always require manual management via it's respective
-        folder
-      </p>
-    </div>
-    <div class="flex">
-      <Button
-        btnClass="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
-      >
-        <Icon
-          icon="material-symbols:refresh"
-          width="20"
-          height="20"
-          alt="refresh official version list"
-        />
-      </Button>
-      <Button
-        btnClass="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
-      >
-        <Icon
-          icon="material-symbols:folder-open-rounded"
-          width="20"
-          height="20"
-          alt="open official version folder"
-        />
-      </Button>
-    </div>
-  </div>
-</TabItem>
+<VersionList
+  initiallyOpen={false}
+  name="Development"
+  description="This list serves as a convenient area to stage, manage and test new releases (either official or unofficial) This list will always require manual management via it's respective folder"
+  releaseList={releases}
+  loaded={versionsLoaded}
+  releaseType="devel"
+  on:openVersionFolder={onOpenVersionFolder}
+  on:refreshVersions={refreshVersionList}
+  on:versionChange={onSaveVersionChange}
+  on:removeVersion={onRemoveVersion}
+/>

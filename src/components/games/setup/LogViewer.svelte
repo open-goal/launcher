@@ -6,8 +6,8 @@
 
 <Accordion class="log-accordian" defaultClass="p-0">
   <AccordionItem class="bg-slate-900 rounded p-[1rem]">
-    <span slot="header" class="text font-semibold text-white flex gap-2">
-      <Icon icon="mdi:file-document-outline" width={24} />
+    <span slot="header" class="text-sm font-semibold text-white flex gap-2">
+      <Icon icon="mdi:file-document-outline" width={18} />
       <span>Logs</span>
     </span>
     <div

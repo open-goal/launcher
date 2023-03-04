@@ -8,7 +8,7 @@
   import { progressTracker } from "$lib/stores/ProgressStore";
   import type { Job } from "$lib/jobs/jobs";
   import { getInternalName, type SupportedGame } from "$lib/constants";
-  import { runCompiler, runDecompiler } from "$lib/rpc/extractor";
+  import { runCompiler, runDecompiler, updateDataDirectory } from "$lib/rpc/extractor";
   import { finalizeInstallation } from "$lib/rpc/config";
   import { generateSupportPackage } from "$lib/rpc/support";
 
@@ -54,8 +54,11 @@
       progressTracker.proceed();
       progressTracker.proceed();
     } else if (jobType === "updateGame") {
-      // TODO - update data dir
       progressTracker.init([
+        {
+          status: "queued",
+          label: "Copy Files"
+        },
         {
           status: "queued",
           label: "Decompile",
@@ -70,6 +73,8 @@
         },
       ]);
       progressTracker.start();
+      await updateDataDirectory(getInternalName(activeGame));
+      progressTracker.proceed();
       await runDecompiler("", getInternalName(activeGame));
       progressTracker.proceed();
       await runCompiler("", getInternalName(activeGame));

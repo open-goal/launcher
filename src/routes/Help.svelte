@@ -32,7 +32,7 @@
     <div class="flex flex-row gap-2">
       <Button
         btnClass="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
-        href="https://discord.gg/VZbXMHXzWv"
+        href="https://discord.gg/dPRCfsju3N"
         target="_blank"
         rel="noreferrer noopener"
         ><Icon
@@ -57,6 +57,17 @@
         ><Icon class="inline-block" icon="mdi:github" width={20} />&nbsp;Report
         Game Issue</Button
       >
+    </div>
+    <div class="flex mt-auto justify-end">
+      <p class="text-gray-500 text-xs text-center">
+        All third party trademarks (including but not limited to: logos and
+        icons) referenced by OpenGOAL remain the property of their respective
+        owners. Unless specifically identified as such, OpenGOAL's use of third
+        party trademarks does not indicate any relationship, sponsorship, or
+        endorsment between OpenGOAL and the owners of these trademarks. Any
+        references to the aforementioned trademarks are for informative purposes
+        and should be considered nominative fair use.
+      </p>
     </div>
   </div>
 </div>

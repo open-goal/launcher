@@ -1,50 +1,90 @@
 <script lang="ts">
-  import Icon from "@iconify/svelte";
-  import { Button, TabItem } from "flowbite-svelte";
+  import { onMount } from "svelte";
+  import {
+  getActiveVersion,
+  getActiveVersionFolder,
+    listDownloadedVersions,
+    openVersionFolder,
+    removeVersion,
+    saveActiveVersionChange,
+  } from "$lib/rpc/versions";
+  import VersionList from "./VersionList.svelte";
+  import type { ReleaseInfo } from "$lib/utils/github";
+  import { VersionStore } from "$lib/stores/VersionStore";
 
-  const tabItemActiveClasses =
-    "inline-block text-sm font-bold text-center disabled:cursor-not-allowed p-4 text-orange-500 border-b-2 border-orange-500 dark:text-orange-500 dark:border-orange-500";
-  const tabItemInactiveClasses =
-    "inline-block text-sm font-normal text-center disabled:cursor-not-allowed p-4 border-b-2 border-transparent text-gray-400 hover:text-orange-300 hover:border-orange-500 dark:hover:text-orange-300 dark:text-orange-400";
+  let versionsLoaded = false;
+
+  let releases: ReleaseInfo[] = [];
+
+  onMount(async () => {
+    await refreshVersionList();
+  });
+
+  async function refreshVersionList() {
+    versionsLoaded = false;
+    // Reset store to defaults (TODO, move this to a store method)
+    $VersionStore.activeVersionType = await getActiveVersionFolder();
+    $VersionStore.activeVersionName = await getActiveVersion();
+    if ($VersionStore.activeVersionType === "unofficial") {
+      $VersionStore.selectedVersions.unofficial = $VersionStore.activeVersionName;
+    }
+    // Check the backend to see if the folder has any versions
+    const installedVersions = await listDownloadedVersions("unofficial");
+    releases = [];
+    for (const version of installedVersions) {
+      // TODO - mods have no standardized metadata (i think?), can't do much here!
+      releases = [
+        ...releases,
+        {
+          releaseType: "unofficial",
+          version: version,
+          date: undefined,
+          githubLink: undefined,
+          downloadUrl: undefined,
+          isDownloaded: true,
+          pendingAction: false,
+        },
+      ];
+    }
+    versionsLoaded = true;
+  }
+
+  async function onSaveVersionChange(evt: any) {
+    await saveActiveVersionChange("unofficial", $VersionStore.selectedVersions.unofficial);
+    // TODO if save was successful
+    $VersionStore.activeVersionType = "unofficial";
+    $VersionStore.activeVersionName = $VersionStore.selectedVersions.unofficial;
+    $VersionStore.selectedVersions.official = undefined;
+    $VersionStore.selectedVersions.devel = undefined;
+  }
+
+  async function onOpenVersionFolder(evt: any) {
+    openVersionFolder("unofficial");
+  }
+
+  async function onRemoveVersion(event: any) {
+    // Mark that release as being downloaded
+    for (const release of releases) {
+      if (release.version === event.detail.version) {
+        release.pendingAction = true;
+      }
+    }
+    releases = releases;
+    await removeVersion(event.detail.version, "unofficial");
+    refreshVersionList();
+  }
 </script>
 
-<TabItem
-  activeClasses={tabItemActiveClasses}
-  inactiveClasses={tabItemInactiveClasses}
->
-  <span slot="title">Unofficial</span>
-  <p class="text-sm text-gray-400 dark:text-gray-300">
-    Unofficial versions are typically modified `jak-project` releases to enable
-    changes or new content
-  </p>
-  <div class="flex items-center mt-2 mb-2">
-    <div class="grow">
-      <p class="text-sm text-gray-400 dark:text-gray-300">
-        These are not supported by the OpenGOAL team and will have to be
-        manually added to the folder at this time
-      </p>
-    </div>
-    <div class="flex">
-      <Button
-        btnClass="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
-      >
-        <Icon
-          icon="material-symbols:refresh"
-          width="20"
-          height="20"
-          alt="refresh official version list"
-        />
-      </Button>
-      <Button
-        btnClass="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
-      >
-        <Icon
-          icon="material-symbols:folder-open-rounded"
-          width="20"
-          height="20"
-          alt="open official version folder"
-        />
-      </Button>
-    </div>
-  </div>
-</TabItem>
+<VersionList
+  initiallyOpen={false}
+  name="Unofficial"
+  description="Unofficial versions are typically modified `jak-project` releases to enable changes or new content. These are not supported by the OpenGOAL team and will have to be
+  manually added to the folder at this time"
+  releaseList={releases}
+  loaded={versionsLoaded}
+  releaseType="unofficial"
+  on:openVersionFolder={onOpenVersionFolder}
+  on:refreshVersions={refreshVersionList}
+  on:versionChange={onSaveVersionChange}
+  on:removeVersion={onRemoveVersion}
+/>

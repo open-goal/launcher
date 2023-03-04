@@ -9,11 +9,12 @@
   import { appWindow } from "@tauri-apps/api/window";
   import { log } from "$lib/utils/log";
   import Header from "./components/header/Header.svelte";
-  import Faq from "./routes/FAQ.svelte";
   import Textures from "./routes/Textures.svelte";
   import Update from "./routes/Update.svelte";
   import GameInProgress from "./components/games/GameInProgress.svelte";
   import { isInDebugMode } from "$lib/utils/common";
+  import { Toast } from "flowbite-svelte";
+  import Help from "./routes/Help.svelte";
 
   let revokeSpecificActions = false;
 
@@ -72,8 +73,9 @@
       primary={false}
       let:params
     />
-    <Route path="/faq" component={Faq} primary={false} />
+    <Route path="/faq" component={Help} primary={false} />
     <Route path="/textures" component={Textures} primary={false} />
     <Route path="/update" component={Update} primary={false} />
+    <!-- <Toast color="green" position="bottom-right">Toast Notification - TODO!</Toast> -->
   </div>
 </Router>

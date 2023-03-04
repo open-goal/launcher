@@ -1,5 +1,7 @@
 use std::path::Path;
 
+use log::info;
+
 use crate::{
   config::LauncherConfig,
   util::{
@@ -110,6 +112,36 @@ pub async fn download_version(
   extract_and_delete_zip_file(&download_path, &dest_dir).map_err(|_| {
     CommandError::VersionManagement(format!("Unable to successfully extract downloaded version"))
   })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn remove_version(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  version: String,
+  version_folder: String,
+) -> Result<(), CommandError> {
+  let config_lock = config.lock().await;
+  let install_path = match &config_lock.installation_dir {
+    None => {
+      return Err(CommandError::VersionManagement(format!(
+        "Cannot install version, no installation directory set"
+      )))
+    }
+    Some(path) => Path::new(path),
+  };
+
+  info!("Deleting Version {}:{}", version_folder, version);
+
+  let version_dir = install_path
+    .join("versions")
+    .join(&version_folder)
+    .join(&version);
+
+  // TODO - handle deleting the active version
+  // TODO - handle no active version being selected (unrelated to here)
+  delete_dir(&version_dir)?;
+
   Ok(())
 }
 

@@ -1,13 +1,38 @@
-export interface OfficialRelease {
+import { platform } from "@tauri-apps/api/os";
+
+export interface ReleaseInfo {
+  releaseType: "official" | "unofficial" | "devel";
   version: string;
   date: string | undefined;
   githubLink: string | undefined;
   downloadUrl: string | undefined; // TODO - windows/mac/linux
   isDownloaded: boolean;
-  isBeingDownloaded: boolean;
+  pendingAction: boolean;
 }
 
-export async function listOfficialReleases(): Promise<OfficialRelease[]> {
+async function getDownloadLinkForCurrentPlatform(
+  release
+): Promise<string | undefined> {
+  const platformName = await platform(); //
+  for (const asset of release.assets) {
+    if (platformName === "darwin" && asset.name.includes("opengoal-macos-v")) {
+      return asset.browser_download_url;
+    } else if (
+      platformName === "win32" &&
+      asset.name.includes("opengoal-windows-v")
+    ) {
+      return asset.browser_download_url;
+    } else if (
+      platformName === "linux" &&
+      asset.name.includes("opengoal-linux-v")
+    ) {
+      return asset.browser_download_url;
+    }
+  }
+  return undefined;
+}
+
+export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
   let releases = [];
   // TODO - handle rate limiting
   // TODO - long term - handle pagination (more than 100 releases)
@@ -20,21 +45,20 @@ export async function listOfficialReleases(): Promise<OfficialRelease[]> {
 
   for (const release of githubReleases) {
     releases.push({
+      releaseType: "official",
       version: release.tag_name,
       date: release.published_at,
       githubLink: release.html_url,
-      // TODO A HACK
-      downloadUrl:
-        "https://github.com/open-goal/jak-project/releases/download/v0.1.32/opengoal-windows-v0.1.32.zip",
+      downloadUrl: await getDownloadLinkForCurrentPlatform(release),
       isDownloaded: false,
-      isBeingDownloaded: false,
+      pendingAction: false,
     });
   }
 
   return releases.sort((a, b) => b.date.localeCompare(a.date));
 }
 
-export async function getLatestOfficialRelease(): Promise<OfficialRelease> {
+export async function getLatestOfficialRelease(): Promise<ReleaseInfo> {
   // TODO - handle rate limiting
   // TODO - even longer term - extract this out into an API we control (avoid github rate limiting) -- will be needed for unofficial releases as well anyway
   const resp = await fetch(
@@ -43,12 +67,12 @@ export async function getLatestOfficialRelease(): Promise<OfficialRelease> {
   // TODO - handle error
   const githubRelease = await resp.json();
   return {
+    releaseType: "official",
     version: githubRelease.tag_name,
     date: githubRelease.published_at,
     githubLink: githubRelease.html_url,
-    // TODO - HACK
-    downloadUrl: undefined,
+    downloadUrl: await getDownloadLinkForCurrentPlatform(githubRelease),
     isDownloaded: false,
-    isBeingDownloaded: false,
+    pendingAction: false,
   };
 }
