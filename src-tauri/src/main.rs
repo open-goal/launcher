@@ -84,6 +84,8 @@ fn main() {
       commands::binaries::run_compiler,
       commands::binaries::run_decompiler,
       commands::config::finalize_installation,
+      commands::config::has_old_data_directory,
+      commands::config::delete_old_data_directory,
       commands::config::get_active_version_folder,
       commands::config::get_active_version,
       commands::config::get_install_directory,

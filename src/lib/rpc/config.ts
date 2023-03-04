@@ -1,5 +1,22 @@
 import { invoke } from "@tauri-apps/api/tauri";
 
+export async function oldDataDirectoryExists(): Promise<boolean> {
+  try {
+    return await invoke("has_old_data_directory", {});
+  } catch (e) {
+    console.log("[OG] Unable to check if the old data directory exists");
+    return false;
+  }
+}
+
+export async function deleteOldDataDirectory(): Promise<void> {
+  try {
+    await invoke("delete_old_data_directory", {});
+  } catch (e) {
+    console.log("[OG] Unable to check if the old data directory exists");
+  }
+}
+
 export async function getInstallationDirectory(): Promise<string | null> {
   try {
     return await invoke("get_install_directory", {});
@@ -10,11 +27,15 @@ export async function getInstallationDirectory(): Promise<string | null> {
 
 export async function setInstallationDirectory(
   newInstallDir: string
-): Promise<void> {
+): Promise<string | null> {
   try {
-    await invoke("set_install_directory", { newDir: newInstallDir });
+    return await invoke("set_install_directory", { newDir: newInstallDir });
   } catch (e) {
-    console.log("TODO AH!");
+    console.log(
+      "[OG] Unexpected error occurred when setting installation dir",
+      e
+    );
+    return "Unexpected error occurred";
   }
 }
 

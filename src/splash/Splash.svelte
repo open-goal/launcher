@@ -2,26 +2,37 @@
   import { closeSplashScreen } from "$lib/rpc/commands";
   import { onMount } from "svelte";
   import logo from "$assets/images/icon.webp";
-  import {
-    copyDataDirectory,
-    dataDirectoryExists,
-  } from "$lib/utils/data-files";
-  import { log } from "$lib/utils/log";
-  import { invoke } from "@tauri-apps/api/tauri";
   import { folderPrompt } from "$lib/utils/file";
+  import {
+    deleteOldDataDirectory,
+    getInstallationDirectory,
+    oldDataDirectoryExists,
+    setInstallationDirectory,
+  } from "$lib/rpc/config";
 
   let currentProgress = 10;
   let currentStatusText = "Reading Settings";
 
   let installationDirSet = true;
+  let stepError = undefined;
+  let oldDataDirToClean = false;
 
   // Events
   onMount(async () => {
+    currentStatusText = "Checking Directories";
+    currentProgress = 15;
     // Check to see if the install dir has been setup or not
-    const install_dir = await invoke("get_install_directory");
+    const install_dir = await getInstallationDirectory();
     if (install_dir === null) {
+      // Check to see if they have the old data directory, ask them if they'd like us to
+      // remove it
+      const hasOldDataDir = await oldDataDirectoryExists();
+      if (hasOldDataDir) {
+        oldDataDirToClean = true;
+      }
       installationDirSet = false;
     } else {
+      currentProgress = 25;
       finishSplash();
     }
   });
@@ -30,59 +41,67 @@
     // If not -- let's ask the user to set one up
     // This is part of what allows for the user to install the games and such wherever they want
     currentStatusText = "Pick an Installation Folder";
-    // TODO - change to a save dialog instead
-    const new_install_dir = await folderPrompt("Pick an Installation Folder");
-    // TODO - put invokes into a nice typescript interface
-    if (new_install_dir !== undefined) {
-      await invoke("set_install_directory", { newDir: new_install_dir });
-      // TODO - we are kinda assuming it succeeded here, improve that
-      // - what if the install directory no longer exists
-      // - what if what they provide isn't writable?
-      installationDirSet = true;
-      finishSplash();
+    currentProgress = 25;
+    const newInstallDir = await folderPrompt("Pick an Installation Folder");
+    if (newInstallDir !== undefined) {
+      const result = await setInstallationDirectory(newInstallDir);
+      if (result !== null) {
+        stepError = result;
+      } else {
+        installationDirSet = true;
+        finishSplash();
+      }
     }
   }
 
   async function finishSplash(evt) {
-    currentStatusText = "Checking Data Files";
-    currentProgress = 25;
-    // TODO - this can likely go away
-    // Check if the data directory exists or not
-    // - if it doesn't this is the users first launch, so lets copy it
-    if (!(await dataDirectoryExists())) {
-      try {
-        currentStatusText = "Copying Data Files";
-        currentProgress = 50;
-        await copyDataDirectory();
-      } catch (err) {
-        log.error("error encountered when copying data files", {
-          error: err,
-        });
-        currentStatusText = `Error - ${err}`;
-        return;
-      }
-    }
+    await new Promise((res) => setTimeout(res, 1000));
+    currentProgress = 50;
     currentStatusText = "Finishing Up";
+    await new Promise((res) => setTimeout(res, 1000));
     currentProgress = 100;
-    await new Promise((res) => setTimeout(res, 2000));
     await closeSplashScreen();
   }
 </script>
 
 <div class="content" data-tauri-drag-region>
-  <div class="splash-logo">
+  <div class="splash-logo no-pointer-events">
     <img src={logo} alt="" draggable="false" />
   </div>
   <div class="splash-contents">
-    {#if installationDirSet}
-      <div class="splash-status-text">{currentStatusText}</div>
-    {:else}
+    {#if oldDataDirToClean}
+      The old installation folder is no longer needed, delete it?
+      <br />
+      <span>
+        <button
+          class="splash-button"
+          on:click={() => {
+            oldDataDirToClean = false;
+            deleteOldDataDirectory();
+          }}>Yes</button
+        >
+        <button
+          class="splash-button"
+          on:click={() => {
+            oldDataDirToClean = false;
+          }}>No</button
+        >
+      </span>
+    {:else if !installationDirSet}
+      {#if stepError !== undefined}
+        {stepError}
+      {:else}
+        No installation directory set!
+      {/if}
+      <br />
       <button class="splash-button" on:click={selectInstallationFolder}
-        >Select Install Folder</button
+        >Set Install Folder</button
       >
+    {:else}
+      <div class="splash-status-text">{currentStatusText}</div>
     {/if}
   </div>
-  <div>
+  <div class="splash-bar">
     <div class="splash-status-bar fg" style="width: {currentProgress}%" />
     <div class="splash-status-bar bg" />
   </div>
@@ -101,19 +120,30 @@
 
   .content {
     color: white;
+    height: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
   }
 
   .splash-contents {
-    display: flex;
+    height: 35%;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1.5em;
+    font-family: "Roboto Mono", monospace;
+    font-size: 10pt;
+    text-align: center;
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .splash-bar {
+    height: 10%;
   }
 
   .splash-logo {
-    height: 65vh;
-    margin-bottom: 1em;
-    padding: 10px;
+    height: 50%;
   }
 
   .splash-logo img {
@@ -122,15 +152,10 @@
     width: 100%;
   }
 
-  .splash-status-text {
-    text-align: center;
-    font-family: "Roboto Mono", monospace;
-    font-size: 8pt;
-  }
-
   .splash-status-bar {
     width: 100%;
     height: 15px;
+    margin-top: auto;
   }
 
   .splash-status-bar.bg {
@@ -144,6 +169,7 @@
   }
 
   .splash-button {
+    margin-top: 5px;
     appearance: none;
     background-color: #ffb807;
     border-radius: 6px;
@@ -179,5 +205,9 @@
 
   .splash-button:active {
     background-color: #775500;
+  }
+
+  .no-pointer-events {
+    pointer-events: none;
   }
 </style>

@@ -1,7 +1,23 @@
-use crate::config::LauncherConfig;
+use crate::{config::LauncherConfig, util::file::delete_dir};
 use tauri::Manager;
 
 use super::CommandError;
+
+#[tauri::command]
+pub async fn has_old_data_directory(app_handle: tauri::AppHandle) -> Result<bool, CommandError> {
+  match &app_handle.path_resolver().app_config_dir() {
+    None => Ok(false),
+    Some(dir) => Ok(dir.join("data").join("iso_data").exists()),
+  }
+}
+
+#[tauri::command]
+pub async fn delete_old_data_directory(app_handle: tauri::AppHandle) -> Result<(), CommandError> {
+  match &app_handle.path_resolver().app_config_dir() {
+    None => Ok(()),
+    Some(dir) => Ok(delete_dir(&dir.join("data"))?),
+  }
+}
 
 #[tauri::command]
 pub async fn get_install_directory(

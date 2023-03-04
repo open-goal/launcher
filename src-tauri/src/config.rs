@@ -9,7 +9,8 @@
 //
 // serde does not support defaultLiterals yet - https://github.com/serde-rs/serde/issues/368
 
-use std::{fs, path::PathBuf};
+use std::fs;
+use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
@@ -116,8 +117,6 @@ pub struct LauncherConfig {
   pub active_version_folder: Option<String>,
 }
 
-// TODO - what is _loaded?
-
 fn default_version() -> Option<String> {
   Some("1.0".to_string())
 }
@@ -195,10 +194,28 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn set_install_directory(&mut self, new_dir: String) -> Result<(), ConfigError> {
+  pub fn set_install_directory(&mut self, new_dir: String) -> Result<Option<String>, ConfigError> {
+    // Do some tests on this folder, if they fail, return a decent error
+    let path = Path::new(&new_dir);
+    if path.exists() {
+      return Ok(Some("Provided folder does not exist".to_owned()));
+    }
+
+    if !path.is_dir() {
+      return Ok(Some("Provided folder is not a folder".to_owned()));
+    }
+
+    // Check our permissions on the folder
+    let md = fs::metadata(path)?;
+    let permissions = md.permissions();
+    let readonly = permissions.readonly();
+    if readonly {
+      return Ok(Some("Provided folder is read-only".to_owned()));
+    }
+
     self.installation_dir = Some(new_dir);
     self.save_config()?;
-    Ok(())
+    Ok(None)
   }
 
   pub fn set_opengl_requirement_met(&mut self, new_val: bool) -> Result<(), ConfigError> {
