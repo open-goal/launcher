@@ -67,3 +67,12 @@ body {
   /* TODO - no idea how else to customize the div that wraps the body slot in the accordian? */
   padding: 0;
 }
+
+.log-output {
+  font-size: 9pt;
+  font-family: monospace;
+}
+
+.log-output > span {
+  font-family: monospace;
+}

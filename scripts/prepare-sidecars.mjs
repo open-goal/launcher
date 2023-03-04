@@ -38,5 +38,3 @@ if (existsSync(`src-tauri/bin/glewinfo${extension}`)) {
     );
   }
 }
-
-

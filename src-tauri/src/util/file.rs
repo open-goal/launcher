@@ -32,3 +32,7 @@ pub fn overwrite_dir(src: &PathBuf, dst: &PathBuf) -> Result<(), fs_extra::error
   }
   Ok(())
 }
+
+pub fn read_lines_in_file(path: &PathBuf) -> Result<String, Box<dyn std::error::Error>> {
+  Ok(std::fs::read_to_string(path)?)
+}

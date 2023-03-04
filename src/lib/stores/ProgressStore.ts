@@ -66,6 +66,11 @@ function createProgressTracker() {
         val.steps[val.currentStep].status = "failed";
         return val;
       }),
+    updateLogs: (logs: string[]) =>
+      update((val) => {
+        val.logs = logs;
+        return val;
+      }),
   };
 }
 

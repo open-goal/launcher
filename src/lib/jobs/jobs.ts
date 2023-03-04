@@ -1,1 +1,1 @@
-export type Job = "decompile" | "compile";
+export type Job = "decompile" | "compile" | "updateGame";

@@ -15,6 +15,7 @@
   } from "$lib/rpc/extractor";
   import { finalizeInstallation } from "$lib/rpc/config";
   import { generateSupportPackage } from "$lib/rpc/support";
+  import { listen } from "@tauri-apps/api/event";
 
   export let activeGame: SupportedGame;
   export let jobType: Job;
@@ -27,6 +28,11 @@
   // It's used to provide almost the same interface as the normal installation, with logs, etc
   // but for arbitrary jobs.  Such as updating versions, decompiling, or compiling.
   onMount(async () => {
+    const unlistenLogListener = await listen("newJobLogs", async (event) => {
+      console.log(event.payload);
+      progressTracker.updateLogs(event.payload["stdout"]);
+    });
+
     if (jobType === "decompile") {
       progressTracker.init([
         {
@@ -95,7 +101,7 @@
 
 <div class="flex flex-col justify-content">
   <Progress />
-  {#if $progressTracker.logs}
+  {#if $progressTracker.logs.length > 0}
     <LogViewer />
   {/if}
 </div>

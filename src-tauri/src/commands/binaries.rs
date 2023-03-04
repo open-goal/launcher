@@ -1,16 +1,18 @@
 use std::{
   collections::HashMap,
+  io::BufRead,
   path::{Path, PathBuf},
-  process::Command,
+  process::{Command, ExitStatus},
 };
 
 use log::info;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use tauri::Manager;
 
 use crate::{
   config::LauncherConfig,
-  util::file::{create_dir, overwrite_dir},
+  util::file::{create_dir, overwrite_dir, read_lines_in_file},
 };
 
 use super::CommandError;
@@ -60,39 +62,6 @@ fn common_prelude(
     active_version: active_version.clone(),
     active_version_folder: active_version_folder.clone(),
   })
-}
-
-#[tauri::command]
-pub async fn update_data_directory(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
-) -> Result<(), CommandError> {
-  let config_lock = config.lock().await;
-  let config_info = common_prelude(&config_lock)?;
-
-  let src_dir = config_info
-    .install_path
-    .join("versions")
-    .join(config_info.active_version_folder)
-    .join(config_info.active_version)
-    .join("data");
-
-  let dst_dir = config_info
-    .install_path
-    .join("active")
-    .join(game_name)
-    .join("data");
-
-  info!("Copying {} into {}", src_dir.display(), dst_dir.display());
-
-  overwrite_dir(&src_dir, &dst_dir).map_err(|err| {
-    CommandError::Installation(format!(
-      "Unable to copy data directory: '{}'",
-      err.to_string()
-    ))
-  })?;
-
-  Ok(())
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -210,13 +179,61 @@ fn create_log_file(
   Ok(file)
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstallStepOutput {
+  pub success: bool,
+  pub msg: Option<String>,
+}
+
+#[tauri::command]
+pub async fn update_data_directory(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+) -> Result<InstallStepOutput, CommandError> {
+  let config_lock = config.lock().await;
+  let config_info = common_prelude(&config_lock)?;
+
+  let src_dir = config_info
+    .install_path
+    .join("versions")
+    .join(config_info.active_version_folder)
+    .join(config_info.active_version)
+    .join("data");
+
+  let dst_dir = config_info
+    .install_path
+    .join("active")
+    .join(game_name)
+    .join("data");
+
+  info!("Copying {} into {}", src_dir.display(), dst_dir.display());
+
+  overwrite_dir(&src_dir, &dst_dir).map_err(|err| {
+    CommandError::Installation(format!(
+      "Unable to copy data directory: '{}'",
+      err.to_string()
+    ))
+  })?;
+
+  Ok(InstallStepOutput {
+    success: true,
+    msg: None,
+  })
+}
+
+#[derive(Clone, serde::Serialize)]
+struct LogPayload {
+  stdout: String,
+}
+
 #[tauri::command]
 pub async fn extract_and_validate_iso(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
   path_to_iso: String,
   game_name: String,
-) -> Result<(), CommandError> {
+) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
@@ -237,14 +254,44 @@ pub async fn extract_and_validate_iso(
   // This is the first install step, reset the file
   let log_file = create_log_file(&app_handle, "extractor.log", false)?;
 
-  // TODO - exit codes
   let output = Command::new(exec_info.executable_path)
     .args(args)
     .current_dir(exec_info.executable_dir)
     .stdout(log_file.try_clone().unwrap())
-    .stderr(log_file)
+    .stderr(log_file.try_clone().unwrap())
     .output()?;
-  Ok(())
+  // TODO - we should instead capture the logs while simulanteously streaming them to a file
+  // right now we aren't so I just read the file after it's done
+  app_handle.emit_all(
+    "updateJobLogs",
+    LogPayload {
+      stdout: read_lines_in_file(
+        &app_handle
+          .path_resolver()
+          .app_log_dir()
+          .unwrap()
+          .join("extractor.log"),
+      )
+      .expect("TODO"),
+    },
+  )?;
+  match output.status.code() {
+    Some(code) => {
+      let error_code_map = get_error_codes(&config_info);
+      let default_error = LauncherErrorCode {
+        msg: format!("Unexpected error occured with code {}", code).to_owned(),
+      };
+      let message = error_code_map.get(&code).unwrap_or(&default_error);
+      Ok(InstallStepOutput {
+        success: false,
+        msg: Some(message.msg.clone()),
+      })
+    }
+    None => Ok(InstallStepOutput {
+      success: true,
+      msg: None,
+    }),
+  }
 }
 
 #[tauri::command]
@@ -253,7 +300,7 @@ pub async fn run_decompiler(
   app_handle: tauri::AppHandle,
   path_to_iso: String,
   game_name: String,
-) -> Result<(), CommandError> {
+) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
@@ -269,7 +316,6 @@ pub async fn run_decompiler(
       .to_string();
   }
 
-  // TODO - handle error codes
   let log_file = create_log_file(&app_handle, "extractor.log", true)?;
   let output = Command::new(&exec_info.executable_path)
     .args([
@@ -282,7 +328,38 @@ pub async fn run_decompiler(
     .stderr(log_file)
     .current_dir(exec_info.executable_dir)
     .output()?;
-  Ok(())
+  // TODO - we should instead capture the logs while simulanteously streaming them to a file
+  // right now we aren't so I just read the file after it's done
+  app_handle.emit_all(
+    "updateJobLogs",
+    LogPayload {
+      stdout: read_lines_in_file(
+        &app_handle
+          .path_resolver()
+          .app_log_dir()
+          .unwrap()
+          .join("extractor.log"),
+      )
+      .expect("TODO"),
+    },
+  )?;
+  match output.status.code() {
+    Some(code) => {
+      let error_code_map = get_error_codes(&config_info);
+      let default_error = LauncherErrorCode {
+        msg: format!("Unexpected error occured with code {}", code).to_owned(),
+      };
+      let message = error_code_map.get(&code).unwrap_or(&default_error);
+      Ok(InstallStepOutput {
+        success: false,
+        msg: Some(message.msg.clone()),
+      })
+    }
+    None => Ok(InstallStepOutput {
+      success: true,
+      msg: None,
+    }),
+  }
 }
 
 #[tauri::command]
@@ -291,7 +368,7 @@ pub async fn run_compiler(
   app_handle: tauri::AppHandle,
   path_to_iso: String,
   game_name: String,
-) -> Result<(), CommandError> {
+) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
@@ -307,7 +384,6 @@ pub async fn run_compiler(
       .to_string();
   }
 
-  // TODO - handle error codes
   let log_file = create_log_file(&app_handle, "extractor.log", true)?;
   let output = Command::new(&exec_info.executable_path)
     .args([
@@ -320,7 +396,38 @@ pub async fn run_compiler(
     .stderr(log_file)
     .current_dir(exec_info.executable_dir)
     .output()?;
-  Ok(())
+  // TODO - we should instead capture the logs while simulanteously streaming them to a file
+  // right now we aren't so I just read the file after it's done
+  app_handle.emit_all(
+    "updateJobLogs",
+    LogPayload {
+      stdout: read_lines_in_file(
+        &app_handle
+          .path_resolver()
+          .app_log_dir()
+          .unwrap()
+          .join("extractor.log"),
+      )
+      .expect("TODO"),
+    },
+  )?;
+  match output.status.code() {
+    Some(code) => {
+      let error_code_map = get_error_codes(&config_info);
+      let default_error = LauncherErrorCode {
+        msg: format!("Unexpected error occured with code {}", code).to_owned(),
+      };
+      let message = error_code_map.get(&code).unwrap_or(&default_error);
+      Ok(InstallStepOutput {
+        success: false,
+        msg: Some(message.msg.clone()),
+      })
+    }
+    None => Ok(InstallStepOutput {
+      success: true,
+      msg: None,
+    }),
+  }
 }
 
 #[tauri::command]
@@ -337,7 +444,6 @@ pub async fn open_repl(
 
   let data_folder = get_data_dir(&config_info, &game_name)?;
   let exec_info = get_exec_location(&config_info, "goalc")?;
-  // TODO - handle error codes
   let output = Command::new("cmd")
     .args([
       "/K",
@@ -371,7 +477,6 @@ pub async fn launch_game(
   }
   args.push("-proj-path".to_string());
   args.push(data_folder.to_string_lossy().into_owned());
-  // TODO - handle error codes
   let log_file = create_log_file(&app_handle, "game.log", false)?;
   let output = Command::new(exec_info.executable_path)
     .args(args)

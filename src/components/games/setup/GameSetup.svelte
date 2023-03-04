@@ -22,12 +22,13 @@
   import { progressTracker } from "$lib/stores/ProgressStore";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { isOpenGLVersionSupported } from "$lib/sidecars/glewinfo";
+  import { listen } from "@tauri-apps/api/event";
 
   export let activeGame: SupportedGame;
 
   const dispatch = createEventDispatcher();
 
-  let requirementsMet = false;
+  let requirementsMet = true;
   let installing = false;
 
   onMount(async () => {
@@ -39,6 +40,11 @@
       await setOpenGLRequirementMet(isOpenGLMet);
     }
     requirementsMet = isAvxMet && isOpenGLMet;
+
+    const unlistenLogListener = await listen("updateJobLogs", async (event) => {
+      console.log(event.payload);
+      progressTracker.updateLogs(event.payload["stdout"]);
+    });
   });
 
   async function install(viaFolder: boolean) {
@@ -94,7 +100,7 @@
 {:else if installing}
   <div class="flex flex-col justify-content">
     <Progress />
-    {#if $progressTracker.logs}
+    {#if $progressTracker.logs.length > 0}
       <LogViewer />
     {/if}
   </div>

@@ -2,6 +2,12 @@
   import { progressTracker } from "$lib/stores/ProgressStore";
   import Icon from "@iconify/svelte";
   import { Accordion, AccordionItem } from "flowbite-svelte";
+  import { ansiSpan } from "ansi-to-span";
+  import escapeHtml from "escape-html";
+
+  function convertLogColors(text) {
+    return ansiSpan(escapeHtml(text)).replaceAll("\n", "<br/>");
+  }
 </script>
 
 <Accordion class="log-accordian" defaultClass="p-0">
@@ -14,8 +20,8 @@
       slot="default"
       class="bg-slate-900 px-4 max-h-60 overflow-y-scroll scrollbar"
     >
-      <p class="py-4 text-clip overflow-hidden font-mono">
-        {$progressTracker.logs}
+      <p class="py-4 text-clip overflow-hidden font-mono log-output">
+        {@html convertLogColors($progressTracker.logs)}
       </p>
     </div>
   </AccordionItem>
