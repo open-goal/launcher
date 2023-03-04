@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import {
-  getActiveVersion,
-  getActiveVersionFolder,
+    getActiveVersion,
+    getActiveVersionFolder,
     listDownloadedVersions,
     openVersionFolder,
     removeVersion,
@@ -49,7 +49,10 @@
   }
 
   async function onSaveVersionChange(evt: any) {
-    await saveActiveVersionChange("devel", $VersionStore.selectedVersions.devel);
+    await saveActiveVersionChange(
+      "devel",
+      $VersionStore.selectedVersions.devel
+    );
     // TODO if save was successful
     $VersionStore.activeVersionType = "devel";
     $VersionStore.activeVersionName = $VersionStore.selectedVersions.devel;

@@ -46,6 +46,15 @@ export async function saveFilePrompt(
   });
 }
 
+export async function saveFolderPrompt(
+  fileType: string,
+  fileExtensions: string[]
+): Promise<string | null> {
+  return await save({
+    filters: [{ name: fileType, extensions: fileExtensions }],
+  });
+}
+
 export async function isoPrompt(): Promise<string | undefined> {
   const path = await filePrompt(["ISO", "iso"], "Jak ISO File");
   if (path === null) {

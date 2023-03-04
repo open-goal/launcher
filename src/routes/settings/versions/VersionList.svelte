@@ -1,6 +1,9 @@
 <script lang="ts">
   import type { VersionFolders } from "$lib/rpc/versions";
-  import { VersionStore, type VersionStoreIFace } from "$lib/stores/VersionStore";
+  import {
+    VersionStore,
+    type VersionStoreIFace,
+  } from "$lib/stores/VersionStore";
   import type { ReleaseInfo } from "$lib/utils/github";
   import Icon from "@iconify/svelte";
   import {
@@ -35,7 +38,8 @@
     return (
       versionStore.selectedVersions[releaseType] !== undefined &&
       versionStore.selectedVersions[releaseType] !== "" &&
-      versionStore.selectedVersions[releaseType] !== versionStore.activeVersionName
+      versionStore.selectedVersions[releaseType] !==
+        versionStore.activeVersionName
     );
   }
 </script>

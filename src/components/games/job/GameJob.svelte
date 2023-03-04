@@ -8,7 +8,11 @@
   import { progressTracker } from "$lib/stores/ProgressStore";
   import type { Job } from "$lib/jobs/jobs";
   import { getInternalName, type SupportedGame } from "$lib/constants";
-  import { runCompiler, runDecompiler, updateDataDirectory } from "$lib/rpc/extractor";
+  import {
+    runCompiler,
+    runDecompiler,
+    updateDataDirectory,
+  } from "$lib/rpc/extractor";
   import { finalizeInstallation } from "$lib/rpc/config";
   import { generateSupportPackage } from "$lib/rpc/support";
 
@@ -57,7 +61,7 @@
       progressTracker.init([
         {
           status: "queued",
-          label: "Copy Files"
+          label: "Copy Files",
         },
         {
           status: "queued",

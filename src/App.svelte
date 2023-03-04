@@ -7,7 +7,6 @@
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
   import { appWindow } from "@tauri-apps/api/window";
-  import { log } from "$lib/utils/log";
   import Header from "./components/header/Header.svelte";
   import Textures from "./routes/Textures.svelte";
   import Update from "./routes/Update.svelte";
@@ -53,7 +52,6 @@
       // Shift+Ctrl F12
       if (e.code == "F12" && e.ctrlKey && e.shiftKey) {
         revokeSpecificActions = false;
-        log.info("Hello World - Dev Tools Enabled!");
       }
     });
   }

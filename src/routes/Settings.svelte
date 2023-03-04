@@ -1,25 +1,12 @@
 <script>
-  import { openDir } from "$lib/rpc/commands";
-  import { appDir, join } from "@tauri-apps/api/path";
-  import { Alert, Button, Tabs, TabItem } from "flowbite-svelte";
-  import { onMount } from "svelte";
-  import { handleCheckUpdate } from "$lib/utils/updates";
-  import { UpdateStore } from "$lib/stores/AppStore";
-  import { Route, Router, useLocation, useParams } from "svelte-navigator";
+  import { Tabs, TabItem } from "flowbite-svelte";
+  import { useParams } from "svelte-navigator";
   import General from "./settings/General.svelte";
   import Folders from "./settings/Folders.svelte";
   import Versions from "./settings/Versions.svelte";
 
   const params = useParams();
   $: activeTab = $params["tab"];
-
-  let directory = undefined;
-  let logDir = undefined;
-
-  onMount(async () => {
-    directory = await appDir();
-    logDir = await join(directory, "/logs");
-  });
 
   const tabItemActiveClasses =
     "inline-block text-sm font-bold text-center disabled:cursor-not-allowed p-4 text-orange-500 border-b-2 border-orange-500 dark:text-orange-500 dark:border-orange-500";

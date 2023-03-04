@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import {
-  getActiveVersion,
-  getActiveVersionFolder,
+    getActiveVersion,
+    getActiveVersionFolder,
     listDownloadedVersions,
     openVersionFolder,
     removeVersion,
@@ -26,7 +26,8 @@
     $VersionStore.activeVersionType = await getActiveVersionFolder();
     $VersionStore.activeVersionName = await getActiveVersion();
     if ($VersionStore.activeVersionType === "unofficial") {
-      $VersionStore.selectedVersions.unofficial = $VersionStore.activeVersionName;
+      $VersionStore.selectedVersions.unofficial =
+        $VersionStore.activeVersionName;
     }
     // Check the backend to see if the folder has any versions
     const installedVersions = await listDownloadedVersions("unofficial");
@@ -50,7 +51,10 @@
   }
 
   async function onSaveVersionChange(evt: any) {
-    await saveActiveVersionChange("unofficial", $VersionStore.selectedVersions.unofficial);
+    await saveActiveVersionChange(
+      "unofficial",
+      $VersionStore.selectedVersions.unofficial
+    );
     // TODO if save was successful
     $VersionStore.activeVersionType = "unofficial";
     $VersionStore.activeVersionName = $VersionStore.selectedVersions.unofficial;

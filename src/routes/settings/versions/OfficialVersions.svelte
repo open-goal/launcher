@@ -79,14 +79,15 @@
     }
 
     // Sort releases by published date
-    releases = releases.sort((a, b) =>
-      b.date.localeCompare(a.date)
-    );
+    releases = releases.sort((a, b) => b.date.localeCompare(a.date));
     versionsLoaded = true;
   }
 
   async function saveOfficialVersionChange(evt) {
-    await saveActiveVersionChange("official", $VersionStore.selectedVersions.official);
+    await saveActiveVersionChange(
+      "official",
+      $VersionStore.selectedVersions.official
+    );
     // TODO if save was successful
     $VersionStore.activeVersionType = "official";
     $VersionStore.activeVersionName = $VersionStore.selectedVersions.official;
@@ -106,7 +107,10 @@
       }
     }
     releases = releases;
-    await downloadOfficialVersion(event.detail.version, event.detail.downloadUrl);
+    await downloadOfficialVersion(
+      event.detail.version,
+      event.detail.downloadUrl
+    );
     // TODO - indicate success or failure (toast)
     // Then mark it as downloaded
     for (const release of releases) {

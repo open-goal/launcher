@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getGameTitle, getInternalName, SupportedGame } from "$lib/constants";
-  import { openDir } from "$lib/rpc/commands";
+  import { openDir } from "$lib/rpc/window";
   import Icon from "@iconify/svelte";
   import { configDir, join } from "@tauri-apps/api/path";
   import { createEventDispatcher, onMount } from "svelte";
