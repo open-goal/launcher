@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "tauricon": "tauricon",
-    "package": "node ./scripts/prepare-sidecars.js",
+    "package": "node ./scripts/prepare-sidecars.mjs",
     "lint": "npx prettier --check .",
     "format": "npx prettier --write .",
     "prepare-release-config": "node ./scripts/merge-config.js",
