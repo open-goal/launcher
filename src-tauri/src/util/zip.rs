@@ -12,6 +12,7 @@ pub fn append_dir_contents_to_zip(
   zip_file: &mut zip::ZipWriter<File>,
   dir: &Path,
   internal_folder: &str,
+  allowed_extensions: Vec<&str>,
 ) -> zip::result::ZipResult<()> {
   if !dir.exists() {
     return Result::Ok(());
@@ -32,7 +33,18 @@ pub fn append_dir_contents_to_zip(
     // Write file or directory explicitly
     // Some unzip tools unzip files with directory paths correctly, some do not!
     if path.is_file() {
-      println!("adding file {path:?} as {name:?} ...");
+      let extension = path
+        .extension()
+        .and_then(std::ffi::OsStr::to_str)
+        .unwrap_or("unknown");
+
+      if !allowed_extensions.contains(&extension) {
+        // Skip files that we don't care about
+        log::warn!("skipping {path:?} - extension {extension}");
+        continue;
+      }
+
+      log::debug!("adding file {path:?} as {name:?} ...");
       #[allow(deprecated)]
       zip_file.start_file_from_path(&name, options)?;
       let mut f = File::open(path)?;
@@ -43,7 +55,7 @@ pub fn append_dir_contents_to_zip(
     } else if !name.as_os_str().is_empty() {
       // Only if not root! Avoids path spec / warning
       // and mapname conversion failed error on unzip
-      println!("adding dir {path:?} as {name:?} ...");
+      log::debug!("adding dir {path:?} as {name:?} ...");
       #[allow(deprecated)]
       zip_file.add_directory_from_path(&name, options)?;
     }
@@ -57,8 +69,8 @@ pub fn append_file_to_zip(
   path_in_zip: &str,
 ) -> zip::result::ZipResult<()> {
   if !src.exists() || src.is_dir() {
-    println!("doesnt exist");
-    Result::<(), ()>::Err(());
+    log::warn!("'{}', doesnt exist", src.display());
+    return Ok(());
   }
 
   let options = FileOptions::default()
@@ -75,7 +87,7 @@ pub fn append_file_to_zip(
   zip_file.write_all(&buffer)?;
   buffer.clear();
 
-  Result::Ok(())
+  Ok(())
 }
 
 pub fn extract_and_delete_zip_file(
@@ -85,5 +97,5 @@ pub fn extract_and_delete_zip_file(
   let archive: Vec<u8> = std::fs::read(zip_path)?;
   zip_extract::extract(Cursor::new(archive), extract_dir, true)?;
   std::fs::remove_file(zip_path)?;
-  Result::Ok(())
+  Ok(())
 }

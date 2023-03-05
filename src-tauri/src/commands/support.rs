@@ -132,18 +132,30 @@ pub async fn generate_support_package(
     }
     Some(path) => path.join("OpenGOAL"),
   };
-  append_dir_contents_to_zip(&mut zip_file, &game_config_dir, "Game Settings and Saves").map_err(
-    |_| {
-      CommandError::Support(format!(
-        "Unable to append game settings and saves to the support package"
-      ))
-    },
-  )?;
-
-  // TODO - don't fail fast so eagerly (when a path isn't found just continue on)
+  append_dir_contents_to_zip(
+    &mut zip_file,
+    &game_config_dir,
+    "Game Settings and Saves",
+    vec!["gc", "json"],
+  )
+  .map_err(|_| {
+    CommandError::Support(format!(
+      "Unable to append game settings and saves to the support package"
+    ))
+  })?;
+  append_dir_contents_to_zip(
+    &mut zip_file,
+    &game_config_dir.join("jak1").join("saves"),
+    "Game Settings and Saves/jak1/saves",
+    vec!["bin"],
+  )
+  .map_err(|_| {
+    CommandError::Support(format!(
+      "Unable to append game settings and saves to the support package"
+    ))
+  })?;
 
   // Save Launcher config folder
-  // TODO - prompt on first startup to delete data folder
   let launcher_config_dir = match app_handle.path_resolver().app_config_dir() {
     None => {
       return Err(CommandError::Support(format!(
@@ -156,6 +168,7 @@ pub async fn generate_support_package(
     &mut zip_file,
     &launcher_config_dir.join("logs"),
     "Launcher Settings and Logs/logs",
+    vec!["log"],
   )
   .map_err(|_| {
     CommandError::Support(format!(
@@ -177,8 +190,13 @@ pub async fn generate_support_package(
   let active_version_dir = install_path.join("active");
   // TODO - for all games
   let jak1_log_dir = active_version_dir.join("jak1").join("data").join("log");
-  append_dir_contents_to_zip(&mut zip_file, &jak1_log_dir, "Game Logs and ISO Info/Jak 1")
-    .map_err(|_| CommandError::Support(format!("Unable to append game logs to support package")))?;
+  append_dir_contents_to_zip(
+    &mut zip_file,
+    &jak1_log_dir,
+    "Game Logs and ISO Info/Jak 1",
+    vec!["log", "json", "txt"],
+  )
+  .map_err(|_| CommandError::Support(format!("Unable to append game logs to support package")))?;
 
   // Per Game Info
   let texture_repl_dir = active_version_dir
