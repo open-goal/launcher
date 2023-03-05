@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/tauri";
 
-export type VersionFolders = undefined | "official" | "unofficial" | "devel";
+export type VersionFolders = null | "official" | "unofficial" | "devel";
 
 export async function listDownloadedVersions(
   folder: VersionFolders
@@ -75,9 +75,9 @@ export async function saveActiveVersionChange(
   }
 }
 
-export async function getActiveVersion(): Promise<string> {
+export async function getActiveVersion(): Promise<string | null> {
   try {
-    return await invoke("get_active_version", {});
+    return await invoke("get_active_tooling_version", {});
   } catch (e) {
     console.log("[OG] Could not determine active version");
     return undefined;
@@ -86,7 +86,7 @@ export async function getActiveVersion(): Promise<string> {
 
 export async function getActiveVersionFolder(): Promise<VersionFolders> {
   try {
-    return await invoke("get_active_version_folder", {});
+    return await invoke("get_active_tooling_version_folder", {});
   } catch (e) {
     console.log("[OG] Could not determine active version folder");
     return undefined;

@@ -23,7 +23,7 @@ pub async fn uninstall_game(
       std::fs::remove_dir_all(data_folder.join("decompiler_out"));
       std::fs::remove_dir_all(data_folder.join("iso_data"));
       std::fs::remove_dir_all(data_folder.join("out"));
-      config_lock.update_installed_game_version(game_name, false);
+      config_lock.update_installed_game_version(&game_name, false);
       app_handle.emit_all("gameUninstalled", {}).unwrap();
       Ok(())
     }

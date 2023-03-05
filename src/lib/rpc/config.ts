@@ -96,21 +96,3 @@ export async function getInstalledVersionFolder(
     console.log("TODO AH!");
   }
 }
-
-export async function getActiveVersion(gameName: string): Promise<String> {
-  try {
-    return await invoke("get_active_version", { gameName: gameName });
-  } catch (e) {
-    console.log("TODO AH!");
-  }
-}
-
-export async function getActiveVersionFolder(
-  gameName: string
-): Promise<String> {
-  try {
-    return await invoke("get_active_version_folder", { gameName: gameName });
-  } catch (e) {
-    console.log("TODO AH!");
-  }
-}

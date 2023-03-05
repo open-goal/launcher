@@ -55,11 +55,11 @@
   }
 
   async function finishSplash(evt) {
-    await new Promise((res) => setTimeout(res, 1000));
     currentProgress = 50;
     currentStatusText = "Finishing Up";
     await new Promise((res) => setTimeout(res, 1000));
     currentProgress = 100;
+    await new Promise((res) => setTimeout(res, 500));
     await closeSplashScreen();
   }
 </script>
@@ -68,20 +68,20 @@
   <div class="splash-logo no-pointer-events">
     <img src={logo} alt="" draggable="false" />
   </div>
-  <div class="splash-contents">
+  <div class="splash-contents no-pointer-events">
     {#if oldDataDirToClean}
       The old installation folder is no longer needed, delete it?
       <br />
       <span>
         <button
-          class="splash-button"
+          class="splash-button pointer-events"
           on:click={() => {
             oldDataDirToClean = false;
             deleteOldDataDirectory();
           }}>Yes</button
         >
         <button
-          class="splash-button"
+          class="splash-button pointer-events"
           on:click={() => {
             oldDataDirToClean = false;
           }}>No</button
@@ -94,8 +94,9 @@
         No installation directory set!
       {/if}
       <br />
-      <button class="splash-button" on:click={selectInstallationFolder}
-        >Set Install Folder</button
+      <button
+        class="splash-button pointer-events"
+        on:click={selectInstallationFolder}>Set Install Folder</button
       >
     {:else}
       <div class="splash-status-text">{currentStatusText}</div>
@@ -209,5 +210,9 @@
 
   .no-pointer-events {
     pointer-events: none;
+  }
+
+  .pointer-events {
+    pointer-events: auto;
   }
 </style>

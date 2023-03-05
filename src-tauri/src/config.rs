@@ -197,7 +197,7 @@ impl LauncherConfig {
   pub fn set_install_directory(&mut self, new_dir: String) -> Result<Option<String>, ConfigError> {
     // Do some tests on this folder, if they fail, return a decent error
     let path = Path::new(&new_dir);
-    if path.exists() {
+    if !path.exists() {
       return Ok(Some("Provided folder does not exist".to_owned()));
     }
 
@@ -245,7 +245,7 @@ impl LauncherConfig {
   // I think there should be an enum involved here somewhere/somehow
   pub fn update_installed_game_version(
     &mut self,
-    game_name: String,
+    game_name: &String,
     installed: bool,
   ) -> Result<(), ConfigError> {
     match game_name.as_str() {
@@ -295,7 +295,7 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn is_game_installed(&self, game_name: String) -> bool {
+  pub fn is_game_installed(&self, game_name: &String) -> bool {
     match game_name.as_str() {
       "jak1" => {
         return self.games.jak1.is_installed;

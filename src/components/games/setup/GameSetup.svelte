@@ -137,7 +137,7 @@
         >
       </div>
     </div>
-  {:else if true || $progressTracker.overallStatus === "failed"}
+  {:else if $progressTracker.overallStatus === "failed"}
     <div class="flex flex-col mt-auto">
       <div class="flex flex-row gap-2">
         <Alert color="red" class="dark:bg-slate-900 flex-grow" accent={true}>

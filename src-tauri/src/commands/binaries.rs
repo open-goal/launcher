@@ -1,5 +1,6 @@
 use std::{
   collections::HashMap,
+  os::windows::process::CommandExt,
   path::{Path, PathBuf},
   process::Command,
 };
@@ -120,9 +121,35 @@ fn get_error_codes(
   }
 }
 
+fn copy_data_dir(config_info: &CommonConfigData, game_name: &String) -> Result<(), CommandError> {
+  let src_dir = config_info
+    .install_path
+    .join("versions")
+    .join(&config_info.active_version_folder)
+    .join(&config_info.active_version)
+    .join("data");
+
+  let dst_dir = config_info
+    .install_path
+    .join("active")
+    .join(&game_name)
+    .join("data");
+
+  info!("Copying {} into {}", src_dir.display(), dst_dir.display());
+
+  overwrite_dir(&src_dir, &dst_dir).map_err(|err| {
+    CommandError::Installation(format!(
+      "Unable to copy data directory: '{}'",
+      err.to_string()
+    ))
+  })?;
+  Ok(())
+}
+
 fn get_data_dir(
   config_info: &CommonConfigData,
   game_name: &String,
+  copy_if_needed: bool,
 ) -> Result<PathBuf, CommandError> {
   let data_folder = config_info
     .install_path
@@ -130,10 +157,14 @@ fn get_data_dir(
     .join(game_name)
     .join("data");
   if !data_folder.exists() {
-    return Err(CommandError::BinaryExecution(format!(
-      "Could not locate relevant data directory '{}', can't perform operation",
-      data_folder.to_string_lossy()
-    )));
+    if copy_if_needed {
+      copy_data_dir(&config_info, &game_name)?;
+    } else {
+      return Err(CommandError::BinaryExecution(format!(
+        "Could not locate relevant data directory '{}', can't perform operation",
+        data_folder.to_string_lossy()
+      )));
+    }
   }
   Ok(data_folder)
 }
@@ -205,27 +236,7 @@ pub async fn update_data_directory(
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
-  let src_dir = config_info
-    .install_path
-    .join("versions")
-    .join(config_info.active_version_folder)
-    .join(config_info.active_version)
-    .join("data");
-
-  let dst_dir = config_info
-    .install_path
-    .join("active")
-    .join(game_name)
-    .join("data");
-
-  info!("Copying {} into {}", src_dir.display(), dst_dir.display());
-
-  overwrite_dir(&src_dir, &dst_dir).map_err(|err| {
-    CommandError::Installation(format!(
-      "Unable to copy data directory: '{}'",
-      err.to_string()
-    ))
-  })?;
+  copy_data_dir(&config_info, &game_name)?;
 
   Ok(InstallStepOutput {
     success: true,
@@ -248,7 +259,7 @@ pub async fn extract_and_validate_iso(
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
-  let data_folder = get_data_dir(&config_info, &game_name)?;
+  let data_folder = get_data_dir(&config_info, &game_name, true)?;
   let exec_info = get_exec_location(&config_info, "extractor")?;
 
   let mut args = vec![
@@ -266,6 +277,7 @@ pub async fn extract_and_validate_iso(
   let log_file = create_log_file(&app_handle, "extractor.log", false)?;
 
   let output = Command::new(exec_info.executable_path)
+    .creation_flags(0x08000000)
     .args(args)
     .current_dir(exec_info.executable_dir)
     .stdout(log_file.try_clone().unwrap())
@@ -321,7 +333,7 @@ pub async fn run_decompiler(
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
-  let data_folder = get_data_dir(&config_info, &game_name)?;
+  let data_folder = get_data_dir(&config_info, &game_name, false)?;
   let exec_info = get_exec_location(&config_info, "extractor")?;
 
   let mut source_path = path_to_iso;
@@ -335,6 +347,7 @@ pub async fn run_decompiler(
 
   let log_file = create_log_file(&app_handle, "extractor.log", true)?;
   let output = Command::new(&exec_info.executable_path)
+    .creation_flags(0x08000000)
     .args([
       source_path,
       "--decompile".to_string(),
@@ -395,7 +408,7 @@ pub async fn run_compiler(
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
-  let data_folder = get_data_dir(&config_info, &game_name)?;
+  let data_folder = get_data_dir(&config_info, &game_name, false)?;
   let exec_info = get_exec_location(&config_info, "extractor")?;
 
   let mut source_path = path_to_iso;
@@ -409,6 +422,7 @@ pub async fn run_compiler(
 
   let log_file = create_log_file(&app_handle, "extractor.log", true)?;
   let output = Command::new(&exec_info.executable_path)
+    .creation_flags(0x08000000)
     .args([
       source_path,
       "--compile".to_string(),
@@ -471,7 +485,7 @@ pub async fn open_repl(
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
-  let data_folder = get_data_dir(&config_info, &game_name)?;
+  let data_folder = get_data_dir(&config_info, &game_name, false)?;
   let exec_info = get_exec_location(&config_info, "goalc")?;
   let output = Command::new("cmd")
     .args([
@@ -496,7 +510,7 @@ pub async fn launch_game(
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
-  let data_folder = get_data_dir(&config_info, &game_name)?;
+  let data_folder = get_data_dir(&config_info, &game_name, false)?;
   let exec_info = get_exec_location(&config_info, "gk")?;
 
   let mut args = vec!["-boot".to_string(), "-fakeiso".to_string()];
@@ -508,6 +522,7 @@ pub async fn launch_game(
   args.push(data_folder.to_string_lossy().into_owned());
   let log_file = create_log_file(&app_handle, "game.log", false)?;
   let output = Command::new(exec_info.executable_path)
+    .creation_flags(0x08000000)
     .args(args)
     .stdout(log_file.try_clone().unwrap())
     .stderr(log_file)

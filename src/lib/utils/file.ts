@@ -22,9 +22,11 @@ export async function dirExists(path: string): Promise<boolean> {
 
 export async function filePrompt(
   extensions: string[],
-  name: string
+  name: string,
+  title: string
 ): Promise<string | null> {
   const path = await open({
+    title: title,
     multiple: false,
     directory: false,
     filters: [{ extensions: extensions, name: name }],
@@ -58,7 +60,11 @@ export async function saveFolderPrompt(
 }
 
 export async function isoPrompt(): Promise<string | undefined> {
-  const path = await filePrompt(["ISO", "iso"], "Jak ISO File");
+  const path = await filePrompt(
+    ["ISO", "iso"],
+    "Jak ISO File",
+    "Select your legitimately obtained ISO File"
+  );
   if (path === null) {
     return undefined;
   }

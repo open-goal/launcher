@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use crate::{config::LauncherConfig, util::file::delete_dir};
 use tauri::Manager;
 
@@ -34,12 +36,11 @@ pub async fn get_install_directory(
 pub async fn set_install_directory(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   new_dir: String,
-) -> Result<(), CommandError> {
+) -> Result<Option<String>, CommandError> {
   let mut config_lock = config.lock().await;
-  config_lock.set_install_directory(new_dir).map_err(|_| {
+  Ok(config_lock.set_install_directory(new_dir).map_err(|_| {
     CommandError::Configuration(format!("Unable to persist installation directory"))
-  })?;
-  Ok(())
+  })?)
 }
 
 #[tauri::command]
@@ -98,7 +99,7 @@ pub async fn finalize_installation(
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   config_lock
-    .update_installed_game_version(game_name, true)
+    .update_installed_game_version(&game_name, true)
     .map_err(|_| {
       CommandError::Configuration(format!("Unable to persist game installation status"))
     })?;
@@ -111,8 +112,29 @@ pub async fn is_game_installed(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: String,
 ) -> Result<bool, CommandError> {
-  let config_lock = config.lock().await;
-  Ok(config_lock.is_game_installed(game_name))
+  let mut config_lock = config.lock().await;
+
+  if !config_lock.is_game_installed(&game_name) {
+    return Ok(false);
+  }
+
+  // Check if the game is actually still installed, if it isn't update the value now
+  let install_path = match &config_lock.installation_dir {
+    None => {
+      return Err(CommandError::VersionManagement(format!(
+        "Cannot check if game is installed, no installation directory set"
+      )))
+    }
+    Some(path) => Path::new(path),
+  };
+
+  // This is a half-hearted check if the folder exists and isn't empty
+  let expected_dir = install_path.join("active").join(&game_name).join("data");
+  if !expected_dir.exists() {
+    config_lock.update_installed_game_version(&game_name, false);
+    return Ok(false);
+  }
+  Ok(true)
 }
 
 #[tauri::command]
@@ -168,7 +190,7 @@ pub async fn save_active_version_change(
 }
 
 #[tauri::command]
-pub async fn get_active_version(
+pub async fn get_active_tooling_version(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<Option<String>, CommandError> {
   let config_lock = config.lock().await;
@@ -176,7 +198,7 @@ pub async fn get_active_version(
 }
 
 #[tauri::command]
-pub async fn get_active_version_folder(
+pub async fn get_active_tooling_version_folder(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<Option<String>, CommandError> {
   let config_lock = config.lock().await;

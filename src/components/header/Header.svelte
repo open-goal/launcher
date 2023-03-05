@@ -16,9 +16,9 @@
   import { getLatestOfficialRelease } from "$lib/utils/github";
   import { listen } from "@tauri-apps/api/event";
 
-  let launcherVerison = undefined;
-  let toolingVersion = undefined;
-  let toolingVersionType = undefined;
+  let launcherVerison = null;
+  let toolingVersion = null;
+  let toolingVersionType = null;
 
   onMount(async () => {
     // Get current versions
@@ -41,8 +41,8 @@
       } else {
         $UpdateStore.launcher = {
           updateAvailable: false,
-          versionNumber: undefined,
-          date: undefined,
+          versionNumber: null,
+          date: null,
           changeLog: [],
         };
         console.log("OG: Launcher is up to date");
@@ -105,10 +105,10 @@
 
   <div class="flex flex-col text-neutral-300 mr-2 pointer-events-none">
     <p class="font-mono text-sm">
-      {launcherVerison === undefined ? "unknown" : launcherVerison}
+      {launcherVerison === null ? "not set!" : launcherVerison}
     </p>
     <p class="font-mono text-sm">
-      {toolingVersion === undefined ? "unknown" : toolingVersion}
+      {toolingVersion === null ? "not set!" : toolingVersion}
       {#if toolingVersionType === "unofficial"}
         (unf)
       {:else if toolingVersionType === "devel"}

@@ -6,14 +6,15 @@
   import { onMount } from "svelte";
   import { Spinner } from "flowbite-svelte";
   import {
-    getActiveVersion,
-    getActiveVersionFolder,
     getInstalledVersion,
     getInstalledVersionFolder,
     isGameInstalled,
   } from "$lib/rpc/config";
   import GameJob from "../components/games/job/GameJob.svelte";
   import GameUpdate from "../components/games/setup/GameUpdate.svelte";
+  import { getActiveVersion, getActiveVersionFolder } from "$lib/rpc/versions";
+  import GameToolsNotSet from "../components/games/GameToolsNotSet.svelte";
+  import { listen } from "@tauri-apps/api/event";
 
   const params = useParams();
   let activeGame = SupportedGame.Jak1;
@@ -27,6 +28,7 @@
   let activeVersion;
   let activeVersionFolder;
 
+  let toolingNotSet = false;
   let versionMismatchDetected = false;
 
   onMount(async () => {
@@ -41,35 +43,49 @@
       activeGame = SupportedGame.Jak1;
     }
 
-    // First obvious thing to check -- is the game installed at all
-    gameInstalled = await isGameInstalled(getInternalName(activeGame));
+    // First off, check that they've downloaded and have a jak-project release set
+    // TODO - and that it's still downloaded
+    activeVersion = await getActiveVersion();
+    activeVersionFolder = await getActiveVersionFolder();
+    if (activeVersion === null || activeVersionFolder === null) {
+      toolingNotSet = true;
+    } else {
+      // First obvious thing to check -- is the game installed at all
+      gameInstalled = await isGameInstalled(getInternalName(activeGame));
 
-    // Next step, check if there is a version mismatch
-    // - they installed the game before with a different version than what they currently have selected
-    // - prompt them to either reinstall OR go and select their previous version
-    if (gameInstalled) {
-      installedVersion = await getInstalledVersion(getInternalName(activeGame));
-      installedVersionFolder = await getInstalledVersionFolder(
-        getInternalName(activeGame)
-      );
-      activeVersion = await getActiveVersion(getInternalName(activeGame));
-      activeVersionFolder = await getActiveVersionFolder(
-        getInternalName(activeGame)
-      );
-      if (
-        installedVersion !== activeVersion ||
-        installedVersionFolder !== activeVersionFolder
-      ) {
-        versionMismatchDetected = true;
+      // Next step, check if there is a version mismatch
+      // - they installed the game before with a different version than what they currently have selected
+      // - prompt them to either reinstall OR go and select their previous version
+      if (gameInstalled) {
+        installedVersion = await getInstalledVersion(
+          getInternalName(activeGame)
+        );
+        installedVersionFolder = await getInstalledVersionFolder(
+          getInternalName(activeGame)
+        );
+        if (
+          installedVersion !== activeVersion ||
+          installedVersionFolder !== activeVersionFolder
+        ) {
+          versionMismatchDetected = true;
+        }
       }
     }
+
+    const unlistenInstalled = await listen(
+      "toolingVersionChanged",
+      async (event) => {
+        activeVersion = await getActiveVersion();
+        activeVersionFolder = await getActiveVersionFolder();
+        toolingNotSet = activeVersion === null || activeVersionFolder === null;
+      }
+    );
 
     componentLoaded = true;
   });
 
   async function updateGameState(evt) {
     gameInstalled = await isGameInstalled(getInternalName(activeGame));
-    // TODO - check data dir?
   }
 
   async function runGameJob(event) {
@@ -90,6 +106,8 @@
       <div class="flex flex-col h-full justify-center items-center">
         <Spinner color="yellow" size={"12"} />
       </div>
+    {:else if toolingNotSet}
+      <GameToolsNotSet />
     {:else if !gameInstalled}
       <GameSetup {activeGame} on:change={updateGameState} />
     {:else if gameJobToRun !== undefined}
