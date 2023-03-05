@@ -29,7 +29,7 @@
   // It's used to provide almost the same interface as the normal installation, with logs, etc
   // but for arbitrary jobs.  Such as updating versions, decompiling, or compiling.
   onMount(async () => {
-    const unlistenLogListener = await listen("newJobLogs", async (event) => {
+    const unlistenLogListener = await listen("updateJobLogs", async (event) => {
       progressTracker.updateLogs(event.payload["stdout"]);
     });
 
