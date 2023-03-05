@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{io::BufRead, path::PathBuf};
 
 pub fn delete_dir(path: &PathBuf) -> Result<(), std::io::Error> {
   if path.exists() && path.is_dir() {
@@ -35,4 +35,22 @@ pub fn overwrite_dir(src: &PathBuf, dst: &PathBuf) -> Result<(), fs_extra::error
 
 pub fn read_lines_in_file(path: &PathBuf) -> Result<String, Box<dyn std::error::Error>> {
   Ok(std::fs::read_to_string(path)?)
+}
+
+pub fn read_last_lines_from_file(path: &PathBuf, lines: usize) -> Result<String, std::io::Error> {
+  if !path.exists() {
+    return Ok("".to_owned());
+  }
+  let buf = rev_buf_reader::RevBufReader::new(std::fs::File::open(path)?);
+  Ok(
+    buf
+      .lines()
+      .take(lines)
+      .map(|l| l.unwrap_or("".to_owned()))
+      .collect::<Vec<String>>()
+      .into_iter()
+      .rev()
+      .collect::<Vec<String>>()
+      .join("\n"),
+  )
 }

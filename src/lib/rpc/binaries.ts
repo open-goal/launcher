@@ -24,6 +24,18 @@ export async function updateDataDirectory(
   }
 }
 
+export async function getEndOfLogs(): Promise<string> {
+  try {
+    return await invoke("get_end_of_logs", {});
+  } catch (e) {
+    console.log(
+      "[OG]: Unexpected error encountered when updating data directory",
+      e
+    );
+    return "";
+  }
+}
+
 export async function extractAndValidateISO(
   pathToIso: string,
   gameName: string
@@ -47,12 +59,14 @@ export async function extractAndValidateISO(
 
 export async function runDecompiler(
   pathToIso: string,
-  gameName: string
+  gameName: string,
+  truncateLogs: boolean = false
 ): Promise<InstallationOutput> {
   try {
     return await invoke("run_decompiler", {
       pathToIso: pathToIso,
       gameName: gameName,
+      truncateLogs: truncateLogs,
     });
   } catch (e) {
     console.log(
@@ -68,12 +82,14 @@ export async function runDecompiler(
 
 export async function runCompiler(
   pathToIso: string,
-  gameName: string
+  gameName: string,
+  truncateLogs: boolean = false
 ): Promise<InstallationOutput> {
   try {
     return await invoke("run_compiler", {
       pathToIso: pathToIso,
       gameName: gameName,
+      truncateLogs: truncateLogs,
     });
   } catch (e) {
     console.log(

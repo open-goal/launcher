@@ -21,6 +21,8 @@
       class="bg-slate-900 px-4 max-h-60 overflow-y-scroll scrollbar"
     >
       <p class="py-4 text-clip overflow-hidden font-mono log-output">
+        ...Last 250 Lines:
+        <br />
         {@html convertLogColors($progressTracker.logs)}
       </p>
     </div>

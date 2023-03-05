@@ -9,13 +9,13 @@
   import type { Job } from "$lib/jobs/jobs";
   import { getInternalName, type SupportedGame } from "$lib/constants";
   import {
+    getEndOfLogs,
     runCompiler,
     runDecompiler,
     updateDataDirectory,
   } from "$lib/rpc/binaries";
   import { finalizeInstallation } from "$lib/rpc/config";
   import { generateSupportPackage } from "$lib/rpc/support";
-  import { listen } from "@tauri-apps/api/event";
 
   export let activeGame: SupportedGame;
   export let jobType: Job;
@@ -29,10 +29,6 @@
   // It's used to provide almost the same interface as the normal installation, with logs, etc
   // but for arbitrary jobs.  Such as updating versions, decompiling, or compiling.
   onMount(async () => {
-    const unlistenLogListener = await listen("updateJobLogs", async (event) => {
-      progressTracker.updateLogs(event.payload["stdout"]);
-    });
-
     if (jobType === "decompile") {
       installationError = undefined;
       progressTracker.init([
@@ -46,7 +42,8 @@
         },
       ]);
       progressTracker.start();
-      let resp = await runDecompiler("", getInternalName(activeGame));
+      let resp = await runDecompiler("", getInternalName(activeGame), true);
+      progressTracker.updateLogs(await getEndOfLogs());
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
@@ -67,7 +64,8 @@
         },
       ]);
       progressTracker.start();
-      let resp = await runCompiler("", getInternalName(activeGame));
+      let resp = await runCompiler("", getInternalName(activeGame), true);
+      progressTracker.updateLogs(await getEndOfLogs());
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
@@ -97,13 +95,15 @@
       ]);
       progressTracker.start();
       let resp = await updateDataDirectory(getInternalName(activeGame));
+      progressTracker.updateLogs(await getEndOfLogs());
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
         return;
       }
       progressTracker.proceed();
-      resp = await runDecompiler("", getInternalName(activeGame));
+      resp = await runDecompiler("", getInternalName(activeGame), true);
+      progressTracker.updateLogs(await getEndOfLogs());
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
@@ -111,6 +111,7 @@
       }
       progressTracker.proceed();
       resp = await runCompiler("", getInternalName(activeGame));
+      progressTracker.updateLogs(await getEndOfLogs());
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;

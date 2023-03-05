@@ -13,6 +13,7 @@
   import { Alert, Button } from "flowbite-svelte";
   import {
     extractAndValidateISO,
+    getEndOfLogs,
     runCompiler,
     runDecompiler,
   } from "$lib/rpc/binaries";
@@ -26,7 +27,6 @@
   import { progressTracker } from "$lib/stores/ProgressStore";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { isOpenGLVersionSupported } from "$lib/sidecars/glewinfo";
-  import { listen } from "@tauri-apps/api/event";
 
   export let activeGame: SupportedGame;
 
@@ -45,10 +45,6 @@
       await setOpenGLRequirementMet(isOpenGLMet);
     }
     requirementsMet = isAvxMet && isOpenGLMet;
-
-    const unlistenLogListener = await listen("updateJobLogs", async (event) => {
-      progressTracker.updateLogs(event.payload["stdout"]);
-    });
   });
 
   async function install(viaFolder: boolean) {
@@ -88,6 +84,7 @@
         sourcePath,
         getInternalName(activeGame)
       );
+      progressTracker.updateLogs(await getEndOfLogs());
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
@@ -95,6 +92,7 @@
       }
       progressTracker.proceed();
       resp = await runDecompiler(sourcePath, getInternalName(activeGame));
+      progressTracker.updateLogs(await getEndOfLogs());
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
@@ -102,6 +100,7 @@
       }
       progressTracker.proceed();
       resp = await runCompiler(sourcePath, getInternalName(activeGame));
+      progressTracker.updateLogs(await getEndOfLogs());
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;

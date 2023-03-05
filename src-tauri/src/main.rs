@@ -78,6 +78,7 @@ fn main() {
     })
     .invoke_handler(tauri::generate_handler![
       commands::binaries::update_data_directory,
+      commands::binaries::get_end_of_logs,
       commands::binaries::extract_and_validate_iso,
       commands::binaries::launch_game,
       commands::binaries::open_repl,

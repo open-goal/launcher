@@ -32,6 +32,7 @@ wgpu = "0.15.1"
 walkdir = "2.3.2"
 dir-diff = "0.3.2"
 thiserror = "1.0.38"
+rev_buf_reader = "0.3.0"
 
 [features]
 # by default Tauri runs in production mode

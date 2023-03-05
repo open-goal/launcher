@@ -12,7 +12,7 @@ use tauri::Manager;
 
 use crate::{
   config::LauncherConfig,
-  util::file::{create_dir, overwrite_dir, read_lines_in_file},
+  util::file::{create_dir, overwrite_dir, read_last_lines_from_file, read_lines_in_file},
 };
 
 use super::CommandError;
@@ -244,9 +244,16 @@ pub async fn update_data_directory(
   })
 }
 
-#[derive(Clone, serde::Serialize)]
-struct LogPayload {
-  stdout: String,
+#[tauri::command]
+pub async fn get_end_of_logs(app_handle: tauri::AppHandle) -> Result<String, CommandError> {
+  Ok(read_last_lines_from_file(
+    &app_handle
+      .path_resolver()
+      .app_log_dir()
+      .unwrap()
+      .join("extractor.log"),
+    250,
+  )?)
 }
 
 #[tauri::command]
@@ -283,21 +290,6 @@ pub async fn extract_and_validate_iso(
     .stdout(log_file.try_clone().unwrap())
     .stderr(log_file.try_clone().unwrap())
     .output()?;
-  // TODO - we should instead capture the logs while simulanteously streaming them to a file
-  // right now we aren't so I just read the file after it's done
-  app_handle.emit_all(
-    "updateJobLogs",
-    LogPayload {
-      stdout: read_lines_in_file(
-        &app_handle
-          .path_resolver()
-          .app_log_dir()
-          .unwrap()
-          .join("extractor.log"),
-      )
-      .expect("TODO"),
-    },
-  )?;
   match output.status.code() {
     Some(code) => {
       if code == 0 {
@@ -329,6 +321,7 @@ pub async fn run_decompiler(
   app_handle: tauri::AppHandle,
   path_to_iso: String,
   game_name: String,
+  truncate_logs: bool,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
@@ -345,7 +338,7 @@ pub async fn run_decompiler(
       .to_string();
   }
 
-  let log_file = create_log_file(&app_handle, "extractor.log", true)?;
+  let log_file = create_log_file(&app_handle, "extractor.log", !truncate_logs)?;
   let output = Command::new(&exec_info.executable_path)
     .creation_flags(0x08000000)
     .args([
@@ -358,21 +351,6 @@ pub async fn run_decompiler(
     .stderr(log_file)
     .current_dir(exec_info.executable_dir)
     .output()?;
-  // TODO - we should instead capture the logs while simulanteously streaming them to a file
-  // right now we aren't so I just read the file after it's done
-  app_handle.emit_all(
-    "updateJobLogs",
-    LogPayload {
-      stdout: read_lines_in_file(
-        &app_handle
-          .path_resolver()
-          .app_log_dir()
-          .unwrap()
-          .join("extractor.log"),
-      )
-      .expect("TODO"),
-    },
-  )?;
   match output.status.code() {
     Some(code) => {
       if code == 0 {
@@ -404,6 +382,7 @@ pub async fn run_compiler(
   app_handle: tauri::AppHandle,
   path_to_iso: String,
   game_name: String,
+  truncate_logs: bool,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
@@ -420,7 +399,7 @@ pub async fn run_compiler(
       .to_string();
   }
 
-  let log_file = create_log_file(&app_handle, "extractor.log", true)?;
+  let log_file = create_log_file(&app_handle, "extractor.log", !truncate_logs)?;
   let output = Command::new(&exec_info.executable_path)
     .creation_flags(0x08000000)
     .args([
@@ -433,21 +412,6 @@ pub async fn run_compiler(
     .stderr(log_file)
     .current_dir(exec_info.executable_dir)
     .output()?;
-  // TODO - we should instead capture the logs while simulanteously streaming them to a file
-  // right now we aren't so I just read the file after it's done
-  app_handle.emit_all(
-    "updateJobLogs",
-    LogPayload {
-      stdout: read_lines_in_file(
-        &app_handle
-          .path_resolver()
-          .app_log_dir()
-          .unwrap()
-          .join("extractor.log"),
-      )
-      .expect("TODO"),
-    },
-  )?;
   match output.status.code() {
     Some(code) => {
       if code == 0 {
