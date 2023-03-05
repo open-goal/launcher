@@ -488,6 +488,7 @@ pub async fn open_repl(
   let data_folder = get_data_dir(&config_info, &game_name, false)?;
   let exec_info = get_exec_location(&config_info, "goalc")?;
   let output = Command::new("cmd")
+    .creation_flags(0x08000000)
     .args([
       "/K",
       "start",
