@@ -2,23 +2,23 @@ import type { VersionFolders } from "$lib/rpc/versions";
 import { writable } from "svelte/store";
 
 export interface VersionStoreSelectedInfo {
-  official: string | undefined;
-  unofficial: string | undefined;
-  devel: string | undefined;
+  official: string | null;
+  unofficial: string | null;
+  devel: string | null;
 }
 
 export interface VersionStoreIFace {
   activeVersionType: VersionFolders;
-  activeVersionName: string | undefined;
+  activeVersionName: string | null;
   selectedVersions: VersionStoreSelectedInfo;
 }
 
 export const VersionStore = writable<VersionStoreIFace>({
-  activeVersionType: undefined,
-  activeVersionName: undefined,
+  activeVersionType: null,
+  activeVersionName: null,
   selectedVersions: {
-    official: undefined,
-    unofficial: undefined,
-    devel: undefined,
+    official: null,
+    unofficial: null,
+    devel: null,
   },
 });

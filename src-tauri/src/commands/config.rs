@@ -172,7 +172,6 @@ pub async fn get_installed_version_folder(
 #[tauri::command]
 pub async fn save_active_version_change(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  app_handle: tauri::AppHandle,
   version_folder: String,
   new_active_version: String,
 ) -> Result<(), CommandError> {
@@ -185,7 +184,6 @@ pub async fn save_active_version_change(
   config_lock
     .set_active_version(new_active_version)
     .map_err(|_| CommandError::Configuration(format!("Unable to persist active version change")))?;
-  app_handle.emit_all("toolingVersionChanged", {})?;
   Ok(())
 }
 

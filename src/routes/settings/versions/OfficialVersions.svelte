@@ -91,8 +91,8 @@
     // TODO if save was successful
     $VersionStore.activeVersionType = "official";
     $VersionStore.activeVersionName = $VersionStore.selectedVersions.official;
-    $VersionStore.selectedVersions.unofficial = undefined;
-    $VersionStore.selectedVersions.devel = undefined;
+    $VersionStore.selectedVersions.unofficial = null;
+    $VersionStore.selectedVersions.devel = null;
   }
 
   async function openOfficialVersionFolder(evt) {

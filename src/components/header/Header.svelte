@@ -1,7 +1,7 @@
 <script lang="ts">
   import { appWindow } from "@tauri-apps/api/window";
   import logo from "$assets/images/icon.png";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { getVersion } from "@tauri-apps/api/app";
   import { Link } from "svelte-navigator";
   import Icon from "@iconify/svelte";
@@ -14,17 +14,16 @@
     listDownloadedVersions,
   } from "$lib/rpc/versions";
   import { getLatestOfficialRelease } from "$lib/utils/github";
-  import { listen } from "@tauri-apps/api/event";
+  import { VersionStore } from "$lib/stores/VersionStore";
 
   let launcherVerison = null;
-  let toolingVersion = null;
-  let toolingVersionType = null;
 
   onMount(async () => {
     // Get current versions
     launcherVerison = `v${await getVersion()}`;
-    toolingVersion = await getActiveVersion();
-    toolingVersionType = await getActiveVersionFolder();
+
+    $VersionStore.activeVersionType = await getActiveVersionFolder();
+    $VersionStore.activeVersionName = await getActiveVersion();
 
     // Check for a launcher update
     // I think it won't work unless the updater is in the configuration, which of course has other issues
@@ -50,21 +49,13 @@
     }
 
     await checkIfLatestVersionInstalled();
-
-    const unlistenInstalled = await listen(
-      "toolingVersionChanged",
-      async (event) => {
-        toolingVersion = await getActiveVersion();
-        toolingVersionType = await getActiveVersionFolder();
-      }
-    );
   });
 
   async function checkIfLatestVersionInstalled() {
     // Check for an update to the tooling (right now, only if it's official)
-    if (toolingVersionType === "official") {
+    if ($VersionStore.activeVersionType === "official") {
       const latestToolingVersion = await getLatestOfficialRelease();
-      if (toolingVersion !== latestToolingVersion.version) {
+      if ($VersionStore.activeVersionName !== latestToolingVersion.version) {
         // Check that we havn't already downloaded it
         let alreadyHaveRelease = false;
         const downloadedOfficialVersions = await listDownloadedVersions(
@@ -108,10 +99,12 @@
       {launcherVerison === null ? "not set!" : launcherVerison}
     </p>
     <p class="font-mono text-sm">
-      {toolingVersion === null ? "not set!" : toolingVersion}
-      {#if toolingVersionType === "unofficial"}
+      {$VersionStore.activeVersionName === null
+        ? "not set!"
+        : $VersionStore.activeVersionName}
+      {#if $VersionStore.activeVersionType === "unofficial"}
         (unf)
-      {:else if toolingVersionType === "devel"}
+      {:else if $VersionStore.activeVersionType === "devel"}
         (dev)
       {/if}
     </p>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { SupportedGame } from "$lib/constants";
+  import { VersionStore } from "$lib/stores/VersionStore";
   import { Button, Card } from "flowbite-svelte";
   import { createEventDispatcher } from "svelte";
 
@@ -9,8 +10,6 @@
 
   export let installedVersion: String;
   export let installedVersionFolder: String;
-  export let activeVersion: String;
-  export let activeVersionFolder: String;
 </script>
 
 <div class="flex flex-col h-full justify-center items-center">
@@ -31,8 +30,8 @@
       ...but you currently have selected
     </p>
     <ul class="list-disc list-inside mb-5">
-      <li>Version: <strong>{activeVersion}</strong></li>
-      <li>Type: <strong>{activeVersionFolder}</strong></li>
+      <li>Version: <strong>{$VersionStore.activeVersionName}</strong></li>
+      <li>Type: <strong>{$VersionStore.activeVersionName}</strong></li>
     </ul>
     <p class="mb-3">
       You can either update the game to this new version (no save data will be

@@ -36,7 +36,7 @@
 
   function changesPending(versionStore: VersionStoreIFace): boolean {
     return (
-      versionStore.selectedVersions[releaseType] !== undefined &&
+      versionStore.selectedVersions[releaseType] !== null &&
       versionStore.selectedVersions[releaseType] !== "" &&
       versionStore.selectedVersions[releaseType] !==
         versionStore.activeVersionName
