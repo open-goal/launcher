@@ -12,7 +12,7 @@
     runCompiler,
     runDecompiler,
     updateDataDirectory,
-  } from "$lib/rpc/extractor";
+  } from "$lib/rpc/binaries";
   import { finalizeInstallation } from "$lib/rpc/config";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { listen } from "@tauri-apps/api/event";
@@ -21,6 +21,7 @@
   export let jobType: Job;
 
   const dispatch = createEventDispatcher();
+  let installationError = undefined;
 
   // This is basically a stripped down `GameSetup` component that doesn't care about user initiation
   // requirement checking, etc
@@ -29,11 +30,11 @@
   // but for arbitrary jobs.  Such as updating versions, decompiling, or compiling.
   onMount(async () => {
     const unlistenLogListener = await listen("newJobLogs", async (event) => {
-      console.log(event.payload);
       progressTracker.updateLogs(event.payload["stdout"]);
     });
 
     if (jobType === "decompile") {
+      installationError = undefined;
       progressTracker.init([
         {
           status: "queued",
@@ -45,10 +46,16 @@
         },
       ]);
       progressTracker.start();
-      await runDecompiler("", getInternalName(activeGame));
+      let resp = await runDecompiler("", getInternalName(activeGame));
+      if (!resp.success) {
+        progressTracker.halt();
+        installationError = resp.msg;
+        return;
+      }
       progressTracker.proceed();
       progressTracker.proceed();
     } else if (jobType === "compile") {
+      installationError = undefined;
       progressTracker.init([
         {
           status: "queued",
@@ -60,10 +67,16 @@
         },
       ]);
       progressTracker.start();
-      await runCompiler("", getInternalName(activeGame));
+      let resp = await runCompiler("", getInternalName(activeGame));
+      if (!resp.success) {
+        progressTracker.halt();
+        installationError = resp.msg;
+        return;
+      }
       progressTracker.proceed();
       progressTracker.proceed();
     } else if (jobType === "updateGame") {
+      installationError = undefined;
       progressTracker.init([
         {
           status: "queued",
@@ -83,11 +96,26 @@
         },
       ]);
       progressTracker.start();
-      await updateDataDirectory(getInternalName(activeGame));
+      let resp = await updateDataDirectory(getInternalName(activeGame));
+      if (!resp.success) {
+        progressTracker.halt();
+        installationError = resp.msg;
+        return;
+      }
       progressTracker.proceed();
-      await runDecompiler("", getInternalName(activeGame));
+      resp = await runDecompiler("", getInternalName(activeGame));
+      if (!resp.success) {
+        progressTracker.halt();
+        installationError = resp.msg;
+        return;
+      }
       progressTracker.proceed();
-      await runCompiler("", getInternalName(activeGame));
+      resp = await runCompiler("", getInternalName(activeGame));
+      if (!resp.success) {
+        progressTracker.halt();
+        installationError = resp.msg;
+        return;
+      }
       progressTracker.proceed();
       await finalizeInstallation("jak1");
       progressTracker.proceed();
@@ -101,7 +129,7 @@
 
 <div class="flex flex-col justify-content">
   <Progress />
-  {#if $progressTracker.logs.length > 0}
+  {#if $progressTracker.logs !== undefined}
     <LogViewer />
   {/if}
 </div>
@@ -115,20 +143,17 @@
     </div>
   </div>
 {:else if $progressTracker.overallStatus === "failed"}
-  <div class="flex flex-col justify-end items-end mt-auto">
+  <div class="flex flex-col mt-auto">
     <div class="flex flex-row gap-2">
-      <Alert color="red" class="dark:bg-slate-900" accent={true}>
+      <Alert color="red" class="dark:bg-slate-900 flex-grow" accent={true}>
         <span class="font-medium text-red-500"
           >Installation has failed!
-        </span><span class="text-white">
-          If you reach out for help, please download and attach the support
-          package</span
-        >
+        </span><span class="text-white"> {installationError}</span>
       </Alert>
       <Button
         btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         on:click={async () => await generateSupportPackage()}
-        >Download Support Package</Button
+        >Get Support Package</Button
       >
     </div>
   </div>

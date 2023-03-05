@@ -1,11 +1,10 @@
 use std::{
   collections::HashMap,
-  io::BufRead,
   path::{Path, PathBuf},
-  process::{Command, ExitStatus},
+  process::Command,
 };
 
-use log::info;
+use log::{info, warn};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::Manager;
@@ -69,24 +68,32 @@ struct LauncherErrorCode {
   msg: String,
 }
 
-fn get_error_codes(config: &CommonConfigData) -> HashMap<i32, LauncherErrorCode> {
+fn get_error_codes(
+  config: &CommonConfigData,
+  game_name: &String,
+) -> HashMap<i32, LauncherErrorCode> {
   let json_file = config
     .install_path
     .join("active")
+    .join(game_name)
+    .join("data")
     .join("launcher")
     .join("error-code-metadata.json");
   if !json_file.exists() {
+    warn!("couldn't locate error code file at {}", json_file.display());
     return HashMap::new();
   } else {
-    let file_contents = match std::fs::read_to_string(json_file) {
+    let file_contents = match std::fs::read_to_string(&json_file) {
       Ok(content) => content,
       Err(_err) => {
+        warn!("couldn't read error code file at {}", &json_file.display());
         return HashMap::new();
       }
     };
     let json: Value = match serde_json::from_str(&file_contents) {
       Ok(json) => json,
       Err(_err) => {
+        warn!("couldn't parse error code file at {}", &json_file.display());
         return HashMap::new();
       }
     };
@@ -104,6 +111,10 @@ fn get_error_codes(config: &CommonConfigData) -> HashMap<i32, LauncherErrorCode>
       }
       return result;
     } else {
+      warn!(
+        "couldn't convert error code file at {}",
+        &json_file.display()
+      );
       return HashMap::new();
     }
   }
@@ -277,7 +288,13 @@ pub async fn extract_and_validate_iso(
   )?;
   match output.status.code() {
     Some(code) => {
-      let error_code_map = get_error_codes(&config_info);
+      if code == 0 {
+        return Ok(InstallStepOutput {
+          success: true,
+          msg: None,
+        });
+      }
+      let error_code_map = get_error_codes(&config_info, &game_name);
       let default_error = LauncherErrorCode {
         msg: format!("Unexpected error occured with code {}", code).to_owned(),
       };
@@ -288,8 +305,8 @@ pub async fn extract_and_validate_iso(
       })
     }
     None => Ok(InstallStepOutput {
-      success: true,
-      msg: None,
+      success: false,
+      msg: Some("Unexpected error occurred".to_owned()),
     }),
   }
 }
@@ -311,7 +328,7 @@ pub async fn run_decompiler(
   if source_path.is_empty() {
     source_path = data_folder
       .join("iso_data")
-      .join(game_name)
+      .join(&game_name)
       .to_string_lossy()
       .to_string();
   }
@@ -345,7 +362,13 @@ pub async fn run_decompiler(
   )?;
   match output.status.code() {
     Some(code) => {
-      let error_code_map = get_error_codes(&config_info);
+      if code == 0 {
+        return Ok(InstallStepOutput {
+          success: true,
+          msg: None,
+        });
+      }
+      let error_code_map = get_error_codes(&config_info, &game_name);
       let default_error = LauncherErrorCode {
         msg: format!("Unexpected error occured with code {}", code).to_owned(),
       };
@@ -356,8 +379,8 @@ pub async fn run_decompiler(
       })
     }
     None => Ok(InstallStepOutput {
-      success: true,
-      msg: None,
+      success: false,
+      msg: Some("Unexpected error occurred".to_owned()),
     }),
   }
 }
@@ -379,7 +402,7 @@ pub async fn run_compiler(
   if source_path.is_empty() {
     source_path = data_folder
       .join("iso_data")
-      .join(game_name)
+      .join(&game_name)
       .to_string_lossy()
       .to_string();
   }
@@ -413,7 +436,13 @@ pub async fn run_compiler(
   )?;
   match output.status.code() {
     Some(code) => {
-      let error_code_map = get_error_codes(&config_info);
+      if code == 0 {
+        return Ok(InstallStepOutput {
+          success: true,
+          msg: None,
+        });
+      }
+      let error_code_map = get_error_codes(&config_info, &game_name);
       let default_error = LauncherErrorCode {
         msg: format!("Unexpected error occured with code {}", code).to_owned(),
       };
@@ -424,8 +453,8 @@ pub async fn run_compiler(
       })
     }
     None => Ok(InstallStepOutput {
-      success: true,
-      msg: None,
+      success: false,
+      msg: Some("Unexpected error occurred".to_owned()),
     }),
   }
 }

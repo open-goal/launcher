@@ -39,10 +39,12 @@ export async function filePrompt(
 
 export async function saveFilePrompt(
   fileType: string,
-  fileExtensions: string[]
+  fileExtensions: string[],
+  fileName: string
 ): Promise<string | null> {
   return await save({
     filters: [{ name: fileType, extensions: fileExtensions }],
+    defaultPath: fileName,
   });
 }
 

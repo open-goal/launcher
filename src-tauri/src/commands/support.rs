@@ -118,7 +118,7 @@ pub async fn generate_support_package(
   }
 
   // Create zip file
-  let save_path = Path::new(&user_path).join("support-package.zip");
+  let save_path = Path::new(&user_path);
   let save_file = std::fs::File::create(save_path)
     .map_err(|_| CommandError::Support(format!("Unable to create support file")))?;
   let mut zip_file = zip::ZipWriter::new(save_file);

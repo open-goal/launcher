@@ -12,13 +12,9 @@
     DropdownDivider,
     Helper,
   } from "flowbite-svelte";
-  import {
-    launchGame,
-    openREPL,
-    resetGameSettings,
-    uninstallGame,
-  } from "$lib/rpc/game";
+  import { resetGameSettings, uninstallGame } from "$lib/rpc/game";
   import { platform } from "@tauri-apps/api/os";
+  import { launchGame, openREPL } from "$lib/rpc/binaries";
 
   export let activeGame: SupportedGame;
 

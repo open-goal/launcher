@@ -2,7 +2,11 @@
   // components
   import Progress from "./Progress.svelte";
   // constants
-  import { getGameTitle, type SupportedGame } from "$lib/constants";
+  import {
+    getGameTitle,
+    getInternalName,
+    type SupportedGame,
+  } from "$lib/constants";
   import LogViewer from "./LogViewer.svelte";
   import Requirements from "./Requirements.svelte";
   import { createEventDispatcher, onMount } from "svelte";
@@ -11,7 +15,7 @@
     extractAndValidateISO,
     runCompiler,
     runDecompiler,
-  } from "$lib/rpc/extractor";
+  } from "$lib/rpc/binaries";
   import { folderPrompt, isoPrompt } from "$lib/utils/file";
   import {
     finalizeInstallation,
@@ -30,6 +34,7 @@
 
   let requirementsMet = true;
   let installing = false;
+  let installationError = undefined;
 
   onMount(async () => {
     // Check requirements
@@ -42,7 +47,6 @@
     requirementsMet = isAvxMet && isOpenGLMet;
 
     const unlistenLogListener = await listen("updateJobLogs", async (event) => {
-      console.log(event.payload);
       progressTracker.updateLogs(event.payload["stdout"]);
     });
   });
@@ -58,6 +62,7 @@
     }
     if (sourcePath !== undefined) {
       installing = true;
+      installationError = undefined;
       // Initialize the installation steps for this particular config
       progressTracker.init([
         {
@@ -77,15 +82,34 @@
           label: "Done",
         },
       ]);
-      // TODO - handle errors
+      // TODO - make this cleaner
       progressTracker.start();
-      await extractAndValidateISO(sourcePath, "jak1");
+      let resp = await extractAndValidateISO(
+        sourcePath,
+        getInternalName(activeGame)
+      );
+      if (!resp.success) {
+        progressTracker.halt();
+        installationError = resp.msg;
+        return;
+      }
       progressTracker.proceed();
-      await runDecompiler(sourcePath, "jak1");
+      resp = await runDecompiler(sourcePath, getInternalName(activeGame));
+      if (!resp.success) {
+        progressTracker.halt();
+        installationError = resp.msg;
+        return;
+      }
       progressTracker.proceed();
-      await runCompiler(sourcePath, "jak1");
+      resp = await runCompiler(sourcePath, getInternalName(activeGame));
+      if (!resp.success) {
+        progressTracker.halt();
+        installationError = resp.msg;
+        return;
+      }
       progressTracker.proceed();
-      await finalizeInstallation("jak1");
+      // TODO - technically should handle the error here too
+      await finalizeInstallation(getInternalName(activeGame));
       progressTracker.proceed();
     }
   }
@@ -100,7 +124,7 @@
 {:else if installing}
   <div class="flex flex-col justify-content">
     <Progress />
-    {#if $progressTracker.logs.length > 0}
+    {#if $progressTracker.logs !== undefined}
       <LogViewer />
     {/if}
   </div>
@@ -113,21 +137,18 @@
         >
       </div>
     </div>
-  {:else if $progressTracker.overallStatus === "failed"}
-    <div class="flex flex-col justify-end items-end mt-auto">
+  {:else if true || $progressTracker.overallStatus === "failed"}
+    <div class="flex flex-col mt-auto">
       <div class="flex flex-row gap-2">
-        <Alert color="red" class="dark:bg-slate-900" accent={true}>
+        <Alert color="red" class="dark:bg-slate-900 flex-grow" accent={true}>
           <span class="font-medium text-red-500"
             >Installation has failed!
-          </span><span class="text-white">
-            If you reach out for help, please download and attach the support
-            package</span
-          >
+          </span><span class="text-white"> {installationError}</span>
         </Alert>
         <Button
           btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
           on:click={async () => await generateSupportPackage()}
-          >Download Support Package</Button
+          >Get Support Package</Button
         >
       </div>
     </div>
