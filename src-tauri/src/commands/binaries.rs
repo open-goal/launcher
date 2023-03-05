@@ -1,6 +1,7 @@
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
 use std::{
   collections::HashMap,
-  os::windows::process::CommandExt,
   path::{Path, PathBuf},
   process::Command,
 };
@@ -8,7 +9,6 @@ use std::{
 use log::{info, warn};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use tauri::Manager;
 
 use crate::{
   config::LauncherConfig,
@@ -283,13 +283,17 @@ pub async fn extract_and_validate_iso(
   // This is the first install step, reset the file
   let log_file = create_log_file(&app_handle, "extractor.log", false)?;
 
-  let output = Command::new(exec_info.executable_path)
-    .creation_flags(0x08000000)
+  let mut command = Command::new(exec_info.executable_path);
+  command
     .args(args)
     .current_dir(exec_info.executable_dir)
-    .stdout(log_file.try_clone().unwrap())
-    .stderr(log_file.try_clone().unwrap())
-    .output()?;
+    .stdout(log_file.try_clone()?)
+    .stderr(log_file.try_clone()?);
+  #[cfg(windows)]
+  {
+    command.creation_flags(0x08000000);
+  }
+  let output = command.output()?;
   match output.status.code() {
     Some(code) => {
       if code == 0 {
@@ -339,18 +343,22 @@ pub async fn run_decompiler(
   }
 
   let log_file = create_log_file(&app_handle, "extractor.log", !truncate_logs)?;
-  let output = Command::new(&exec_info.executable_path)
-    .creation_flags(0x08000000)
+  let mut command = Command::new(exec_info.executable_path);
+  command
     .args([
       source_path,
       "--decompile".to_string(),
       "--proj-path".to_string(),
       data_folder.to_string_lossy().into_owned(),
     ])
-    .stdout(log_file.try_clone().unwrap())
+    .stdout(log_file.try_clone()?)
     .stderr(log_file)
-    .current_dir(exec_info.executable_dir)
-    .output()?;
+    .current_dir(exec_info.executable_dir);
+  #[cfg(windows)]
+  {
+    command.creation_flags(0x08000000);
+  }
+  let output = command.output()?;
   match output.status.code() {
     Some(code) => {
       if code == 0 {
@@ -400,8 +408,8 @@ pub async fn run_compiler(
   }
 
   let log_file = create_log_file(&app_handle, "extractor.log", !truncate_logs)?;
-  let output = Command::new(&exec_info.executable_path)
-    .creation_flags(0x08000000)
+  let mut command = Command::new(exec_info.executable_path);
+  command
     .args([
       source_path,
       "--compile".to_string(),
@@ -410,8 +418,12 @@ pub async fn run_compiler(
     ])
     .stdout(log_file.try_clone().unwrap())
     .stderr(log_file)
-    .current_dir(exec_info.executable_dir)
-    .output()?;
+    .current_dir(exec_info.executable_dir);
+  #[cfg(windows)]
+  {
+    command.creation_flags(0x08000000);
+  }
+  let output = command.output()?;
   match output.status.code() {
     Some(code) => {
       if code == 0 {
@@ -451,8 +463,8 @@ pub async fn open_repl(
 
   let data_folder = get_data_dir(&config_info, &game_name, false)?;
   let exec_info = get_exec_location(&config_info, "goalc")?;
-  let output = Command::new("cmd")
-    .creation_flags(0x08000000)
+  let mut command = Command::new("cmd");
+  command
     .args([
       "/K",
       "start",
@@ -460,8 +472,12 @@ pub async fn open_repl(
       "--proj-path",
       &data_folder.to_string_lossy().into_owned(),
     ])
-    .current_dir(exec_info.executable_dir)
-    .spawn()?;
+    .current_dir(exec_info.executable_dir);
+  #[cfg(windows)]
+  {
+    command.creation_flags(0x08000000);
+  }
+  command.spawn()?;
   Ok(())
 }
 
@@ -486,12 +502,16 @@ pub async fn launch_game(
   args.push("-proj-path".to_string());
   args.push(data_folder.to_string_lossy().into_owned());
   let log_file = create_log_file(&app_handle, "game.log", false)?;
-  let output = Command::new(exec_info.executable_path)
-    .creation_flags(0x08000000)
+  let mut command = Command::new(exec_info.executable_path);
+  command
     .args(args)
     .stdout(log_file.try_clone().unwrap())
     .stderr(log_file)
-    .current_dir(exec_info.executable_dir)
-    .spawn()?;
+    .current_dir(exec_info.executable_dir);
+  #[cfg(windows)]
+  {
+    command.creation_flags(0x08000000);
+  }
+  command.spawn()?;
   Ok(())
 }
