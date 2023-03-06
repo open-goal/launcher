@@ -1,7 +1,7 @@
 <script lang="ts">
   import { appWindow } from "@tauri-apps/api/window";
   import logo from "$assets/images/icon.png";
-  import { onDestroy, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { getVersion } from "@tauri-apps/api/app";
   import { Link } from "svelte-navigator";
   import Icon from "@iconify/svelte";
@@ -26,7 +26,7 @@
     $VersionStore.activeVersionName = await getActiveVersion();
 
     // Check for a launcher update
-    // I think it won't work unless the updater is in the configuration, which of course has other issues
+    // TODO - I think it won't work unless the updater is in the configuration, which of course has other issues
     if (!isInDebugMode()) {
       const updateResult = await checkUpdate();
       if (updateResult.shouldUpdate) {

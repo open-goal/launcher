@@ -1,5 +1,6 @@
-import { filePrompt, saveFilePrompt } from "$lib/utils/file";
+import { saveFilePrompt } from "$lib/utils/file";
 import { invoke } from "@tauri-apps/api/tauri";
+import { exceptionLog } from "./logging";
 
 export async function generateSupportPackage(): Promise<boolean> {
   try {
@@ -10,6 +11,7 @@ export async function generateSupportPackage(): Promise<boolean> {
     );
     return await invoke("generate_support_package", { userPath: savePath });
   } catch (e) {
-    console.log("[OG] Problem generating support package", e);
+    exceptionLog("Unable to generate support package", e);
+    // TODO - definitely need some kind of toast here
   }
 }

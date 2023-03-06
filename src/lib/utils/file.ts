@@ -1,24 +1,4 @@
 import { open, save } from "@tauri-apps/api/dialog";
-import { readDir, readTextFile } from "@tauri-apps/api/fs";
-
-export async function fileExists(path: string): Promise<boolean> {
-  try {
-    await readTextFile(path);
-    return true;
-  } catch (err) {
-    return false;
-  }
-}
-
-export async function dirExists(path: string): Promise<boolean> {
-  try {
-    // NOTE - this isn't case sensitive!
-    await readDir(path);
-    return true;
-  } catch (err) {
-    return false;
-  }
-}
 
 export async function filePrompt(
   extensions: string[],

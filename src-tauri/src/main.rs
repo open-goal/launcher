@@ -77,6 +77,7 @@ fn main() {
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
+      commands::logging::frontend_log,
       commands::binaries::update_data_directory,
       commands::binaries::get_end_of_logs,
       commands::binaries::extract_and_validate_iso,

@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/tauri";
+import { exceptionLog } from "./logging";
 
 interface InstallationOutput {
   msg: string | null;
@@ -13,8 +14,8 @@ export async function updateDataDirectory(
       gameName: gameName,
     });
   } catch (e) {
-    console.log(
-      "[OG]: Unexpected error encountered when updating data directory",
+    exceptionLog(
+      "Unexpected error encountered when updating data directory",
       e
     );
     return {
@@ -28,8 +29,8 @@ export async function getEndOfLogs(): Promise<string> {
   try {
     return await invoke("get_end_of_logs", {});
   } catch (e) {
-    console.log(
-      "[OG]: Unexpected error encountered when updating data directory",
+    exceptionLog(
+      "Unexpected error encountered when tail'ing extractor logs",
       e
     );
     return "";
@@ -46,8 +47,8 @@ export async function extractAndValidateISO(
       gameName: gameName,
     });
   } catch (e) {
-    console.log(
-      "[OG]: Unexpected error encountered when extracing and validating the ISO",
+    exceptionLog(
+      "Unexpected error encountered when extracing and validating the ISO",
       e
     );
     return {
@@ -69,10 +70,7 @@ export async function runDecompiler(
       truncateLogs: truncateLogs,
     });
   } catch (e) {
-    console.log(
-      "[OG]: Unexpected error encountered when running the decompiler",
-      e
-    );
+    exceptionLog("Unexpected error encountered when running the decompiler", e);
     return {
       msg: "An unexpected error occurred",
       success: false,
@@ -92,10 +90,7 @@ export async function runCompiler(
       truncateLogs: truncateLogs,
     });
   } catch (e) {
-    console.log(
-      "[OG]: Unexpected error encountered when running the compiler",
-      e
-    );
+    exceptionLog("Unexpected error encountered when running the compiler", e);
     return {
       msg: "An unexpected error occurred",
       success: false,
@@ -113,7 +108,8 @@ export async function launchGame(
       inDebug: inDebugMode,
     });
   } catch (e) {
-    console.log("TODO AH!");
+    exceptionLog("Unexpected error encountered when launching the game", e);
+    // TODO - toast
   }
 }
 
@@ -123,6 +119,7 @@ export async function openREPL(gameName: string): Promise<void> {
       gameName: gameName,
     });
   } catch (e) {
-    console.log("TODO AH!");
+    exceptionLog("Unexpected error encountered when opening the REPL", e);
+    // TOOD - toast
   }
 }

@@ -1,7 +1,5 @@
 <script lang="ts">
-  // components
   import Progress from "./Progress.svelte";
-  // constants
   import {
     getGameTitle,
     getInternalName,

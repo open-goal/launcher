@@ -23,7 +23,7 @@
   const dispatch = createEventDispatcher();
   let installationError = undefined;
 
-  // This is basically a stripped down `GameSetup` component that doesn't care about user initiation
+  // This is basically a stripped down `GameSetup` component that doesn't care about user initiation,
   // requirement checking, etc
   //
   // It's used to provide almost the same interface as the normal installation, with logs, etc

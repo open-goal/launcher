@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/tauri";
+import { exceptionLog } from "./logging";
 
 export async function uninstallGame(gameName: string): Promise<void> {
   try {
@@ -6,7 +7,8 @@ export async function uninstallGame(gameName: string): Promise<void> {
       gameName: gameName,
     });
   } catch (e) {
-    console.log("TODO AH!");
+    exceptionLog("Unable to uninstall game", e);
+    // TODO - don't assume success
   }
 }
 
@@ -16,6 +18,6 @@ export async function resetGameSettings(gameName: string): Promise<void> {
       gameName: gameName,
     });
   } catch (e) {
-    console.log("TODO AH!");
+    exceptionLog("Unable to reset game settings", e);
   }
 }

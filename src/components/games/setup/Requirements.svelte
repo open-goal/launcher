@@ -61,7 +61,7 @@
             target="_blank"
             rel="noreferrer"
             href="https://www.techpowerup.com/gpu-specs/">here</a
-          > to see if should support it
+          > to see if it should be supported
         </li>
         <li>You can attempt to upgrade your GPU drivers</li>
         <li>

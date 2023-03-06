@@ -495,7 +495,7 @@ pub async fn launch_game(
   let exec_info = get_exec_location(&config_info, "gk")?;
 
   let mut args = vec!["-boot".to_string(), "-fakeiso".to_string()];
-  // TODO - order unfortunately matters for gk args, this will be fixed eventually...
+  // NOTE - order unfortunately matters for gk args
   if in_debug {
     args.push("-debug".to_string());
   }

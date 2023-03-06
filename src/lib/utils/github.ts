@@ -5,7 +5,7 @@ export interface ReleaseInfo {
   version: string;
   date: string | undefined;
   githubLink: string | undefined;
-  downloadUrl: string | undefined; // TODO - windows/mac/linux
+  downloadUrl: string | undefined;
   isDownloaded: boolean;
   pendingAction: boolean;
 }

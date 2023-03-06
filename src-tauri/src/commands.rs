@@ -3,6 +3,7 @@ use serde::{Serialize, Serializer};
 pub mod binaries;
 pub mod config;
 pub mod game;
+pub mod logging;
 pub mod support;
 pub mod versions;
 pub mod window;
