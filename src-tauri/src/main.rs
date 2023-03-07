@@ -25,6 +25,20 @@ fn main() {
         .join("app");
       create_dir(&log_path)?;
 
+      // Truncate rotated log files to '5'
+      let mut paths: Vec<_> = std::fs::read_dir(&log_path)?.map(|r| r.unwrap()).collect();
+      paths.sort_by_key(|dir| dir.path());
+      paths.reverse();
+      let mut i = 0;
+      for path in paths {
+        i += 1;
+        println!("{}", path.path().display());
+        if i > 5 {
+          println!("deleting - {}", path.path().display());
+          std::fs::remove_file(path.path())?;
+        }
+      }
+
       // configure colors for the whole line
       let colors_line = ColoredLevelConfig::new()
         .error(Color::Red)
@@ -58,8 +72,7 @@ fn main() {
         // .level_for("opengoal-launcher", log::LevelFilter::Debug)
         // Output to stdout, files, and other Dispatch configurations
         .chain(std::io::stdout())
-        // TODO - might need to periodically cleanup logs automatically (else this dir will get huge)
-        .chain(fern::DateBased::new(log_path, "/%Y-%m-%d.log"))
+        .chain(fern::DateBased::new(&log_path, "/%Y-%m-%d.log"))
         // Apply globally
         .apply()
         .expect("Could not setup logs");

@@ -6,7 +6,7 @@
   import { createEventDispatcher, onMount } from "svelte";
   import { Alert, Button } from "flowbite-svelte";
   import { progressTracker } from "$lib/stores/ProgressStore";
-  import type { Job } from "$lib/jobs/jobs";
+  import type { Job } from "$lib/utils/jobs";
   import { getInternalName, type SupportedGame } from "$lib/constants";
   import {
     getEndOfLogs,
