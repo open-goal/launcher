@@ -107,7 +107,6 @@ function changesFromBody(releaseBody) {
 
 // Get all values from workflow
 const releaseId = process.env.RELEASE_ID;
-const jakProjectTag = process.env.JAK_PROJ_TAG;
 
 if (releaseId === undefined || releaseId === "") {
   console.log("You didn't provide RELEASE_ID");
@@ -169,7 +168,6 @@ for (var i = 0; i < releaseAssets.length; i++) {
 const releaseMeta = {
   name: launcherRelease.tag_name,
   notes: JSON.stringify({
-    jak_proj_tag: jakProjectTag,
     changes: launcherChanges,
   }),
   pub_date: launcherRelease.created_at,

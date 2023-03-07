@@ -129,6 +129,7 @@ pub async fn is_game_installed(
   };
 
   // This is a half-hearted check if the folder exists and isn't empty
+  // TODO - this won't work, because we don't know what version they used -- make them reinstall
   let expected_dir = install_path.join("active").join(&game_name).join("data");
   if !expected_dir.exists() {
     config_lock.update_installed_game_version(&game_name, false);
@@ -136,6 +137,8 @@ pub async fn is_game_installed(
   }
   Ok(true)
 }
+
+// TODO - fix these unwraps!
 
 #[tauri::command]
 pub async fn get_installed_version(

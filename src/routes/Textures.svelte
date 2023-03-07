@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { extractTextures, getAllTexturePacks } from "$lib/rpc/commands";
+  // import { extractTextures, getAllTexturePacks } from "$lib/rpc/commands";
   import { texturePackPrompt } from "$lib/textures/textures";
   import { appDir, join } from "@tauri-apps/api/path";
   import { removeDir, removeFile } from "@tauri-apps/api/fs";
@@ -107,7 +107,7 @@
 
     try {
       // extract texture packs in (proper) order to texture_replacements (proper order: for overridding purposes)
-      await extractTextures(selectedTexturePacks);
+      // await extractTextures(selectedTexturePacks);
       // await decompile game (similar to GameControls function, maybe that function should be moved into a seperate file)
       // await decompileFromFile(SupportedGame.Jak1);
       // should be ready to play (fingers crossed)

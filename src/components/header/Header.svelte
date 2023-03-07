@@ -15,6 +15,7 @@
   } from "$lib/rpc/versions";
   import { getLatestOfficialRelease } from "$lib/utils/github";
   import { VersionStore } from "$lib/stores/VersionStore";
+  import { exceptionLog } from "$lib/rpc/logging";
 
   let launcherVerison = null;
 
@@ -26,15 +27,26 @@
     $VersionStore.activeVersionName = await getActiveVersion();
 
     // Check for a launcher update
-    // TODO - I think it won't work unless the updater is in the configuration, which of course has other issues
+    // NOTE - the following code (checkUpdate) won't work unless you have `update` configuration
+    // added to the tauri.conf.json
     if (!isInDebugMode()) {
       const updateResult = await checkUpdate();
       if (updateResult.shouldUpdate) {
+        // TODO - store methods to clean this up
+        let changeLog = [];
+        try {
+          changeLog = JSON.parse(updateResult.manifest.body);
+        } catch (e) {
+          exceptionLog(
+            "Could not parse changelog JSON from release metadata",
+            e
+          );
+        }
         $UpdateStore.launcher = {
           updateAvailable: true,
           versionNumber: updateResult.manifest.version,
           date: updateResult.manifest.date,
-          changeLog: JSON.parse(updateResult.manifest.body),
+          changeLog: changeLog,
         };
         console.log("OG: Launcher Update Available");
       } else {

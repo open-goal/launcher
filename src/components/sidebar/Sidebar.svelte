@@ -10,7 +10,11 @@
 
   function getNavStyle(pathname: string): string {
     let style = "w-20 h-full bg-[#101010] px-1 absolute left-0 z-10";
-    if (!pathname.startsWith("/settings") && !pathname.startsWith("/faq")) {
+    if (
+      !pathname.startsWith("/settings") &&
+      !pathname.startsWith("/faq") &&
+      !pathname.startsWith("/update")
+    ) {
       style += " opacity-50 hover:opacity-100 duration-500";
     }
     return style;

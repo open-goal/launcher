@@ -3,6 +3,7 @@
   import { relaunch } from "@tauri-apps/api/process";
   import {
     Button,
+    Spinner,
     Table,
     TableBody,
     TableBodyCell,
@@ -11,67 +12,95 @@
     TableHeadCell,
   } from "flowbite-svelte";
   import { UpdateStore } from "$lib/stores/AppStore";
+  import Icon from "@iconify/svelte";
 
-  let disabled = false;
-  let notesBool = true;
+  $: launcherUpdateInfo = $UpdateStore?.launcher;
+
+  let updating = false;
+  let showChanges = false;
+
+  // TODO - add the timestamp, tauri doesn't use an ISO timestamp!
+
+  console.log($UpdateStore?.launcher.changeLog);
 
   async function updateHandler() {
-    disabled = true;
+    updating = true;
     await installUpdate();
     await relaunch();
   }
-
-  $: jakProjectNotes = $UpdateStore?.jak_project;
-  $: launcherNotes = $UpdateStore?.launcher;
 </script>
 
 <div class="ml-20">
-  <div class="flex flex-col h-[544px] p-8 gap-2">
-    {#if $UpdateStore.shouldUpdate}
-      <Table hoverable={true}>
-        <caption
-          class="p-2 font-semibold text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800"
-        >
-          <Button
-            class="!rounded-none w-48"
-            on:click={() => (notesBool = !notesBool)}
-            >Read {notesBool ? "Launcher" : "Jak-Project"} updates</Button
-          >
-        </caption>
-        <TableHead>
-          <TableHeadCell>Contributor</TableHeadCell>
-          <TableHeadCell>Description</TableHeadCell>
-          <TableHeadCell>Pull Request</TableHeadCell>
-        </TableHead>
-        <TableBody class="divide-y">
-          {#each notesBool ? jakProjectNotes : launcherNotes as note}
-            <TableBodyRow>
-              <TableBodyCell>{note.contributor}</TableBodyCell>
-              <TableBodyCell tdClass="overflow-clip"
-                >{note.description}</TableBodyCell
-              >
-              <TableBodyCell>
-                <Button
-                  class="!rounded-none"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  outline
-                  href={note.pullRequestUrl}>Github</Button
-                >
-              </TableBodyCell>
-            </TableBodyRow>
-          {/each}
-        </TableBody>
-      </Table>
-      <div class="flex flex-col">
+  <div class="flex flex-col h-[544px] bg-slate-900 p-4 gap-3">
+    {#if $UpdateStore.launcher.updateAvailable}
+      <h1 class="font-semibold text-xl text-orange-500">
+        Launcher Update Available
+      </h1>
+      <p>
+        Version: <strong>{launcherUpdateInfo.versionNumber}</strong>
+      </p>
+      <p class="text-sm">
+        View the changes below and click the button to update to the latest
+        version. The launcher will restart when finished.
+      </p>
+      <div class="flex flex-row mt-1 gap-3">
         <Button
-          class="!rounded-none !bg-[#222222] border-none !text-white hover:!text-yellow-300 !text-2xl"
+          btnClass="border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
           on:click={async () => await updateHandler()}
-          {disabled}>Update</Button
+          disabled={updating}
+        >
+          {#if updating}
+            <Spinner class="mr-3" size="4" color="white" />
+          {/if}
+          Update Launcher
+        </Button>
+        <Button
+          btnClass="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
+          on:click={() => (showChanges = !showChanges)}>View Changelog</Button
         >
       </div>
+      {#if showChanges}
+        <Table hoverable={true}>
+          <caption
+            class="p-2 font-semibold text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800"
+          />
+          <TableHead>
+            <TableHeadCell>Contributor</TableHeadCell>
+            <TableHeadCell>Description</TableHeadCell>
+            <TableHeadCell>Pull Request</TableHeadCell>
+          </TableHead>
+          <TableBody tableBodyClass="divide-y">
+            {#each launcherUpdateInfo.changeLog["changes"] as note}
+              <TableBodyRow>
+                <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-bold"
+                  >{note.contributor}</TableBodyCell
+                >
+                <TableBodyCell tdClass="px-6 py-2"
+                  >{note.description}</TableBodyCell
+                >
+                <TableBodyCell
+                  tdClass="px-6 py-2 whitespace-nowrap font-medium"
+                >
+                  <a
+                    class="inline-block"
+                    href={note.pullRequestUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    ><Icon
+                      class="inline"
+                      icon="mdi:github"
+                      width="24"
+                      height="24"
+                    /></a
+                  >
+                </TableBodyCell>
+              </TableBodyRow>
+            {/each}
+          </TableBody>
+        </Table>
+      {/if}
     {:else}
-      <p>You're Up to Date!</p>
+      <h1 class="font-semibold text-xl text-orange-500">You're Up to Date!</h1>
     {/if}
   </div>
 </div>

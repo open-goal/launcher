@@ -30,8 +30,6 @@ jobs:
   build-app:
     if: github.repository == 'open-goal/launcher'
     needs: [create-release]
-    outputs:
-      jak_project_tag: ${{ steps.download_jak_project_binaries.outputs.jak_project_tag }}
     strategy:
       fail-fast: false
       matrix:
@@ -143,7 +141,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
           RELEASE_ID: ${{needs.create-release.outputs.release_id}}
-          JAK_PROJ_TAG: ${{needs.build-app.outputs.jak_project_tag}}
         run: |
           yarn install --frozen-lockfile
           yarn update-release-meta
