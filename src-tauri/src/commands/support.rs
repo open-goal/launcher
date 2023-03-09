@@ -134,13 +134,24 @@ pub async fn generate_support_package(
   };
   append_dir_contents_to_zip(
     &mut zip_file,
-    &game_config_dir,
-    "Game Settings and Saves",
+    &game_config_dir.join("jak1").join("settings"),
+    "Game Settings and Saves/jak1/settings",
     vec!["gc", "json"],
   )
   .map_err(|_| {
     CommandError::Support(format!(
-      "Unable to append game settings and saves to the support package"
+      "Unable to append game settings to the support package"
+    ))
+  })?;
+  append_dir_contents_to_zip(
+    &mut zip_file,
+    &game_config_dir.join("jak1").join("misc"),
+    "Game Settings and Saves/jak1/misc",
+    vec!["gc", "json"],
+  )
+  .map_err(|_| {
+    CommandError::Support(format!(
+      "Unable to append game misc settings to the support package"
     ))
   })?;
   append_dir_contents_to_zip(
@@ -151,7 +162,7 @@ pub async fn generate_support_package(
   )
   .map_err(|_| {
     CommandError::Support(format!(
-      "Unable to append game settings and saves to the support package"
+      "Unable to append game saves to the support package"
     ))
   })?;
 
