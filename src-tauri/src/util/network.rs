@@ -8,8 +8,6 @@ pub enum NetworkError {
   IO(#[from] std::io::Error),
   #[error(transparent)]
   NetworkRequest(#[from] reqwest::Error),
-  #[error("{0}")]
-  Other(String),
 }
 
 pub async fn download_file(url: &String, destination: &PathBuf) -> Result<(), NetworkError> {

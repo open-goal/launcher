@@ -28,8 +28,6 @@ pub enum CommandError {
   BinaryExecution(String),
   #[error("{0}")]
   Support(String),
-  #[error("{0}")]
-  Other(String),
 }
 
 impl Serialize for CommandError {

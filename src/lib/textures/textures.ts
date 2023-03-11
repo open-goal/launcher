@@ -5,7 +5,11 @@ import { appDir, join } from "@tauri-apps/api/path";
 
 export async function texturePackPrompt(): Promise<string> {
   try {
-    const path = await filePrompt(["ZIP", "zip"], "Texture Pack Zip File");
+    const path = await filePrompt(
+      ["ZIP", "zip"],
+      "Texture Pack Zip File",
+      "Select a Texture Pack"
+    );
     await copyTexturePackToZipFolder(path);
     return path;
   } catch (error) {

@@ -1,7 +1,6 @@
 <script>
   import { Tabs, TabItem } from "flowbite-svelte";
   import { useParams } from "svelte-navigator";
-  import General from "./settings/General.svelte";
   import Folders from "./settings/Folders.svelte";
   import Versions from "./settings/Versions.svelte";
 
@@ -25,15 +24,7 @@
       contentClass="p-4 pt-0 rounded-lg mt-2 pb-20 overflow-y-auto"
     >
       <TabItem
-        open={!activeTab || activeTab === "general"}
-        title="General"
-        activeClasses={tabItemActiveClasses}
-        inactiveClasses={tabItemInactiveClasses}
-      >
-        <General />
-      </TabItem>
-      <TabItem
-        open={activeTab === "folders"}
+        open={!activeTab || activeTab === "folders"}
         title="Folders"
         activeClasses={tabItemActiveClasses}
         inactiveClasses={tabItemInactiveClasses}

@@ -1,7 +1,5 @@
 <script lang="ts">
-  // components
   import Progress from "../setup/Progress.svelte";
-  // constants
   import LogViewer from "../setup/LogViewer.svelte";
   import { createEventDispatcher, onMount } from "svelte";
   import { Alert, Button } from "flowbite-svelte";

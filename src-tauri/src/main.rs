@@ -25,20 +25,6 @@ fn main() {
         .join("app");
       create_dir(&log_path)?;
 
-      // Truncate rotated log files to '5'
-      let mut paths: Vec<_> = std::fs::read_dir(&log_path)?.map(|r| r.unwrap()).collect();
-      paths.sort_by_key(|dir| dir.path());
-      paths.reverse();
-      let mut i = 0;
-      for path in paths {
-        i += 1;
-        println!("{}", path.path().display());
-        if i > 5 {
-          println!("deleting - {}", path.path().display());
-          std::fs::remove_file(path.path())?;
-        }
-      }
-
       // configure colors for the whole line
       let colors_line = ColoredLevelConfig::new()
         .error(Color::Red)
@@ -77,6 +63,21 @@ fn main() {
         .apply()
         .expect("Could not setup logs");
       log::info!("Logging Initialized");
+
+      // Truncate rotated log files to '5'
+      let mut paths: Vec<_> = std::fs::read_dir(&log_path)?.map(|r| r.unwrap()).collect();
+      paths.sort_by_key(|dir| dir.path());
+      paths.reverse();
+      let mut i = 0;
+      for path in paths {
+        i += 1;
+        log::info!("{}", path.path().display());
+        if i > 5 {
+          log::info!("deleting - {}", path.path().display());
+          std::fs::remove_file(path.path())?;
+        }
+      }
+
       // Load the config (or initialize it with defaults)
       //
       // Tauri is pretty cool - you can "manage" as many instances of structs as you want (so long as it's only 1 per type)

@@ -12,7 +12,7 @@ use serde_json::Value;
 
 use crate::{
   config::LauncherConfig,
-  util::file::{create_dir, overwrite_dir, read_last_lines_from_file, read_lines_in_file},
+  util::file::{create_dir, overwrite_dir, read_last_lines_from_file},
 };
 
 use super::CommandError;
