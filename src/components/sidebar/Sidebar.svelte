@@ -67,7 +67,7 @@
     <li class="fixed bottom-24 left-6">
       <a
         class={getNavItemStyle("settings", $location.pathname)}
-        href="/settings/general"
+        href="/settings/folders"
         use:link
       >
         <Icon icon="material-symbols:settings" width={36} height={36} />

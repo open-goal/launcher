@@ -24,7 +24,11 @@ npm install -g yarn
 ### Linux (Ubuntu 22.04)
 
 ```bash
-TODO
+sudo apt install libwebkit2gtk-4.0-dev build-essential curl wget libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev # tauri deps, see - https://tauri.app/v1/guides/getting-started/prerequisites#setting-up-linux
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash # installs Node Version Manager (ubuntus package is woefully out of date)
+source ~/.bashrc
+nvm install lts/hydrogen # installs latest nodejs 18.X
+npm install -g yarn
 ```
 
 ### Building and Running
@@ -45,6 +49,8 @@ TODO
 - https://tauri.app/v1/guides/features/
 - https://tauri.app/v1/api/js/
 - https://svelte.dev/docs
+- https://tailwindcss.com/
+- https://flowbite-svelte.com/
 
 ## Why Tauri?
 
