@@ -138,8 +138,6 @@ pub async fn remove_version(
     .join(&version_folder)
     .join(&version);
 
-  // TODO - handle deleting the active version
-  // TODO - handle no active version being selected (unrelated to here)
   delete_dir(&version_dir)?;
 
   Ok(())

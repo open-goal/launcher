@@ -107,18 +107,20 @@
       }
     }
     releases = releases;
-    await downloadOfficialVersion(
+    const success = await downloadOfficialVersion(
       event.detail.version,
       event.detail.downloadUrl
     );
-    // Then mark it as downloaded
-    for (const release of releases) {
-      if (release.version === event.detail.version) {
-        release.pendingAction = false;
-        release.isDownloaded = true;
+    if (success) {
+      // Then mark it as downloaded
+      for (const release of releases) {
+        if (release.version === event.detail.version) {
+          release.pendingAction = false;
+          release.isDownloaded = true;
+        }
       }
+      releases = releases;
     }
-    releases = releases;
   }
 
   async function onRemoveVersion(event: any) {
