@@ -1,3 +1,4 @@
+import { toastStore } from "$lib/stores/ToastStore";
 import { saveFilePrompt } from "$lib/utils/file";
 import { invoke } from "@tauri-apps/api/tauri";
 import { exceptionLog } from "./logging";
@@ -12,6 +13,6 @@ export async function generateSupportPackage(): Promise<boolean> {
     return await invoke("generate_support_package", { userPath: savePath });
   } catch (e) {
     exceptionLog("Unable to generate support package", e);
-    // TODO - definitely need some kind of toast here
+    toastStore.makeToast("Unable to create support package", "error");
   }
 }

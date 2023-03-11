@@ -1,3 +1,4 @@
+import { toastStore } from "$lib/stores/ToastStore";
 import { invoke } from "@tauri-apps/api/tauri";
 import { exceptionLog } from "./logging";
 
@@ -25,8 +26,8 @@ export async function downloadOfficialVersion(
       url: url,
     });
   } catch (e) {
-    // TODO - toast?
     exceptionLog("Unable to download official version", e);
+    toastStore.makeToast("Unable to download version", "error");
     return false;
   }
   return true;
@@ -42,8 +43,8 @@ export async function removeVersion(
       versionFolder: versionFolder,
     });
   } catch (e) {
-    // TODO - toast notification
     exceptionLog("Unable to remove version", e);
+    toastStore.makeToast("Unable to remove version", "error");
     return false;
   }
   return true;
@@ -54,7 +55,7 @@ export async function openVersionFolder(folder: VersionFolders) {
     return await invoke("go_to_version_folder", { versionFolder: folder });
   } catch (e) {
     exceptionLog("Unable to open version folder", e);
-    // TODO - toast
+    toastStore.makeToast("Unable to open version folder", "error");
   }
 }
 

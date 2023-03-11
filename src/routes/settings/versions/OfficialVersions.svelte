@@ -111,7 +111,6 @@
       event.detail.version,
       event.detail.downloadUrl
     );
-    // TODO - indicate success or failure (toast)
     // Then mark it as downloaded
     for (const release of releases) {
       if (release.version === event.detail.version) {
@@ -131,7 +130,6 @@
     }
     releases = releases;
     await removeVersion(event.detail.version, "official");
-    // TODO - indicate success or failure (toast)
     // Then mark it as downloaded
     for (const release of releases) {
       if (release.version === event.detail.version) {
@@ -139,7 +137,6 @@
         release.isDownloaded = false;
       }
     }
-    // TODO - handle removing the active version / selected version
     releases = releases;
   }
 </script>

@@ -14,6 +14,7 @@
   import { isInDebugMode } from "$lib/utils/common";
   import { Toast } from "flowbite-svelte";
   import Help from "./routes/Help.svelte";
+  import { toastStore } from "$lib/stores/ToastStore";
 
   let revokeSpecificActions = false;
 
@@ -74,6 +75,16 @@
     <Route path="/faq" component={Help} primary={false} />
     <Route path="/textures" component={Textures} primary={false} />
     <Route path="/update" component={Update} primary={false} />
-    <!-- <Toast color="green" position="bottom-right">Toast Notification - TODO!</Toast> -->
+    {#if $toastStore.msg !== undefined}
+      <!-- TODO - make these look nice for info/warn/error levels -->
+      <Toast
+        color="green"
+        position="top-right"
+        class="top-20"
+        divClass="w-full max-w-xs p-2 pl-4"
+      >
+        {$toastStore.msg}
+      </Toast>
+    {/if}
   </div>
 </Router>

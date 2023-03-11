@@ -1,3 +1,4 @@
+import { toastStore } from "$lib/stores/ToastStore";
 import { invoke } from "@tauri-apps/api/tauri";
 import { exceptionLog } from "./logging";
 
@@ -109,7 +110,7 @@ export async function launchGame(
     });
   } catch (e) {
     exceptionLog("Unexpected error encountered when launching the game", e);
-    // TODO - toast
+    toastStore.makeToast("Unable to launch game", "error");
   }
 }
 
@@ -120,6 +121,6 @@ export async function openREPL(gameName: string): Promise<void> {
     });
   } catch (e) {
     exceptionLog("Unexpected error encountered when opening the REPL", e);
-    // TOOD - toast
+    toastStore.makeToast("Unable to open REPL", "error");
   }
 }

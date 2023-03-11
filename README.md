@@ -1,39 +1,61 @@
 # OpenGOAL Launcher
 
-## Description
+Our attempt at distributing the [OpenGOAL](https://github.com/open-goal/jak-project) releases in a cross-platform and easy to use and update way. It also is a place for features involving the games, such as texture pack or mod management.
 
-A launcher for users to install and run the OpenGOAL project with ease
+The launcher uses the [Tauri](https://tauri.app/) framework, if you are interested in our motivation for _why_ see below.
 
-## Preview
+## Usage
 
-![Launcher Preview](https://user-images.githubusercontent.com/86533397/193725375-a75dbeb0-d9f3-4e14-bf67-d872f89d11c2.png)
-
-## Disclaimer
-
-Users are required to provide their own copy of the ISO file in order to run the game.
-
-## Features
-
-- [x] Automatic Updates
-- [x] Windows Support
-- [x] Linux Support
-- [ ] Mac Support (TBD -- Not Planned)
-- [ ] Texture Pack Management (Soon)
-- [ ] Mod Management
-
-## Resources
-
-- [OpenGOAL Github Organization](https://github.com/open-goal/)
-- [OpenGOAL Documentation](https://opengoal.dev/)
-- [OpenGOAL Discord](https://discord.gg/twBEFbMnqw)
+See the [documentation on our website](https://opengoal.dev/docs/usage/installation/) for hopefully up to date instructions on how to use it.
 
 ## Development
 
-We are using Tauri to build a native app, but still with simple Web technology. You will need to setup the prerequesites using the instructions here https://tauri.app/v1/guides/getting-started/prerequisites/
+Tauri requires a valid Rust installation, as well as a valid NodeJS installation.
 
-> Additionally, this presumes your environment has WebView2 (windows) or webkit2 (linux) already available. This is a requirement for end-users as well! Many modern OSes already ship with such a thing, but it's something we'll need to investigate.
+For installing Rust, it's recommended to follow the instructions here https://www.rust-lang.org/tools/install
 
-- `yarn install`
-- `yarn tauri dev`
+### Windows
 
-This builds the app with Tauri (this is a rust compilation, the first run will take a while) and the frontend is served via Vite -- a fast alternative to webpack that offers HMR.
+```bash
+scoop install nodejs
+npm install -g yarn
+```
+
+### Linux (Ubuntu 22.04)
+
+```bash
+TODO
+```
+
+### Building and Running
+
+To build and run the application locally, all you have to do is run:
+
+```bash
+yarn install
+yarn tauri dev
+```
+
+### Code Overview
+
+TODO
+
+### References
+
+- https://tauri.app/v1/guides/features/
+- https://tauri.app/v1/api/js/
+- https://svelte.dev/docs
+
+## Why Tauri?
+
+The gut reaction from many when looking at the launcher is _ugh, another Electron app_. This however is not the case. Tauri leverages typical HTML/CSS/JS for rendering the frontend -- but it does not do so by bundling Chromium. Instead it leverages the native WebView providers found on modern operating systems. This is also why the distribution is quite small (majority of the download size is for fonts/images/videos).
+
+Here's a non-exhaustive list of all the benefits we get out of the box with Tauri that we'd have to build ourselves / straight-up not have available to us if we went with a non-electron GUI application framework.
+
+- A built-in updater with private key signing
+- Bundling scripts for MSI installers, AppImages, DMGs
+- Essentially no differences frontend-wise across all operating systems
+- No need to ship an interpreter (ie. PyQt)
+- Typical web UI workflows that many people are familiar with
+- The ability to painlessly write application logic in Rust
+- Plethora of frontend E2E testing frameworks -- most of these are non-existant or cost money for other frameworks like Qt
