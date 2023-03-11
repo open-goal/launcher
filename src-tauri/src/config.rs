@@ -312,4 +312,60 @@ impl LauncherConfig {
       _ => false,
     }
   }
+
+  pub fn game_install_version(&self, game_name: &String) -> String {
+    match game_name.as_str() {
+      "jak1" => {
+        return self.games.jak1.version.clone().unwrap_or("".to_string());
+      }
+      "jak2" => {
+        return self.games.jak2.version.clone().unwrap_or("".to_string());
+      }
+      "jak3" => {
+        return self.games.jak3.version.clone().unwrap_or("".to_string());
+      }
+      "jakx" => {
+        return self.games.jakx.version.clone().unwrap_or("".to_string());
+      }
+      _ => "".to_owned(),
+    }
+  }
+
+  pub fn game_install_version_folder(&self, game_name: &String) -> String {
+    match game_name.as_str() {
+      "jak1" => {
+        return self
+          .games
+          .jak1
+          .version_folder
+          .clone()
+          .unwrap_or("".to_string());
+      }
+      "jak2" => {
+        return self
+          .games
+          .jak2
+          .version_folder
+          .clone()
+          .unwrap_or("".to_string());
+      }
+      "jak3" => {
+        return self
+          .games
+          .jak3
+          .version_folder
+          .clone()
+          .unwrap_or("".to_string());
+      }
+      "jakx" => {
+        return self
+          .games
+          .jakx
+          .version_folder
+          .clone()
+          .unwrap_or("".to_string());
+      }
+      _ => "".to_owned(),
+    }
+  }
 }

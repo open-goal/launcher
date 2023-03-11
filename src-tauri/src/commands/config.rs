@@ -118,27 +118,17 @@ pub async fn is_game_installed(
     return Ok(false);
   }
 
-  // Check if the game is actually still installed, if it isn't update the value now
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::VersionManagement(format!(
-        "Cannot check if game is installed, no installation directory set"
-      )))
-    }
-    Some(path) => Path::new(path),
-  };
+  // Check that the version and version folder config field is set properly as well
+  let version = config_lock.game_install_version(&game_name);
+  let version_folder = config_lock.game_install_version_folder(&game_name);
 
-  // This is a half-hearted check if the folder exists and isn't empty
-  // TODO - this won't work, because we don't know what version they used -- make them reinstall
-  let expected_dir = install_path.join("active").join(&game_name).join("data");
-  if !expected_dir.exists() {
+  if version.is_empty() || version_folder.is_empty() {
     config_lock.update_installed_game_version(&game_name, false);
     return Ok(false);
   }
+
   Ok(true)
 }
-
-// TODO - fix these unwraps!
 
 #[tauri::command]
 pub async fn get_installed_version(
@@ -146,14 +136,7 @@ pub async fn get_installed_version(
   game_name: String,
 ) -> Result<String, CommandError> {
   let config_lock = config.lock().await;
-  // TODO - seriously, convert the config into a damn map
-  match game_name.as_str() {
-    "jak1" => Ok(config_lock.games.jak1.version.clone().unwrap()),
-    "jak2" => Ok(config_lock.games.jak2.version.clone().unwrap()),
-    "jak3" => Ok(config_lock.games.jak3.version.clone().unwrap()),
-    "jakx" => Ok(config_lock.games.jakx.version.clone().unwrap()),
-    _ => Ok("".to_string()),
-  }
+  Ok(config_lock.game_install_version(&game_name))
 }
 
 #[tauri::command]
@@ -162,14 +145,7 @@ pub async fn get_installed_version_folder(
   game_name: String,
 ) -> Result<String, CommandError> {
   let config_lock = config.lock().await;
-  // TODO - seriously, convert the config into a damn map
-  match game_name.as_str() {
-    "jak1" => Ok(config_lock.games.jak1.version_folder.clone().unwrap()),
-    "jak2" => Ok(config_lock.games.jak2.version_folder.clone().unwrap()),
-    "jak3" => Ok(config_lock.games.jak3.version_folder.clone().unwrap()),
-    "jakx" => Ok(config_lock.games.jakx.version_folder.clone().unwrap()),
-    _ => Ok("".to_string()),
-  }
+  Ok(config_lock.game_install_version_folder(&game_name))
 }
 
 #[tauri::command]
