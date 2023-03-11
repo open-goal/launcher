@@ -1,5 +1,5 @@
 <script>
-  import { closeSplashScreen } from "$lib/rpc/commands";
+  import { closeSplashScreen } from "$lib/rpc/window";
   import { onMount } from "svelte";
   import logo from "$assets/images/icon.webp";
   import { folderPrompt } from "$lib/utils/file";

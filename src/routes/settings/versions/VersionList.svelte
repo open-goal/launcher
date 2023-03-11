@@ -130,8 +130,13 @@
               style="line-height: 0;"
             >
               <Button
-                btnClass="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0"
-                disabled={release.pendingAction}
+                btnClass="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
+                disabled={release.pendingAction ||
+                  (release.version === $VersionStore.activeVersionName &&
+                    release.releaseType === $VersionStore.activeVersionType) ||
+                  (release.version ===
+                    $VersionStore.selectedVersions[releaseType] &&
+                    release.releaseType === releaseType)}
                 on:click={async () => {
                   if (release.isDownloaded) {
                     dispatch("removeVersion", { version: release.version });
