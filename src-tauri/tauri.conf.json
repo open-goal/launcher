@@ -18,7 +18,7 @@
         "updater"
       ],
       "appimage": {
-        "bundleMediaFramework": true
+        "bundleMediaFramework": false
       },
       "identifier": "OpenGOAL-Launcher",
       "icon": [

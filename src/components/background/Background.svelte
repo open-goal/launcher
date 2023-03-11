@@ -1,5 +1,5 @@
 <script lang="ts">
-  import bgVideoJak1 from "$assets/videos/background-jak1.mp4";
+  import bgVideoJak1 from "$assets/videos/background-jak1.webm";
   import bgVideoPosterJak1 from "$assets/images/background-jak1.webp";
   import bgVideoJak2 from "$assets/videos/background-jak2.webm";
   import bgVideoPosterJak2 from "$assets/images/background-jak2.webp";
