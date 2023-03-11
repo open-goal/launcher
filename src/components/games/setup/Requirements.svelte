@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
   import { onMount } from "svelte";
   import { Alert } from "flowbite-svelte";
   import { isAVXRequirementMet, isOpenGLRequirementMet } from "$lib/rpc/config";
@@ -9,24 +9,34 @@
   onMount(async () => {
     isAVXMet = await isAVXRequirementMet();
     isOpenGLMet = await isOpenGLRequirementMet();
+    console.log(isOpenGLMet)
   });
+
+  function alertColor(val: boolean | undefined) {
+    if (val === undefined) {
+      return "yellow";
+    }
+    return val ? "green" : "red";
+  }
 </script>
 
 <div
   class="flex flex-col h-full justify-center items-center p-5 text-center gap-3"
 >
   <h1 class="text-xl font-black mb-5 text-outline">
-    Unfortunately, your PC does not meet all the minimum requirements or we were
+    Unfortunately, your system does not meet all the minimum requirements or we were
     unable to check them
   </h1>
   <Alert
     class="w-full text-start"
     accent
     rounded={false}
-    color={isAVXMet ? "green" : "red"}
+    color={alertColor(isAVXMet)}
   >
     {#if isAVXMet}
       <span class="font-bold">Your CPU supports AVX</span>
+    {:else if isAVXMet === undefined}
+      <span class="font-bold">Unable to verify if your CPU supports AVX</span>
     {:else}
       <span class="font-bold">Your CPU does not support AVX</span>
       <ul class="font-medium list-disc list-inside">
@@ -48,10 +58,12 @@
     class="w-full text-start"
     accent
     rounded={false}
-    color={isOpenGLMet ? "green" : "red"}
+    color={alertColor(isOpenGLMet)}
   >
     {#if isOpenGLMet}
       <span class="font-bold">Your GPU supports OpenGL 4.3</span>
+      {:else if isOpenGLMet === undefined}
+      <span class="font-bold">Unable to verify if your GPU supports OpenGL 4.3</span>
     {:else}
       <span class="font-bold">Your GPU does not support OpenGL 4.3</span>
       <ul class="font-medium list-disc list-inside">

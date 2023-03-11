@@ -55,7 +55,8 @@ pub async fn is_avx_requirement_met(
       } else {
         config_lock.requirements.avx = Some(false);
       }
-      config_lock.save_config().map_err(|_| {
+      config_lock.save_config().map_err(|err| {
+        log::error!("Unable to persist avx requirement change {}", err);
         CommandError::Configuration(format!("Unable to persist avx requirement change"))
       })?;
       Ok(config_lock.requirements.avx.unwrap_or(false))

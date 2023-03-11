@@ -38,21 +38,25 @@ export async function setInstallationDirectory(
   }
 }
 
-export async function isAVXRequirementMet(): Promise<boolean> {
+export async function isAVXRequirementMet(): Promise<boolean | undefined> {
   try {
     return await invoke("is_avx_requirement_met", {});
   } catch (e) {
     exceptionLog("Unable to check if AVX requirement was met", e);
-    // TODO - third condition for if we couldn't check
+    return undefined;
   }
 }
 
-export async function isOpenGLRequirementMet(): Promise<boolean> {
+export async function isOpenGLRequirementMet(): Promise<boolean | undefined> {
   try {
-    return await invoke("is_opengl_requirement_met", {});
+    const result = await invoke("is_opengl_requirement_met", {});
+    if (typeof result === "boolean") {
+      return result;
+    }
+    return undefined;
   } catch (e) {
     exceptionLog("Unable to check if OpenGL requirement was met", e);
-    // TODO - third condition for if we couldn't check
+    return undefined;
   }
 }
 

@@ -13,7 +13,7 @@
 
 import { invoke } from "@tauri-apps/api/tauri";
 
-async function genericLog(level: string, log: string): Promise<void> {
+async function genericLog(level: string, log: String): Promise<void> {
   try {
     return await invoke("frontend_log", {
       level: level,
@@ -24,25 +24,28 @@ async function genericLog(level: string, log: string): Promise<void> {
   }
 }
 
-export async function debugLog(log: string): Promise<void> {
+export async function debugLog(log: String): Promise<void> {
   genericLog("debug", log);
 }
 
-export async function infoLog(log: string): Promise<void> {
+export async function infoLog(log: String): Promise<void> {
   genericLog("info", log);
 }
 
-export async function warnLog(log: string): Promise<void> {
+export async function warnLog(log: String): Promise<void> {
   genericLog("warn", log);
 }
 
-export async function errorLog(log: string): Promise<void> {
+export async function errorLog(log: String): Promise<void> {
   genericLog("error", log);
 }
 
-export async function exceptionLog(log: string, error: Error): Promise<void> {
-  genericLog(
-    "error",
-    `${log} | Exception: ${error.name}:${error.message}, Stack: ${error.stack}, Cause: ${error.cause}`
-  );
+export async function exceptionLog(log: String, error: any): Promise<void> {
+  if (error instanceof Error) {
+    errorLog(
+      `${log} | Exception: ${error.name}:${error.message}, Stack: ${error.stack}, Cause: ${error.cause}`
+    );
+  } else {
+    errorLog(error);
+  }
 }
