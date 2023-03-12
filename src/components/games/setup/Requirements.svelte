@@ -9,7 +9,6 @@
   onMount(async () => {
     isAVXMet = await isAVXRequirementMet();
     isOpenGLMet = await isOpenGLRequirementMet();
-    console.log(isOpenGLMet);
   });
 
   function alertColor(val: boolean | undefined) {

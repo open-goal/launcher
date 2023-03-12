@@ -38,7 +38,7 @@
     // Check requirements
     const isAvxMet = await isAVXRequirementMet();
     let isOpenGLMet = await isOpenGLRequirementMet();
-    if (isOpenGLMet === null) {
+    if (isOpenGLMet === null || isOpenGLMet === undefined) {
       isOpenGLMet = await isOpenGLVersionSupported("4.3");
       await setOpenGLRequirementMet(isOpenGLMet);
     }

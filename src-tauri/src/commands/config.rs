@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use crate::{config::LauncherConfig, util::file::delete_dir};
 use tauri::Manager;
 
@@ -124,7 +122,17 @@ pub async fn is_game_installed(
   let version_folder = config_lock.game_install_version_folder(&game_name);
 
   if version.is_empty() || version_folder.is_empty() {
-    config_lock.update_installed_game_version(&game_name, false);
+    config_lock
+      .update_installed_game_version(&game_name, false)
+      .map_err(|err| {
+        log::error!(
+          "Unable to mark partially installed game as uninstalled {}",
+          err
+        );
+        CommandError::Configuration(format!(
+          "Unable to mark partially installed game as uninstalled"
+        ))
+      })?;
     return Ok(false);
   }
 

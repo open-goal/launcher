@@ -23,7 +23,7 @@ pub enum CommandError {
   #[error("{0}")]
   VersionManagement(String),
   #[error("{0}")]
-  InvalidPath(String),
+  GameManagement(String),
   #[error("{0}")]
   BinaryExecution(String),
   #[error("{0}")]

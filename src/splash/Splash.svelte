@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { closeSplashScreen } from "$lib/rpc/window";
   import { onMount } from "svelte";
   import logo from "$assets/images/icon.webp";
@@ -37,7 +37,7 @@
     }
   });
 
-  async function selectInstallationFolder(evt) {
+  async function selectInstallationFolder() {
     // If not -- let's ask the user to set one up
     // This is part of what allows for the user to install the games and such wherever they want
     currentStatusText = "Pick an Installation Folder";
@@ -54,7 +54,7 @@
     }
   }
 
-  async function finishSplash(evt) {
+  async function finishSplash() {
     currentProgress = 50;
     currentStatusText = "Finishing Up";
     await new Promise((res) => setTimeout(res, 1000));
