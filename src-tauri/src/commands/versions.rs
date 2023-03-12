@@ -8,6 +8,7 @@ use crate::{
     file::{create_dir, delete_dir},
     network::download_file,
     os::open_dir_in_os,
+    tar::extract_and_delete_tar_ball,
     zip::extract_and_delete_zip_file,
   },
 };
@@ -98,21 +99,43 @@ pub async fn download_version(
     ))
   })?;
 
-  let download_path = install_path
-    .join("versions")
-    .join(version_folder)
-    .join(format!("{}.zip", version));
+  if cfg!(windows) {
+    let download_path = install_path
+      .join("versions")
+      .join(version_folder)
+      .join(format!("{}.zip", version));
 
-  // Download the file
-  download_file(&url, &download_path).await.map_err(|_| {
-    CommandError::VersionManagement(format!("Unable to successfully download version"))
-  })?;
+    // Download the file
+    download_file(&url, &download_path).await.map_err(|_| {
+      CommandError::VersionManagement(format!("Unable to successfully download version"))
+    })?;
 
-  // Extract the zip file
-  extract_and_delete_zip_file(&download_path, &dest_dir).map_err(|_| {
-    CommandError::VersionManagement(format!("Unable to successfully extract downloaded version"))
-  })?;
-  Ok(())
+    // Extract the zip file
+    extract_and_delete_zip_file(&download_path, &dest_dir).map_err(|_| {
+      CommandError::VersionManagement(format!("Unable to successfully extract downloaded version"))
+    })?;
+    return Ok(());
+  } else if cfg!(unix) {
+    let download_path = install_path
+      .join("versions")
+      .join(version_folder)
+      .join(format!("{}.tar.gz", version));
+
+    // Download the file
+    download_file(&url, &download_path).await.map_err(|_| {
+      CommandError::VersionManagement(format!("Unable to successfully download version"))
+    })?;
+
+    // Extract the zip file
+    extract_and_delete_tar_ball(&download_path, &dest_dir).map_err(|err| {
+      log::error!("unable to extract and delete version tar.gz file {}", err);
+      CommandError::VersionManagement(format!("Unable to successfully extract downloaded version"))
+    })?;
+    return Ok(());
+  }
+  Err(CommandError::VersionManagement(format!(
+    "Unknown operating system, unable to download and extract correct release"
+  )))
 }
 
 #[tauri::command]

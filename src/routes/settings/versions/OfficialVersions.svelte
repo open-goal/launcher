@@ -111,16 +111,14 @@
       event.detail.version,
       event.detail.downloadUrl
     );
-    if (success) {
-      // Then mark it as downloaded
-      for (const release of releases) {
-        if (release.version === event.detail.version) {
-          release.pendingAction = false;
-          release.isDownloaded = true;
-        }
+    // Then mark it as downloaded
+    for (const release of releases) {
+      if (release.version === event.detail.version) {
+        release.pendingAction = false;
+        release.isDownloaded = success;
       }
-      releases = releases;
     }
+    releases = releases;
   }
 
   async function onRemoveVersion(event: any) {
