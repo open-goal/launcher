@@ -76,3 +76,11 @@ body {
 .log-output > span {
   font-family: monospace;
 }
+
+.basis-1\/10 {
+  flex-basis: 10%;
+}
+
+.basis-9\/10 {
+  flex-basis: 90%;
+}

@@ -2,9 +2,7 @@
   import { Button } from "flowbite-svelte";
 </script>
 
-<div
-  class="flex flex-col h-[544px] justify-center items-center p-5 text-center"
->
+<div class="flex flex-col h-full justify-center items-center p-5 text-center">
   <h1 class="text-2xl font-black mb-5 text-outline">
     No Tooling Version Configured!
   </h1>

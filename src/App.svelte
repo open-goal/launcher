@@ -59,22 +59,31 @@
 </script>
 
 <Router>
-  <div class="container h-screen max-w-none">
+  <div class="container h-screen max-w-none flex flex-col">
     <Background />
     <Header />
-    <Sidebar />
-    <Route path="/" component={Game} primary={false} let:params />
-    <Route path="/:game_name" component={Game} primary={false} let:params />
-    <Route path="/jak2" component={GameInProgress} primary={false} let:params />
-    <Route
-      path="/settings/:tab"
-      component={Settings}
-      primary={false}
-      let:params
-    />
-    <Route path="/faq" component={Help} primary={false} />
-    <Route path="/textures" component={Textures} primary={false} />
-    <Route path="/update" component={Update} primary={false} />
+    <div class="flex h-full">
+      <Sidebar />
+      <div id="content" class="basis-9/10">
+        <Route path="/" component={Game} primary={false} let:params />
+        <Route path="/:game_name" component={Game} primary={false} let:params />
+        <Route
+          path="/jak2"
+          component={GameInProgress}
+          primary={false}
+          let:params
+        />
+        <Route
+          path="/settings/:tab"
+          component={Settings}
+          primary={false}
+          let:params
+        />
+        <Route path="/faq" component={Help} primary={false} />
+        <Route path="/textures" component={Textures} primary={false} />
+        <Route path="/update" component={Update} primary={false} />
+      </div>
+    </div>
     {#if $toastStore.msg !== undefined}
       <!-- TODO - make these look nice for info/warn/error levels -->
       <Toast

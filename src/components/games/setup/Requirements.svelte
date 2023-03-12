@@ -9,7 +9,7 @@
   onMount(async () => {
     isAVXMet = await isAVXRequirementMet();
     isOpenGLMet = await isOpenGLRequirementMet();
-    console.log(isOpenGLMet)
+    console.log(isOpenGLMet);
   });
 
   function alertColor(val: boolean | undefined) {
@@ -24,8 +24,8 @@
   class="flex flex-col h-full justify-center items-center p-5 text-center gap-3"
 >
   <h1 class="text-xl font-black mb-5 text-outline">
-    Unfortunately, your system does not meet all the minimum requirements or we were
-    unable to check them
+    Unfortunately, your system does not meet all the minimum requirements or we
+    were unable to check them
   </h1>
   <Alert
     class="w-full text-start"
@@ -62,8 +62,10 @@
   >
     {#if isOpenGLMet}
       <span class="font-bold">Your GPU supports OpenGL 4.3</span>
-      {:else if isOpenGLMet === undefined}
-      <span class="font-bold">Unable to verify if your GPU supports OpenGL 4.3</span>
+    {:else if isOpenGLMet === undefined}
+      <span class="font-bold"
+        >Unable to verify if your GPU supports OpenGL 4.3</span
+      >
     {:else}
       <span class="font-bold">Your GPU does not support OpenGL 4.3</span>
       <ul class="font-medium list-disc list-inside">

@@ -81,37 +81,33 @@
   }
 </script>
 
-<div class="ml-20">
-  <!-- TODO - the static height here is kinda a hack, it's because the
-    header and the rest of the layout aren't within a shared container -->
-  <div class="flex flex-col h-[544px] p-5">
-    {#if !componentLoaded}
-      <div class="flex flex-col h-full justify-center items-center">
-        <Spinner color="yellow" size={"12"} />
-      </div>
-    {:else if $VersionStore.activeVersionName === null || $VersionStore.activeVersionType === null}
-      <GameToolsNotSet />
-    {:else if !gameInstalled}
-      <GameSetup {activeGame} on:change={updateGameState} />
-    {:else if gameJobToRun !== undefined}
-      <GameJob
-        {activeGame}
-        jobType={gameJobToRun}
-        on:jobFinished={gameJobFinished}
-      />
-    {:else if versionMismatchDetected}
-      <GameUpdate
-        {activeGame}
-        {installedVersion}
-        {installedVersionFolder}
-        on:job={runGameJob}
-      />
-    {:else}
-      <GameControls
-        {activeGame}
-        on:change={updateGameState}
-        on:job={runGameJob}
-      />
-    {/if}
-  </div>
+<div class="flex flex-col h-full p-5">
+  {#if !componentLoaded}
+    <div class="flex flex-col h-full justify-center items-center">
+      <Spinner color="yellow" size={"12"} />
+    </div>
+  {:else if $VersionStore.activeVersionName === null || $VersionStore.activeVersionType === null}
+    <GameToolsNotSet />
+  {:else if !gameInstalled}
+    <GameSetup {activeGame} on:change={updateGameState} />
+  {:else if gameJobToRun !== undefined}
+    <GameJob
+      {activeGame}
+      jobType={gameJobToRun}
+      on:jobFinished={gameJobFinished}
+    />
+  {:else if versionMismatchDetected}
+    <GameUpdate
+      {activeGame}
+      {installedVersion}
+      {installedVersionFolder}
+      on:job={runGameJob}
+    />
+  {:else}
+    <GameControls
+      {activeGame}
+      on:change={updateGameState}
+      on:job={runGameJob}
+    />
+  {/if}
 </div>
