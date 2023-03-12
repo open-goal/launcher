@@ -28,13 +28,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "resources": [
-        "data/"
-      ],
       "externalBin": [
-        "bin/extractor",
-        "bin/gk",
-        "bin/goalc",
         "bin/glewinfo"
       ],
       "copyright": "",
@@ -44,7 +38,10 @@
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
-        "timestampUrl": ""
+        "timestampUrl": "",
+        "webviewInstallMode": {
+          "type": "embedBootstrapper"
+        }
       }
     },
     "allowlist": {
@@ -60,24 +57,6 @@
       },
       "shell": {
         "scope": [
-          {
-            "name": "bin/extractor",
-            "sidecar": true,
-            "cmd": "ignored",
-            "args": true
-          },
-          {
-            "name": "bin/gk",
-            "sidecar": true,
-            "cmd": "ignored",
-            "args": true
-          },
-          {
-            "name": "bin/goalc",
-            "sidecar": true,
-            "cmd": "ignored",
-            "args": true
-          },
           {
             "name": "bin/glewinfo",
             "sidecar": true,
@@ -95,7 +74,8 @@
         "resizable": false,
         "fullscreen": false,
         "visible": false,
-        "center": true
+        "center": true,
+        "decorations": false
       },
       {
         "title": "OpenGOAL Launcher - Splash",

@@ -1,7 +1,4 @@
 <script>
-  // Assets
-  import bgVideo from "$assets/videos/background.mp4";
-  import bgVideoPoster from "$assets/images/background-jak1-fallback.webp";
   // Other Imports
   import { onMount } from "svelte";
   import { Router, Route } from "svelte-navigator";
@@ -9,10 +6,15 @@
   import Settings from "./routes/Settings.svelte";
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
-  import { isInDebugMode } from "$lib/setup/setup";
   import { appWindow } from "@tauri-apps/api/window";
-  import { isInstalling } from "./lib/stores/AppStore";
-  import { log } from "$lib/utils/log";
+  import Header from "./components/header/Header.svelte";
+  import Textures from "./routes/Textures.svelte";
+  import Update from "./routes/Update.svelte";
+  import GameInProgress from "./components/games/GameInProgress.svelte";
+  import { isInDebugMode } from "$lib/utils/common";
+  import { Toast } from "flowbite-svelte";
+  import Help from "./routes/Help.svelte";
+  import { toastStore } from "$lib/stores/ToastStore";
 
   let revokeSpecificActions = false;
 
@@ -22,15 +24,7 @@
     // - need to make an issue
     // For now, we'll just handle all close events ourselves
     await appWindow.listen("tauri://close-requested", async () => {
-      if ($isInstalling) {
-        const confirmed = await confirm(
-          "Installation still in progress, are you sure you want to exit?"
-        );
-        if (confirmed) {
-          await appWindow.close();
-        }
-        return;
-      }
+      // TODO - confirm during an install
       await appWindow.close();
     });
   });
@@ -59,22 +53,47 @@
       // Shift+Ctrl F12
       if (e.code == "F12" && e.ctrlKey && e.shiftKey) {
         revokeSpecificActions = false;
-        log.info("Hello World - Dev Tools Enabled!");
       }
     });
   }
 </script>
 
-<!-- TODO - Rewrite this to be more concise and simple, reduce nested crap -->
 <Router>
-  <div class="container">
-    <Sidebar />
-    <!-- TODO - pass background component current active game -->
-    <Background {bgVideo} {bgVideoPoster} />
-    <div id="main">
-      <Route path="/" component={Game} primary={false} let:params />
-      <Route path="/:game_name" component={Game} primary={false} let:params />
-      <Route path="/settings" component={Settings} primary={false} />
+  <div class="container h-screen max-w-none flex flex-col">
+    <Background />
+    <Header />
+    <div class="flex h-full">
+      <Sidebar />
+      <div id="content" class="basis-9/10">
+        <Route path="/" component={Game} primary={false} let:params />
+        <Route path="/:game_name" component={Game} primary={false} let:params />
+        <Route
+          path="/jak2"
+          component={GameInProgress}
+          primary={false}
+          let:params
+        />
+        <Route
+          path="/settings/:tab"
+          component={Settings}
+          primary={false}
+          let:params
+        />
+        <Route path="/faq" component={Help} primary={false} />
+        <Route path="/textures" component={Textures} primary={false} />
+        <Route path="/update" component={Update} primary={false} />
+      </div>
     </div>
+    {#if $toastStore.msg !== undefined}
+      <!-- TODO - make these look nice for info/warn/error levels -->
+      <Toast
+        color="green"
+        position="top-right"
+        class="top-20"
+        divClass="w-full max-w-xs p-2 pl-4"
+      >
+        {$toastStore.msg}
+      </Toast>
+    {/if}
   </div>
 </Router>

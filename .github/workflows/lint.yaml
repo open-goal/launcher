@@ -7,12 +7,12 @@ on:
   pull_request:
     branches:
       - main
+      - dev/new-ui
 
 jobs:
-  formatter:
+  frontend:
     name: 📝 Formatting
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
 
@@ -20,9 +20,30 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: npm
+          cache: yarn
 
       - name: install dependencies and check formatting
         run: |
-          npm ci
-          npm run lint
+          yarn install --frozen-lockfile
+          yarn lint
+  backend:
+    name: 📝 Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust Stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - uses: Swatinem/rust-cache@v2
+        name: Cache Rust Build
+        with:
+          shared-key: tauri-build-ubuntu-latest
+          workspaces: src-tauri
+
+      - name: Check rust formatting
+        run: |
+          cd src-tauri/
+          cargo fmt --all --check

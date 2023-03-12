@@ -1,150 +1,90 @@
 <script lang="ts">
   import logoJak1 from "$assets/images/jak-tpl.webp";
   import logoJak2 from "$assets/images/jak-2.webp";
-  import logoJak3 from "$assets/images/jak-3.webp";
-  import { link } from "svelte-navigator";
-  import { useLocation } from "svelte-navigator";
+  import Icon from "@iconify/svelte";
+  import { link, useLocation } from "svelte-navigator";
+  import { Tooltip } from "flowbite-svelte";
 
-  let location = useLocation();
+  const location = useLocation();
+  $: $location.pathname;
+
+  function getNavStyle(pathname: string): string {
+    let style = "basis-1/10 h-full bg-[#101010] px-1 z-10";
+    if (
+      !pathname.startsWith("/settings") &&
+      !pathname.startsWith("/faq") &&
+      !pathname.startsWith("/update")
+    ) {
+      style += " opacity-50 hover:opacity-100 duration-500";
+    }
+    return style;
+  }
+
+  function getNavItemStyle(itemName: string, pathName: string): string {
+    let style =
+      "flex items-center hover:grayscale-0 hover:opacity-100 duration-500 text-orange-400 duration-500";
+    if (itemName === "jak1" && (pathName === "/jak1" || pathName === "/")) {
+      return style;
+    } else if (itemName === "jak2" && pathName === "/jak2") {
+      return style;
+    } else if (itemName === "jak3" && pathName === "/jak3") {
+      return style;
+    } else if (itemName === "jakx" && pathName === "/jakx") {
+      return style;
+    } else if (itemName === "settings" && pathName.startsWith("/settings")) {
+      return style;
+    } else if (itemName === "faq" && pathName === "/faq") {
+      return style;
+    }
+    return style + " grayscale";
+  }
 </script>
 
-<nav id="sidebar">
-  <div class="games">
-    <div
-      class="jak-1 nav-item"
-      class:active={["/", "/jak1"].includes($location.pathname)}
-    >
+<div class={getNavStyle($location.pathname)}>
+  <ul class="flex flex-col space-y-12 px-1 py-5">
+    <li>
       <a
+        class={getNavItemStyle("jak1", $location.pathname)}
         href="/jak1"
         use:link
-        data-tooltip="Jak & Daxter: The Precursor Legacy"
       >
-        <img src={logoJak1} alt="Jak - TPL" />
+        <img src={logoJak1} alt="Jak - The Precursor Legacy" />
+        <Tooltip placement="right"
+          >Jak&nbsp;and&nbsp;Daxter:&nbsp;The&nbsp;Precursor&nbsp;Legacy</Tooltip
+        >
       </a>
-    </div>
-    <div
-      class="jak-2 nav-item disabled hidden"
-      class:active={["/jak2"].includes($location.pathname)}
-    >
-      <a href="/jak2" use:link data-tooltip="Jak 2">
+    </li>
+    <li>
+      <a
+        class={getNavItemStyle("jak2", $location.pathname)}
+        href="/jak2"
+        use:link
+      >
         <img src={logoJak2} alt="Jak 2" />
+        <Tooltip placement="right" style="dark">Jak 2</Tooltip>
       </a>
-    </div>
-    <div
-      class="jak-3 nav-item disabled hidden"
-      class:active={["/jak3"].includes($location.pathname)}
-    >
-      <a href="/jak3" use:link data-tooltip="Jak 3">
-        <img src={logoJak3} alt="Jak 3" />
+    </li>
+    <li class="fixed bottom-24 left-6">
+      <a
+        class={getNavItemStyle("settings", $location.pathname)}
+        href="/settings/folders"
+        use:link
+      >
+        <Icon icon="material-symbols:settings" width={36} height={36} />
+        <Tooltip placement="right" style="dark">Settings</Tooltip>
       </a>
-    </div>
-  </div>
-  <div class="spacer" />
-  <div class="controls">
-    <!-- <div class="console nav-item disabled">
-      <Link to="" data-tooltip="Toggle Debug Console">
-        <i class="bi bi-terminal-fill" />
-      </Link>
-    </div> -->
-    <div
-      class="settings nav-item"
-      class:active={["/settings"].includes($location.pathname)}
-    >
-      <a href="/settings" use:link data-tooltip="Settings">
-        <i class="fa-solid fa-gear" />
+    </li>
+
+    <li class="fixed bottom-5 left-6">
+      <a
+        class={getNavItemStyle("faq", $location.pathname)}
+        href="/faq"
+        use:link
+      >
+        <Icon icon="material-symbols:contact-support" width={36} height={36} />
+        <Tooltip placement="right" style="dark">Support&nbsp;&&nbsp;FAQ</Tooltip
+        >
       </a>
-    </div>
-  </div>
-</nav>
-
-<style>
-  #sidebar {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background-color: var(--bg-blue);
-    opacity: 75%;
-    transition: 500ms ease;
-    width: 10vw;
-    max-width: 10vw;
-  }
-
-  #sidebar:hover {
-    opacity: 100%;
-  }
-
-  .games {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-around;
-    height: 50vh;
-  }
-
-  .nav-item {
-    margin: 0 5px;
-    filter: grayscale(100%);
-    transition: 500ms ease;
-    opacity: 50%;
-  }
-
-  .nav-item.active {
-    filter: grayscale(0%);
-  }
-
-  .nav-item:hover {
-    filter: grayscale(0%);
-    opacity: 100%;
-    cursor: pointer;
-  }
-
-  .nav-item.disabled:hover,
-  .nav-item.disabled {
-    cursor: not-allowed;
-    filter: grayscale(100%);
-  }
-
-  .nav-item a::before,
-  .nav-item a::after {
-    --scale: 0;
-    position: absolute;
-    transform: translateX(55px) scale(var(--scale));
-    transition: 200ms ease;
-    transform-origin: left center;
-  }
-
-  .nav-item a::before {
-    padding: 0.5rem;
-    width: max-content;
-    background: #333;
-    color: white;
-    content: attr(data-tooltip);
-    border-radius: 0.3rem;
-    text-align: center;
-  }
-
-  .nav-item a:hover::before {
-    --scale: 1;
-  }
-
-  .nav-item img {
-    width: 100%;
-  }
-
-  .controls {
-    margin-bottom: 2em;
-    justify-content: flex-end;
-  }
-
-  .settings.active i {
-    color: #f18c31;
-  }
-
-  .settings:hover i {
-    color: #f18c31;
-  }
-
-  .hidden {
-    visibility: hidden;
-  }
-</style>
+    </li>
+  </ul>
+</div>

@@ -1,3 +1,4 @@
+import "./app.postcss";
 import { loadTranslations } from "$lib/translations/translations";
 import App from "./App.svelte";
 

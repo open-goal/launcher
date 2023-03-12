@@ -1,51 +1,67 @@
 # OpenGOAL Launcher
 
-## Description
+Our attempt at distributing the [OpenGOAL](https://github.com/open-goal/jak-project) releases in a cross-platform and easy to use and update way. It also is a place for features involving the games, such as texture pack or mod management.
 
-A launcher for users to install and run the OpenGOAL project with ease
+The launcher uses the [Tauri](https://tauri.app/) framework, if you are interested in our motivation for _why_ see below.
 
-## Preview
+## Usage
 
-![Launcher Preview](./docs//screenshots/launcher.png)
-
-## Disclaimer
-
-Users are required to provide their own copy of the ISO file in order to run the game.
-
-## Features
-
-- [x] Auto Updates
-- [x] Windows Support
-- [ ] Linux Support
-- [ ] Texture Pack Management
-- [ ] Controller/Keyboard Remapping (maybe)
-
-## Resources
-
-- [OpenGOAL Github Organization](https://github.com/open-goal/)
-- [OpenGOAL Documentation](https://opengoal.dev/)
-- [OpenGOAL Discord](https://discord.gg/twBEFbMnqw)
+See the [documentation on our website](https://opengoal.dev/docs/usage/installation/) for hopefully up to date instructions on how to use it.
 
 ## Development
 
-We are using Tauri to build a native app, but still with simple Web technology. You will need to setup the prerequesites using the instructions here https://tauri.app/v1/guides/getting-started/prerequisites/
+Tauri requires a valid Rust installation, as well as a valid NodeJS installation.
 
-> Additionally, this presumes your environment has WebView2 (windows) or webkit2 (linux) already available. This is a requirement for end-users as well! Many modern OSes already ship with such a thing, but it's something we'll need to investigate.
+For installing Rust, it's recommended to follow the instructions here https://www.rust-lang.org/tools/install
 
-- `npm install`
-- `npm run tauri dev`
+### Windows
 
-This builds the app with Tauri (this is a rust compilation, the first run will take a while) and the frontend is served via Vite -- a nice web server that will hot-reload any changes as you develop.
-
-## Release Process
-
-```mermaid
-sequenceDiagram
-  jak-project->>jak-project: New tag is manually cut and built
-  jak-project->>launcher: Repository Dispatch to start release
-  launcher->>launcher: Alternatively, manually triggered release here
-  launcher->>launcher: Build App for all supported platforms
-  launcher->>launcher: Publish release and update latest release metadata file in repo
-  website->>GitHub API: Website will display latest release
-  app->>launcher: Detect new version and will prompt the user to update
+```bash
+scoop install nodejs
+npm install -g yarn
 ```
+
+### Linux (Ubuntu 22.04)
+
+```bash
+sudo apt install libwebkit2gtk-4.0-dev build-essential curl wget libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev # tauri deps, see - https://tauri.app/v1/guides/getting-started/prerequisites#setting-up-linux
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash # installs Node Version Manager (ubuntus package is woefully out of date)
+source ~/.bashrc
+nvm install lts/hydrogen # installs latest nodejs 18.X
+npm install -g yarn
+```
+
+### Building and Running
+
+To build and run the application locally, all you have to do is run:
+
+```bash
+yarn install
+yarn tauri dev
+```
+
+### Code Overview
+
+TODO
+
+### References
+
+- https://tauri.app/v1/guides/features/
+- https://tauri.app/v1/api/js/
+- https://svelte.dev/docs
+- https://tailwindcss.com/
+- https://flowbite-svelte.com/
+
+## Why Tauri?
+
+The gut reaction from many when looking at the launcher is _ugh, another Electron app_. This however is not the case. Tauri leverages typical HTML/CSS/JS for rendering the frontend -- but it does not do so by bundling Chromium. Instead it leverages the native WebView providers found on modern operating systems. This is also why the distribution is quite small (majority of the download size is for fonts/images/videos).
+
+Here's a non-exhaustive list of all the benefits we get out of the box with Tauri that we'd have to build ourselves / straight-up not have available to us if we went with a non-electron GUI application framework.
+
+- A built-in updater with private key signing
+- Bundling scripts for MSI installers, AppImages, DMGs
+- Essentially no differences frontend-wise across all operating systems
+- No need to ship an interpreter (ie. PyQt)
+- Typical web UI workflows that many people are familiar with
+- The ability to painlessly write application logic in Rust
+- Plethora of frontend E2E testing frameworks -- most of these are non-existant or cost money for other frameworks like Qt

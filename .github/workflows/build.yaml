@@ -9,6 +9,7 @@ on:
   pull_request:
     branches:
       - main
+      - dev/new-ui
 
 jobs:
   build:
@@ -26,7 +27,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: npm
+          cache: yarn
 
       - name: Install Rust Stable
         uses: actions-rs/toolchain@v1
@@ -45,11 +46,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev libglew2.1 patchelf
 
-      - name: Install NPM Dependencies and Mock Binaries
+      - name: Install NPM Dependencies
         run: |
-          npm ci
-          npm run mock-bin
-          npm run build
+          yarn install --frozen-lockfile
+          yarn package
+          yarn build
 
       - uses: tauri-apps/tauri-action@v0
         name: Build Tauri App

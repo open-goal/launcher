@@ -1,72 +1,87 @@
-<script type="ts">
-  import { launcherConfig } from "$lib/config";
-
+<script lang="ts">
   import { onMount } from "svelte";
-
-  let componentLoaded = false;
+  import { Alert } from "flowbite-svelte";
+  import { isAVXRequirementMet, isOpenGLRequirementMet } from "$lib/rpc/config";
 
   let isAVXMet = false;
   let isOpenGLMet = false;
 
   onMount(async () => {
-    isAVXMet = await launcherConfig.isAVXRequirementMet();
-    isOpenGLMet = await launcherConfig.isOpenGLRequirementMet();
-    componentLoaded = true;
+    isAVXMet = await isAVXRequirementMet();
+    isOpenGLMet = await isOpenGLRequirementMet();
   });
+
+  function alertColor(val: boolean | undefined) {
+    if (val === undefined) {
+      return "yellow";
+    }
+    return val ? "green" : "red";
+  }
 </script>
 
-{#if componentLoaded}
-  <div class="row">
-    <p class="description">OpenGOAL Requires the following requirements:</p>
-    <ul class="requirements-list">
-      <li>
-        {#if isAVXMet}
-          ✅ CPU Supports <a
-            class="help-link"
+<div
+  class="flex flex-col h-full justify-center items-center p-5 text-center gap-3"
+>
+  <h1 class="text-xl font-black mb-5 text-outline">
+    Unfortunately, your system does not meet all the minimum requirements or we
+    were unable to check them
+  </h1>
+  <Alert
+    class="w-full text-start"
+    accent
+    rounded={false}
+    color={alertColor(isAVXMet)}
+  >
+    {#if isAVXMet}
+      <span class="font-bold">Your CPU supports AVX</span>
+    {:else if isAVXMet === undefined}
+      <span class="font-bold">Unable to verify if your CPU supports AVX</span>
+    {:else}
+      <span class="font-bold">Your CPU does not support AVX</span>
+      <ul class="font-medium list-disc list-inside">
+        <li>This cannot be fixed without upgrading to a newer CPU</li>
+        <li>AVX support has been fairly standard since 2011</li>
+        <li>
+          <a
+            class="font-bold text-blue-500"
             target="_blank"
+            rel="noreferrer"
             href="https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#CPUs_with_AVX"
-            >AVX</a
+            >Click here for more information</a
           >
-        {:else}
-          ❌ CPU Does NOT Support <a
-            class="help-link"
+        </li>
+      </ul>
+    {/if}
+  </Alert>
+  <Alert
+    class="w-full text-start"
+    accent
+    rounded={false}
+    color={alertColor(isOpenGLMet)}
+  >
+    {#if isOpenGLMet}
+      <span class="font-bold">Your GPU supports OpenGL 4.3</span>
+    {:else if isOpenGLMet === undefined}
+      <span class="font-bold"
+        >Unable to verify if your GPU supports OpenGL 4.3</span
+      >
+    {:else}
+      <span class="font-bold">Your GPU does not support OpenGL 4.3</span>
+      <ul class="font-medium list-disc list-inside">
+        <li>
+          Lookup your GPU <a
+            class="font-bold text-blue-500"
             target="_blank"
-            href="https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#CPUs_with_AVX"
-            >AVX</a
-          >
-        {/if}
-      </li>
-      <li>
-        {#if isOpenGLMet}
-          ✅ GPU Supports <a
-            class="help-link"
-            target="_blank"
-            href="https://en.wikipedia.org/wiki/OpenGL#OpenGL_4.3">OpenGL 4.3</a
-          >
-        {:else}
-          ❌ GPU does NOT Support <a
-            class="help-link"
-            target="_blank"
-            href="https://en.wikipedia.org/wiki/OpenGL#OpenGL_4.3">OpenGL 4.3</a
-          >
-        {/if}
-      </li>
-    </ul>
-  </div>
-{/if}
-
-<style>
-  .description {
-    font-size: 1.5em;
-    font-weight: 700;
-  }
-
-  .requirements-list {
-    list-style: none;
-    font-size: 1.25em;
-  }
-
-  .help-link {
-    color: #ffc301;
-  }
-</style>
+            rel="noreferrer"
+            href="https://www.techpowerup.com/gpu-specs/">here</a
+          > to see if it should be supported
+        </li>
+        <li>You can attempt to upgrade your GPU drivers</li>
+        <li>
+          Otherwise, you will need to upgrade your GPU, most GPUs since 2012
+          support it
+        </li>
+      </ul>
+    {/if}
+  </Alert>
+</div>

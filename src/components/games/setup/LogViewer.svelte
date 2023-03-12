@@ -1,43 +1,30 @@
 <script>
-  import { ProcessLogs } from "$lib/stores/AppStore";
+  import { progressTracker } from "$lib/stores/ProgressStore";
+  import Icon from "@iconify/svelte";
+  import { Accordion, AccordionItem } from "flowbite-svelte";
+  import { ansiSpan } from "ansi-to-span";
+  import escapeHtml from "escape-html";
+
+  function convertLogColors(text) {
+    return ansiSpan(escapeHtml(text)).replaceAll("\n", "<br/>");
+  }
 </script>
 
-<div class="row">
-  <details>
-    <summary>Installation Logs</summary>
-    <div class="logContainer">
-      {#if $ProcessLogs}
-        {$ProcessLogs}
-      {/if}
+<Accordion class="log-accordian" defaultClass="p-0">
+  <AccordionItem class="bg-slate-900 rounded p-[1rem]">
+    <span slot="header" class="text-sm font-semibold text-white flex gap-2">
+      <Icon icon="mdi:file-document-outline" width={18} />
+      <span>Logs</span>
+    </span>
+    <div
+      slot="default"
+      class="bg-slate-900 px-4 max-h-60 overflow-y-scroll scrollbar"
+    >
+      <p class="py-4 text-clip overflow-hidden font-mono log-output">
+        ...Last 250 Lines:
+        <br />
+        {@html convertLogColors($progressTracker.logs)}
+      </p>
     </div>
-  </details>
-</div>
-
-<style>
-  .logContainer {
-    max-height: 10em;
-    min-height: 100px;
-    overflow-y: scroll;
-    padding: 1em;
-    background: black;
-    white-space: pre-wrap;
-    font-family: monospace;
-  }
-
-  details {
-    min-width: 75vw;
-    max-width: 75vw;
-  }
-
-  summary {
-    text-align: center;
-  }
-
-  .logContainer {
-    text-align: start;
-  }
-
-  details > summary:hover {
-    cursor: pointer;
-  }
-</style>
+  </AccordionItem>
+</Accordion>
