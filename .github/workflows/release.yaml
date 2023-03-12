@@ -12,20 +12,38 @@ jobs:
     outputs:
       release_id: ${{ steps.get_release_id.outputs.release_id }}
     steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.BOT_PAT }}
+
       # Create the release, use `gh` CLI so we can auto generate the notes
       - name: Create Release
         env:
-          GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
         run: |
           TAG_VAL=$(echo ${{ github.REF }} | awk -F'refs/tags/' '{print $2}')
           gh release create ${TAG_VAL} --generate-notes --draft --repo open-goal/launcher
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+
+      - name: Install NPM Dependencies
+        run: |
+          yarn install --frozen-lockfile
+
       # Get the internal ID of the release so that Tauri's action can use it to upload assets
       - name: Get Release ID
         id: get_release_id
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
+          GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
         run: |
           TAG_VAL=$(echo ${{ github.REF }} | awk -F'refs/tags/' '{print $2}')
-          RELEASE_ID=$(gh release view "$TAG_VAL" --repo open-goal/launcher --json id --template '{{.id}}')
-          echo "##[set-output name=release_id;]${RELEASE_ID}"
+          RELEASE_ID=$(TAG_NAME="$TAG_VAL" yarn --silent release-id)
+          echo "release_id=${RELEASE_ID}" >> $GITHUB_OUTPUT
 
   build-app:
     if: github.repository == 'open-goal/launcher'
@@ -36,7 +54,7 @@ jobs:
         include:
           - platform: ubuntu-20.04
             os: linux
-          - platform: ubuntu-20.04
+          - platform: windows-latest
             os: windows
     runs-on: ${{ matrix.platform }}
     steps:
@@ -76,47 +94,13 @@ jobs:
       - name: Prepare Release Config
         run: yarn prepare-release-config
 
-      - name: Prepare Resources for Build
-        if: matrix.os == 'windows'
-        run: |
-          mv ./opengoal*.zip ./opengoal.zip
-          mkdir ./artifact-out
-          tar -xf opengoal.zip -C ./artifact-out
-          ls ./artifact-out
-          ls ./artifact-out/data
-          mkdir -p ./src-tauri/bin/
-          cp ./artifact-out/*.exe ./src-tauri/bin || true
-          cp ./third-party/glew_2.2.0/windows/glewinfo.exe ./src-tauri/bin
-          chmod +x ./src-tauri/bin/*
-          cp -r ./artifact-out/data ./src-tauri
-          mv ./metadata.json ./src-tauri/data/metadata.json
-          ls ./src-tauri
-          ls ./src-tauri/bin
-          ls ./src-tauri/data
-
-      - name: Prepare Resources for Build
-        if: matrix.os == 'linux'
-        run: |
-          mv ./opengoal*.tar.gz ./opengoal.tar.gz
-          mkdir ./artifact-out
-          tar -xf opengoal.tar.gz -C ./artifact-out
-          ls ./artifact-out
-          ls ./artifact-out/data
-          mkdir -p ./src-tauri/bin/
-          cp ./artifact-out/* ./src-tauri/bin || true
-          cp ./third-party/glew_2.2.0/linux/glewinfo ./src-tauri/bin
-          cp -r ./artifact-out/data ./src-tauri
-          mv ./metadata.json ./src-tauri/data/metadata.json
-          ls ./src-tauri
-          ls ./src-tauri/bin
-          ls ./src-tauri/data
-
       - uses: tauri-apps/tauri-action@v0
         name: Build Tauri App
         timeout-minutes: 30
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           configPath: "./.tauri/release-config.combined.json"
           releaseId: ${{needs.create-release.outputs.release_id}}
