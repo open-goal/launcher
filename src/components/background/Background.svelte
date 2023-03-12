@@ -11,7 +11,7 @@
   const location = useLocation();
   $: $location.pathname, updateStyle();
 
-  let style = "";
+  let style = "absolute -z-50 object-fill h-screen";
 
   onMount(async () => {
     const unlistenInstalled = await listen("gameInstalled", (event) => {
@@ -46,24 +46,22 @@
   }
 </script>
 
-<div class="height-screen">
-  {#if $location.pathname == "/jak1" || $location.pathname == "/"}
-    <video
-      class={style}
-      poster={bgVideoPosterJak1}
-      src={bgVideoJak1}
-      autoplay
-      muted
-      loop
-    />
-  {:else if $location.pathname == "/jak2"}
-    <video
-      class={style}
-      poster={bgVideoPosterJak2}
-      src={bgVideoJak2}
-      autoplay
-      muted
-      loop
-    />
-  {/if}
-</div>
+{#if $location.pathname == "/jak1" || $location.pathname == "/"}
+  <video
+    class={style}
+    poster={bgVideoPosterJak1}
+    src={bgVideoJak1}
+    autoplay
+    muted
+    loop
+  />
+{:else if $location.pathname == "/jak2"}
+  <video
+    class={style}
+    poster={bgVideoPosterJak2}
+    src={bgVideoJak2}
+    autoplay
+    muted
+    loop
+  />
+{/if}
