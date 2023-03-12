@@ -3,10 +3,10 @@
     "updater": {
       "active": true,
       "endpoints": [
-        "https://raw.githubusercontent.com/open-goal/launcher/main/.tauri/latest-release.json"
+        "https://raw.githubusercontent.com/open-goal/launcher/main/.tauri/latest-release-v2.json"
       ],
       "dialog": false,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJGQjRCQzI1N0I4REZBMzIKUldReStvMTdKYnkwditmb2IvK3hJUm9xdjJMMlN2N2tRejlON0djdE03YnhGOHlaTzVwUy9IY2YK"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEM5OTM3NTJDNzRENkQ5QjUKUldTMTJkWjBMSFdUeWVmZWdkRDdPUFU5TlJpYWF4M1RjRzVjRVRDdWhsME5sNHA3TW5vQldQQVcK"
     }
   }
 }

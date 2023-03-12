@@ -190,7 +190,7 @@ const releaseMeta = {
   },
 };
 fs.writeFileSync(
-  "./.tauri/latest-release.json",
+  "./.tauri/latest-release-v2.json",
   JSON.stringify(releaseMeta, null, 2) + "\n"
 );
 
