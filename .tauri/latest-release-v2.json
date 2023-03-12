@@ -1,0 +1,15 @@
+{
+  "name": "v2.0.0",
+  "notes": "{\"changes\":[{\"description\":\"## What's Changed\\n* UI Overhaul @trippjoe https://github.com/open-goal/launcher/pull/35\\n* release: fetch changes when creating release for better notes @xTVaser https://github.com/open-goal/launcher/pull/38\\n* Launcher Overhaul @xTVaser https://github.com/open-goal/launcher/pull/104\\n\\n\\n**Full Changelog**: https://github.com/open-goal/launcher/compare/v1.9.0...v2.0.0\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/104\\n\\n\\n**Full\"}]}",
+  "pub_date": "2023-03-12T21:48:41Z",
+  "platforms": {
+    "linux-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2Q1ZU5mMkc0YmpZQm9LdVdpMDVlWHI1THlHVXZuNVhFaWFneTE2NEMrYWV5VENES3U3SGpxcXpMbnVjOTNkR3RBVW9kRHlreXFMRFlFVnp5KzY0SmdFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjc4NjU4NjExCWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMC4wX2FtZDY0LkFwcEltYWdlLnRhci5negpEUlI1bUlsUXVxSmxqYVNJVEpTaWRVNjdQRTdPTlB3THFocDRUcEE0MDd4bHI0Y2QrelZUUXNrTFJ2RVdWKytDRjc5QkR2Y1dzT0JOM1JmMFVxNlhDZz09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.0/OpenGOAL-Launcher_2.0.0_amd64.AppImage.tar.gz"
+    },
+    "windows-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1g4c25nbkhFeDZkYytLdENOU1BmOG5UQXYzUHNoQ0Z0bk1lWEU3ZWY5YmpDb0JHYmFwV1plZnA3eXR4UHNqNVhscnA0cUxvUGNSTGdEUFh3UU9XakFVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjc4NjU5MDQ2CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4wLjBfeDY0X2VuLVVTLm1zaS56aXAKOXJMTnk0RE80TXg3d3hnUENEdHErOHFOaWV0UDZZanQvVEF0WTNnSHRaMzd1UWVXV1ZOdmYxdDhQRzd6anZzZUZyU0Z4YU9udTdydUZRZWg3S1JLQnc9PQo=",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.0/OpenGOAL-Launcher_2.0.0_x64_en-US.msi.zip"
+    }
+  }
+}
