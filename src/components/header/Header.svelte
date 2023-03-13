@@ -65,7 +65,10 @@
 
   async function checkIfLatestVersionInstalled() {
     // Check for an update to the tooling (right now, only if it's official)
-    if ($VersionStore.activeVersionType === "official") {
+    if (
+      $VersionStore.activeVersionType === null ||
+      $VersionStore.activeVersionType === "official"
+    ) {
       const latestToolingVersion = await getLatestOfficialRelease();
       if ($VersionStore.activeVersionName !== latestToolingVersion.version) {
         // Check that we havn't already downloaded it

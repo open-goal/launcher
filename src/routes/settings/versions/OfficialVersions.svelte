@@ -12,6 +12,7 @@
   import { listOfficialReleases, type ReleaseInfo } from "$lib/utils/github";
   import VersionList from "./VersionList.svelte";
   import { VersionStore } from "$lib/stores/VersionStore";
+  import { UpdateStore } from "$lib/stores/AppStore";
 
   let versionsLoaded = false;
   let releases: ReleaseInfo[] = [];
@@ -116,6 +117,12 @@
       if (release.version === event.detail.version) {
         release.pendingAction = false;
         release.isDownloaded = success;
+        // If they downloaded the latest, get rid of the notification
+        if ($UpdateStore.selectedTooling.updateAvailable) {
+          if (event.detail.version === releases[0].version) {
+            $UpdateStore.selectedTooling.updateAvailable = false;
+          }
+        }
       }
     }
     releases = releases;
