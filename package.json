@@ -32,7 +32,7 @@
     "autoprefixer": "^10.4.13",
     "classnames": "^2.3.2",
     "escape-html": "^1.0.3",
-    "execa": "^7.0.0",
+    "execa": "^7.1.0",
     "flowbite": "^1.6.3",
     "flowbite-svelte": "^0.29.7",
     "postcss": "^8.4.21",
