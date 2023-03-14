@@ -13,18 +13,20 @@ export interface ReleaseInfo {
 async function getDownloadLinkForCurrentPlatform(
   release
 ): Promise<string | undefined> {
-  const platformName = await platform(); //
+  const platformName = await platform();
   for (const asset of release.assets) {
     if (platformName === "darwin" && asset.name.includes("opengoal-macos-v")) {
       return asset.browser_download_url;
     } else if (
       platformName === "win32" &&
-      asset.name.includes("opengoal-windows-v")
+      (asset.name.startsWith("opengoal-windows-v") ||
+        (asset.name.startsWith("opengoal-v") && asset.name.includes("windows")))
     ) {
       return asset.browser_download_url;
     } else if (
       platformName === "linux" &&
-      asset.name.includes("opengoal-linux-v")
+      (asset.name.startsWith("opengoal-linux-v") ||
+        (asset.name.startsWith("opengoal-v") && asset.name.includes("linux")))
     ) {
       return asset.browser_download_url;
     }
