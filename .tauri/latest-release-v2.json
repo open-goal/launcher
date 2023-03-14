@@ -1,15 +1,15 @@
 {
-  "name": "v2.0.0",
-  "notes": "{\"changes\":[{\"description\":\"## What's Changed\\n* UI Overhaul @trippjoe https://github.com/open-goal/launcher/pull/35\\n* release: fetch changes when creating release for better notes @xTVaser https://github.com/open-goal/launcher/pull/38\\n* Launcher Overhaul @xTVaser https://github.com/open-goal/launcher/pull/104\\n\\n\\n**Full Changelog**: https://github.com/open-goal/launcher/compare/v1.9.0...v2.0.0\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/104\\n\\n\\n**Full\"}]}",
-  "pub_date": "2023-03-12T21:48:41Z",
+  "name": "v2.0.1",
+  "notes": "{\"changes\":[{\"description\":\"## What's Changed\\n* build(deps-dev): bump vite from 4.1.2 to 4.1.4 @dependabot https://github.com/open-goal/launcher/pull/111\\n* build(deps-dev): bump flowbite-svelte from 0.29.13 to 0.32.1 @dependabot https://github.com/open-goal/launcher/pull/115\\n* build(deps-dev): bump @sveltejs/vite-plugin-svelte from 2.0.2 to 2.0.3 @dependabot https://github.com/open-goal/launcher/pull/113\\n* build(deps-dev): bump execa from 7.0.0 to 7.1.0 @dependabot https://github.com/open-goal/launcher/pull/112\\n* build(deps-dev): bump @octokit/plugin-throttling from 3.7.0 to 5.0.1 @dependabot https://github.com/open-goal/launcher/pull/114\\n* f/header: show and hide the jak-project update available notif. better @xTVaser https://github.com/open-goal/launcher/pull/116\\n* f/versions: handle old release naming and hide downloads with no URL @xTVaser https://github.com/open-goal/launcher/pull/118\\n\\n\\n**Full Changelog**: https://github.com/open-goal/launcher/compare/v2.0.0...v2.0.1\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/118\\n\\n\\n**Full\"}]}",
+  "pub_date": "2023-03-14T23:40:44Z",
   "platforms": {
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2Q1ZU5mMkc0YmpZQm9LdVdpMDVlWHI1THlHVXZuNVhFaWFneTE2NEMrYWV5VENES3U3SGpxcXpMbnVjOTNkR3RBVW9kRHlreXFMRFlFVnp5KzY0SmdFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjc4NjU4NjExCWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMC4wX2FtZDY0LkFwcEltYWdlLnRhci5negpEUlI1bUlsUXVxSmxqYVNJVEpTaWRVNjdQRTdPTlB3THFocDRUcEE0MDd4bHI0Y2QrelZUUXNrTFJ2RVdWKytDRjc5QkR2Y1dzT0JOM1JmMFVxNlhDZz09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.0/OpenGOAL-Launcher_2.0.0_amd64.AppImage.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1N4aTRyRHFWRTM2aHhBeklsajdGZkdCc3h2MVJFZmcrTFBhdVgzU3lvc3paUlFVRlpZMHJsc0hwZ2hZR0pCMTlVcXpGeTRyZXkyU0hNRmJSZXgvcFEwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjc4ODM4MTkxCWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMC4xX2FtZDY0LkFwcEltYWdlLnRhci5negpOSVlLbEVyRVdXQ0ZiU08raDlEQnNzR211TGtmaEl3N2NFenJ0UkMzQ0hzRTBnUXhFZWZ6ZjdoNlc0TE5ieUk3bGo5cHBicVdUSGYwNXVEWHhqM0xDZz09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.1/OpenGOAL-Launcher_2.0.1_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1g4c25nbkhFeDZkYytLdENOU1BmOG5UQXYzUHNoQ0Z0bk1lWEU3ZWY5YmpDb0JHYmFwV1plZnA3eXR4UHNqNVhscnA0cUxvUGNSTGdEUFh3UU9XakFVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjc4NjU5MDQ2CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4wLjBfeDY0X2VuLVVTLm1zaS56aXAKOXJMTnk0RE80TXg3d3hnUENEdHErOHFOaWV0UDZZanQvVEF0WTNnSHRaMzd1UWVXV1ZOdmYxdDhQRzd6anZzZUZyU0Z4YU9udTdydUZRZWg3S1JLQnc9PQo=",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.0/OpenGOAL-Launcher_2.0.0_x64_en-US.msi.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1JGeFBpbC80dzd5TGdJVFBoa3ZEUSs3WjgvbTd4WXppd3g3LzlSY2RER0NIWWdEUGdqajdSdEU0N1R0akRON0dEbG9YcFBpazNlOW5TRXRENU9hNlFZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjc4ODM4MDk3CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4wLjFfeDY0X2VuLVVTLm1zaS56aXAKekFhRkNQblUydWlGQ3hDc285MUlHbjBleE9VS0ZrbDZxUEpuU2VZRFd5bG1LaXRrYlExaXR2SVhRZENpbTA3bE94S0FLNHdJOVBTMnZxNnJNUFdXQlE9PQo=",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.1/OpenGOAL-Launcher_2.0.1_x64_en-US.msi.zip"
     }
   }
 }
