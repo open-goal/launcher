@@ -157,7 +157,7 @@
                   />
                 {:else if release.pendingAction}
                   <Spinner color="yellow" size={"6"} />
-                {:else if release.releaseType === "official"}
+                {:else if release.releaseType === "official" && release.downloadUrl !== undefined}
                   <Icon
                     icon="ic:baseline-download"
                     color="#00d500"
