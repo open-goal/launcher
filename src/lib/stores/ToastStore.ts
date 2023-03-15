@@ -19,14 +19,14 @@ function createToastStore() {
   const { subscribe, set, update } = writable<ToastStore>(storeValue);
 
   const ttl = 5000;
-  let intervalId: NodeJS.Timer;
+  let timeoutId: NodeJS.Timer;
 
   function ttlCheck() {
-    return setInterval(() => {
+    return setTimeout(() => {
       update((val) => {
         val.msg = undefined;
         val.level = undefined;
-        intervalId = undefined;
+        timeoutId = undefined;
         return val;
       });
     }, ttl);
@@ -38,7 +38,7 @@ function createToastStore() {
       update((val) => {
         val.msg = msg;
         val.level = level;
-        intervalId = ttlCheck();
+        timeoutId = ttlCheck();
         return val;
       }),
   };
