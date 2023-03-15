@@ -49,7 +49,7 @@ function changesFromBody(releaseBody) {
   // Simple parsing to try and stay as little tied to the auto-format as possible
   // Iterate through the lines, grab all github pull request links
   let changes = [];
-  const lines = releaseBody.split("\r\n");
+  const lines = releaseBody.split("\n");
   for (const line of lines) {
     // check if the string contains a pull request link
     if (!line.toLowerCase().match(/.*github.com\/[^/]*\/[^/]*\/pull.*/)) {
@@ -67,7 +67,7 @@ function changesFromBody(releaseBody) {
         // found contributor, the next word should be the contributor
         if (i + 1 < words.length) {
           contributor = words[i + 1].replace(/^(@)/, "");
-          i++;
+          i += 2;
         }
         continue;
       }
@@ -75,7 +75,7 @@ function changesFromBody(releaseBody) {
         // found url, the next word should be the link
         if (i + 1 < words.length) {
           pullRequestUrl = words[i + 1];
-          i++;
+          i += 2;
         }
         continue;
       }
