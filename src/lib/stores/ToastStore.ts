@@ -15,17 +15,18 @@ const storeValue: ToastStore = {
 };
 
 function createToastStore() {
+  // TODO - the TTL isn't correct still, look into it
   const { subscribe, set, update } = writable<ToastStore>(storeValue);
 
   const ttl = 5000;
-  let intervalId: NodeJS.Timer;
+  let timeoutId: NodeJS.Timer;
 
   function ttlCheck() {
-    return setInterval(() => {
+    return setTimeout(() => {
       update((val) => {
         val.msg = undefined;
         val.level = undefined;
-        intervalId = undefined;
+        timeoutId = undefined;
         return val;
       });
     }, ttl);
@@ -37,7 +38,7 @@ function createToastStore() {
       update((val) => {
         val.msg = msg;
         val.level = level;
-        intervalId = ttlCheck();
+        timeoutId = ttlCheck();
         return val;
       }),
   };

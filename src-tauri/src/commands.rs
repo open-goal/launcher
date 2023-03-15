@@ -25,6 +25,8 @@ pub enum CommandError {
   #[error("{0}")]
   GameManagement(String),
   #[error("{0}")]
+  OSOperation(String),
+  #[error("{0}")]
   BinaryExecution(String),
   #[error("{0}")]
   Support(String),
