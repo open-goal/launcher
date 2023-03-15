@@ -15,6 +15,7 @@ const storeValue: ToastStore = {
 };
 
 function createToastStore() {
+  // TODO - the TTL isn't correct still, look into it
   const { subscribe, set, update } = writable<ToastStore>(storeValue);
 
   const ttl = 5000;

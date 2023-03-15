@@ -120,7 +120,8 @@ fn main() {
       commands::versions::remove_version,
       commands::versions::go_to_version_folder,
       commands::versions::list_downloaded_versions,
-      commands::window::close_splashscreen
+      commands::window::close_splashscreen,
+      commands::window::open_dir_in_os
     ])
     .build(tauri::generate_context!())
     .expect("error building tauri app")
