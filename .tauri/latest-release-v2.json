@@ -1,15 +1,15 @@
 {
-  "name": "v2.0.1",
-  "notes": "{\"changes\":[{\"description\":\"## What's Changed\\n* build(deps-dev): bump vite from 4.1.2 to 4.1.4 @dependabot https://github.com/open-goal/launcher/pull/111\\n* build(deps-dev): bump flowbite-svelte from 0.29.13 to 0.32.1 @dependabot https://github.com/open-goal/launcher/pull/115\\n* build(deps-dev): bump @sveltejs/vite-plugin-svelte from 2.0.2 to 2.0.3 @dependabot https://github.com/open-goal/launcher/pull/113\\n* build(deps-dev): bump execa from 7.0.0 to 7.1.0 @dependabot https://github.com/open-goal/launcher/pull/112\\n* build(deps-dev): bump @octokit/plugin-throttling from 3.7.0 to 5.0.1 @dependabot https://github.com/open-goal/launcher/pull/114\\n* f/header: show and hide the jak-project update available notif. better @xTVaser https://github.com/open-goal/launcher/pull/116\\n* f/versions: handle old release naming and hide downloads with no URL @xTVaser https://github.com/open-goal/launcher/pull/118\\n\\n\\n**Full Changelog**: https://github.com/open-goal/launcher/compare/v2.0.0...v2.0.1\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/118\\n\\n\\n**Full\"}]}",
-  "pub_date": "2023-03-14T23:40:44Z",
+  "name": "v2.0.2",
+  "notes": "{\"changes\":[{\"description\":\"ci: fix formatting of release changelog\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/119\"},{\"description\":\"f/game: fix opening settings/saves folders\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/121\"}]}",
+  "pub_date": "2023-03-15T23:34:15Z",
   "platforms": {
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1N4aTRyRHFWRTM2aHhBeklsajdGZkdCc3h2MVJFZmcrTFBhdVgzU3lvc3paUlFVRlpZMHJsc0hwZ2hZR0pCMTlVcXpGeTRyZXkyU0hNRmJSZXgvcFEwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjc4ODM4MTkxCWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMC4xX2FtZDY0LkFwcEltYWdlLnRhci5negpOSVlLbEVyRVdXQ0ZiU08raDlEQnNzR211TGtmaEl3N2NFenJ0UkMzQ0hzRTBnUXhFZWZ6ZjdoNlc0TE5ieUk3bGo5cHBicVdUSGYwNXVEWHhqM0xDZz09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.1/OpenGOAL-Launcher_2.0.1_amd64.AppImage.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1V3VldydUlRYmtrRXpCdTRwdDhCc3JZRHhhUGk3dlA0ZDZDTWJmbzVpTm42QXZUVXJVY1VNUXEzUTE0UGtBWXN4Qm5BUmp6MC9iMUx5M3hGUUc2T3dVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjc4OTIzNzgxCWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMC4yX2FtZDY0LkFwcEltYWdlLnRhci5negp1cjIvZzFrZmthdmRLU3ZqRkJMNllCQitubzFnak9UVzZEd1AyQnE3YmljMVVSZGdsaHk5dzBhOUQvRkF1empMV3llbEJENHBZZzZ0NzF0N2hXZUlCZz09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.2/OpenGOAL-Launcher_2.0.2_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1JGeFBpbC80dzd5TGdJVFBoa3ZEUSs3WjgvbTd4WXppd3g3LzlSY2RER0NIWWdEUGdqajdSdEU0N1R0akRON0dEbG9YcFBpazNlOW5TRXRENU9hNlFZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjc4ODM4MDk3CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4wLjFfeDY0X2VuLVVTLm1zaS56aXAKekFhRkNQblUydWlGQ3hDc285MUlHbjBleE9VS0ZrbDZxUEpuU2VZRFd5bG1LaXRrYlExaXR2SVhRZENpbTA3bE94S0FLNHdJOVBTMnZxNnJNUFdXQlE9PQo=",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.1/OpenGOAL-Launcher_2.0.1_x64_en-US.msi.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1ZFNkpaVE02WFoycnp2dWNhYlV1YXN0Y0h4NGU0aFFhdVhJVlRVc0FSZ2ZwRjB6d1FEeGxXK1VCeWc3VC9jWXFhV0xxbVVOQmo1ckQrR1Vma012ZEFJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjc4OTIzODQxCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4wLjJfeDY0X2VuLVVTLm1zaS56aXAKRGZKazBQdzMvT1p5WmN0bjFEWU8weGR0bnllSmM2Njd3U245REYyTTdjaVBvTzcyUjZpdzFVTGFiY3Nka2dlNVIvbWh5Vys0cmMrVW9Hc3RUK01kQnc9PQo=",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.2/OpenGOAL-Launcher_2.0.2_x64_en-US.msi.zip"
     }
   }
 }
