@@ -4,9 +4,32 @@ Our attempt at distributing the [OpenGOAL](https://github.com/open-goal/jak-proj
 
 The launcher uses the [Tauri](https://tauri.app/) framework, if you are interested in our motivation for _why_ see below.
 
+- [Usage](#usage)
+- [Asking for help](#asking-for-help)
+- [Development](#development)
+  - [Windows](#windows)
+  - [Linux (Ubuntu 22.04)](#linux-ubuntu-2204)
+  - [Building and Running](#building-and-running)
+  - [Code Overview](#code-overview)
+  - [References](#references)
+- [Why Tauri?](#why-tauri)
+
 ## Usage
 
 See the [documentation on our website](https://opengoal.dev/docs/usage/installation/) for hopefully up to date instructions on how to use it.
+
+## Asking for help
+
+When asking for help, please download the support package which includes logs to help someone diagnose the problem.
+
+![](./docs/support-package.png)
+
+If you cannot do this (for example, the bug relates to making the package / the application won't launch) then you can find the application logs in the following folders:
+
+- Windows `C://Users/<YOUR_USER_NAME>/AppData/Roaming/OpenGOAL-Launcher/logs`
+- Linux `/home/<YOUR_USER_NAME>/.config/OpenGOAL-Launcher/logs`
+
+Note that both `AppData` and `.config` are hidden folders.
 
 ## Development
 

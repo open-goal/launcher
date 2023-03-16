@@ -40,7 +40,7 @@
     >
     <Button
       btnClass="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
-      href="https://github.com/open-goal/launcher/issues/new"
+      href="https://github.com/open-goal/launcher/issues/new/choose"
       target="_blank"
       rel="noreferrer noopener"
       ><Icon class="inline-block" icon="mdi:github" width={20} />&nbsp;Report
