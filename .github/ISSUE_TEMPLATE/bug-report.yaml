@@ -1,0 +1,57 @@
+name: "\U0001F41B Bug Report"
+description: Create a bug report.
+labels: ["bug"]
+body:
+  - type: checkboxes
+    attributes:
+      label: Acknowledgements
+      description: Take a couple minutes to help our maintainers work faster.
+      options:
+        - label: I have [searched](https://github.com/open-goal/launcher/issues?q=is%3Aissue+is%3Aopen+label%3Abug+sort%3Aupdated-desc) for duplicate or closed bug reports
+          required: true
+        - label: I understand that I am supposed to provide my own legitimately obtained copy of the game
+          required: true
+        - label: If possible, I've attached the support package zip file to the issue [see how here](https://github.com/open-goal/launcher#asking-for-help)
+          required: true
+
+  - type: textarea
+    attributes:
+      label: Attach Support Package / Log Files (drag and drop)
+      description: "[See how here](https://github.com/open-goal/launcher#asking-for-help)"
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Describe the Bug
+      description: A clear and concise description of what the bug is. You may post screenshots or videos of the bug here.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: How To Reproduce
+      description: Steps to reproduce the behavior. You can also post a video of it here.
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Operating System
+      description: Windows version, Linux distribution, etc.
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Launcher Version
+      description: Found in the header of the launcher
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Tooling Version
+      description: Found in the header of the launcher
+    validations:
+      required: true
