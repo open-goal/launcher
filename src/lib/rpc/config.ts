@@ -1,6 +1,7 @@
 import { toastStore } from "$lib/stores/ToastStore";
 import { invoke } from "@tauri-apps/api/tauri";
 import { errorLog, exceptionLog } from "./logging";
+import type { VersionFolders } from "./versions";
 
 export async function oldDataDirectoryExists(): Promise<boolean> {
   try {
@@ -116,5 +117,22 @@ export async function getInstalledVersionFolder(
       e
     );
     return null;
+  }
+}
+
+export async function saveActiveVersionChange(
+  folder: VersionFolders,
+  newVersion: String
+): Promise<boolean> {
+  try {
+    await invoke("save_active_version_change", {
+      versionFolder: folder,
+      newActiveVersion: newVersion,
+    });
+    return true;
+  } catch (e) {
+    exceptionLog("Unable to save version change", e);
+    toastStore.makeToast("Couldn't save version change", "error");
+    return false;
   }
 }
