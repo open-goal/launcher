@@ -220,6 +220,23 @@ impl LauncherConfig {
       _ => (),
     }
 
+    // If the directory changes (it's not a no-op), we need to:
+    // - wipe any installed games (make them reinstall)
+    // - wipe the active version/version types
+    match &self.installation_dir {
+      Some(old_dir) => {
+        if *old_dir != new_dir {
+          self.active_version = None;
+          self.active_version_folder = None;
+          // TODO - when i cleanup the gross code below, also clean this up
+          self.games.jak1.is_installed = false;
+          self.games.jak1.version = None;
+          self.games.jak1.version_folder = None;
+        }
+      }
+      _ => (),
+    }
+
     self.installation_dir = Some(new_dir);
     self.save_config()?;
     Ok(None)

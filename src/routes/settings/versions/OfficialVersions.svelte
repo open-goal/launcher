@@ -7,12 +7,12 @@
     listDownloadedVersions,
     openVersionFolder,
     removeVersion,
-    saveActiveVersionChange,
   } from "$lib/rpc/versions";
   import { listOfficialReleases, type ReleaseInfo } from "$lib/utils/github";
   import VersionList from "./VersionList.svelte";
   import { VersionStore } from "$lib/stores/VersionStore";
   import { UpdateStore } from "$lib/stores/AppStore";
+  import { saveActiveVersionChange } from "$lib/rpc/config";
 
   let versionsLoaded = false;
   let releases: ReleaseInfo[] = [];
@@ -85,15 +85,16 @@
   }
 
   async function saveOfficialVersionChange(evt) {
-    await saveActiveVersionChange(
+    const success = await saveActiveVersionChange(
       "official",
       $VersionStore.selectedVersions.official
     );
-    // TODO if save was successful
-    $VersionStore.activeVersionType = "official";
-    $VersionStore.activeVersionName = $VersionStore.selectedVersions.official;
-    $VersionStore.selectedVersions.unofficial = null;
-    $VersionStore.selectedVersions.devel = null;
+    if (success) {
+      $VersionStore.activeVersionType = "official";
+      $VersionStore.activeVersionName = $VersionStore.selectedVersions.official;
+      $VersionStore.selectedVersions.unofficial = null;
+      $VersionStore.selectedVersions.devel = null;
+    }
   }
 
   async function openOfficialVersionFolder(evt) {

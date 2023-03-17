@@ -3,6 +3,7 @@
     getInstallationDirectory,
     setInstallationDirectory,
   } from "$lib/rpc/config";
+  import { VersionStore } from "$lib/stores/VersionStore";
   import { folderPrompt } from "$lib/utils/file";
   import { Label, Input } from "flowbite-svelte";
   import { onMount } from "svelte";
@@ -28,6 +29,10 @@
         ) {
           const errMsg = await setInstallationDirectory(newInstallDir);
           if (errMsg === null) {
+            if (currentInstallationDirectory !== newInstallDir) {
+              $VersionStore.activeVersionType = null;
+              $VersionStore.activeVersionName = null;
+            }
             currentInstallationDirectory = newInstallDir;
           }
         }

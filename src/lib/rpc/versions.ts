@@ -59,20 +59,6 @@ export async function openVersionFolder(folder: VersionFolders) {
   }
 }
 
-export async function saveActiveVersionChange(
-  folder: VersionFolders,
-  newVersion: String
-) {
-  try {
-    return await invoke("save_active_version_change", {
-      versionFolder: folder,
-      newActiveVersion: newVersion,
-    });
-  } catch (e) {
-    exceptionLog("Unable to save version change", e);
-  }
-}
-
 export async function getActiveVersion(): Promise<string | null> {
   try {
     return await invoke("get_active_tooling_version", {});
