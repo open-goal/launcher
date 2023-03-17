@@ -14,6 +14,8 @@ use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
+use crate::util::file::touch_file;
+
 #[derive(Debug, thiserror::Error)]
 pub enum ConfigError {
   #[error(transparent)]
@@ -205,12 +207,17 @@ impl LauncherConfig {
       return Ok(Some("Provided folder is not a folder".to_owned()));
     }
 
-    // Check our permissions on the folder
-    let md = fs::metadata(path)?;
-    let permissions = md.permissions();
-    let readonly = permissions.readonly();
-    if readonly {
-      return Ok(Some("Provided folder is read-only".to_owned()));
+    // Check our permissions on the folder by touching a file (and deleting it)
+    let test_file = path.join(".perm-test.tmp");
+    match touch_file(&test_file) {
+      Err(e) => {
+        log::error!(
+          "Provided installation folder could not be written to: {}",
+          e
+        );
+        return Ok(Some("Provided folder cannot be written to".to_owned()));
+      }
+      _ => (),
     }
 
     self.installation_dir = Some(new_dir);

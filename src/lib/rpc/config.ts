@@ -1,5 +1,6 @@
+import { toastStore } from "$lib/stores/ToastStore";
 import { invoke } from "@tauri-apps/api/tauri";
-import { exceptionLog } from "./logging";
+import { errorLog, exceptionLog } from "./logging";
 
 export async function oldDataDirectoryExists(): Promise<boolean> {
   try {
@@ -31,9 +32,19 @@ export async function setInstallationDirectory(
   newInstallDir: string
 ): Promise<string | null> {
   try {
-    return await invoke("set_install_directory", { newDir: newInstallDir });
+    // TODO - not insanely crazy about this pattern (message in the response instead of the error)
+    // consider changing it
+    const errMsg: string = await invoke("set_install_directory", {
+      newDir: newInstallDir,
+    });
+    if (errMsg !== null) {
+      errorLog("Unable to set install directory");
+      toastStore.makeToast(errMsg, "error");
+    }
+    return errMsg;
   } catch (e) {
     exceptionLog("Unable to set install directory", e);
+    toastStore.makeToast("Invalid installation directory", "error");
     return "Unexpected error occurred";
   }
 }
