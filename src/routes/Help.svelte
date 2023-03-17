@@ -1,7 +1,17 @@
 <script>
-  import { Button } from "flowbite-svelte";
+  import { Button, Spinner } from "flowbite-svelte";
   import Icon from "@iconify/svelte";
   import { generateSupportPackage } from "$lib/rpc/support";
+  import { openDir } from "$lib/rpc/window";
+  import { onMount } from "svelte";
+  import { appConfigDir } from "@tauri-apps/api/path";
+
+  let appDir = undefined;
+  let downloadingPackage = false;
+
+  onMount(async () => {
+    appDir = await appConfigDir();
+  });
 </script>
 
 <div class="flex flex-col h-full bg-slate-900 p-4 gap-3">
@@ -10,13 +20,29 @@
     If you are reporting an issue or asking for help, download the following
     support package and attach it in your Discord thread or GitHub issue.
   </p>
-  <div class="flex flex-row mt-1">
+  <div class="flex flex-row mt-1 gap-2">
     <Button
-      btnClass="border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
-      on:click={() => {
-        generateSupportPackage();
-      }}>Download Support Package</Button
+      btnClass="border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-4 py-2"
+      on:click={async () => {
+        downloadingPackage = true;
+        await generateSupportPackage();
+        downloadingPackage = false;
+      }}
     >
+      {#if downloadingPackage}
+        <Spinner class="text-sm mb-0.5 mr-1" size="4" color="white" />
+      {/if}
+
+      Download Support Package</Button
+    >
+    {#if appDir !== undefined}
+      <Button
+        btnClass="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
+        on:click={() => {
+          openDir(appDir);
+        }}>Open Log Folder</Button
+      >
+    {/if}
   </div>
   <p class="mt-3 text-sm">
     You can either ask a question on our Discord, or create a GitHub issue with
@@ -28,7 +54,7 @@
   </p>
   <div class="flex flex-row gap-2">
     <Button
-      btnClass="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
+      btnClass="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
       href="https://discord.gg/dPRCfsju3N"
       target="_blank"
       rel="noreferrer noopener"
@@ -39,7 +65,7 @@
       />&nbsp;Discord</Button
     >
     <Button
-      btnClass="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
+      btnClass="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
       href="https://github.com/open-goal/launcher/issues/new/choose"
       target="_blank"
       rel="noreferrer noopener"
@@ -47,7 +73,7 @@
       Launcher Issue</Button
     >
     <Button
-      btnClass="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
+      btnClass="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
       href="https://github.com/open-goal/jak-project/issues/new/choose"
       target="_blank"
       rel="noreferrer noopener"
