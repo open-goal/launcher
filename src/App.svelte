@@ -27,6 +27,11 @@
       // TODO - confirm during an install
       await appWindow.close();
     });
+    // Temporary fix related to https://github.com/open-goal/launcher/issues/110
+    if (window.sessionStorage.getItem("refreshHack") !== "true") {
+      location.reload();
+      window.sessionStorage.setItem("refreshHack", "true");
+    }
   });
 
   if (!isInDebugMode()) {
