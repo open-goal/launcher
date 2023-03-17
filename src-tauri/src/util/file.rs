@@ -54,3 +54,14 @@ pub fn read_last_lines_from_file(path: &PathBuf, lines: usize) -> Result<String,
       .join("\n"),
   )
 }
+
+pub fn touch_file(path: &PathBuf) -> std::io::Result<()> {
+  match std::fs::OpenOptions::new()
+    .create(true)
+    .write(true)
+    .open(path)
+  {
+    Ok(_) => Ok(()),
+    Err(e) => Err(e),
+  }
+}

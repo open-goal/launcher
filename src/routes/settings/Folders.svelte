@@ -26,8 +26,10 @@
           newInstallDir !== undefined &&
           newInstallDir !== currentInstallationDirectory
         ) {
-          await setInstallationDirectory(newInstallDir);
-          currentInstallationDirectory = newInstallDir;
+          const errMsg = await setInstallationDirectory(newInstallDir);
+          if (errMsg === null) {
+            currentInstallationDirectory = newInstallDir;
+          }
         }
       }}
     />
