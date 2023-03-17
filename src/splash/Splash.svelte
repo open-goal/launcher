@@ -60,7 +60,10 @@
     await new Promise((res) => setTimeout(res, 1000));
     currentProgress = 100;
     await new Promise((res) => setTimeout(res, 500));
-    await closeSplashScreen();
+    const errorClosing = await closeSplashScreen();
+    if (errorClosing) {
+      currentStatusText = "Problem closing Splash";
+    }
   }
 </script>
 
