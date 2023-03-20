@@ -1933,10 +1933,10 @@ find-versions@^3.0.0:
   dependencies:
     semver-regex "^2.0.0"
 
-flowbite-svelte@^0.32.1:
-  version "0.32.1"
-  resolved "https://registry.yarnpkg.com/flowbite-svelte/-/flowbite-svelte-0.32.1.tgz#00ddd04d1177421e8bdfa1e32616e914255dd88a"
-  integrity sha512-zPKQO4CdYrDQNv209FG1UHOwunVi3MxElQV93cnKX56GE9vU+RJnkKuu9W0m8VKpQjaCe4a/LamIscjzIx78oQ==
+flowbite-svelte@^0.34.1:
+  version "0.34.1"
+  resolved "https://registry.yarnpkg.com/flowbite-svelte/-/flowbite-svelte-0.34.1.tgz#7ca220a08e5184ec76e98bde441abcdff5777cae"
+  integrity sha512-EXr+5w68332QPd1gbmqAyJ0+JGLeTH5wIf+p2v/JSilhSqXUC6EyYIxbuykbXtMfkFm/VZqtmxhKGXJSkZs32A==
   dependencies:
     "@popperjs/core" "^2.11.6"
     classnames "^2.3.2"
