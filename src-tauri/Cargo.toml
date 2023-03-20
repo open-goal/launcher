@@ -35,6 +35,7 @@ thiserror = "1.0.38"
 rev_buf_reader = "0.3.0"
 flate2 = "1.0.25"
 tar = "0.4.38"
+backtrace = "0.3.67"
 
 [features]
 # by default Tauri runs in production mode

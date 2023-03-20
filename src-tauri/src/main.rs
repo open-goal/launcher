@@ -7,15 +7,32 @@ use fern::colors::{Color, ColoredLevelConfig};
 use tauri::{Manager, RunEvent};
 use util::file::create_dir;
 
-use std::env;
+use backtrace::Backtrace;
+use std::{env, io::Write};
 
 mod commands;
 mod config;
 mod textures;
 mod util;
 
+fn panic_hook(info: &std::panic::PanicInfo) {
+  let backtrace = Backtrace::new();
+  let mut file = std::fs::File::create("og-launcher-crash.log").unwrap();
+  log::error!("panic occurred: {:?}\n{:?}", info, backtrace);
+  if let Err(err) =
+    file.write_all(format!("panic occurred: {:?}\n{:?}", info, backtrace).as_bytes())
+  {
+    log::error!("unable to log crash report to a file - {:?}", err)
+  }
+  std::process::exit(1);
+}
+
 fn main() {
-  tauri::Builder::default()
+  // In the event that some catastrophic happens, atleast log it out
+  // the panic_hook will log to a file in the folder of the executable
+  std::panic::set_hook(Box::new(panic_hook));
+
+  let tauri_setup = tauri::Builder::default()
     .setup(|app| {
       // Setup Logging
       let log_path = app
@@ -37,7 +54,7 @@ fn main() {
       // since almost all of them are the same as the color for the whole line, we
       // just clone `colors_line` and overwrite our changes
       let colors_level = colors_line.clone().info(Color::Cyan);
-      fern::Dispatch::new()
+      let log_setup_ok = fern::Dispatch::new()
         // Perform allocation-free log formatting
         .format(move |out, message, record| {
           out.finish(format_args!(
@@ -60,23 +77,26 @@ fn main() {
         .chain(std::io::stdout())
         .chain(fern::DateBased::new(&log_path, "/%Y-%m-%d.log"))
         // Apply globally
-        .apply()
-        .expect("Could not setup logs");
-      log::info!("Logging Initialized");
-
-      // Truncate rotated log files to '5'
-      let mut paths: Vec<_> = std::fs::read_dir(&log_path)?.map(|r| r.unwrap()).collect();
-      paths.sort_by_key(|dir| dir.path());
-      paths.reverse();
-      let mut i = 0;
-      for path in paths {
-        i += 1;
-        log::info!("{}", path.path().display());
-        if i > 5 {
-          log::info!("deleting - {}", path.path().display());
-          std::fs::remove_file(path.path())?;
+        .apply();
+      match log_setup_ok {
+        Ok(_) => {
+          log::info!("Logging Initialized");
+          // Truncate rotated log files to '5'
+          let mut paths: Vec<_> = std::fs::read_dir(&log_path)?.map(|r| r.unwrap()).collect();
+          paths.sort_by_key(|dir| dir.path());
+          paths.reverse();
+          let mut i = 0;
+          for path in paths {
+            i += 1;
+            log::info!("{}", path.path().display());
+            if i > 5 {
+              log::info!("deleting - {}", path.path().display());
+              std::fs::remove_file(path.path())?;
+            }
+          }
         }
-      }
+        Err(err) => log::error!("Could not initialize logging {:?}", err),
+      };
 
       // Load the config (or initialize it with defaults)
       //
@@ -124,11 +144,39 @@ fn main() {
       commands::window::open_dir_in_os
     ])
     .build(tauri::generate_context!())
-    .expect("error building tauri app")
-    .run(|_app_handle, event| match event {
-      RunEvent::ExitRequested { .. } => {
-        std::process::exit(0);
+    .map_err(|err| {
+      let mut file = std::fs::File::create("og-launcher-crash.log").unwrap();
+      let backtrace = Backtrace::new();
+      log::error!(
+        "unexpected top level error occurred: {:?}\n{:?}",
+        err,
+        backtrace
+      );
+      if let Err(file_err) = file.write_all(
+        format!(
+          "unexpected top level error occurred: {:?}\n{:?}",
+          err, backtrace
+        )
+        .as_bytes(),
+      ) {
+        log::error!("unable to log crash report to a file - {:?}", file_err)
       }
-      _ => (),
-    })
+      std::process::exit(1);
+    });
+  match tauri_setup {
+    Ok(app) => {
+      log::info!("application starting up");
+      app.run(|_app_handle, event| match event {
+        RunEvent::ExitRequested { .. } => {
+          log::info!("Exit requested, exiting!");
+          std::process::exit(0);
+        }
+        _ => (),
+      })
+    }
+    Err(err) => {
+      log::error!("Could not setup tauri application {:?}, exiting", err);
+      std::process::exit(1);
+    }
+  };
 }
