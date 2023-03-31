@@ -17,12 +17,16 @@ mod util;
 
 fn panic_hook(info: &std::panic::PanicInfo) {
   let backtrace = Backtrace::new();
-  let mut file = std::fs::File::create("og-launcher-crash.log").unwrap();
   log::error!("panic occurred: {:?}\n{:?}", info, backtrace);
-  if let Err(err) =
-    file.write_all(format!("panic occurred: {:?}\n{:?}", info, backtrace).as_bytes())
-  {
-    log::error!("unable to log crash report to a file - {:?}", err)
+  match std::fs::File::create("og-launcher-crash.log") {
+    Ok(mut file) => {
+      if let Err(err) =
+        file.write_all(format!("panic occurred: {:?}\n{:?}", info, backtrace).as_bytes())
+      {
+        log::error!("unable to log crash report to a file - {:?}", err)
+      }
+    }
+    Err(err) => log::error!("unable to log crash report to a file - {:?}", err),
   }
   std::process::exit(1);
 }
@@ -145,21 +149,25 @@ fn main() {
     ])
     .build(tauri::generate_context!())
     .map_err(|err| {
-      let mut file = std::fs::File::create("og-launcher-crash.log").unwrap();
       let backtrace = Backtrace::new();
       log::error!(
         "unexpected top level error occurred: {:?}\n{:?}",
         err,
         backtrace
       );
-      if let Err(file_err) = file.write_all(
-        format!(
-          "unexpected top level error occurred: {:?}\n{:?}",
-          err, backtrace
-        )
-        .as_bytes(),
-      ) {
-        log::error!("unable to log crash report to a file - {:?}", file_err)
+      match std::fs::File::create("og-launcher-crash.log") {
+        Ok(mut file) => {
+          if let Err(file_err) = file.write_all(
+            format!(
+              "unexpected top level error occurred: {:?}\n{:?}",
+              err, backtrace
+            )
+            .as_bytes(),
+          ) {
+            log::error!("unable to log crash report to a file - {:?}", file_err)
+          }
+        }
+        Err(err) => log::error!("unable to log crash report to a file - {:?}", err),
       }
       std::process::exit(1);
     });
