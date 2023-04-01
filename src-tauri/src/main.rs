@@ -16,20 +16,36 @@ mod config;
 mod textures;
 mod util;
 
-fn panic_hook(info: &std::panic::PanicInfo) {
+fn log_crash(panic_info: Option<&std::panic::PanicInfo>, error: Option<tauri::Error>) {
   let backtrace = Backtrace::new();
-  log::error!("panic occurred: {:?}\n{:?}", info, backtrace);
-  match std::fs::File::create("og-launcher-crash.log") {
-    Ok(mut file) => {
-      if let Err(err) =
-        file.write_all(format!("panic occurred: {:?}\n{:?}", info, backtrace).as_bytes())
-      {
-        log::error!("unable to log crash report to a file - {:?}", err)
+  let log_contents;
+  if let Some(panic_info) = panic_info {
+    log_contents = format!("panic occurred: {:?}\n{:?}", panic_info, backtrace);
+  } else if let Some(error) = error {
+    log_contents = format!(
+      "unexpected app error occurred: {:?}\n{:?}",
+      error, backtrace
+    );
+  } else {
+    log_contents = format!("unexpected error occurred: {:?}", backtrace);
+  }
+  log::error!("{}", log_contents);
+  if let Some(user_dirs) = UserDirs::new() {
+    if let Some(desktop_dir) = user_dirs.desktop_dir() {
+      match std::fs::File::create(desktop_dir.join("og-launcher-crash.log")) {
+        Ok(mut file) => {
+          if let Err(err) = file.write_all(log_contents.as_bytes()) {
+            log::error!("unable to log crash report to a file - {:?}", err)
+          }
+        }
+        Err(err) => log::error!("unable to log crash report to a file - {:?}", err),
       }
     }
-    Err(err) => log::error!("unable to log crash report to a file - {:?}", err),
   }
-  std::process::exit(1);
+}
+
+fn panic_hook(info: &std::panic::PanicInfo) {
+  log_crash(Some(info), None);
 }
 
 fn main() {
@@ -145,32 +161,12 @@ fn main() {
       commands::versions::remove_version,
       commands::versions::go_to_version_folder,
       commands::versions::list_downloaded_versions,
-      commands::window::close_splashscreen,
+      commands::window::open_main_window,
       commands::window::open_dir_in_os
     ])
     .build(tauri::generate_context!())
     .map_err(|err| {
-      let backtrace = Backtrace::new();
-      log::error!(
-        "unexpected top level error occurred: {:?}\n{:?}",
-        err,
-        backtrace
-      );
-      match std::fs::File::create("og-launcher-crash.log") {
-        Ok(mut file) => {
-          if let Err(file_err) = file.write_all(
-            format!(
-              "unexpected top level error occurred: {:?}\n{:?}",
-              err, backtrace
-            )
-            .as_bytes(),
-          ) {
-            log::error!("unable to log crash report to a file - {:?}", file_err)
-          }
-        }
-        Err(err) => log::error!("unable to log crash report to a file - {:?}", err),
-      }
-      std::process::exit(1);
+      log_crash(None, Some(err));
     });
   match tauri_setup {
     Ok(app) => {
