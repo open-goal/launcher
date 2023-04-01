@@ -69,6 +69,7 @@
     "windows": [
       {
         "title": "OpenGOAL Launcher",
+        "label": "main",
         "width": 800,
         "height": 600,
         "resizable": false,
