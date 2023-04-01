@@ -15,6 +15,7 @@ rust-version = "1.61"
 tauri-build = { version = "1.2.1", features = [] }
 
 [dependencies]
+backtrace = "0.3.67"
 chrono = "0.4.23"
 dir-diff = "0.3.2"
 directories = "5.0.0"
