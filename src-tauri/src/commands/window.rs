@@ -5,7 +5,7 @@ use tauri::Manager;
 use super::CommandError;
 
 #[tauri::command]
-pub async fn open_main_window(handle: tauri::AppHandle) {
+pub async fn open_main_window(handle: tauri::AppHandle) -> Result<(), CommandError> {
   // NOTE:
   // When you create multiple static windows (inside the conf file)
   // they are actually all running in the background
@@ -27,6 +27,7 @@ pub async fn open_main_window(handle: tauri::AppHandle) {
   //   "center": true,
   //   "decorations": false
   // },
+  log::info!("Creating main window");
   tauri::WindowBuilder::new(
     &handle,
     "main", /* the unique window label */
@@ -39,11 +40,15 @@ pub async fn open_main_window(handle: tauri::AppHandle) {
   .center()
   .decorations(false)
   .build()
-  .unwrap();
+  .map_err(|_| CommandError::WindowManagement(format!("Unable to create main launcher window")))?;
+  log::info!("Closing splash window");
   // Close splashscreen
   if let Some(splashscreen) = handle.app_handle().get_window("splashscreen") {
-    splashscreen.close().unwrap();
+    splashscreen
+      .close()
+      .map_err(|_| CommandError::WindowManagement(format!("Unable to close splash window")))?;
   }
+  Ok(())
 }
 
 #[tauri::command]
