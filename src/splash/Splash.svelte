@@ -61,8 +61,8 @@
     currentProgress = 100;
     await new Promise((res) => setTimeout(res, 500));
     const errorClosing = await openMainWindow();
-    if (errorClosing) {
-      currentStatusText = "Problem closing Splash";
+    if (!errorClosing) {
+      currentStatusText = "Problem opening Launcher";
     }
   }
 </script>
