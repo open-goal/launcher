@@ -20,14 +20,9 @@
 
   // Events
   onMount(async () => {
-    // TODO - tauri doesn't seem to handle this event being unlistented to properly (go back to closing the window)
-    // - need to make an issue
-    // For now, we'll just handle all close events ourselves
-    await appWindow.listen("tauri://close-requested", async () => {
-      // TODO - confirm during an install
-      await appWindow.close();
-    });
     // Temporary fix related to https://github.com/open-goal/launcher/issues/110
+    // TODO - this doesn't feel required anymore after i fixed the window switching
+    // but let's keep it for now because im paranoid about the issue cropping up again...
     if (window.sessionStorage.getItem("refreshHack") !== "true") {
       location.reload();
       window.sessionStorage.setItem("refreshHack", "true");

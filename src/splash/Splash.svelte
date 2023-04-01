@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { closeSplashScreen } from "$lib/rpc/window";
+  import { openMainWindow } from "$lib/rpc/window";
   import { onMount } from "svelte";
   import logo from "$assets/images/icon.webp";
   import { folderPrompt } from "$lib/utils/file";
@@ -60,9 +60,9 @@
     await new Promise((res) => setTimeout(res, 1000));
     currentProgress = 100;
     await new Promise((res) => setTimeout(res, 500));
-    const errorClosing = await closeSplashScreen();
-    if (errorClosing) {
-      currentStatusText = "Problem closing Splash";
+    const errorClosing = await openMainWindow();
+    if (!errorClosing) {
+      currentStatusText = "Problem opening Launcher";
     }
   }
 </script>

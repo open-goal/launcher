@@ -11,13 +11,13 @@ export async function openDir(directory: string): Promise<void> {
   }
 }
 
-export async function closeSplashScreen(): Promise<boolean> {
+export async function openMainWindow(): Promise<boolean> {
   try {
-    invoke("close_splashscreen");
+    invoke("open_main_window");
     return true;
   } catch (e) {
     exceptionLog(
-      "Unexpected error encountered when closing the splash screen",
+      "Unexpected error encountered when attempting to open the main window",
       e
     );
   }
