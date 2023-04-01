@@ -2258,7 +2258,6 @@ dependencies = [
 name = "opengoal-launcher"
 version = "2.0.5"
 dependencies = [
- "backtrace",
  "chrono",
  "dir-diff",
  "fern",
