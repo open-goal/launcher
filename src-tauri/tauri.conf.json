@@ -65,17 +65,8 @@
     },
     "windows": [
       {
-        "title": "OpenGOAL Launcher",
-        "width": 800,
-        "height": 600,
-        "resizable": false,
-        "fullscreen": false,
-        "visible": false,
-        "center": true,
-        "decorations": false
-      },
-      {
         "title": "OpenGOAL Launcher - Splash",
+        "label": "splashscreen",
         "width": 200,
         "height": 300,
         "center": true,
@@ -84,8 +75,8 @@
         "resizable": false,
         "fullscreen": false,
         "url": "./src/splash/index.html",
-        "label": "splashscreen",
-        "visible": true
+        "visible": true,
+        "focus": true
       }
     ],
     "security": {
