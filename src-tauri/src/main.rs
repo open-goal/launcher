@@ -3,6 +3,7 @@
   windows_subsystem = "windows"
 )]
 
+use directories::UserDirs;
 use fern::colors::{Color, ColoredLevelConfig};
 use tauri::{Manager, RunEvent};
 use util::file::create_dir;
