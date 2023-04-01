@@ -1,15 +1,15 @@
 {
-  "name": "v2.0.5",
-  "notes": "{\"changes\":[{\"description\":\"b/logs: do some things to try to log panics on startups\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/144\"},{\"description\":\"build(deps-dev): bump flowbite-svelte from 0.32.1 to 0.34.2\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/143\"},{\"description\":\"build(deps): bump sysinfo from 0.28.2 to 0.28.4\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/142\"},{\"description\":\"build(deps): bump serde_json from 1.0.94 to 1.0.95\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/141\"},{\"description\":\"build(deps-dev): bump @octokit/rest from 18.12.0 to 19.0.7\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/137\"},{\"description\":\"build(deps-dev): bump svelte-preprocess from 5.0.1 to 5.0.3\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/136\"},{\"description\":\"build(deps-dev): bump svelte from 3.55.1 to 3.58.0\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/145\"},{\"description\":\"build(deps): bump reqwest from 0.11.14 to 0.11.16\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/140\"},{\"description\":\"build(deps): bump thiserror from 1.0.39 to 1.0.40\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/133\"},{\"description\":\"build(deps): bump serde from 1.0.156 to 1.0.159\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/147\"}]}",
-  "pub_date": "2023-04-01T00:31:30Z",
+  "name": "v2.0.6",
+  "notes": "{\"changes\":[{\"description\":\"Revert \\\"b/logs: do some things to try to log panics on startups\\\"\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/148\"}]}",
+  "pub_date": "2023-04-01T05:58:49Z",
   "platforms": {
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2U5L3g4bm1ibytaellsRWp0OXFXZkE3UTA3NVBNdHFqOHlzcUFIUzFkOEVsT0prOHJyWWh0Skx5SW5JK2d6amR0bThhREM4QWx3emU0aXRYeWRXU0FJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgwMzA5ODYxCWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMC41X2FtZDY0LkFwcEltYWdlLnRhci5negpNSmNPYVllSkVRUUI2R0g5TlQ0S0hMRURYV3Z3QkxaU0sxRi9YNm9UR2pjNUU2b0dLcVBHeXB3bmU5SmNCekZmU1dNR0Y2SEJjSkFvNU13a2duVitBQT09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.5/OpenGOAL-Launcher_2.0.5_amd64.AppImage.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2E5OWZKQk9nMnBCNnlkKzNISFRyUDhiY1ZhVjNNTTY1c0l2VXpWNEw1MklUWG5FbExiK3N6RWIrWVIrS21YWW1CbXh3QWlOcnphU2JQWFFzbmNJVGdBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgwMzI5MTYzCWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMC42X2FtZDY0LkFwcEltYWdlLnRhci5negpWd0ljM2R3c0JRSVd6YTNrY3FPdlhpQWFWMzVRSllsU2lPSTVSS3lTa25tUUZSZlM0Z2R1dS9wdkFUU2g5bVAyajhKU2dzdXdGVHFQdnMva3NrVGlEUT09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.6/OpenGOAL-Launcher_2.0.6_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1NpRmphNHpxOHpRc3NVYVBDTlVzU004eGZwcmxSVExLMFJMY09JLy9RNm43ZUpLY29zYXZVbmNBTHZWYmJEbkU0dDBaSzUvV3lWQVpyL2oyTHBaeXdBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgwMzA5ODI3CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4wLjVfeDY0X2VuLVVTLm1zaS56aXAKamR6YmtlS2NrQTVYUkVPZktpTHVxZ1BrY1R5S29ISXZKajdjWndaUjI1ekkveFVhQWoxV1dqaFlVdlE0ZmMvUm13dlJ0OWNVMDQ5M3Zzdm5kNGIrQXc9PQo=",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.5/OpenGOAL-Launcher_2.0.5_x64_en-US.msi.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1gycVAwRFlHRU4rV1J4Vi9KMnBUUzd6dmZnaFhENGh5YUVpMUxVS0wxZmhUR1RZQnNONFIxQkNXMStZekYrYTFWQTFhcGxzYnNYeGh0SHVXUWJ0SlFVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgwMzI5MjU5CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4wLjZfeDY0X2VuLVVTLm1zaS56aXAKYWxLOW5wcmtNbjZLRTdTQ2dzVlNiMjlMa3ZnSmluZk1HNmpJbkpPK2pmaG1ETUxhcFZUajV1ZjlHam9NVG0vNVJyUHJtZFVUMDl5T1Z5WWpRaU5jQWc9PQo=",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.6/OpenGOAL-Launcher_2.0.6_x64_en-US.msi.zip"
     }
   }
 }
