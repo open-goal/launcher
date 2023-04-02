@@ -1,15 +1,15 @@
 {
-  "name": "v2.0.7",
-  "notes": "{\"changes\":[{\"description\":\"add logging for top-level crashes and fix window management\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/150\"}]}",
-  "pub_date": "2023-04-01T22:41:56Z",
+  "name": "v2.0.8",
+  "notes": "{\"changes\":[{\"description\":\"b/window: fix window size on non-100% scaling\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/151\"}]}",
+  "pub_date": "2023-04-02T01:51:52Z",
   "platforms": {
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2VDdGhEeXkrODRLQUkzbU1kRExBZkNvSmNnczNSWm05MW1TL1VXc2tjaUhJVkVRVDI0TFUyS1hWVzAyUkpTRGZEb1BEMGNacGpXRnZNN3Iwd2pHbkFNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgwMzg5OTExCWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMC43X2FtZDY0LkFwcEltYWdlLnRhci5negpnejJrVjNCclJISlN6a0JoejYveGd2SFI3Tm1OeUd2SzlzbnpNSldSQ1l1dStLNzhNbGQ3VUVrK1NKNmcwbXU4aDNHRXFmME4vbjczVWl4TTNqWnFEZz09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.7/OpenGOAL-Launcher_2.0.7_amd64.AppImage.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1o3eHpzVVc1dDVKaHVGeGNvby9zWGxzMU0yVldYNVpzZlRNaS9vdEl4Y0lpMkppM0Jjb0xVanR4NklwVHg0L0Rtem9iaVBJYldYTjYyQzhvWFIvV1FnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgwNDAwNzYxCWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMC44X2FtZDY0LkFwcEltYWdlLnRhci5negpLNWtTNHkvaHFmSWJLdnhWM3RqWHEyQXcvYlNkUHdZRW40dTBMMDhpQVE5RUF6YlRzdXk3Z2Rnc1F4ekd4L01wZDdWdkVrVDEveVlZbU5pUFd6dnZBdz09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.8/OpenGOAL-Launcher_2.0.8_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2V4cjlLc09IU0pUOGU0RkJNTlFSRVBHdWh0dU9XM3RDQU80R3dpWHJ6MDd5d0gzNjNDcWZXQTBhNG9oMlFOQ0VSRGluK3VzLzJrS3ljYm8yelhLTndBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgwMzg5ODQyCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4wLjdfeDY0X2VuLVVTLm1zaS56aXAKQjlWcXhkbDhzeUw0RE1sWFgySkVhakRoQXQ5UWdCbkJyNlpBb1M1TEw2azVHUDZnb1hBL2pnT3l0TTVLQ1g1YlROdVBGQTBaQ1p3UnNrUUtGR2p0RHc9PQo=",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.7/OpenGOAL-Launcher_2.0.7_x64_en-US.msi.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1p0T0ovSkFWQ1lYWDl3ODYwTGs0dXhkQ2h0N1BDVGlNVzJydGZZV1hUNWQvODJ5RGk3cnpmNDZDZ3JQcnJwL3Z1SkIybElXOUxHRUtsdTM3MUluUnc4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgwNDAwODEzCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4wLjhfeDY0X2VuLVVTLm1zaS56aXAKTlRyL1pIcFRIdjMxazdNenVDVEZWU0xCVFFsSWx0Yml4Y0ptc0hyRUErV2VBZ2JLbExjQzM5SUo5Y2NJK2NNUUt2QkttcjNxcWNjYWZXNmcxRnNjQnc9PQo=",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.8/OpenGOAL-Launcher_2.0.8_x64_en-US.msi.zip"
     }
   }
 }
