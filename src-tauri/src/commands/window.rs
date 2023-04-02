@@ -39,6 +39,8 @@ pub async fn open_main_window(handle: tauri::AppHandle) -> Result<(), CommandErr
   .visible(true)
   .center()
   .decorations(false)
+  .inner_size(800.0, 600.0)
+  .focused(true)
   .build()
   .map_err(|_| CommandError::WindowManagement(format!("Unable to create main launcher window")))?;
   log::info!("Closing splash window");
