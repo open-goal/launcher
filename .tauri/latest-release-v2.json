@@ -1,15 +1,15 @@
 {
-  "name": "v2.0.8",
-  "notes": "{\"changes\":[{\"description\":\"b/window: fix window size on non-100% scaling\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/151\"}]}",
-  "pub_date": "2023-04-02T01:51:52Z",
+  "name": "v2.0.9",
+  "notes": "{\"changes\":[{\"description\":\"build(deps-dev): bump execa from 7.1.0 to 7.1.1\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/153\"},{\"description\":\"build(deps-dev): bump @popperjs/core from 2.11.6 to 2.11.7\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/154\"},{\"description\":\"build(deps-dev): bump prettier-plugin-svelte from 2.9.0 to 2.10.0\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/156\"},{\"description\":\"build(deps-dev): bump flowbite-svelte from 0.34.2 to 0.34.4\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/155\"},{\"description\":\"build(deps-dev): bump @sveltejs/vite-plugin-svelte from 2.0.3 to 2.0.4\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/157\"},{\"description\":\"f/update: Fix version mismatch prompt mistake\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/158\"},{\"description\":\"Always copy data directory during the `extract` step\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/159\"}]}",
+  "pub_date": "2023-04-04T22:31:14Z",
   "platforms": {
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1o3eHpzVVc1dDVKaHVGeGNvby9zWGxzMU0yVldYNVpzZlRNaS9vdEl4Y0lpMkppM0Jjb0xVanR4NklwVHg0L0Rtem9iaVBJYldYTjYyQzhvWFIvV1FnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgwNDAwNzYxCWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMC44X2FtZDY0LkFwcEltYWdlLnRhci5negpLNWtTNHkvaHFmSWJLdnhWM3RqWHEyQXcvYlNkUHdZRW40dTBMMDhpQVE5RUF6YlRzdXk3Z2Rnc1F4ekd4L01wZDdWdkVrVDEveVlZbU5pUFd6dnZBdz09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.8/OpenGOAL-Launcher_2.0.8_amd64.AppImage.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2J4b0RtaHgwNWM4QU1MT2pVeUw0L05hdjBpWjdzdnBVZURaQXM1MGljSXNubmRqZ0YvbmU5N2tCbDZBTk1VQXhHRndwLytHQU50WmxqNlBOcm1wNkFZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgwNjQ4Mjc2CWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMC45X2FtZDY0LkFwcEltYWdlLnRhci5negptdktZcW52NDlpMkVLaFd5RmFjQW8xSWp2d0FzVG5Na3hEaU5GWEZGRlB6WmFQemRnTllsUGZYWXBpSlR0aHdvd0VubVFiUzdEbHlYcmFZQ0JCZlBCUT09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.9/OpenGOAL-Launcher_2.0.9_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1p0T0ovSkFWQ1lYWDl3ODYwTGs0dXhkQ2h0N1BDVGlNVzJydGZZV1hUNWQvODJ5RGk3cnpmNDZDZ3JQcnJwL3Z1SkIybElXOUxHRUtsdTM3MUluUnc4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgwNDAwODEzCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4wLjhfeDY0X2VuLVVTLm1zaS56aXAKTlRyL1pIcFRIdjMxazdNenVDVEZWU0xCVFFsSWx0Yml4Y0ptc0hyRUErV2VBZ2JLbExjQzM5SUo5Y2NJK2NNUUt2QkttcjNxcWNjYWZXNmcxRnNjQnc9PQo=",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.8/OpenGOAL-Launcher_2.0.8_x64_en-US.msi.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2NHS1M4WTYrMEhJWVViTmo1emZSeTdSdEpod21oZ2JrRFoyWllHMDB0c0xCOGlwUTlBR3RVaUpDeHIvQTI1YVdWR1BQTXJVZTJKZG5iZ2tkYjl1YVFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjgwNjQ4NTIzCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4wLjlfeDY0X2VuLVVTLm1zaS56aXAKVVlXeFZ1elRwcm5QekN1Nm51aUMxYVVCTDZUc2ZadDJlR0JQTjE2dTY5ZDNuUE1XME5yYTg5a3B0U0hUZ3RyaHc0MFZQaVRUaUZzR0YwQTNDaGtrQ2c9PQo=",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.0.9/OpenGOAL-Launcher_2.0.9_x64_en-US.msi.zip"
     }
   }
 }
