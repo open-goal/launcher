@@ -31,7 +31,7 @@
     </p>
     <ul class="list-disc list-inside mb-5">
       <li>Version: <strong>{$VersionStore.activeVersionName}</strong></li>
-      <li>Type: <strong>{$VersionStore.activeVersionName}</strong></li>
+      <li>Type: <strong>{$VersionStore.activeVersionType}</strong></li>
     </ul>
     <p class="mb-3">
       You can either update the game to this new version (no save data will be
