@@ -149,22 +149,20 @@ fn copy_data_dir(config_info: &CommonConfigData, game_name: &String) -> Result<(
 fn get_data_dir(
   config_info: &CommonConfigData,
   game_name: &String,
-  copy_if_needed: bool,
+  copy_directory: bool,
 ) -> Result<PathBuf, CommandError> {
   let data_folder = config_info
     .install_path
     .join("active")
     .join(game_name)
     .join("data");
-  if !data_folder.exists() {
-    if copy_if_needed {
-      copy_data_dir(&config_info, &game_name)?;
-    } else {
-      return Err(CommandError::BinaryExecution(format!(
-        "Could not locate relevant data directory '{}', can't perform operation",
-        data_folder.to_string_lossy()
-      )));
-    }
+  if !data_folder.exists() && !copy_directory {
+    return Err(CommandError::BinaryExecution(format!(
+      "Could not locate relevant data directory '{}', can't perform operation",
+      data_folder.to_string_lossy()
+    )));
+  } else if copy_directory {
+    copy_data_dir(&config_info, &game_name)?;
   }
   Ok(data_folder)
 }
@@ -267,6 +265,10 @@ pub async fn extract_and_validate_iso(
   let config_info = common_prelude(&config_lock)?;
 
   let data_folder = get_data_dir(&config_info, &game_name, true)?;
+  log::info!(
+    "extracting using data folder: {}",
+    data_folder.to_string_lossy()
+  );
   let exec_info = get_exec_location(&config_info, "extractor")?;
 
   let mut args = vec![
