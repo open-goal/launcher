@@ -2289,6 +2289,7 @@ dependencies = [
  "log",
  "reqwest",
  "rev_buf_reader",
+ "semver",
  "serde",
  "serde_json",
  "sysinfo",
