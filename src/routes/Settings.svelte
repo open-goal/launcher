@@ -15,6 +15,7 @@
 
 <div class="flex flex-col h-full bg-slate-900">
   <!-- https://flowbite-svelte.com/components/tab#Tabs_with_icons -->
+  <!-- TODO - the pb-20 is a bit of a hack figure out the actual problem with the DOM -->
   <Tabs
     style="underline"
     divider={false}

@@ -28,7 +28,8 @@
   }
 </script>
 
-<div class="flex flex-col h-full bg-slate-900 p-4 gap-3">
+<!-- TODO - the pb-20 is a bit of a hack (also done on settings) figure out the actual problem with the DOM -->
+<div class="flex flex-col h-full bg-slate-900 p-4 gap-3 overflow-y-auto pb-20">
   {#if $UpdateStore.launcher.updateAvailable}
     <h1 class="font-semibold text-xl text-orange-500">
       Launcher Update Available
