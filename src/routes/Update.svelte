@@ -10,6 +10,7 @@
     TableBodyRow,
     TableHead,
     TableHeadCell,
+    Toggle,
   } from "flowbite-svelte";
   import { UpdateStore } from "$lib/stores/AppStore";
   import Icon from "@iconify/svelte";
@@ -18,6 +19,7 @@
 
   let updating = false;
   let showChanges = false;
+  let showDependencyChanges = false;
 
   // TODO - add the timestamp, tauri doesn't use an ISO timestamp!
 
@@ -55,6 +57,7 @@
         btnClass="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
         on:click={() => (showChanges = !showChanges)}>View Changelog</Button
       >
+      <Toggle checked={showDependencyChanges}>Dependency Changes</Toggle>
     </div>
     {#if showChanges}
       <Table hoverable={true}>
@@ -67,7 +70,13 @@
           <TableHeadCell>Pull Request</TableHeadCell>
         </TableHead>
         <TableBody tableBodyClass="divide-y">
-          {#each launcherUpdateInfo.changeLog["changes"] as note}
+          {#each launcherUpdateInfo.changeLog["changes"].filter((note) => {
+            if (showDependencyChanges) {
+              return true;
+            } else {
+              return !note.contributor.includes("dependabot");
+            }
+          }) as note}
             <TableBodyRow>
               <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-bold"
                 >{note.contributor}</TableBodyCell
