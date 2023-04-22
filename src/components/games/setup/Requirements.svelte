@@ -1,14 +1,16 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { Alert } from "flowbite-svelte";
+  import { createEventDispatcher, onMount } from "svelte";
+  import { Alert, Button } from "flowbite-svelte";
   import { isAVXRequirementMet, isOpenGLRequirementMet } from "$lib/rpc/config";
 
   let isAVXMet = false;
   let isOpenGLMet = false;
 
+  const dispatch = createEventDispatcher();
+
   onMount(async () => {
-    isAVXMet = await isAVXRequirementMet();
-    isOpenGLMet = await isOpenGLRequirementMet();
+    isAVXMet = await isAVXRequirementMet(false);
+    isOpenGLMet = await isOpenGLRequirementMet(false);
   });
 
   function alertColor(val: boolean | undefined) {
@@ -84,4 +86,12 @@
       </ul>
     {/if}
   </Alert>
+  <Button
+    btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+    on:click={async () => {
+      isAVXMet = await isAVXRequirementMet(true);
+      isOpenGLMet = await isOpenGLRequirementMet(true);
+      dispatch("change");
+    }}>Re-check Requirements</Button
+  >
 </div>

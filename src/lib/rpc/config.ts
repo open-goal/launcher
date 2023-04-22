@@ -50,18 +50,22 @@ export async function setInstallationDirectory(
   }
 }
 
-export async function isAVXRequirementMet(): Promise<boolean | undefined> {
+export async function isAVXRequirementMet(
+  force: boolean
+): Promise<boolean | undefined> {
   try {
-    return await invoke("is_avx_requirement_met", {});
+    return await invoke("is_avx_requirement_met", { force: force });
   } catch (e) {
     exceptionLog("Unable to check if AVX requirement was met", e);
     return undefined;
   }
 }
 
-export async function isOpenGLRequirementMet(): Promise<boolean | undefined> {
+export async function isOpenGLRequirementMet(
+  force: boolean
+): Promise<boolean | undefined> {
   try {
-    const result = await invoke("is_opengl_requirement_met", {});
+    const result = await invoke("is_opengl_requirement_met", { force: force });
     if (typeof result === "boolean") {
       return result;
     }
@@ -69,14 +73,6 @@ export async function isOpenGLRequirementMet(): Promise<boolean | undefined> {
   } catch (e) {
     exceptionLog("Unable to check if OpenGL requirement was met", e);
     return undefined;
-  }
-}
-
-export async function setOpenGLRequirementMet(val: boolean): Promise<void> {
-  try {
-    return await invoke("set_opengl_requirement_met", { requirementMet: val });
-  } catch (e) {
-    exceptionLog("Unable to set OpenGL requirement", e);
   }
 }
 
