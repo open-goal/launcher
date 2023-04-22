@@ -140,6 +140,7 @@ fn main() {
       commands::binaries::open_repl,
       commands::binaries::run_compiler,
       commands::binaries::run_decompiler,
+      commands::config::reset_to_defaults,
       commands::config::finalize_installation,
       commands::config::has_old_data_directory,
       commands::config::delete_old_data_directory,

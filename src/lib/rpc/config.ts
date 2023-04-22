@@ -20,6 +20,17 @@ export async function deleteOldDataDirectory(): Promise<void> {
   }
 }
 
+export async function resetLauncherSettingsToDefaults(): Promise<boolean> {
+  try {
+    await invoke("reset_to_defaults", {});
+    return true;
+  } catch (e) {
+    exceptionLog("Unable to reset launcher settings to defaults", e);
+    toastStore.makeToast("Unable to reset settings", "error");
+    return false;
+  }
+}
+
 export async function getInstallationDirectory(): Promise<string | null> {
   try {
     return await invoke("get_install_directory", {});

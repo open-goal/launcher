@@ -196,6 +196,14 @@ impl LauncherConfig {
     Ok(())
   }
 
+  pub fn reset_to_defaults(&mut self) -> Result<(), ConfigError> {
+    let original_installation_dir = self.installation_dir.clone();
+    *self = Self::default(self.settings_path.clone());
+    self.installation_dir = original_installation_dir;
+    Self::save_config(self)?;
+    Ok(())
+  }
+
   pub fn set_install_directory(&mut self, new_dir: String) -> Result<Option<String>, ConfigError> {
     // Do some tests on this folder, if they fail, return a decent error
     let path = Path::new(&new_dir);
