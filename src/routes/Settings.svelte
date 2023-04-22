@@ -3,6 +3,7 @@
   import { useParams } from "svelte-navigator";
   import Folders from "./settings/Folders.svelte";
   import Versions from "./settings/Versions.svelte";
+  import General from "./settings/General.svelte";
 
   const params = useParams();
   $: activeTab = $params["tab"];
@@ -20,6 +21,14 @@
     divider={false}
     contentClass="p-4 pt-0 rounded-lg mt-2 pb-20 overflow-y-auto"
   >
+    <TabItem
+      open={!activeTab || activeTab === "general"}
+      title="General"
+      activeClasses={tabItemActiveClasses}
+      inactiveClasses={tabItemInactiveClasses}
+    >
+      <General />
+    </TabItem>
     <TabItem
       open={!activeTab || activeTab === "folders"}
       title="Folders"
