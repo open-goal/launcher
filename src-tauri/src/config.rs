@@ -242,8 +242,13 @@ impl LauncherConfig {
     Ok(None)
   }
 
-  pub fn set_opengl_requirement_met(&mut self, new_val: bool) -> Result<(), ConfigError> {
-    self.requirements.opengl = Some(new_val);
+  pub fn set_opengl_requirement_met(&mut self, new_val: Option<bool>) -> Result<(), ConfigError> {
+    match new_val {
+      Some(val) => {
+        self.requirements.opengl = Some(val);
+      }
+      None => self.requirements.opengl = None,
+    }
     self.save_config()?;
     Ok(())
   }

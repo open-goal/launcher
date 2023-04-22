@@ -20,11 +20,9 @@
     finalizeInstallation,
     isAVXRequirementMet,
     isOpenGLRequirementMet,
-    setOpenGLRequirementMet,
   } from "$lib/rpc/config";
   import { progressTracker } from "$lib/stores/ProgressStore";
   import { generateSupportPackage } from "$lib/rpc/support";
-  import { isOpenGLVersionSupported } from "$lib/sidecars/glewinfo";
 
   export let activeGame: SupportedGame;
 
@@ -36,14 +34,15 @@
 
   onMount(async () => {
     // Check requirements
-    const isAvxMet = await isAVXRequirementMet();
-    let isOpenGLMet = await isOpenGLRequirementMet();
-    if (isOpenGLMet === null || isOpenGLMet === undefined) {
-      isOpenGLMet = await isOpenGLVersionSupported("4.3");
-      await setOpenGLRequirementMet(isOpenGLMet);
-    }
-    requirementsMet = isAvxMet && isOpenGLMet;
+    await recheckRequirements();
   });
+
+  async function recheckRequirements() {
+    // Check requirements
+    const isAvxMet = await isAVXRequirementMet(false);
+    let isOpenGLMet = await isOpenGLRequirementMet(false);
+    requirementsMet = isAvxMet && isOpenGLMet;
+  }
 
   async function install(viaFolder: boolean) {
     let sourcePath = "";
@@ -117,7 +116,7 @@
 </script>
 
 {#if !requirementsMet}
-  <Requirements />
+  <Requirements on:change{recheckRequirements} />
 {:else if installing}
   <div class="flex flex-col justify-content">
     <Progress />

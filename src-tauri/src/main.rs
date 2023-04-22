@@ -151,7 +151,6 @@ fn main() {
       commands::config::is_avx_requirement_met,
       commands::config::is_game_installed,
       commands::config::is_opengl_requirement_met,
-      commands::config::set_opengl_requirement_met,
       commands::config::save_active_version_change,
       commands::config::set_install_directory,
       commands::game::reset_game_settings,
