@@ -80,7 +80,15 @@
     }
 
     // Sort releases by published date
-    releases = releases.sort((a, b) => b.date.localeCompare(a.date));
+    releases = releases.sort((a, b) => {
+      if (a.date === undefined) {
+        return 1;
+      }
+      if (b.date === undefined) {
+        return -1;
+      }
+      return b.date.localeCompare(a.date);
+    });
     versionsLoaded = true;
   }
 
