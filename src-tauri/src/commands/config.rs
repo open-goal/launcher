@@ -52,6 +52,7 @@ pub async fn set_install_directory(
   })?)
 }
 
+#[cfg(any(target_arch = "x86"))]
 #[tauri::command]
 pub async fn is_avx_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -64,6 +65,25 @@ pub async fn is_avx_requirement_met(
       } else {
         config_lock.requirements.avx = Some(false);
       }
+      config_lock.save_config().map_err(|err| {
+        log::error!("Unable to persist avx requirement change {}", err);
+        CommandError::Configuration(format!("Unable to persist avx requirement change"))
+      })?;
+      Ok(config_lock.requirements.avx.unwrap_or(false))
+    }
+    Some(val) => Ok(val),
+  }
+}
+
+#[cfg(any(target_arch = "aarch64"))]
+#[tauri::command]
+pub async fn is_avx_requirement_met(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  let mut config_lock = config.lock().await;
+  match config_lock.requirements.avx {
+    None => {
+      config_lock.requirements.avx = Some(false);
       config_lock.save_config().map_err(|err| {
         log::error!("Unable to persist avx requirement change {}", err);
         CommandError::Configuration(format!("Unable to persist avx requirement change"))
@@ -200,4 +220,22 @@ pub async fn get_active_tooling_version_folder(
 ) -> Result<Option<String>, CommandError> {
   let config_lock = config.lock().await;
   Ok(config_lock.active_version_folder.clone())
+}
+
+#[tauri::command]
+pub async fn get_background_disabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>
+) -> Result<Option<bool>, CommandError> {
+  let config_lock = config.lock().await;
+  Ok(config_lock.background_disabled.clone())
+}
+
+#[tauri::command]
+pub async fn set_background_disabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  disabled: bool) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  Ok(config_lock.set_background_disabled(disabled).map_err(|_| {
+    CommandError::Configuration(format!("Unable to persist background disabled"))
+  })?)
 }

@@ -14,13 +14,13 @@
     "inline-block text-sm font-normal text-center disabled:cursor-not-allowed p-4 border-b-2 border-transparent text-gray-400 hover:text-orange-300 hover:border-orange-500 dark:hover:text-orange-300 dark:text-orange-400";
 </script>
 
-<div class="flex flex-col h-full bg-slate-900">
+<div class="flex flex-col h-full bg-slate-900 px-4">
   <!-- https://flowbite-svelte.com/components/tab#Tabs_with_icons -->
   <!-- TODO - the pb-20 is a bit of a hack figure out the actual problem with the DOM -->
   <Tabs
     style="underline"
     divider={false}
-    contentClass="p-4 pt-0 rounded-lg mt-2 pb-20 overflow-y-auto"
+    contentClass="pt-0 rounded-lg mt-2 pb-20 overflow-y-auto"
   >
     <TabItem
       open={!activeTab || activeTab === "general"}

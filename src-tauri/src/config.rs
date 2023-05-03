@@ -117,6 +117,7 @@ pub struct LauncherConfig {
   pub installation_dir: Option<String>,
   pub active_version: Option<String>,
   pub active_version_folder: Option<String>,
+  pub background_disabled: Option<bool>
 }
 
 fn default_version() -> Option<String> {
@@ -134,6 +135,7 @@ impl LauncherConfig {
       installation_dir: None,
       active_version: None,
       active_version_folder: Some("official".to_string()),
+      background_disabled: Some(false)
     }
   }
 
@@ -267,6 +269,12 @@ impl LauncherConfig {
     new_version_folder: String,
   ) -> Result<(), ConfigError> {
     self.active_version_folder = Some(new_version_folder);
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_background_disabled(&mut self, val: bool) -> Result<(), ConfigError>{
+    self.background_disabled = Some(val);
     self.save_config()?;
     Ok(())
   }

@@ -4,7 +4,7 @@
   import bgVideoJak2 from "$assets/videos/background-jak2.webm";
   import bgVideoPosterJak2 from "$assets/images/background-jak2.webp";
   import { useLocation } from "svelte-navigator";
-  import { isGameInstalled } from "$lib/rpc/config";
+  import { isGameInstalled, getBackgroundVideoDisabled } from "$lib/rpc/config";
   import { onMount } from "svelte";
   import { listen } from "@tauri-apps/api/event";
 
@@ -12,8 +12,11 @@
   $: $location.pathname, updateStyle();
 
   let style = "absolute -z-50 object-fill h-screen";
+  let backgroundDisabled;
 
   onMount(async () => {
+    backgroundDisabled = await getBackgroundVideoDisabled();
+
     const unlistenInstalled = await listen("gameInstalled", (event) => {
       updateStyle();
     });
@@ -23,6 +26,7 @@
   });
 
   async function updateStyle(): Promise<void> {
+    backgroundDisabled = await getBackgroundVideoDisabled();
     let newStyle = "absolute -z-50 object-fill h-screen";
     let pathname = $location.pathname;
     if (pathname === "/jak1" || pathname === "/") {
@@ -50,7 +54,7 @@
   <video
     class={style}
     poster={bgVideoPosterJak1}
-    src={bgVideoJak1}
+    src={backgroundDisabled ? "" : bgVideoJak1}
     autoplay
     muted
     loop
@@ -59,7 +63,7 @@
   <video
     class={style}
     poster={bgVideoPosterJak2}
-    src={bgVideoJak2}
+    src={backgroundDisabled ? "" : bgVideoJak2}
     autoplay
     muted
     loop

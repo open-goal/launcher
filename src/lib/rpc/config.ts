@@ -147,3 +147,20 @@ export async function saveActiveVersionChange(
     return false;
   }
 }
+
+export async function getBackgroundVideoDisabled(): Promise<boolean> {
+  try {
+    return await invoke("get_background_disabled");
+  } catch (e) {
+    exceptionLog("Unable to check if background is disabled with", e);
+    return null;
+  }
+}
+
+export async function setBackgroundVideoDisabled(val: boolean): Promise<void> {
+  try {
+    return await invoke("set_background_disabled", { disabled: val });
+  } catch (e) {
+    exceptionLog("Unable to set background disabled", e);
+  }
+}

@@ -2,21 +2,35 @@
   import {
     getInstallationDirectory,
     resetLauncherSettingsToDefaults,
+    getBackgroundVideoDisabled,
+    setBackgroundVideoDisabled,
   } from "$lib/rpc/config";
   import { getActiveVersion, getActiveVersionFolder } from "$lib/rpc/versions";
   import { VersionStore } from "$lib/stores/VersionStore";
-  import { Button } from "flowbite-svelte";
+  import { Button, Toggle } from "flowbite-svelte";
   import { onMount } from "svelte";
 
   let currentInstallationDirectory = "";
+  let backgroundDisabled;
 
   onMount(async () => {
     currentInstallationDirectory = await getInstallationDirectory();
+    backgroundDisabled = await getBackgroundVideoDisabled();
   });
+
+  function handleDisableBackground(evt) {
+    backgroundDisabled = !backgroundDisabled;
+    setBackgroundVideoDisabled(backgroundDisabled);
+  }
 </script>
 
-<div class="flex flex-col gap-2 mt-2">
-  <div>
+<div class="mt-2 gap-y-1">
+  <div class="space-y-2">
+    <Toggle
+      color="orange"
+      checked={backgroundDisabled}
+      on:change={handleDisableBackground}>Disable background video</Toggle
+    >
     <Button
       btnClass="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
       on:click={async () => {
