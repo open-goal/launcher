@@ -153,7 +153,7 @@ export async function getBackgroundVideoDisabled(): Promise<boolean> {
     return await invoke("get_background_disabled");
   } catch (e) {
     exceptionLog("Unable to check if background is disabled with", e);
-    return null;
+    return false;
   }
 }
 

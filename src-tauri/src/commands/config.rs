@@ -78,20 +78,8 @@ pub async fn is_avx_requirement_met(
 #[cfg(any(target_arch = "aarch64"))]
 #[tauri::command]
 pub async fn is_avx_requirement_met(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<bool, CommandError> {
-  let mut config_lock = config.lock().await;
-  match config_lock.requirements.avx {
-    None => {
-      config_lock.requirements.avx = Some(false);
-      config_lock.save_config().map_err(|err| {
-        log::error!("Unable to persist avx requirement change {}", err);
-        CommandError::Configuration(format!("Unable to persist avx requirement change"))
-      })?;
-      Ok(config_lock.requirements.avx.unwrap_or(false))
-    }
-    Some(val) => Ok(val),
-  }
+) -> bool {
+  false
 }
 
 // TODO - investigate moving the OpenGL check into the rust layer via `wgpu`
