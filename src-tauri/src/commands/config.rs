@@ -52,7 +52,7 @@ pub async fn set_install_directory(
   })?)
 }
 
-#[cfg(any(target_arch = "x86"))]
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 #[tauri::command]
 pub async fn is_avx_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
