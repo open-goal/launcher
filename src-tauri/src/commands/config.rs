@@ -77,8 +77,7 @@ pub async fn is_avx_requirement_met(
 
 #[cfg(any(target_arch = "aarch64"))]
 #[tauri::command]
-pub async fn is_avx_requirement_met(
-) -> bool {
+pub async fn is_avx_requirement_met() -> bool {
   false
 }
 
@@ -212,7 +211,7 @@ pub async fn get_active_tooling_version_folder(
 
 #[tauri::command]
 pub async fn get_background_disabled(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<Option<bool>, CommandError> {
   let config_lock = config.lock().await;
   Ok(config_lock.background_disabled.clone())
@@ -221,9 +220,12 @@ pub async fn get_background_disabled(
 #[tauri::command]
 pub async fn set_background_disabled(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  disabled: bool) -> Result<(), CommandError> {
+  disabled: bool,
+) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
-  Ok(config_lock.set_background_disabled(disabled).map_err(|_| {
-    CommandError::Configuration(format!("Unable to persist background disabled"))
-  })?)
+  Ok(
+    config_lock
+      .set_background_disabled(disabled)
+      .map_err(|_| CommandError::Configuration(format!("Unable to persist background disabled")))?,
+  )
 }
