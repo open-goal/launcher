@@ -11,7 +11,7 @@
     "tauricon": "tauricon",
     "package": "node ./scripts/prepare-sidecars.mjs",
     "lint": "npx prettier --check .",
-    "format": "npx prettier --write .",
+    "format": "npx prettier --write . && cargo fmt --all --manifest-path ./src-tauri/Cargo.toml",
     "prepare-release-config": "node ./scripts/merge-config.js",
     "update-release-meta": "node ./scripts/update-release-meta.mjs",
     "release": "npm run prepare-release-config && npm run tauri build -- --config ./.tauri/release-config.combined.json",
