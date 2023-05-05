@@ -6,7 +6,6 @@
   import Settings from "./routes/Settings.svelte";
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
-  import { appWindow } from "@tauri-apps/api/window";
   import Header from "./components/header/Header.svelte";
   import Textures from "./routes/Textures.svelte";
   import Update from "./routes/Update.svelte";
@@ -15,6 +14,8 @@
   import { Toast } from "flowbite-svelte";
   import Help from "./routes/Help.svelte";
   import { toastStore } from "$lib/stores/ToastStore";
+  import { isLoading } from "svelte-i18n";
+  import BackgroundLoading from "./components/background/BackgroundLoading.svelte";
 
   let revokeSpecificActions = false;
 
@@ -59,41 +60,52 @@
 </script>
 
 <Router>
-  <div class="container h-screen max-w-none flex flex-col">
-    <Background />
-    <Header />
-    <div class="flex h-full">
-      <Sidebar />
-      <div id="content" class="basis-9/10">
-        <Route path="/" component={Game} primary={false} let:params />
-        <Route path="/:game_name" component={Game} primary={false} let:params />
-        <Route
-          path="/jak2"
-          component={GameInProgress}
-          primary={false}
-          let:params
-        />
-        <Route
-          path="/settings/:tab"
-          component={Settings}
-          primary={false}
-          let:params
-        />
-        <Route path="/faq" component={Help} primary={false} />
-        <Route path="/textures" component={Textures} primary={false} />
-        <Route path="/update" component={Update} primary={false} />
+  <div
+    class={`container h-screen max-w-none flex flex-col ${
+      $isLoading ? "bg-black" : ""
+    }`}
+  >
+    {#if !$isLoading}
+      <Background />
+      <Header />
+      <div class="flex h-full">
+        <Sidebar />
+        <div id="content" class="basis-9/10">
+          <Route path="/" component={Game} primary={false} let:params />
+          <Route
+            path="/:game_name"
+            component={Game}
+            primary={false}
+            let:params
+          />
+          <Route
+            path="/jak2"
+            component={GameInProgress}
+            primary={false}
+            let:params
+          />
+          <Route
+            path="/settings/:tab"
+            component={Settings}
+            primary={false}
+            let:params
+          />
+          <Route path="/faq" component={Help} primary={false} />
+          <Route path="/textures" component={Textures} primary={false} />
+          <Route path="/update" component={Update} primary={false} />
+        </div>
       </div>
-    </div>
-    {#if $toastStore.msg !== undefined}
-      <!-- TODO - make these look nice for info/warn/error levels -->
-      <Toast
-        color="green"
-        position="top-right"
-        class="top-20"
-        divClass="w-full max-w-xs p-2 pl-4"
-      >
-        {$toastStore.msg}
-      </Toast>
+      {#if $toastStore.msg !== undefined}
+        <!-- TODO - make these look nice for info/warn/error levels -->
+        <Toast
+          color="green"
+          position="top-right"
+          class="top-20"
+          divClass="w-full max-w-xs p-2 pl-4"
+        >
+          {$toastStore.msg}
+        </Toast>
+      {/if}
     {/if}
   </div>
 </Router>
