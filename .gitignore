@@ -35,6 +35,8 @@ glewinfo.txt
 /metadata.json
 .svelte-kit/
 glew-cmake/
+active/
+versions/
 
 TODO.md
 
