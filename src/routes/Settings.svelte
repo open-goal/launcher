@@ -2,6 +2,7 @@
   import { Tabs, TabItem } from "flowbite-svelte";
   import { useParams } from "svelte-navigator";
   import Folders from "./settings/Folders.svelte";
+  import LauncherSettings from "./settings/LauncherSettings.svelte";
   import Versions from "./settings/Versions.svelte";
   import General from "./settings/General.svelte";
 
@@ -45,6 +46,14 @@
       inactiveClasses={tabItemInactiveClasses}
     >
       <Versions />
+    </TabItem>
+    <TabItem
+      open={activeTab === "launchersettings"}
+      title="Launcher Settings"
+      activeClasses={tabItemActiveClasses}
+      inactiveClasses={tabItemInactiveClasses}
+    >
+    <LauncherSettings />
     </TabItem>
   </Tabs>
 </div>

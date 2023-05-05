@@ -40,6 +40,35 @@ export async function getInstallationDirectory(): Promise<string | null> {
   }
 }
 
+export async function getMoviePath(): Promise<string | null> {
+  try {
+    return await invoke("get_movie_directory", {});
+  } catch (e) {
+    exceptionLog("Unable to fetch background movie file.", e);
+    return null;
+  }
+}
+
+export async function setMoviePath(
+  newInstallDir: string
+): Promise<string | null> {
+  try {
+    // TODO - not insanely crazy about this pattern (message in the response instead of the error)
+    // consider changing it
+    const errMsg: string = await invoke("set_movie_directory", {
+      newDir: newInstallDir,
+    });
+    if (errMsg !== null) {
+      errorLog("Unable to set background movie directory");
+      toastStore.makeToast(errMsg, "error");
+    }
+    return errMsg;
+  } catch (e) {
+    exceptionLog("Unable to set background movie directory", e);
+    toastStore.makeToast("Invalid background movie directory", "error");
+    return "Unexpected error occurred";
+  }
+}
 export async function setInstallationDirectory(
   newInstallDir: string
 ): Promise<string | null> {

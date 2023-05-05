@@ -41,6 +41,29 @@ pub async fn get_install_directory(
   }
 }
 
+//ZED
+#[tauri::command]
+pub async fn get_movie_directory(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<Option<String>, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.movie_dir {
+    None => Ok(None),
+    Some(dir) => Ok(Some(dir.to_string())),
+  }
+}
+
+#[tauri::command]
+pub async fn set_movie_directory(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  new_dir: String,
+) -> Result<Option<String>, CommandError> {
+  let mut config_lock = config.lock().await;
+  Ok(config_lock.set_movie_directory(new_dir).map_err(|_| {
+    CommandError::Configuration(format!("Unable to persist movie directory"))
+  })?)
+}
+
 #[tauri::command]
 pub async fn set_install_directory(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,

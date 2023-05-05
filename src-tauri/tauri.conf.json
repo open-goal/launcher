@@ -43,6 +43,10 @@
     },
     "allowlist": {
       "all": true,
+      "protocol": {
+        "asset": true,
+        "assetScope": ["**"]
+      },
       "fs": {
         "scope": [
           "$APP/",

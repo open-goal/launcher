@@ -115,6 +115,7 @@ pub struct LauncherConfig {
   pub games: SupportedGames,
   pub last_active_game: Option<SupportedGame>,
   pub installation_dir: Option<String>,
+  pub movie_dir: Option<String>,
   pub active_version: Option<String>,
   pub active_version_folder: Option<String>,
 }
@@ -132,6 +133,7 @@ impl LauncherConfig {
       games: SupportedGames::default(),
       last_active_game: None,
       installation_dir: None,
+      movie_dir: None,
       active_version: None,
       active_version_folder: Some("official".to_string()),
     }
@@ -246,6 +248,24 @@ impl LauncherConfig {
     }
 
     self.installation_dir = Some(new_dir);
+    self.save_config()?;
+    Ok(None)
+  }
+
+  pub fn set_movie_directory(&mut self, new_dir: String) -> Result<Option<String>, ConfigError> {
+    // Do some tests on this file, if they fail, return a decent error
+    let path = Path::new(&new_dir);
+    if !path.exists() {
+      return Ok(Some("Provided file does not exist".to_owned()));
+    }
+
+    if !path.is_file() {
+      return Ok(Some("Provided file is not a file".to_owned()));
+    }
+
+    // TODO Check our permissions on the folder by touching a file (and deleting it)
+ 
+    self.movie_dir = Some(new_dir);
     self.save_config()?;
     Ok(None)
   }
