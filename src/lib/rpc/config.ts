@@ -98,7 +98,6 @@ export async function setJak2MoviePath(
     return "Unexpected error occurred";
   }
 }
-
 export async function setInstallationDirectory(
   newInstallDir: string
 ): Promise<string | null> {

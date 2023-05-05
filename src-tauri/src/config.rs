@@ -257,12 +257,15 @@ impl LauncherConfig {
   pub fn set_jak1_movie_directory(&mut self, new_dir: String) -> Result<Option<String>, ConfigError> {
     // Do some tests on this file, if they fail, return a decent error
     let path = Path::new(&new_dir);
-    if !path.exists() {
-      return Ok(Some("Provided file does not exist".to_owned()));
-    }
+    if (new_dir != "") {
+      if !path.exists() {
+        return Ok(Some("Provided file does not exist".to_owned()));
+      }
+  
+      if !path.is_file() {
+        return Ok(Some("Provided file is not a file".to_owned()));
+      }
 
-    if !path.is_file() {
-      return Ok(Some("Provided file is not a file".to_owned()));
     }
 
     // TODO Check our permissions on the folder by touching a file (and deleting it)
@@ -275,13 +278,17 @@ impl LauncherConfig {
   pub fn set_jak2_movie_directory(&mut self, new_dir: String) -> Result<Option<String>, ConfigError> {
     // Do some tests on this file, if they fail, return a decent error
     let path = Path::new(&new_dir);
-    if !path.exists() {
-      return Ok(Some("Provided file does not exist".to_owned()));
+    if (new_dir != "") {
+      if !path.exists() {
+        return Ok(Some("Provided file does not exist".to_owned()));
+      }
+  
+      if !path.is_file() {
+        return Ok(Some("Provided file is not a file".to_owned()));
+      }
+
     }
 
-    if !path.is_file() {
-      return Ok(Some("Provided file is not a file".to_owned()));
-    }
 
     // TODO Check our permissions on the folder by touching a file (and deleting it)
 
