@@ -20,7 +20,7 @@ chrono = "0.4.23"
 dir-diff = "0.3.2"
 directories = "5.0.0"
 fern = { version = "0.6.1", features = ["date-based","colored"] }
-flate2 = "1.0.25"
+flate2 = "1.0.26"
 fs_extra = "1.3.0"
 futures-util = "0.3.26"
 log = "0.4.17"
