@@ -53,7 +53,7 @@
       activeClasses={tabItemActiveClasses}
       inactiveClasses={tabItemInactiveClasses}
     >
-    <LauncherSettings />
+      <LauncherSettings />
     </TabItem>
   </Tabs>
 </div>

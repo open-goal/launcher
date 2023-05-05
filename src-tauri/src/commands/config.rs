@@ -59,9 +59,11 @@ pub async fn set_movie_directory(
   new_dir: String,
 ) -> Result<Option<String>, CommandError> {
   let mut config_lock = config.lock().await;
-  Ok(config_lock.set_movie_directory(new_dir).map_err(|_| {
-    CommandError::Configuration(format!("Unable to persist movie directory"))
-  })?)
+  Ok(
+    config_lock
+      .set_movie_directory(new_dir)
+      .map_err(|_| CommandError::Configuration(format!("Unable to persist movie directory")))?,
+  )
 }
 
 #[tauri::command]

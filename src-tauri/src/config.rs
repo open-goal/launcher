@@ -264,7 +264,7 @@ impl LauncherConfig {
     }
 
     // TODO Check our permissions on the folder by touching a file (and deleting it)
- 
+
     self.movie_dir = Some(new_dir);
     self.save_config()?;
     Ok(None)

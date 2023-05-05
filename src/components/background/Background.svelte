@@ -6,8 +6,7 @@
   import { getMoviePath, isGameInstalled } from "$lib/rpc/config";
   import { onMount } from "svelte";
   import { listen } from "@tauri-apps/api/event";
-  import { convertFileSrc } from '@tauri-apps/api/tauri';
-  
+  import { convertFileSrc } from "@tauri-apps/api/tauri";
 
   const location = useLocation();
   $: $location.pathname, updateStyle();
@@ -16,7 +15,7 @@
   //TODO Add logic to select background movie and fall back to default if needed.
   let bgVideoJak1;
   onMount(async () => {
-    bgVideoJak1 = convertFileSrc( await getMoviePath() );
+    bgVideoJak1 = convertFileSrc(await getMoviePath());
     const unlistenInstalled = await listen("gameInstalled", (event) => {
       updateStyle();
     });
@@ -26,7 +25,7 @@
   });
 
   async function updateStyle(): Promise<void> {
-    bgVideoJak1 = convertFileSrc( await getMoviePath() );
+    bgVideoJak1 = convertFileSrc(await getMoviePath());
     let newStyle = "absolute -z-50 object-fill h-screen";
     let pathname = $location.pathname;
     if (pathname === "/jak1" || pathname === "/") {
