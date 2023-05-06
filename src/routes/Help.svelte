@@ -18,7 +18,7 @@
 <div class="flex flex-col h-full bg-slate-900 p-4 gap-3">
   <h1 class="font-semibold text-xl text-orange-500">{$_("help_header")}</h1>
   <p class="text-sm">
-    {$_("help_header")}
+    {$_("help_foreword")}
   </p>
   <div class="flex flex-row mt-1 gap-2">
     <Button
