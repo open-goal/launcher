@@ -40,6 +40,7 @@
     "prettier": "^2.8.8",
     "prettier-plugin-svelte": "^2.10.0",
     "svelte": "^3.58.0",
+    "svelte-i18n": "^3.6.0",
     "svelte-preprocess": "^5.0.3",
     "tailwindcss": "^3.3.2",
     "typescript": "^5.0.4",
@@ -47,6 +48,7 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^1.2.0",
+    "country-flag-emoji-polyfill": "^0.1.4",
     "svelte-navigator": "^3.2.2"
   }
 }

@@ -117,6 +117,7 @@ pub struct LauncherConfig {
   pub installation_dir: Option<String>,
   pub active_version: Option<String>,
   pub active_version_folder: Option<String>,
+  pub locale: Option<String>,
 }
 
 fn default_version() -> Option<String> {
@@ -134,6 +135,7 @@ impl LauncherConfig {
       installation_dir: None,
       active_version: None,
       active_version_folder: Some("official".to_string()),
+      locale: None,
     }
   }
 
@@ -267,6 +269,12 @@ impl LauncherConfig {
     new_version_folder: String,
   ) -> Result<(), ConfigError> {
     self.active_version_folder = Some(new_version_folder);
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_locale(&mut self, new_locale: String) -> Result<(), ConfigError> {
+    self.locale = Some(new_locale);
     self.save_config()?;
     Ok(())
   }

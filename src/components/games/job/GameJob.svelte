@@ -14,6 +14,7 @@
   } from "$lib/rpc/binaries";
   import { finalizeInstallation } from "$lib/rpc/config";
   import { generateSupportPackage } from "$lib/rpc/support";
+  import { _ } from "svelte-i18n";
 
   export let activeGame: SupportedGame;
   export let jobType: Job;
@@ -32,11 +33,11 @@
       progressTracker.init([
         {
           status: "queued",
-          label: "Decompile",
+          label: $_("setup_decompile"),
         },
         {
           status: "queued",
-          label: "Done",
+          label: $_("setup_done"),
         },
       ]);
       progressTracker.start();
@@ -54,11 +55,11 @@
       progressTracker.init([
         {
           status: "queued",
-          label: "Compile",
+          label: $_("setup_compile"),
         },
         {
           status: "queued",
-          label: "Done",
+          label: $_("setup_done"),
         },
       ]);
       progressTracker.start();
@@ -76,19 +77,19 @@
       progressTracker.init([
         {
           status: "queued",
-          label: "Copy Files",
+          label: $_("setup_copyFiles"),
         },
         {
           status: "queued",
-          label: "Decompile",
+          label: $_("setup_decompile"),
         },
         {
           status: "queued",
-          label: "Compile",
+          label: $_("setup_compile"),
         },
         {
           status: "queued",
-          label: "Done",
+          label: $_("setup_done"),
         },
       ]);
       progressTracker.start();
@@ -137,7 +138,8 @@
     <div class="flex flex-row gap-2">
       <Button
         btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-        on:click={async () => dispatchCompleteJob()}>Continue</Button
+        on:click={async () => dispatchCompleteJob()}
+        >{$_("setup_button_continue")}</Button
       >
     </div>
   </div>
@@ -146,13 +148,13 @@
     <div class="flex flex-row gap-2">
       <Alert color="red" class="dark:bg-slate-900 flex-grow" accent={true}>
         <span class="font-medium text-red-500"
-          >Installation has failed!
+          >{$_("setup_installationFailed")}
         </span><span class="text-white"> {installationError}</span>
       </Alert>
       <Button
         btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         on:click={async () => await generateSupportPackage()}
-        >Get Support Package</Button
+        >{$_("setup_button_getSupportPackage")}</Button
       >
     </div>
   </div>

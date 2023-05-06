@@ -11,6 +11,7 @@
   import type { ReleaseInfo } from "$lib/utils/github";
   import { VersionStore } from "$lib/stores/VersionStore";
   import { saveActiveVersionChange } from "$lib/rpc/config";
+  import { _ } from "svelte-i18n";
 
   let versionsLoaded = false;
 
@@ -80,8 +81,8 @@
 
 <VersionList
   initiallyOpen={false}
-  name="Development"
-  description="This list serves as a convenient area to stage, manage and test new releases (either official or unofficial) This list will always require manual management via it's respective folder"
+  name={$_("settings_versions_devel_tabName")}
+  description={$_("settings_versions_devel_description")}
   releaseList={releases}
   loaded={versionsLoaded}
   releaseType="devel"

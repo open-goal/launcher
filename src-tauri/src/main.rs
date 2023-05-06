@@ -155,6 +155,8 @@ fn main() {
       commands::config::set_opengl_requirement_met,
       commands::config::save_active_version_change,
       commands::config::set_install_directory,
+      commands::config::get_locale,
+      commands::config::set_locale,
       commands::game::reset_game_settings,
       commands::game::uninstall_game,
       commands::support::generate_support_package,

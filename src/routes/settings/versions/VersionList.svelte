@@ -19,6 +19,7 @@
     TableHeadCell,
   } from "flowbite-svelte";
   import { createEventDispatcher } from "svelte";
+  import { _ } from "svelte-i18n";
 
   export let name: string;
   export let description: string;
@@ -71,7 +72,7 @@
               icon="material-symbols:save"
               width="20"
               height="20"
-              alt="save version change"
+              alt={$_("settings_versions_icon_save_altText")}
             />
           </Button>
         {/if}
@@ -83,7 +84,7 @@
             icon="material-symbols:refresh"
             width="20"
             height="20"
-            alt="refresh version list"
+            alt={$_("settings_versions_icon_refresh_altText")}
           />
         </Button>
         <Button
@@ -94,7 +95,7 @@
             icon="material-symbols:folder-open-rounded"
             width="20"
             height="20"
-            alt="open version folder"
+            alt={$_("settings_versions_icon_openFolder_altText")}
           />
         </Button>
       </div>
@@ -107,9 +108,15 @@
         <TableHeadCell>
           <span class="sr-only">Controls</span>
         </TableHeadCell>
-        <TableHeadCell>Version</TableHeadCell>
-        <TableHeadCell>Date</TableHeadCell>
-        <TableHeadCell>Changes</TableHeadCell>
+        <TableHeadCell
+          >{$_("settings_versions_table_header_version")}</TableHeadCell
+        >
+        <TableHeadCell
+          >{$_("settings_versions_table_header_date")}</TableHeadCell
+        >
+        <TableHeadCell
+          >{$_("settings_versions_table_header_changes")}</TableHeadCell
+        >
       </TableHead>
       <TableBody tableBodyClass="divide-y">
         {#each releaseList as release (release.version)}
@@ -154,6 +161,7 @@
                     width="24"
                     height="24"
                     color="red"
+                    alt={$_("settings_versions_icon_removeVersion_altText")}
                   />
                 {:else if release.pendingAction}
                   <Spinner color="yellow" size={"6"} />
@@ -163,6 +171,7 @@
                     color="#00d500"
                     width="24"
                     height="24"
+                    alt={$_("settings_versions_icon_downloadVersion_altText")}
                   />
                 {/if}
               </Button>
@@ -187,6 +196,7 @@
                     icon="mdi:github"
                     width="24"
                     height="24"
+                    alt={$_("settings_versions_icon_githubRelease_altText")}
                   /></a
                 >
               {/if}

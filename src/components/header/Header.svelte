@@ -1,6 +1,6 @@
 <script lang="ts">
   import { appWindow } from "@tauri-apps/api/window";
-  import logo from "$assets/images/icon.png";
+  import logo from "$assets/images/icon.webp";
   import { onMount } from "svelte";
   import { getVersion } from "@tauri-apps/api/app";
   import { Link } from "svelte-navigator";
@@ -16,6 +16,7 @@
   import { getLatestOfficialRelease } from "$lib/utils/github";
   import { VersionStore } from "$lib/stores/VersionStore";
   import { exceptionLog } from "$lib/rpc/logging";
+  import { _ } from "svelte-i18n";
 
   let launcherVerison = null;
 
@@ -94,7 +95,7 @@
 </script>
 
 <header
-  class="flex flex-row basis-1/10 bg-[#101010] pl-2 pr-4 pt-1 pb-1 items-center"
+  class="flex flex-row basis-1/10 bg-[#101010] pl-2 pr-4 pt-1 pb-1 items-center z-10"
   data-tauri-drag-region
 >
   <div class="flex flex-row items-center space-x-2 pointer-events-none">
@@ -132,7 +133,9 @@
         ? 'pointer-events-auto'
         : 'invisible pointer-events-none'}"
     >
-      <Link class="font-mono" to="/update">> Update Available!</Link>
+      <Link class="font-mono" to="/update"
+        >>&nbsp;{$_("header_updateAvailable")}</Link
+      >
     </p>
     <p
       class="font-mono text-sm hover:text-orange-300 {$UpdateStore
@@ -140,7 +143,8 @@
         ? 'pointer-events-auto'
         : 'invisible pointer-events-none'}"
     >
-      <Link class="font-mono " to="/settings/versions">> Update Available!</Link
+      <Link class="font-mono " to="/settings/versions"
+        >>&nbsp;{$_("header_updateAvailable")}</Link
       >
     </p>
   </div>

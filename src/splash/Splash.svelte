@@ -6,63 +6,70 @@
   import {
     deleteOldDataDirectory,
     getInstallationDirectory,
+    getLocale,
     oldDataDirectoryExists,
     setInstallationDirectory,
+    setLocale,
   } from "$lib/rpc/config";
+  import { AVAILABLE_LOCALES } from "$lib/i18n/i18n";
+  import { _ } from "svelte-i18n";
 
   let currentProgress = 10;
-  let currentStatusText = "Reading Settings";
+  let currentStatusText = $_("splash_step_readingSettings");
 
+  let selectLocale = false;
   let installationDirSet = true;
   let stepError = undefined;
   let oldDataDirToClean = false;
 
   // Events
   onMount(async () => {
-    currentStatusText = "Checking Directories";
+    // First, see if the user has selected a locale
+    await checkLocale();
+  });
+
+  // TODO - cleanup this code and make it easier to add steps like with
+  // the game setup
+
+  async function checkLocale() {
+    const locale = await getLocale();
+    if (locale === null) {
+      // Prompt the user to select a locale
+      selectLocale = true;
+    } else {
+      await checkDirectories();
+    }
+  }
+
+  async function checkDirectories() {
+    currentStatusText = $_("splash_step_checkingDirectories");
     currentProgress = 15;
     // Check to see if the install dir has been setup or not
     const install_dir = await getInstallationDirectory();
     if (install_dir === null) {
       // Check to see if they have the old data directory, ask them if they'd like us to
       // remove it
+      currentProgress = 25;
       const hasOldDataDir = await oldDataDirectoryExists();
       if (hasOldDataDir) {
         oldDataDirToClean = true;
       }
+      // If not -- let's ask the user to set one up
       installationDirSet = false;
     } else {
-      currentProgress = 25;
       finishSplash();
-    }
-  });
-
-  async function selectInstallationFolder() {
-    // If not -- let's ask the user to set one up
-    // This is part of what allows for the user to install the games and such wherever they want
-    currentStatusText = "Pick an Installation Folder";
-    currentProgress = 25;
-    const newInstallDir = await folderPrompt("Pick an Installation Folder");
-    if (newInstallDir !== undefined) {
-      const result = await setInstallationDirectory(newInstallDir);
-      if (result !== null) {
-        stepError = result;
-      } else {
-        installationDirSet = true;
-        finishSplash();
-      }
     }
   }
 
   async function finishSplash() {
     currentProgress = 50;
-    currentStatusText = "Finishing Up";
+    currentStatusText = $_("splash_step_finishingUp");
     await new Promise((res) => setTimeout(res, 1000));
     currentProgress = 100;
     await new Promise((res) => setTimeout(res, 500));
     const errorClosing = await openMainWindow();
     if (!errorClosing) {
-      currentStatusText = "Problem opening Launcher";
+      currentStatusText = $_("splash_step_errorOpening");
     }
   }
 </script>
@@ -72,8 +79,29 @@
     <img src={logo} alt="" draggable="false" />
   </div>
   <div class="splash-contents no-pointer-events">
-    {#if oldDataDirToClean}
-      The old installation folder is no longer needed, delete it?
+    {#if selectLocale}
+      <span class="mb-1">{$_("splash_selectLocale")}</span>
+      <div class="splash-select">
+        <select
+          name="cars"
+          id="cars"
+          class="pointer-events emoji-font"
+          on:change={async (evt) => {
+            setLocale(evt.target.value);
+            selectLocale = false;
+            await checkDirectories();
+          }}
+        >
+          <option disabled selected value hidden />
+          {#each AVAILABLE_LOCALES as locale}
+            <option class="emoji-font" value={locale.id}
+              >{locale.flag}&nbsp;{locale.localizedName}</option
+            >
+          {/each}
+        </select>
+      </div>
+    {:else if oldDataDirToClean}
+      {$_("splash_deleteOldInstallDir")}
       <br />
       <span>
         <button
@@ -81,33 +109,53 @@
           on:click={() => {
             oldDataDirToClean = false;
             deleteOldDataDirectory();
-          }}>Yes</button
+          }}>{$_("splash_button_deleteOldInstallDir_yes")}</button
         >
         <button
           class="splash-button pointer-events"
           on:click={() => {
             oldDataDirToClean = false;
-          }}>No</button
+          }}>{$_("splash_button_deleteOldInstallDir_no")}</button
         >
       </span>
     {:else if !installationDirSet}
       {#if stepError !== undefined}
         {stepError}
       {:else}
-        No installation directory set!
+        {$_("splash_noInstallDirSet")}
       {/if}
       <br />
       <button
         class="splash-button pointer-events"
-        on:click={selectInstallationFolder}>Set Install Folder</button
+        on:click={async () => {
+          // This is part of what allows for the user to install the games and such wherever they want
+          currentStatusText = $_("splash_step_pickInstallFolder");
+          currentProgress = 25;
+          const newInstallDir = await folderPrompt(
+            $_("splash_button_setInstallFolder_prompt")
+          );
+          if (newInstallDir !== undefined) {
+            const result = await setInstallationDirectory(newInstallDir);
+            if (result !== null) {
+              stepError = result;
+            } else {
+              installationDirSet = true;
+              finishSplash();
+            }
+          }
+        }}>{$_("splash_button_setInstallFolder")}</button
       >
     {:else}
       <div class="splash-status-text">{currentStatusText}</div>
     {/if}
   </div>
   <div class="splash-bar">
-    <div class="splash-status-bar fg" style="width: {currentProgress}%" />
-    <div class="splash-status-bar bg" />
+    <div
+      data-tauri-drag-region
+      class="splash-status-bar fg"
+      style="width: {currentProgress}%"
+    />
+    <div data-tauri-drag-region class="splash-status-bar bg" />
   </div>
 </div>
 
@@ -133,7 +181,7 @@
     height: 35%;
     align-items: center;
     justify-content: center;
-    font-family: "Roboto Mono", monospace;
+    font-family: "Twemoji Country Flags", "Roboto Mono", monospace;
     font-size: 10pt;
     text-align: center;
     padding-left: 10px;
@@ -217,5 +265,13 @@
 
   .pointer-events {
     pointer-events: auto;
+  }
+
+  .mb-1 {
+    margin-bottom: 1rem;
+  }
+
+  .emoji-font {
+    font-family: "Twemoji Country Flags", "Roboto Mono";
   }
 </style>

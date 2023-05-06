@@ -2,6 +2,7 @@ import { toastStore } from "$lib/stores/ToastStore";
 import { invoke } from "@tauri-apps/api/tauri";
 import { errorLog, exceptionLog } from "./logging";
 import type { VersionFolders } from "./versions";
+import { locale } from "svelte-i18n";
 
 export async function oldDataDirectoryExists(): Promise<boolean> {
   try {
@@ -145,5 +146,23 @@ export async function saveActiveVersionChange(
     exceptionLog("Unable to save version change", e);
     toastStore.makeToast("Couldn't save version change", "error");
     return false;
+  }
+}
+
+export async function getLocale(): Promise<String | null> {
+  try {
+    return await invoke("get_locale", {});
+  } catch (e) {
+    exceptionLog("Unable to get locale", e);
+    return "en-US";
+  }
+}
+
+export async function setLocale(locale_string: string): Promise<void> {
+  try {
+    await invoke("set_locale", { locale: locale_string });
+    locale.set(locale_string);
+  } catch (e) {
+    exceptionLog("Unable to set locale", e);
   }
 }

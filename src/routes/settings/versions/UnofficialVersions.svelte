@@ -11,6 +11,7 @@
   import type { ReleaseInfo } from "$lib/utils/github";
   import { VersionStore } from "$lib/stores/VersionStore";
   import { saveActiveVersionChange } from "$lib/rpc/config";
+  import { _ } from "svelte-i18n";
 
   let versionsLoaded = false;
 
@@ -83,9 +84,8 @@
 
 <VersionList
   initiallyOpen={false}
-  name="Unofficial"
-  description="Unofficial versions are typically modified `jak-project` releases to enable changes or new content. These are not supported by the OpenGOAL team and will have to be
-  manually added to the folder at this time"
+  name={$_("settings_versions_unofficial_tabName")}
+  description={$_("settings_versions_unofficial_description")}
   releaseList={releases}
   loaded={versionsLoaded}
   releaseType="unofficial"
