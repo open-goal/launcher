@@ -12,9 +12,8 @@
     "package": "node ./scripts/prepare-sidecars.mjs",
     "lint": "npx prettier --check .",
     "format": "npx prettier --write .",
-    "prepare-release-config": "node ./scripts/merge-config.js",
     "update-release-meta": "node ./scripts/update-release-meta.mjs",
-    "release": "npm run prepare-release-config && npm run tauri build -- --config ./.tauri/release-config.combined.json",
+    "release": "npm run tauri build -- --config ./.tauri/release-config.json",
     "release-id": "node ./scripts/get-release-id.mjs"
   },
   "devDependencies": {

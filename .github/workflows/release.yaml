@@ -7,7 +7,7 @@ on:
 
 jobs:
   create-release:
-    if: github.repository == 'xTVaser/launcher'
+    if: github.repository == 'open-goal/launcher'
     runs-on: ubuntu-latest
     outputs:
       release_id: ${{ steps.get_release_id.outputs.release_id }}
@@ -22,7 +22,7 @@ jobs:
           GH_TOKEN: ${{ secrets.BOT_PAT }}
         run: |
           TAG_VAL=$(echo ${{ github.REF }} | awk -F'refs/tags/' '{print $2}')
-          gh release create ${TAG_VAL} --generate-notes --draft --repo xTVaser/launcher
+          gh release create ${TAG_VAL} --generate-notes --draft --repo open-goal/launcher
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -46,7 +46,7 @@ jobs:
           echo "release_id=${RELEASE_ID}" >> $GITHUB_OUTPUT
 
   build-app:
-    if: github.repository == 'xTVaser/launcher'
+    if: github.repository == 'open-goal/launcher'
     needs: [create-release]
     strategy:
       fail-fast: false
@@ -91,9 +91,6 @@ jobs:
           yarn package
           yarn build
 
-      - name: Prepare Release Config
-        run: yarn prepare-release-config
-
       - uses: tauri-apps/tauri-action@v0
         name: Build Tauri App
         timeout-minutes: 30
@@ -106,7 +103,7 @@ jobs:
           releaseId: ${{needs.create-release.outputs.release_id}}
 
   publish-release:
-    if: github.repository == 'xTVaser/launcher'
+    if: github.repository == 'open-goal/launcher'
     needs: [create-release, build-app]
     runs-on: ubuntu-latest
     steps:
