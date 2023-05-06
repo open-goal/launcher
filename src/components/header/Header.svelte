@@ -15,7 +15,7 @@
   } from "$lib/rpc/versions";
   import { getLatestOfficialRelease } from "$lib/utils/github";
   import { VersionStore } from "$lib/stores/VersionStore";
-  import { exceptionLog } from "$lib/rpc/logging";
+  import { exceptionLog, infoLog } from "$lib/rpc/logging";
   import { _ } from "svelte-i18n";
 
   let launcherVerison = null;
@@ -39,7 +39,9 @@
           changeLog = JSON.parse(updateResult.manifest.body);
         } catch (e) {
           exceptionLog(
-            "Could not parse changelog JSON from release metadata",
+            `Could not parse changelog JSON from release metadata - ${JSON.stringify(
+              updateResult
+            )}`,
             e
           );
         }
@@ -49,7 +51,7 @@
           date: updateResult.manifest.date,
           changeLog: changeLog,
         };
-        console.log("OG: Launcher Update Available");
+        infoLog(`Launcher Update Available`);
       } else {
         $UpdateStore.launcher = {
           updateAvailable: false,
@@ -57,7 +59,7 @@
           date: null,
           changeLog: [],
         };
-        console.log("OG: Launcher is up to date");
+        infoLog(`Launcher is up to date - ${JSON.stringify(updateResult)}`);
       }
     }
 
