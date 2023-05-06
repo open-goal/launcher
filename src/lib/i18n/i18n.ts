@@ -94,6 +94,11 @@ export const AVAILABLE_LOCALES: Locale[] = [
     localizedName: "Nederlands",
   },
   {
+    id: "no-NO",
+    flag: "🇳🇴",
+    localizedName: "Norsk",
+  },
+  {
     id: "pl-PL",
     flag: "🇵🇱",
     localizedName: "Polski",
@@ -120,7 +125,7 @@ export const AVAILABLE_LOCALES: Locale[] = [
   },
   {
     id: "sr-SP",
-    flag: "🇸🇪",
+    flag: "🇷🇸",
     localizedName: "Srpski",
   },
   {
