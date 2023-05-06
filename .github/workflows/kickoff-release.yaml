@@ -15,7 +15,7 @@ on:
 
 jobs:
   kick-off-release:
-    if: github.repository == 'open-goal/launcher'
+    if: github.repository == 'xTVaser/launcher'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
