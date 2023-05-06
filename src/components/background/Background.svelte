@@ -11,7 +11,7 @@
   const location = useLocation();
   $: $location.pathname, updateStyle();
 
-  let style = "absolute -z-50 object-fill h-screen";
+  let style = "absolute object-fill h-screen";
 
   onMount(async () => {
     const unlistenInstalled = await listen("gameInstalled", (event) => {
@@ -23,7 +23,7 @@
   });
 
   async function updateStyle(): Promise<void> {
-    let newStyle = "absolute -z-50 object-fill h-screen";
+    let newStyle = "absolute object-fill h-screen";
     let pathname = $location.pathname;
     if (pathname === "/jak1" || pathname === "/") {
       if (!(await isGameInstalled("jak1"))) {

@@ -201,3 +201,23 @@ pub async fn get_active_tooling_version_folder(
   let config_lock = config.lock().await;
   Ok(config_lock.active_version_folder.clone())
 }
+
+#[tauri::command]
+pub async fn get_locale(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<Option<String>, CommandError> {
+  let config_lock = config.lock().await;
+  Ok(config_lock.locale.clone())
+}
+
+#[tauri::command]
+pub async fn set_locale(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  locale: String,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .set_locale(locale)
+    .map_err(|_| CommandError::Configuration(format!("Unable to persist locale change")))?;
+  Ok(())
+}

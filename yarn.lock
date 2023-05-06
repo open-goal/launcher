@@ -1421,6 +1421,13 @@ core-util-is@~1.0.0:
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.3.tgz#a6042d3634c2b27e9328f837b965fac83808db85"
   integrity sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==
 
+country-flag-emoji-polyfill@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/country-flag-emoji-polyfill/-/country-flag-emoji-polyfill-0.1.4.tgz#54b7ca61220c124b11d3091c46d16bd7f3ba0016"
+  integrity sha512-e20azlb9yHb3mpL3lAlhkidmJgB5TELpA8oe0DPlyIfnqXhAGBmgLDpC+mm+Envh57n1xPrOfkJtXq2CrpvoGQ==
+  dependencies:
+    is-emoji-supported "^0.0.5"
+
 cross-env@7.0.3:
   version "7.0.3"
   resolved "https://registry.yarnpkg.com/cross-env/-/cross-env-7.0.3.tgz#865264b29677dc015ba8418918965dd232fc54cf"
@@ -2624,6 +2631,11 @@ is-core-module@^2.9.0:
   integrity sha512-RRjxlvLDkD1YJwDbroBHMb+cukurkDWNyHx7D3oNB5x9rb5ogcksMC5wHCadcXoo67gVr/+3GFySh3134zi6rw==
   dependencies:
     has "^1.0.3"
+
+is-emoji-supported@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/is-emoji-supported/-/is-emoji-supported-0.0.5.tgz#f22301b22c63d6322935e829f39dfa59d03a7fe2"
+  integrity sha512-WOlXUhDDHxYqcSmFZis+xWhhqXiK2SU0iYiqmth5Ip0FHLZQAt9rKL5ahnilE8/86WH8tZ3bmNNNC+bTzamqlw==
 
 is-extglob@^2.1.1:
   version "2.1.1"

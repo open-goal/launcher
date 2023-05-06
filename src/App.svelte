@@ -15,7 +15,6 @@
   import Help from "./routes/Help.svelte";
   import { toastStore } from "$lib/stores/ToastStore";
   import { isLoading } from "svelte-i18n";
-  import BackgroundLoading from "./components/background/BackgroundLoading.svelte";
 
   let revokeSpecificActions = false;
 
@@ -60,15 +59,11 @@
 </script>
 
 <Router>
-  <div
-    class={`container h-screen max-w-none flex flex-col ${
-      $isLoading ? "bg-black" : ""
-    }`}
-  >
+  <div class={`container h-screen max-w-none flex flex-col bg-black`}>
     {#if !$isLoading}
       <Background />
       <Header />
-      <div class="flex h-full">
+      <div class="flex h-full z-10">
         <Sidebar />
         <div id="content" class="basis-9/10">
           <Route path="/" component={Game} primary={false} let:params />

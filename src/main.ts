@@ -1,14 +1,12 @@
-import { init, register } from "svelte-i18n";
+import { initLocales } from "$lib/i18n/i18n";
 import "./app.postcss";
 import App from "./App.svelte";
+import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
+
+polyfillCountryFlagEmojis();
 
 // Register Translations
-register("en-US", () => import("$assets/translations/en-US.json"));
-register("fr-FR", () => import("$assets/translations/fr-FR.json"));
-init({
-  fallbackLocale: "en-US",
-  initialLocale: "en-US", // TODO - get this from the config
-});
+initLocales(true);
 
 const app = new App({
   target: document.getElementById("app"),
