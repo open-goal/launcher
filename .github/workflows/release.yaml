@@ -121,6 +121,9 @@ jobs:
           node-version: 16
           cache: yarn
 
+      # TODO - at this stage, we should check the release prior to publishing it
+      # check it has all artifacts we expect and they don't 404
+
       - name: update release metadata and publish the release
         env:
           GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
