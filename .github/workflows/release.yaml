@@ -91,9 +91,6 @@ jobs:
           yarn package
           yarn build
 
-      - name: Prepare Release Config
-        run: yarn prepare-release-config
-
       - uses: tauri-apps/tauri-action@v0
         name: Build Tauri App
         timeout-minutes: 30
@@ -102,7 +99,7 @@ jobs:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
-          configPath: "./.tauri/release-config.combined.json"
+          args: "--config ./.tauri/release-config.json"
           releaseId: ${{needs.create-release.outputs.release_id}}
 
   publish-release:
