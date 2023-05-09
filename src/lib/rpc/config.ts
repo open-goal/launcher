@@ -149,7 +149,7 @@ export async function saveActiveVersionChange(
   }
 }
 
-export async function getLocale(): Promise<String | null> {
+export async function getLocale(): Promise<string | null> {
   try {
     return await invoke("get_locale", {});
   } catch (e) {
