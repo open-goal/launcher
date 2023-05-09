@@ -37,6 +37,8 @@
       // Prompt the user to select a locale
       selectLocale = true;
     } else {
+      // Set locale and continue
+      setLocale(locale);
       await checkDirectories();
     }
   }
