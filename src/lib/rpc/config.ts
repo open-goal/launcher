@@ -162,3 +162,20 @@ export async function setLocale(locale_string: string): Promise<void> {
     exceptionLog("Unable to set locale", e);
   }
 }
+
+export async function setBypassRequirements(bypass: boolean): Promise<void> {
+  try {
+    await invoke("set_bypass_requirements", { bypass: bypass });
+  } catch (e) {
+    exceptionLog("Unable to set bypress requirements", e);
+  }
+}
+
+export async function getBypassRequirements(): Promise<boolean> {
+  try {
+    return await invoke("get_bypass_requirements", {});
+  } catch (e) {
+    exceptionLog("Unable to get bypress requirements setting", e);
+    return false;
+  }
+}

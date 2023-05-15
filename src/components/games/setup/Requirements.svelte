@@ -1,8 +1,13 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
   import { Alert, Button } from "flowbite-svelte";
-  import { isAVXRequirementMet, isOpenGLRequirementMet } from "$lib/rpc/config";
+  import {
+    isAVXRequirementMet,
+    isOpenGLRequirementMet,
+    setBypassRequirements,
+  } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
+  import { confirm } from "@tauri-apps/api/dialog";
 
   let isAVXMet = false;
   let isOpenGLMet = false;
@@ -89,12 +94,28 @@
       </ul>
     {/if}
   </Alert>
-  <Button
-    btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-    on:click={async () => {
-      isAVXMet = await isAVXRequirementMet(true);
-      isOpenGLMet = await isOpenGLRequirementMet(true);
-      dispatch("change");
-    }}>Re-check Requirements</Button
-  >
+  <div>
+    <Button
+      btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+      on:click={async () => {
+        isAVXMet = await isAVXRequirementMet(true);
+        isOpenGLMet = await isOpenGLRequirementMet(true);
+        console.log("blerg");
+        dispatch("recheckRequirements");
+      }}>Recheck Requirements</Button
+    >
+    <Button
+      btnClass="border-solid border-2 border-slate-900 rounded bg-orange-800 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+      on:click={async () => {
+        const confirmed = await confirm(
+          "If you believe the requirement checks are false, you can bypass them.\n\nHowever, if you are wrong you should expect issues installing or running the game!",
+          { title: "OpenGOAL Launcher", type: "warning" }
+        );
+        if (confirmed) {
+          await setBypassRequirements(true);
+          dispatch("recheckRequirements");
+        }
+      }}>Bypass Requirements</Button
+    >
+  </div>
 </div>

@@ -62,6 +62,15 @@ pub async fn is_avx_requirement_met(
   if force {
     config_lock.requirements.avx = None;
   }
+  match config_lock.requirements.bypass_requirements {
+    Some(bypass) => {
+      if bypass {
+        log::warn!("Bypassing the AVX requirements check!");
+        return Ok(true);
+      }
+    }
+    _ => (),
+  }
   match config_lock.requirements.avx {
     None => {
       if is_x86_feature_detected!("avx") || is_x86_feature_detected!("avx2") {
@@ -95,6 +104,15 @@ pub async fn is_opengl_requirement_met(
   let mut config_lock = config.lock().await;
   if force {
     config_lock.requirements.opengl = None;
+  }
+  match config_lock.requirements.bypass_requirements {
+    Some(bypass) => {
+      if bypass {
+        log::warn!("Bypassing the OpenGL requirements check!");
+        return Ok(Some(true));
+      }
+    }
+    _ => (),
   }
   match config_lock.requirements.opengl {
     None => {
@@ -283,5 +301,28 @@ pub async fn set_locale(
   config_lock
     .set_locale(locale)
     .map_err(|_| CommandError::Configuration(format!("Unable to persist locale change")))?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn get_bypass_requirements(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  let config_lock = config.lock().await;
+  match config_lock.requirements.bypass_requirements {
+    Some(val) => Ok(val),
+    None => Ok(false),
+  }
+}
+
+#[tauri::command]
+pub async fn set_bypass_requirements(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  bypass: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_bypass_requirements(bypass).map_err(|_| {
+    CommandError::Configuration(format!("Unable to persist bypass requirements change"))
+  })?;
   Ok(())
 }

@@ -113,7 +113,9 @@ impl GameConfig {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Requirements {
+  pub bypass_requirements: Option<bool>,
   pub avx: Option<bool>,
   #[serde(rename = "openGL")]
   pub opengl: Option<bool>,
@@ -122,6 +124,7 @@ pub struct Requirements {
 impl Requirements {
   fn default() -> Self {
     Self {
+      bypass_requirements: Some(false),
       avx: None,
       opengl: None,
     }
@@ -323,6 +326,12 @@ impl LauncherConfig {
 
   pub fn set_locale(&mut self, new_locale: String) -> Result<(), ConfigError> {
     self.locale = Some(new_locale);
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_bypass_requirements(&mut self, bypass: bool) -> Result<(), ConfigError> {
+    self.requirements.bypass_requirements = Some(bypass);
     self.save_config()?;
     Ok(())
   }

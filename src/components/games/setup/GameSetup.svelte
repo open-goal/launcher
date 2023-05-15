@@ -31,10 +31,11 @@
 
   onMount(async () => {
     // Check requirements
-    await recheckRequirements();
+    await checkRequirements();
   });
 
-  async function recheckRequirements() {
+  async function checkRequirements() {
+    console.log("blerg 2");
     // Check requirements
     const isAvxMet = await isAVXRequirementMet(false);
     let isOpenGLMet = await isOpenGLRequirementMet(false);
@@ -113,7 +114,7 @@
 </script>
 
 {#if !requirementsMet}
-  <Requirements on:change{recheckRequirements} />
+  <Requirements on:recheckRequirements={checkRequirements} />
 {:else if installing}
   <div class="flex flex-col justify-content">
     <Progress />
