@@ -39,7 +39,7 @@ const octokit = new Octokit({
 /*
 
 ## What's Changed
-* jak1/speedruns: Some final touches for speedrunning in jak 1 by @xTVaser in https://github.com/open-goal/jak-project/pull/1830
+* jak1/speedruns: Some final touches for speedrunning in jak 1 by @open-goal in https://github.com/open-goal/jak-project/pull/1830
 
 **Full Changelog**: https://github.com/open-goal/jak-project/compare/v0.1.28...v0.1.29
 

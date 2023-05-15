@@ -7,6 +7,7 @@ use std::{
 };
 
 use log::{info, warn};
+use semver::Version;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -493,16 +494,53 @@ pub async fn launch_game(
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
+  let tooling_version = Version::parse(
+    config_info
+      .active_version
+      .strip_prefix("v")
+      .unwrap_or(&config_info.active_version),
+  )
+  .unwrap_or(Version::new(0, 1, 35)); // assume new format if none can be found
+
   let data_folder = get_data_dir(&config_info, &game_name, false)?;
   let exec_info = get_exec_location(&config_info, "gk")?;
 
-  let mut args = vec!["-boot".to_string(), "-fakeiso".to_string()];
+  let mut args;
   // NOTE - order unfortunately matters for gk args
-  if in_debug {
-    args.push("-debug".to_string());
+  if tooling_version.major == 0 && tooling_version.minor <= 1 && tooling_version.patch < 35 {
+    // old argument format
+    args = vec![
+      "-boot".to_string(),
+      "-fakeiso".to_string(),
+      "-proj-path".to_string(),
+      data_folder.to_string_lossy().into_owned(),
+    ];
+    if in_debug {
+      args.push("-debug".to_string());
+    }
+  } else {
+    args = vec![
+      "-v".to_string(),
+      "--game".to_string(),
+      game_name,
+      "--proj-path".to_string(),
+      data_folder.to_string_lossy().into_owned(),
+      "--".to_string(),
+      "-boot".to_string(),
+      "-fakeiso".to_string(),
+    ];
+    if in_debug {
+      args.push("-debug".to_string());
+    }
   }
-  args.push("-proj-path".to_string());
-  args.push(data_folder.to_string_lossy().into_owned());
+
+  log::info!(
+    "Launching game version {:?} -> {:?} with args: {:?}",
+    &config_info.active_version,
+    tooling_version,
+    args
+  );
+
   let log_file = create_log_file(&app_handle, "game.log", false)?;
   let mut command = Command::new(exec_info.executable_path);
   command

@@ -1,10 +1,6 @@
 <script lang="ts">
   import Progress from "./Progress.svelte";
-  import {
-    getGameTitle,
-    getInternalName,
-    type SupportedGame,
-  } from "$lib/constants";
+  import { getInternalName, type SupportedGame } from "$lib/constants";
   import LogViewer from "./LogViewer.svelte";
   import Requirements from "./Requirements.svelte";
   import { createEventDispatcher, onMount } from "svelte";
@@ -23,6 +19,7 @@
   } from "$lib/rpc/config";
   import { progressTracker } from "$lib/stores/ProgressStore";
   import { generateSupportPackage } from "$lib/rpc/support";
+  import { _ } from "svelte-i18n";
 
   export let activeGame: SupportedGame;
 
@@ -60,19 +57,19 @@
       progressTracker.init([
         {
           status: "queued",
-          label: "Extract and Verify",
+          label: $_("setup_extractAndVerify"),
         },
         {
           status: "queued",
-          label: "Decompile",
+          label: $_("setup_decompile"),
         },
         {
           status: "queued",
-          label: "Compile",
+          label: $_("setup_compile"),
         },
         {
           status: "queued",
-          label: "Done",
+          label: $_("setup_done"),
         },
       ]);
       // TODO - make this cleaner
@@ -129,7 +126,8 @@
       <div class="flex flex-row gap-2">
         <Button
           btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-          on:click={async () => await dispatchSetupEvent()}>Continue</Button
+          on:click={async () => await dispatchSetupEvent()}
+          >{$_("setup_button_continue")}</Button
         >
       </div>
     </div>
@@ -138,13 +136,13 @@
       <div class="flex flex-row gap-2">
         <Alert color="red" class="dark:bg-slate-900 flex-grow" accent={true}>
           <span class="font-medium text-red-500"
-            >Installation has failed!
+            >{$_("setup_installationFailed")}
           </span><span class="text-white"> {installationError}</span>
         </Alert>
         <Button
           btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
           on:click={async () => await generateSupportPackage()}
-          >Get Support Package</Button
+          >{$_("setup_button_getSupportPackage")}</Button
         >
       </div>
     </div>
@@ -154,12 +152,13 @@
     <h1
       class="tracking-tighter text-2xl font-bold pb-3 text-orange-500 text-outline"
     >
-      {getGameTitle(activeGame)}
+      {$_(`gameName_${getInternalName(activeGame)}`)}
     </h1>
     <div class="flex flex-row gap-2">
       <Button
         btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-        on:click={async () => await install(false)}>Install via ISO</Button
+        on:click={async () => await install(false)}
+        >{$_("setup_button_installViaISO")}</Button
       >
       <!-- TODO - disabled for now, needs fixes in the extractor -->
       <!-- <Button

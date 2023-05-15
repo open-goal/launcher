@@ -21,6 +21,17 @@ pub async fn delete_old_data_directory(app_handle: tauri::AppHandle) -> Result<(
 }
 
 #[tauri::command]
+pub async fn reset_to_defaults(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.reset_to_defaults().map_err(|_| {
+    CommandError::Configuration(format!("Unable to reset configuration to defaults"))
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
 pub async fn get_install_directory(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<Option<String>, CommandError> {
@@ -253,4 +264,24 @@ pub async fn get_active_tooling_version_folder(
 ) -> Result<Option<String>, CommandError> {
   let config_lock = config.lock().await;
   Ok(config_lock.active_version_folder.clone())
+}
+
+#[tauri::command]
+pub async fn get_locale(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<Option<String>, CommandError> {
+  let config_lock = config.lock().await;
+  Ok(config_lock.locale.clone())
+}
+
+#[tauri::command]
+pub async fn set_locale(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  locale: String,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .set_locale(locale)
+    .map_err(|_| CommandError::Configuration(format!("Unable to persist locale change")))?;
+  Ok(())
 }

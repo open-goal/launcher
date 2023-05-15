@@ -10,14 +10,17 @@
     TableBodyRow,
     TableHead,
     TableHeadCell,
+    Toggle,
   } from "flowbite-svelte";
   import { UpdateStore } from "$lib/stores/AppStore";
   import Icon from "@iconify/svelte";
+  import { _ } from "svelte-i18n";
 
   $: launcherUpdateInfo = $UpdateStore?.launcher;
 
   let updating = false;
   let showChanges = false;
+  let showDependencyChanges = false;
 
   // TODO - add the timestamp, tauri doesn't use an ISO timestamp!
 
@@ -28,17 +31,19 @@
   }
 </script>
 
-<div class="flex flex-col h-full bg-slate-900 p-4 gap-3">
+<!-- TODO - the pb-20 is a bit of a hack (also done on settings) figure out the actual problem with the DOM -->
+<div class="flex flex-col h-full bg-slate-900 p-4 gap-3 overflow-y-auto pb-20">
   {#if $UpdateStore.launcher.updateAvailable}
     <h1 class="font-semibold text-xl text-orange-500">
-      Launcher Update Available
+      {$_("settings_tabs_general")}
     </h1>
     <p>
-      Version: <strong>{launcherUpdateInfo.versionNumber}</strong>
+      {$_("update_versionLabel")}:&nbsp;<strong
+        >{launcherUpdateInfo.versionNumber}</strong
+      >
     </p>
     <p class="text-sm">
-      View the changes below and click the button to update to the latest
-      version. The launcher will restart when finished.
+      {$_("update_description")}
     </p>
     <div class="flex flex-row mt-1 gap-3">
       <Button
@@ -49,11 +54,18 @@
         {#if updating}
           <Spinner class="mr-3" size="4" color="white" />
         {/if}
-        Update Launcher
+        {$_("update_button_doUpdate")}
       </Button>
       <Button
         btnClass="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
-        on:click={() => (showChanges = !showChanges)}>View Changelog</Button
+        on:click={() => (showChanges = !showChanges)}
+        >{$_("update_button_viewChangelog")}g</Button
+      >
+      <Toggle
+        checked={showDependencyChanges}
+        on:change={(evt) => {
+          showDependencyChanges = evt.target.checked;
+        }}>{$_("update_button_hideDependencyChanges")}</Toggle
       >
     </div>
     {#if showChanges}
@@ -62,12 +74,24 @@
           class="p-2 font-semibold text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800"
         />
         <TableHead>
-          <TableHeadCell>Contributor</TableHeadCell>
-          <TableHeadCell>Description</TableHeadCell>
-          <TableHeadCell>Pull Request</TableHeadCell>
+          <TableHeadCell
+            >{$_("update_changelog_header_contributor")}</TableHeadCell
+          >
+          <TableHeadCell
+            >{$_("update_changelog_header_description")}</TableHeadCell
+          >
+          <TableHeadCell
+            >{$_("update_changelog_header_pullRequest")}</TableHeadCell
+          >
         </TableHead>
         <TableBody tableBodyClass="divide-y">
-          {#each launcherUpdateInfo.changeLog["changes"] as note}
+          {#each launcherUpdateInfo.changeLog["changes"].filter((note) => {
+            if (showDependencyChanges) {
+              return true;
+            } else {
+              return !note.contributor.includes("dependabot");
+            }
+          }) as note}
             <TableBodyRow>
               <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-bold"
                 >{note.contributor}</TableBodyCell
@@ -95,6 +119,8 @@
       </Table>
     {/if}
   {:else}
-    <h1 class="font-semibold text-xl text-orange-500">You're Up to Date!</h1>
+    <h1 class="font-semibold text-xl text-orange-500">
+      {$_("update_alreadyUpToDate")}
+    </h1>
   {/if}
 </div>

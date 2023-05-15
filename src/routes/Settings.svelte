@@ -3,6 +3,8 @@
   import { useParams } from "svelte-navigator";
   import Folders from "./settings/Folders.svelte";
   import Versions from "./settings/Versions.svelte";
+  import General from "./settings/General.svelte";
+  import { _ } from "svelte-i18n";
 
   const params = useParams();
   $: activeTab = $params["tab"];
@@ -15,14 +17,23 @@
 
 <div class="flex flex-col h-full bg-slate-900">
   <!-- https://flowbite-svelte.com/components/tab#Tabs_with_icons -->
+  <!-- TODO - the pb-20 is a bit of a hack figure out the actual problem with the DOM -->
   <Tabs
     style="underline"
     divider={false}
     contentClass="p-4 pt-0 rounded-lg mt-2 pb-20 overflow-y-auto"
   >
     <TabItem
+      open={!activeTab || activeTab === "general"}
+      title={$_("settings_tabs_general")}
+      activeClasses={tabItemActiveClasses}
+      inactiveClasses={tabItemInactiveClasses}
+    >
+      <General />
+    </TabItem>
+    <TabItem
       open={!activeTab || activeTab === "folders"}
-      title="Folders"
+      title={$_("settings_tabs_folders")}
       activeClasses={tabItemActiveClasses}
       inactiveClasses={tabItemInactiveClasses}
     >
@@ -30,7 +41,7 @@
     </TabItem>
     <TabItem
       open={activeTab === "versions"}
-      title="Version Management"
+      title={$_("settings_tabs_versions")}
       activeClasses={tabItemActiveClasses}
       inactiveClasses={tabItemInactiveClasses}
     >
