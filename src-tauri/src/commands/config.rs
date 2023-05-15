@@ -115,11 +115,11 @@ pub async fn is_opengl_requirement_met(
           &wgpu::DeviceDescriptor {
             features: wgpu::Features::empty(),
             limits: wgpu::Limits {
-              // These are OpenGL 4.3 minimums
+              // These are OpenGL 4.3 minimums where these values
+              // were the maximum (not inclusive) for 4.2
               max_texture_dimension_1d: 16384,
               max_texture_dimension_2d: 16384,
               max_texture_dimension_3d: 2048,
-              max_uniform_buffer_binding_size: 256 * 1024 * 1024,
               ..wgpu::Limits::default()
             },
             label: None,
