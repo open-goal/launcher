@@ -65,7 +65,7 @@
       on:change={async (evt) => {
         await setBypassRequirements(evt.target.checked);
         currentBypassRequirementsVal = await getBypassRequirements();
-      }}>Bypass Requirements Check</Toggle
+      }}>{$_("settings_general_toggle_bypassRequirementsCheck")}</Toggle
     >
   </div>
   <div>

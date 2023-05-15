@@ -100,22 +100,23 @@
       on:click={async () => {
         isAVXMet = await isAVXRequirementMet(true);
         isOpenGLMet = await isOpenGLRequirementMet(true);
-        console.log("blerg");
         dispatch("recheckRequirements");
-      }}>Recheck Requirements</Button
+      }}>{$_("requirements_button_recheck")}</Button
     >
     <Button
       btnClass="border-solid border-2 border-slate-900 rounded bg-orange-800 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       on:click={async () => {
         const confirmed = await confirm(
-          "If you believe the requirement checks are false, you can bypass them.\n\nHowever, if you are wrong you should expect issues installing or running the game!",
+          `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
+            "requirements_button_bypass_warning_2"
+          )}`,
           { title: "OpenGOAL Launcher", type: "warning" }
         );
         if (confirmed) {
           await setBypassRequirements(true);
           dispatch("recheckRequirements");
         }
-      }}>Bypass Requirements</Button
+      }}>{$_("requirements_button_bypass")}</Button
     >
   </div>
 </div>
