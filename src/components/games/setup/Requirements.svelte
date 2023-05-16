@@ -1,15 +1,22 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { Alert } from "flowbite-svelte";
-  import { isAVXRequirementMet, isOpenGLRequirementMet } from "$lib/rpc/config";
+  import { createEventDispatcher, onMount } from "svelte";
+  import { Alert, Button } from "flowbite-svelte";
+  import {
+    isAVXRequirementMet,
+    isOpenGLRequirementMet,
+    setBypassRequirements,
+  } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
+  import { confirm } from "@tauri-apps/api/dialog";
 
   let isAVXMet = false;
   let isOpenGLMet = false;
 
+  const dispatch = createEventDispatcher();
+
   onMount(async () => {
-    isAVXMet = await isAVXRequirementMet();
-    isOpenGLMet = await isOpenGLRequirementMet();
+    isAVXMet = await isAVXRequirementMet(false);
+    isOpenGLMet = await isOpenGLRequirementMet(false);
   });
 
   function alertColor(val: boolean | undefined) {
@@ -87,4 +94,29 @@
       </ul>
     {/if}
   </Alert>
+  <div>
+    <Button
+      btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+      on:click={async () => {
+        isAVXMet = await isAVXRequirementMet(true);
+        isOpenGLMet = await isOpenGLRequirementMet(true);
+        dispatch("recheckRequirements");
+      }}>{$_("requirements_button_recheck")}</Button
+    >
+    <Button
+      btnClass="border-solid border-2 border-slate-900 rounded bg-orange-800 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+      on:click={async () => {
+        const confirmed = await confirm(
+          `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
+            "requirements_button_bypass_warning_2"
+          )}`,
+          { title: "OpenGOAL Launcher", type: "warning" }
+        );
+        if (confirmed) {
+          await setBypassRequirements(true);
+          dispatch("recheckRequirements");
+        }
+      }}>{$_("requirements_button_bypass")}</Button
+    >
+  </div>
 </div>
