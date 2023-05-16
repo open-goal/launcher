@@ -59,7 +59,7 @@
       <Button
         btnClass="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
         on:click={() => (showChanges = !showChanges)}
-        >{$_("update_button_viewChangelog")}g</Button
+        >{$_("update_button_viewChangelog")}</Button
       >
       <Toggle
         checked={showDependencyChanges}
