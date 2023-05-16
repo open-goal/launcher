@@ -732,11 +732,6 @@
   resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-12.11.0.tgz#da5638d64f2b919bca89ce6602d059f1b52d3ef0"
   integrity sha512-VsXyi8peyRq9PqIz/tpqiL2w3w80OgVMwBHltTml3LmVvXiphgeqmY9mvBw9Wu7e0QWk/fqD37ux8yP5uVekyQ==
 
-"@octokit/openapi-types@^16.0.0":
-  version "16.0.0"
-  resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-16.0.0.tgz#d92838a6cd9fb4639ca875ddb3437f1045cc625e"
-  integrity sha512-JbFWOqTJVLHZSUUoF4FzAZKYtqdxWu9Z5m2QQnOyEa04fOFljvyh7D3GYKbfuaSWisqehImiVIMG4eyJeP5VEA==
-
 "@octokit/openapi-types@^17.1.2":
   version "17.1.2"
   resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-17.1.2.tgz#b7bc1cc5d3581adac9dce197a21f0e5f2ceaabf1"
@@ -770,10 +765,10 @@
     "@octokit/types" "^6.0.3"
     bottleneck "^2.15.3"
 
-"@octokit/plugin-throttling@^5.2.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@octokit/plugin-throttling/-/plugin-throttling-5.2.0.tgz#036109a4afcabf8ec47e4a20e8601820fd329cbd"
-  integrity sha512-qWYvVIS1aRC3hN4a0ICWUp51IolHIn7E4iri2AKjbExJaovMDvRtae4nGoxG5pP6+WATk7JZ5epOJobFbGYV1w==
+"@octokit/plugin-throttling@^5.2.1":
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/@octokit/plugin-throttling/-/plugin-throttling-5.2.1.tgz#0600a0165bb439afaf40cf7cccae21cea7b3fd03"
+  integrity sha512-UUTFP301/gYEgsPABIP35QZR4dEXPtyoXHCQhPXU8U4FphXKjXOahoMlHg/T4IQVWMmSy607zsqThuBkpV9Gjg==
   dependencies:
     "@octokit/types" "^9.0.0"
     bottleneck "^2.15.3"
@@ -816,14 +811,7 @@
   dependencies:
     "@octokit/openapi-types" "^12.11.0"
 
-"@octokit/types@^9.0.0":
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/@octokit/types/-/types-9.0.0.tgz#6050db04ddf4188ec92d60e4da1a2ce0633ff635"
-  integrity sha512-LUewfj94xCMH2rbD5YJ+6AQ4AVjFYTgpp6rboWM5T7N3IsIF65SBEOVcYMGAEzO/kKNiNaW4LoWtoThOhH06gw==
-  dependencies:
-    "@octokit/openapi-types" "^16.0.0"
-
-"@octokit/types@^9.2.2":
+"@octokit/types@^9.0.0", "@octokit/types@^9.2.2":
   version "9.2.2"
   resolved "https://registry.yarnpkg.com/@octokit/types/-/types-9.2.2.tgz#d111d33928f288f48083bfe49d8a9a5945e67db1"
   integrity sha512-9BjDxjgQIvCjNWZsbqyH5QC2Yni16oaE6xL+8SUBMzcYPF4TGQBXGA97Cl3KceK9mwiNMb1mOYCz6FbCCLEL+g==
