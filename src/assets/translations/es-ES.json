@@ -91,7 +91,7 @@
   "help_button_reportLauncherIssue": "Informar Error del Lanzador",
   "help_button_reportGameIssue": "Reportar problema del juego",
   "settings_tabs_general": "General",
-  "settings_tabs_folders": "Folders",
+  "settings_tabs_folders": "Versions",
   "settings_tabs_versions": "Versiones",
   "update_header": "Actualización del Lanzador disponible",
   "update_versionLabel": "Versión",
