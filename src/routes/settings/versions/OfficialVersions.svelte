@@ -156,6 +156,11 @@
     }
     releases = releases;
   }
+
+  async function onRedownloadVersion(event: any) {
+    await onRemoveVersion(event);
+    await onDownloadVersion(event);
+  }
 </script>
 
 <VersionList
@@ -170,4 +175,5 @@
   on:versionChange={saveOfficialVersionChange}
   on:removeVersion={onRemoveVersion}
   on:downloadVersion={onDownloadVersion}
+  on:redownloadVersion={onRedownloadVersion}
 />
