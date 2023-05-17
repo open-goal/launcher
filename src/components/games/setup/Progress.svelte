@@ -4,6 +4,7 @@
     type ProgressStatus,
   } from "$lib/stores/ProgressStore";
   import Icon from "@iconify/svelte";
+
   $: progress = $progressTracker;
 
   const iconContainerStyle =

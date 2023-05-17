@@ -1,8 +1,12 @@
+import { initLocales } from "$lib/i18n/i18n";
 import "./app.postcss";
-import { loadTranslations } from "$lib/translations/translations";
 import App from "./App.svelte";
+import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
 
-loadTranslations("english");
+polyfillCountryFlagEmojis();
+
+// Register Translations
+initLocales(true);
 
 const app = new App({
   target: document.getElementById("app"),

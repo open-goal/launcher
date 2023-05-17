@@ -1,4 +1,4 @@
-name: Build
+name: 🔨 Build
 
 on:
   push:
@@ -48,7 +48,6 @@ jobs:
       - name: Install NPM Dependencies
         run: |
           yarn install --frozen-lockfile
-          yarn package
           yarn build
 
       - uses: tauri-apps/tauri-action@v0

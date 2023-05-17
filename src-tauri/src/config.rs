@@ -9,10 +9,12 @@
 //
 // serde does not support defaultLiterals yet - https://github.com/serde-rs/serde/issues/368
 
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::str::FromStr;
 
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::util::file::touch_file;
 
@@ -26,22 +28,69 @@ pub enum ConfigError {
   Configuration(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Hash)]
 pub enum SupportedGame {
-  JAK1,
-  JAK2,
-  JAK3,
-  JAKX,
+  Jak1,
+  Jak2,
+  Jak3,
+  JakX,
 }
 
 impl SupportedGame {
-  fn as_str(&self) -> &'static str {
+  fn internal_str(&self) -> &'static str {
     match self {
-      Self::JAK1 => "Jak 1",
-      Self::JAK2 => "Jak 2",
-      Self::JAK3 => "Jak 3",
-      Self::JAKX => "Jak X",
+      SupportedGame::Jak1 => "jak1",
+      SupportedGame::Jak2 => "jak2",
+      SupportedGame::Jak3 => "jak3",
+      SupportedGame::JakX => "jakx",
     }
+  }
+}
+
+impl FromStr for SupportedGame {
+  type Err = String;
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    match s {
+      "jak1" => Ok(Self::Jak1),
+      "jak2" => Ok(Self::Jak2),
+      "jak3" => Ok(Self::Jak3),
+      "jakx" => Ok(Self::JakX),
+      _ => Err(format!("Invalid variant: {}", s)),
+    }
+  }
+}
+
+impl<'de> Deserialize<'de> for SupportedGame {
+  fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+  where
+    D: Deserializer<'de>,
+  {
+    let s = String::deserialize(deserializer)?;
+    match s.as_str() {
+      "Jak 1" => Ok(SupportedGame::Jak1),
+      "Jak 2" => Ok(SupportedGame::Jak2),
+      "Jak 3" => Ok(SupportedGame::Jak3),
+      "Jak X" => Ok(SupportedGame::JakX),
+      _ => Err(serde::de::Error::unknown_variant(
+        &s,
+        &["Jak 1", "Jak 2", "Jak 3", "Jak X"],
+      )),
+    }
+  }
+}
+
+impl Serialize for SupportedGame {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    serializer.serialize_str(match self {
+      SupportedGame::Jak1 => "Jak 1",
+      SupportedGame::Jak2 => "Jak 2",
+      SupportedGame::Jak3 => "Jak 3",
+      SupportedGame::JakX => "Jak X",
+    })
   }
 }
 
@@ -64,30 +113,9 @@ impl GameConfig {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct SupportedGames {
-  #[serde(rename = "Jak 1")]
-  pub jak1: GameConfig,
-  #[serde(rename = "Jak 2")]
-  pub jak2: GameConfig,
-  #[serde(rename = "Jak 3")]
-  pub jak3: GameConfig,
-  #[serde(rename = "Jak X")]
-  pub jakx: GameConfig,
-}
-
-impl SupportedGames {
-  fn default() -> Self {
-    Self {
-      jak1: GameConfig::default(),
-      jak2: GameConfig::default(),
-      jak3: GameConfig::default(),
-      jakx: GameConfig::default(),
-    }
-  }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Requirements {
+  pub bypass_requirements: Option<bool>,
   pub avx: Option<bool>,
   #[serde(rename = "openGL")]
   pub opengl: Option<bool>,
@@ -96,6 +124,7 @@ pub struct Requirements {
 impl Requirements {
   fn default() -> Self {
     Self {
+      bypass_requirements: Some(false),
       avx: None,
       opengl: None,
     }
@@ -112,11 +141,12 @@ pub struct LauncherConfig {
   #[serde(default = "default_version")]
   pub version: Option<String>,
   pub requirements: Requirements,
-  pub games: SupportedGames,
+  pub games: HashMap<SupportedGame, GameConfig>,
   pub last_active_game: Option<SupportedGame>,
   pub installation_dir: Option<String>,
   pub active_version: Option<String>,
   pub active_version_folder: Option<String>,
+  pub locale: Option<String>,
 }
 
 fn default_version() -> Option<String> {
@@ -125,15 +155,21 @@ fn default_version() -> Option<String> {
 
 impl LauncherConfig {
   fn default(_settings_path: Option<PathBuf>) -> Self {
+    let mut default_games = HashMap::new();
+    default_games.insert(SupportedGame::Jak1, GameConfig::default());
+    default_games.insert(SupportedGame::Jak2, GameConfig::default());
+    default_games.insert(SupportedGame::Jak3, GameConfig::default());
+    default_games.insert(SupportedGame::JakX, GameConfig::default());
     Self {
       settings_path: _settings_path,
       version: default_version(),
       requirements: Requirements::default(),
-      games: SupportedGames::default(),
+      games: default_games,
       last_active_game: None,
       installation_dir: None,
       active_version: None,
       active_version_folder: Some("official".to_string()),
+      locale: None,
     }
   }
 
@@ -236,10 +272,22 @@ impl LauncherConfig {
         if *old_dir != new_dir {
           self.active_version = None;
           self.active_version_folder = None;
-          // TODO - when i cleanup the gross code below, also clean this up
-          self.games.jak1.is_installed = false;
-          self.games.jak1.version = None;
-          self.games.jak1.version_folder = None;
+          self.update_installed_game_version(
+            &SupportedGame::Jak1.internal_str().to_string(),
+            false,
+          )?;
+          self.update_installed_game_version(
+            &SupportedGame::Jak2.internal_str().to_string(),
+            false,
+          )?;
+          self.update_installed_game_version(
+            &SupportedGame::Jak3.internal_str().to_string(),
+            false,
+          )?;
+          self.update_installed_game_version(
+            &SupportedGame::JakX.internal_str().to_string(),
+            false,
+          )?;
         }
       }
       _ => (),
@@ -250,8 +298,13 @@ impl LauncherConfig {
     Ok(None)
   }
 
-  pub fn set_opengl_requirement_met(&mut self, new_val: bool) -> Result<(), ConfigError> {
-    self.requirements.opengl = Some(new_val);
+  pub fn set_opengl_requirement_met(&mut self, new_val: Option<bool>) -> Result<(), ConfigError> {
+    match new_val {
+      Some(val) => {
+        self.requirements.opengl = Some(val);
+      }
+      None => self.requirements.opengl = None,
+    }
     self.save_config()?;
     Ok(())
   }
@@ -271,133 +324,134 @@ impl LauncherConfig {
     Ok(())
   }
 
-  // TODO - this pattern isn't great.  It's made awkward by trying to be backwards compatible
-  // with the old format though
-  //
-  // I think there should be an enum involved here somewhere/somehow
+  pub fn set_locale(&mut self, new_locale: String) -> Result<(), ConfigError> {
+    self.locale = Some(new_locale);
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_bypass_requirements(&mut self, bypass: bool) -> Result<(), ConfigError> {
+    self.requirements.bypass_requirements = Some(bypass);
+    self.save_config()?;
+    Ok(())
+  }
+
   pub fn update_installed_game_version(
     &mut self,
     game_name: &String,
     installed: bool,
   ) -> Result<(), ConfigError> {
-    match game_name.as_str() {
-      "jak1" => {
-        self.games.jak1.is_installed = installed;
-        if installed {
-          self.games.jak1.version = self.active_version.clone();
-          self.games.jak1.version_folder = self.active_version_folder.clone();
-        } else {
-          self.games.jak1.version = None;
-          self.games.jak1.version_folder = None;
+    match SupportedGame::from_str(game_name) {
+      Ok(game) => {
+        // Retrieve relevant game from config
+        match self.games.get_mut(&game) {
+          Some(game) => {
+            game.is_installed = installed;
+            if installed {
+              game.version = self.active_version.clone();
+              game.version_folder = self.active_version_folder.clone();
+            } else {
+              game.version = None;
+              game.version_folder = None;
+            }
+          }
+          None => {
+            return Err(ConfigError::Configuration(format!(
+              "Invalid game name - {}, can't update installation status!",
+              game_name
+            )));
+          }
         }
       }
-      "jak2" => {
-        self.games.jak2.is_installed = installed;
-        if installed {
-          self.games.jak2.version = self.active_version.clone();
-          self.games.jak2.version_folder = self.active_version_folder.clone();
-        } else {
-          self.games.jak2.version = None;
-          self.games.jak2.version_folder = None;
-        }
+      Err(_) => {
+        return Err(ConfigError::Configuration(format!(
+          "Invalid game name - {}, can't update installation status!",
+          game_name
+        )));
       }
-      "jak3" => {
-        self.games.jak3.is_installed = installed;
-        if installed {
-          self.games.jak3.version = self.active_version.clone();
-          self.games.jak3.version_folder = self.active_version_folder.clone();
-        } else {
-          self.games.jak3.version = None;
-          self.games.jak3.version_folder = None;
-        }
-      }
-      "jakx" => {
-        self.games.jakx.is_installed = installed;
-        if installed {
-          self.games.jakx.version = self.active_version.clone();
-          self.games.jakx.version_folder = self.active_version_folder.clone();
-        } else {
-          self.games.jakx.version = None;
-          self.games.jakx.version_folder = None;
-        }
-      }
-      _ => {}
     }
     self.save_config()?;
     Ok(())
   }
 
   pub fn is_game_installed(&self, game_name: &String) -> bool {
-    match game_name.as_str() {
-      "jak1" => {
-        return self.games.jak1.is_installed;
+    match SupportedGame::from_str(game_name) {
+      Ok(game) => {
+        // Retrieve relevant game from config
+        match self.games.get(&game) {
+          Some(game) => {
+            return game.is_installed;
+          }
+          None => {
+            log::warn!(
+              "Could not find game to check if it's installed: {}",
+              game_name
+            );
+            return false;
+          }
+        }
       }
-      "jak2" => {
-        return self.games.jak2.is_installed;
+      Err(_) => {
+        log::warn!(
+          "Could not find game to check if it's installed: {}",
+          game_name
+        );
+        return false;
       }
-      "jak3" => {
-        return self.games.jak3.is_installed;
-      }
-      "jakx" => {
-        return self.games.jakx.is_installed;
-      }
-      _ => false,
     }
   }
 
   pub fn game_install_version(&self, game_name: &String) -> String {
-    match game_name.as_str() {
-      "jak1" => {
-        return self.games.jak1.version.clone().unwrap_or("".to_string());
+    match SupportedGame::from_str(game_name) {
+      Ok(game) => {
+        // Retrieve relevant game from config
+        match self.games.get(&game) {
+          Some(game) => {
+            return game.version.clone().unwrap_or("".to_string());
+          }
+          None => {
+            log::warn!(
+              "Could not find game to check what version is installed: {}",
+              game_name
+            );
+            return "".to_owned();
+          }
+        }
       }
-      "jak2" => {
-        return self.games.jak2.version.clone().unwrap_or("".to_string());
+      Err(_) => {
+        log::warn!(
+          "Could not find game to check what version is installed: {}",
+          game_name
+        );
+        return "".to_owned();
       }
-      "jak3" => {
-        return self.games.jak3.version.clone().unwrap_or("".to_string());
-      }
-      "jakx" => {
-        return self.games.jakx.version.clone().unwrap_or("".to_string());
-      }
-      _ => "".to_owned(),
     }
   }
 
   pub fn game_install_version_folder(&self, game_name: &String) -> String {
-    match game_name.as_str() {
-      "jak1" => {
-        return self
-          .games
-          .jak1
-          .version_folder
-          .clone()
-          .unwrap_or("".to_string());
+    match SupportedGame::from_str(game_name) {
+      Ok(game) => {
+        // Retrieve relevant game from config
+        match self.games.get(&game) {
+          Some(game) => {
+            return game.version_folder.clone().unwrap_or("".to_string());
+          }
+          None => {
+            log::warn!(
+              "Could not find game to check what version type is installed: {}",
+              game_name
+            );
+            return "".to_owned();
+          }
+        }
       }
-      "jak2" => {
-        return self
-          .games
-          .jak2
-          .version_folder
-          .clone()
-          .unwrap_or("".to_string());
+      Err(_) => {
+        log::warn!(
+          "Could not find game to check what version is installed: {}",
+          game_name
+        );
+        return "".to_owned();
       }
-      "jak3" => {
-        return self
-          .games
-          .jak3
-          .version_folder
-          .clone()
-          .unwrap_or("".to_string());
-      }
-      "jakx" => {
-        return self
-          .games
-          .jakx
-          .version_folder
-          .clone()
-          .unwrap_or("".to_string());
-      }
-      _ => "".to_owned(),
     }
   }
 }

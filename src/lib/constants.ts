@@ -1,21 +1,8 @@
-import { TranslatedStrings } from "./translations/translations";
-
 export const enum SupportedGame {
   Jak1 = "Jak 1",
   Jak2 = "Jak 2",
   Jak3 = "Jak 3",
   JakX = "Jak X",
-}
-
-// TODO - we should really just have `SupportedGame` be a class instead of an enum
-// then these could just be methods
-export function getGameTitle(game: SupportedGame) {
-  switch (game) {
-    case SupportedGame.Jak1:
-      return TranslatedStrings.jak1_gameName;
-    default:
-      return "";
-  }
 }
 
 export function fromRoute(gameName: string): SupportedGame {

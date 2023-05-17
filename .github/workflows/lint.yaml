@@ -1,4 +1,4 @@
-name: Linter
+name: 📝 Linter
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   frontend:
-    name: 📝 Formatting
+    name: Frontend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -26,7 +26,7 @@ jobs:
           yarn install --frozen-lockfile
           yarn lint
   backend:
-    name: 📝 Formatting
+    name: Backend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

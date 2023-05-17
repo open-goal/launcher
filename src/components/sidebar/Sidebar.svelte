@@ -4,6 +4,8 @@
   import Icon from "@iconify/svelte";
   import { link, useLocation } from "svelte-navigator";
   import { Tooltip } from "flowbite-svelte";
+  import { SupportedGame, getInternalName } from "$lib/constants";
+  import { _ } from "svelte-i18n";
 
   const location = useLocation();
   $: $location.pathname;
@@ -50,7 +52,7 @@
       >
         <img src={logoJak1} alt="Jak - The Precursor Legacy" />
         <Tooltip placement="right"
-          >Jak&nbsp;and&nbsp;Daxter:&nbsp;The&nbsp;Precursor&nbsp;Legacy</Tooltip
+          >{$_(`gameName_${getInternalName(SupportedGame.Jak1)}`)}</Tooltip
         >
       </a>
     </li>
@@ -61,7 +63,9 @@
         use:link
       >
         <img src={logoJak2} alt="Jak 2" />
-        <Tooltip placement="right" style="dark">Jak 2</Tooltip>
+        <Tooltip placement="right" style="dark"
+          >{$_(`gameName_${getInternalName(SupportedGame.Jak2)}`)}</Tooltip
+        >
       </a>
     </li>
     <li class="fixed bottom-24 left-6">
@@ -71,7 +75,9 @@
         use:link
       >
         <Icon icon="material-symbols:settings" width={36} height={36} />
-        <Tooltip placement="right" style="dark">Settings</Tooltip>
+        <Tooltip placement="right" style="dark"
+          >{$_("sidebar_settings")}</Tooltip
+        >
       </a>
     </li>
 
@@ -82,8 +88,7 @@
         use:link
       >
         <Icon icon="material-symbols:contact-support" width={36} height={36} />
-        <Tooltip placement="right" style="dark">Support&nbsp;&&nbsp;FAQ</Tooltip
-        >
+        <Tooltip placement="right" style="dark">{$_("sidebar_help")}</Tooltip>
       </a>
     </li>
   </ul>
