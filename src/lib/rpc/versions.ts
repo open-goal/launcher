@@ -27,7 +27,7 @@ export async function downloadOfficialVersion(
     });
   } catch (e) {
     exceptionLog("Unable to download official version", e);
-    toastStore.makeToast("Unable to download version", "error");
+    toastStore.makeToast(e, "error");
     return false;
   }
   return true;
