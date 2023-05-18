@@ -90,6 +90,11 @@
       }
       return b.date.localeCompare(a.date);
     });
+
+    // If we find the latest when refreshing, get rid of the notification
+    if ($UpdateStore.selectedTooling.updateAvailable) {
+      $UpdateStore.selectedTooling.updateAvailable = !releases[0].isDownloaded;
+    }
     versionsLoaded = true;
   }
 

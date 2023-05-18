@@ -162,6 +162,7 @@ fn main() {
       commands::logging::frontend_log,
       commands::support::generate_support_package,
       commands::versions::download_version,
+      commands::versions::ensure_active_version_still_exists,
       commands::versions::go_to_version_folder,
       commands::versions::list_downloaded_versions,
       commands::versions::remove_version,
