@@ -99,7 +99,7 @@
           color="green"
           position="top-right"
           class="top-20"
-          divClass="w-full max-w-xs p-2 pl-4"
+          divClass="w-full max-w-xs p-2 pl-4 z-50"
         >
           {$toastStore.msg}
         </Toast>
