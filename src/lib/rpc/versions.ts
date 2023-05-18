@@ -76,3 +76,12 @@ export async function getActiveVersionFolder(): Promise<VersionFolders> {
     return null;
   }
 }
+
+export async function ensureActiveVersionStillExists(): Promise<boolean> {
+  try {
+    return await invoke("ensure_active_version_still_exists", {});
+  } catch (e) {
+    exceptionLog("Unable to check or remove broken active version", e);
+    return false;
+  }
+}
