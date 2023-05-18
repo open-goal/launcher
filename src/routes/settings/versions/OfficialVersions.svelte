@@ -146,18 +146,34 @@
       }
     }
     releases = releases;
-    await removeVersion(event.detail.version, "official");
-    // Then mark it as downloaded
-    for (const release of releases) {
-      if (release.version === event.detail.version) {
-        release.pendingAction = false;
-        release.isDownloaded = false;
+    const ok = await removeVersion(event.detail.version, "official");
+    if (ok) {
+      // Update the store, if we removed the active version
+      if (
+        $VersionStore.activeVersionName === event.detail.version &&
+        $VersionStore.activeVersionType === "official"
+      ) {
+        $VersionStore.activeVersionName = null;
+        $VersionStore.activeVersionType = null;
+        $VersionStore.selectedVersions.official = null;
       }
+
+      // Then mark it as not downloaded
+      for (const release of releases) {
+        if (release.version === event.detail.version) {
+          release.pendingAction = false;
+          release.isDownloaded = false;
+        }
+      }
+      releases = releases;
     }
-    releases = releases;
   }
 
   async function onRedownloadVersion(event: any) {
+    // If we are redownloading the version that is currently selected (but not active, get rid of the selection)
+    if ($VersionStore.activeVersionType === "official") {
+      $VersionStore.selectedVersions.official = $VersionStore.activeVersionName;
+    }
     await onRemoveVersion(event);
     await onDownloadVersion(event);
   }

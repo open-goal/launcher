@@ -138,12 +138,7 @@
             >
               <Button
                 btnClass="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
-                disabled={release.pendingAction ||
-                  (release.version === $VersionStore.activeVersionName &&
-                    release.releaseType === $VersionStore.activeVersionType) ||
-                  (release.version ===
-                    $VersionStore.selectedVersions[releaseType] &&
-                    release.releaseType === releaseType)}
+                disabled={release.pendingAction}
                 on:click={async () => {
                   if (release.isDownloaded) {
                     dispatch("removeVersion", { version: release.version });
@@ -191,7 +186,7 @@
                   {:else}
                     <Icon
                       icon="ic:baseline-refresh"
-                      color="#00d500"
+                      color="#f5c842"
                       width="24"
                       height="24"
                       aria-label="Redownload Version"
