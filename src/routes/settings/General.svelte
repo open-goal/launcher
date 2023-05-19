@@ -13,6 +13,7 @@
   import { Button, Helper, Label, Select, Toggle } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
+  import { confirm } from "@tauri-apps/api/dialog";
 
   let currentInstallationDirectory = "";
   let currentLocale;
@@ -63,8 +64,23 @@
     <Toggle
       checked={currentBypassRequirementsVal}
       on:change={async (evt) => {
-        await setBypassRequirements(evt.target.checked);
-        currentBypassRequirementsVal = await getBypassRequirements();
+        if (evt.target.checked) {
+          const confirmed = await confirm(
+            `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
+              "requirements_button_bypass_warning_2"
+            )}`,
+            { title: "OpenGOAL Launcher", type: "warning" }
+          );
+          if (confirmed) {
+            await setBypassRequirements(evt.target.checked);
+            currentBypassRequirementsVal = await getBypassRequirements();
+          } else {
+            evt.target.checked = false;
+          }
+        } else {
+          await setBypassRequirements(evt.target.checked);
+          currentBypassRequirementsVal = await getBypassRequirements();
+        }
       }}>{$_("settings_general_toggle_bypassRequirementsCheck")}</Toggle
     >
   </div>
