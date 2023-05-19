@@ -72,7 +72,7 @@
   "settings_folders_installationDir": "Installation Directory",
   "settings_folders_installationDir_prompt": "Pick an Installation Folder",
   "settings_versions_devel_tabName": "Development",
-  "settings_versions_devel_description": "This list serves as a convenient area to stage, manage and test new releases (either official or unofficial) This list will always require manual management via it's respective folder",
+  "settings_versions_devel_description": "This list serves as a convenient area to stage, manage and test new releases (either official or unofficial). This list will always require manual management via it's respective folder",
   "settings_versions_official_tabName": "Official",
   "settings_versions_official_description": "Official versions are from the `jak-project` GitHub repository",
   "settings_versions_unofficial_tabName": "Unofficial",
