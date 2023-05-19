@@ -138,12 +138,7 @@
             >
               <Button
                 btnClass="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
-                disabled={release.pendingAction ||
-                  (release.version === $VersionStore.activeVersionName &&
-                    release.releaseType === $VersionStore.activeVersionType) ||
-                  (release.version ===
-                    $VersionStore.selectedVersions[releaseType] &&
-                    release.releaseType === releaseType)}
+                disabled={release.pendingAction}
                 on:click={async () => {
                   if (release.isDownloaded) {
                     dispatch("removeVersion", { version: release.version });
@@ -175,6 +170,30 @@
                   />
                 {/if}
               </Button>
+              {#if release.isDownloaded && release.releaseType == "official"}
+                <Button
+                  btnClass="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
+                  disabled={release.pendingAction}
+                  on:click={async () => {
+                    dispatch("redownloadVersion", {
+                      version: release.version,
+                      downloadUrl: release.downloadUrl,
+                    });
+                  }}
+                >
+                  {#if release.pendingAction}
+                    <Spinner color="yellow" size={"6"} />
+                  {:else}
+                    <Icon
+                      icon="ic:baseline-refresh"
+                      color="#f5c842"
+                      width="24"
+                      height="24"
+                      aria-label="Redownload Version"
+                    />
+                  {/if}
+                </Button>
+              {/if}
             </TableBodyCell>
             <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium"
               >{release.version}</TableBodyCell

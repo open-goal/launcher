@@ -324,6 +324,13 @@ impl LauncherConfig {
     Ok(())
   }
 
+  pub fn clear_active_version(&mut self) -> Result<(), ConfigError> {
+    self.active_version = None;
+    self.active_version_folder = None;
+    self.save_config()?;
+    Ok(())
+  }
+
   pub fn set_locale(&mut self, new_locale: String) -> Result<(), ConfigError> {
     self.locale = Some(new_locale);
     self.save_config()?;

@@ -270,7 +270,15 @@ pub async fn extract_and_validate_iso(
     "extracting using data folder: {}",
     data_folder.to_string_lossy()
   );
-  let exec_info = get_exec_location(&config_info, "extractor")?;
+  let exec_info = match get_exec_location(&config_info, "extractor") {
+    Ok(exec_info) => exec_info,
+    Err(_) => {
+      return Ok(InstallStepOutput {
+        success: false,
+        msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
+      })
+    }
+  };
 
   let mut args = vec![
     path_to_iso.clone(),
@@ -334,7 +342,15 @@ pub async fn run_decompiler(
   let config_info = common_prelude(&config_lock)?;
 
   let data_folder = get_data_dir(&config_info, &game_name, false)?;
-  let exec_info = get_exec_location(&config_info, "extractor")?;
+  let exec_info = match get_exec_location(&config_info, "extractor") {
+    Ok(exec_info) => exec_info,
+    Err(_) => {
+      return Ok(InstallStepOutput {
+        success: false,
+        msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
+      })
+    }
+  };
 
   let mut source_path = path_to_iso;
   if source_path.is_empty() {
@@ -399,7 +415,15 @@ pub async fn run_compiler(
   let config_info = common_prelude(&config_lock)?;
 
   let data_folder = get_data_dir(&config_info, &game_name, false)?;
-  let exec_info = get_exec_location(&config_info, "extractor")?;
+  let exec_info = match get_exec_location(&config_info, "extractor") {
+    Ok(exec_info) => exec_info,
+    Err(_) => {
+      return Ok(InstallStepOutput {
+        success: false,
+        msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
+      })
+    }
+  };
 
   let mut source_path = path_to_iso;
   if source_path.is_empty() {
