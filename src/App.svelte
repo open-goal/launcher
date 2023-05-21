@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
   import { Router, Route } from "svelte-navigator";
   import Game from "./routes/Game.svelte";
+  import GameMods from "./routes/GameMods.svelte";
   import Settings from "./routes/Settings.svelte";
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
@@ -70,12 +71,20 @@
         <Sidebar />
         <div id="content" class="basis-9/10">
           <Route path="/" component={Game} primary={false} let:params />
-          <Route
-            path="/:game_name"
-            component={Game}
-            primary={false}
-            let:params
-          />
+          <Route path="/:game_name/*">
+            <Route 
+              path="/"
+              component={Game}
+              primary={false}
+              let:params
+            />
+            <Route 
+              path="/mods"
+              component={GameMods}
+              primary={false}
+              let:params
+            />
+          </Route>
           <Route
             path="/jak2"
             component={GameInProgress}

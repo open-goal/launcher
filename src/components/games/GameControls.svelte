@@ -107,6 +107,25 @@
         </Helper></DropdownItem
       >
     </Dropdown>
+    {#if location.href.endsWith("/mods")}
+      <Button
+        btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+        on:click={() => {
+          location.href = "/" + getInternalName(activeGame);
+        }}
+      >
+        Back to Original
+      </Button>
+    {:else}
+      <Button
+        btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+        on:click={() => {
+          location.href = "/" + getInternalName(activeGame) + "/mods";
+        }}
+      >
+        Mods
+      </Button>
+    {/if}
     <Button
       btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
     >
