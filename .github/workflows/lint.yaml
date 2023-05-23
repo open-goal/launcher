@@ -45,3 +45,8 @@ jobs:
         run: |
           cd src-tauri/
           cargo fmt --all --check
+
+      - name: Run Clippy
+        run: |
+          cd src-tauri/
+          cargo clippy --all-targets --all-features
