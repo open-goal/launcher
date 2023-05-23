@@ -9,7 +9,6 @@ on:
   pull_request:
     branches:
       - main
-      - dev/new-ui
 
 jobs:
   build:
@@ -49,7 +48,6 @@ jobs:
       - name: Install NPM Dependencies
         run: |
           yarn install --frozen-lockfile
-          yarn package
           yarn build
 
       - uses: tauri-apps/tauri-action@v0

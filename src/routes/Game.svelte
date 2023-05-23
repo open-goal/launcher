@@ -12,7 +12,11 @@
   } from "$lib/rpc/config";
   import GameJob from "../components/games/job/GameJob.svelte";
   import GameUpdate from "../components/games/setup/GameUpdate.svelte";
-  import { getActiveVersion, getActiveVersionFolder } from "$lib/rpc/versions";
+  import {
+    ensureActiveVersionStillExists,
+    getActiveVersion,
+    getActiveVersionFolder,
+  } from "$lib/rpc/versions";
   import GameToolsNotSet from "../components/games/GameToolsNotSet.svelte";
   import { VersionStore } from "$lib/stores/VersionStore";
 
@@ -41,26 +45,30 @@
     }
 
     // First off, check that they've downloaded and have a jak-project release set
-    // TODO - and that it's still downloaded
+    const activeVersionExists = await ensureActiveVersionStillExists();
     $VersionStore.activeVersionType = await getActiveVersionFolder();
     $VersionStore.activeVersionName = await getActiveVersion();
 
-    // First obvious thing to check -- is the game installed at all
-    gameInstalled = await isGameInstalled(getInternalName(activeGame));
+    if (activeVersionExists) {
+      // First obvious thing to check -- is the game installed at all
+      gameInstalled = await isGameInstalled(getInternalName(activeGame));
 
-    // Next step, check if there is a version mismatch
-    // - they installed the game before with a different version than what they currently have selected
-    // - prompt them to either reinstall OR go and select their previous version
-    if (gameInstalled) {
-      installedVersion = await getInstalledVersion(getInternalName(activeGame));
-      installedVersionFolder = await getInstalledVersionFolder(
-        getInternalName(activeGame)
-      );
-      if (
-        installedVersion !== $VersionStore.activeVersionName ||
-        installedVersionFolder !== $VersionStore.activeVersionType
-      ) {
-        versionMismatchDetected = true;
+      // Next step, check if there is a version mismatch
+      // - they installed the game before with a different version than what they currently have selected
+      // - prompt them to either reinstall OR go and select their previous version
+      if (gameInstalled) {
+        installedVersion = await getInstalledVersion(
+          getInternalName(activeGame)
+        );
+        installedVersionFolder = await getInstalledVersionFolder(
+          getInternalName(activeGame)
+        );
+        if (
+          installedVersion !== $VersionStore.activeVersionName ||
+          installedVersionFolder !== $VersionStore.activeVersionType
+        ) {
+          versionMismatchDetected = true;
+        }
       }
     }
 

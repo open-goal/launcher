@@ -1,13 +1,13 @@
 {
   "package": {
     "productName": "OpenGOAL-Launcher",
-    "version": "2.1.1"
+    "version": "2.1.4"
   },
   "build": {
     "distDir": "../dist",
     "devPath": "http://localhost:3000/",
-    "beforeDevCommand": "npm run package && npm run dev",
-    "beforeBuildCommand": "npm run package && npm run build"
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
   },
   "tauri": {
     "bundle": {
@@ -28,9 +28,6 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "externalBin": [
-        "bin/glewinfo"
-      ],
       "copyright": "",
       "category": "DeveloperTool",
       "shortDescription": "",
@@ -50,16 +47,6 @@
           "$APP/*",
           "$APP/**/*",
           "$RESOURCE/**/*"
-        ]
-      },
-      "shell": {
-        "scope": [
-          {
-            "name": "bin/glewinfo",
-            "sidecar": true,
-            "cmd": "ignored",
-            "args": true
-          }
         ]
       }
     },

@@ -1,5 +1,6 @@
 use crate::{config::LauncherConfig, util::file::delete_dir};
 use tauri::Manager;
+use wgpu::InstanceDescriptor;
 
 use super::CommandError;
 
@@ -55,8 +56,21 @@ pub async fn set_install_directory(
 #[tauri::command]
 pub async fn is_avx_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  force: bool,
 ) -> Result<bool, CommandError> {
   let mut config_lock = config.lock().await;
+  if force {
+    config_lock.requirements.avx = None;
+  }
+  match config_lock.requirements.bypass_requirements {
+    Some(bypass) => {
+      if bypass {
+        log::warn!("Bypassing the AVX requirements check!");
+        return Ok(true);
+      }
+    }
+    _ => (),
+  }
   match config_lock.requirements.avx {
     None => {
       if is_x86_feature_detected!("avx") || is_x86_feature_detected!("avx2") {
@@ -74,31 +88,99 @@ pub async fn is_avx_requirement_met(
   }
 }
 
-// TODO - investigate moving the OpenGL check into the rust layer via `wgpu`
-// for now, we return potentially undefined so the frontend can update the value via sidecar
+// NOTE - this is somewhat of a hack, instead of checking the actual specific version
+// of OpenGL, we just check if the system supports 3D textures and large uniform buffers
+// that match OpenGL 4.3's requirements.
+//
+// This is because OpenGL support requires libEGL -- which isn't always available on all
+// platforms, and GL support in general is waning.
+//
+// This should be good enough...hopefully.
 #[tauri::command]
 pub async fn is_opengl_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  force: bool,
 ) -> Result<Option<bool>, CommandError> {
-  let config_lock = config.lock().await;
-  match config_lock.requirements.opengl {
-    None => Ok(None),
-    Some(_) => Ok(config_lock.requirements.opengl),
-  }
-}
-
-#[tauri::command]
-pub async fn set_opengl_requirement_met(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  requirement_met: bool,
-) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
-  config_lock
-    .set_opengl_requirement_met(requirement_met)
-    .map_err(|_| {
-      CommandError::Configuration(format!("Unable to persist opengl requirement change"))
-    })?;
-  Ok(())
+  if force {
+    config_lock.requirements.opengl = None;
+  }
+  match config_lock.requirements.bypass_requirements {
+    Some(bypass) => {
+      if bypass {
+        log::warn!("Bypassing the OpenGL requirements check!");
+        return Ok(Some(true));
+      }
+    }
+    _ => (),
+  }
+  match config_lock.requirements.opengl {
+    None => {
+      let instance = wgpu::Instance::new(InstanceDescriptor {
+        backends: wgpu::Backends::all(),
+        dx12_shader_compiler: wgpu::Dx12Compiler::default(),
+      });
+      let adapter = match instance
+        .request_adapter(&wgpu::RequestAdapterOptions {
+          power_preference: wgpu::PowerPreference::default(),
+          force_fallback_adapter: false,
+          compatible_surface: None,
+        })
+        .await
+      {
+        None => {
+          config_lock.set_opengl_requirement_met(None).map_err(|_| {
+            CommandError::Configuration(format!("Unable to persist opengl requirement change"))
+          })?;
+          return Err(CommandError::Configuration(format!(
+            "Unable to request GPU adapter to check for OpenGL support"
+          )));
+        }
+        Some(instance) => instance,
+      };
+
+      match adapter
+        .request_device(
+          &wgpu::DeviceDescriptor {
+            features: wgpu::Features::empty(),
+            limits: wgpu::Limits {
+              // These are OpenGL 4.3 minimums where these values
+              // were the maximum (not inclusive) for 4.2
+              max_texture_dimension_1d: 16384,
+              max_texture_dimension_2d: 16384,
+              max_texture_dimension_3d: 2048,
+              ..wgpu::Limits::default()
+            },
+            label: None,
+          },
+          None,
+        )
+        .await
+      {
+        Err(_err) => {
+          config_lock
+            .set_opengl_requirement_met(Some(false))
+            .map_err(|_| {
+              CommandError::Configuration(format!("Unable to persist opengl requirement change"))
+            })?;
+          return Err(CommandError::Configuration(format!(
+            "Unable to request GPU device with adequate OpenGL support - {:?}",
+            _err
+          )));
+        }
+        Ok(device) => device,
+      };
+
+      // If we didn't support the above limits, we would have returned an error already
+      config_lock
+        .set_opengl_requirement_met(Some(true))
+        .map_err(|_| {
+          CommandError::Configuration(format!("Unable to persist opengl requirement change"))
+        })?;
+      Ok(Some(true))
+    }
+    Some(val) => Ok(Some(val)),
+  }
 }
 
 #[tauri::command]
@@ -219,5 +301,28 @@ pub async fn set_locale(
   config_lock
     .set_locale(locale)
     .map_err(|_| CommandError::Configuration(format!("Unable to persist locale change")))?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn get_bypass_requirements(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  let config_lock = config.lock().await;
+  match config_lock.requirements.bypass_requirements {
+    Some(val) => Ok(val),
+    None => Ok(false),
+  }
+}
+
+#[tauri::command]
+pub async fn set_bypass_requirements(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  bypass: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_bypass_requirements(bypass).map_err(|_| {
+    CommandError::Configuration(format!("Unable to persist bypass requirements change"))
+  })?;
   Ok(())
 }

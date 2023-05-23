@@ -15,6 +15,7 @@
   import Help from "./routes/Help.svelte";
   import { toastStore } from "$lib/stores/ToastStore";
   import { isLoading } from "svelte-i18n";
+  import { getLocale, setLocale } from "$lib/rpc/config";
 
   let revokeSpecificActions = false;
 
@@ -27,6 +28,8 @@
       location.reload();
       window.sessionStorage.setItem("refreshHack", "true");
     }
+    // Set locale from settings
+    setLocale(await getLocale());
   });
 
   if (!isInDebugMode()) {
@@ -96,7 +99,7 @@
           color="green"
           position="top-right"
           class="top-20"
-          divClass="w-full max-w-xs p-2 pl-4"
+          divClass="w-full max-w-xs p-2 pl-4 z-50"
         >
           {$toastStore.msg}
         </Toast>

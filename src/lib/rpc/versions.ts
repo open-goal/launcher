@@ -27,7 +27,7 @@ export async function downloadOfficialVersion(
     });
   } catch (e) {
     exceptionLog("Unable to download official version", e);
-    toastStore.makeToast("Unable to download version", "error");
+    toastStore.makeToast(e, "error");
     return false;
   }
   return true;
@@ -74,5 +74,14 @@ export async function getActiveVersionFolder(): Promise<VersionFolders> {
   } catch (e) {
     exceptionLog("Unable to get active version type", e);
     return null;
+  }
+}
+
+export async function ensureActiveVersionStillExists(): Promise<boolean> {
+  try {
+    return await invoke("ensure_active_version_still_exists", {});
+  } catch (e) {
+    exceptionLog("Unable to check or remove broken active version", e);
+    return false;
   }
 }

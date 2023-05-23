@@ -62,18 +62,22 @@ export async function setInstallationDirectory(
   }
 }
 
-export async function isAVXRequirementMet(): Promise<boolean | undefined> {
+export async function isAVXRequirementMet(
+  force: boolean
+): Promise<boolean | undefined> {
   try {
-    return await invoke("is_avx_requirement_met", {});
+    return await invoke("is_avx_requirement_met", { force: force });
   } catch (e) {
     exceptionLog("Unable to check if AVX requirement was met", e);
     return undefined;
   }
 }
 
-export async function isOpenGLRequirementMet(): Promise<boolean | undefined> {
+export async function isOpenGLRequirementMet(
+  force: boolean
+): Promise<boolean | undefined> {
   try {
-    const result = await invoke("is_opengl_requirement_met", {});
+    const result = await invoke("is_opengl_requirement_met", { force: force });
     if (typeof result === "boolean") {
       return result;
     }
@@ -81,14 +85,6 @@ export async function isOpenGLRequirementMet(): Promise<boolean | undefined> {
   } catch (e) {
     exceptionLog("Unable to check if OpenGL requirement was met", e);
     return undefined;
-  }
-}
-
-export async function setOpenGLRequirementMet(val: boolean): Promise<void> {
-  try {
-    return await invoke("set_opengl_requirement_met", { requirementMet: val });
-  } catch (e) {
-    exceptionLog("Unable to set OpenGL requirement", e);
   }
 }
 
@@ -149,7 +145,7 @@ export async function saveActiveVersionChange(
   }
 }
 
-export async function getLocale(): Promise<String | null> {
+export async function getLocale(): Promise<string | null> {
   try {
     return await invoke("get_locale", {});
   } catch (e) {
@@ -164,5 +160,22 @@ export async function setLocale(locale_string: string): Promise<void> {
     locale.set(locale_string);
   } catch (e) {
     exceptionLog("Unable to set locale", e);
+  }
+}
+
+export async function setBypassRequirements(bypass: boolean): Promise<void> {
+  try {
+    await invoke("set_bypass_requirements", { bypass: bypass });
+  } catch (e) {
+    exceptionLog("Unable to set bypress requirements", e);
+  }
+}
+
+export async function getBypassRequirements(): Promise<boolean> {
+  try {
+    return await invoke("get_bypass_requirements", {});
+  } catch (e) {
+    exceptionLog("Unable to get bypress requirements setting", e);
+    return false;
   }
 }
