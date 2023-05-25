@@ -25,19 +25,19 @@
   async function updateStyle(): Promise<void> {
     let newStyle = "absolute object-fill h-screen";
     let pathname = $location.pathname;
-    if (pathname === "/jak1" || pathname === "/") {
+    if (pathname.startsWith("/jak1") || pathname === "/") {
       if (!(await isGameInstalled("jak1"))) {
         newStyle += " grayscale";
       }
-    } else if (pathname === "/jak2") {
+    } else if (pathname.startsWith("/jak2")) {
       if (!(await isGameInstalled("jak2"))) {
         newStyle += " grayscale";
       }
-    } else if (pathname === "/jak3") {
+    } else if (pathname.startsWith("/jak3")) {
       if (!(await isGameInstalled("jak3"))) {
         newStyle += " grayscale";
       }
-    } else if (pathname === "/jakx") {
+    } else if (pathname.startsWith("/jakx")) {
       if (!(await isGameInstalled("jakx"))) {
         newStyle += " grayscale";
       }
@@ -46,8 +46,8 @@
   }
 </script>
 
-{#if $location.pathname == "/jak1" || $location.pathname == "/"}
-  <video
+{#if $location.pathname.startsWith("/jak1") || $location.pathname == "/"}
+  <video id="bgVideo"
     class={style}
     poster={bgVideoPosterJak1}
     src={bgVideoJak1}
@@ -55,8 +55,8 @@
     muted
     loop
   />
-{:else if $location.pathname == "/jak2"}
-  <video
+{:else if $location.pathname.startsWith("/jak2")}
+  <video id="bgVideo"
     class={style}
     poster={bgVideoPosterJak2}
     src={bgVideoJak2}

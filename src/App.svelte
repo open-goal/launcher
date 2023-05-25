@@ -3,7 +3,8 @@
   import { onMount } from "svelte";
   import { Router, Route } from "svelte-navigator";
   import Game from "./routes/Game.svelte";
-  import GameMods from "./routes/GameMods.svelte";
+  import ModSelection from "./routes/mods/ModSelection.svelte";
+  import GameMod from "./routes/mods/GameMod.svelte";
   import Settings from "./routes/Settings.svelte";
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
@@ -78,12 +79,18 @@
               primary={false}
               let:params
             />
-            <Route 
-              path="/mods"
-              component={GameMods}
-              primary={false}
-              let:params
-            />
+            <Route path="/mods/*">
+              <Route path="/"
+                component={ModSelection}
+                primary={false}
+                let:params
+              />
+              <Route path="/:mod_name"
+                component={GameMod}
+                primary={false}
+                let:params
+              />
+            </Route>
           </Route>
           <Route
             path="/jak2"

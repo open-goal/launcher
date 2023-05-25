@@ -1,23 +1,25 @@
 <script>
   import { fromRoute, getInternalName, SupportedGame } from "$lib/constants";
   import { useParams } from "svelte-navigator";
-  import GameControls from "../components/games/GameControls.svelte";
-  import GameSetup from "../components/games/setup/GameSetup.svelte";
+  import GameModControls from "./GameModControls.svelte";
+  import GameSetup from "../../components/games/setup/GameSetup.svelte";
   import { onMount } from "svelte";
-  import { Spinner } from "flowbite-svelte";
+  import { Spinner, Button } from "flowbite-svelte";
+  import Icon from "@iconify/svelte";
+
   import {
     getInstalledVersion,
     getInstalledVersionFolder,
     isGameInstalled,
   } from "$lib/rpc/config";
-  import GameJob from "../components/games/job/GameJob.svelte";
-  import GameUpdate from "../components/games/setup/GameUpdate.svelte";
+  import GameJob from "../../components/games/job/GameJob.svelte";
+  import GameUpdate from "../../components/games/setup/GameUpdate.svelte";
   import {
     ensureActiveVersionStillExists,
     getActiveVersion,
     getActiveVersionFolder,
   } from "$lib/rpc/versions";
-  import GameToolsNotSet from "../components/games/GameToolsNotSet.svelte";
+  import GameToolsNotSet from "../../components/games/GameToolsNotSet.svelte";
   import { VersionStore } from "$lib/stores/VersionStore";
 
   const params = useParams();
@@ -112,7 +114,20 @@
       on:job={runGameJob}
     />
   {:else}
-    <GameControls
+    <div class="flex flex-row gap-2">
+      <Button
+        btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+        on:click={() => history.back()}
+      >
+        <Icon
+          icon="ic:baseline-arrow-back"
+          color="#ffffff"
+          width="24"
+          height="24"
+        />
+      </Button>
+    </div>
+    <GameModControls
       {activeGame}
       on:change={updateGameState}
       on:job={runGameJob}

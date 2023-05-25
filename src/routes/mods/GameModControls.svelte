@@ -44,10 +44,26 @@
 <div class="flex flex-col justify-end items-end mt-auto">
   <!-- TOOO - time played -->
   <h1
-    class="tracking-tighter text-2xl font-bold pb-3 text-orange-500 text-outline pointer-events-none"
+    class="tracking-tighter text-2xl font-bold pb-2 text-orange-500 text-outline pointer-events-none"
   >
-    {$_(`gameName_${getInternalName(activeGame)}`)}
+    Orb Hunt
+    <!-- {$_(`gameName_${getInternalName(activeGame)}`)} -->
   </h1>
+  <div
+    class="tracking-tighter text-sm pb-3 text-outline pointer-events-none"
+  >
+    Jak 1 but everything is all moved around! More info on the website
+  </div>
+  <div
+    class="tracking-tighter text-xs font-bold pb-3 text-gray-300 text-outline pointer-events-none"
+  >
+    Contributors: barg034
+  </div>
+  <div
+    class="tracking-tighter text-xs font-bold pb-3 text-gray-300 text-outline pointer-events-none"
+  >
+    Tags: challenge, gameplay-mod
+  </div>
   <div class="flex flex-row gap-2">
     <Button
       btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
