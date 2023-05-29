@@ -16,7 +16,7 @@ tauri-build = { version = "1.2.1", features = [] }
 
 [dependencies]
 backtrace = "0.3.67"
-chrono = "0.4.23"
+chrono = "0.4.25"
 dir-diff = "0.3.2"
 directories = "5.0.1"
 fern = { version = "0.6.1", features = ["date-based","colored"] }
