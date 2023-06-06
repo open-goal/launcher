@@ -9,7 +9,7 @@ use tauri::{Manager, RunEvent};
 use util::file::create_dir;
 
 use backtrace::Backtrace;
-use std::{env, io::Write};
+use std::io::Write;
 
 mod commands;
 mod config;
