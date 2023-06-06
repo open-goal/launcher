@@ -20,7 +20,7 @@ jobs:
           node-version: 16
           cache: yarn
 
-      - name: install dependencies and check formatting
+      - name: Install Dependencies and Check Formatting
         run: |
           yarn install --frozen-lockfile
           yarn lint
@@ -42,18 +42,18 @@ jobs:
           shared-key: tauri-build-ubuntu-latest
           workspaces: src-tauri
 
-      - name: Install Linux Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev libglew2.2 patchelf
-
-      - name: Check rust formatting
+      - name: Check Rust formatting
         run: |
           cd src-tauri/
           cargo fmt --all --check
 
+      - name: Install Linux Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
+
       - uses: actions-rs/clippy-check@v1
-        name: Clippy Check
+        name: Rust Linting - Clippy
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features --manifest-path src-tauri/Cargo.toml
