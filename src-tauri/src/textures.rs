@@ -17,7 +17,7 @@ pub struct TexturePack {
 pub async fn extract_textures(app_handle: tauri::AppHandle, textures_array: Vec<String>) {
   let text_dir = app_handle
     .path_resolver()
-    .app_dir()
+    .app_data_dir()
     .unwrap()
     .join("data/texture_replacements");
 
