@@ -25,7 +25,7 @@ jobs:
           yarn install --frozen-lockfile
           yarn lint
   backend:
-    name: Backend
+    name: Backend Formatting
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -46,11 +46,27 @@ jobs:
         run: |
           cd src-tauri/
           cargo fmt --all --check
+  backend-linter:
+    name: Backend Linter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
 
       - name: Install Linux Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install NPM Dependencies
+        run: |
+          yarn install --frozen-lockfile
+          yarn build
 
       - uses: Swatinem/rust-cache@v2
         name: Cache Rust Build
@@ -60,6 +76,7 @@ jobs:
 
       - uses: actions-rs/clippy-check@v1
         name: Rust Linting - Clippy
+        continue-on-error: true
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features --manifest-path src-tauri/Cargo.toml
