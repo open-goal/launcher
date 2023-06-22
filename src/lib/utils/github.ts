@@ -35,19 +35,23 @@ async function getDownloadLinkForCurrentPlatform(
 }
 
 export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
+  return listReleases("official", "open-goal/jak-project");
+}
+
+export async function listReleases(releaseType: string, repo: string): Promise<ReleaseInfo[]> {
   let releases = [];
   // TODO - handle rate limiting
   // TODO - long term - handle pagination (more than 100 releases)
   // TODO - even longer term - extract this out into an API we control (avoid github rate limiting) -- will be needed for unofficial releases as well anyway
   const resp = await fetch(
-    "https://api.github.com/repos/open-goal/jak-project/releases?per_page=100"
+    "https://api.github.com/repos/" + repo + "/releases?per_page=100"
   );
   // TODO - handle error
   const githubReleases = await resp.json();
 
   for (const release of githubReleases) {
     releases.push({
-      releaseType: "official",
+      releaseType: releaseType,
       version: release.tag_name,
       date: release.published_at,
       githubLink: release.html_url,

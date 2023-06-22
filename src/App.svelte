@@ -72,26 +72,26 @@
         <Sidebar />
         <div id="content" class="basis-9/10">
           <Route path="/" component={Game} primary={false} let:params />
-          <Route path="/:game_name/*">
-            <Route 
-              path="/"
-              component={Game}
-              primary={false}
-              let:params
-            />
-            <Route path="/mods/*">
-              <Route path="/"
-                component={ModSelection}
-                primary={false}
-                let:params
-              />
-              <Route path="/:mod_name"
-                component={GameMod}
-                primary={false}
-                let:params
-              />
-            </Route>
-          </Route>
+          <Route path="/:game_name"
+            component={Game}
+            primary={false}
+            let:params
+          />
+          <Route path="/:game_name/mods"
+            component={ModSelection}
+            primary={false}
+            let:params
+          />
+          <Route path="/:game_name/mods/:mod_id"
+            component={ModSelection}
+            primary={false}
+            let:params
+          />
+          <Route path="/:game_name/mods/:mod_id/:mod_version"
+            component={GameMod}
+            primary={false}
+            let:params
+          />
           <Route
             path="/jak2"
             component={GameInProgress}
