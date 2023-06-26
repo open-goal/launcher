@@ -167,7 +167,10 @@ fn main() {
       commands::versions::list_downloaded_versions,
       commands::versions::remove_version,
       commands::window::open_dir_in_os,
-      commands::window::open_main_window
+      commands::window::open_main_window,
+      commands::mods::add_mod_list,
+      commands::mods::remove_mod_list,
+      commands::mods::get_mod_lists
     ])
     .build(tauri::generate_context!())
     .map_err(|err| {

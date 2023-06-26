@@ -133,6 +133,70 @@ impl Requirements {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ModVersion {
+  pub version: Option<String>,
+  pub description: Option<String>,
+  pub games: Vec<SupportedGame>,
+  pub windows_bundle_url: Option<String>,
+  pub linux_bundle_url: Option<String>,
+}
+
+impl ModVersion {
+  fn default() -> Self {
+    Self {
+      version: None,
+      description: None,
+      games: Vec::new(),
+      windows_bundle_url: None,
+      linux_bundle_url: None,
+    }
+  }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ModConfig {
+  pub identifier: Option<String>,
+  pub name: Option<String>,
+  pub description: Option<String>,
+  pub contributors: Vec<String>,
+  pub tags: Vec<String>,
+  pub versions: HashMap<String,ModVersion>,
+}
+
+impl ModConfig {
+  fn default() -> Self {
+    Self {
+      identifier: None,
+      name: None,
+      description: None,
+      contributors: Vec::new(),
+      tags: Vec::new(),
+      versions: HashMap::new(),
+    }
+  }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ModList {
+  pub identifier: Option<String>,
+  pub url: Option<String>,
+  pub mods: HashMap<String,ModConfig>,
+}
+
+impl ModList {
+  fn default() -> Self {
+    Self {
+      identifier: None,
+      url: None,
+      mods: HashMap::new(),
+    }
+  }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LauncherConfig {
   #[serde(skip_serializing)]
   #[serde(skip_deserializing)]
@@ -147,6 +211,7 @@ pub struct LauncherConfig {
   pub active_version: Option<String>,
   pub active_version_folder: Option<String>,
   pub locale: Option<String>,
+  pub mod_lists: HashMap<String, ModList>,
 }
 
 fn default_version() -> Option<String> {
@@ -170,6 +235,7 @@ impl LauncherConfig {
       active_version: None,
       active_version_folder: Some("official".to_string()),
       locale: None,
+      mod_lists: HashMap::new(),
     }
   }
 
@@ -460,5 +526,45 @@ impl LauncherConfig {
         return "".to_owned();
       }
     }
+  }
+
+  pub fn add_mod_list(&mut self, url: &String, identifier: &String) -> Result<(), ConfigError> {
+    if self.mod_lists.contains_key(identifier) {
+      // TODO: throw error
+    }
+
+    // TODO: validate url, download, validate json, populate mods/versions
+
+    self.mod_lists.insert(identifier.to_string(), ModList {
+      identifier: Some(identifier.to_string()),
+      url: Some(url.to_string()),
+      mods: HashMap::<String,ModConfig>::new()
+    });
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn remove_mod_list(&mut self, identifier: &String) -> Result<(), ConfigError> {
+    if !self.mod_lists.contains_key(identifier) {
+      // TODO: throw error
+    }
+
+    self.mod_lists.remove(identifier);
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn get_mod_lists(&self) -> Vec<ModList> {
+    let mut result = Vec::<ModList>::new();
+
+    for (k, v) in &self.mod_lists {
+      result.push(ModList {
+        identifier: Some(v.identifier.as_ref().expect("missing identifier in mod list").to_string()),
+        url: Some(v.url.as_ref().expect("missing url in mod list").to_string()),
+        mods: HashMap::<String,ModConfig>::new()
+      })
+    }
+
+    return result;
   }
 }

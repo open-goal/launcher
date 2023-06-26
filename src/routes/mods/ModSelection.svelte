@@ -211,13 +211,25 @@
           height="20"
         />
       </Button>
+      <div class="flex gap-3">
       <Button
         btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-        on:click={async () => {
-          // go to new page to add/edit/remove mod lists
-        }}>
+        on:click={() => location.reload()}
+      >
+        <Icon
+          icon="ic:baseline-refresh"
+          color="#ffffff"
+          width="20"
+          height="20"
+        />
+      </Button>
+      <Button
+        btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+        href="/{game_name}/mod_lists"
+      >
         Manage Mod Lists
       </Button>
+      </div>
     </div>
     <Label>Select Mod
       <Select

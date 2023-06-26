@@ -4,6 +4,7 @@
   import { Router, Route } from "svelte-navigator";
   import Game from "./routes/Game.svelte";
   import ModSelection from "./routes/mods/ModSelection.svelte";
+  import ManageModLists from "./routes/mods/ManageModLists.svelte";
   import GameMod from "./routes/mods/GameMod.svelte";
   import Settings from "./routes/Settings.svelte";
   import Sidebar from "./components/sidebar/Sidebar.svelte";
@@ -81,14 +82,19 @@
             component={ModSelection}
             primary={false}
             let:params
-          />
+            />
           <Route path="/:game_name/mods/:mod_id"
             component={ModSelection}
             primary={false}
             let:params
-          />
+            />
           <Route path="/:game_name/mods/:mod_id/:mod_version"
             component={GameMod}
+            primary={false}
+            let:params
+            />
+          <Route path="/:game_name/mod_lists"
+            component={ManageModLists}
             primary={false}
             let:params
           />

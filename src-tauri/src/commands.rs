@@ -7,6 +7,7 @@ pub mod logging;
 pub mod support;
 pub mod versions;
 pub mod window;
+pub mod mods;
 
 #[derive(Debug, thiserror::Error)]
 pub enum CommandError {

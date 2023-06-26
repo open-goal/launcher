@@ -145,7 +145,6 @@ export async function getModDict(game: string): Promise<Object> {
         "challenge"
       ],
       "repo": "OpenGOAL-Unofficial-Mods/opengoal-randomizer-mod-pack",
-      "URL": "https://github.com/OpenGOAL-Unofficial-Mods/opengoal-randomizer-mod-pack/",
       "games": ["jak1"]
     },
     {
@@ -161,7 +160,6 @@ export async function getModDict(game: string): Promise<Object> {
         "challenge"
       ],
       "repo": "OpenGOAL-Unofficial-Mods/flutflut-legacy",
-      "URL": "https://github.com/OpenGOAL-Unofficial-Mods/flutflut-legacy",
       "games": ["jak1"]
     },
     {
@@ -176,7 +174,6 @@ export async function getModDict(game: string): Promise<Object> {
         "challenge"
       ],
       "repo": "dallmeyer/opengoal-orbhunt",
-      "URL": "https://github.com/dallmeyer/opengoal-orbhunt",
       "games": ["jak1", "jak2"]
     }
   ];
