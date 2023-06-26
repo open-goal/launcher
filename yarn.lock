@@ -183,10 +183,10 @@
   dependencies:
     purgecss "^5.0.0"
 
-"@iconify/svelte@^3.1.3":
-  version "3.1.3"
-  resolved "https://registry.yarnpkg.com/@iconify/svelte/-/svelte-3.1.3.tgz#3db356afd8dc17a40d6f9db9e5fef299848bdfd4"
-  integrity sha512-VxJO/lDIlNqBOS3z/Pfc9+oyIPP3Rm19280O1LCh48jChoWkjtzYEJcfx7cMxUTzMpYFTBZzsU7IiK++DBiDWQ==
+"@iconify/svelte@^3.1.4":
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/@iconify/svelte/-/svelte-3.1.4.tgz#728fa18ea03da8541a64565c1b2b0c2b8dc0d417"
+  integrity sha512-YDwQlN46ka8KPRayDb7TivmkAPizfTXi6BSRNqa1IV0+byA907n8JcgQafA7FD//pW5XCuuAhVx6uRbKTo+CfA==
   dependencies:
     "@iconify/types" "^2.0.0"
 
