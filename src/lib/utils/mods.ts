@@ -66,3 +66,11 @@ export async function getModLists(): Promise<Array<ModList>> {
     return null;
   }
 }
+
+export async function downloadModList(modList: ModList): Promise<any> {
+  const resp = await fetch(modList.url);
+  // TODO - handle error
+  const modListJson = await resp.json();
+
+  console.log(modListJson);
+}

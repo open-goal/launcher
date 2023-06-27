@@ -1,6 +1,7 @@
 use std::path::Path;
 use std::collections::HashMap;
 use crate::config::ModList;
+use crate::config::ModConfig;
 
 use log::info;
 
@@ -22,14 +23,25 @@ pub async fn add_mod_list(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   url: String,
   identifier: String,
-) -> Result<(), CommandError> {
-  let mut config_lock = config.lock().await;
+  mods_json: String,
+) -> Result<(), CommandError> {  
+  
+  match serde_json::from_str::<Vec<ModConfig>>(&mods_json) {
+    Ok(mods) => {
+      info!("Adding Mod List {}:{}", identifier, url);
+  
+      let mut config_lock = config.lock().await;
+      config_lock.add_mod_list(&url, &identifier, mods);
 
-  info!("Adding Mod List {}:{}", identifier, url);
+      Ok(())
+    }
+    Err(e) => {
+      info!("failed to parse JSON for {}:{}, err: {}", identifier, url, e);
+      panic!("Failed to parse JSON: {}", e);
+    }
+  }
 
-  config_lock.add_mod_list(&url, &identifier);
-
-  Ok(())
+  
 }
 
 #[tauri::command]

@@ -134,7 +134,7 @@ impl Requirements {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ModVersion {
-  pub version: Option<String>,
+  pub version: String,
   pub description: Option<String>,
   pub games: Vec<SupportedGame>,
   pub windows_bundle_url: Option<String>,
@@ -144,7 +144,7 @@ pub struct ModVersion {
 impl ModVersion {
   fn default() -> Self {
     Self {
-      version: None,
+      version: "".to_string(),
       description: None,
       games: Vec::new(),
       windows_bundle_url: None,
@@ -156,19 +156,22 @@ impl ModVersion {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ModConfig {
-  pub identifier: Option<String>,
-  pub name: Option<String>,
+  pub identifier: String,
+  pub name: String,
   pub description: Option<String>,
+  #[serde(default)]
   pub contributors: Vec<String>,
+  #[serde(default)]
   pub tags: Vec<String>,
+  #[serde(default)]
   pub versions: HashMap<String,ModVersion>,
 }
 
 impl ModConfig {
   fn default() -> Self {
     Self {
-      identifier: None,
-      name: None,
+      identifier: "".to_string(),
+      name: "".to_string(),
       description: None,
       contributors: Vec::new(),
       tags: Vec::new(),
@@ -180,16 +183,16 @@ impl ModConfig {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ModList {
-  pub identifier: Option<String>,
-  pub url: Option<String>,
+  pub identifier: String,
+  pub url: String,
   pub mods: HashMap<String,ModConfig>,
 }
 
 impl ModList {
   fn default() -> Self {
     Self {
-      identifier: None,
-      url: None,
+      identifier: "".to_string(),
+      url: "".to_string(),
       mods: HashMap::new(),
     }
   }
@@ -529,17 +532,15 @@ impl LauncherConfig {
     }
   }
 
-  pub fn add_mod_list(&mut self, url: &String, identifier: &String) -> Result<(), ConfigError> {
+  pub fn add_mod_list(&mut self, url: &String, identifier: &String, mods: Vec<ModConfig>) -> Result<(), ConfigError> {
     if self.mod_lists.contains_key(identifier) {
       // TODO: throw error
     }
 
-    // TODO: validate url, download, validate json, populate mods/versions
-
     self.mod_lists.insert(identifier.to_string(), ModList {
-      identifier: Some(identifier.to_string()),
-      url: Some(url.to_string()),
-      mods: HashMap::<String,ModConfig>::new()
+      identifier: identifier.to_string(),
+      url: url.to_string(),
+      mods: mods.into_iter().map(|m| (m.identifier.to_string(), m)).collect(),
     });
     self.save_config()?;
     Ok(())
@@ -560,8 +561,8 @@ impl LauncherConfig {
 
     for (k, v) in &self.mod_lists {
       result.push(ModList {
-        identifier: Some(v.identifier.as_ref().expect("missing identifier in mod list").to_string()),
-        url: Some(v.url.as_ref().expect("missing url in mod list").to_string()),
+        identifier: v.identifier.to_string(),
+        url: v.url.to_string(),
         mods: HashMap::<String,ModConfig>::new()
       })
     }
