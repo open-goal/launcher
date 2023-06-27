@@ -211,6 +211,7 @@ pub struct LauncherConfig {
   pub active_version: Option<String>,
   pub active_version_folder: Option<String>,
   pub locale: Option<String>,
+  #[serde(default)]
   pub mod_lists: HashMap<String, ModList>,
 }
 
