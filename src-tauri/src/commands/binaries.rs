@@ -139,10 +139,7 @@ fn copy_data_dir(config_info: &CommonConfigData, game_name: &String) -> Result<(
   info!("Copying {} into {}", src_dir.display(), dst_dir.display());
 
   overwrite_dir(&src_dir, &dst_dir).map_err(|err| {
-    CommandError::Installation(format!(
-      "Unable to copy data directory: '{}'",
-      err.to_string()
-    ))
+    CommandError::Installation(format!("Unable to copy data directory: '{err}'",))
   })?;
   Ok(())
 }
@@ -497,7 +494,7 @@ pub async fn open_repl(
       "start",
       &bin_ext("goalc"),
       "--proj-path",
-      &data_folder.to_string_lossy().into_owned(),
+      &data_folder.to_string_lossy(),
     ])
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
@@ -521,7 +518,7 @@ pub async fn launch_game(
   let tooling_version = Version::parse(
     config_info
       .active_version
-      .strip_prefix("v")
+      .strip_prefix('v')
       .unwrap_or(&config_info.active_version),
   )
   .unwrap_or(Version::new(0, 1, 35)); // assume new format if none can be found

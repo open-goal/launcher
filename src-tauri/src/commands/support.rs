@@ -110,10 +110,11 @@ pub async fn generate_support_package(
   let gpu_info_instance = wgpu::Instance::default();
   for a in gpu_info_instance.enumerate_adapters(wgpu::Backends::all()) {
     let info = a.get_info();
-    let mut gpu_info = GPUInfo::default();
-    gpu_info.name = info.name;
-    gpu_info.driver_name = info.driver;
-    gpu_info.driver_info = info.driver_info;
+    let gpu_info = GPUInfo {
+      name: info.name,
+      driver_name: info.driver,
+      driver_info: info.driver_info,
+    };
     package.gpu_info.push(gpu_info);
   }
 
@@ -205,7 +206,7 @@ pub async fn generate_support_package(
     .join("data")
     .join("texture_replacements");
   package.game_info.jak1.has_texture_packs =
-    texture_repl_dir.exists() && !texture_repl_dir.read_dir().unwrap().next().is_none();
+    texture_repl_dir.exists() && texture_repl_dir.read_dir().unwrap().next().is_some();
   let build_info_path = active_version_dir
     .join("jak1")
     .join("data")

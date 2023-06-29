@@ -17,26 +17,26 @@ pub struct TexturePack {
 }
 
 #[tauri::command]
-pub async fn extract_textures(app_handle: tauri::AppHandle, _textures_array: Vec<String>) {
+pub async fn extract_textures(app_handle: tauri::AppHandle, textures_array: Vec<String>) {
   let text_dir = app_handle
     .path_resolver()
     .app_data_dir()
     .unwrap()
     .join("data/texture_replacements");
 
-  let _target_dir = PathBuf::from(text_dir); // Doesn't need to exist
-
-  // for path in textures_array {
-  //     println!("Extracting texture pack: {:?}", path.clone());
-
-  //     let archive: Vec<u8> = fs::read(&path.clone()).unwrap();
-  //     // The third parameter allows you to strip away toplevel directories.
-  //     // If `archive` contained a single directory, its contents would be extracted instead.
-  //     match zip_extract::extract(Cursor::new(archive), &target_dir, true) {
-  //         Ok(_) => continue,
-  //         Err(err) => println!("{:?}", err),
-  //     }
-  // }
+  for path in textures_array {
+    println!(
+      "Not extracting (not yet implemented) texture pack to {}: {path:?}",
+      text_dir.display(),
+    );
+    //     let archive: Vec<u8> = fs::read(&path.clone()).unwrap();
+    //     // The third parameter allows you to strip away toplevel directories.
+    //     // If `archive` contained a single directory, its contents would be extracted instead.
+    //     match zip_extract::extract(Cursor::new(archive), &target_dir, true) {
+    //         Ok(_) => continue,
+    //         Err(err) => println!("{:?}", err),
+    //     }
+  }
 }
 
 fn read_texture_json_file(file_path: PathBuf) -> Result<TexturePack, io::Error> {

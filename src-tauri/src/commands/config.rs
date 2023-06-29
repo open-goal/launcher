@@ -48,9 +48,9 @@ pub async fn set_install_directory(
   new_dir: String,
 ) -> Result<Option<String>, CommandError> {
   let mut config_lock = config.lock().await;
-  Ok(config_lock.set_install_directory(new_dir).map_err(|_| {
-    CommandError::Configuration("Unable to persist installation directory".to_owned())
-  })?)
+  config_lock
+    .set_install_directory(new_dir)
+    .map_err(|_| CommandError::Configuration("Unable to persist installation directory".to_owned()))
 }
 
 #[tauri::command]
