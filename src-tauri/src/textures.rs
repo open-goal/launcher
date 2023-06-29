@@ -21,7 +21,7 @@ pub async fn extract_textures(app_handle: tauri::AppHandle, textures_array: Vec<
     .unwrap()
     .join("data/texture_replacements");
 
-  let target_dir = PathBuf::from(text_dir.clone()); // Doesn't need to exist
+  let target_dir = PathBuf::from(text_dir); // Doesn't need to exist
 
   // for path in textures_array {
   //     println!("Extracting texture pack: {:?}", path.clone());
@@ -58,7 +58,7 @@ pub fn get_all_texture_packs(dir: String) -> Vec<TexturePack> {
   let dir_path = Path::new(&dir).exists();
   if !dir_path {
     println!("Textures directory doesn't exist, creating it now.");
-    fs::create_dir(dir.clone()).unwrap();
+    fs::create_dir(dir).unwrap();
     return Vec::new();
   }
 
