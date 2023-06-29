@@ -253,44 +253,30 @@ impl LauncherConfig {
 
     // Check our permissions on the folder by touching a file (and deleting it)
     let test_file = path.join(".perm-test.tmp");
-    match touch_file(&test_file) {
-      Err(e) => {
-        log::error!(
-          "Provided installation folder could not be written to: {}",
-          e
-        );
-        return Ok(Some("Provided folder cannot be written to".to_owned()));
-      }
-      _ => (),
+    if let Err(e) = touch_file(&test_file) {
+      log::error!(
+        "Provided installation folder could not be written to: {}",
+        e
+      );
+      return Ok(Some("Provided folder cannot be written to".to_owned()));
     }
 
     // If the directory changes (it's not a no-op), we need to:
     // - wipe any installed games (make them reinstall)
     // - wipe the active version/version types
-    match &self.installation_dir {
-      Some(old_dir) => {
-        if *old_dir != new_dir {
-          self.active_version = None;
-          self.active_version_folder = None;
-          self.update_installed_game_version(
-            &SupportedGame::Jak1.internal_str().to_string(),
-            false,
-          )?;
-          self.update_installed_game_version(
-            &SupportedGame::Jak2.internal_str().to_string(),
-            false,
-          )?;
-          self.update_installed_game_version(
-            &SupportedGame::Jak3.internal_str().to_string(),
-            false,
-          )?;
-          self.update_installed_game_version(
-            &SupportedGame::JakX.internal_str().to_string(),
-            false,
-          )?;
-        }
+    if let Some(old_dir) = &self.installation_dir {
+      if *old_dir != new_dir {
+        self.active_version = None;
+        self.active_version_folder = None;
+        self
+          .update_installed_game_version(&SupportedGame::Jak1.internal_str().to_string(), false)?;
+        self
+          .update_installed_game_version(&SupportedGame::Jak2.internal_str().to_string(), false)?;
+        self
+          .update_installed_game_version(&SupportedGame::Jak3.internal_str().to_string(), false)?;
+        self
+          .update_installed_game_version(&SupportedGame::JakX.internal_str().to_string(), false)?;
       }
-      _ => (),
     }
 
     self.installation_dir = Some(new_dir);

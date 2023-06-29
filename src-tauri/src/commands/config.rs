@@ -62,14 +62,11 @@ pub async fn is_avx_requirement_met(
   if force {
     config_lock.requirements.avx = None;
   }
-  match config_lock.requirements.bypass_requirements {
-    Some(bypass) => {
-      if bypass {
-        log::warn!("Bypassing the AVX requirements check!");
-        return Ok(true);
-      }
+  if let Some(bypass) = config_lock.requirements.bypass_requirements {
+    if bypass {
+      log::warn!("Bypassing the AVX requirements check!");
+      return Ok(true);
     }
-    _ => (),
   }
   match config_lock.requirements.avx {
     None => {
@@ -105,14 +102,11 @@ pub async fn is_opengl_requirement_met(
   if force {
     config_lock.requirements.opengl = None;
   }
-  match config_lock.requirements.bypass_requirements {
-    Some(bypass) => {
-      if bypass {
-        log::warn!("Bypassing the OpenGL requirements check!");
-        return Ok(Some(true));
-      }
+  if let Some(bypass) = config_lock.requirements.bypass_requirements {
+    if bypass {
+      log::warn!("Bypassing the OpenGL requirements check!");
+      return Ok(Some(true));
     }
-    _ => (),
   }
   match config_lock.requirements.opengl {
     None => {

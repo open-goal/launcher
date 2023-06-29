@@ -173,12 +173,11 @@ fn main() {
   match tauri_setup {
     Ok(app) => {
       log::info!("application starting up");
-      app.run(|_app_handle, event| match event {
-        RunEvent::ExitRequested { .. } => {
+      app.run(|_app_handle, event| {
+        if let RunEvent::ExitRequested { .. } = event {
           log::info!("Exit requested, exiting!");
           std::process::exit(0);
         }
-        _ => (),
       })
     }
     Err(err) => {

@@ -206,20 +206,17 @@ pub async fn remove_version(
   delete_dir(&version_dir)?;
 
   // If it's the active version, we should clean that up in the settings file
-  match (
+  if let (Some(config_version_folder), Some(config_version)) = (
     &config_lock.active_version_folder,
     &config_lock.active_version,
   ) {
-    (Some(config_version_folder), Some(config_version)) => {
-      if (version_folder == *config_version_folder) && (version == *config_version) {
-        config_lock.clear_active_version().map_err(|_| {
-          CommandError::VersionManagement(
-            "Unable to clear active version after it was removed".to_owned(),
-          )
-        })?;
-      }
+    if (version_folder == *config_version_folder) && (version == *config_version) {
+      config_lock.clear_active_version().map_err(|_| {
+        CommandError::VersionManagement(
+          "Unable to clear active version after it was removed".to_owned(),
+        )
+      })?;
     }
-    (_, _) => (),
   }
 
   Ok(())
