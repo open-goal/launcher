@@ -1,3 +1,6 @@
+// these commands are not yet used, allow dead code in this module
+#![allow(dead_code)]
+
 use serde::{Deserialize, Serialize};
 use std::{
   fs,
@@ -14,14 +17,14 @@ pub struct TexturePack {
 }
 
 #[tauri::command]
-pub async fn extract_textures(app_handle: tauri::AppHandle, textures_array: Vec<String>) {
+pub async fn extract_textures(app_handle: tauri::AppHandle, _textures_array: Vec<String>) {
   let text_dir = app_handle
     .path_resolver()
     .app_data_dir()
     .unwrap()
     .join("data/texture_replacements");
 
-  let target_dir = PathBuf::from(text_dir); // Doesn't need to exist
+  let _target_dir = PathBuf::from(text_dir); // Doesn't need to exist
 
   // for path in textures_array {
   //     println!("Extracting texture pack: {:?}", path.clone());
