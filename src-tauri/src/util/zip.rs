@@ -80,7 +80,7 @@ pub fn append_file_to_zip(
   let mut buffer = Vec::new();
   let name = Path::new(path_in_zip);
   #[allow(deprecated)]
-  zip_file.start_file_from_path(&name, options)?;
+  zip_file.start_file_from_path(name, options)?;
   let mut f = File::open(src)?;
 
   f.read_to_end(&mut buffer)?;

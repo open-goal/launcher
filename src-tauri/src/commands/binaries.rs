@@ -163,7 +163,7 @@ fn get_data_dir(
       data_folder.to_string_lossy()
     )));
   } else if copy_directory {
-    copy_data_dir(&config_info, &game_name)?;
+    copy_data_dir(config_info, game_name)?;
   }
   Ok(data_folder)
 }
@@ -208,7 +208,7 @@ fn create_log_file(
     }
     Some(path) => path,
   };
-  create_dir(&log_path)?;
+  create_dir(log_path)?;
   let mut file_options = std::fs::OpenOptions::new();
   file_options.create(true);
   if append {
