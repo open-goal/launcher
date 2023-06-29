@@ -27,7 +27,7 @@ pub fn append_dir_contents_to_zip(
   let mut buffer = Vec::new();
   for entry in iter {
     let path = entry.path();
-    let temp_name = path.strip_prefix(dir.clone()).unwrap();
+    let temp_name = path.strip_prefix(dir).unwrap();
     let name = Path::new(internal_folder).join(temp_name);
 
     // Write file or directory explicitly
