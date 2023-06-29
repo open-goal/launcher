@@ -73,9 +73,9 @@ pub async fn download_version(
   let config_lock = config.lock().await;
   let install_path = match &config_lock.installation_dir {
     None => {
-      return Err(CommandError::VersionManagement(format!(
-        "Cannot install version, no installation directory set"
-      )))
+      return Err(CommandError::VersionManagement(
+        "Cannot install version, no installation directory set".to_owned(),
+      ))
     }
     Some(path) => Path::new(path),
   };
@@ -107,12 +107,14 @@ pub async fn download_version(
 
     // Download the file
     download_file(&url, &download_path).await.map_err(|_| {
-      CommandError::VersionManagement(format!("Unable to successfully download version"))
+      CommandError::VersionManagement("Unable to successfully download version".to_owned())
     })?;
 
     // Extract the zip file
     extract_and_delete_zip_file(&download_path, &dest_dir).map_err(|_| {
-      CommandError::VersionManagement(format!("Unable to successfully extract downloaded version"))
+      CommandError::VersionManagement(
+        "Unable to successfully extract downloaded version".to_owned(),
+      )
     })?;
 
     // Verify that the extracted files seem correct (look for extractor.exe)
@@ -128,9 +130,10 @@ pub async fn download_version(
           dest_dir.display()
         ))
       })?;
-      return Err(CommandError::VersionManagement(format!(
+      return Err(CommandError::VersionManagement(
         "Version did not extract properly, critical files are missing. An antivirus may have deleted the files!"
-      )));
+        .to_owned()
+      ));
     }
     return Ok(());
   } else if cfg!(unix) {
@@ -141,13 +144,15 @@ pub async fn download_version(
 
     // Download the file
     download_file(&url, &download_path).await.map_err(|_| {
-      CommandError::VersionManagement(format!("Unable to successfully download version"))
+      CommandError::VersionManagement("Unable to successfully download version".to_owned())
     })?;
 
     // Extract the zip file
     extract_and_delete_tar_ball(&download_path, &dest_dir).map_err(|err| {
       log::error!("unable to extract and delete version tar.gz file {}", err);
-      CommandError::VersionManagement(format!("Unable to successfully extract downloaded version"))
+      CommandError::VersionManagement(
+        "Unable to successfully extract downloaded version".to_owned(),
+      )
     })?;
 
     // Verify that the extracted files seem correct (look for extractor.exe)
@@ -163,15 +168,16 @@ pub async fn download_version(
           dest_dir.display()
         ))
       })?;
-      return Err(CommandError::VersionManagement(format!(
+      return Err(CommandError::VersionManagement(
         "Version did not extract properly, critical files are missing. An antivirus may have deleted the files!"
-      )));
+        .to_owned()
+      ));
     }
     return Ok(());
   }
-  Err(CommandError::VersionManagement(format!(
-    "Unknown operating system, unable to download and extract correct release"
-  )))
+  Err(CommandError::VersionManagement(
+    "Unknown operating system, unable to download and extract correct release".to_owned(),
+  ))
 }
 
 #[tauri::command]
@@ -183,9 +189,9 @@ pub async fn remove_version(
   let mut config_lock = config.lock().await;
   let install_path = match &config_lock.installation_dir {
     None => {
-      return Err(CommandError::VersionManagement(format!(
-        "Cannot install version, no installation directory set"
-      )))
+      return Err(CommandError::VersionManagement(
+        "Cannot install version, no installation directory set".to_owned(),
+      ))
     }
     Some(path) => Path::new(path),
   };
@@ -207,9 +213,9 @@ pub async fn remove_version(
     (Some(config_version_folder), Some(config_version)) => {
       if (version_folder == *config_version_folder) && (version == *config_version) {
         config_lock.clear_active_version().map_err(|_| {
-          CommandError::VersionManagement(format!(
-            "Unable to clear active version after it was removed"
-          ))
+          CommandError::VersionManagement(
+            "Unable to clear active version after it was removed".to_owned(),
+          )
         })?;
       }
     }
@@ -227,9 +233,9 @@ pub async fn go_to_version_folder(
   let config_lock = config.lock().await;
   let install_path = match &config_lock.installation_dir {
     None => {
-      return Err(CommandError::VersionManagement(format!(
-        "Cannot go to version folder, no installation directory set"
-      )))
+      return Err(CommandError::VersionManagement(
+        "Cannot go to version folder, no installation directory set".to_owned(),
+      ))
     }
     Some(path) => Path::new(path),
   };
@@ -245,7 +251,7 @@ pub async fn go_to_version_folder(
   })?;
 
   open_dir_in_os(folder_path.to_string_lossy().into_owned())
-    .map_err(|_| CommandError::VersionManagement(format!("Unable to open folder in OS")))?;
+    .map_err(|_| CommandError::VersionManagement("Unable to open folder in OS".to_owned()))?;
   Ok(())
 }
 
@@ -256,9 +262,9 @@ pub async fn ensure_active_version_still_exists(
   let mut config_lock = config.lock().await;
   let install_path = match &config_lock.installation_dir {
     None => {
-      return Err(CommandError::VersionManagement(format!(
-        "Cannot install version, no installation directory set"
-      )))
+      return Err(CommandError::VersionManagement(
+        "Cannot install version, no installation directory set".to_owned(),
+      ))
     }
     Some(path) => Path::new(path),
   };
@@ -280,9 +286,9 @@ pub async fn ensure_active_version_still_exists(
       if !version_dir.exists() {
         // Clear active version if it's no longer available
         config_lock.clear_active_version().map_err(|_| {
-          CommandError::VersionManagement(format!(
-            "Unable to clear active version after it was found to be missing"
-          ))
+          CommandError::VersionManagement(
+            "Unable to clear active version after it was found to be missing".to_owned(),
+          )
         })?;
       }
       Ok(version_dir.exists())

@@ -26,7 +26,7 @@ pub async fn reset_to_defaults(
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   config_lock.reset_to_defaults().map_err(|_| {
-    CommandError::Configuration(format!("Unable to reset configuration to defaults"))
+    CommandError::Configuration("Unable to reset configuration to defaults".to_owned())
   })?;
   Ok(())
 }
@@ -49,7 +49,7 @@ pub async fn set_install_directory(
 ) -> Result<Option<String>, CommandError> {
   let mut config_lock = config.lock().await;
   Ok(config_lock.set_install_directory(new_dir).map_err(|_| {
-    CommandError::Configuration(format!("Unable to persist installation directory"))
+    CommandError::Configuration("Unable to persist installation directory".to_owned())
   })?)
 }
 
@@ -80,7 +80,7 @@ pub async fn is_avx_requirement_met(
       }
       config_lock.save_config().map_err(|err| {
         log::error!("Unable to persist avx requirement change {}", err);
-        CommandError::Configuration(format!("Unable to persist avx requirement change"))
+        CommandError::Configuration("Unable to persist avx requirement change".to_owned())
       })?;
       Ok(config_lock.requirements.avx.unwrap_or(false))
     }
@@ -130,11 +130,11 @@ pub async fn is_opengl_requirement_met(
       {
         None => {
           config_lock.set_opengl_requirement_met(None).map_err(|_| {
-            CommandError::Configuration(format!("Unable to persist opengl requirement change"))
+            CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
           })?;
-          return Err(CommandError::Configuration(format!(
-            "Unable to request GPU adapter to check for OpenGL support"
-          )));
+          return Err(CommandError::Configuration(
+            "Unable to request GPU adapter to check for OpenGL support".to_owned(),
+          ));
         }
         Some(instance) => instance,
       };
@@ -161,7 +161,7 @@ pub async fn is_opengl_requirement_met(
           config_lock
             .set_opengl_requirement_met(Some(false))
             .map_err(|_| {
-              CommandError::Configuration(format!("Unable to persist opengl requirement change"))
+              CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
             })?;
           return Err(CommandError::Configuration(format!(
             "Unable to request GPU device with adequate OpenGL support - {:?}",
@@ -175,7 +175,7 @@ pub async fn is_opengl_requirement_met(
       config_lock
         .set_opengl_requirement_met(Some(true))
         .map_err(|_| {
-          CommandError::Configuration(format!("Unable to persist opengl requirement change"))
+          CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
         })?;
       Ok(Some(true))
     }
@@ -193,7 +193,7 @@ pub async fn finalize_installation(
   config_lock
     .update_installed_game_version(&game_name, true)
     .map_err(|_| {
-      CommandError::Configuration(format!("Unable to persist game installation status"))
+      CommandError::Configuration("Unable to persist game installation status".to_owned())
     })?;
   app_handle.emit_all("gameInstalled", {})?;
   Ok(())
@@ -222,9 +222,9 @@ pub async fn is_game_installed(
           "Unable to mark partially installed game as uninstalled {}",
           err
         );
-        CommandError::Configuration(format!(
-          "Unable to mark partially installed game as uninstalled"
-        ))
+        CommandError::Configuration(
+          "Unable to mark partially installed game as uninstalled".to_owned(),
+        )
       })?;
     return Ok(false);
   }
@@ -260,11 +260,13 @@ pub async fn save_active_version_change(
   config_lock
     .set_active_version_folder(version_folder)
     .map_err(|_| {
-      CommandError::Configuration(format!("Unable to persist active version folder change"))
+      CommandError::Configuration("Unable to persist active version folder change".to_owned())
     })?;
   config_lock
     .set_active_version(new_active_version)
-    .map_err(|_| CommandError::Configuration(format!("Unable to persist active version change")))?;
+    .map_err(|_| {
+      CommandError::Configuration("Unable to persist active version change".to_owned())
+    })?;
   Ok(())
 }
 
@@ -300,7 +302,7 @@ pub async fn set_locale(
   let mut config_lock = config.lock().await;
   config_lock
     .set_locale(locale)
-    .map_err(|_| CommandError::Configuration(format!("Unable to persist locale change")))?;
+    .map_err(|_| CommandError::Configuration("Unable to persist locale change".to_owned()))?;
   Ok(())
 }
 
@@ -322,7 +324,7 @@ pub async fn set_bypass_requirements(
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   config_lock.set_bypass_requirements(bypass).map_err(|_| {
-    CommandError::Configuration(format!("Unable to persist bypass requirements change"))
+    CommandError::Configuration("Unable to persist bypass requirements change".to_owned())
   })?;
   Ok(())
 }

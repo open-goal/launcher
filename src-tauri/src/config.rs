@@ -221,9 +221,9 @@ impl LauncherConfig {
     let settings_path = match &self.settings_path {
       None => {
         log::warn!("Can't save the settings file, as no path was initialized!");
-        return Err(ConfigError::Configuration(format!(
-          "No settings path defined, unable to save settings!"
-        )));
+        return Err(ConfigError::Configuration(
+          "No settings path defined, unable to save settings!".to_owned(),
+        ));
       }
       Some(path) => path,
     };

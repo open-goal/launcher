@@ -36,9 +36,9 @@ fn common_prelude(
 ) -> Result<CommonConfigData, CommandError> {
   let install_path = match &config.installation_dir {
     None => {
-      return Err(CommandError::BinaryExecution(format!(
-        "No installation directory set, can't perform operation"
-      )))
+      return Err(CommandError::BinaryExecution(
+        "No installation directory set, can't perform operation".to_owned(),
+      ))
     }
     Some(path) => Path::new(path),
   };
@@ -46,17 +46,17 @@ fn common_prelude(
   let active_version = config
     .active_version
     .as_ref()
-    .ok_or(CommandError::BinaryExecution(format!(
-      "No active version set, can't perform operation"
-    )))?;
+    .ok_or(CommandError::BinaryExecution(
+      "No active version set, can't perform operation".to_owned(),
+    ))?;
 
   let active_version_folder =
     config
       .active_version_folder
       .as_ref()
-      .ok_or(CommandError::BinaryExecution(format!(
-        "No active version folder set, can't perform operation"
-      )))?;
+      .ok_or(CommandError::BinaryExecution(
+        "No active version folder set, can't perform operation".to_owned(),
+      ))?;
 
   Ok(CommonConfigData {
     install_path: install_path.to_path_buf(),
@@ -202,9 +202,9 @@ fn create_log_file(
 ) -> Result<std::fs::File, CommandError> {
   let log_path = &match app_handle.path_resolver().app_log_dir() {
     None => {
-      return Err(CommandError::Installation(format!(
-        "Could not determine path to save installation logs"
-      )))
+      return Err(CommandError::Installation(
+        "Could not determine path to save installation logs".to_owned(),
+      ))
     }
     Some(path) => path.clone(),
   };
