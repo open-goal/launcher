@@ -63,8 +63,8 @@ pub async fn reset_game_settings(game_name: String) -> Result<(), CommandError> 
     std::fs::rename(path_to_settings, backup_file)?;
     Ok(())
   } else {
-    return Err(CommandError::GameManagement(
+    Err(CommandError::GameManagement(
       "Game config directory does not exist, cannot reset settings".to_owned(),
-    ));
+    ))
   }
 }

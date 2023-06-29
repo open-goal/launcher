@@ -199,16 +199,16 @@ impl LauncherConfig {
               config.version.as_ref().unwrap()
             );
             config.settings_path = Some(settings_path.to_path_buf());
-            return config;
+            config
           }
           Err(err) => {
             log::error!(
               "Could not parse settings.json file: {}, using defaults",
               err
             );
-            return LauncherConfig::default(Some(settings_path.to_path_buf()));
+            LauncherConfig::default(Some(settings_path.to_path_buf()))
           }
-        };
+        }
       }
       None => {
         log::warn!("Not loading configuration, no path provided. Using defaults");
@@ -384,15 +384,13 @@ impl LauncherConfig {
       Ok(game) => {
         // Retrieve relevant game from config
         match self.games.get(&game) {
-          Some(game) => {
-            return game.is_installed;
-          }
+          Some(game) => game.is_installed,
           None => {
             log::warn!(
               "Could not find game to check if it's installed: {}",
               game_name
             );
-            return false;
+            false
           }
         }
       }
@@ -401,7 +399,7 @@ impl LauncherConfig {
           "Could not find game to check if it's installed: {}",
           game_name
         );
-        return false;
+        false
       }
     }
   }
@@ -411,15 +409,13 @@ impl LauncherConfig {
       Ok(game) => {
         // Retrieve relevant game from config
         match self.games.get(&game) {
-          Some(game) => {
-            return game.version.clone().unwrap_or("".to_string());
-          }
+          Some(game) => game.version.clone().unwrap_or("".to_owned()),
           None => {
             log::warn!(
               "Could not find game to check what version is installed: {}",
               game_name
             );
-            return "".to_owned();
+            "".to_owned()
           }
         }
       }
@@ -428,7 +424,7 @@ impl LauncherConfig {
           "Could not find game to check what version is installed: {}",
           game_name
         );
-        return "".to_owned();
+        "".to_owned()
       }
     }
   }
@@ -438,15 +434,13 @@ impl LauncherConfig {
       Ok(game) => {
         // Retrieve relevant game from config
         match self.games.get(&game) {
-          Some(game) => {
-            return game.version_folder.clone().unwrap_or("".to_string());
-          }
+          Some(game) => game.version_folder.clone().unwrap_or("".to_string()),
           None => {
             log::warn!(
               "Could not find game to check what version type is installed: {}",
               game_name
             );
-            return "".to_owned();
+            "".to_owned()
           }
         }
       }
@@ -455,7 +449,7 @@ impl LauncherConfig {
           "Could not find game to check what version is installed: {}",
           game_name
         );
-        return "".to_owned();
+        "".to_owned()
       }
     }
   }

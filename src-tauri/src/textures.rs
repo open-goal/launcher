@@ -83,5 +83,6 @@ pub fn get_all_texture_packs(dir: String) -> Vec<TexturePack> {
       _ => continue,
     }
   }
-  return texture_pack_data;
+
+  texture_pack_data
 }

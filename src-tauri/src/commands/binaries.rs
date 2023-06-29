@@ -22,7 +22,7 @@ fn bin_ext(filename: &str) -> String {
   if cfg!(windows) {
     return format!("{filename}.exe");
   }
-  return filename.to_string();
+  filename.to_string()
 }
 
 struct CommonConfigData {
@@ -84,42 +84,42 @@ fn get_error_codes(
   if !json_file.exists() {
     warn!("couldn't locate error code file at {}", json_file.display());
     return HashMap::new();
-  } else {
-    let file_contents = match std::fs::read_to_string(&json_file) {
-      Ok(content) => content,
-      Err(_err) => {
-        warn!("couldn't read error code file at {}", &json_file.display());
-        return HashMap::new();
-      }
-    };
-    let json: Value = match serde_json::from_str(&file_contents) {
-      Ok(json) => json,
-      Err(_err) => {
-        warn!("couldn't parse error code file at {}", &json_file.display());
-        return HashMap::new();
-      }
-    };
-
-    if let Value::Object(map) = json {
-      let mut result: HashMap<i32, LauncherErrorCode> = HashMap::new();
-      for (key, value) in map {
-        let Ok(error_code) = serde_json::from_value(value) else {
-          continue;
-        };
-        let Ok(code) = key.parse::<i32>() else {
-          continue;
-        };
-        result.insert(code, error_code);
-      }
-      return result;
-    } else {
-      warn!(
-        "couldn't convert error code file at {}",
-        &json_file.display()
-      );
+  }
+  let file_contents = match std::fs::read_to_string(&json_file) {
+    Ok(content) => content,
+    Err(_err) => {
+      warn!("couldn't read error code file at {}", &json_file.display());
       return HashMap::new();
     }
+  };
+  let json: Value = match serde_json::from_str(&file_contents) {
+    Ok(json) => json,
+    Err(_err) => {
+      warn!("couldn't parse error code file at {}", &json_file.display());
+      return HashMap::new();
+    }
+  };
+
+  if let Value::Object(map) = json {
+    let mut result: HashMap<i32, LauncherErrorCode> = HashMap::new();
+    for (key, value) in map {
+      let Ok(error_code) = serde_json::from_value(value) else {
+        continue;
+      };
+      let Ok(code) = key.parse::<i32>() else {
+        continue;
+      };
+      result.insert(code, error_code);
+    }
+    return result;
   }
+
+  warn!(
+    "couldn't convert error code file at {}",
+    &json_file.display()
+  );
+
+  HashMap::new()
 }
 
 fn copy_data_dir(config_info: &CommonConfigData, game_name: &String) -> Result<(), CommandError> {
