@@ -103,7 +103,7 @@ pub async fn download_version(
     let download_path = install_path
       .join("versions")
       .join(&version_folder)
-      .join(format!("{}.zip", version));
+      .join(format!("{version}.zip"));
 
     // Download the file
     download_file(&url, &download_path).await.map_err(|_| {
@@ -140,7 +140,7 @@ pub async fn download_version(
     let download_path = install_path
       .join("versions")
       .join(&version_folder)
-      .join(format!("{}.tar.gz", version));
+      .join(format!("{version}.tar.gz"));
 
     // Download the file
     download_file(&url, &download_path).await.map_err(|_| {

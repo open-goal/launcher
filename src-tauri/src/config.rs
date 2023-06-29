@@ -56,7 +56,7 @@ impl FromStr for SupportedGame {
       "jak2" => Ok(Self::Jak2),
       "jak3" => Ok(Self::Jak3),
       "jakx" => Ok(Self::JakX),
-      _ => Err(format!("Invalid variant: {}", s)),
+      _ => Err(format!("Invalid variant: {s}")),
     }
   }
 }
@@ -364,16 +364,14 @@ impl LauncherConfig {
           }
           None => {
             return Err(ConfigError::Configuration(format!(
-              "Invalid game name - {}, can't update installation status!",
-              game_name
+              "Invalid game name - {game_name}, can't update installation status!",
             )));
           }
         }
       }
       Err(_) => {
         return Err(ConfigError::Configuration(format!(
-          "Invalid game name - {}, can't update installation status!",
-          game_name
+          "Invalid game name - {game_name}, can't update installation status!",
         )));
       }
     }

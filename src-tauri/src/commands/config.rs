@@ -157,15 +157,14 @@ pub async fn is_opengl_requirement_met(
         )
         .await
       {
-        Err(_err) => {
+        Err(err) => {
           config_lock
             .set_opengl_requirement_met(Some(false))
             .map_err(|_| {
               CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
             })?;
           return Err(CommandError::Configuration(format!(
-            "Unable to request GPU device with adequate OpenGL support - {:?}",
-            _err
+            "Unable to request GPU device with adequate OpenGL support - {err:?}",
           )));
         }
         Ok(device) => device,

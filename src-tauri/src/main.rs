@@ -20,14 +20,11 @@ fn log_crash(panic_info: Option<&std::panic::PanicInfo>, error: Option<tauri::Er
   let backtrace = Backtrace::new();
   let log_contents;
   if let Some(panic_info) = panic_info {
-    log_contents = format!("panic occurred: {:?}\n{:?}", panic_info, backtrace);
+    log_contents = format!("panic occurred: {panic_info:?}\n{backtrace:?}");
   } else if let Some(error) = error {
-    log_contents = format!(
-      "unexpected app error occurred: {:?}\n{:?}",
-      error, backtrace
-    );
+    log_contents = format!("unexpected app error occurred: {error:?}\n{backtrace:?}",);
   } else {
-    log_contents = format!("unexpected error occurred: {:?}", backtrace);
+    log_contents = format!("unexpected error occurred: {backtrace:?}");
   }
   log::error!("{}", log_contents);
   if let Some(user_dirs) = UserDirs::new() {

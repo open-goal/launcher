@@ -20,7 +20,7 @@ use super::CommandError;
 
 fn bin_ext(filename: &str) -> String {
   if cfg!(windows) {
-    return format!("{}.exe", filename);
+    return format!("{filename}.exe");
   }
   return filename.to_string();
 }
@@ -315,7 +315,7 @@ pub async fn extract_and_validate_iso(
       }
       let error_code_map = get_error_codes(&config_info, &game_name);
       let default_error = LauncherErrorCode {
-        msg: format!("Unexpected error occured with code {}", code).to_owned(),
+        msg: format!("Unexpected error occured with code {code}").to_owned(),
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
       Ok(InstallStepOutput {
@@ -388,7 +388,7 @@ pub async fn run_decompiler(
       }
       let error_code_map = get_error_codes(&config_info, &game_name);
       let default_error = LauncherErrorCode {
-        msg: format!("Unexpected error occured with code {}", code).to_owned(),
+        msg: format!("Unexpected error occured with code {code}").to_owned(),
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
       Ok(InstallStepOutput {
@@ -461,7 +461,7 @@ pub async fn run_compiler(
       }
       let error_code_map = get_error_codes(&config_info, &game_name);
       let default_error = LauncherErrorCode {
-        msg: format!("Unexpected error occured with code {}", code).to_owned(),
+        msg: format!("Unexpected error occured with code {code}").to_owned(),
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
       Ok(InstallStepOutput {

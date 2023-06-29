@@ -74,7 +74,7 @@ pub fn get_all_texture_packs(dir: String) -> Vec<TexturePack> {
           Err(_e) => {
             // if the about.json file isn't inside of the expected directory this error happens
             // TODO: add this error to a logs file so players know when they install a bad texture pack
-            println!("File doesn't have proper about.json: {:?}", path);
+            println!("File doesn't have proper about.json: {path:?}");
             continue;
           }
         };
