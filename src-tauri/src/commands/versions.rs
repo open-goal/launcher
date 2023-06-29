@@ -278,8 +278,8 @@ pub async fn ensure_active_version_still_exists(
     (Some(config_version_folder), Some(config_version)) => {
       let version_dir = install_path
         .join("versions")
-        .join(&config_version_folder)
-        .join(&config_version);
+        .join(config_version_folder)
+        .join(config_version);
       if !version_dir.exists() {
         // Clear active version if it's no longer available
         config_lock.clear_active_version().map_err(|_| {

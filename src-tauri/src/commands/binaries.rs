@@ -133,7 +133,7 @@ fn copy_data_dir(config_info: &CommonConfigData, game_name: &String) -> Result<(
   let dst_dir = config_info
     .install_path
     .join("active")
-    .join(&game_name)
+    .join(game_name)
     .join("data");
 
   info!("Copying {} into {}", src_dir.display(), dst_dir.display());
