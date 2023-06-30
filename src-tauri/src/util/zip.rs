@@ -27,7 +27,7 @@ pub fn append_dir_contents_to_zip(
   let mut buffer = Vec::new();
   for entry in iter {
     let path = entry.path();
-    let temp_name = path.strip_prefix(dir.clone()).unwrap();
+    let temp_name = path.strip_prefix(dir).unwrap();
     let name = Path::new(internal_folder).join(temp_name);
 
     // Write file or directory explicitly
@@ -80,7 +80,7 @@ pub fn append_file_to_zip(
   let mut buffer = Vec::new();
   let name = Path::new(path_in_zip);
   #[allow(deprecated)]
-  zip_file.start_file_from_path(&name, options)?;
+  zip_file.start_file_from_path(name, options)?;
   let mut f = File::open(src)?;
 
   f.read_to_end(&mut buffer)?;
@@ -92,7 +92,7 @@ pub fn append_file_to_zip(
 
 pub fn extract_and_delete_zip_file(
   zip_path: &PathBuf,
-  extract_dir: &PathBuf,
+  extract_dir: &Path,
 ) -> Result<(), zip_extract::ZipExtractError> {
   let archive: Vec<u8> = std::fs::read(zip_path)?;
   zip_extract::extract(Cursor::new(archive), extract_dir, true)?;

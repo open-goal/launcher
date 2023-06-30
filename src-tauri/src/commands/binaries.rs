@@ -20,9 +20,9 @@ use super::CommandError;
 
 fn bin_ext(filename: &str) -> String {
   if cfg!(windows) {
-    return format!("{}.exe", filename);
+    return format!("{filename}.exe");
   }
-  return filename.to_string();
+  filename.to_string()
 }
 
 struct CommonConfigData {
@@ -36,9 +36,9 @@ fn common_prelude(
 ) -> Result<CommonConfigData, CommandError> {
   let install_path = match &config.installation_dir {
     None => {
-      return Err(CommandError::BinaryExecution(format!(
-        "No installation directory set, can't perform operation"
-      )))
+      return Err(CommandError::BinaryExecution(
+        "No installation directory set, can't perform operation".to_owned(),
+      ))
     }
     Some(path) => Path::new(path),
   };
@@ -46,17 +46,17 @@ fn common_prelude(
   let active_version = config
     .active_version
     .as_ref()
-    .ok_or(CommandError::BinaryExecution(format!(
-      "No active version set, can't perform operation"
-    )))?;
+    .ok_or(CommandError::BinaryExecution(
+      "No active version set, can't perform operation".to_owned(),
+    ))?;
 
   let active_version_folder =
     config
       .active_version_folder
       .as_ref()
-      .ok_or(CommandError::BinaryExecution(format!(
-        "No active version folder set, can't perform operation"
-      )))?;
+      .ok_or(CommandError::BinaryExecution(
+        "No active version folder set, can't perform operation".to_owned(),
+      ))?;
 
   Ok(CommonConfigData {
     install_path: install_path.to_path_buf(),
@@ -84,42 +84,42 @@ fn get_error_codes(
   if !json_file.exists() {
     warn!("couldn't locate error code file at {}", json_file.display());
     return HashMap::new();
-  } else {
-    let file_contents = match std::fs::read_to_string(&json_file) {
-      Ok(content) => content,
-      Err(_err) => {
-        warn!("couldn't read error code file at {}", &json_file.display());
-        return HashMap::new();
-      }
-    };
-    let json: Value = match serde_json::from_str(&file_contents) {
-      Ok(json) => json,
-      Err(_err) => {
-        warn!("couldn't parse error code file at {}", &json_file.display());
-        return HashMap::new();
-      }
-    };
-
-    if let Value::Object(map) = json {
-      let mut result: HashMap<i32, LauncherErrorCode> = HashMap::new();
-      for (key, value) in map {
-        let Ok(error_code) = serde_json::from_value(value) else {
-          continue;
-        };
-        let Ok(code) = key.parse::<i32>() else {
-          continue;
-        };
-        result.insert(code, error_code);
-      }
-      return result;
-    } else {
-      warn!(
-        "couldn't convert error code file at {}",
-        &json_file.display()
-      );
+  }
+  let file_contents = match std::fs::read_to_string(&json_file) {
+    Ok(content) => content,
+    Err(_err) => {
+      warn!("couldn't read error code file at {}", &json_file.display());
       return HashMap::new();
     }
+  };
+  let json: Value = match serde_json::from_str(&file_contents) {
+    Ok(json) => json,
+    Err(_err) => {
+      warn!("couldn't parse error code file at {}", &json_file.display());
+      return HashMap::new();
+    }
+  };
+
+  if let Value::Object(map) = json {
+    let mut result: HashMap<i32, LauncherErrorCode> = HashMap::new();
+    for (key, value) in map {
+      let Ok(error_code) = serde_json::from_value(value) else {
+        continue;
+      };
+      let Ok(code) = key.parse::<i32>() else {
+        continue;
+      };
+      result.insert(code, error_code);
+    }
+    return result;
   }
+
+  warn!(
+    "couldn't convert error code file at {}",
+    &json_file.display()
+  );
+
+  HashMap::new()
 }
 
 fn copy_data_dir(config_info: &CommonConfigData, game_name: &String) -> Result<(), CommandError> {
@@ -133,16 +133,13 @@ fn copy_data_dir(config_info: &CommonConfigData, game_name: &String) -> Result<(
   let dst_dir = config_info
     .install_path
     .join("active")
-    .join(&game_name)
+    .join(game_name)
     .join("data");
 
   info!("Copying {} into {}", src_dir.display(), dst_dir.display());
 
   overwrite_dir(&src_dir, &dst_dir).map_err(|err| {
-    CommandError::Installation(format!(
-      "Unable to copy data directory: '{}'",
-      err.to_string()
-    ))
+    CommandError::Installation(format!("Unable to copy data directory: '{err}'",))
   })?;
   Ok(())
 }
@@ -163,7 +160,7 @@ fn get_data_dir(
       data_folder.to_string_lossy()
     )));
   } else if copy_directory {
-    copy_data_dir(&config_info, &game_name)?;
+    copy_data_dir(config_info, game_name)?;
   }
   Ok(data_folder)
 }
@@ -202,13 +199,13 @@ fn create_log_file(
 ) -> Result<std::fs::File, CommandError> {
   let log_path = &match app_handle.path_resolver().app_log_dir() {
     None => {
-      return Err(CommandError::Installation(format!(
-        "Could not determine path to save installation logs"
-      )))
+      return Err(CommandError::Installation(
+        "Could not determine path to save installation logs".to_owned(),
+      ))
     }
-    Some(path) => path.clone(),
+    Some(path) => path,
   };
-  create_dir(&log_path)?;
+  create_dir(log_path)?;
   let mut file_options = std::fs::OpenOptions::new();
   file_options.create(true);
   if append {
@@ -315,7 +312,7 @@ pub async fn extract_and_validate_iso(
       }
       let error_code_map = get_error_codes(&config_info, &game_name);
       let default_error = LauncherErrorCode {
-        msg: format!("Unexpected error occured with code {}", code).to_owned(),
+        msg: format!("Unexpected error occured with code {code}"),
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
       Ok(InstallStepOutput {
@@ -388,7 +385,7 @@ pub async fn run_decompiler(
       }
       let error_code_map = get_error_codes(&config_info, &game_name);
       let default_error = LauncherErrorCode {
-        msg: format!("Unexpected error occured with code {}", code).to_owned(),
+        msg: format!("Unexpected error occured with code {code}"),
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
       Ok(InstallStepOutput {
@@ -461,7 +458,7 @@ pub async fn run_compiler(
       }
       let error_code_map = get_error_codes(&config_info, &game_name);
       let default_error = LauncherErrorCode {
-        msg: format!("Unexpected error occured with code {}", code).to_owned(),
+        msg: format!("Unexpected error occured with code {code}"),
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
       Ok(InstallStepOutput {
@@ -497,7 +494,7 @@ pub async fn open_repl(
       "start",
       &bin_ext("goalc"),
       "--proj-path",
-      &data_folder.to_string_lossy().into_owned(),
+      &data_folder.to_string_lossy(),
     ])
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
@@ -521,7 +518,7 @@ pub async fn launch_game(
   let tooling_version = Version::parse(
     config_info
       .active_version
-      .strip_prefix("v")
+      .strip_prefix('v')
       .unwrap_or(&config_info.active_version),
   )
   .unwrap_or(Version::new(0, 1, 35)); // assume new format if none can be found

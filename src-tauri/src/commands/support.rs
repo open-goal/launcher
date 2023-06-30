@@ -73,9 +73,9 @@ pub async fn generate_support_package(
   let config_lock = config.lock().await;
   let install_path = match &config_lock.installation_dir {
     None => {
-      return Err(CommandError::Support(format!(
-        "No installation directory set, can't generate the support package"
-      )))
+      return Err(CommandError::Support(
+        "No installation directory set, can't generate the support package".to_owned(),
+      ))
     }
     Some(path) => Path::new(path),
   };
@@ -110,25 +110,26 @@ pub async fn generate_support_package(
   let gpu_info_instance = wgpu::Instance::default();
   for a in gpu_info_instance.enumerate_adapters(wgpu::Backends::all()) {
     let info = a.get_info();
-    let mut gpu_info = GPUInfo::default();
-    gpu_info.name = info.name;
-    gpu_info.driver_name = info.driver;
-    gpu_info.driver_info = info.driver_info;
+    let gpu_info = GPUInfo {
+      name: info.name,
+      driver_name: info.driver,
+      driver_info: info.driver_info,
+    };
     package.gpu_info.push(gpu_info);
   }
 
   // Create zip file
   let save_path = Path::new(&user_path);
   let save_file = std::fs::File::create(save_path)
-    .map_err(|_| CommandError::Support(format!("Unable to create support file")))?;
+    .map_err(|_| CommandError::Support("Unable to create support file".to_owned()))?;
   let mut zip_file = zip::ZipWriter::new(save_file);
 
   // Save OpenGOAL config folder (this includes saves and settings)
   let game_config_dir = match config_dir() {
     None => {
-      return Err(CommandError::Support(format!(
-        "Couldn't determine application config directory"
-      )))
+      return Err(CommandError::Support(
+        "Couldn't determine application config directory".to_owned(),
+      ))
     }
     Some(path) => path.join("OpenGOAL"),
   };
@@ -139,9 +140,7 @@ pub async fn generate_support_package(
     vec!["gc", "json"],
   )
   .map_err(|_| {
-    CommandError::Support(format!(
-      "Unable to append game settings to the support package"
-    ))
+    CommandError::Support("Unable to append game settings to the support package".to_owned())
   })?;
   append_dir_contents_to_zip(
     &mut zip_file,
@@ -150,9 +149,7 @@ pub async fn generate_support_package(
     vec!["gc", "json"],
   )
   .map_err(|_| {
-    CommandError::Support(format!(
-      "Unable to append game misc settings to the support package"
-    ))
+    CommandError::Support("Unable to append game misc settings to the support package".to_owned())
   })?;
   append_dir_contents_to_zip(
     &mut zip_file,
@@ -161,17 +158,15 @@ pub async fn generate_support_package(
     vec!["bin"],
   )
   .map_err(|_| {
-    CommandError::Support(format!(
-      "Unable to append game saves to the support package"
-    ))
+    CommandError::Support("Unable to append game saves to the support package".to_owned())
   })?;
 
   // Save Launcher config folder
   let launcher_config_dir = match app_handle.path_resolver().app_config_dir() {
     None => {
-      return Err(CommandError::Support(format!(
-        "Couldn't determine launcher config directory"
-      )))
+      return Err(CommandError::Support(
+        "Couldn't determine launcher config directory".to_owned(),
+      ))
     }
     Some(path) => path,
   };
@@ -182,9 +177,7 @@ pub async fn generate_support_package(
     vec!["log"],
   )
   .map_err(|_| {
-    CommandError::Support(format!(
-      "Unable to append launcher logs to the support package"
-    ))
+    CommandError::Support("Unable to append launcher logs to the support package".to_owned())
   })?;
   append_file_to_zip(
     &mut zip_file,
@@ -192,9 +185,7 @@ pub async fn generate_support_package(
     "Launcher Settings and Logs/settings.json",
   )
   .map_err(|_| {
-    CommandError::Support(format!(
-      "Unable to append launcher settings to the support package"
-    ))
+    CommandError::Support("Unable to append launcher settings to the support package".to_owned())
   })?;
 
   // Save Logs
@@ -207,7 +198,7 @@ pub async fn generate_support_package(
     "Game Logs and ISO Info/Jak 1",
     vec!["log", "json", "txt"],
   )
-  .map_err(|_| CommandError::Support(format!("Unable to append game logs to support package")))?;
+  .map_err(|_| CommandError::Support("Unable to append game logs to support package".to_owned()))?;
 
   // Per Game Info
   let texture_repl_dir = active_version_dir
@@ -215,7 +206,7 @@ pub async fn generate_support_package(
     .join("data")
     .join("texture_replacements");
   package.game_info.jak1.has_texture_packs =
-    texture_repl_dir.exists() && !texture_repl_dir.read_dir().unwrap().next().is_none();
+    texture_repl_dir.exists() && texture_repl_dir.read_dir().unwrap().next().is_some();
   let build_info_path = active_version_dir
     .join("jak1")
     .join("data")
@@ -228,7 +219,7 @@ pub async fn generate_support_package(
     "Game Logs and ISO Info/Jak 1/buildinfo.json",
   )
   .map_err(|_| {
-    CommandError::Support(format!("Unable to append iso metadata to support package"))
+    CommandError::Support("Unable to append iso metadata to support package".to_owned())
   })?;
 
   if config_lock.active_version_folder.is_some() && config_lock.active_version_folder.is_some() {
@@ -265,25 +256,23 @@ pub async fn generate_support_package(
   zip_file
     .start_file("support-info.json", options)
     .map_err(|_| {
-      CommandError::Support(format!(
-        "Create high level support info entry in support package"
-      ))
+      CommandError::Support("Create high level support info entry in support package".to_owned())
     })?;
   let mut json_buffer = Vec::new();
   let json_writer = BufWriter::new(&mut json_buffer);
   serde_json::to_writer_pretty(json_writer, &package).map_err(|_| {
-    CommandError::Support(format!(
-      "Unable to write high-level support info to the support package"
-    ))
+    CommandError::Support(
+      "Unable to write high-level support info to the support package".to_owned(),
+    )
   })?;
   zip_file.write_all(&json_buffer).map_err(|_| {
-    CommandError::Support(format!(
-      "Unable to write high-level support info to the support package"
-    ))
+    CommandError::Support(
+      "Unable to write high-level support info to the support package".to_owned(),
+    )
   })?;
   zip_file
     .finish()
-    .map_err(|_| CommandError::Support(format!("Unable to finalize zip file")))?;
+    .map_err(|_| CommandError::Support("Unable to finalize zip file".to_owned()))?;
 
   Ok(())
 }

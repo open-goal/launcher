@@ -1,3 +1,6 @@
+// these commands are not yet used, allow dead code in this module
+#![allow(dead_code)]
+
 use serde::{Deserialize, Serialize};
 use std::{
   fs,
@@ -21,19 +24,19 @@ pub async fn extract_textures(app_handle: tauri::AppHandle, textures_array: Vec<
     .unwrap()
     .join("data/texture_replacements");
 
-  let target_dir = PathBuf::from(text_dir.clone()); // Doesn't need to exist
-
-  // for path in textures_array {
-  //     println!("Extracting texture pack: {:?}", path.clone());
-
-  //     let archive: Vec<u8> = fs::read(&path.clone()).unwrap();
-  //     // The third parameter allows you to strip away toplevel directories.
-  //     // If `archive` contained a single directory, its contents would be extracted instead.
-  //     match zip_extract::extract(Cursor::new(archive), &target_dir, true) {
-  //         Ok(_) => continue,
-  //         Err(err) => println!("{:?}", err),
-  //     }
-  // }
+  for path in textures_array {
+    println!(
+      "Not extracting (not yet implemented) texture pack to {}: {path:?}",
+      text_dir.display(),
+    );
+    //     let archive: Vec<u8> = fs::read(&path.clone()).unwrap();
+    //     // The third parameter allows you to strip away toplevel directories.
+    //     // If `archive` contained a single directory, its contents would be extracted instead.
+    //     match zip_extract::extract(Cursor::new(archive), &target_dir, true) {
+    //         Ok(_) => continue,
+    //         Err(err) => println!("{:?}", err),
+    //     }
+  }
 }
 
 fn read_texture_json_file(file_path: PathBuf) -> Result<TexturePack, io::Error> {
@@ -58,7 +61,7 @@ pub fn get_all_texture_packs(dir: String) -> Vec<TexturePack> {
   let dir_path = Path::new(&dir).exists();
   if !dir_path {
     println!("Textures directory doesn't exist, creating it now.");
-    fs::create_dir(dir.clone()).unwrap();
+    fs::create_dir(dir).unwrap();
     return Vec::new();
   }
 
@@ -74,7 +77,7 @@ pub fn get_all_texture_packs(dir: String) -> Vec<TexturePack> {
           Err(_e) => {
             // if the about.json file isn't inside of the expected directory this error happens
             // TODO: add this error to a logs file so players know when they install a bad texture pack
-            println!("File doesn't have proper about.json: {:?}", path);
+            println!("File doesn't have proper about.json: {path:?}");
             continue;
           }
         };
@@ -83,5 +86,6 @@ pub fn get_all_texture_packs(dir: String) -> Vec<TexturePack> {
       _ => continue,
     }
   }
-  return texture_pack_data;
+
+  texture_pack_data
 }

@@ -16,9 +16,9 @@ pub async fn uninstall_game(
 
   let install_path = match &config_lock.installation_dir {
     None => {
-      return Err(CommandError::GameManagement(format!(
-        "No installation directory set, can't perform uninstallation"
-      )))
+      return Err(CommandError::GameManagement(
+        "No installation directory set, can't perform uninstallation".to_owned(),
+      ))
     }
     Some(path) => Path::new(path),
   };
@@ -35,7 +35,7 @@ pub async fn uninstall_game(
   config_lock
     .update_installed_game_version(&game_name, false)
     .map_err(|_| {
-      CommandError::GameManagement(format!("Unable to persist game installation status"))
+      CommandError::GameManagement("Unable to persist game installation status".to_owned())
     })?;
   app_handle.emit_all("gameUninstalled", {})?;
   Ok(())
@@ -45,9 +45,9 @@ pub async fn uninstall_game(
 pub async fn reset_game_settings(game_name: String) -> Result<(), CommandError> {
   let config_dir = match config_dir() {
     None => {
-      return Err(CommandError::GameManagement(format!(
-        "Could not determine game config directory"
-      )))
+      return Err(CommandError::GameManagement(
+        "Could not determine game config directory".to_owned(),
+      ))
     }
     Some(path) => path,
   };
@@ -63,8 +63,8 @@ pub async fn reset_game_settings(game_name: String) -> Result<(), CommandError> 
     std::fs::rename(path_to_settings, backup_file)?;
     Ok(())
   } else {
-    return Err(CommandError::GameManagement(format!(
-      "Game config directory does not exist, cannot reset settings"
-    )));
+    Err(CommandError::GameManagement(
+      "Game config directory does not exist, cannot reset settings".to_owned(),
+    ))
   }
 }

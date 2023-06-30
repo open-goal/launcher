@@ -20,14 +20,11 @@ fn log_crash(panic_info: Option<&std::panic::PanicInfo>, error: Option<tauri::Er
   let backtrace = Backtrace::new();
   let log_contents;
   if let Some(panic_info) = panic_info {
-    log_contents = format!("panic occurred: {:?}\n{:?}", panic_info, backtrace);
+    log_contents = format!("panic occurred: {panic_info:?}\n{backtrace:?}");
   } else if let Some(error) = error {
-    log_contents = format!(
-      "unexpected app error occurred: {:?}\n{:?}",
-      error, backtrace
-    );
+    log_contents = format!("unexpected app error occurred: {error:?}\n{backtrace:?}",);
   } else {
-    log_contents = format!("unexpected error occurred: {:?}", backtrace);
+    log_contents = format!("unexpected error occurred: {backtrace:?}");
   }
   log::error!("{}", log_contents);
   if let Some(user_dirs) = UserDirs::new() {
@@ -73,8 +70,9 @@ fn main() {
 
       // configure colors for the name of the level.
       // since almost all of them are the same as the color for the whole line, we
-      // just clone `colors_line` and overwrite our changes
-      let colors_level = colors_line.clone().info(Color::Cyan);
+      // just copy `colors_line` and overwrite our changes
+      let colors_level = colors_line.info(Color::Cyan);
+
       let log_setup_ok = fern::Dispatch::new()
         // Perform allocation-free log formatting
         .format(move |out, message, record| {
@@ -176,12 +174,11 @@ fn main() {
   match tauri_setup {
     Ok(app) => {
       log::info!("application starting up");
-      app.run(|_app_handle, event| match event {
-        RunEvent::ExitRequested { .. } => {
+      app.run(|_app_handle, event| {
+        if let RunEvent::ExitRequested { .. } = event {
           log::info!("Exit requested, exiting!");
           std::process::exit(0);
         }
-        _ => (),
       })
     }
     Err(err) => {

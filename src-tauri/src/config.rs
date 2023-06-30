@@ -56,7 +56,7 @@ impl FromStr for SupportedGame {
       "jak2" => Ok(Self::Jak2),
       "jak3" => Ok(Self::Jak3),
       "jakx" => Ok(Self::JakX),
-      _ => Err(format!("Invalid variant: {}", s)),
+      _ => Err(format!("Invalid variant: {s}")),
     }
   }
 }
@@ -199,16 +199,16 @@ impl LauncherConfig {
               config.version.as_ref().unwrap()
             );
             config.settings_path = Some(settings_path.to_path_buf());
-            return config;
+            config
           }
           Err(err) => {
             log::error!(
               "Could not parse settings.json file: {}, using defaults",
               err
             );
-            return LauncherConfig::default(Some(settings_path.to_path_buf()));
+            LauncherConfig::default(Some(settings_path.to_path_buf()))
           }
-        };
+        }
       }
       None => {
         log::warn!("Not loading configuration, no path provided. Using defaults");
@@ -221,9 +221,9 @@ impl LauncherConfig {
     let settings_path = match &self.settings_path {
       None => {
         log::warn!("Can't save the settings file, as no path was initialized!");
-        return Err(ConfigError::Configuration(format!(
-          "No settings path defined, unable to save settings!"
-        )));
+        return Err(ConfigError::Configuration(
+          "No settings path defined, unable to save settings!".to_owned(),
+        ));
       }
       Some(path) => path,
     };
@@ -253,44 +253,30 @@ impl LauncherConfig {
 
     // Check our permissions on the folder by touching a file (and deleting it)
     let test_file = path.join(".perm-test.tmp");
-    match touch_file(&test_file) {
-      Err(e) => {
-        log::error!(
-          "Provided installation folder could not be written to: {}",
-          e
-        );
-        return Ok(Some("Provided folder cannot be written to".to_owned()));
-      }
-      _ => (),
+    if let Err(e) = touch_file(&test_file) {
+      log::error!(
+        "Provided installation folder could not be written to: {}",
+        e
+      );
+      return Ok(Some("Provided folder cannot be written to".to_owned()));
     }
 
     // If the directory changes (it's not a no-op), we need to:
     // - wipe any installed games (make them reinstall)
     // - wipe the active version/version types
-    match &self.installation_dir {
-      Some(old_dir) => {
-        if *old_dir != new_dir {
-          self.active_version = None;
-          self.active_version_folder = None;
-          self.update_installed_game_version(
-            &SupportedGame::Jak1.internal_str().to_string(),
-            false,
-          )?;
-          self.update_installed_game_version(
-            &SupportedGame::Jak2.internal_str().to_string(),
-            false,
-          )?;
-          self.update_installed_game_version(
-            &SupportedGame::Jak3.internal_str().to_string(),
-            false,
-          )?;
-          self.update_installed_game_version(
-            &SupportedGame::JakX.internal_str().to_string(),
-            false,
-          )?;
-        }
+    if let Some(old_dir) = &self.installation_dir {
+      if *old_dir != new_dir {
+        self.active_version = None;
+        self.active_version_folder = None;
+        self
+          .update_installed_game_version(&SupportedGame::Jak1.internal_str().to_string(), false)?;
+        self
+          .update_installed_game_version(&SupportedGame::Jak2.internal_str().to_string(), false)?;
+        self
+          .update_installed_game_version(&SupportedGame::Jak3.internal_str().to_string(), false)?;
+        self
+          .update_installed_game_version(&SupportedGame::JakX.internal_str().to_string(), false)?;
       }
-      _ => (),
     }
 
     self.installation_dir = Some(new_dir);
@@ -364,16 +350,14 @@ impl LauncherConfig {
           }
           None => {
             return Err(ConfigError::Configuration(format!(
-              "Invalid game name - {}, can't update installation status!",
-              game_name
+              "Invalid game name - {game_name}, can't update installation status!",
             )));
           }
         }
       }
       Err(_) => {
         return Err(ConfigError::Configuration(format!(
-          "Invalid game name - {}, can't update installation status!",
-          game_name
+          "Invalid game name - {game_name}, can't update installation status!",
         )));
       }
     }
@@ -386,15 +370,13 @@ impl LauncherConfig {
       Ok(game) => {
         // Retrieve relevant game from config
         match self.games.get(&game) {
-          Some(game) => {
-            return game.is_installed;
-          }
+          Some(game) => game.is_installed,
           None => {
             log::warn!(
               "Could not find game to check if it's installed: {}",
               game_name
             );
-            return false;
+            false
           }
         }
       }
@@ -403,7 +385,7 @@ impl LauncherConfig {
           "Could not find game to check if it's installed: {}",
           game_name
         );
-        return false;
+        false
       }
     }
   }
@@ -413,15 +395,13 @@ impl LauncherConfig {
       Ok(game) => {
         // Retrieve relevant game from config
         match self.games.get(&game) {
-          Some(game) => {
-            return game.version.clone().unwrap_or("".to_string());
-          }
+          Some(game) => game.version.clone().unwrap_or("".to_owned()),
           None => {
             log::warn!(
               "Could not find game to check what version is installed: {}",
               game_name
             );
-            return "".to_owned();
+            "".to_owned()
           }
         }
       }
@@ -430,7 +410,7 @@ impl LauncherConfig {
           "Could not find game to check what version is installed: {}",
           game_name
         );
-        return "".to_owned();
+        "".to_owned()
       }
     }
   }
@@ -440,15 +420,13 @@ impl LauncherConfig {
       Ok(game) => {
         // Retrieve relevant game from config
         match self.games.get(&game) {
-          Some(game) => {
-            return game.version_folder.clone().unwrap_or("".to_string());
-          }
+          Some(game) => game.version_folder.clone().unwrap_or("".to_string()),
           None => {
             log::warn!(
               "Could not find game to check what version type is installed: {}",
               game_name
             );
-            return "".to_owned();
+            "".to_owned()
           }
         }
       }
@@ -457,7 +435,7 @@ impl LauncherConfig {
           "Could not find game to check what version is installed: {}",
           game_name
         );
-        return "".to_owned();
+        "".to_owned()
       }
     }
   }
