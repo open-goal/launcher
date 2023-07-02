@@ -1,8 +1,4 @@
 <script lang="ts">
-  import { getInternalName, fromRoute, SupportedGame } from "$lib/constants";
-  import {
-    getModDetails,
-  } from "$lib/rpc/versions";
   import { useParams } from "svelte-navigator";
   import { openDir } from "$lib/rpc/window";
   import Icon from "@iconify/svelte";
@@ -21,9 +17,10 @@
   import { launchGame, openREPL } from "$lib/rpc/binaries";
   import { _ } from "svelte-i18n";
   import { VersionStore } from "$lib/stores/VersionStore";
+  import { getModDetails } from "$lib/utils/mods";
 
   export let game_name: string;
-  export let mod_id: string;
+  export let mod_composite_id: string;
   export let mod_version: string;
 
   const params = useParams();
@@ -36,11 +33,10 @@
   let isLinux = false;
 
   onMount(async () => {
-    console.log(game_name, mod_id, mod_version);
+    console.log(game_name, mod_composite_id, mod_version);
 
-    if (game_name !== null && 
-        mod_id !== null) {
-      modDetails = await getModDetails(game_name, mod_id);
+    if (game_name !== null && mod_composite_id !== null) {
+      modDetails = await getModDetails(game_name, mod_composite_id);
     }
     console.log(modDetails);
 

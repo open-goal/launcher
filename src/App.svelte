@@ -83,12 +83,12 @@
             primary={false}
             let:params
             />
-          <Route path="/:game_name/mods/:mod_id"
+          <Route path="/:game_name/mods/:mod_composite_id"
             component={ModSelection}
             primary={false}
             let:params
             />
-          <Route path="/:game_name/mods/:mod_id/:mod_version"
+          <Route path="/:game_name/mods/:mod_composite_id/:mod_version"
             component={GameMod}
             primary={false}
             let:params

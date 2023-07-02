@@ -23,7 +23,7 @@
   import { VersionStore } from "$lib/stores/VersionStore";
 
   export let game_name: string;
-  export let mod_id: string;
+  export let mod_composite_id: string;
   export let mod_version: string;
 
   let activeGame: SupportedGame;
@@ -134,7 +134,7 @@
     </div>
     <GameModControls
       game_name={game_name}
-      mod_id={mod_id}
+      mod_composite_id={mod_composite_id}
       mod_version={fixedDecodeURIComponent(mod_version)}
       on:change={updateGameState}
       on:job={runGameJob}

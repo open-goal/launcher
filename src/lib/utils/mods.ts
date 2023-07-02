@@ -3,11 +3,11 @@ import { invoke } from "@tauri-apps/api/tauri";
 import type { SupportedGame } from "$lib/constants";
 
 export interface ModVersion {
-  version: String;
-  description: String;
-  games: Array<SupportedGame>;
-  windows_bundle_url: String;
-  linux_bundle_url: String;
+  version: string;
+  description: string;
+  games: Array<string>;
+  windows_bundle_url: string;
+  linux_bundle_url: string;
 }
 
 export interface ModConfig {
@@ -28,14 +28,16 @@ export interface ModList {
 export async function addModList(
   url: String,
   identifier: String,
+  mods_json: String,
 ): Promise<boolean> {
   try {
     await invoke("add_mod_list", {
       url: url,
-      identifier: identifier
+      identifier: identifier,
+      modsJson: mods_json,
     });
   } catch (e) {
-    // exceptionLog("Unable to add mod list", e);
+    console.error("Unable to add mod list: ", e);
     toastStore.makeToast("Unable to add mod list", "error");
     return false;
   }
@@ -50,7 +52,7 @@ export async function removeModList(
       identifier: identifier
     });
   } catch (e) {
-    // exceptionLog("Unable to remove mod list", e);
+    console.error("Unable to remove mod list", e);
     toastStore.makeToast("Unable to remove mod list", "error");
     return false;
   }
@@ -61,7 +63,7 @@ export async function getModLists(): Promise<Array<ModList>> {
   try {
     return await invoke("get_mod_lists");
   } catch (e) {
-    // exceptionLog("Unable to add mod list", e);
+    console.error("Unable to add mod list", e);
     toastStore.makeToast("Unable to get mod lists", "error");
     return null;
   }
@@ -73,4 +75,38 @@ export async function downloadModList(modList: ModList): Promise<any> {
   const modListJson = await resp.json();
 
   console.log(modListJson);
+}
+
+export async function getModDict(game_name: string): Promise<Object> {
+  let modLists = await getModLists();
+  console.log("found modlists: ", modLists);
+  
+  let modDict = {};
+  for (let i in modLists) {
+    let list = modLists[i];
+    for (let j in list.mods) {
+      let mod = list.mods[j];
+      let supportsGame = false;
+      for (let k in mod.versions) {
+        let vers = mod.versions[k];
+        if (vers.games.indexOf(game_name) != -1) {
+          supportsGame = true;
+        }
+      }
+      let tmp_id = list.identifier + "$$" + mod.identifier;
+      modDict[tmp_id] = mod;
+    }
+  }
+
+  return modDict;
+}
+
+export async function getModDetails(game: string, modId: string): Promise<Object> {
+  let modsDict = await getModDict(game);
+  if (modsDict.hasOwnProperty(modId)) {
+    return modsDict[modId];
+  } else {
+    console.error(`${game} not supported for ${modId}, couldn't load details`);
+  }
+  return null;
 }

@@ -8,12 +8,11 @@
     downloadUnofficialVersion,
     getActiveVersion,
     getActiveVersionFolder,
-    getModDict,
     listUnofficialDownloadedVersions,
     openUnofficialVersionFolder,
     removeVersion,
   } from "$lib/rpc/versions";
-  import { listReleases, type ReleaseInfo } from "$lib/utils/github";
+  import { type ReleaseInfo } from "$lib/utils/github";
   import Icon from "@iconify/svelte";
   import { 
     Button, 
@@ -29,9 +28,10 @@
   import ModVersionList from "./ModVersionList.svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
+  import { getModDict } from "$lib/utils/mods";
 
   export let game_name;
-  export let mod_id;
+  export let mod_composite_id;
   const params = useParams();
 
   let modDict = {};
@@ -41,109 +41,121 @@
   let versionsLoaded = false;
   let releases: ReleaseInfo[] = [];
 
-  onMount(async () => {
-    console.log("loading with selected id:", mod_id);
+  async function refreshModListsAndDict() {
     modDict = await getModDict(game_name);
-    for (let id in modDict) {
+    // refresh modList for dropdown
+    modList.length = 0;
+    for (let composite_id in modDict) {
+      let list_id = composite_id.split("$$", 1)[0];
+      let displayName = modDict[composite_id].name + " (" + list_id+  ")";
+
       modList = [
         ...modList,
         {
-          value: id,
-          name: modDict[id]["name"]
-        },
+          value: composite_id,
+          name: displayName
+        }
       ];
     }
+    console.log("reloaded with modlist: ", modList);
+  }
+
+  onMount(async () => {
+    console.log("loading with selected id:", mod_composite_id);
+    await refreshModListsAndDict();
     
-    if (mod_id != null && mod_id != undefined && mod_id != "" && modDict.hasOwnProperty(mod_id)) {
-      selectedMod = modDict[mod_id];
+    if (mod_composite_id != null && mod_composite_id != undefined && mod_composite_id != "" && modDict.hasOwnProperty(mod_composite_id)) {
+      selectedMod = modDict[mod_composite_id];
     }
-    console.log("loading with selected:", selectedMod);
+    console.log("loading with selected mod:", selectedMod);
     refreshVersionList();
   });
 
   async function setSelectedMod(value: string) {
-    mod_id = value;
-    if (modDict.hasOwnProperty(mod_id)) {
-      selectedMod = modDict[mod_id];
+    mod_composite_id = value;
+    if (modDict.hasOwnProperty(mod_composite_id)) {
+      selectedMod = modDict[mod_composite_id];
       console.log("switching to:", selectedMod);
-      location.href = `/${game_name}/mods/${mod_id}`;
+      location.href = `/${game_name}/mods/${mod_composite_id}`;
     } else {
       // error?
-      mod_id = "";
+      mod_composite_id = "";
       selectedMod = {};
     }
   }
 
   async function refreshVersionList() {
     versionsLoaded = false;
-    // Reset store to defaults (TODO, move this to a store method)
-    // $VersionStore.activeVersionType = await getActiveVersionFolder();
-    // $VersionStore.activeVersionName = await getActiveVersion();
-    // if ($VersionStore.activeVersionType === "official") {
-    //   $VersionStore.selectedVersions.official = $VersionStore.activeVersionName;
-    // }
-    // Check the backend to see if the folder has any versions
-    const installedVersions = await listUnofficialDownloadedVersions(`${mod_id}`);
-    releases = [];
-    for (const version of installedVersions) {
-      releases = [
-        ...releases,
-        {
-          releaseType: "unofficial",
-          version: version,
-          date: undefined,
-          githubLink: undefined,
-          downloadUrl: undefined,
-          isDownloaded: true,
-          pendingAction: false,
-        },
-      ];
-    }
-    // TODO - "no releases found"
+    releases.length = 0;
 
-    // Merge that with the actual current releases on github
-    const githubReleases = await listReleases("unofficial", selectedMod["repo"]);
-    for (const release of githubReleases) {
-      // Look to see if we already have this release downloaded and we just have to fill in some metadata about it
-      let foundExistingRelease = false;
-      for (const existingRelease of releases) {
-        if (existingRelease.version === release.version) {
-          existingRelease.date = release.date;
-          existingRelease.githubLink = release.githubLink;
-          existingRelease.downloadUrl = release.downloadUrl;
-          foundExistingRelease = true;
-          break;
+    if (selectedMod != null && selectedMod != undefined) {
+      // Check the backend to see if the folder has any versions
+      const installedVersions = await listUnofficialDownloadedVersions(`${mod_composite_id}`);
+      for (const version of installedVersions) {
+        releases = [
+          ...releases,
+          {
+            releaseType: "unofficial",
+            version: version,
+            date: undefined,
+            githubLink: undefined,
+            downloadUrl: undefined,
+            isDownloaded: true,
+            pendingAction: false,
+          },
+        ];
+      }
+
+      // merge known versions from mod list with installed versions
+      for (const v of selectedMod.versions) {
+        console.log(selectedMod, v);
+        if (v.games.indexOf(game_name) == -1) {
+          // current game not supported
+          continue;
+        }
+
+        let foundExistingRelease = false;
+        for (const existingRelease of releases) {
+          // found it! update some metadata
+          if (existingRelease.version === v.version) {
+            // existingRelease.date = v.date;
+            // existingRelease.githubLink = v.githubLink;
+            existingRelease.downloadUrl = v.windows_bundle_url; // TODO linux
+            foundExistingRelease = true;
+            break;
+          }
+        }
+
+        // not installed, add to list
+        if (!foundExistingRelease) {
+          releases = [
+            ...releases,
+            {
+              releaseType: "unofficial",
+              version: v.version,
+              date: undefined,
+              githubLink: undefined,
+              downloadUrl: v.windows_bundle_url, // TODO linux
+              isDownloaded: false,
+              pendingAction: false,
+            },
+          ];
         }
       }
-      if (foundExistingRelease) {
-        continue;
-      }
-      releases = [
-        ...releases,
-        {
-          releaseType: "unofficial",
-          version: `${release.version}`,
-          date: release.date,
-          githubLink: release.githubLink,
-          downloadUrl: release.downloadUrl,
-          isDownloaded: false,
-          pendingAction: false,
-        },
-      ];
+
+      // Sort releases by published date
+      // releases = releases.sort((a, b) => {
+      //   if (a.date === undefined) {
+      //     return 1;
+      //   }
+      //   if (b.date === undefined) {
+      //     return -1;
+      //   }
+      //   return b.date.localeCompare(a.date);
+      // });
+
+      versionsLoaded = true;
     }
-
-    // Sort releases by published date
-    releases = releases.sort((a, b) => {
-      if (a.date === undefined) {
-        return 1;
-      }
-      if (b.date === undefined) {
-        return -1;
-      }
-      return b.date.localeCompare(a.date);
-    });
-
-    versionsLoaded = true;
   }
 
   async function onDownloadVersion(event: any) {
@@ -156,7 +168,7 @@
     releases = releases;
     const success = await downloadUnofficialVersion(
       event.detail.version,
-      mod_id,
+      mod_composite_id,
       event.detail.downloadUrl
     );
     // Then mark it as downloaded
@@ -177,7 +189,7 @@
       }
     }
     releases = releases;
-    const ok = await removeVersion(event.detail.version, `unofficial/${mod_id}`);
+    const ok = await removeVersion(event.detail.version, `unofficial/${mod_composite_id}`);
     if (ok) {
       // Then mark it as not downloaded
       for (const release of releases) {
@@ -234,7 +246,7 @@
     <Label>Select Mod
       <Select
         class="mt-2"
-        value={mod_id}
+        value={mod_composite_id}
         items={modList}
         on:change={async (evt) => {
           setSelectedMod(evt.target.value);
@@ -242,15 +254,15 @@
       />
     </Label>
 
-    {#if mod_id != null && mod_id != undefined && mod_id != ""}
+    {#if mod_composite_id != null && mod_composite_id != undefined && mod_composite_id != ""}
       <ModVersionList
         initiallyOpen={true}
         game_name={game_name}
-        mod_id={mod_id}
+        mod_id={mod_composite_id}
         releaseList={releases}
         loaded={versionsLoaded}
         releaseType="unofficial"
-        on:openVersionFolder={() => openUnofficialVersionFolder(`${mod_id}`)}
+        on:openVersionFolder={() => openUnofficialVersionFolder(`${mod_composite_id}`)}
         on:refreshVersions={refreshVersionList}
         on:removeVersion={onRemoveVersion}
         on:downloadVersion={onDownloadVersion}

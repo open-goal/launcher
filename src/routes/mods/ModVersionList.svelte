@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { getModDetails, type VersionFolders } from "$lib/rpc/versions";
+  import { type VersionFolders } from "$lib/rpc/versions";
   import {
     VersionStore,
     type VersionStoreIFace,
   } from "$lib/stores/VersionStore";
   import type { ReleaseInfo } from "$lib/utils/github";
+  import { getModDetails } from "$lib/utils/mods";
   import Icon from "@iconify/svelte";
   import {
     Button,

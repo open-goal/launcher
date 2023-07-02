@@ -46,17 +46,27 @@
     );
   }
 
-  function handleAddModListSave() {
-    addModList(newModListUrl, newModListId);
-    addModListModal = false;
-    newModListId = null;
-    newModListUrl = null;
-    refreshModLists();
-    return true;
+  async function handleAddModListSave() {
+    try {
+      const resp = await fetch(newModListUrl);
+      const newModJson = await resp.json();
+      console.log("downloaded json from ", newModListUrl);
+      console.log(newModJson);
+      await addModList(newModListUrl, newModListId, JSON.stringify(newModJson));
+      addModListModal = false;
+      newModListId = null;
+      newModListUrl = null;
+      await refreshModLists();
+      return true;
+    } catch (e) {
+      console.log("ERROR: ", e);
+    }
+    
+    return false;
   }
 
-  function handleRemoveModList(modListId) {
-    removeModList(modListId);
+  async function handleRemoveModList(modListId) {
+    await removeModList(modListId);
     refreshModLists();
   }
 
@@ -73,7 +83,7 @@
   });
 </script>
 <Modal bind:open={addModListModal} size="xs">
-  <form class="flex flex-col space-y-6" action="#" on:submit={() => handleAddModListSave()}>
+  <form class="flex flex-col space-y-6" action="about:blank" on:submit={(event) => {event.preventDefault(); handleAddModListSave(); }}>
     <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Add Mod List</h3>
     <Label class="space-y-2">
       <span>URL:</span>

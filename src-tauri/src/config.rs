@@ -131,12 +131,12 @@ impl Requirements {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModVersion {
   pub version: String,
   pub description: Option<String>,
-  pub games: Vec<SupportedGame>,
+  pub games: Vec<String>,
   pub windows_bundle_url: Option<String>,
   pub linux_bundle_url: Option<String>,
 }
@@ -153,7 +153,7 @@ impl ModVersion {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModConfig {
   pub identifier: String,
@@ -164,7 +164,7 @@ pub struct ModConfig {
   #[serde(default)]
   pub tags: Vec<String>,
   #[serde(default)]
-  pub versions: HashMap<String,ModVersion>,
+  pub versions: Vec<ModVersion>,
 }
 
 impl ModConfig {
@@ -175,12 +175,12 @@ impl ModConfig {
       description: None,
       contributors: Vec::new(),
       tags: Vec::new(),
-      versions: HashMap::new(),
+      versions: Vec::new(),
     }
   }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModList {
   pub identifier: String,
@@ -560,11 +560,14 @@ impl LauncherConfig {
     let mut result = Vec::<ModList>::new();
 
     for (k, v) in &self.mod_lists {
+      // let mut modsCopy: HashMap<String,ModConfig> = HashMap::new();
+      // modsCopy.extend(v.mods.iter().cloned());
+
       result.push(ModList {
         identifier: v.identifier.to_string(),
         url: v.url.to_string(),
-        mods: HashMap::<String,ModConfig>::new()
-      })
+        mods: v.mods.clone(),
+      });
     }
 
     return result;

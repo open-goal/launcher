@@ -1,6 +1,7 @@
 import { toastStore } from "$lib/stores/ToastStore";
 import { invoke } from "@tauri-apps/api/tauri";
 import { exceptionLog } from "./logging";
+import { getModLists } from "$lib/utils/mods";
 
 export type VersionFolders = null | "official" | "unofficial" | "devel";
 
@@ -125,78 +126,4 @@ export async function ensureActiveVersionStillExists(): Promise<boolean> {
     exceptionLog("Unable to check or remove broken active version", e);
     return false;
   }
-}
-
-export async function getModDict(game: string): Promise<Object> {
-  // TODO: load this from remote/file
-  let rawModList = [
-    {
-      "id": "randomizer",
-      "name": "Checkpoint Randomizer",
-      "desc": "Warp to a random checkpoint on various triggers (cells, flies, orbs, eco, death).",
-      "contributors": [
-        "ZedB0T",
-        "MikeGamePro",
-        "barg034"
-      ],
-      "tags": [
-        "gameplay-mod",
-        "rng",
-        "challenge"
-      ],
-      "repo": "OpenGOAL-Unofficial-Mods/opengoal-randomizer-mod-pack",
-      "games": ["jak1"]
-    },
-    {
-      "id": "flutflut_legacy",
-      "name": "The FlutFlut Legacy",
-      "desc": "Play the whole game on FlutFlut.",
-      "contributors": [
-        "ZedB0T",
-        "barg034"
-      ],
-      "tags": [
-        "gameplay-mod",
-        "challenge"
-      ],
-      "repo": "OpenGOAL-Unofficial-Mods/flutflut-legacy",
-      "games": ["jak1"]
-    },
-    {
-      "id": "orb_hunt",
-      "name": "Orb Hunt",
-      "desc": "Jak 1 but collectables and other things have been moved around!",
-      "contributors": [
-        "barg034"
-      ],
-      "tags": [
-        "gameplay-mod",
-        "challenge"
-      ],
-      "repo": "dallmeyer/opengoal-orbhunt",
-      "games": ["jak1", "jak2"]
-    }
-  ];
-
-  let modDict = {};
-  for (const m of rawModList) {
-    if (m["games"].indexOf(game) != -1) {
-      // add mod to list if supported for the current game
-      modDict[m["id"]] = m;
-    } else {
-      console.log(`${game} not supported for ${m["id"]}, skipping`);
-    }
-  }
-
-  return modDict;
-}
-
-export async function getModDetails(game: string, modId: string): Promise<Object> {
-  let modsDict = await getModDict(game);
-  if (modsDict.hasOwnProperty(modId)) {
-    return modsDict[modId];
-  } else {
-    console.error(`${game} not supported for ${modId}, couldn't load details`);
-  }
-  return null;
 }

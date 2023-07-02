@@ -40,8 +40,6 @@ pub async fn add_mod_list(
       panic!("Failed to parse JSON: {}", e);
     }
   }
-
-  
 }
 
 #[tauri::command]
