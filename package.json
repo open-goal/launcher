@@ -32,7 +32,7 @@
     "escape-html": "^1.0.3",
     "execa": "^7.1.1",
     "flowbite": "^1.6.5",
-    "flowbite-svelte": "^0.37.4",
+    "flowbite-svelte": "^0.39.2",
     "postcss": "^8.4.24",
     "postcss-load-config": "^4.0.1",
     "prettier": "^2.8.8",

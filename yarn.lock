@@ -2087,19 +2087,19 @@ find-versions@^3.0.0:
   dependencies:
     semver-regex "^2.0.0"
 
-flowbite-svelte@^0.37.4:
-  version "0.37.4"
-  resolved "https://registry.yarnpkg.com/flowbite-svelte/-/flowbite-svelte-0.37.4.tgz#33d8d8d51ad3a37674a381aee8f1c72b80e44abb"
-  integrity sha512-zJcxxZEs4msREqSe/lQzn5J2w823YNBsmBqjES3T9NxKvJE8mTGB1VVzHMrEcaWcwONaoQ7LRfi4lcV5b6FqHw==
+flowbite-svelte@^0.39.2:
+  version "0.39.2"
+  resolved "https://registry.yarnpkg.com/flowbite-svelte/-/flowbite-svelte-0.39.2.tgz#9c53db5db0b75b7e9b725adfb98e078d7d3b36f1"
+  integrity sha512-wNv5f4ZbXBQgOiqMCSzbdCdUas+DuWVrOCYZQFMGc2m+GNbEk5q6V+WCfN9Uiw15DaJp2Y3GC/iA945TiQYMFA==
   dependencies:
     "@popperjs/core" "^2.11.8"
-    classnames "^2.3.2"
-    flowbite "^1.6.5"
+    flowbite "^1.6.6"
+    tailwind-merge "^1.13.2"
 
-flowbite@^1.6.5:
-  version "1.6.5"
-  resolved "https://registry.yarnpkg.com/flowbite/-/flowbite-1.6.5.tgz#a0eb2f3f0cf5098f802004df635e2717efc52bbc"
-  integrity sha512-eI4h3pIRI9d7grlYq14r0A01KUtw7189sPLLx/O2i7JyPEWpbleScfYuEc48XTeNjk1xxm/JHgZkD9kjyOWAlA==
+flowbite@^1.6.5, flowbite@^1.6.6:
+  version "1.6.6"
+  resolved "https://registry.yarnpkg.com/flowbite/-/flowbite-1.6.6.tgz#6c7579fffb6fad270c8471c2898eb7c57fe8ce3e"
+  integrity sha512-T+IaFikHELo1PBKfT/axDqhAmKQLfm/dxVch2r07TZ+IcKwkorZjzwkVuw3OslTETniRIUf2qQvEhxk3bQCaew==
   dependencies:
     "@popperjs/core" "^2.9.3"
     mini-svg-data-uri "^1.4.3"
@@ -4487,6 +4487,11 @@ svelte@^3.59.1:
   version "3.59.1"
   resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.59.1.tgz#3de3d56b9165748f32f3131589b8d183cabe7449"
   integrity sha512-pKj8fEBmqf6mq3/NfrB9SLtcJcUvjYSWyePlfCqN9gujLB25RitWK8PvFzlwim6hD/We35KbPlRteuA6rnPGcQ==
+
+tailwind-merge@^1.13.2:
+  version "1.13.2"
+  resolved "https://registry.yarnpkg.com/tailwind-merge/-/tailwind-merge-1.13.2.tgz#1d06c9e95ffda2320efc50ed33c65be0cda23091"
+  integrity sha512-R2/nULkdg1VR/EL4RXg4dEohdoxNUJGLMnWIQnPKL+O9Twu7Cn3Rxi4dlXkDzZrEGtR+G+psSXFouWlpTyLhCQ==
 
 tailwindcss@^3.3.2:
   version "3.3.2"
