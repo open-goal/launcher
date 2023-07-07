@@ -22,7 +22,7 @@
   </p>
   <div class="flex flex-row mt-1 gap-2">
     <Button
-      btnClass="border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-4 py-2"
+      class="border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-4 py-2"
       on:click={async () => {
         downloadingPackage = true;
         await generateSupportPackage();
@@ -36,7 +36,7 @@
     >
     {#if appDir !== undefined}
       <Button
-        btnClass="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
+        class="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
         on:click={() => {
           openDir(appDir);
         }}>{$_("help_button_openLogFolder")}</Button
@@ -51,7 +51,7 @@
   </p>
   <div class="flex flex-row gap-2">
     <Button
-      btnClass="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
+      class="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
       href="https://discord.gg/dPRCfsju3N"
       target="_blank"
       rel="noreferrer noopener"
@@ -62,7 +62,7 @@
       />&nbsp;Discord</Button
     >
     <Button
-      btnClass="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
+      class="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
       href="https://github.com/open-goal/launcher/issues/new/choose"
       target="_blank"
       rel="noreferrer noopener"
@@ -71,7 +71,7 @@
       )}</Button
     >
     <Button
-      btnClass="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
+      class="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
       href="https://github.com/open-goal/jak-project/issues/new/choose"
       target="_blank"
       rel="noreferrer noopener"

@@ -65,7 +65,7 @@
       <div class="flex">
         {#if changesPending($VersionStore)}
           <Button
-            btnClass="!p-2 mr-2 rounded-md dark:bg-green-500 hover:dark:bg-green-600 text-slate-900"
+            class="!p-2 mr-2 rounded-md dark:bg-green-500 hover:dark:bg-green-600 text-slate-900"
             on:click={() => dispatch("versionChange")}
           >
             <Icon
@@ -77,7 +77,7 @@
           </Button>
         {/if}
         <Button
-          btnClass="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
+          class="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
           on:click={() => dispatch("refreshVersions")}
         >
           <Icon
@@ -88,7 +88,7 @@
           />
         </Button>
         <Button
-          btnClass="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600  text-slate-900"
+          class="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600  text-slate-900"
           on:click={() => dispatch("openVersionFolder")}
         >
           <Icon
@@ -137,7 +137,7 @@
               style="line-height: 0;"
             >
               <Button
-                btnClass="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
+                class="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
                 disabled={release.pendingAction}
                 on:click={async () => {
                   if (release.isDownloaded) {
@@ -172,7 +172,7 @@
               </Button>
               {#if release.isDownloaded && release.releaseType == "official"}
                 <Button
-                  btnClass="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
+                  class="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
                   disabled={release.pendingAction}
                   on:click={async () => {
                     dispatch("redownloadVersion", {
