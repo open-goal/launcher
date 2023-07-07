@@ -11,11 +11,13 @@
     DropdownItem,
     DropdownDivider,
     Helper,
+    Chevron,
   } from "flowbite-svelte";
   import { resetGameSettings, uninstallGame } from "$lib/rpc/game";
   import { platform } from "@tauri-apps/api/os";
   import { launchGame, openREPL } from "$lib/rpc/binaries";
   import { _ } from "svelte-i18n";
+  import { Link } from "svelte-navigator";
 
   export let activeGame: SupportedGame;
 
@@ -55,14 +57,15 @@
         launchGame(getInternalName(activeGame), false);
       }}>{$_("gameControls_button_play")}</Button
     >
-    <!-- TODO - texture replacements left out for now, get everything else working end-to-end first -->
-    <!-- <Button
-      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-5 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-      ><Chevron placement="top">Features</Chevron></Button
+    <Button
+      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+      >Features</Button
     >
     <Dropdown placement="top-end">
-      <DropdownItem>Texture&nbsp;Replacements</DropdownItem>
-    </Dropdown> -->
+      <DropdownItem>
+        <Link to="/jak1/features/texture-packs">Texture&nbsp;Packs</Link>
+      </DropdownItem>
+    </Dropdown>
     <Button
       class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
     >
