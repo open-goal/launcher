@@ -121,7 +121,7 @@
       <TableBody tableBodyClass="divide-y">
         {#each releaseList as release (release.version)}
           <TableBodyRow>
-            <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium">
+            <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
               {#if release.isDownloaded}
                 <Radio
                   class="disabled:cursor-not-allowed p-0"
@@ -133,11 +133,11 @@
               {/if}
             </TableBodyCell>
             <TableBodyCell
-              tdClass="px-6 py-2 whitespace-nowrap font-medium"
+              class="px-6 py-2 whitespace-nowrap font-medium"
               style="line-height: 0;"
             >
               <Button
-                class="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
+                class="py-0 dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
                 disabled={release.pendingAction}
                 on:click={async () => {
                   if (release.isDownloaded) {
@@ -156,7 +156,9 @@
                     width="24"
                     height="24"
                     color="red"
-                    aria-label={$_("settings_versions_icon_removeVersion_altText")}
+                    aria-label={$_(
+                      "settings_versions_icon_removeVersion_altText"
+                    )}
                   />
                 {:else if release.pendingAction}
                   <Spinner color="yellow" size={"6"} />
@@ -166,13 +168,15 @@
                     color="#00d500"
                     width="24"
                     height="24"
-                    aria-label={$_("settings_versions_icon_downloadVersion_altText")}
+                    aria-label={$_(
+                      "settings_versions_icon_downloadVersion_altText"
+                    )}
                   />
                 {/if}
               </Button>
               {#if release.isDownloaded && release.releaseType == "official"}
                 <Button
-                  class="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
+                  class="py-0 dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
                   disabled={release.pendingAction}
                   on:click={async () => {
                     dispatch("redownloadVersion", {
@@ -195,15 +199,15 @@
                 </Button>
               {/if}
             </TableBodyCell>
-            <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium"
+            <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium"
               >{release.version}</TableBodyCell
             >
-            <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium">
+            <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
               {#if release.date}
                 {new Date(release.date).toLocaleDateString()}
               {/if}
             </TableBodyCell>
-            <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium">
+            <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
               {#if release.githubLink}
                 <a
                   class="inline-block"
@@ -215,7 +219,9 @@
                     icon="mdi:github"
                     width="24"
                     height="24"
-                    aria-label={$_("settings_versions_icon_githubRelease_altText")}
+                    aria-label={$_(
+                      "settings_versions_icon_githubRelease_altText"
+                    )}
                   /></a
                 >
               {/if}
