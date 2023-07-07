@@ -50,7 +50,7 @@
         href="/jak1"
         use:link
       >
-        <img src={logoJak1} alt="Jak - The Precursor Legacy" />
+        <img src={logoJak1} aria-label="Jak - The Precursor Legacy" />
         <Tooltip placement="right"
           >{$_(`gameName_${getInternalName(SupportedGame.Jak1)}`)}</Tooltip
         >
@@ -62,7 +62,7 @@
         href="/jak2"
         use:link
       >
-        <img src={logoJak2} alt="Jak 2" />
+        <img src={logoJak2} aria-label="Jak 2" />
         <Tooltip placement="right" style="dark"
           >{$_(`gameName_${getInternalName(SupportedGame.Jak2)}`)}</Tooltip
         >

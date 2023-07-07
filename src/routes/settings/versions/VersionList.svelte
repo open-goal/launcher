@@ -72,7 +72,7 @@
               icon="material-symbols:save"
               width="20"
               height="20"
-              alt={$_("settings_versions_icon_save_altText")}
+              aria-label={$_("settings_versions_icon_save_altText")}
             />
           </Button>
         {/if}
@@ -84,7 +84,7 @@
             icon="material-symbols:refresh"
             width="20"
             height="20"
-            alt={$_("settings_versions_icon_refresh_altText")}
+            aria-label={$_("settings_versions_icon_refresh_altText")}
           />
         </Button>
         <Button
@@ -95,7 +95,7 @@
             icon="material-symbols:folder-open-rounded"
             width="20"
             height="20"
-            alt={$_("settings_versions_icon_openFolder_altText")}
+            aria-label={$_("settings_versions_icon_openFolder_altText")}
           />
         </Button>
       </div>
@@ -156,7 +156,7 @@
                     width="24"
                     height="24"
                     color="red"
-                    alt={$_("settings_versions_icon_removeVersion_altText")}
+                    aria-label={$_("settings_versions_icon_removeVersion_altText")}
                   />
                 {:else if release.pendingAction}
                   <Spinner color="yellow" size={"6"} />
@@ -166,7 +166,7 @@
                     color="#00d500"
                     width="24"
                     height="24"
-                    alt={$_("settings_versions_icon_downloadVersion_altText")}
+                    aria-label={$_("settings_versions_icon_downloadVersion_altText")}
                   />
                 {/if}
               </Button>
@@ -215,7 +215,7 @@
                     icon="mdi:github"
                     width="24"
                     height="24"
-                    alt={$_("settings_versions_icon_githubRelease_altText")}
+                    aria-label={$_("settings_versions_icon_githubRelease_altText")}
                   /></a
                 >
               {/if}
