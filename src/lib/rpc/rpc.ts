@@ -14,7 +14,8 @@ import { errorLog, exceptionLog } from "./logging";
 export async function invoke_rpc<T>(
   cmd: string,
   args: InvokeArgs,
-  onError: (error: unknown) => T,
+  handleError: (error: unknown) => T,
+  toastOnError?: string,
   onSuccess?: (result: T) => T
 ): Promise<T> {
   try {
@@ -27,10 +28,11 @@ export async function invoke_rpc<T>(
   } catch (e) {
     if (typeof e === "string") {
       errorLog(`Error calling '${cmd}': ${e}`);
-      toastStore.makeToast(e, "error");
     } else {
       exceptionLog(`Error calling '${cmd}'`, e);
     }
-    return onError(e);
+    const toastMessage = toastOnError ?? "An unexpected error occurred";
+    toastStore.makeToast(toastMessage, "error");
+    return handleError(e);
   }
 }

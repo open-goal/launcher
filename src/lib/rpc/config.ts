@@ -13,7 +13,12 @@ export async function deleteOldDataDirectory(): Promise<void> {
 }
 
 export async function resetLauncherSettingsToDefaults(): Promise<boolean> {
-  const success = await invoke_rpc("reset_to_defaults", {}, () => false);
+  const success = await invoke_rpc(
+    "reset_to_defaults",
+    {},
+    () => false,
+    "Unable to reset settings"
+  );
   return success != false;
 }
 
@@ -29,7 +34,8 @@ export async function setInstallationDirectory(
   const errMsg = await invoke_rpc(
     "set_install_directory",
     { newDir },
-    () => "Unexpected error occurred"
+    () => "Unexpected error occurred",
+    "Invalid installation directory"
   );
 
   if (errMsg !== null) {
@@ -89,7 +95,8 @@ export async function saveActiveVersionChange(
   return invoke_rpc(
     "save_active_version_change",
     { versionFolder, newActiveVersion },
-    () => false
+    () => false,
+    "Couldn't save active version change"
   );
 }
 
@@ -102,6 +109,7 @@ export async function setLocale(locale: string): Promise<void> {
     "set_locale",
     { locale },
     () => {},
+    null, // no toast
     () => {
       svelteLocale.set(locale);
     }

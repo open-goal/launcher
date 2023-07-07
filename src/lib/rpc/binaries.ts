@@ -13,7 +13,7 @@ export async function updateDataDirectory(
   gameName: string
 ): Promise<InstallationOutput> {
   return await invoke_rpc("update_data_directory", { gameName }, () =>
-    failed("An unexpected error occurred")
+    failed("Failed to update data directory")
   );
 }
 
@@ -28,7 +28,7 @@ export async function extractAndValidateISO(
   return await invoke_rpc(
     "extract_and_validate_iso",
     { pathToIso, gameName },
-    () => failed("An unexpected error occurred")
+    () => failed("Failed to extract and validate ISO")
   );
 }
 
@@ -40,7 +40,7 @@ export async function runDecompiler(
   return await invoke_rpc(
     "run_decompiler",
     { pathToIso, gameName, truncateLogs },
-    () => failed("An unexpected error occurred")
+    () => failed("Failed to run decompiler")
   );
 }
 
@@ -52,7 +52,7 @@ export async function runCompiler(
   return await invoke_rpc(
     "run_compiler",
     { pathToIso, gameName, truncateLogs },
-    () => failed("An unexpected error occurred")
+    () => failed("Failed to run compiler")
   );
 }
 
@@ -60,9 +60,19 @@ export async function launchGame(
   gameName: string,
   inDebug: boolean
 ): Promise<void> {
-  return await invoke_rpc("launch_game", { gameName, inDebug }, () => {});
+  return await invoke_rpc(
+    "launch_game",
+    { gameName, inDebug },
+    () => {},
+    "Unable to launch game"
+  );
 }
 
 export async function openREPL(gameName: string): Promise<void> {
-  return await invoke_rpc("open_repl", { gameName }, () => {});
+  return await invoke_rpc(
+    "open_repl",
+    { gameName },
+    () => {},
+    "Unable to open REPL"
+  );
 }

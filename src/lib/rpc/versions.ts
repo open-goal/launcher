@@ -20,6 +20,7 @@ export async function downloadOfficialVersion(
     "download_version",
     { version, url, versionFolder: "official" },
     () => false,
+    "Unable to download official version",
     () => true
   );
 }
@@ -32,12 +33,18 @@ export async function removeVersion(
     "remove_version",
     { version, versionFolder },
     () => false,
+    "Unable to remove version",
     () => true
   );
 }
 
 export async function openVersionFolder(versionFolder: VersionFolders) {
-  return await invoke_rpc("go_to_version_folder", { versionFolder }, () => {});
+  return await invoke_rpc(
+    "go_to_version_folder",
+    { versionFolder },
+    () => {},
+    "Unable to open version folder"
+  );
 }
 
 export async function getActiveVersion(): Promise<string | null> {
@@ -52,6 +59,7 @@ export async function ensureActiveVersionStillExists(): Promise<boolean> {
   return await invoke_rpc(
     "ensure_active_version_still_exists",
     {},
-    () => false
+    () => false,
+    "Error checking that active version exists"
   );
 }
