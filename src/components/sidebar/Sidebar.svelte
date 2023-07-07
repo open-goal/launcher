@@ -40,6 +40,16 @@
     }
     return style + " grayscale";
   }
+
+  function modifyGameTitleName(gameName: string): string {
+    // I figured out how to modify the tooltip size, the problem is that we want the tooltip to adjust based on the size
+    // new solution:
+    // - insert non-breaking-spaces to any space in the translated name
+    // - don't insert a nbsp after a `:`
+    return gameName.replace(/(?:[^:])\s/g, (match) =>
+      match.replace(/\s/g, "\u00a0")
+    );
+  }
 </script>
 
 <div class={getNavStyle($location.pathname)}>
@@ -51,8 +61,13 @@
         use:link
       >
         <img src={logoJak1} aria-label="Jak - The Precursor Legacy" />
-        <Tooltip placement="right"
-          >{$_(`gameName_${getInternalName(SupportedGame.Jak1)}`)}</Tooltip
+        <Tooltip
+          placement="right"
+          style="custom"
+          class="text-center py-2 px-3 text-sm font-medium"
+          >{modifyGameTitleName(
+            $_(`gameName_${getInternalName(SupportedGame.Jak1)}`)
+          )}</Tooltip
         >
       </a>
     </li>
