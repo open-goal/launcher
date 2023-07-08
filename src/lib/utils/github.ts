@@ -1,4 +1,4 @@
-import { platform } from "@tauri-apps/api/os";
+import { arch, platform } from "@tauri-apps/api/os";
 
 export interface ReleaseInfo {
   releaseType: "official" | "unofficial" | "devel";
@@ -14,8 +14,13 @@ async function getDownloadLinkForCurrentPlatform(
   release
 ): Promise<string | undefined> {
   const platformName = await platform();
+  const archName = await arch();
   for (const asset of release.assets) {
-    if (platformName === "darwin" && asset.name.includes("opengoal-macos-v")) {
+    if (
+      platformName === "darwin" && archName === "x86_64" &&
+      asset.name.startsWith("opengoal-macos-intel-v")
+      // macOS doesn't have the old naming scheme
+    ) {
       return asset.browser_download_url;
     } else if (
       platformName === "win32" &&
