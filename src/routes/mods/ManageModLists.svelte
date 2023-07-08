@@ -119,75 +119,63 @@
         </Button>
       </div>
     </div>
-    {#if modLists.length == 0}
-      <p class="text-sm text-gray-400 dark:text-gray-300">
-        You haven't added any mod lists yet!
-      </p>
-    {:else}
-      <div class="flex items-center mb-2">
-        <div class="grow">
-          <p class="text-sm text-gray-400 dark:text-gray-300">
-            Installed Mod Lists
-          </p>
-        </div>
-        <div class="flex">
-          {#if changesPending($VersionStore)}
-            <Button
-              btnClass="!p-2 mr-2 rounded-md dark:bg-green-500 hover:dark:bg-green-600 text-slate-900"
-              on:click={() => dispatch("versionChange")}
-            >
-              <Icon
-                icon="material-symbols:save"
-                width="20"
-                height="20"
-                alt={$_("settings_versions_icon_save_altText")}
+    <Label>Installed Mod Lists
+      {#if modLists.length == 0}
+        <div class="flex flex-row gap-2 p-2 justify-center">
+            <Icon
+                icon="material-symbols:warning"
+                width="25"
+                height="25"
+                color="yellow"
               />
-            </Button>
-          {/if}
-        </div>
-      </div>
-      <Table style="table-layout: fixed;">
-        <TableHead>
-          <TableHeadCell style="width: 30%">ID</TableHeadCell>
-          <TableHeadCell style="width: 55%">URL</TableHeadCell>
-          <TableHeadCell style="width: 15%">Remove</TableHeadCell>
-        </TableHead>
-        <TableBody tableBodyClass="divide-y">
-          {#each modLists as modList (modList.identifier)}
-            <TableBodyRow>
-              <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium"
-                >{modList.identifier}</TableBodyCell
-              >
-              <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium" style="width: 55%; overflow: hidden; text-overflow: ellipsis">
-                  <a
-                    href={modList.url}
-                    target="_blank"
-                    rel="noreferrer"
+            You haven't added any mod lists yet!
+          </div>
+      {:else}
+        <div class="flex flex-row gap-2 p-2 justify-center">
+          <Table style="table-layout: fixed;">
+            <TableHead>
+              <TableHeadCell style="width: 30%">ID</TableHeadCell>
+              <TableHeadCell style="width: 55%">URL</TableHeadCell>
+              <TableHeadCell style="width: 15%">Remove</TableHeadCell>
+            </TableHead>
+            <TableBody tableBodyClass="divide-y">
+              {#each modLists as modList (modList.identifier)}
+                <TableBodyRow>
+                  <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium"
+                    >{modList.identifier}</TableBodyCell
+                  >
+                  <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium" style="width: 55%; overflow: hidden; text-overflow: ellipsis">
+                      <a
+                        href={modList.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        >
+                        {modList.url}
+                        </a>
+                  </TableBodyCell>
+                  <TableBodyCell
+                    tdClass="px-6 py-2 whitespace-nowrap font-medium text-center"
+                    style="line-height: 0;"
+                  >
+                    <Button
+                      btnClass="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
+                      on:click={async (event) => { if (event["pointerId"] >= 0) { handleRemoveModList(modList.identifier) } }}
                     >
-                    {modList.url}
-                    </a>
-              </TableBodyCell>
-              <TableBodyCell
-                tdClass="px-6 py-2 whitespace-nowrap font-medium text-center"
-                style="line-height: 0;"
-              >
-                <Button
-                  btnClass="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
-                  on:click={async () => handleRemoveModList(modList.identifier)}
-                >
-                  <Icon
-                    icon="ic:baseline-delete-forever"
-                    width="24"
-                    height="24"
-                    color="red"
-                    alt={$_("settings_versions_icon_removeVersion_altText")}
-                  />
-                </Button>
-              </TableBodyCell>
-            </TableBodyRow>
-          {/each}
-        </TableBody>
-      </Table>
-    {/if}
+                      <Icon
+                        icon="ic:baseline-delete-forever"
+                        width="24"
+                        height="24"
+                        color="red"
+                        alt={$_("settings_versions_icon_removeVersion_altText")}
+                      />
+                    </Button>
+                  </TableBodyCell>
+                </TableBodyRow>
+              {/each}
+            </TableBody>
+          </Table>
+        </div>
+      {/if}
+    </Label>
   </div>
 </div>

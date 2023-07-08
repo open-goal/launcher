@@ -1,13 +1,13 @@
 import { toastStore } from "$lib/stores/ToastStore";
 import { invoke } from "@tauri-apps/api/tauri";
-import type { SupportedGame } from "$lib/constants";
 
 export interface ModVersion {
   version: string;
   description: string;
-  games: Array<string>;
-  windows_bundle_url: string;
-  linux_bundle_url: string;
+  supportedgames: Array<string>;
+  windowsurl: string;
+  linuxsurl: string;
+  installedgames: Array<string>;
 }
 
 export interface ModConfig {
@@ -31,6 +31,7 @@ export async function addModList(
   mods_json: String,
 ): Promise<boolean> {
   try {
+    console.log("adding ", mods_json);
     await invoke("add_mod_list", {
       url: url,
       identifier: identifier,
@@ -89,7 +90,7 @@ export async function getModDict(game_name: string): Promise<Object> {
       let supportsGame = false;
       for (let k in mod.versions) {
         let vers = mod.versions[k];
-        if (vers.games.indexOf(game_name) != -1) {
+        if (vers.supportedgames.indexOf(game_name) != -1) {
           supportsGame = true;
         }
       }

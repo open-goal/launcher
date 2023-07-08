@@ -43,6 +43,7 @@
 
   async function refreshModListsAndDict() {
     modDict = await getModDict(game_name);
+    console.log("dict: ", modDict);
     // refresh modList for dropdown
     modList.length = 0;
     for (let composite_id in modDict) {
@@ -109,7 +110,7 @@
       // merge known versions from mod list with installed versions
       for (const v of selectedMod.versions) {
         console.log(selectedMod, v);
-        if (v.games.indexOf(game_name) == -1) {
+        if (v.supportedgames.indexOf(game_name) == -1) {
           // current game not supported
           continue;
         }
@@ -119,8 +120,8 @@
           // found it! update some metadata
           if (existingRelease.version === v.version) {
             // existingRelease.date = v.date;
-            // existingRelease.githubLink = v.githubLink;
-            existingRelease.downloadUrl = v.windows_bundle_url; // TODO linux
+            existingRelease.githubLink = v.description;  // hacking this in here for now
+            existingRelease.downloadUrl = v.windowsurl; // TODO linux
             foundExistingRelease = true;
             break;
           }
@@ -134,8 +135,8 @@
               releaseType: "unofficial",
               version: v.version,
               date: undefined,
-              githubLink: undefined,
-              downloadUrl: v.windows_bundle_url, // TODO linux
+              githubLink: v.description,  // hacking this in here for now
+              downloadUrl: v.windowsurl, // TODO linux
               isDownloaded: false,
               pendingAction: false,
             },
@@ -153,6 +154,8 @@
       //   }
       //   return b.date.localeCompare(a.date);
       // });
+
+      console.log("RELEASES: ", releases);
 
       versionsLoaded = true;
     }
@@ -244,30 +247,41 @@
       </div>
     </div>
     <Label>Select Mod
-      <Select
-        class="mt-2"
-        value={mod_composite_id}
-        items={modList}
-        on:change={async (evt) => {
-          setSelectedMod(evt.target.value);
-        }}
-      />
+      {#if modList.length == 0}
+        <div class="flex flex-row gap-2 p-2 justify-center">
+          <Icon
+              icon="material-symbols:warning"
+              width="25"
+              height="25"
+              color="yellow"
+            />
+          No mods found - you probably haven't added any mod lists yet!
+        </div>
+      {:else}
+        <Select
+          class="mt-2"
+          value={mod_composite_id}
+          items={modList}
+          on:change={async (evt) => {
+            setSelectedMod(evt.target.value);
+          }}
+        />
+      {/if}
     </Label>
-
-    {#if mod_composite_id != null && mod_composite_id != undefined && mod_composite_id != ""}
-      <ModVersionList
-        initiallyOpen={true}
-        game_name={game_name}
-        mod_id={mod_composite_id}
-        releaseList={releases}
-        loaded={versionsLoaded}
-        releaseType="unofficial"
-        on:openVersionFolder={() => openUnofficialVersionFolder(`${mod_composite_id}`)}
-        on:refreshVersions={refreshVersionList}
-        on:removeVersion={onRemoveVersion}
-        on:downloadVersion={onDownloadVersion}
-        on:redownloadVersion={onRedownloadVersion}
-      />
-    {/if}
+        {#if mod_composite_id != null && mod_composite_id != undefined && mod_composite_id != ""}
+          <ModVersionList
+            initiallyOpen={true}
+            game_name={game_name}
+            mod_id={mod_composite_id}
+            releaseList={releases}
+            loaded={versionsLoaded}
+            releaseType="unofficial"
+            on:openVersionFolder={() => openUnofficialVersionFolder(`${mod_composite_id}`)}
+            on:refreshVersions={refreshVersionList}
+            on:removeVersion={onRemoveVersion}
+            on:downloadVersion={onDownloadVersion}
+            on:redownloadVersion={onRedownloadVersion}
+          />
+        {/if}
   </div>
 </div>

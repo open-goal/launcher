@@ -136,9 +136,11 @@ impl Requirements {
 pub struct ModVersion {
   pub version: String,
   pub description: Option<String>,
-  pub games: Vec<String>,
-  pub windows_bundle_url: Option<String>,
-  pub linux_bundle_url: Option<String>,
+  pub supportedgames: Vec<String>,
+  pub windowsurl: Option<String>,
+  pub linuxsurl: Option<String>,
+  #[serde(default)]
+  pub installedgames: Vec<String>,
 }
 
 impl ModVersion {
@@ -146,9 +148,10 @@ impl ModVersion {
     Self {
       version: "".to_string(),
       description: None,
-      games: Vec::new(),
-      windows_bundle_url: None,
-      linux_bundle_url: None,
+      supportedgames: Vec::new(),
+      windowsurl: None,
+      linuxsurl: None,
+      installedgames: Vec::new(),
     }
   }
 }

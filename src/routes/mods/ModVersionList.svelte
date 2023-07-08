@@ -67,11 +67,11 @@
     <Spinner color="yellow" size={"12"} />
   </div>
 {:else}
-  <div class="flex items-center mb-2">
+  <div class="flex flex-row mb-2 align-items:flex-end">
     <div class="grow">
       <p class="text-sm text-gray-400 dark:text-gray-300">
-        {#if modDetails.hasOwnProperty("desc")}
-          {modDetails["desc"]}
+        {#if modDetails.hasOwnProperty("description")}
+          {modDetails["description"]}
         {/if}
       </p>
       <br>
@@ -80,21 +80,14 @@
           Contributors: {modDetails["contributors"].join(", ")}
         {/if}
       </p>
+      <br>
+      <p class="text-sm text-gray-400 dark:text-gray-300">
+        {#if modDetails.hasOwnProperty("tags")}
+          Tags: {modDetails["tags"].join(", ")}
+        {/if}
+      </p>
     </div>
-    <div class="flex">
-      {#if changesPending($VersionStore)}
-        <Button
-          btnClass="!p-2 mr-2 rounded-md dark:bg-green-500 hover:dark:bg-green-600 text-slate-900"
-          on:click={() => dispatch("versionChange")}
-        >
-          <Icon
-            icon="material-symbols:save"
-            width="20"
-            height="20"
-            alt={$_("settings_versions_icon_save_altText")}
-          />
-        </Button>
-      {/if}
+    <div style="align-self:flex-end;">
       <Button
         btnClass="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
         on:click={() => dispatch("refreshVersions")}
@@ -106,8 +99,10 @@
           alt={$_("settings_versions_icon_refresh_altText")}
         />
       </Button>
+    </div>
+    <div style="align-self:flex-end;">
       <Button
-        btnClass="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600  text-slate-900"
+        btnClass="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
         on:click={() => dispatch("openVersionFolder")}
       >
         <Icon
@@ -122,42 +117,24 @@
   <Table>
     <TableHead>
       <TableHeadCell>
-        <span class="sr-only">Select</span>
-      </TableHeadCell>
-      <TableHeadCell>
-        <span class="sr-only">Controls</span>
+        Manage
       </TableHeadCell>
       <TableHeadCell
         >{$_("settings_versions_table_header_version")}</TableHeadCell
       >
-      <TableHeadCell
+      <!-- <TableHeadCell
         >{$_("settings_versions_table_header_date")}</TableHeadCell
-      >
+      > -->
       <TableHeadCell
         >{$_("settings_versions_table_header_changes")}</TableHeadCell
       >
+      <TableHeadCell>
+        <span class="sr-only">Play</span>
+      </TableHeadCell>
     </TableHead>
     <TableBody tableBodyClass="divide-y">
       {#each releaseList as release (release.version)}
         <TableBodyRow>
-          <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium">
-            {#if release.isDownloaded}
-            <Button
-              btnClass="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
-              disabled={release.pendingAction}
-              on:click={() => {
-                location.href = `/${game_name}/mods/${mod_id}/${fixedEncodeURIComponent(release.version)}`;
-              }}
-            >
-              <Icon
-                icon="ic:baseline-play-circle"
-                width="24"
-                height="24"
-                color="green"
-              />
-            </Button>
-            {/if}
-          </TableBodyCell>
           <TableBodyCell
             tdClass="px-6 py-2 whitespace-nowrap font-medium"
             style="line-height: 0;"
@@ -224,26 +201,30 @@
           <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium"
             >{release.version}</TableBodyCell
           >
-          <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium">
+          <!-- <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium">
             {#if release.date}
               {new Date(release.date).toLocaleDateString()}
             {/if}
+          </TableBodyCell> -->
+          <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium">
+            {release.githubLink}  <!--description of changes actually-->
           </TableBodyCell>
           <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium">
-            {#if release.githubLink}
-              <a
-                class="inline-block"
-                href={release.githubLink}
-                target="_blank"
-                rel="noreferrer"
-                ><Icon
-                  class="inline"
-                  icon="mdi:github"
-                  width="24"
-                  height="24"
-                  alt={$_("settings_versions_icon_githubRelease_altText")}
-                /></a
-              >
+            {#if release.isDownloaded}
+            <Button
+              btnClass="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
+              disabled={release.pendingAction}
+              on:click={() => {
+                location.href = `/${game_name}/mods/${mod_id}/${fixedEncodeURIComponent(release.version)}`;
+              }}
+            >
+              <Icon
+                icon="ic:outline-arrow-circle-right"
+                width="24"
+                height="24"
+                color="green"
+              />
+            </Button>
             {/if}
           </TableBodyCell>
         </TableBodyRow>

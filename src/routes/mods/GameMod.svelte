@@ -49,36 +49,6 @@
 
     console.log(mod_version, fixedDecodeURIComponent(mod_version))
 
-    // console.log(activeGame, activeMod, activeVersion);
-
-    // // First off, check that they've downloaded and have a jak-project release set
-    // const activeVersionExists = await ensureActiveVersionStillExists();
-    // $VersionStore.activeVersionType = await getActiveVersionFolder();
-    // $VersionStore.activeVersionName = await getActiveVersion();
-
-    // if (activeVersionExists) {
-    //   // First obvious thing to check -- is the game installed at all
-    //   gameInstalled = await isGameInstalled(getInternalName(activeGame));
-
-    //   // Next step, check if there is a version mismatch
-    //   // - they installed the game before with a different version than what they currently have selected
-    //   // - prompt them to either reinstall OR go and select their previous version
-    //   if (gameInstalled) {
-    //     installedVersion = await getInstalledVersion(
-    //       getInternalName(activeGame)
-    //     );
-    //     installedVersionFolder = await getInstalledVersionFolder(
-    //       getInternalName(activeGame)
-    //     );
-    //     if (
-    //       installedVersion !== $VersionStore.activeVersionName ||
-    //       installedVersionFolder !== $VersionStore.activeVersionType
-    //     ) {
-    //       versionMismatchDetected = true;
-    //     }
-    //   }
-    // }
-
     componentLoaded = true;
   });
 
@@ -101,8 +71,6 @@
     <div class="flex flex-col h-full justify-center items-center">
       <Spinner color="yellow" size={"12"} />
     </div>
-  {:else if $VersionStore.activeVersionName === null || $VersionStore.activeVersionType === null}
-    <GameToolsNotSet />
   {:else if !gameInstalled}
     <GameSetup {activeGame} on:change={updateGameState} />
   {:else if gameJobToRun !== undefined}
@@ -110,13 +78,6 @@
       {activeGame}
       jobType={gameJobToRun}
       on:jobFinished={gameJobFinished}
-    />
-  {:else if versionMismatchDetected}
-    <GameUpdate
-      {activeGame}
-      {installedVersion}
-      {installedVersionFolder}
-      on:job={runGameJob}
     />
   {:else}
     <div class="flex flex-row gap-2">
