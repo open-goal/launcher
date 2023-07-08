@@ -10,7 +10,9 @@ export async function generateSupportPackage(): Promise<boolean> {
       ["zip"],
       "opengoal-support-package.zip"
     );
-    return await invoke("generate_support_package", { userPath: savePath });
+    if (savePath !== null) {
+      return await invoke("generate_support_package", { userPath: savePath });
+    }
   } catch (e) {
     exceptionLog("Unable to generate support package", e);
     toastStore.makeToast("Unable to create support package", "error");
