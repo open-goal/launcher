@@ -96,10 +96,25 @@ impl Serialize for SupportedGame {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct GameFeatureConfig {
+  pub texture_packs: Vec<String>,
+}
+
+impl GameFeatureConfig {
+  fn default() -> Self {
+    Self {
+      texture_packs: vec![],
+    }
+  }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GameConfig {
   pub is_installed: bool,
   pub version: Option<String>,
   pub version_folder: Option<String>,
+  pub features: Option<GameFeatureConfig>,
 }
 
 impl GameConfig {
@@ -108,6 +123,7 @@ impl GameConfig {
       is_installed: false,
       version: None,
       version_folder: None,
+      features: Some(GameFeatureConfig::default()),
     }
   }
 }
@@ -438,5 +454,71 @@ impl LauncherConfig {
         "".to_owned()
       }
     }
+  }
+
+  pub fn game_enabled_textured_packs(&self, game_name: &String) -> Vec<String> {
+    match SupportedGame::from_str(game_name) {
+      Ok(game) => {
+        // Retrieve relevant game from config
+        match self.games.get(&game) {
+          Some(game) => match &game.features {
+            Some(features) => features.texture_packs.to_owned(),
+            None => Vec::new(),
+          },
+          None => {
+            log::warn!(
+              "Could not find game to check which texture packs are enabled: {}",
+              game_name
+            );
+            Vec::new()
+          }
+        }
+      }
+      Err(_) => {
+        log::warn!(
+          "Could not find game to check which texture packs are enabled: {}",
+          game_name
+        );
+        Vec::new()
+      }
+    }
+  }
+
+  pub fn cleanup_game_enabled_texture_packs(
+    &mut self,
+    game_name: &String,
+    cleanup_list: Vec<String>,
+  ) -> Result<(), ConfigError> {
+    if !cleanup_list.is_empty() {
+      return Ok(());
+    }
+    match SupportedGame::from_str(game_name) {
+      Ok(game) => {
+        // Retrieve relevant game from config
+        match self.games.get_mut(&game) {
+          Some(game) => {
+            if let Some(features) = &mut game.features {
+              features
+                .texture_packs
+                .retain(|pack| cleanup_list.contains(pack));
+              self.save_config()?;
+            }
+          }
+          None => {
+            log::warn!(
+              "Could not find game to check which texture packs are enabled: {}",
+              game_name
+            );
+          }
+        }
+      }
+      Err(_) => {
+        log::warn!(
+          "Could not find game to check which texture packs are enabled: {}",
+          game_name
+        );
+      }
+    }
+    Ok(())
   }
 }

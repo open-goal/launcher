@@ -7,7 +7,6 @@
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
   import Header from "./components/header/Header.svelte";
-  import Textures from "./routes/Textures.svelte";
   import Update from "./routes/Update.svelte";
   import GameInProgress from "./components/games/GameInProgress.svelte";
   import { isInDebugMode } from "$lib/utils/common";
@@ -96,7 +95,6 @@
             let:params
           />
           <Route path="/faq" component={Help} primary={false} />
-          <Route path="/textures" component={Textures} primary={false} />
           <Route path="/update" component={Update} primary={false} />
         </div>
       </div>
