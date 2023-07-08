@@ -96,7 +96,7 @@
   </Alert>
   <div>
     <Button
-      btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+      class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       on:click={async () => {
         isAVXMet = await isAVXRequirementMet(true);
         isOpenGLMet = await isOpenGLRequirementMet(true);
@@ -104,7 +104,7 @@
       }}>{$_("requirements_button_recheck")}</Button
     >
     <Button
-      btnClass="border-solid border-2 border-slate-900 rounded bg-orange-800 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+      class="border-solid border-2 border-slate-900 rounded bg-orange-800 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       on:click={async () => {
         const confirmed = await confirm(
           `${$_("requirements_button_bypass_warning_1")}\n\n${$_(

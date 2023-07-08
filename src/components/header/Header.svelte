@@ -101,7 +101,7 @@
   data-tauri-drag-region
 >
   <div class="flex flex-row items-center space-x-2 pointer-events-none">
-    <img class="h-8" src={logo} alt="" />
+    <img class="h-8" src={logo} aria-label="" />
     <p class="font-black text-white tracking-tight text-lg">OpenGOAL</p>
   </div>
 
