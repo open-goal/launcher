@@ -84,3 +84,7 @@ body {
 .basis-9\/10 {
   flex-basis: 90%;
 }
+
+.texture-pack-card img {
+  object-fit: contain;
+}

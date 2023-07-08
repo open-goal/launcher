@@ -179,3 +179,28 @@ export async function getBypassRequirements(): Promise<boolean> {
     return false;
   }
 }
+
+export async function getEnabledTexturePacks(
+  gameName: string
+): Promise<string[]> {
+  try {
+    return await invoke("get_enabled_texture_packs", { gameName: gameName });
+  } catch (e) {
+    exceptionLog("Unable to get currently enabled texture packs", e);
+    return [];
+  }
+}
+
+export async function cleanupEnabledTexturePacks(
+  gameName: string,
+  cleanupList: string[]
+): Promise<void> {
+  try {
+    return await invoke("cleanup_enabled_texture_packs", {
+      gameName: gameName,
+      cleanupList: cleanupList,
+    });
+  } catch (e) {
+    exceptionLog("Unable to cleanup currently enabled texture packs", e);
+  }
+}

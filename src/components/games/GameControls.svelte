@@ -17,7 +17,7 @@
   import { platform } from "@tauri-apps/api/os";
   import { launchGame, openREPL } from "$lib/rpc/binaries";
   import { _ } from "svelte-i18n";
-  import { Link } from "svelte-navigator";
+  import { Link, navigate } from "svelte-navigator";
 
   export let activeGame: SupportedGame;
 
@@ -61,9 +61,13 @@
       class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
       >Features</Button
     >
-    <Dropdown placement="top-end">
-      <DropdownItem>
-        <Link to="/jak1/features/texture-packs">Texture&nbsp;Packs</Link>
+    <Dropdown placement="top-end" class="!bg-slate-900">
+      <DropdownItem
+        on:click={async () => {
+          navigate(`/${getInternalName(activeGame)}/features/texture-packs`);
+        }}
+      >
+        Texture Packs
       </DropdownItem>
     </Dropdown>
     <Button
@@ -71,7 +75,7 @@
     >
       {$_("gameControls_button_advanced")}
     </Button>
-    <Dropdown placement="top-end" frameClass="!bg-slate-900">
+    <Dropdown placement="top-end" class="!bg-slate-900">
       <DropdownItem
         on:click={async () => {
           launchGame(getInternalName(activeGame), true);
@@ -115,7 +119,7 @@
     >
       <Icon icon="material-symbols:settings" width={24} height={24} />
     </Button>
-    <Dropdown placement="top-end" frameClass="!bg-slate-900">
+    <Dropdown placement="top-end" class="!bg-slate-900">
       <!-- TODO - screenshot folder? how do we even configure where those go? -->
       <DropdownItem
         on:click={async () => {

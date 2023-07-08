@@ -25,7 +25,10 @@
   function getNavItemStyle(itemName: string, pathName: string): string {
     let style =
       "flex items-center hover:grayscale-0 hover:opacity-100 duration-500 text-orange-400 duration-500";
-    if (itemName === "jak1" && (pathName.startsWith("/jak1") || pathName === "/")) {
+    if (
+      itemName === "jak1" &&
+      (pathName.startsWith("/jak1") || pathName === "/")
+    ) {
       return style;
     } else if (itemName === "jak2" && pathName.startsWith("/jak2")) {
       return style;
