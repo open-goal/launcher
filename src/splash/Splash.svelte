@@ -78,7 +78,7 @@
 
 <div class="content" data-tauri-drag-region>
   <div class="splash-logo no-pointer-events">
-    <img src={logo} alt="" draggable="false" />
+    <img src={logo} aria-label="" draggable="false" />
   </div>
   <div class="splash-contents no-pointer-events">
     {#if selectLocale}

@@ -53,7 +53,7 @@
       class="justify-center items-center space-y-4 sm:flex sm:space-y-0 sm:space-x-4"
     >
       <Button
-        btnClass="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+        class="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         on:click={async () => {
           dispatch("job", {
             type: "updateGame",
@@ -61,7 +61,7 @@
         }}>{$_("gameUpdate_versionMismatch_button_updateGame")}</Button
       >
       <Button
-        btnClass="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+        class="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         href="/settings/versions"
         >{$_("gameUpdate_versionMismatch_button_changeVersion")}</Button
       >

@@ -125,7 +125,7 @@
     <div class="flex flex-col justify-end items-end mt-auto">
       <div class="flex flex-row gap-2">
         <Button
-          btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
           on:click={async () => await dispatchSetupEvent()}
           >{$_("setup_button_continue")}</Button
         >
@@ -140,7 +140,7 @@
           </span><span class="text-white"> {installationError}</span>
         </Alert>
         <Button
-          btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
           on:click={async () => await generateSupportPackage()}
           >{$_("setup_button_getSupportPackage")}</Button
         >
@@ -156,13 +156,13 @@
     </h1>
     <div class="flex flex-row gap-2">
       <Button
-        btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         on:click={async () => await install(false)}
         >{$_("setup_button_installViaISO")}</Button
       >
       <!-- TODO - disabled for now, needs fixes in the extractor -->
       <!-- <Button
-        btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         on:click={async () => await install(true)}
         >Install via Folder</Button
       > -->

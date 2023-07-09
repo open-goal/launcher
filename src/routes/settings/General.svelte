@@ -86,7 +86,7 @@
   </div>
   <div>
     <Button
-      btnClass="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
+      class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
       on:click={async () => {
         const confirmed = await confirm(
           $_("settings_general_button_resetSettings_confirmation")

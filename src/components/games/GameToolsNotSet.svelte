@@ -11,7 +11,7 @@
     {$_("gameControls_noToolingSet_subheader")}
   </p>
   <Button
-    btnClass="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+    class="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
     href="/settings/versions"
     >{$_("gameControls_noToolingSet_button_setVersion")}</Button
   >
