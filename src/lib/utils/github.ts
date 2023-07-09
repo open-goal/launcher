@@ -17,7 +17,8 @@ async function getDownloadLinkForCurrentPlatform(
   const archName = await arch();
   for (const asset of release.assets) {
     if (
-      platformName === "darwin" && archName === "x86_64" &&
+      platformName === "darwin" &&
+      archName === "x86_64" &&
       asset.name.startsWith("opengoal-macos-intel-v")
       // macOS doesn't have the old naming scheme
     ) {
