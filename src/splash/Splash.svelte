@@ -12,10 +12,10 @@
     setLocale,
   } from "$lib/rpc/config";
   import { AVAILABLE_LOCALES } from "$lib/i18n/i18n";
-  import { _ } from "svelte-i18n";
+  import { locale as svelteLocale, _ } from "svelte-i18n";
 
   let currentProgress = 10;
-  let currentStatusText = $_("splash_step_readingSettings");
+  let currentStatusText = "Loading Locales...";
 
   let selectLocale = false;
   let installationDirSet = true;
@@ -26,6 +26,7 @@
   onMount(async () => {
     // First, see if the user has selected a locale
     await checkLocale();
+    currentStatusText = $_("splash_step_readingSettings");
   });
 
   // TODO - cleanup this code and make it easier to add steps like with
@@ -36,6 +37,7 @@
     if (locale === null) {
       // Prompt the user to select a locale
       selectLocale = true;
+      svelteLocale.set("en-US");
     } else {
       // Set locale and continue
       setLocale(locale);
@@ -78,15 +80,16 @@
 
 <div class="content" data-tauri-drag-region>
   <div class="splash-logo no-pointer-events">
-    <img src={logo} aria-label="" draggable="false" />
+    <img src={logo} data-testId="splash-logo" alt="OpenGOAL logo" aria-label="OpenGOAL logo" draggable="false" />
   </div>
   <div class="splash-contents no-pointer-events">
     {#if selectLocale}
       <span class="mb-1">{$_("splash_selectLocale")}</span>
       <div class="splash-select">
         <select
-          name="cars"
-          id="cars"
+          data-testId="locale-select"
+          name="locales"
+          id="locales"
           class="pointer-events emoji-font"
           on:change={async (evt) => {
             setLocale(evt.target.value);
