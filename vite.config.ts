@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     port: 3000, // The port the server will listen on.
   },
-  plugins: [svelte()],
+  plugins: [svelte({ hot: !process.env.VITEST })],
   resolve: {
     alias: {
       $lib: fileURLToPath(new URL("./src/lib", import.meta.url)),

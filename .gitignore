@@ -41,3 +41,4 @@ TODO.md
 vite.config.ts.timestamp*
 .yarn/
 .yarnrc.yml
+coverage/
