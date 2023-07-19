@@ -60,7 +60,11 @@
         href="/jak1"
         use:link
       >
-        <img src={logoJak1} alt="Jak - The Precursor Legacy" aria-label="Jak - The Precursor Legacy" />
+        <img
+          src={logoJak1}
+          alt="Jak - The Precursor Legacy"
+          aria-label="Jak - The Precursor Legacy"
+        />
         <Tooltip
           placement="right"
           style="custom"
