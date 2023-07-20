@@ -76,11 +76,24 @@
       currentStatusText = $_("splash_step_errorOpening");
     }
   }
+
+  async function handleLocaleChange(evt: Event) {
+    const selectElement = evt.target as HTMLSelectElement;
+    setLocale(selectElement.value);
+    selectLocale = false;
+    await checkDirectories();
+  }
 </script>
 
 <div class="content" data-tauri-drag-region>
   <div class="splash-logo no-pointer-events">
-    <img src={logo} data-testId="splash-logo" alt="OpenGOAL logo" aria-label="OpenGOAL logo" draggable="false" />
+    <img
+      src={logo}
+      data-testId="splash-logo"
+      alt="OpenGOAL logo"
+      aria-label="OpenGOAL logo"
+      draggable="false"
+    />
   </div>
   <div class="splash-contents no-pointer-events">
     {#if selectLocale}
@@ -91,11 +104,7 @@
           name="locales"
           id="locales"
           class="pointer-events emoji-font"
-          on:change={async (evt) => {
-            setLocale(evt.target.value);
-            selectLocale = false;
-            await checkDirectories();
-          }}
+          on:change={handleLocaleChange}
         >
           <option disabled selected value hidden />
           {#each AVAILABLE_LOCALES as locale}
@@ -110,6 +119,7 @@
       <br />
       <span>
         <button
+          data-testId="delete-old-data-dir-button"
           class="splash-button pointer-events"
           on:click={() => {
             oldDataDirToClean = false;
@@ -117,6 +127,7 @@
           }}>{$_("splash_button_deleteOldInstallDir_yes")}</button
         >
         <button
+          data-testId="dont-delete-old-data-dir-button"
           class="splash-button pointer-events"
           on:click={() => {
             oldDataDirToClean = false;
@@ -131,6 +142,7 @@
       {/if}
       <br />
       <button
+        data-testId="pick-install-folder-button"
         class="splash-button pointer-events"
         on:click={async () => {
           // This is part of what allows for the user to install the games and such wherever they want
