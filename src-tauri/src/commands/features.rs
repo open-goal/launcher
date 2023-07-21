@@ -3,10 +3,12 @@ use std::{
   path::{Path, PathBuf},
 };
 
+use serde::{Deserialize, Serialize};
+
 use crate::{
   config::LauncherConfig,
   util::{
-    file::{create_dir, overwrite_dir},
+    file::{create_dir, delete_dir, overwrite_dir},
     zip::{check_if_zip_contains_top_level_dir, extract_zip_file},
   },
 };
@@ -26,6 +28,7 @@ pub struct TexturePackInfo {
   version: String,
   author: String,
   release_date: String,
+  supported_games: Vec<String>,
   description: String,
   tags: Vec<String>,
 }
@@ -43,7 +46,7 @@ pub async fn list_extracted_texture_pack_info(
 
   let expected_path = Path::new(install_path)
     .join("features")
-    .join(game_name)
+    .join(&game_name)
     .join("texture-packs");
   if !expected_path.exists() || !expected_path.is_dir() {
     log::info!(
@@ -74,7 +77,7 @@ pub async fn list_extracted_texture_pack_info(
           CommandError::GameFeatures(format!("Unable to get directory name for {:?}", entry_path))
         })?;
       // Get a list of all texture files for this pack
-      log::info!("Directory name: {}", directory_name);
+      log::info!("Texture pack dir name: {}", directory_name);
       let mut file_list = Vec::new();
       for entry in glob::glob(
         &entry_path
@@ -107,10 +110,11 @@ pub async fn list_extracted_texture_pack_info(
         has_metadata: false,
         cover_image_path,
         name: directory_name.to_owned(),
-        version: "Unknown".to_string(),
-        author: "Unknown".to_string(),
-        release_date: "Unknown".to_string(),
-        description: "Unknown".to_string(),
+        version: "Unknown Version".to_string(),
+        author: "Unknown Author".to_string(),
+        release_date: "Unknown Release Date".to_string(),
+        supported_games: vec![game_name.clone()], // if no info, assume it's supported
+        description: "Unknown Description".to_string(),
         tags: vec![],
       };
       // Read metadata if it's available
@@ -211,37 +215,102 @@ pub async fn extract_new_texture_pack(
   Ok(true)
 }
 
+// TODO -  remove duplication
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GameJobStepOutput {
+  pub success: bool,
+  pub msg: Option<String>,
+}
+
 #[tauri::command]
 pub async fn update_texture_pack_data(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: String,
-) -> Result<bool, CommandError> {
+) -> Result<GameJobStepOutput, CommandError> {
   let config_lock = config.lock().await;
   let install_path = match &config_lock.installation_dir {
     None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't extract texture pack".to_string(),
-      ))
+      return Ok(GameJobStepOutput {
+        success: false,
+        msg: Some("No installation directory set, can't extract texture pack".to_string()),
+      });
     }
     Some(path) => Path::new(path),
   };
 
-  // TODO - confirm exists
-  let texture_pack_dir = install_path
-    .join("features")
-    .join(&game_name)
-    .join("texture-packs")
-    .join("snowy-legacy")
-    .join("texture_replacements");
   let game_texture_pack_dir = install_path
     .join("active")
     .join(&game_name)
     .join("data")
     .join("texture_replacements");
+  // Reset texture replacement directory
+  delete_dir(&game_texture_pack_dir)?;
   create_dir(&game_texture_pack_dir)?;
+  for pack in config_lock.game_enabled_textured_packs(&game_name) {
+    let texture_pack_dir = install_path
+      .join("features")
+      .join(&game_name)
+      .join("texture-packs")
+      .join(&pack)
+      .join("texture_replacements");
+    log::info!("Appending textures from: {}", texture_pack_dir.display());
+    match overwrite_dir(&texture_pack_dir, &game_texture_pack_dir) {
+      Ok(_) => (),
+      Err(err) => {
+        log::error!("Unable to update texture replacements: {}", err);
+        return Ok(GameJobStepOutput {
+          success: false,
+          msg: Some(format!("Unable to update texture replacements: {}", err)),
+        });
+      }
+    }
+  }
 
-  // TODO - iterate
-  overwrite_dir(&texture_pack_dir, &game_texture_pack_dir);
+  Ok(GameJobStepOutput {
+    success: true,
+    msg: None,
+  })
+}
 
-  Ok(true)
+#[tauri::command]
+pub async fn delete_texture_packs(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+  packs: Vec<String>,
+) -> Result<GameJobStepOutput, CommandError> {
+  let config_lock = config.lock().await;
+  let install_path = match &config_lock.installation_dir {
+    None => {
+      return Ok(GameJobStepOutput {
+        success: false,
+        msg: Some("No installation directory set, can't extract texture pack".to_string()),
+      });
+    }
+    Some(path) => Path::new(path),
+  };
+
+  let texture_pack_dir = install_path
+    .join("features")
+    .join(&game_name)
+    .join("texture-packs");
+
+  for pack in packs {
+    log::info!("Deleting texture pack: {}", pack);
+    match delete_dir(&texture_pack_dir.join(&pack)) {
+      Ok(_) => (),
+      Err(err) => {
+        log::error!("Unable to delete texture pack: {}", err);
+        return Ok(GameJobStepOutput {
+          success: false,
+          msg: Some(format!("Unable to delete texture pack: {}", err)),
+        });
+      }
+    }
+  }
+
+  Ok(GameJobStepOutput {
+    success: true,
+    msg: None,
+  })
 }

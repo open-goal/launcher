@@ -103,8 +103,7 @@ pub fn extract_and_delete_zip_file(
   zip_path: &PathBuf,
   extract_dir: &Path,
 ) -> Result<(), zip_extract::ZipExtractError> {
-  let archive: Vec<u8> = std::fs::read(zip_path)?;
-  zip_extract::extract(Cursor::new(archive), extract_dir, true)?;
+  extract_zip_file(zip_path, extract_dir)?;
   std::fs::remove_file(zip_path)?;
   Ok(())
 }

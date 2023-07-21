@@ -6,18 +6,17 @@
 
 <!-- TODO - collecting rating metrics / number of users might be cool (same for mods) -->
 <!-- TODO - instead of currently allowing full access - explicitly allow the install folder in the Rust layer https://docs.rs/tauri/1.4.1/tauri/scope/struct.FsScope.html -->
+<!-- TODO - check supported games, not bothering right now cause there's only 1! -->
 
 <script lang="ts">
   import { fromRoute, getInternalName, SupportedGame } from "$lib/constants";
   import {
     cleanupEnabledTexturePacks,
     getEnabledTexturePacks,
-    setEnabledTexturePacks,
   } from "$lib/rpc/config";
   import {
     extractNewTexturePack,
     listExtractedTexturePackInfo,
-    updateTexturePackData,
   } from "$lib/rpc/features";
   import { filePrompt } from "$lib/utils/file";
   import Icon from "@iconify/svelte";
@@ -31,11 +30,11 @@
     Spinner,
     Toggle,
   } from "flowbite-svelte";
-  import { onMount } from "svelte";
-  import { navigate, useParams } from "svelte-navigator";
+  import { createEventDispatcher, onMount } from "svelte";
+  import { navigate } from "svelte-navigator";
   import GameJob from "../../job/GameJob.svelte";
 
-  const params = useParams();
+  const dispatch = createEventDispatcher();
   export let activeGame: SupportedGame;
 
   let loaded = false;
@@ -44,19 +43,11 @@
   let availablePacksOriginal = [];
 
   let addingPack = false;
-  let gameJobToRun = undefined;
+
+  let enabledPacks = [];
+  let packsToDelete = [];
 
   onMount(async () => {
-    // Figure out what game we are displaying
-    if (
-      $params["game_name"] !== undefined &&
-      $params["game_name"] !== null &&
-      $params["game_name"] !== ""
-    ) {
-      activeGame = fromRoute($params["game_name"]);
-    } else {
-      activeGame = SupportedGame.Jak1;
-    }
     await update_pack_list();
     loaded = true;
   });
@@ -90,6 +81,7 @@
       availablePacks.push({
         name: pack,
         enabled: true,
+        toBeDeleted: false,
       });
     }
     // - lastly, add the rest that are available but not enabled
@@ -98,6 +90,7 @@
         availablePacks.push({
           name: packName,
           enabled: false,
+          toBeDeleted: false,
         });
       }
     }
@@ -177,22 +170,28 @@
     addingPack = false;
   }
 
-  // TODO - implement ordering
-
   async function applyTexturePacks() {
-    let enabledPacks = [];
+    enabledPacks = [];
+    packsToDelete = [];
     for (const pack of availablePacks) {
       if (pack.enabled) {
         enabledPacks.push(pack.name);
+      } else if (pack.toBeDeleted) {
+        packsToDelete.push(pack.name);
       }
     }
-    await setEnabledTexturePacks(getInternalName(activeGame), enabledPacks);
-    // TODO - move this into a job
-    await updateTexturePackData(getInternalName(activeGame));
+    dispatch("job", {
+      type: "updateTexturePacks",
+      enabledPacks,
+      packsToDelete,
+    });
   }
 
-  async function gameJobFinished() {
-    gameJobToRun = undefined;
+  function moveTexturePack(dst: number, src: number) {
+    const temp = availablePacks[dst];
+    availablePacks[dst] = availablePacks[src];
+    availablePacks[src] = temp;
+    availablePacks = availablePacks;
   }
 </script>
 
@@ -201,13 +200,6 @@
     <div class="flex flex-col h-full justify-center items-center">
       <Spinner color="yellow" size={"12"} />
     </div>
-    <!-- TODO - make a generic features page -->
-  {:else if gameJobToRun !== undefined}
-    <GameJob
-      {activeGame}
-      jobType={gameJobToRun}
-      on:jobFinished={gameJobFinished}
-    />
   {:else}
     <div class="pb-20 overflow-y-auto p-4">
       <div class="flex flex-row gap-2">
@@ -249,127 +241,139 @@
         <p>
           You can enable as many packs as you want, but if multiple packs
           replace the same file the order matters. For example if two packs
-          replace the grass, the first pack in the list takes precedence.
+          replace the grass, the first pack in the list will take precedence.
         </p>
       </div>
       {#each availablePacks as pack, packIndex}
-        <div class="flex flex-row gap-2 mt-3">
-          <!-- Placeholder image -->
-          <Card
-            img={convertFileSrc(extractedPackInfo[pack.name]["coverImagePath"])}
-            horizontal
-            class="texture-pack-card max-w-none md:max-w-none basis-full"
-            padding="md"
-          >
-            <div class="flex flex-row mt-auto">
-              <h2 class="text-xl font-bold tracking-tight text-white">
-                {extractedPackInfo[pack.name]["name"]}
-                <span class="text-xs text-gray-500" />
-              </h2>
-            </div>
-            <p class="font-bold text-xs text-gray-500">
-              {extractedPackInfo[pack.name]["version"]} by {extractedPackInfo[
-                pack.name
-              ]["author"]}
-            </p>
-            <p class="font-bold text-gray-500 text-xs">
-              {extractedPackInfo[pack.name]["releaseDate"]}
-            </p>
-            <p class="font-bold text-gray-500 text-xs">
-              Files replaced - {num_textures_in_pack(pack.name)}
-            </p>
-            <p class="mt-2 mb-4 font-normal text-gray-400 leading-tight">
-              {extractedPackInfo[pack.name]["description"]}
-            </p>
-            {#if extractedPackInfo[pack.name]["tags"].length > 0}
-              <div class="flex flex-row gap-2">
-                {#each extractedPackInfo[pack.name]["tags"] as tag}
-                  <Badge border color={tag_name_to_color(tag)}>{tag}</Badge>
-                {/each}
+        {#if !pack.toBeDeleted}
+          <div class="flex flex-row gap-2 mt-3">
+            <!-- Placeholder image -->
+            <Card
+              img={convertFileSrc(
+                extractedPackInfo[pack.name]["coverImagePath"]
+              )}
+              horizontal
+              class="texture-pack-card max-w-none md:max-w-none basis-full"
+              padding="md"
+            >
+              <div class="flex flex-row mt-auto">
+                <h2 class="text-xl font-bold tracking-tight text-white">
+                  {extractedPackInfo[pack.name]["name"]}
+                  <span class="text-xs text-gray-500" />
+                </h2>
               </div>
-            {/if}
-            <!-- Buttons -->
-            <div class="mt-2 flex flex-row gap-2">
-              <Toggle
-                bind:checked={pack.enabled}
-                class="m-0"
-                color="orange"
-                on:change={() => {
-                  console.log(availablePacks);
-                  console.log(availablePacksOriginal);
-                }}
-              />
-              {#if pack.enabled}
-                {#if packIndex !== 0}
-                  <Button
-                    outline
-                    class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
-                    aria-label="move texture pack up in order"
-                  >
-                    <Icon
-                      icon="material-symbols:arrow-upward"
-                      width="15"
-                      height="15"
-                    />
-                  </Button>
-                {/if}
-                {#if packIndex !== availablePacks.length - 1}
-                  <Button
-                    outline
-                    class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
-                    aria-label="move texture pack down in order"
-                  >
-                    <Icon
-                      icon="material-symbols:arrow-downward"
-                      width="15"
-                      height="15"
-                    />
-                  </Button>
-                {/if}
+              <p class="font-bold text-xs text-gray-500">
+                {extractedPackInfo[pack.name]["version"]} by {extractedPackInfo[
+                  pack.name
+                ]["author"]}
+              </p>
+              <p class="font-bold text-gray-500 text-xs">
+                {extractedPackInfo[pack.name]["releaseDate"]}
+              </p>
+              <p class="font-bold text-gray-500 text-xs">
+                Textures replaced - {num_textures_in_pack(pack.name)}
+              </p>
+              <p class="mt-2 mb-4 font-normal text-gray-400 leading-tight">
+                {extractedPackInfo[pack.name]["description"]}
+              </p>
+              {#if extractedPackInfo[pack.name]["tags"].length > 0}
+                <div class="flex flex-row gap-2">
+                  {#each extractedPackInfo[pack.name]["tags"] as tag}
+                    <Badge border color={tag_name_to_color(tag)}>{tag}</Badge>
+                  {/each}
+                </div>
               {/if}
-              <!-- TODO - implement delete -->
-              <Button
-                outline
-                class="!p-1.5 rounded-md border-red-500 text-red-500 hover:bg-red-600"
-                aria-label="delete texture pack"
-              >
-                <Icon icon="material-symbols:delete" width="15" height="15" />
-              </Button>
-            </div>
-            <!-- double computation, TODO - separate component -->
-            {#if find_pack_conflicts(pack.name).size > 0}
-              <Accordion flush class="mt-2">
-                <AccordionItem paddingFlush="p-2">
-                  <span
-                    slot="header"
-                    class="flex gap-2 text-yellow-300 text-sm"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="w-5 h-5"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                      ><path
-                        fill-rule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                        clip-rule="evenodd"
-                      /></svg
+              <!-- Buttons -->
+              <div class="mt-2 flex flex-row gap-2">
+                <Toggle
+                  bind:checked={pack.enabled}
+                  class="m-0"
+                  color="orange"
+                />
+              </div>
+              <div class="mt-2 flex flex-row gap-2">
+                {#if pack.enabled}
+                  {#if packIndex !== 0}
+                    <Button
+                      outline
+                      class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
+                      aria-label="move texture pack up in order"
+                      on:click={() => {
+                        moveTexturePack(packIndex - 1, packIndex);
+                      }}
                     >
-                    <span> Conflicts Detected!</span>
-                  </span>
-                  <div slot="arrowup" />
-                  <div slot="arrowdown" />
-                  <pre class="mb-2 text-gray-500 dark:text-gray-400 text-xs">{[
-                      ...find_pack_conflicts(pack.name),
-                    ]
-                      .join("\n")
-                      .trim()}</pre>
-                </AccordionItem>
-              </Accordion>
-            {/if}
-          </Card>
-        </div>
+                      <Icon
+                        icon="material-symbols:arrow-upward"
+                        width="15"
+                        height="15"
+                      />
+                    </Button>
+                  {/if}
+                  {#if packIndex !== availablePacks.length - 1}
+                    <Button
+                      outline
+                      class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
+                      aria-label="move texture pack down in order"
+                      on:click={() => {
+                        moveTexturePack(packIndex + 1, packIndex);
+                      }}
+                    >
+                      <Icon
+                        icon="material-symbols:arrow-downward"
+                        width="15"
+                        height="15"
+                      />
+                    </Button>
+                  {/if}
+                {/if}
+                <Button
+                  outline
+                  class="!p-1.5 rounded-md border-red-500 text-red-500 hover:bg-red-600"
+                  aria-label="delete texture pack"
+                  on:click={() => {
+                    pack.toBeDeleted = true;
+                    pack.enabled = false;
+                  }}
+                >
+                  <Icon icon="material-symbols:delete" width="15" height="15" />
+                </Button>
+              </div>
+              <!-- double computation, TODO - separate component -->
+              {#if find_pack_conflicts(pack.name).size > 0}
+                <Accordion flush class="mt-2">
+                  <AccordionItem paddingFlush="p-2">
+                    <span
+                      slot="header"
+                      class="flex gap-2 text-yellow-300 text-sm"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="w-5 h-5"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                        ><path
+                          fill-rule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                          clip-rule="evenodd"
+                        /></svg
+                      >
+                      <span> Conflicts Detected!</span>
+                    </span>
+                    <div slot="arrowup" />
+                    <div slot="arrowdown" />
+                    <pre
+                      class="mb-2 text-gray-500 dark:text-gray-400 text-xs">{[
+                        ...find_pack_conflicts(pack.name),
+                      ]
+                        .join("\n")
+                        .trim()}</pre>
+                  </AccordionItem>
+                </Accordion>
+              {/if}
+            </Card>
+          </div>
+        {/if}
       {/each}
     </div>
   {/if}

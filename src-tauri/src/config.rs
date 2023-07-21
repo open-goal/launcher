@@ -554,10 +554,17 @@ impl LauncherConfig {
     packs: Vec<String>,
   ) -> Result<(), ConfigError> {
     let game_config = self.get_supported_game_config_mut(game_name)?;
-    if let Some(features) = &mut game_config.features {
-      features.texture_packs = packs;
-      self.save_config()?;
+    match &mut game_config.features {
+      Some(features) => {
+        features.texture_packs = packs;
+      }
+      None => {
+        game_config.features = Some(GameFeatureConfig {
+          texture_packs: packs,
+        });
+      }
     }
+    self.save_config()?;
     Ok(())
   }
 }

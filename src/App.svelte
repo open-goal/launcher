@@ -15,7 +15,7 @@
   import { toastStore } from "$lib/stores/ToastStore";
   import { isLoading } from "svelte-i18n";
   import { getLocale, setLocale } from "$lib/rpc/config";
-  import TexturePacks from "./components/games/features/texture-packs/TexturePacks.svelte";
+  import GameFeature from "./routes/GameFeature.svelte";
 
   let revokeSpecificActions = false;
 
@@ -77,8 +77,8 @@
             let:params
           />
           <Route
-            path="/:game_name/features/texture-packs"
-            component={TexturePacks}
+            path="/:game_name/features/:feature"
+            component={GameFeature}
             primary={false}
             let:params
           />

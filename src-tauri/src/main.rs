@@ -162,6 +162,7 @@ fn main() {
       commands::features::update_texture_pack_data,
       commands::features::extract_new_texture_pack,
       commands::features::list_extracted_texture_pack_info,
+      commands::features::delete_texture_packs,
       commands::logging::frontend_log,
       commands::support::generate_support_package,
       commands::versions::download_version,

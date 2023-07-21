@@ -143,6 +143,7 @@
             >{$_("setup_installationFailed")}
           </span><span class="text-white"> {installationError}</span>
         </Alert>
+        <!-- TODO - no button to go back -->
         <Button
           class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
           on:click={async () => await generateSupportPackage()}

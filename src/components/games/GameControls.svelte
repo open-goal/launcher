@@ -64,7 +64,7 @@
     <Dropdown placement="top-end" class="!bg-slate-900">
       <DropdownItem
         on:click={async () => {
-          navigate(`/${getInternalName(activeGame)}/features/texture-packs`);
+          navigate(`/${getInternalName(activeGame)}/features/texture_packs`);
         }}
       >
         Texture Packs
