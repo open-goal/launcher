@@ -15,12 +15,16 @@ import { invoke } from "@tauri-apps/api/tauri";
 
 async function genericLog(level: string, log: String): Promise<void> {
   try {
+    // don't use invoke_rpc here because it will cause an infinite loop!
     return await invoke("frontend_log", {
       level: level,
       log: log,
     });
   } catch (e) {
-    console.log("[OG]: Unexpected error encountered when trying to log", e);
+    console.log(
+      "[opengoal_launcher]: Unexpected error encountered when trying to log",
+      e
+    );
   }
 }
 
@@ -46,6 +50,6 @@ export async function exceptionLog(log: String, error: any): Promise<void> {
       `${log} | Exception: ${error.name}:${error.message}, Stack: ${error.stack}, Cause: ${error.cause}`
     );
   } else {
-    errorLog(error);
+    errorLog(`${log} | ${error}`);
   }
 }
