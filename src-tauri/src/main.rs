@@ -123,7 +123,7 @@ fn main() {
       //
       // This allows us to avoid hacky globals, and pass around information (in this case, the config)
       // to the relevant places
-      let mut config = tokio::sync::Mutex::new(config::LauncherConfig::load_config(
+      let config = tokio::sync::Mutex::new(config::LauncherConfig::load_config(
         app.path_resolver().app_config_dir(),
       ));
       app.manage(config);

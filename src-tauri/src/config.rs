@@ -542,7 +542,7 @@ impl LauncherConfig {
     if let Some(features) = &mut game_config.features {
       features
         .texture_packs
-        .retain(|pack| cleanup_list.contains(pack));
+        .retain(|pack| !cleanup_list.contains(pack));
       self.save_config()?;
     }
     Ok(())

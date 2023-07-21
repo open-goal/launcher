@@ -296,11 +296,15 @@
               {/if}
               <!-- Buttons -->
               <div class="mt-2 flex flex-row gap-2">
-                <Toggle
-                  bind:checked={pack.enabled}
-                  class="m-0"
-                  color="orange"
-                />
+                <Button
+                  size={"xs"}
+                  color={pack.enabled ? "green" : "red"}
+                  on:click={() => {
+                    pack.enabled = !pack.enabled;
+                  }}
+                >
+                  {pack.enabled ? "Enabled" : "Disabled"}
+                </Button>
               </div>
               <div class="mt-2 flex flex-row gap-2">
                 {#if pack.enabled}

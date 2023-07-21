@@ -69,9 +69,6 @@
         "visible": true,
         "focus": true
       }
-    ],
-    "security": {
-      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost"
-    }
+    ]
   }
 }
