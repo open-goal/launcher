@@ -9,7 +9,7 @@
 <!-- TODO - check supported games, not bothering right now cause there's only 1! -->
 
 <script lang="ts">
-  import { fromRoute, getInternalName, SupportedGame } from "$lib/constants";
+  import { getInternalName, SupportedGame } from "$lib/constants";
   import {
     cleanupEnabledTexturePacks,
     getEnabledTexturePacks,
@@ -24,6 +24,7 @@
   import {
     Accordion,
     AccordionItem,
+    Alert,
     Badge,
     Button,
     Card,
@@ -32,7 +33,6 @@
   } from "flowbite-svelte";
   import { createEventDispatcher, onMount } from "svelte";
   import { navigate } from "svelte-navigator";
-  import GameJob from "../../job/GameJob.svelte";
 
   const dispatch = createEventDispatcher();
   export let activeGame: SupportedGame;
@@ -43,6 +43,7 @@
   let availablePacksOriginal = [];
 
   let addingPack = false;
+  let packAddingError = "";
 
   let enabledPacks = [];
   let packsToDelete = [];
@@ -152,6 +153,7 @@
 
   async function addNewTexturePack() {
     addingPack = true;
+    packAddingError = "";
     const texturePackPath = await filePrompt(
       ["zip"],
       "ZIP",
@@ -162,9 +164,11 @@
         getInternalName(activeGame),
         texturePackPath
       );
-      // TODO - display error if `false`
       if (success) {
         await update_pack_list();
+      } else {
+        packAddingError =
+          "Invalid texture pack format, ensure it contains a top-level `texture_replacements` folder.";
       }
     }
     addingPack = false;
@@ -234,6 +238,13 @@
           >
         {/if}
       </div>
+      {#if packAddingError !== ""}
+        <div class="flex flex-row font-bold mt-3">
+          <Alert color="red" class="flex-grow">
+            {packAddingError}
+          </Alert>
+        </div>
+      {/if}
       <div class="flex flex-row font-bold mt-3">
         <h2>Currently Added Packs</h2>
       </div>

@@ -208,7 +208,7 @@ pub async fn extract_new_texture_pack(
       err
     ))
   })?;
-  extract_zip_file(&zip_path_buf, &destination_dir).map_err(|err| {
+  extract_zip_file(&zip_path_buf, &destination_dir, false).map_err(|err| {
     log::error!("Unable to read extract replacement pack: {}", err);
     CommandError::GameFeatures(format!("Unable to extract texture pack: {}", err))
   })?;
