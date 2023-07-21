@@ -4,7 +4,7 @@
     setInstallationDirectory,
   } from "$lib/rpc/config";
   import { VersionStore } from "$lib/stores/VersionStore";
-  import { folderPrompt } from "$lib/utils/file";
+  import { folderPrompt } from "$lib/utils/file-dialogs";
   import { Label, Input } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";

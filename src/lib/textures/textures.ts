@@ -1,4 +1,4 @@
-import { filePrompt } from "$lib/utils/file";
+import { filePrompt } from "$lib/utils/file-dialogs";
 import { path } from "@tauri-apps/api";
 import { copyFile } from "@tauri-apps/api/fs";
 import { appDir, join } from "@tauri-apps/api/path";

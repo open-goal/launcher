@@ -11,7 +11,7 @@
     runCompiler,
     runDecompiler,
   } from "$lib/rpc/binaries";
-  import { folderPrompt, isoPrompt } from "$lib/utils/file";
+  import { folderPrompt, isoPrompt } from "$lib/utils/file-dialogs";
   import {
     finalizeInstallation,
     isAVXRequirementMet,

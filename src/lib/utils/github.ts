@@ -10,30 +10,54 @@ export interface ReleaseInfo {
   pendingAction: boolean;
 }
 
+function isIntelMacOsRelease(
+  platform: string,
+  architecture: string,
+  assetName: string
+): boolean {
+  return (
+    platform === "darwin" &&
+    architecture === "x86_64" &&
+    assetName.startsWith("opengoal-macos-intel-v")
+  );
+}
+
+// TODO - go back and fix old asset names so windows/linux can be simplified
+function isWindowsRelease(
+  platform: string,
+  architecture: string,
+  assetName: string
+): boolean {
+  return (
+    platform === "win32" &&
+    (assetName.startsWith("opengoal-windows-v") ||
+      (assetName.startsWith("opengoal-v") && assetName.includes("windows")))
+  );
+}
+
+function isLinuxRelease(
+  platform: string,
+  architecture: string,
+  assetName: string
+): boolean {
+  return (
+    platform === "linux" &&
+    (assetName.startsWith("opengoal-linux-v") ||
+      (assetName.startsWith("opengoal-v") && assetName.includes("linux")))
+  );
+}
+
 async function getDownloadLinkForCurrentPlatform(
-  release
+  release: any
 ): Promise<string | undefined> {
   const platformName = await platform();
   const archName = await arch();
   for (const asset of release.assets) {
-    if (
-      platformName === "darwin" &&
-      archName === "x86_64" &&
-      asset.name.startsWith("opengoal-macos-intel-v")
-      // macOS doesn't have the old naming scheme
-    ) {
+    if (isIntelMacOsRelease(platformName, archName, asset.name)) {
       return asset.browser_download_url;
-    } else if (
-      platformName === "win32" &&
-      (asset.name.startsWith("opengoal-windows-v") ||
-        (asset.name.startsWith("opengoal-v") && asset.name.includes("windows")))
-    ) {
+    } else if (isWindowsRelease(platformName, archName, asset.name)) {
       return asset.browser_download_url;
-    } else if (
-      platformName === "linux" &&
-      (asset.name.startsWith("opengoal-linux-v") ||
-        (asset.name.startsWith("opengoal-v") && asset.name.includes("linux")))
-    ) {
+    } else if (isLinuxRelease(platformName, archName, asset.name)) {
       return asset.browser_download_url;
     }
   }
@@ -44,7 +68,6 @@ export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
   let releases = [];
   // TODO - handle rate limiting
   // TODO - long term - handle pagination (more than 100 releases)
-  // TODO - even longer term - extract this out into an API we control (avoid github rate limiting) -- will be needed for unofficial releases as well anyway
   const resp = await fetch(
     "https://api.github.com/repos/open-goal/jak-project/releases?per_page=100"
   );
@@ -68,7 +91,6 @@ export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
 
 export async function getLatestOfficialRelease(): Promise<ReleaseInfo> {
   // TODO - handle rate limiting
-  // TODO - even longer term - extract this out into an API we control (avoid github rate limiting) -- will be needed for unofficial releases as well anyway
   const resp = await fetch(
     "https://api.github.com/repos/open-goal/jak-project/releases/latest"
   );

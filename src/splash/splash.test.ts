@@ -8,9 +8,9 @@ import {
 import Splash from "./Splash.svelte";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { mockIPC } from "@tauri-apps/api/mocks";
-import { folderPrompt } from "$lib/utils/file";
+import { folderPrompt } from "$lib/utils/file-dialogs";
 
-vi.mock("$lib/utils/file");
+vi.mock("$lib/utils/file-dialogs");
 
 describe("Splash.svelte", () => {
   // TODO: @testing-library/svelte claims to add this automatically but it doesn't work without explicit afterEach
