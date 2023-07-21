@@ -189,6 +189,51 @@ impl LauncherConfig {
     }
   }
 
+  fn get_supported_game_config_mut(
+    &mut self,
+    game_name: &String,
+  ) -> Result<&mut GameConfig, ConfigError> {
+    let game = match SupportedGame::from_str(game_name) {
+      Err(_) => {
+        log::warn!("Game is not supported: {}", game_name);
+        return Err(ConfigError::Configuration(
+          "Game is not supported".to_owned(),
+        ));
+      }
+      Ok(game) => game,
+    };
+    match self.games.get_mut(&game) {
+      None => {
+        log::error!("Supported game missing from games map: {}", game_name);
+        return Err(ConfigError::Configuration(format!(
+          "Supported game missing from games map: {game_name}"
+        )));
+      }
+      Some(cfg) => Ok(cfg),
+    }
+  }
+
+  fn get_supported_game_config(&mut self, game_name: &String) -> Result<&GameConfig, ConfigError> {
+    let game = match SupportedGame::from_str(game_name) {
+      Err(_) => {
+        log::warn!("Game is not supported: {}", game_name);
+        return Err(ConfigError::Configuration(
+          "Game is not supported".to_owned(),
+        ));
+      }
+      Ok(game) => game,
+    };
+    match self.games.get(&game) {
+      None => {
+        log::error!("Supported game missing from games map: {}", game_name);
+        return Err(ConfigError::Configuration(format!(
+          "Supported game missing from games map: {game_name}"
+        )));
+      }
+      Some(cfg) => Ok(cfg),
+    }
+  }
+
   pub fn load_config(config_dir: Option<std::path::PathBuf>) -> LauncherConfig {
     match config_dir {
       Some(config_dir) => {
@@ -457,6 +502,7 @@ impl LauncherConfig {
   }
 
   pub fn game_enabled_textured_packs(&self, game_name: &String) -> Vec<String> {
+    // TODO - refactor out duplication
     match SupportedGame::from_str(game_name) {
       Ok(game) => {
         // Retrieve relevant game from config
@@ -492,32 +538,25 @@ impl LauncherConfig {
     if !cleanup_list.is_empty() {
       return Ok(());
     }
-    match SupportedGame::from_str(game_name) {
-      Ok(game) => {
-        // Retrieve relevant game from config
-        match self.games.get_mut(&game) {
-          Some(game) => {
-            if let Some(features) = &mut game.features {
-              features
-                .texture_packs
-                .retain(|pack| cleanup_list.contains(pack));
-              self.save_config()?;
-            }
-          }
-          None => {
-            log::warn!(
-              "Could not find game to check which texture packs are enabled: {}",
-              game_name
-            );
-          }
-        }
-      }
-      Err(_) => {
-        log::warn!(
-          "Could not find game to check which texture packs are enabled: {}",
-          game_name
-        );
-      }
+    let game_config = self.get_supported_game_config_mut(game_name)?;
+    if let Some(features) = &mut game_config.features {
+      features
+        .texture_packs
+        .retain(|pack| cleanup_list.contains(pack));
+      self.save_config()?;
+    }
+    Ok(())
+  }
+
+  pub fn set_game_enabled_texture_packs(
+    &mut self,
+    game_name: &String,
+    packs: Vec<String>,
+  ) -> Result<(), ConfigError> {
+    let game_config = self.get_supported_game_config_mut(game_name)?;
+    if let Some(features) = &mut game_config.features {
+      features.texture_packs = packs;
+      self.save_config()?;
     }
     Ok(())
   }

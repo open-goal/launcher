@@ -12,6 +12,7 @@
   import {
     cleanupEnabledTexturePacks,
     getEnabledTexturePacks,
+    setEnabledTexturePacks,
   } from "$lib/rpc/config";
   import {
     extractNewTexturePack,
@@ -176,11 +177,16 @@
     addingPack = false;
   }
 
-  // TODO - if a pack is toggled on, it should be repositioned to the bottom of the available list
   // TODO - implement ordering
 
   async function applyTexturePacks() {
-    // TODO - Update the config with the new list of enabled packs
+    let enabledPacks = [];
+    for (const pack of availablePacks) {
+      if (pack.enabled) {
+        enabledPacks.push(pack.name);
+      }
+    }
+    await setEnabledTexturePacks(getInternalName(activeGame), enabledPacks);
     // TODO - move this into a job
     await updateTexturePackData(getInternalName(activeGame));
   }
@@ -246,7 +252,7 @@
           replace the grass, the first pack in the list takes precedence.
         </p>
       </div>
-      {#each availablePacks as pack}
+      {#each availablePacks as pack, packIndex}
         <div class="flex flex-row gap-2 mt-3">
           <!-- Placeholder image -->
           <Card
@@ -294,28 +300,32 @@
                 }}
               />
               {#if pack.enabled}
-                <Button
-                  outline
-                  class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
-                  aria-label="move texture pack up in order"
-                >
-                  <Icon
-                    icon="material-symbols:arrow-upward"
-                    width="15"
-                    height="15"
-                  />
-                </Button>
-                <Button
-                  outline
-                  class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
-                  aria-label="move texture pack down in order"
-                >
-                  <Icon
-                    icon="material-symbols:arrow-downward"
-                    width="15"
-                    height="15"
-                  />
-                </Button>
+                {#if packIndex !== 0}
+                  <Button
+                    outline
+                    class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
+                    aria-label="move texture pack up in order"
+                  >
+                    <Icon
+                      icon="material-symbols:arrow-upward"
+                      width="15"
+                      height="15"
+                    />
+                  </Button>
+                {/if}
+                {#if packIndex !== availablePacks.length - 1}
+                  <Button
+                    outline
+                    class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
+                    aria-label="move texture pack down in order"
+                  >
+                    <Icon
+                      icon="material-symbols:arrow-downward"
+                      width="15"
+                      height="15"
+                    />
+                  </Button>
+                {/if}
               {/if}
               <!-- TODO - implement delete -->
               <Button

@@ -204,3 +204,17 @@ export async function cleanupEnabledTexturePacks(
     exceptionLog("Unable to cleanup currently enabled texture packs", e);
   }
 }
+
+export async function setEnabledTexturePacks(
+  gameName: string,
+  packs: string[]
+): Promise<void> {
+  try {
+    return await invoke("set_enabled_texture_packs", {
+      gameName: gameName,
+      packs: packs,
+    });
+  } catch (e) {
+    exceptionLog("Unable to set currently enabled texture packs", e);
+  }
+}

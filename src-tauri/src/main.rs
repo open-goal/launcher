@@ -13,7 +13,6 @@ use std::io::Write;
 
 mod commands;
 mod config;
-mod textures;
 mod util;
 
 fn log_crash(panic_info: Option<&std::panic::PanicInfo>, error: Option<tauri::Error>) {
@@ -137,6 +136,7 @@ fn main() {
       commands::binaries::run_compiler,
       commands::binaries::run_decompiler,
       commands::binaries::update_data_directory,
+      commands::config::set_enabled_texture_packs,
       commands::config::delete_old_data_directory,
       commands::config::finalize_installation,
       commands::config::get_active_tooling_version_folder,
