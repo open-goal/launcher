@@ -15,7 +15,8 @@
     "format": "npx prettier --write .",
     "update-release-meta": "node ./scripts/update-release-meta.mjs",
     "release": "npm run tauri build -- --config ./.tauri/release-config.json",
-    "release-id": "node ./scripts/get-release-id.mjs"
+    "release-id": "node ./scripts/get-release-id.mjs",
+    "verify-release-assets": "node ./scripts/verify-release-assets.mjs"
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^5.0.0",
