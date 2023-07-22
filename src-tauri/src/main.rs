@@ -13,7 +13,6 @@ use std::io::Write;
 
 mod commands;
 mod config;
-mod textures;
 mod util;
 
 fn log_crash(panic_info: Option<&std::panic::PanicInfo>, error: Option<tauri::Error>) {
@@ -124,9 +123,10 @@ fn main() {
       //
       // This allows us to avoid hacky globals, and pass around information (in this case, the config)
       // to the relevant places
-      app.manage(tokio::sync::Mutex::new(
-        config::LauncherConfig::load_config(app.path_resolver().app_config_dir()),
+      let config = tokio::sync::Mutex::new(config::LauncherConfig::load_config(
+        app.path_resolver().app_config_dir(),
       ));
+      app.manage(config);
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
@@ -137,6 +137,7 @@ fn main() {
       commands::binaries::run_compiler,
       commands::binaries::run_decompiler,
       commands::binaries::update_data_directory,
+      commands::config::set_enabled_texture_packs,
       commands::config::delete_old_data_directory,
       commands::config::finalize_installation,
       commands::config::get_active_tooling_version_folder,
@@ -155,8 +156,14 @@ fn main() {
       commands::config::set_bypass_requirements,
       commands::config::set_install_directory,
       commands::config::set_locale,
+      commands::config::get_enabled_texture_packs,
+      commands::config::cleanup_enabled_texture_packs,
       commands::game::reset_game_settings,
       commands::game::uninstall_game,
+      commands::features::update_texture_pack_data,
+      commands::features::extract_new_texture_pack,
+      commands::features::list_extracted_texture_pack_info,
+      commands::features::delete_texture_packs,
       commands::logging::frontend_log,
       commands::support::generate_support_package,
       commands::versions::download_version,

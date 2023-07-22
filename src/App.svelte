@@ -7,7 +7,6 @@
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
   import Header from "./components/header/Header.svelte";
-  import Textures from "./routes/Textures.svelte";
   import Update from "./routes/Update.svelte";
   import GameInProgress from "./components/games/GameInProgress.svelte";
   import { isInDebugMode } from "$lib/utils/common";
@@ -16,6 +15,7 @@
   import { toastStore } from "$lib/stores/ToastStore";
   import { isLoading } from "svelte-i18n";
   import { getLocale, setLocale } from "$lib/rpc/config";
+  import GameFeature from "./routes/GameFeature.svelte";
 
   let revokeSpecificActions = false;
 
@@ -77,6 +77,12 @@
             let:params
           />
           <Route
+            path="/:game_name/features/:feature"
+            component={GameFeature}
+            primary={false}
+            let:params
+          />
+          <Route
             path="/jak2"
             component={GameInProgress}
             primary={false}
@@ -89,7 +95,6 @@
             let:params
           />
           <Route path="/faq" component={Help} primary={false} />
-          <Route path="/textures" component={Textures} primary={false} />
           <Route path="/update" component={Update} primary={false} />
         </div>
       </div>

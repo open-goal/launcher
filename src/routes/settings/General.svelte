@@ -63,6 +63,7 @@
   <div>
     <Toggle
       checked={currentBypassRequirementsVal}
+      color="orange"
       on:change={async (evt) => {
         if (evt.target.checked) {
           const confirmed = await confirm(

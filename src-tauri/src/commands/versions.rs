@@ -111,7 +111,7 @@ pub async fn download_version(
     })?;
 
     // Extract the zip file
-    extract_and_delete_zip_file(&download_path, &dest_dir).map_err(|_| {
+    extract_and_delete_zip_file(&download_path, &dest_dir, true).map_err(|_| {
       CommandError::VersionManagement(
         "Unable to successfully extract downloaded version".to_owned(),
       )

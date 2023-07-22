@@ -63,6 +63,7 @@
       >
       <Toggle
         checked={showDependencyChanges}
+        color="orange"
         on:change={(evt) => {
           showDependencyChanges = evt.target.checked;
         }}>{$_("update_button_hideDependencyChanges")}</Toggle

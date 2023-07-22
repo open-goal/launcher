@@ -123,3 +123,55 @@ export async function setBypassRequirements(bypass: boolean): Promise<void> {
 export async function getBypassRequirements(): Promise<boolean> {
   return await invoke_rpc("get_bypass_requirements", {}, () => false);
 }
+
+export async function getEnabledTexturePacks(
+  gameName: string
+): Promise<string[]> {
+  return await invoke_rpc(
+    "get_enabled_texture_packs",
+    { gameName: gameName },
+    () => []
+  );
+}
+
+export async function cleanupEnabledTexturePacks(
+  gameName: string,
+  cleanupList: string[]
+): Promise<void> {
+  return await invoke_rpc(
+    "cleanup_enabled_texture_packs",
+    {
+      gameName: gameName,
+      cleanupList: cleanupList,
+    },
+    () => {}
+  );
+}
+
+// TODO - just make this a generic interface for both binaries/feature jobs
+interface FeatureJobOutput {
+  msg: string | null;
+  success: boolean;
+}
+
+function failed(msg: string): FeatureJobOutput {
+  return { success: false, msg };
+}
+
+export async function setEnabledTexturePacks(
+  gameName: string,
+  packs: string[]
+): Promise<FeatureJobOutput> {
+  return await invoke_rpc(
+    "set_enabled_texture_packs",
+    {
+      gameName: gameName,
+      packs: packs,
+    },
+    () => failed("Failed to update texture pack list"),
+    undefined,
+    () => {
+      return { success: true, msg: null };
+    }
+  );
+}

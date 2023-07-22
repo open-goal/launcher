@@ -16,6 +16,7 @@
   import { platform } from "@tauri-apps/api/os";
   import { launchGame, openREPL } from "$lib/rpc/binaries";
   import { _ } from "svelte-i18n";
+  import { navigate } from "svelte-navigator";
 
   export let activeGame: SupportedGame;
 
@@ -55,20 +56,25 @@
         launchGame(getInternalName(activeGame), false);
       }}>{$_("gameControls_button_play")}</Button
     >
-    <!-- TODO - texture replacements left out for now, get everything else working end-to-end first -->
-    <!-- <Button
-      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-5 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-      ><Chevron placement="top">Features</Chevron></Button
+    <Button
+      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+      >{$_("gameControls_button_features")}</Button
     >
-    <Dropdown placement="top-end">
-      <DropdownItem>Texture&nbsp;Replacements</DropdownItem>
-    </Dropdown> -->
+    <Dropdown placement="top-end" class="!bg-slate-900">
+      <DropdownItem
+        on:click={async () => {
+          navigate(`/${getInternalName(activeGame)}/features/texture_packs`);
+        }}
+      >
+        {$_("gameControls_button_features_textures")}
+      </DropdownItem>
+    </Dropdown>
     <Button
       class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
     >
       {$_("gameControls_button_advanced")}
     </Button>
-    <Dropdown placement="top-end" frameClass="!bg-slate-900">
+    <Dropdown placement="top-end" class="!bg-slate-900">
       <DropdownItem
         on:click={async () => {
           launchGame(getInternalName(activeGame), true);
@@ -112,7 +118,7 @@
     >
       <Icon icon="material-symbols:settings" width={24} height={24} />
     </Button>
-    <Dropdown placement="top-end" frameClass="!bg-slate-900">
+    <Dropdown placement="top-end" class="!bg-slate-900">
       <!-- TODO - screenshot folder? how do we even configure where those go? -->
       <DropdownItem
         on:click={async () => {

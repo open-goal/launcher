@@ -48,6 +48,10 @@
           "$APP/**/*",
           "$RESOURCE/**/*"
         ]
+      },
+      "protocol": {
+        "asset": true,
+        "assetScope": ["**"]
       }
     },
     "windows": [
@@ -65,9 +69,6 @@
         "visible": true,
         "focus": true
       }
-    ],
-    "security": {
-      "csp": null
-    }
+    ]
   }
 }
