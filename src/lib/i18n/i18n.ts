@@ -4,6 +4,7 @@ interface Locale {
   id: string;
   flag: string;
   localizedName: string;
+  fontFamily?: string;
 }
 
 // https://omniglot.com/language/names.htm
@@ -17,6 +18,7 @@ export const AVAILABLE_LOCALES: Locale[] = [
     id: "ar-SA",
     flag: "🇸🇦",
     localizedName: "العربية الفصحى",
+    fontFamily: "Noto Sans Arabic",
   },
   {
     id: "ca-ES",
@@ -82,6 +84,7 @@ export const AVAILABLE_LOCALES: Locale[] = [
     id: "ja-JP",
     flag: "🇯🇵",
     localizedName: "日本語",
+    fontFamily: "Noto Sans JP",
   },
   {
     id: "ko-KR",
