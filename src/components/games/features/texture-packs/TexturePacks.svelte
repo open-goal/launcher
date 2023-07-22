@@ -165,7 +165,23 @@
         texturePackPath
       );
       if (success) {
+        // if the user made any changes, attempt to restore them after
+        let preexistingChanges = undefined;
+        if (pending_changes(availablePacks, availablePacksOriginal)) {
+          preexistingChanges = JSON.parse(JSON.stringify(availablePacks));
+        }
         await update_pack_list();
+        if (preexistingChanges !== undefined) {
+          for (const preexisingPack of preexistingChanges) {
+            for (const pack of availablePacks) {
+              if (pack.name === preexisingPack.name) {
+                pack.enabled = preexisingPack.enabled;
+                pack.toBeDeleted = preexisingPack.toBeDeleted;
+              }
+            }
+          }
+          availablePacks = availablePacks;
+        }
       } else {
         packAddingError = $_("features_textures_invalidPack");
       }
