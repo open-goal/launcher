@@ -1,0 +1,72 @@
+@font-face {
+  font-family: "Noto Sans";
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Thin.ttf");
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: "Noto Sans";
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-ExtraLight.ttf");
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: "Noto Sans";
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Light.ttf");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "Noto Sans";
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Regular.ttf");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Noto Sans";
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Medium.ttf");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "Noto Sans";
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-SemiBold.ttf");
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "Noto Sans";
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Bold.ttf");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Noto Sans";
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-ExtraBold.ttf");
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: "Noto Sans";
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Black.ttf");
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: "Noto Sans Mono";
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSansMono-VariableFont.ttf");
+}
+
+@font-face {
+  font-family: "Noto Sans Arabic";
+  src: url("/src/assets/fonts/Noto Sans/NotoSansArabic-VariableFont.ttf");
+}
+
+@font-face {
+  font-family: "Noto Sans JP";
+  src: url("/src/assets/fonts/Noto Sans/NotoSansJP-VariableFont.ttf");
+}
+
+.font-mono {
+  font-family: "Noto Sans Mono", monospace !important;
+}

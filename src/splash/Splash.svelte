@@ -177,16 +177,6 @@
 </div>
 
 <style>
-  @font-face {
-    font-family: "Roboto Mono";
-    src: url("/src/assets/fonts/Roboto_Mono/static/RobotoMono-Regular.ttf");
-  }
-  @font-face {
-    font-family: "Roboto Mono";
-    src: url("/src/assets/fonts/Roboto_Mono/static/RobotoMono-Bold.ttf");
-    font-weight: 700;
-  }
-
   .content {
     color: white;
     height: 100%;
@@ -198,7 +188,7 @@
     height: 35%;
     align-items: center;
     justify-content: center;
-    font-family: "Twemoji Country Flags", "Roboto Mono", monospace;
+    font-family: "Twemoji Country Flags", "Noto Sans Mono", monospace;
     font-size: 10pt;
     text-align: center;
     padding-left: 10px;

@@ -3,6 +3,7 @@ import { locale as svelteLocale } from "svelte-i18n";
 import { errorLog } from "./logging";
 import { invoke_rpc } from "./rpc";
 import type { VersionFolders } from "./versions";
+import { AVAILABLE_LOCALES } from "$lib/i18n/i18n";
 
 export async function oldDataDirectoryExists(): Promise<boolean> {
   return await invoke_rpc("has_old_data_directory", {}, () => false);
@@ -104,14 +105,29 @@ export async function getLocale(): Promise<string | null> {
   return await invoke_rpc("get_locale", {}, () => "en-US");
 }
 
-export async function setLocale(locale: string): Promise<void> {
+export async function setLocale(localeId: string): Promise<void> {
   return await invoke_rpc(
     "set_locale",
-    { locale },
+    { locale: localeId },
     () => {},
     null, // no toast
     () => {
-      svelteLocale.set(locale);
+      svelteLocale.set(localeId);
+      // Update CSS variable if needed
+      let localeInfo = AVAILABLE_LOCALES.find(
+        (locale) => locale.id === localeId
+      );
+      if (localeInfo !== undefined && localeInfo.fontFamily !== undefined) {
+        document.documentElement.style.setProperty(
+          "--launcher-font-family",
+          localeInfo.fontFamily
+        );
+      } else {
+        document.documentElement.style.setProperty(
+          "--launcher-font-family",
+          "Noto Sans"
+        );
+      }
     }
   );
 }
