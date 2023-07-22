@@ -97,7 +97,7 @@
         href="/settings/general"
         use:link
       >
-        <IconCog style="font-size: 36px"/>
+        <IconCog style="font-size: 36px" />
         <Tooltip placement="right" style="dark"
           >{$_("sidebar_settings")}</Tooltip
         >
@@ -110,7 +110,7 @@
         href="/faq"
         use:link
       >
-        <IconChatQuestion style="font-size: 36px"/>
+        <IconChatQuestion style="font-size: 36px" />
         <Tooltip placement="right" style="dark">{$_("sidebar_help")}</Tooltip>
       </a>
     </li>

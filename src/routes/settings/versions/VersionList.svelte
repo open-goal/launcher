@@ -73,9 +73,7 @@
             class="!p-2 mr-2 rounded-md dark:bg-green-500 hover:dark:bg-green-600 text-slate-900"
             on:click={() => dispatch("versionChange")}
           >
-            <IconSave
-              aria-label={$_("settings_versions_icon_save_altText")}
-            />
+            <IconSave aria-label={$_("settings_versions_icon_save_altText")} />
           </Button>
         {/if}
         <Button
@@ -178,9 +176,7 @@
                   {#if release.pendingAction}
                     <Spinner color="yellow" size={"6"} />
                   {:else}
-                    <IconRefresh
-                      aria-label="Redownload Version"
-                    />
+                    <IconRefresh aria-label="Redownload Version" />
                   {/if}
                 </Button>
               {/if}

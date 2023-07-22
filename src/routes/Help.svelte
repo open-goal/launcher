@@ -65,9 +65,7 @@
       target="_blank"
       rel="noreferrer noopener"
     >
-      <IconGitHub />&nbsp;{$_(
-        "help_button_reportLauncherIssue"
-      )}
+      <IconGitHub />&nbsp;{$_("help_button_reportLauncherIssue")}
     </Button>
     <Button
       class="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
@@ -75,9 +73,7 @@
       target="_blank"
       rel="noreferrer noopener"
     >
-      <IconGitHub />&nbsp;{$_(
-        "help_button_reportGameIssue"
-      )}
+      <IconGitHub />&nbsp;{$_("help_button_reportGameIssue")}
     </Button>
   </div>
   <div class="flex mt-auto justify-end">
