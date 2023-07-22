@@ -1,4 +1,4 @@
-name: Kick off Release
+name: 🏭 Create Release
 
 on:
   workflow_dispatch:
@@ -13,14 +13,18 @@ on:
           - "minor"
           - "major"
 
+permissions:
+  contents: write
+
 jobs:
-  kick-off-release:
+  create-tag:
     if: github.repository == 'open-goal/launcher'
+    name: "Create New Tag"
     runs-on: ubuntu-latest
+    outputs:
+      tag_ref: ${{ steps.version_bump.outputs.new_tag }}
     steps:
       - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.BOT_PAT }}
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -34,7 +38,7 @@ jobs:
           toolchain: stable
 
       - name: Bump Version
-        id: version-bump
+        id: version_bump
         run: |
           yarn version --${{ github.event.inputs.bump }} --no-git-tag-version
           NEW_VERSION=$(awk '/version/{gsub(/("|",)/,"",$2);print $2}' package.json)
@@ -42,14 +46,160 @@ jobs:
           sed -i "/\"version\":/c\    \"version\": \""$NEW_VERSION"\"" ./src-tauri/tauri.conf.json
           cd ./src-tauri
           cargo generate-lockfile
-          echo "##[set-output name=new_version;]${NEW_VERSION}"
+          echo "new_tag=v${NEW_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Commit Version Bump
         uses: EndBug/add-and-commit@v9
-        if: github.event_name != 'repository_dispatch'
         with:
           default_author: github_actor
           author_name: "OpenGOALBot"
           author_email: "OpenGOALBot@users.noreply.github.com"
           message: "release: bump to version - ${{ steps.version-bump.outputs.new_version }}"
-          tag: "v${{ steps.version-bump.outputs.new_version }}"
+          tag: "${{ steps.version_bump.outputs.new_tag }}"
+
+  create-release:
+    needs: [create-tag]
+    if: github.repository == 'open-goal/launcher'
+    name: "Create Release"
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.get_release_id.outputs.release_id }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: "main"
+
+      # Create the release, use `gh` CLI so we can auto generate the notes
+      - name: Create Release
+        run: |
+          gh release create ${{needs.create-tag.outputs.new_tag}} --generate-notes --draft --repo open-goal/launcher
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: yarn
+
+      - name: Install NPM Dependencies
+        run: |
+          yarn install --frozen-lockfile
+
+      # Get the internal ID of the release so that Tauri's action can use it to upload assets
+      - name: Get Release ID
+        id: get_release_id
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_ID=$(TAG_NAME="${{needs.create-tag.outputs.new_tag}}" yarn --silent release-id)
+          echo "release_id=${RELEASE_ID}" >> $GITHUB_OUTPUT
+
+  build-app:
+    if: github.repository == 'open-goal/launcher'
+    needs: [create-release]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: ubuntu-20.04
+            os: linux
+          - platform: windows-latest
+            os: windows
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: yarn
+
+      - name: Install Rust Stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - uses: Swatinem/rust-cache@v2
+        name: Cache Rust Build
+        with:
+          shared-key: tauri-build-${{ matrix.platform }}
+          workspaces: src-tauri
+
+      - name: Install Linux Dependencies
+        if: matrix.platform == 'ubuntu-20.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install NPM Dependencies
+        run: |
+          yarn install --frozen-lockfile
+          yarn build
+
+      - uses: tauri-apps/tauri-action@v0
+        name: Build Tauri App
+        timeout-minutes: 30
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        with:
+          args: "--config ./.tauri/release-config.json"
+          releaseId: ${{needs.create-release.outputs.release_id}}
+
+  verify-release:
+    if: github.repository == 'open-goal/launcher'
+    needs: [create-release, build-app]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: "main"
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: yarn
+
+      - name: Install NPM Dependencies
+        run: |
+          yarn install --frozen-lockfile
+
+      # Get the internal ID of the release so that Tauri's action can use it to upload assets
+      - name: Verify Release Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_ID: ${{needs.create-release.outputs.release_id}}
+          EXPECTED_ASSET_NAME_REGEXES: '[".*AppImage", ".*AppImage.tar.gz", ".*AppImage.tar.gz.sig", ".*msi", ".*AppImage.msi.zip", ".*msi.zip.sig", "latest.json"]'
+        run: yarn verify-release-assets
+
+  publish-release:
+    if: github.repository == 'open-goal/launcher'
+    needs: [create-release, build-app, verify-release]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: yarn
+
+      - name: update release metadata and publish the release
+        env:
+          RELEASE_ID: ${{needs.create-release.outputs.release_id}}
+        run: |
+          yarn install --frozen-lockfile
+          yarn update-release-meta
+
+      - name: commit release metadata change
+        uses: EndBug/add-and-commit@v9
+        with:
+          default_author: github_actor
+          author_name: "OpenGOALBot"
+          author_email: "OpenGOALBot@users.noreply.github.com"
+          message: "release: update release metadata to latest"
