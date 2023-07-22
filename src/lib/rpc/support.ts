@@ -1,4 +1,4 @@
-import { saveFilePrompt } from "$lib/utils/file";
+import { saveFilePrompt } from "$lib/utils/file-dialogs";
 import { invoke_rpc } from "./rpc";
 
 export async function generateSupportPackage(): Promise<void> {

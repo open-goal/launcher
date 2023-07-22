@@ -18,7 +18,7 @@
     extractNewTexturePack,
     listExtractedTexturePackInfo,
   } from "$lib/rpc/features";
-  import { filePrompt } from "$lib/utils/file";
+  import { filePrompt } from "$lib/utils/file-dialogs";
   import Icon from "@iconify/svelte";
   import { convertFileSrc } from "@tauri-apps/api/tauri";
   import {
