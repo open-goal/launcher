@@ -3,7 +3,7 @@
     progressTracker,
     type ProgressStatus,
   } from "$lib/stores/ProgressStore";
-  import Icon from "@iconify/svelte";
+  import ProgressIcon from "./ProgressIcon.svelte";
 
   $: progress = $progressTracker;
 
@@ -12,37 +12,6 @@
   const stepLabelStyle = "text-center text-outline font-semibold";
   const progressBarContainerStyle =
     "w-full rounded items-center align-middle align-center flex-1";
-
-  // TODO - this pattern indicates these should probably be their own components...
-  function progressIcon(currentStatus: ProgressStatus) {
-    if (currentStatus === "success") {
-      return "material-symbols:check";
-    } else if (currentStatus === "pending") {
-      return "mdi:dots-horizontal";
-    } else if (currentStatus === "failed") {
-      return "mdi:stop-alert";
-    }
-    return "mdi:hourglass";
-  }
-
-  function progressIconStyle(currentStatus: ProgressStatus) {
-    let style = "";
-    if (currentStatus === "pending") {
-      style += " animate-pulse";
-    }
-    return style;
-  }
-
-  function progressIconColor(currentStatus: ProgressStatus) {
-    if (currentStatus === "success") {
-      return "#22c55e";
-    } else if (currentStatus === "pending") {
-      return "#facc15";
-    } else if (currentStatus === "failed") {
-      return "#ef4444";
-    }
-    return "#737373";
-  }
 
   function progressBarStyle(currentStatus: ProgressStatus) {
     let style = "w-full py-1 rounded";
@@ -78,13 +47,7 @@
           {/if}
           <!-- ICON -->
           <div class={iconContainerStyle}>
-            <Icon
-              class={progressIconStyle(step.status)}
-              icon={progressIcon(step.status)}
-              color={progressIconColor(step.status)}
-              width={28}
-              height={28}
-            />
+            <ProgressIcon status={step.status} />
           </div>
         </div>
         <!-- LABEL -->
