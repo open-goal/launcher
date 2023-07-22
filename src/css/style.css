@@ -76,3 +76,9 @@ body {
 .texture-pack-card img {
   object-fit: contain;
 }
+
+.truncate-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

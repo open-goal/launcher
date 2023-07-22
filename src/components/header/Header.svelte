@@ -101,23 +101,29 @@
   class="flex flex-row basis-1/10 bg-[#101010] pl-2 pr-4 pt-1 pb-1 items-center z-10"
   data-tauri-drag-region
 >
-  <div class="flex flex-row items-center space-x-2 pointer-events-none">
-    <img class="h-8" src={logo} aria-label="" />
+  <div
+    class="flex flex-row shrink-0 items-center space-x-2 pointer-events-none"
+  >
+    <img
+      class="h-8"
+      src={logo}
+      alt="OpenGOAL logo"
+      aria-label="OpenGOAL logo"
+    />
     <p class="font-black text-white tracking-tight text-lg">OpenGOAL</p>
   </div>
-
-  <div class="border-l border-[#9f9f9f] h-8 m-2" />
-
-  <div class="flex flex-col text-neutral-500 mr-2 pointer-events-none">
+  <div class="border-l shrink-0 border-[#9f9f9f] h-8 m-2" />
+  <div class="flex flex-col shrink-0 text-neutral-500 mr-2 pointer-events-none">
     <p class="font-mono text-sm">Launcher</p>
     <p class="font-mono text-sm">Tooling</p>
   </div>
-
-  <div class="flex flex-col text-neutral-300 mr-2 pointer-events-none">
-    <p class="font-mono text-sm">
+  <div
+    class="flex flex-col text-neutral-300 mr-2 pointer-events-none max-w-[250px]"
+  >
+    <p class="font-mono text-sm truncate-text">
       {launcherVerison === null ? "not set!" : launcherVerison}
     </p>
-    <p class="font-mono text-sm">
+    <p class="font-mono text-sm truncate-text">
       {$VersionStore.activeVersionName === null
         ? "not set!"
         : $VersionStore.activeVersionName}
@@ -128,11 +134,12 @@
       {/if}
     </p>
   </div>
-
-  <div class="flex flex-col text-orange-500 pointer-events-none">
+  <div
+    class="flex flex-col text-orange-500 pointer-events-none overflow-hidden"
+  >
     <p
-      class="font-mono text-sm hover:text-orange-300 {$UpdateStore.launcher
-        .updateAvailable
+      class="font-mono text-sm truncate-text hover:text-orange-300 {$UpdateStore
+        .launcher.updateAvailable
         ? 'pointer-events-auto'
         : 'invisible pointer-events-none'}"
     >
@@ -141,7 +148,7 @@
       >
     </p>
     <p
-      class="font-mono text-sm hover:text-orange-300 {$UpdateStore
+      class="font-mono text-sm truncate-text hover:text-orange-300 {$UpdateStore
         .selectedTooling.updateAvailable
         ? 'pointer-events-auto'
         : 'invisible pointer-events-none'}"
@@ -151,8 +158,7 @@
       >
     </p>
   </div>
-
-  <div class="flex space-x-4 text-xl ml-auto">
+  <div class="flex shrink-0 space-x-4 text-xl ml-auto">
     <button class="hover:text-amber-600" on:click={() => appWindow.minimize()}>
       <IconWindowMinimize />
     </button>
