@@ -11,13 +11,12 @@
     DropdownItem,
     DropdownDivider,
     Helper,
-    Chevron,
   } from "flowbite-svelte";
   import { resetGameSettings, uninstallGame } from "$lib/rpc/game";
   import { platform } from "@tauri-apps/api/os";
   import { launchGame, openREPL } from "$lib/rpc/binaries";
   import { _ } from "svelte-i18n";
-  import { Link, navigate } from "svelte-navigator";
+  import { navigate } from "svelte-navigator";
 
   export let activeGame: SupportedGame;
 
@@ -59,7 +58,7 @@
     >
     <Button
       class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-      >Features</Button
+      >{$_("gameControls_button_features")}</Button
     >
     <Dropdown placement="top-end" class="!bg-slate-900">
       <DropdownItem
@@ -67,7 +66,7 @@
           navigate(`/${getInternalName(activeGame)}/features/texture_packs`);
         }}
       >
-        Texture Packs
+        {$_("gameControls_button_features_textures")}
       </DropdownItem>
     </Dropdown>
     <Button

@@ -29,10 +29,10 @@
     Button,
     Card,
     Spinner,
-    Toggle,
   } from "flowbite-svelte";
   import { createEventDispatcher, onMount } from "svelte";
   import { navigate } from "svelte-navigator";
+  import { _ } from "svelte-i18n";
 
   const dispatch = createEventDispatcher();
   export let activeGame: SupportedGame;
@@ -167,8 +167,7 @@
       if (success) {
         await update_pack_list();
       } else {
-        packAddingError =
-          "Invalid texture pack format, ensure it contains a top-level `texture_replacements` folder.";
+        packAddingError = $_("features_textures_invalidPack");
       }
     }
     addingPack = false;
@@ -228,13 +227,14 @@
           {#if addingPack}
             <Spinner class="mr-3" size="4" color="white" />
           {/if}
-          Add New Pack</Button
+          {$_("features_textures_addNewPack")}</Button
         >
         {#if pending_changes(availablePacks, availablePacksOriginal)}
           <Button
             class="flex-shrink border-solid rounded bg-green-400 hover:bg-green-500 text-sm text-slate-900 font-semibold px-5 py-2"
             on:click={applyTexturePacks}
-            aria-label="apply texture changes">Apply Texture Changes</Button
+            aria-label="apply texture changes"
+            >{$_("features_textures_applyChanges")}</Button
           >
         {/if}
       </div>
@@ -246,13 +246,11 @@
         </div>
       {/if}
       <div class="flex flex-row font-bold mt-3">
-        <h2>Currently Added Packs</h2>
+        <h2>{$_("features_textures_listHeading")}</h2>
       </div>
       <div class="flex flex-row text-sm">
         <p>
-          You can enable as many packs as you want, but if multiple packs
-          replace the same file the order matters. For example if two packs
-          replace the grass, the first pack in the list will take precedence.
+          {$_("features_textures_description")}
         </p>
       </div>
       {#each availablePacks as pack, packIndex}
@@ -282,7 +280,9 @@
                 {extractedPackInfo[pack.name]["releaseDate"]}
               </p>
               <p class="font-bold text-gray-500 text-xs">
-                Textures replaced - {num_textures_in_pack(pack.name)}
+                {$_("features_textures_replacedCount")} - {num_textures_in_pack(
+                  pack.name
+                )}
               </p>
               <p class="mt-2 mb-4 font-normal text-gray-400 leading-tight">
                 {extractedPackInfo[pack.name]["description"]}
@@ -303,7 +303,9 @@
                     pack.enabled = !pack.enabled;
                   }}
                 >
-                  {pack.enabled ? "Enabled" : "Disabled"}
+                  {pack.enabled
+                    ? $_("features_textures_enabled")
+                    : $_("features_textures_disabled")}
                 </Button>
               </div>
               <div class="mt-2 flex flex-row gap-2">
@@ -373,7 +375,7 @@
                           clip-rule="evenodd"
                         /></svg
                       >
-                      <span> Conflicts Detected!</span>
+                      <span> {$_("features_textures_conflictsDetected")}</span>
                     </span>
                     <div slot="arrowup" />
                     <div slot="arrowdown" />
