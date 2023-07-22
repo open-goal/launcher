@@ -4,7 +4,8 @@
   import { onMount } from "svelte";
   import { getVersion } from "@tauri-apps/api/app";
   import { Link } from "svelte-navigator";
-  import Icon from "@iconify/svelte";
+  import IconWindowMinimize from "~icons/mdi/window-minimize";
+  import IconWindowClose from "~icons/mdi/window-close";
   import { UpdateStore } from "$lib/stores/AppStore";
   import { checkUpdate } from "@tauri-apps/api/updater";
   import { isInDebugMode } from "$lib/utils/common";
@@ -153,10 +154,10 @@
 
   <div class="flex space-x-4 text-xl ml-auto">
     <button class="hover:text-amber-600" on:click={() => appWindow.minimize()}>
-      <Icon icon="material-symbols:chrome-minimize" width="24" height="24" />
+      <IconWindowMinimize />
     </button>
     <button class="hover:text-red-600" on:click={() => appWindow.close()}>
-      <Icon icon="ic:baseline-close" width="24" height="24" />
+      <IconWindowClose />
     </button>
   </div>
 </header>

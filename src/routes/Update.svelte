@@ -13,7 +13,7 @@
     Toggle,
   } from "flowbite-svelte";
   import { UpdateStore } from "$lib/stores/AppStore";
-  import Icon from "@iconify/svelte";
+  import IconGitHub from "~icons/mdi/github";
   import { _ } from "svelte-i18n";
 
   $: launcherUpdateInfo = $UpdateStore?.launcher;
@@ -106,13 +106,9 @@
                   href={note.pullRequestUrl}
                   target="_blank"
                   rel="noreferrer"
-                  ><Icon
-                    class="inline"
-                    icon="mdi:github"
-                    width="24"
-                    height="24"
-                  /></a
                 >
+                  <IconGitHub />
+                </a>
               </TableBodyCell>
             </TableBodyRow>
           {/each}

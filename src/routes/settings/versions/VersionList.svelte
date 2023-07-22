@@ -5,7 +5,12 @@
     type VersionStoreIFace,
   } from "$lib/stores/VersionStore";
   import type { ReleaseInfo } from "$lib/utils/github";
-  import Icon from "@iconify/svelte";
+  import IconSave from "~icons/mdi/content-save";
+  import IconRefresh from "~icons/mdi/refresh";
+  import IconFolderOpen from "~icons/mdi/folder-open";
+  import IconGitHub from "~icons/mdi/github";
+  import IconDownload from "~icons/mdi/download";
+  import IconDeleteForever from "~icons/mdi/delete-forever";
   import {
     Button,
     Radio,
@@ -68,10 +73,7 @@
             class="!p-2 mr-2 rounded-md dark:bg-green-500 hover:dark:bg-green-600 text-slate-900"
             on:click={() => dispatch("versionChange")}
           >
-            <Icon
-              icon="material-symbols:save"
-              width="20"
-              height="20"
+            <IconSave
               aria-label={$_("settings_versions_icon_save_altText")}
             />
           </Button>
@@ -80,10 +82,7 @@
           class="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
           on:click={() => dispatch("refreshVersions")}
         >
-          <Icon
-            icon="material-symbols:refresh"
-            width="20"
-            height="20"
+          <IconRefresh
             aria-label={$_("settings_versions_icon_refresh_altText")}
           />
         </Button>
@@ -91,10 +90,7 @@
           class="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600  text-slate-900"
           on:click={() => dispatch("openVersionFolder")}
         >
-          <Icon
-            icon="material-symbols:folder-open-rounded"
-            width="20"
-            height="20"
+          <IconFolderOpen
             aria-label={$_("settings_versions_icon_openFolder_altText")}
           />
         </Button>
@@ -151,10 +147,7 @@
                 }}
               >
                 {#if release.isDownloaded}
-                  <Icon
-                    icon="ic:baseline-delete-forever"
-                    width="24"
-                    height="24"
+                  <IconDeleteForever
                     color="red"
                     aria-label={$_(
                       "settings_versions_icon_removeVersion_altText"
@@ -163,11 +156,8 @@
                 {:else if release.pendingAction}
                   <Spinner color="yellow" size={"6"} />
                 {:else if release.releaseType === "official" && release.downloadUrl !== undefined}
-                  <Icon
-                    icon="ic:baseline-download"
+                  <IconDownload
                     color="#00d500"
-                    width="24"
-                    height="24"
                     aria-label={$_(
                       "settings_versions_icon_downloadVersion_altText"
                     )}
@@ -188,11 +178,7 @@
                   {#if release.pendingAction}
                     <Spinner color="yellow" size={"6"} />
                   {:else}
-                    <Icon
-                      icon="ic:baseline-refresh"
-                      color="#f5c842"
-                      width="24"
-                      height="24"
+                    <IconRefresh
                       aria-label="Redownload Version"
                     />
                   {/if}
@@ -214,16 +200,13 @@
                   href={release.githubLink}
                   target="_blank"
                   rel="noreferrer"
-                  ><Icon
-                    class="inline"
-                    icon="mdi:github"
-                    width="24"
-                    height="24"
+                >
+                  <IconGitHub
                     aria-label={$_(
                       "settings_versions_icon_githubRelease_altText"
                     )}
-                  /></a
-                >
+                  />
+                </a>
               {/if}
             </TableBodyCell>
           </TableBodyRow>

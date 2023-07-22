@@ -19,7 +19,10 @@
     listExtractedTexturePackInfo,
   } from "$lib/rpc/features";
   import { filePrompt } from "$lib/utils/file-dialogs";
-  import Icon from "@iconify/svelte";
+  import IconArrowLeft from "~icons/mdi/arrow-left";
+  import IconArrowUp from "~icons/mdi/arrow-up";
+  import IconArrowDown from "~icons/mdi/arrow-down";
+  import IconDelete from "~icons/mdi/delete";
   import { convertFileSrc } from "@tauri-apps/api/tauri";
   import {
     Accordion,
@@ -228,12 +231,9 @@
           on:click={async () =>
             navigate(`/${getInternalName(activeGame)}`, { replace: true })}
           aria-label="back to game page"
-          ><Icon
-            icon="material-symbols:arrow-left-alt"
-            width="20"
-            height="20"
-          /></Button
         >
+          <IconArrowLeft />
+        </Button>
         <Button
           class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
           on:click={addNewTexturePack}
@@ -335,11 +335,7 @@
                         moveTexturePack(packIndex - 1, packIndex);
                       }}
                     >
-                      <Icon
-                        icon="material-symbols:arrow-upward"
-                        width="15"
-                        height="15"
-                      />
+                      <IconArrowUp />
                     </Button>
                   {/if}
                   {#if packIndex !== availablePacks.length - 1}
@@ -351,11 +347,7 @@
                         moveTexturePack(packIndex + 1, packIndex);
                       }}
                     >
-                      <Icon
-                        icon="material-symbols:arrow-downward"
-                        width="15"
-                        height="15"
-                      />
+                      <IconArrowDown />
                     </Button>
                   {/if}
                 {/if}
@@ -368,7 +360,7 @@
                     pack.enabled = false;
                   }}
                 >
-                  <Icon icon="material-symbols:delete" width="15" height="15" />
+                  <IconDelete />
                 </Button>
               </div>
               <!-- double computation, TODO - separate component -->

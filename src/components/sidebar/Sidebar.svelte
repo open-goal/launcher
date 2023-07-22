@@ -1,7 +1,8 @@
 <script lang="ts">
   import logoJak1 from "$assets/images/jak-tpl.webp";
   import logoJak2 from "$assets/images/jak-2.webp";
-  import Icon from "@iconify/svelte";
+  import IconCog from "~icons/mdi/cog";
+  import IconChatQuestion from "~icons/mdi/chat-question";
   import { link, useLocation } from "svelte-navigator";
   import { Tooltip } from "flowbite-svelte";
   import { SupportedGame, getInternalName } from "$lib/constants";
@@ -96,7 +97,7 @@
         href="/settings/general"
         use:link
       >
-        <Icon icon="material-symbols:settings" width={36} height={36} />
+        <IconCog style="font-size: 36px"/>
         <Tooltip placement="right" style="dark"
           >{$_("sidebar_settings")}</Tooltip
         >
@@ -109,7 +110,7 @@
         href="/faq"
         use:link
       >
-        <Icon icon="material-symbols:contact-support" width={36} height={36} />
+        <IconChatQuestion style="font-size: 36px"/>
         <Tooltip placement="right" style="dark">{$_("sidebar_help")}</Tooltip>
       </a>
     </li>
