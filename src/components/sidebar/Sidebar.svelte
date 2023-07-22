@@ -57,7 +57,7 @@
 </script>
 
 <div class={getNavStyle($location.pathname)}>
-  <ul class="flex flex-col space-y-12 px-1 py-5">
+  <ul class="flex flex-col h-full space-y-10 px-1 py-5 items-center">
     <li>
       <a
         class={getNavItemStyle("jak1", $location.pathname)}
@@ -91,7 +91,7 @@
         >
       </a>
     </li>
-    <li class="fixed bottom-24 left-6">
+    <li class="!mt-auto">
       <a
         class={getNavItemStyle("settings", $location.pathname)}
         href="/settings/general"
@@ -104,7 +104,7 @@
       </a>
     </li>
 
-    <li class="fixed bottom-5 left-6">
+    <li>
       <a
         class={getNavItemStyle("faq", $location.pathname)}
         href="/faq"
