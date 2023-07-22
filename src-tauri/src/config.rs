@@ -96,10 +96,25 @@ impl Serialize for SupportedGame {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct GameFeatureConfig {
+  pub texture_packs: Vec<String>,
+}
+
+impl GameFeatureConfig {
+  fn default() -> Self {
+    Self {
+      texture_packs: vec![],
+    }
+  }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GameConfig {
   pub is_installed: bool,
   pub version: Option<String>,
   pub version_folder: Option<String>,
+  pub features: Option<GameFeatureConfig>,
 }
 
 impl GameConfig {
@@ -108,6 +123,7 @@ impl GameConfig {
       is_installed: false,
       version: None,
       version_folder: None,
+      features: Some(GameFeatureConfig::default()),
     }
   }
 }
@@ -170,6 +186,51 @@ impl LauncherConfig {
       active_version: None,
       active_version_folder: Some("official".to_string()),
       locale: None,
+    }
+  }
+
+  fn get_supported_game_config_mut(
+    &mut self,
+    game_name: &String,
+  ) -> Result<&mut GameConfig, ConfigError> {
+    let game = match SupportedGame::from_str(game_name) {
+      Err(_) => {
+        log::warn!("Game is not supported: {}", game_name);
+        return Err(ConfigError::Configuration(
+          "Game is not supported".to_owned(),
+        ));
+      }
+      Ok(game) => game,
+    };
+    match self.games.get_mut(&game) {
+      None => {
+        log::error!("Supported game missing from games map: {}", game_name);
+        return Err(ConfigError::Configuration(format!(
+          "Supported game missing from games map: {game_name}"
+        )));
+      }
+      Some(cfg) => Ok(cfg),
+    }
+  }
+
+  fn get_supported_game_config(&mut self, game_name: &String) -> Result<&GameConfig, ConfigError> {
+    let game = match SupportedGame::from_str(game_name) {
+      Err(_) => {
+        log::warn!("Game is not supported: {}", game_name);
+        return Err(ConfigError::Configuration(
+          "Game is not supported".to_owned(),
+        ));
+      }
+      Ok(game) => game,
+    };
+    match self.games.get(&game) {
+      None => {
+        log::error!("Supported game missing from games map: {}", game_name);
+        return Err(ConfigError::Configuration(format!(
+          "Supported game missing from games map: {game_name}"
+        )));
+      }
+      Some(cfg) => Ok(cfg),
     }
   }
 
@@ -438,5 +499,72 @@ impl LauncherConfig {
         "".to_owned()
       }
     }
+  }
+
+  pub fn game_enabled_textured_packs(&self, game_name: &String) -> Vec<String> {
+    // TODO - refactor out duplication
+    match SupportedGame::from_str(game_name) {
+      Ok(game) => {
+        // Retrieve relevant game from config
+        match self.games.get(&game) {
+          Some(game) => match &game.features {
+            Some(features) => features.texture_packs.to_owned(),
+            None => Vec::new(),
+          },
+          None => {
+            log::warn!(
+              "Could not find game to check which texture packs are enabled: {}",
+              game_name
+            );
+            Vec::new()
+          }
+        }
+      }
+      Err(_) => {
+        log::warn!(
+          "Could not find game to check which texture packs are enabled: {}",
+          game_name
+        );
+        Vec::new()
+      }
+    }
+  }
+
+  pub fn cleanup_game_enabled_texture_packs(
+    &mut self,
+    game_name: &String,
+    cleanup_list: Vec<String>,
+  ) -> Result<(), ConfigError> {
+    if !cleanup_list.is_empty() {
+      return Ok(());
+    }
+    let game_config = self.get_supported_game_config_mut(game_name)?;
+    if let Some(features) = &mut game_config.features {
+      features
+        .texture_packs
+        .retain(|pack| !cleanup_list.contains(pack));
+      self.save_config()?;
+    }
+    Ok(())
+  }
+
+  pub fn set_game_enabled_texture_packs(
+    &mut self,
+    game_name: &String,
+    packs: Vec<String>,
+  ) -> Result<(), ConfigError> {
+    let game_config = self.get_supported_game_config_mut(game_name)?;
+    match &mut game_config.features {
+      Some(features) => {
+        features.texture_packs = packs;
+      }
+      None => {
+        game_config.features = Some(GameFeatureConfig {
+          texture_packs: packs,
+        });
+      }
+    }
+    self.save_config()?;
+    Ok(())
   }
 }

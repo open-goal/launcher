@@ -2519,6 +2519,7 @@ dependencies = [
  "flate2",
  "fs_extra",
  "futures-util",
+ "glob",
  "log",
  "reqwest",
  "rev_buf_reader",

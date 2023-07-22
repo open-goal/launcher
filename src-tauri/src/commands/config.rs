@@ -352,3 +352,42 @@ pub async fn set_bypass_requirements(
   })?;
   Ok(())
 }
+
+#[tauri::command]
+pub async fn get_enabled_texture_packs(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+) -> Result<Vec<String>, CommandError> {
+  let config_lock = config.lock().await;
+  Ok(config_lock.game_enabled_textured_packs(&game_name))
+}
+
+#[tauri::command]
+pub async fn cleanup_enabled_texture_packs(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+  cleanup_list: Vec<String>,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .cleanup_game_enabled_texture_packs(&game_name, cleanup_list)
+    .map_err(|_| {
+      CommandError::Configuration("Unable to cleanup enabled texture packs".to_owned())
+    })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn set_enabled_texture_packs(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+  packs: Vec<String>,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .set_game_enabled_texture_packs(&game_name, packs)
+    .map_err(|_| {
+      CommandError::Configuration("Unable to persist change to enabled texture packs".to_owned())
+    })?;
+  Ok(())
+}
