@@ -184,18 +184,6 @@
   resolved "https://registry.yarnpkg.com/@fiahfy/packbits/-/packbits-0.0.6.tgz#d93146683fa59f476c6ccb988eb1cf9d7c16e489"
   integrity sha512-XuhF/edg+iIvXjkCWgfj6fWtRi/KrEPg2ILXj1l86EN4EssuOiPcLKgkMDr9cL8jTGtVd/MKUWW6Y0/ZVf1PGA==
 
-"@floating-ui/core@^1.3.1":
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/@floating-ui/core/-/core-1.3.1.tgz#4d795b649cc3b1cbb760d191c80dcb4353c9a366"
-  integrity sha512-Bu+AMaXNjrpjh41znzHqaz3r2Nr8hHuHZT6V2LBKMhyMl0FgKA62PNYbqnfgmzOhoWZj70Zecisbo4H1rotP5g==
-
-"@floating-ui/dom@^1.4.5":
-  version "1.4.5"
-  resolved "https://registry.yarnpkg.com/@floating-ui/dom/-/dom-1.4.5.tgz#336dfb9870c98b471ff5802002982e489b8bd1c5"
-  integrity sha512-96KnRWkRnuBSSFbj0sFGwwOUd8EkiecINVl0O9wiZlZ64EkpyAOG3Xc2vKKNJmru0Z7RqWNymA+6b8OZqjgyyw==
-  dependencies:
-    "@floating-ui/core" "^1.3.1"
-
 "@formatjs/ecma402-abstract@1.11.4":
   version "1.11.4"
   resolved "https://registry.yarnpkg.com/@formatjs/ecma402-abstract/-/ecma402-abstract-1.11.4.tgz#b962dfc4ae84361f9f08fbce411b4e4340930eda"
@@ -747,7 +735,7 @@
   dependencies:
     "@octokit/openapi-types" "^18.0.0"
 
-"@popperjs/core@^2.11.7", "@popperjs/core@^2.9.3":
+"@popperjs/core@^2.11.7", "@popperjs/core@^2.11.8", "@popperjs/core@^2.9.3":
   version "2.11.8"
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.8.tgz#6b79032e760a0899cd4204710beede972a3a185f"
   integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
@@ -2558,12 +2546,12 @@ find-versions@^3.0.0:
   dependencies:
     semver-regex "^2.0.0"
 
-flowbite-svelte@^0.40.2:
-  version "0.40.2"
-  resolved "https://registry.yarnpkg.com/flowbite-svelte/-/flowbite-svelte-0.40.2.tgz#deb1b14bd8e65b06568d67f84ffe8f88ba980d37"
-  integrity sha512-dRiBOCCxm3nkABlmdyngMhrDnFl5FrhWDJhMChTTirsLd/j1tdelzUAeIeGZUK8H2dvnjW2/K1XZDoFP4Fxn4Q==
+flowbite-svelte@0.39.3:
+  version "0.39.3"
+  resolved "https://registry.yarnpkg.com/flowbite-svelte/-/flowbite-svelte-0.39.3.tgz#7c9d3905e24dbf89e66faac9a7fa43ca109c9191"
+  integrity sha512-7w87mcDy0E/KKqj8UgkeBY7T/m5q1YDhfXmIELZdeLf8E+80a+DpMY3+yjgxX/WYyI0QAQC2ggDECHV2o91ATA==
   dependencies:
-    "@floating-ui/dom" "^1.4.5"
+    "@popperjs/core" "^2.11.8"
     flowbite "^1.7.0"
     tailwind-merge "^1.13.2"
 
