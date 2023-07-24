@@ -5,7 +5,7 @@ export async function uninstallGame(gameName: string): Promise<boolean> {
     "uninstall_game",
     { gameName },
     () => false,
-    "Unable to uninstall game"
+    "Unable to uninstall game",
   );
 }
 
@@ -14,6 +14,6 @@ export async function resetGameSettings(gameName: string): Promise<void> {
     "reset_game_settings",
     { gameName },
     () => {},
-    "Unable to reset game settings"
+    "Unable to reset game settings",
   );
 }

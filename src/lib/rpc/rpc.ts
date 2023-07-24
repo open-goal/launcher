@@ -16,7 +16,7 @@ export async function invoke_rpc<T>(
   args: InvokeArgs,
   handleError: (error: unknown) => T,
   toastOnError?: string,
-  onSuccess?: (result: T) => T
+  onSuccess?: (result: T) => T,
 ): Promise<T> {
   try {
     // this assumes the call is made in a way that does not trick the type inference

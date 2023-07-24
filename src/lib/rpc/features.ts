@@ -12,20 +12,20 @@ function failed(msg: string): FeatureJobOutput {
 }
 
 export async function listExtractedTexturePackInfo(
-  gameName: string
+  gameName: string,
 ): Promise<any> {
   return await invoke_rpc(
     "list_extracted_texture_pack_info",
     {
       gameName: gameName,
     },
-    () => []
+    () => [],
   );
 }
 
 export async function extractNewTexturePack(
   gameName: string,
-  pathToZip: string
+  pathToZip: string,
 ): Promise<boolean | undefined> {
   return await invoke_rpc(
     "extract_new_texture_pack",
@@ -33,12 +33,12 @@ export async function extractNewTexturePack(
       gameName: gameName,
       zipPath: pathToZip,
     },
-    () => undefined
+    () => undefined,
   );
 }
 
 export async function updateTexturePackData(
-  gameName: string
+  gameName: string,
 ): Promise<FeatureJobOutput> {
   return await invoke_rpc(
     "update_texture_pack_data",
@@ -49,13 +49,13 @@ export async function updateTexturePackData(
     undefined,
     () => {
       return { success: true, msg: null };
-    }
+    },
   );
 }
 
 export async function deleteTexturePacks(
   gameName: string,
-  packs: string[]
+  packs: string[],
 ): Promise<FeatureJobOutput> {
   return await invoke_rpc(
     "delete_texture_packs",
@@ -67,6 +67,6 @@ export async function deleteTexturePacks(
     undefined,
     () => {
       return { success: true, msg: null };
-    }
+    },
   );
 }

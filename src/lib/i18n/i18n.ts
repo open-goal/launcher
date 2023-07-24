@@ -168,14 +168,14 @@ export async function initLocales(async: boolean) {
     for (const locale of AVAILABLE_LOCALES) {
       register(
         locale.id,
-        () => import(`../../assets/translations/${locale.id}.json`)
+        () => import(`../../assets/translations/${locale.id}.json`),
       );
     }
   } else {
     for (const locale of AVAILABLE_LOCALES) {
       addMessages(
         locale.id,
-        await import(`../../assets/translations/${locale.id}.json`)
+        await import(`../../assets/translations/${locale.id}.json`),
       );
     }
   }

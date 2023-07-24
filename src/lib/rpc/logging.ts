@@ -23,7 +23,7 @@ async function genericLog(level: string, log: String): Promise<void> {
   } catch (e) {
     console.log(
       "[opengoal_launcher]: Unexpected error encountered when trying to log",
-      e
+      e,
     );
   }
 }
@@ -47,7 +47,7 @@ export async function errorLog(log: String): Promise<void> {
 export async function exceptionLog(log: String, error: any): Promise<void> {
   if (error instanceof Error) {
     errorLog(
-      `${log} | Exception: ${error.name}:${error.message}, Stack: ${error.stack}, Cause: ${error.cause}`
+      `${log} | Exception: ${error.name}:${error.message}, Stack: ${error.stack}, Cause: ${error.cause}`,
     );
   } else {
     errorLog(`${log} | ${error}`);

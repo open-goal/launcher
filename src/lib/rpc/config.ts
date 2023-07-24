@@ -18,7 +18,7 @@ export async function resetLauncherSettingsToDefaults(): Promise<boolean> {
     "reset_to_defaults",
     {},
     () => false,
-    "Unable to reset settings"
+    "Unable to reset settings",
   );
   return success != false;
 }
@@ -28,7 +28,7 @@ export async function getInstallationDirectory(): Promise<string | null> {
 }
 
 export async function setInstallationDirectory(
-  newDir: string
+  newDir: string,
 ): Promise<string | null> {
   // TODO - not insanely crazy about this pattern (message in the response instead of the error)
   // consider changing it
@@ -36,7 +36,7 @@ export async function setInstallationDirectory(
     "set_install_directory",
     { newDir },
     () => "Unexpected error occurred",
-    "Invalid installation directory"
+    "Invalid installation directory",
   );
 
   if (errMsg !== null) {
@@ -50,18 +50,18 @@ export async function setInstallationDirectory(
 }
 
 export async function isAVXRequirementMet(
-  force: boolean
+  force: boolean,
 ): Promise<boolean | undefined> {
   return await invoke_rpc("is_avx_requirement_met", { force }, () => undefined);
 }
 
 export async function isOpenGLRequirementMet(
-  force: boolean
+  force: boolean,
 ): Promise<boolean | undefined> {
   const result = await invoke_rpc(
     "is_opengl_requirement_met",
     { force },
-    () => undefined
+    () => undefined,
   );
 
   if (typeof result !== "boolean") {
@@ -84,20 +84,20 @@ export async function getInstalledVersion(gameName: string): Promise<String> {
 }
 
 export async function getInstalledVersionFolder(
-  gameName: string
+  gameName: string,
 ): Promise<String> {
   return invoke_rpc("get_installed_version_folder", { gameName }, () => null);
 }
 
 export async function saveActiveVersionChange(
   versionFolder: VersionFolders,
-  newActiveVersion: String
+  newActiveVersion: String,
 ): Promise<boolean> {
   return invoke_rpc(
     "save_active_version_change",
     { versionFolder, newActiveVersion },
     () => false,
-    "Couldn't save active version change"
+    "Couldn't save active version change",
   );
 }
 
@@ -115,20 +115,20 @@ export async function setLocale(localeId: string): Promise<void> {
       svelteLocale.set(localeId);
       // Update CSS variable if needed
       let localeInfo = AVAILABLE_LOCALES.find(
-        (locale) => locale.id === localeId
+        (locale) => locale.id === localeId,
       );
       if (localeInfo !== undefined && localeInfo.fontFamily !== undefined) {
         document.documentElement.style.setProperty(
           "--launcher-font-family",
-          localeInfo.fontFamily
+          localeInfo.fontFamily,
         );
       } else {
         document.documentElement.style.setProperty(
           "--launcher-font-family",
-          "Noto Sans"
+          "Noto Sans",
         );
       }
-    }
+    },
   );
 }
 
@@ -141,18 +141,18 @@ export async function getBypassRequirements(): Promise<boolean> {
 }
 
 export async function getEnabledTexturePacks(
-  gameName: string
+  gameName: string,
 ): Promise<string[]> {
   return await invoke_rpc(
     "get_enabled_texture_packs",
     { gameName: gameName },
-    () => []
+    () => [],
   );
 }
 
 export async function cleanupEnabledTexturePacks(
   gameName: string,
-  cleanupList: string[]
+  cleanupList: string[],
 ): Promise<void> {
   return await invoke_rpc(
     "cleanup_enabled_texture_packs",
@@ -160,7 +160,7 @@ export async function cleanupEnabledTexturePacks(
       gameName: gameName,
       cleanupList: cleanupList,
     },
-    () => {}
+    () => {},
   );
 }
 
@@ -176,7 +176,7 @@ function failed(msg: string): FeatureJobOutput {
 
 export async function setEnabledTexturePacks(
   gameName: string,
-  packs: string[]
+  packs: string[],
 ): Promise<FeatureJobOutput> {
   return await invoke_rpc(
     "set_enabled_texture_packs",
@@ -188,6 +188,6 @@ export async function setEnabledTexturePacks(
     undefined,
     () => {
       return { success: true, msg: null };
-    }
+    },
   );
 }

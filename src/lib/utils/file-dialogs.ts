@@ -3,7 +3,7 @@ import { open, save } from "@tauri-apps/api/dialog";
 export async function filePrompt(
   extensions: string[],
   name: string,
-  title: string
+  title: string,
 ): Promise<string | null> {
   const path = await open({
     title: title,
@@ -22,7 +22,7 @@ export async function filePrompt(
 export async function saveFilePrompt(
   fileType: string,
   fileExtensions: string[],
-  fileName: string
+  fileName: string,
 ): Promise<string | null> {
   return await save({
     filters: [{ name: fileType, extensions: fileExtensions }],
@@ -32,7 +32,7 @@ export async function saveFilePrompt(
 
 export async function saveFolderPrompt(
   fileType: string,
-  fileExtensions: string[]
+  fileExtensions: string[],
 ): Promise<string | null> {
   return await save({
     filters: [{ name: fileType, extensions: fileExtensions }],
@@ -43,7 +43,7 @@ export async function isoPrompt(): Promise<string | undefined> {
   const path = await filePrompt(
     ["ISO", "iso"],
     "Jak ISO File",
-    "Select your legitimately obtained ISO File"
+    "Select your legitimately obtained ISO File",
   );
   if (path === null) {
     return undefined;

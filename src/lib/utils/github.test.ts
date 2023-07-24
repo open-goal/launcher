@@ -137,12 +137,12 @@ describe("listOfficialReleases", () => {
           "opengoal-windows-v0.0.1.zip",
           "opengoal-linux-v0.0.1.tar.gz",
         ]),
-      ])
+      ]),
     );
     const releases = await listOfficialReleases();
     expect(releases.length).toBe(1);
     expect(
-      releases[0].downloadUrl.endsWith("opengoal-macos-intel-v0.0.1.tar.gz")
+      releases[0].downloadUrl.endsWith("opengoal-macos-intel-v0.0.1.tar.gz"),
     ).toBeTruthy();
   });
 
@@ -156,7 +156,7 @@ describe("listOfficialReleases", () => {
           "opengoal-windows-v0.0.1.zip",
           "opengoal-linux-v0.0.1.tar.gz",
         ]),
-      ])
+      ]),
     );
     const releases = await listOfficialReleases();
     expect(releases.length).toBe(1);
@@ -173,12 +173,12 @@ describe("listOfficialReleases", () => {
           "opengoal-windows-v0.0.1.zip",
           "opengoal-linux-v0.0.1.tar.gz",
         ]),
-      ])
+      ]),
     );
     const releases = await listOfficialReleases();
     expect(releases.length).toBe(1);
     expect(
-      releases[0].downloadUrl.endsWith("opengoal-windows-v0.0.1.zip")
+      releases[0].downloadUrl.endsWith("opengoal-windows-v0.0.1.zip"),
     ).toBeTruthy();
   });
 
@@ -192,12 +192,12 @@ describe("listOfficialReleases", () => {
           "opengoal-windows-v0.0.1.zip",
           "opengoal-linux-v0.0.1.tar.gz",
         ]),
-      ])
+      ]),
     );
     const releases = await listOfficialReleases();
     expect(releases.length).toBe(1);
     expect(
-      releases[0].downloadUrl.endsWith("opengoal-linux-v0.0.1.tar.gz")
+      releases[0].downloadUrl.endsWith("opengoal-linux-v0.0.1.tar.gz"),
     ).toBeTruthy();
   });
 });
@@ -218,12 +218,12 @@ describe("getLatestOfficialRelease", () => {
           "opengoal-windows-v0.0.1.zip",
           "opengoal-linux-v0.0.1.tar.gz",
         ]),
-      ])
+      ]),
     );
     const releases = await listOfficialReleases();
     expect(releases.length).toBe(1);
     expect(
-      releases[0].downloadUrl.endsWith("opengoal-macos-intel-v0.0.1.tar.gz")
+      releases[0].downloadUrl.endsWith("opengoal-macos-intel-v0.0.1.tar.gz"),
     ).toBeTruthy();
   });
 
@@ -237,7 +237,7 @@ describe("getLatestOfficialRelease", () => {
           "opengoal-windows-v0.0.1.zip",
           "opengoal-linux-v0.0.1.tar.gz",
         ]),
-      ])
+      ]),
     );
     const releases = await listOfficialReleases();
     expect(releases.length).toBe(1);
@@ -254,12 +254,12 @@ describe("getLatestOfficialRelease", () => {
           "opengoal-windows-v0.0.1.zip",
           "opengoal-linux-v0.0.1.tar.gz",
         ]),
-      ])
+      ]),
     );
     const releases = await listOfficialReleases();
     expect(releases.length).toBe(1);
     expect(
-      releases[0].downloadUrl.endsWith("opengoal-windows-v0.0.1.zip")
+      releases[0].downloadUrl.endsWith("opengoal-windows-v0.0.1.zip"),
     ).toBeTruthy();
   });
 
@@ -273,12 +273,12 @@ describe("getLatestOfficialRelease", () => {
           "opengoal-windows-v0.0.1.zip",
           "opengoal-linux-v0.0.1.tar.gz",
         ]),
-      ])
+      ]),
     );
     const releases = await listOfficialReleases();
     expect(releases.length).toBe(1);
     expect(
-      releases[0].downloadUrl.endsWith("opengoal-linux-v0.0.1.tar.gz")
+      releases[0].downloadUrl.endsWith("opengoal-linux-v0.0.1.tar.gz"),
     ).toBeTruthy();
   });
 });
