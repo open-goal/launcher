@@ -13,7 +13,7 @@ export interface ReleaseInfo {
 function isIntelMacOsRelease(
   platform: string,
   architecture: string,
-  assetName: string
+  assetName: string,
 ): boolean {
   return (
     platform === "darwin" &&
@@ -26,7 +26,7 @@ function isIntelMacOsRelease(
 function isWindowsRelease(
   platform: string,
   architecture: string,
-  assetName: string
+  assetName: string,
 ): boolean {
   return (
     platform === "win32" &&
@@ -38,7 +38,7 @@ function isWindowsRelease(
 function isLinuxRelease(
   platform: string,
   architecture: string,
-  assetName: string
+  assetName: string,
 ): boolean {
   return (
     platform === "linux" &&
@@ -48,7 +48,7 @@ function isLinuxRelease(
 }
 
 async function getDownloadLinkForCurrentPlatform(
-  release: any
+  release: any,
 ): Promise<string | undefined> {
   const platformName = await platform();
   const archName = await arch();
@@ -69,7 +69,7 @@ export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
   // TODO - handle rate limiting
   // TODO - long term - handle pagination (more than 100 releases)
   const resp = await fetch(
-    "https://api.github.com/repos/open-goal/jak-project/releases?per_page=100"
+    "https://api.github.com/repos/open-goal/jak-project/releases?per_page=100",
   );
   // TODO - handle error
   const githubReleases = await resp.json();
@@ -92,7 +92,7 @@ export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
 export async function getLatestOfficialRelease(): Promise<ReleaseInfo> {
   // TODO - handle rate limiting
   const resp = await fetch(
-    "https://api.github.com/repos/open-goal/jak-project/releases/latest"
+    "https://api.github.com/repos/open-goal/jak-project/releases/latest",
   );
   // TODO - handle error
   const githubRelease = await resp.json();

@@ -21,7 +21,7 @@ const octokit = new Octokit({
   throttle: {
     onRateLimit: (retryAfter, options) => {
       octokit.log.warn(
-        `Request quota exhausted for request ${options.method} ${options.url}`
+        `Request quota exhausted for request ${options.method} ${options.url}`,
       );
 
       // Retry twice after hitting a rate limit error, then give up
@@ -33,7 +33,7 @@ const octokit = new Octokit({
     onAbuseLimit: (retryAfter, options) => {
       // does not retry, only logs a warning
       octokit.log.warn(
-        `Abuse detected for request ${options.method} ${options.url}`
+        `Abuse detected for request ${options.method} ${options.url}`,
       );
     },
   },
@@ -74,7 +74,7 @@ for (const asset of assets.data) {
   }
   if (!matchFound) {
     console.log(
-      `Asset name does not match any of the expected regexes: ${assetName}`
+      `Asset name does not match any of the expected regexes: ${assetName}`,
     );
     missingAsset = true;
   }

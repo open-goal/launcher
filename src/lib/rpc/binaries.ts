@@ -10,10 +10,10 @@ function failed(msg: string): InstallationOutput {
 }
 
 export async function updateDataDirectory(
-  gameName: string
+  gameName: string,
 ): Promise<InstallationOutput> {
   return await invoke_rpc("update_data_directory", { gameName }, () =>
-    failed("Failed to update data directory")
+    failed("Failed to update data directory"),
   );
 }
 
@@ -23,48 +23,48 @@ export async function getEndOfLogs(): Promise<string> {
 
 export async function extractAndValidateISO(
   pathToIso: string,
-  gameName: string
+  gameName: string,
 ): Promise<InstallationOutput> {
   return await invoke_rpc(
     "extract_and_validate_iso",
     { pathToIso, gameName },
-    () => failed("Failed to extract and validate ISO")
+    () => failed("Failed to extract and validate ISO"),
   );
 }
 
 export async function runDecompiler(
   pathToIso: string,
   gameName: string,
-  truncateLogs: boolean = false
+  truncateLogs: boolean = false,
 ): Promise<InstallationOutput> {
   return await invoke_rpc(
     "run_decompiler",
     { pathToIso, gameName, truncateLogs },
-    () => failed("Failed to run decompiler")
+    () => failed("Failed to run decompiler"),
   );
 }
 
 export async function runCompiler(
   pathToIso: string,
   gameName: string,
-  truncateLogs: boolean = false
+  truncateLogs: boolean = false,
 ): Promise<InstallationOutput> {
   return await invoke_rpc(
     "run_compiler",
     { pathToIso, gameName, truncateLogs },
-    () => failed("Failed to run compiler")
+    () => failed("Failed to run compiler"),
   );
 }
 
 export async function launchGame(
   gameName: string,
-  inDebug: boolean
+  inDebug: boolean,
 ): Promise<void> {
   return await invoke_rpc(
     "launch_game",
     { gameName, inDebug },
     () => {},
-    "Unable to launch game"
+    "Unable to launch game",
   );
 }
 
@@ -73,6 +73,6 @@ export async function openREPL(gameName: string): Promise<void> {
     "open_repl",
     { gameName },
     () => {},
-    "Unable to open REPL"
+    "Unable to open REPL",
   );
 }

@@ -54,7 +54,7 @@ describe("Splash.svelte", () => {
     });
     render(Splash, {});
     const localeSelect = (await screen.findByTestId(
-      "locale-select"
+      "locale-select",
     )) as HTMLSelectElement;
     expect(localeSelect).toBeTruthy();
     fireEvent.change(localeSelect, { target: { value: "en-US" } });
@@ -80,14 +80,14 @@ describe("Splash.svelte", () => {
     });
     render(Splash, {});
     const deleteOldDataDirButton = await screen.findByTestId(
-      "delete-old-data-dir-button"
+      "delete-old-data-dir-button",
     );
     expect(deleteOldDataDirButton).toBeTruthy();
     // delete the dir, it'll go away
     fireEvent.click(deleteOldDataDirButton);
     expect(oldDataDirDeleted).toBeTruthy();
     const pickInstallFolderButton = await screen.findByTestId(
-      "pick-install-folder-button"
+      "pick-install-folder-button",
     );
     expect(pickInstallFolderButton).toBeTruthy();
   });
@@ -109,13 +109,13 @@ describe("Splash.svelte", () => {
     vi.mocked(folderPrompt).mockResolvedValue(undefined);
     render(Splash, {});
     let pickInstallFolderButton = await screen.findByTestId(
-      "pick-install-folder-button"
+      "pick-install-folder-button",
     );
     expect(pickInstallFolderButton).toBeTruthy();
     fireEvent.click(pickInstallFolderButton);
     // It's still there since the user didn't pick a folder
     pickInstallFolderButton = await screen.findByTestId(
-      "pick-install-folder-button"
+      "pick-install-folder-button",
     );
     expect(pickInstallFolderButton).toBeTruthy();
   });
@@ -145,7 +145,7 @@ describe("Splash.svelte", () => {
     vi.mocked(folderPrompt).mockResolvedValue("/wow/good/job/nice/folder");
     render(Splash, {});
     let pickInstallFolderButton = await screen.findByTestId(
-      "pick-install-folder-button"
+      "pick-install-folder-button",
     );
     expect(pickInstallFolderButton).toBeTruthy();
     fireEvent.click(pickInstallFolderButton);
@@ -156,7 +156,7 @@ describe("Splash.svelte", () => {
       () => {
         expect(mainWindowOpened).toBeTruthy();
       },
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
   });
 
@@ -183,7 +183,7 @@ describe("Splash.svelte", () => {
     vi.mocked(folderPrompt).mockResolvedValue("/wow/good/job/nice/folder");
     render(Splash, {});
     let pickInstallFolderButton = await screen.findByTestId(
-      "pick-install-folder-button"
+      "pick-install-folder-button",
     );
     expect(pickInstallFolderButton).toBeTruthy();
     fireEvent.click(pickInstallFolderButton);
@@ -191,7 +191,7 @@ describe("Splash.svelte", () => {
       screen.findByText("wow that was a terrible directory");
     });
     pickInstallFolderButton = await screen.findByTestId(
-      "pick-install-folder-button"
+      "pick-install-folder-button",
     );
     expect(pickInstallFolderButton).toBeTruthy();
   });

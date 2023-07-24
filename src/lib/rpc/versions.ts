@@ -3,38 +3,38 @@ import { invoke_rpc } from "./rpc";
 export type VersionFolders = null | "official" | "unofficial" | "devel";
 
 export async function listDownloadedVersions(
-  versionFolder: VersionFolders
+  versionFolder: VersionFolders,
 ): Promise<string[]> {
   return await invoke_rpc(
     "list_downloaded_versions",
     { versionFolder },
-    () => []
+    () => [],
   );
 }
 
 export async function downloadOfficialVersion(
   version: String,
-  url: String
+  url: String,
 ): Promise<boolean> {
   return await invoke_rpc(
     "download_version",
     { version, url, versionFolder: "official" },
     () => false,
     "Unable to download official version",
-    () => true
+    () => true,
   );
 }
 
 export async function removeVersion(
   version: String,
-  versionFolder: String
+  versionFolder: String,
 ): Promise<boolean> {
   return await invoke_rpc(
     "remove_version",
     { version, versionFolder },
     () => false,
     "Unable to remove version",
-    () => true
+    () => true,
   );
 }
 
@@ -43,7 +43,7 @@ export async function openVersionFolder(versionFolder: VersionFolders) {
     "go_to_version_folder",
     { versionFolder },
     () => {},
-    "Unable to open version folder"
+    "Unable to open version folder",
   );
 }
 
@@ -60,6 +60,6 @@ export async function ensureActiveVersionStillExists(): Promise<boolean> {
     "ensure_active_version_still_exists",
     {},
     () => false,
-    "Error checking that active version exists"
+    "Error checking that active version exists",
   );
 }

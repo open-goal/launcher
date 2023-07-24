@@ -5,7 +5,7 @@ export async function openDir(directory: string): Promise<void> {
     "open_dir_in_os",
     { directory },
     () => {},
-    "Unable to open directory"
+    "Unable to open directory",
   );
 }
 
