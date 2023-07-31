@@ -9,6 +9,7 @@
 //
 // serde does not support defaultLiterals yet - https://github.com/serde-rs/serde/issues/368
 
+use crate::util::file::create_dir;
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -288,6 +289,8 @@ impl LauncherConfig {
       }
       Some(path) => path,
     };
+    // Ensure the directory exists
+    create_dir(&settings_path.parent().unwrap().to_path_buf())?;
     let file = fs::File::create(settings_path)?;
     serde_json::to_writer_pretty(file, &self)?;
     Ok(())
