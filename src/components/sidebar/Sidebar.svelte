@@ -12,7 +12,7 @@
   $: $location.pathname;
 
   function getNavStyle(pathname: string): string {
-    let style = "basis-1/10 h-full bg-[#101010] px-1 z-10";
+    let style = "grow-0 shrink-0 basis-1/10 h-full bg-[#101010] px-1 z-10";
     if (
       !pathname.startsWith("/settings") &&
       !pathname.startsWith("/faq") &&
