@@ -61,10 +61,10 @@
     availablePacks = [];
     availablePacksOriginal = [];
     let currentlyEnabledPacks = await getEnabledTexturePacks(
-      getInternalName(activeGame)
+      getInternalName(activeGame),
     );
     extractedPackInfo = await listExtractedTexturePackInfo(
-      getInternalName(activeGame)
+      getInternalName(activeGame),
     );
     // Finalize `availablePacks` list
     // - First, cleanup any packs that were enabled but can no longer be found
@@ -79,7 +79,7 @@
     }
     await cleanupEnabledTexturePacks(
       getInternalName(activeGame),
-      cleanupPackList
+      cleanupPackList,
     );
     // - secondly, add the ones that are enabled so they are at the top of the list
     for (const pack of currentlyEnabledPacks) {
@@ -112,7 +112,7 @@
   }
 
   function tag_name_to_color(
-    tagName: string
+    tagName: string,
   ):
     | "none"
     | "red"
@@ -161,12 +161,12 @@
     const texturePackPath = await filePrompt(
       ["zip"],
       "ZIP",
-      "Select a texture pack"
+      "Select a texture pack",
     );
     if (texturePackPath !== null) {
       const success = await extractNewTexturePack(
         getInternalName(activeGame),
-        texturePackPath
+        texturePackPath,
       );
       if (success) {
         // if the user made any changes, attempt to restore them after
@@ -276,7 +276,7 @@
             <!-- Placeholder image -->
             <Card
               img={convertFileSrc(
-                extractedPackInfo[pack.name]["coverImagePath"]
+                extractedPackInfo[pack.name]["coverImagePath"],
               )}
               horizontal
               class="texture-pack-card max-w-none md:max-w-none basis-full"
@@ -298,7 +298,7 @@
               </p>
               <p class="font-bold text-gray-500 text-xs">
                 {$_("features_textures_replacedCount")} - {num_textures_in_pack(
-                  pack.name
+                  pack.name,
                 )}
               </p>
               <p class="mt-2 mb-4 font-normal text-gray-400 leading-tight">

@@ -101,7 +101,7 @@
   async function saveOfficialVersionChange(evt) {
     const success = await saveActiveVersionChange(
       "official",
-      $VersionStore.selectedVersions.official
+      $VersionStore.selectedVersions.official,
     );
     if (success) {
       $VersionStore.activeVersionType = "official";
@@ -125,7 +125,7 @@
     releases = releases;
     const success = await downloadOfficialVersion(
       event.detail.version,
-      event.detail.downloadUrl
+      event.detail.downloadUrl,
     );
     // Then mark it as downloaded
     for (const release of releases) {

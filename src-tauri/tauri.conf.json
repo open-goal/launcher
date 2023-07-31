@@ -15,7 +15,8 @@
       "targets": [
         "msi",
         "appimage",
-        "updater"
+        "updater",
+        "dmg"
       ],
       "appimage": {
         "bundleMediaFramework": true

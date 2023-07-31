@@ -41,9 +41,9 @@
         } catch (e) {
           exceptionLog(
             `Could not parse changelog JSON from release metadata - ${JSON.stringify(
-              updateResult
+              updateResult,
             )}`,
-            e
+            e,
           );
         }
         $UpdateStore.launcher = {
@@ -78,7 +78,7 @@
         // Check that we havn't already downloaded it
         let alreadyHaveRelease = false;
         const downloadedOfficialVersions = await listDownloadedVersions(
-          "official"
+          "official",
         );
         for (const releaseVersion of downloadedOfficialVersions) {
           if (releaseVersion === latestToolingVersion.version) {
@@ -98,7 +98,7 @@
 </script>
 
 <header
-  class="flex flex-row basis-1/10 bg-[#101010] pl-2 pr-4 pt-1 pb-1 items-center z-10"
+  class="flex flex-row grow-0 shrink-0 basis-1/10 bg-[#101010] pl-2 pr-4 pt-1 pb-1 items-center z-10"
   data-tauri-drag-region
 >
   <div

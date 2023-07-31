@@ -66,9 +66,9 @@
     {#if !$isLoading}
       <Background />
       <Header />
-      <div class="flex h-full z-10">
+      <div class="flex flex-row grow shrink h-[90%] z-10">
         <Sidebar />
-        <div id="content" class="basis-9/10">
+        <div id="content" class="overflow-y-auto grow shrink">
           <Route path="/" component={Game} primary={false} let:params />
           <Route
             path="/:game_name"

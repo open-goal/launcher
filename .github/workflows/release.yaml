@@ -99,11 +99,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: ubuntu-20.04
-            os: linux
-          - platform: windows-latest
-            os: windows
+        platform: [ubuntu-20.04, windows-latest, macos-12]
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v3
@@ -171,7 +167,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_ID: ${{needs.create-release.outputs.release_id}}
-          EXPECTED_ASSET_NAME_REGEXES: '[".*AppImage", ".*AppImage.tar.gz", ".*AppImage.tar.gz.sig", ".*msi", ".*AppImage.msi.zip", ".*msi.zip.sig", "latest.json"]'
+          EXPECTED_ASSET_NAME_REGEXES: '[".*AppImage", ".*AppImage.tar.gz", ".*AppImage.tar.gz.sig", ".*msi", ".*AppImage.msi.zip", ".*msi.zip.sig", ".*dmg", ".*dmg.tar.gz", ".*dmg.tar.gz.sig", "latest.json"]'
         run: yarn verify-release-assets
 
   publish-release:

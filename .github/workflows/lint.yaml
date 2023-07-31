@@ -24,6 +24,7 @@ jobs:
         run: |
           yarn install --frozen-lockfile
           yarn lint
+
   backend:
     name: Backend Formatting
     runs-on: ubuntu-latest
@@ -46,6 +47,7 @@ jobs:
         run: |
           cd src-tauri/
           cargo fmt --all --check
+
   backend-linter:
     name: Backend Linter
     runs-on: ubuntu-latest

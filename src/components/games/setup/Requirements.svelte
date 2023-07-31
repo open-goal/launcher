@@ -108,9 +108,9 @@
       on:click={async () => {
         const confirmed = await confirm(
           `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
-            "requirements_button_bypass_warning_2"
+            "requirements_button_bypass_warning_2",
           )}`,
-          { title: "OpenGOAL Launcher", type: "warning" }
+          { title: "OpenGOAL Launcher", type: "warning" },
         );
         if (confirmed) {
           await setBypassRequirements(true);
