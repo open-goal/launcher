@@ -188,7 +188,7 @@ const releaseMeta = {
       signature: linuxSignature,
       url: `https://github.com/open-goal/launcher/releases/download/${
         launcherRelease.tag_name
-      }/OpenGOAL-Launcher_${launcherRelease.tag_name.replace(
+      }/open-goal-launcher_${launcherRelease.tag_name.replace(
         "v",
         "",
       )}_amd64.AppImage.tar.gz`,

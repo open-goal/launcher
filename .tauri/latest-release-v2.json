@@ -5,7 +5,7 @@
   "platforms": {
     "linux-x86_64": {
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1pJVWVWV0p4YUFRTHAwRlRDd25tMGF4ejdQZlFMM1cxZHhLMHUrSll0cFhHN2FvTWJPeVpBQkx6cEhXY25rb05tYytWTkxsMnd5RGttemx2emlrQXdVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjkwNzg0OTk0CWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMi4wX2FtZDY0LkFwcEltYWdlLnRhci5negpwSTdRNjlaeDJMV1QxSWpUYlNsdGEvWWwvRi8zMzdXZG9iaWdPMC9NQVJjdDZHeG16blV4M2NrTXlaenZlLzJRQlZhVTR4V3BVTGg0czFINU5RTzFBZz09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.2.0/OpenGOAL-Launcher_2.2.0_amd64.AppImage.tar.gz"
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.2.0/open-goal-launcher_2.2.0_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1QrOWJQWURYK08waE5ObnZ1YllaRVVrR3RaSUxiSVZBcHBNK2ViY1Q4cm5sYklEcXQ3R0V6TGhxQ1V2b2Rpc0xvc25BU2c5Wms3QWdoRFBKUmNTK1FNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjkwNzg1MDMzCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4yLjBfeDY0X2VuLVVTLm1zaS56aXAKSjNXdyt5YmtVQkdLOXdPeS9aVEZCNVkrTmd4ZE1PRXBvbkZzdjZGdTducGw2YjJaVVdBWnFvcnZEVzk4RytNQ2JkNmRGWnlYek5yazhsVk91eGxTRHc9PQo=",
