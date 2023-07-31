@@ -99,11 +99,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: ubuntu-20.04
-            os: linux
-          - platform: windows-latest
-            os: windows
+        platform: [ubuntu-20.04, windows-latest, macos-12]
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v3
