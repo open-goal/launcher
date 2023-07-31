@@ -146,18 +146,22 @@
               >
                 {#if release.isDownloaded}
                   <IconDeleteForever
+                    class="text-xl"
                     color="red"
                     aria-label={$_(
-                      "settings_versions_icon_removeVersion_altText"
+                      "settings_versions_icon_removeVersion_altText",
                     )}
                   />
+                {:else if release.downloadUrl === undefined}
+                  <span>Incompatible</span>
                 {:else if release.pendingAction}
                   <Spinner color="yellow" size={"6"} />
                 {:else if release.releaseType === "official" && release.downloadUrl !== undefined}
                   <IconDownload
+                    class="text-xl"
                     color="#00d500"
                     aria-label={$_(
-                      "settings_versions_icon_downloadVersion_altText"
+                      "settings_versions_icon_downloadVersion_altText",
                     )}
                   />
                 {/if}
@@ -176,7 +180,10 @@
                   {#if release.pendingAction}
                     <Spinner color="yellow" size={"6"} />
                   {:else}
-                    <IconRefresh aria-label="Redownload Version" />
+                    <IconRefresh
+                      class="text-xl"
+                      aria-label="Redownload Version"
+                    />
                   {/if}
                 </Button>
               {/if}
@@ -198,8 +205,9 @@
                   rel="noreferrer"
                 >
                   <IconGitHub
+                    class="text-xl"
                     aria-label={$_(
-                      "settings_versions_icon_githubRelease_altText"
+                      "settings_versions_icon_githubRelease_altText",
                     )}
                   />
                 </a>
