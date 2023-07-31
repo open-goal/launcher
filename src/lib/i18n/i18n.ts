@@ -51,6 +51,11 @@ export const AVAILABLE_LOCALES: Locale[] = [
     localizedName: "English",
   },
   {
+    id: "en-GB",
+    flag: "🇬🇧",
+    localizedName: "English UK",
+  },
+  {
     id: "es-ES",
     flag: "🇪🇸",
     localizedName: "Español",
