@@ -12,8 +12,8 @@
       "url": "https://github.com/open-goal/launcher/releases/download/v2.2.0/OpenGOAL-Launcher_2.2.0_x64_en-US.msi.zip"
     },
     "macos-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2JNZkFueWNTVzMvaDRPdTZHbHRLRytIWVVEdVp4WnhyQjQ2aHZxSjR5V2hiUlQ0Y3hQQ0JGWElMNE1ScFNZU0dsQ2tacEhYSCtYTkFENDJqSk10VHdjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjkwNzgyMzg3CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4xLjRfeDY0X2VuLVVTLm1zaS56aXAKaHN0R2VwNnd0eFYyTlFDM3VaSk8wams5b21weHJZTXdJZ0F0cFFSZGVyMk9ZQUtkaUUxNmZVSnh4aDhrZHNraXI0cFJrbFBEOVF4czArNWxMdjZqQ0E9PQo=",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.2.0/OpenGOAL-Launcher_2.2.0_x64.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1ZmenZTM3ZhNW5uSmN4aWlodkZiVHkrYml2TE5uTEhmRjJyWC80cUhVdFpLdDdXeVVOTUFqQnJ2UUJURllwUFpSRWVyOFZyU2d2dWo2VnRVT3NqblEwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjkwNzgyMDQ4CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpmVlhWQnR5blJLcDMwa2VrQjRuU0x2cGtpSlJsR0J5bTZQYkh4UG0vVkVBU2FPdzNzZlRlcFJuV0xPK29tb1N2clI1TVNwMU9IdE5UNmpHWmpaM0JCQT09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.2.0/OpenGOAL-Launcher_x64.app.tar.gz"
     }
   }
 }

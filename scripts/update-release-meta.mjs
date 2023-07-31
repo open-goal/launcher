@@ -124,6 +124,7 @@ if (launcherRelease === undefined) {
   console.log(`Couldn't find launcher release with id ${releaseId}`);
   process.exit(1);
 }
+console.log(launcherRelease);
 
 // Get changes for the launcher
 const launcherChanges = changesFromBody(launcherRelease.body);
@@ -201,14 +202,11 @@ const releaseMeta = {
         "",
       )}_x64_en-US.msi.zip`,
     },
-    "macos-x86_64": {
-      signature: windowsSignature,
+    "darwin-x86_64": {
+      signature: macosSignature,
       url: `https://github.com/open-goal/launcher/releases/download/${
         launcherRelease.tag_name
-      }/OpenGOAL-Launcher_${launcherRelease.tag_name.replace(
-        "v",
-        "",
-      )}_x64.app.tar.gz`,
+      }/OpenGOAL-Launcher_x64.app.tar.gz`,
     },
   },
 };

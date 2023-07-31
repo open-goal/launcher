@@ -108,7 +108,12 @@ jobs:
         platform: [ubuntu-20.04, windows-latest, macos-12]
     runs-on: ${{ matrix.platform }}
     steps:
+      # NOTE - there is technically a race condition here if multiple releases go out
+      # but the build needs to have the up to date version files
+      # In the past this was handled by a two-stage release, but now it's all in one workflow
       - uses: actions/checkout@v3
+        with:
+          ref: "main"
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -183,7 +188,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: main
+          ref: "main"
           # TODO - still have to use PAT to bypass branch protections
           # https://github.com/orgs/community/discussions/13836
           token: ${{ secrets.BOT_PAT }}
