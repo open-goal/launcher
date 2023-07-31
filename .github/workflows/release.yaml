@@ -58,7 +58,7 @@ jobs:
           default_author: github_actor
           author_name: "OpenGOALBot"
           author_email: "OpenGOALBot@users.noreply.github.com"
-          message: "release: bump to version - ${{ steps.version-bump.outputs.new_version }}"
+          message: "release: bump to version - ${{ steps.version_bump.outputs.new_tag }}"
           tag: "${{ steps.version_bump.outputs.new_tag }}"
 
   create-release:
@@ -197,6 +197,7 @@ jobs:
       - name: update release metadata and publish the release
         env:
           RELEASE_ID: ${{needs.create-release.outputs.release_id}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           yarn install --frozen-lockfile
           yarn update-release-meta
