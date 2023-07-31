@@ -41,9 +41,9 @@
         } catch (e) {
           exceptionLog(
             `Could not parse changelog JSON from release metadata - ${JSON.stringify(
-              updateResult
+              updateResult,
             )}`,
-            e
+            e,
           );
         }
         $UpdateStore.launcher = {
@@ -78,7 +78,7 @@
         // Check that we havn't already downloaded it
         let alreadyHaveRelease = false;
         const downloadedOfficialVersions = await listDownloadedVersions(
-          "official"
+          "official",
         );
         for (const releaseVersion of downloadedOfficialVersions) {
           if (releaseVersion === latestToolingVersion.version) {

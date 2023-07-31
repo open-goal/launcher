@@ -147,14 +147,14 @@
       {
         status: "queued",
         label: $_("setup_decompile"),
-      }
+      },
     );
     progressTracker.init(jobs);
     progressTracker.start();
     if (texturePacksToDelete.length > 0) {
       let resp = await deleteTexturePacks(
         getInternalName(activeGame),
-        texturePacksToDelete
+        texturePacksToDelete,
       );
       if (!resp.success) {
         progressTracker.halt();
@@ -165,7 +165,7 @@
     }
     let resp = await setEnabledTexturePacks(
       getInternalName(activeGame),
-      texturePacksToEnable
+      texturePacksToEnable,
     );
     if (!resp.success) {
       progressTracker.halt();

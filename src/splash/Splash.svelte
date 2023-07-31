@@ -149,7 +149,7 @@
           currentStatusText = $_("splash_step_pickInstallFolder");
           currentProgress = 25;
           const newInstallDir = await folderPrompt(
-            $_("splash_button_setInstallFolder_prompt")
+            $_("splash_button_setInstallFolder_prompt"),
           );
           if (newInstallDir !== undefined) {
             const result = await setInstallationDirectory(newInstallDir);

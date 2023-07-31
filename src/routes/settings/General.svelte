@@ -68,9 +68,9 @@
         if (evt.target.checked) {
           const confirmed = await confirm(
             `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
-              "requirements_button_bypass_warning_2"
+              "requirements_button_bypass_warning_2",
             )}`,
-            { title: "OpenGOAL Launcher", type: "warning" }
+            { title: "OpenGOAL Launcher", type: "warning" },
           );
           if (confirmed) {
             await setBypassRequirements(evt.target.checked);
@@ -90,7 +90,7 @@
       class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
       on:click={async () => {
         const confirmed = await confirm(
-          $_("settings_general_button_resetSettings_confirmation")
+          $_("settings_general_button_resetSettings_confirmation"),
         );
         if (confirmed) {
           const result = resetLauncherSettingsToDefaults();

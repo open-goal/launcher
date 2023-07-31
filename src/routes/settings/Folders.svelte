@@ -26,7 +26,7 @@
       placeholder={currentInstallationDirectory}
       on:click={async () => {
         const newInstallDir = await folderPrompt(
-          $_("settings_folders_installationDir_prompt")
+          $_("settings_folders_installationDir_prompt"),
         );
         if (
           newInstallDir !== undefined &&

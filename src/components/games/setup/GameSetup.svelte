@@ -45,7 +45,7 @@
     let sourcePath = "";
     if (viaFolder) {
       sourcePath = await folderPrompt(
-        "Select a folder with your ISO's data extracted"
+        "Select a folder with your ISO's data extracted",
       );
     } else {
       sourcePath = await isoPrompt();
@@ -76,7 +76,7 @@
       progressTracker.start();
       let resp = await extractAndValidateISO(
         sourcePath,
-        getInternalName(activeGame)
+        getInternalName(activeGame),
       );
       progressTracker.updateLogs(await getEndOfLogs());
       if (!resp.success) {

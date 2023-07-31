@@ -31,13 +31,13 @@
       await configDir(),
       "OpenGOAL",
       getInternalName(activeGame),
-      "settings"
+      "settings",
     );
     savesDir = await join(
       await configDir(),
       "OpenGOAL",
       getInternalName(activeGame),
-      "saves"
+      "saves",
     );
   });
 </script>
@@ -144,7 +144,7 @@
           // TODO - probably move these confirms into the actual launcher itself
           const confirmed = await confirm(
             $_("gameControls_button_uninstall_confirmation"),
-            { title: "OpenGOAL Launcher", type: "warning" }
+            { title: "OpenGOAL Launcher", type: "warning" },
           );
           if (confirmed) {
             await uninstallGame(getInternalName(activeGame));

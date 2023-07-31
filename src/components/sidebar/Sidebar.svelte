@@ -51,7 +51,7 @@
     // - insert non-breaking-spaces to any space in the translated name
     // - don't insert a nbsp after a `:`
     return gameName.replace(/(?:[^:])\s/g, (match) =>
-      match.replace(/\s/g, "\u00a0")
+      match.replace(/\s/g, "\u00a0"),
     );
   }
 </script>
@@ -74,7 +74,7 @@
           style="custom"
           class="text-center py-2 px-3 text-sm font-medium"
           >{modifyGameTitleName(
-            $_(`gameName_${getInternalName(SupportedGame.Jak1)}`)
+            $_(`gameName_${getInternalName(SupportedGame.Jak1)}`),
           )}</Tooltip
         >
       </a>

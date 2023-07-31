@@ -58,10 +58,10 @@
       // - prompt them to either reinstall OR go and select their previous version
       if (gameInstalled) {
         installedVersion = await getInstalledVersion(
-          getInternalName(activeGame)
+          getInternalName(activeGame),
         );
         installedVersionFolder = await getInstalledVersionFolder(
-          getInternalName(activeGame)
+          getInternalName(activeGame),
         );
         if (
           installedVersion !== $VersionStore.activeVersionName ||

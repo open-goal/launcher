@@ -54,7 +54,7 @@
   async function onSaveVersionChange(evt: any) {
     const success = await saveActiveVersionChange(
       "unofficial",
-      $VersionStore.selectedVersions.unofficial
+      $VersionStore.selectedVersions.unofficial,
     );
     if (success) {
       $VersionStore.activeVersionType = "unofficial";
