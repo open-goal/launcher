@@ -72,9 +72,7 @@ for (const expectedAssetRegex of expectedAssetNameRegexes) {
     }
   }
   if (!assetMatchFound) {
-    console.log(
-      `No assets matched ${expectedAssetRegex}`,
-    );
+    console.log(`No assets matched ${expectedAssetRegex}`);
     missingAsset = true;
   }
 }

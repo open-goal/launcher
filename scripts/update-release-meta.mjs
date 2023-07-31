@@ -204,9 +204,7 @@ const releaseMeta = {
     },
     "darwin-x86_64": {
       signature: macosSignature,
-      url: `https://github.com/open-goal/launcher/releases/download/${
-        launcherRelease.tag_name
-      }/OpenGOAL-Launcher_x64.app.tar.gz`,
+      url: `https://github.com/open-goal/launcher/releases/download/${launcherRelease.tag_name}/OpenGOAL-Launcher_x64.app.tar.gz`,
     },
   },
 };
