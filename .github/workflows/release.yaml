@@ -75,6 +75,8 @@ jobs:
 
       # Create the release, use `gh` CLI so we can auto generate the notes
       - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh release create ${{needs.create-tag.outputs.new_tag}} --generate-notes --draft --repo open-goal/launcher
 
