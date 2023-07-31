@@ -98,6 +98,7 @@ export async function saveActiveVersionChange(
     { versionFolder, newActiveVersion },
     () => false,
     "Couldn't save active version change",
+    () => true,
   );
 }
 
