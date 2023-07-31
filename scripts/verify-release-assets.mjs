@@ -54,6 +54,7 @@ const assets = await octokit.rest.repos.listReleaseAssets({
   release_id: releaseId,
   per_page: 100,
 });
+console.log(assets);
 
 let expectedAssetNameRegexes = process.env.EXPECTED_ASSET_NAME_REGEXES;
 if (expectedAssetNameRegexes === undefined || expectedAssetNameRegexes === "") {
@@ -61,20 +62,18 @@ if (expectedAssetNameRegexes === undefined || expectedAssetNameRegexes === "") {
   process.exit(1);
 }
 expectedAssetNameRegexes = JSON.parse(expectedAssetNameRegexes);
-
 let missingAsset = false;
-for (const asset of assets.data) {
-  const assetName = asset.name;
-  let matchFound = false;
-  for (const expectedAssetNameRegex of expectedAssetNameRegexes) {
-    if (new RegExp(expectedAssetNameRegex).test(assetName)) {
-      matchFound = true;
+for (const expectedAssetRegex of expectedAssetNameRegexes) {
+  let assetMatchFound = false;
+  for (const asset of assets.data) {
+    if (new RegExp(expectedAssetRegex).test(asset.name)) {
+      assetMatchFound = true;
       break;
     }
   }
-  if (!matchFound) {
+  if (!assetMatchFound) {
     console.log(
-      `Asset name does not match any of the expected regexes: ${assetName}`,
+      `No assets matched ${expectedAssetRegex}`,
     );
     missingAsset = true;
   }
