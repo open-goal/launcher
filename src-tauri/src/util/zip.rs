@@ -1,3 +1,4 @@
+use log::info;
 use std::io::{BufReader, Cursor};
 use std::path::PathBuf;
 use std::{
@@ -119,9 +120,6 @@ pub fn check_if_zip_contains_top_level_dir(
   let mut zip = zip::ZipArchive::new(reader)?;
   for i in 0..zip.len() {
     let file = zip.by_index(i)?;
-    if !file.is_dir() {
-      continue;
-    }
     // Check if the entry is a directory and has the desired folder name
     if file.name().starts_with(&expected_dir) {
       return Ok(true);
