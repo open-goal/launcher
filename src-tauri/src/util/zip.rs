@@ -1,4 +1,3 @@
-use log::info;
 use std::io::{BufReader, Cursor};
 use std::path::PathBuf;
 use std::{
