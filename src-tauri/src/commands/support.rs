@@ -61,6 +61,8 @@ pub struct SupportPackage {
   pub gpu_info: Vec<GPUInfo>,
   pub game_info: PerGameInfo,
   pub launcher_version: String,
+  pub extractor_binary_exists: bool,
+  pub game_binary_exists: bool,
 }
 
 #[tauri::command]
@@ -95,6 +97,35 @@ pub async fn generate_support_package(
     .kernel_version()
     .unwrap_or("unknown".to_string());
   package.launcher_version = app_handle.package_info().version.to_string();
+  if let Some(active_version) = &config_lock.active_version {
+    if cfg!(windows) {
+      package.extractor_binary_exists = install_path
+        .join("versions")
+        .join("official")
+        .join(active_version)
+        .join("extractor.exe")
+        .exists();
+      package.game_binary_exists = install_path
+        .join("versions")
+        .join("official")
+        .join(active_version)
+        .join("gk.exe")
+        .exists();
+    } else {
+      package.extractor_binary_exists = install_path
+        .join("versions")
+        .join("official")
+        .join(active_version)
+        .join("extractor")
+        .exists();
+      package.game_binary_exists = install_path
+        .join("versions")
+        .join("official")
+        .join(active_version)
+        .join("gk")
+        .exists();
+    }
+  }
 
   for disk in system_info.disks() {
     package.disk_info.push(format!(
@@ -106,7 +137,6 @@ pub async fn generate_support_package(
     ))
   }
 
-  // TODO - maybe long-term this can replace glewinfo / support vulkan?
   let gpu_info_instance = wgpu::Instance::default();
   for a in gpu_info_instance.enumerate_adapters(wgpu::Backends::all()) {
     let info = a.get_info();
