@@ -77,9 +77,8 @@
       if ($VersionStore.activeVersionName !== latestToolingVersion.version) {
         // Check that we havn't already downloaded it
         let alreadyHaveRelease = false;
-        const downloadedOfficialVersions = await listDownloadedVersions(
-          "official",
-        );
+        const downloadedOfficialVersions =
+          await listDownloadedVersions("official");
         for (const releaseVersion of downloadedOfficialVersions) {
           if (releaseVersion === latestToolingVersion.version) {
             alreadyHaveRelease = true;
