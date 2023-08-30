@@ -247,7 +247,11 @@ pub async fn update_texture_pack_data(
   // Reset texture replacement directory
   delete_dir(&game_texture_pack_dir)?;
   create_dir(&game_texture_pack_dir)?;
-  for pack in config_lock.game_enabled_textured_packs(&game_name) {
+  for pack in config_lock
+    .game_enabled_textured_packs(&game_name)
+    .iter()
+    .rev()
+  {
     let texture_pack_dir = install_path
       .join("features")
       .join(&game_name)

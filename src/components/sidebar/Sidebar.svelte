@@ -71,7 +71,7 @@
         />
         <Tooltip
           placement="right"
-          style="custom"
+          type="dark"
           class="text-center py-2 px-3 text-sm font-medium"
           >{modifyGameTitleName(
             $_(`gameName_${getInternalName(SupportedGame.Jak1)}`),
@@ -86,8 +86,10 @@
         use:link
       >
         <img src={logoJak2} alt="Jak 2" aria-label="Jak 2" />
-        <Tooltip placement="right" style="dark"
-          >{$_(`gameName_${getInternalName(SupportedGame.Jak2)}`)}</Tooltip
+        <Tooltip placement="right" type="dark"
+          >{modifyGameTitleName(
+            $_(`gameName_${getInternalName(SupportedGame.Jak2)}`),
+          )}</Tooltip
         >
       </a>
     </li>
@@ -98,8 +100,7 @@
         use:link
       >
         <IconCog style="font-size: 36px" />
-        <Tooltip placement="right" style="dark"
-          >{$_("sidebar_settings")}</Tooltip
+        <Tooltip placement="right" type="dark">{$_("sidebar_settings")}</Tooltip
         >
       </a>
     </li>
@@ -111,7 +112,7 @@
         use:link
       >
         <IconChatQuestion style="font-size: 36px" />
-        <Tooltip placement="right" style="dark">{$_("sidebar_help")}</Tooltip>
+        <Tooltip placement="right" type="dark">{$_("sidebar_help")}</Tooltip>
       </a>
     </li>
   </ul>

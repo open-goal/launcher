@@ -181,6 +181,10 @@ fn get_exec_location(
     .join(&config_info.active_version);
   let exec_path = exec_dir.join(bin_ext(executable_name));
   if !exec_path.exists() {
+    log::error!(
+      "Could not find the required binary '{}', can't perform operation",
+      exec_path.to_string_lossy()
+    );
     return Err(CommandError::BinaryExecution(format!(
       "Could not find the required binary '{}', can't perform operation",
       exec_path.to_string_lossy()
@@ -270,10 +274,11 @@ pub async fn extract_and_validate_iso(
   let exec_info = match get_exec_location(&config_info, "extractor") {
     Ok(exec_info) => exec_info,
     Err(_) => {
+      log::error!("extractor executable not found");
       return Ok(InstallStepOutput {
         success: false,
         msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
-      })
+      });
     }
   };
 
@@ -305,6 +310,7 @@ pub async fn extract_and_validate_iso(
   match output.status.code() {
     Some(code) => {
       if code == 0 {
+        log::info!("extraction and validation was successful");
         return Ok(InstallStepOutput {
           success: true,
           msg: None,
@@ -315,15 +321,23 @@ pub async fn extract_and_validate_iso(
         msg: format!("Unexpected error occured with code {code}"),
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
+      log::error!("extraction and validation was not successful. Code {code}");
+      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some(message.msg.clone()),
       })
     }
-    None => Ok(InstallStepOutput {
-      success: false,
-      msg: Some("Unexpected error occurred".to_owned()),
-    }),
+    None => {
+      log::error!("extraction and validation was not successful. No status code");
+      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+      Ok(InstallStepOutput {
+        success: false,
+        msg: Some("Unexpected error occurred".to_owned()),
+      })
+    }
   }
 }
 
@@ -339,13 +353,18 @@ pub async fn run_decompiler(
   let config_info = common_prelude(&config_lock)?;
 
   let data_folder = get_data_dir(&config_info, &game_name, false)?;
+  log::info!(
+    "decompiling using data folder: {}",
+    data_folder.to_string_lossy()
+  );
   let exec_info = match get_exec_location(&config_info, "extractor") {
     Ok(exec_info) => exec_info,
     Err(_) => {
+      log::error!("extractor executable not found");
       return Ok(InstallStepOutput {
         success: false,
         msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
-      })
+      });
     }
   };
 
@@ -378,6 +397,7 @@ pub async fn run_decompiler(
   match output.status.code() {
     Some(code) => {
       if code == 0 {
+        log::info!("decompilation was successful");
         return Ok(InstallStepOutput {
           success: true,
           msg: None,
@@ -388,15 +408,23 @@ pub async fn run_decompiler(
         msg: format!("Unexpected error occured with code {code}"),
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
+      log::error!("decompilation was not successful. Code {code}");
+      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some(message.msg.clone()),
       })
     }
-    None => Ok(InstallStepOutput {
-      success: false,
-      msg: Some("Unexpected error occurred".to_owned()),
-    }),
+    None => {
+      log::error!("decompilation was not successful. No status code");
+      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+      Ok(InstallStepOutput {
+        success: false,
+        msg: Some("Unexpected error occurred".to_owned()),
+      })
+    }
   }
 }
 
@@ -412,6 +440,10 @@ pub async fn run_compiler(
   let config_info = common_prelude(&config_lock)?;
 
   let data_folder = get_data_dir(&config_info, &game_name, false)?;
+  log::info!(
+    "compiling using data folder: {}",
+    data_folder.to_string_lossy()
+  );
   let exec_info = match get_exec_location(&config_info, "extractor") {
     Ok(exec_info) => exec_info,
     Err(_) => {
@@ -451,6 +483,7 @@ pub async fn run_compiler(
   match output.status.code() {
     Some(code) => {
       if code == 0 {
+        log::info!("compilation was successful");
         return Ok(InstallStepOutput {
           success: true,
           msg: None,
@@ -461,15 +494,23 @@ pub async fn run_compiler(
         msg: format!("Unexpected error occured with code {code}"),
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
+      log::error!("compilation was not successful. Code {code}");
+      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some(message.msg.clone()),
       })
     }
-    None => Ok(InstallStepOutput {
-      success: false,
-      msg: Some("Unexpected error occurred".to_owned()),
-    }),
+    None => {
+      log::error!("compilation was not successful. No status code");
+      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+      Ok(InstallStepOutput {
+        success: false,
+        msg: Some("Unexpected error occurred".to_owned()),
+      })
+    }
   }
 }
 

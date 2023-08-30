@@ -64,7 +64,7 @@ export async function launchGame(
     "launch_game",
     { gameName, inDebug },
     () => {},
-    "Unable to launch game",
+    "_mirror_",
   );
 }
 

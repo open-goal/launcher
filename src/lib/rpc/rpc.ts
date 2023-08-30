@@ -31,8 +31,13 @@ export async function invoke_rpc<T>(
     } else {
       exceptionLog(`Error calling '${cmd}'`, e);
     }
-    const toastMessage = toastOnError ?? "An unexpected error occurred";
-    toastStore.makeToast(toastMessage, "error");
+    // TODO - this is a dumb hack but whatever for now
+    if (toastOnError === "_mirror_") {
+      toastStore.makeToast(e, "error");
+    } else {
+      const toastMessage = toastOnError ?? "An unexpected error occurred";
+      toastStore.makeToast(toastMessage, "error");
+    }
     return handleError(e);
   }
 }

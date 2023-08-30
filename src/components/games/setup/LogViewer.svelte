@@ -11,7 +11,7 @@
   }
 </script>
 
-<Accordion class="log-accordian" defaultClass="p-0">
+<Accordion class="log-accordian p-0 mb-2">
   <AccordionItem class="bg-slate-900 rounded p-[1rem]">
     <span slot="header" class="text-sm font-semibold text-white flex gap-2">
       <IconDocument />
@@ -19,7 +19,7 @@
     </span>
     <div
       slot="default"
-      class="bg-slate-900 px-4 max-h-60 overflow-y-scroll scrollbar"
+      class="bg-slate-900 px-4 max-h-52 overflow-y-scroll scrollbar"
     >
       <p class="py-4 text-clip overflow-hidden font-mono log-output">
         ...{$_("setup_logs_truncation")}:
