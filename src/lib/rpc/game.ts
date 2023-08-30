@@ -17,3 +17,14 @@ export async function resetGameSettings(gameName: string): Promise<void> {
     "Unable to reset game settings",
   );
 }
+
+export async function getFurthestGameMilestone(
+  gameName: string,
+): Promise<String> {
+  return await invoke_rpc(
+    "get_furthest_game_milestone",
+    { gameName },
+    () => "geyser", // TODO - default for only jak 1 right now
+    "Unable to get furthest game milestone",
+  );
+}

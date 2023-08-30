@@ -105,7 +105,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-20.04, windows-latest, macos-12]
+        platform: [ubuntu-20.04, windows-latest, macos-11]
     runs-on: ${{ matrix.platform }}
     steps:
       # NOTE - there is technically a race condition here if multiple releases go out

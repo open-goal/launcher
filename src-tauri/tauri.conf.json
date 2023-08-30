@@ -19,9 +19,6 @@
         "dmg",
         "updater"
       ],
-      "appimage": {
-        "bundleMediaFramework": true
-      },
       "identifier": "OpenGOAL-Launcher",
       "icon": [
         "icons/32x32.png",
