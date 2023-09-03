@@ -1,19 +1,19 @@
 {
-  "name": "v2.2.1",
-  "notes": "{\"changes\":[{\"description\":\"build(deps): bump the backend-deps group with 1 update\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/294\"},{\"description\":\"Properly reverse order when applying texture packs\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/299\"},{\"description\":\"support: Some hopefully useful support improvements\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/302\"},{\"description\":\"build(deps): bump the backend-deps group with 10 updates\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/311\"},{\"description\":\"build(deps-dev): bump the frontend-deps group with 16 updates\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/312\"},{\"description\":\"Dynamically change game background based on user's game completion\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/298\"}]}",
-  "pub_date": "2023-08-30T02:12:57Z",
+  "name": "v2.2.2",
+  "notes": "{\"changes\":[{\"description\":\"versions: support invalidating releases\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/314\"}]}",
+  "pub_date": "2023-09-03T22:55:59Z",
   "platforms": {
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1F1dm50K202WFh5aExQK2RySmlBNDJxT2habFYwdks4YUcrVmxTQVBzazc4SktJTkJmeTRsdnpuMEM5ZkVLc1ZMWnJYeitZaStVZ3pqdmdBRTMwR2dBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjkzMzYyNDc4CWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMi4xX2FtZDY0LkFwcEltYWdlLnRhci5negpxeXdFTW14Ry95a2ZOOVphSTVXejhhbUxLZC9ZTC92dnNpOThrUEZMSlFINCs1TmZIRzlVbmRsNFhlWnl3RG5JM2I4V0pzUFJnSkZGQkgzdkQ0NUlBQT09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.2.1/open-goal-launcher_2.2.1_amd64.AppImage.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1pXWkk3YmR6K1RvcDBOQ280KzNSYTliQVdVa1JBT0E5Y0RSZTFRZTgvMXZqNHA2MDRKdnRWRmo1eFdNZk95dHhZUkt4UjZVY25nTUE0Vmxkai90ZndZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjkzNzgyNjIyCWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMi4yX2FtZDY0LkFwcEltYWdlLnRhci5negpNNTBzZkRweE14RnhJOENGY1BNTmpIKzVOcGNGYk1qZzJYQ2RDQjBZT21YV2RpSWRQNVJTNFNvRmlMeGwxUWdUc3lWcFNEVUVBZEd2YjNid05wK05CUT09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.2.2/open-goal-launcher_2.2.2_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2YxYXdUZWVyMW9RYXB3ZHhlVWdmWW1TWUdPRG1GRkpobW9YQnRtR1hyaEg1QlY1VndOVWFrNkd0dmUycFFJRjNpbnduR3dEMlhmMmtDbmoyb29KRFF3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjkzMzYyNzE2CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4yLjFfeDY0X2VuLVVTLm1zaS56aXAKeElSckNqalE4dC9xS21zMU11aWxuQks3VGhhZWUrWWU1UFllZGZwNGZmWjdFYzl5d2gyY3I2N3BUVXJkT3lpdnpkekZ0ZnJXQWtWeDJtREZ2dHZzQnc9PQo=",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.2.1/OpenGOAL-Launcher_2.2.1_x64_en-US.msi.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1dpbExTd1N1RzB3ZnNBbFpWYTdteDAxWmRTRENjeWd6UVNKRjRPRlQ5c2JLNVJST3ZsdlVXQTFUMWNieXlESHVsQmo0UVJlazlwWUkyZkhJaHRuT0E4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjkzNzgyNzcxCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4yLjJfeDY0X2VuLVVTLm1zaS56aXAKMzdEL3lkNXFKNE1YNXZlK0Rrd09KQWJSdzNMbTJqQlZVS3hydWxGMFd6TlV3TTc5N2hZNkhPWDRJRjIvbDBtSXRCNUpsTVpER1o4UkVjUkdOelhmQWc9PQo=",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.2.2/OpenGOAL-Launcher_2.2.2_x64_en-US.msi.zip"
     },
     "darwin-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1M5MXNiV1VUeUo1U21WQ3VvZ0JTeEZ5S2E1ZkRETFdDcTNzZVNZTUV6azZmaE5yN0o5UWhrVmdYelVicXdGUEk1UTRrKzgrZTFUcld5U1lIZnQxL2djPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjkzMzYyNTM4CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpLTkZnSmNpbkVITm1mU3lNZUR2YmdKU3N0aHduemFZKzRMcWtMK3ZLQWtWbzExekZhRGxKcGVoMzVDL1RsWFMxb1VZb0kwd2xBdTYvL2UycDZrSU5EUT09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.2.1/OpenGOAL-Launcher_x64.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2NCSHR4eng5S3oySjAwN0tPMlNEcS9RWTNGdi9YWW5XTmhFU2dUWmUyNFA2aWNpdEFkT1c3K0V6ZDhvLzhzVnlmR2NCdlJZR0c3Y0RaR04wY1JqMlE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjkzNzgyNDY4CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negp4WjQ5SDd6RndxYU9RalhTOGt3dGtrQU53OVpjcEM5bnlYQkxmL1lUem1oMklJV3hybFRNVXRoZjF6cjVkMWhqRG5MWW1jeUsrblgrc0xDMTlCeVFEdz09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.2.2/OpenGOAL-Launcher_x64.app.tar.gz"
     }
   }
 }
