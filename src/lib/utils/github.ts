@@ -8,6 +8,8 @@ export interface ReleaseInfo {
   downloadUrl: string | undefined;
   isDownloaded: boolean;
   pendingAction: boolean;
+  invalid: boolean;
+  invalidationReasons: string[];
 }
 
 function isIntelMacOsRelease(
@@ -64,6 +66,35 @@ async function getDownloadLinkForCurrentPlatform(
   return undefined;
 }
 
+async function parseGithubRelease(githubRelease: any): Promise<ReleaseInfo> {
+  const releaseInfo: ReleaseInfo = {
+    releaseType: "official",
+    version: githubRelease.tag_name,
+    date: githubRelease.published_at,
+    githubLink: githubRelease.html_url,
+    downloadUrl: await getDownloadLinkForCurrentPlatform(githubRelease),
+    isDownloaded: false,
+    pendingAction: false,
+    invalid: false,
+    invalidationReasons: [],
+  };
+  if (githubRelease.body.includes("<!-- invalid:")) {
+    releaseInfo.invalid = true;
+    // Get the line it's on
+    try {
+      const line = githubRelease.body
+        .split("<!-- invalid:")[1]
+        .split("-->")[0]
+        .trim();
+      releaseInfo.invalidationReasons = line.split("|");
+    } catch (err) {
+      // do nothing, bad formatting
+    }
+  }
+  console.log(releaseInfo);
+  return releaseInfo;
+}
+
 export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
   let releases = [];
   // TODO - handle rate limiting
@@ -75,15 +106,7 @@ export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
   const githubReleases = await resp.json();
 
   for (const release of githubReleases) {
-    releases.push({
-      releaseType: "official",
-      version: release.tag_name,
-      date: release.published_at,
-      githubLink: release.html_url,
-      downloadUrl: await getDownloadLinkForCurrentPlatform(release),
-      isDownloaded: false,
-      pendingAction: false,
-    });
+    releases.push(await parseGithubRelease(release));
   }
 
   return releases.sort((a, b) => b.date.localeCompare(a.date));
@@ -96,13 +119,5 @@ export async function getLatestOfficialRelease(): Promise<ReleaseInfo> {
   );
   // TODO - handle error
   const githubRelease = await resp.json();
-  return {
-    releaseType: "official",
-    version: githubRelease.tag_name,
-    date: githubRelease.published_at,
-    githubLink: githubRelease.html_url,
-    downloadUrl: await getDownloadLinkForCurrentPlatform(githubRelease),
-    isDownloaded: false,
-    pendingAction: false,
-  };
+  return await parseGithubRelease(githubRelease);
 }

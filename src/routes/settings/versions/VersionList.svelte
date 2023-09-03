@@ -22,6 +22,7 @@
     TableBodyRow,
     TableHead,
     TableHeadCell,
+    Tooltip,
   } from "flowbite-svelte";
   import { createEventDispatcher } from "svelte";
   import { _ } from "svelte-i18n";
@@ -132,7 +133,10 @@
             >
               <Button
                 class="py-0 dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
-                disabled={release.pendingAction}
+                disabled={release.pendingAction ||
+                  (!release.isDownloaded &&
+                    release.downloadUrl !== undefined &&
+                    release.invalid)}
                 on:click={async () => {
                   if (release.isDownloaded) {
                     dispatch("removeVersion", { version: release.version });
@@ -166,6 +170,19 @@
                   />
                 {/if}
               </Button>
+              {#if release.invalid}
+                <Tooltip color="red">
+                  {#if release.invalidationReasons.length > 0}
+                    Release marked as invalid for the following reasons:
+                    {#each release.invalidationReasons as reason}
+                      <br />
+                      - {reason}
+                    {/each}
+                  {:else}
+                    Release marked as invalid
+                  {/if}
+                </Tooltip>
+              {/if}
               {#if release.isDownloaded && release.releaseType == "official"}
                 <Button
                   class="py-0 dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"

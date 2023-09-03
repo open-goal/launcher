@@ -44,6 +44,8 @@
           downloadUrl: undefined,
           isDownloaded: true,
           pendingAction: false,
+          invalid: false,
+          invalidationReasons: [],
         },
       ];
     }
@@ -76,6 +78,8 @@
           downloadUrl: release.downloadUrl,
           isDownloaded: false,
           pendingAction: false,
+          invalid: release.invalid,
+          invalidationReasons: release.invalidationReasons,
         },
       ];
     }
