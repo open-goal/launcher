@@ -3,7 +3,10 @@ import { locale as svelteLocale } from "svelte-i18n";
 import { errorLog } from "./logging";
 import { invoke_rpc } from "./rpc";
 import type { VersionFolders } from "./versions";
-import { AVAILABLE_LOCALES } from "$lib/i18n/i18n";
+import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
+import { readBinaryFile, BaseDirectory, exists } from "@tauri-apps/api/fs";
+import { appDataDir, join } from "@tauri-apps/api/path";
+import { convertFileSrc } from "@tauri-apps/api/tauri";
 
 export async function oldDataDirectoryExists(): Promise<boolean> {
   return await invoke_rpc("has_old_data_directory", {}, () => false);
@@ -106,23 +109,72 @@ export async function getLocale(): Promise<string | null> {
   return await invoke_rpc("get_locale", {}, () => "en-US");
 }
 
+export async function localeSpecificFontAvailableForDownload(
+  localeId: string,
+): Promise<Locale | undefined> {
+  let localeInfo = AVAILABLE_LOCALES.find((locale) => locale.id === localeId);
+  if (
+    localeInfo !== undefined &&
+    localeInfo.fontFileName !== undefined &&
+    localeInfo.fontDownloadUrl !== undefined
+  ) {
+    const fontPath = await join(
+      await appDataDir(),
+      "fonts",
+      localeInfo.fontFileName,
+    );
+    const fontAlreadyDownloaded = await exists(fontPath);
+    if (fontAlreadyDownloaded) {
+      return undefined;
+    }
+    return localeInfo;
+  }
+  return undefined;
+}
+
 export async function setLocale(localeId: string): Promise<void> {
   return await invoke_rpc(
     "set_locale",
     { locale: localeId },
     () => {},
-    null, // no toast
-    () => {
+    undefined, // no toast
+    async () => {
       svelteLocale.set(localeId);
       // Update CSS variable if needed
       let localeInfo = AVAILABLE_LOCALES.find(
         (locale) => locale.id === localeId,
       );
-      if (localeInfo !== undefined && localeInfo.fontFamily !== undefined) {
-        document.documentElement.style.setProperty(
-          "--launcher-font-family",
-          localeInfo.fontFamily,
+      if (
+        localeInfo !== undefined &&
+        localeInfo.fontFamily !== undefined &&
+        localeInfo.fontFileName !== undefined
+      ) {
+        // Dynamically get the font
+        const fontPath = await join(
+          await appDataDir(),
+          "fonts",
+          localeInfo.fontFileName,
         );
+        const fontExists = await exists(fontPath);
+        if (fontExists) {
+          const assetUrl = convertFileSrc(fontPath);
+          var newFontStyle = document.createElement("style");
+          newFontStyle.appendChild(
+            document.createTextNode(
+              `@font-face {\nfont-family: "${localeInfo.fontFamily}";\nsrc: url('${assetUrl}');\n}\n`,
+            ),
+          );
+          document.head.appendChild(newFontStyle);
+          document.documentElement.style.setProperty(
+            "--launcher-font-family",
+            localeInfo.fontFamily,
+          );
+        } else {
+          document.documentElement.style.setProperty(
+            "--launcher-font-family",
+            "Noto Sans",
+          );
+        }
       } else {
         document.documentElement.style.setProperty(
           "--launcher-font-family",
