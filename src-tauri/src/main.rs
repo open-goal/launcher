@@ -158,6 +158,7 @@ fn main() {
       commands::config::set_locale,
       commands::config::get_enabled_texture_packs,
       commands::config::cleanup_enabled_texture_packs,
+      commands::download::download_file,
       commands::game::reset_game_settings,
       commands::game::uninstall_game,
       commands::game::get_furthest_game_milestone,
