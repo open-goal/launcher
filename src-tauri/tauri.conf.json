@@ -39,6 +39,9 @@
     },
     "allowlist": {
       "all": true,
+      "clipboard": {
+        "writeText": true
+      },
       "fs": {
         "scope": [
           "$APP/",
