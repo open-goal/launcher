@@ -17,6 +17,8 @@
   import { launchGame, openREPL } from "$lib/rpc/binaries";
   import { _ } from "svelte-i18n";
   import { navigate } from "svelte-navigator";
+  import { readTextFile, BaseDirectory } from '@tauri-apps/api/fs';
+  import { listen } from '@tauri-apps/api/event';
 
   export let activeGame: SupportedGame;
 
@@ -40,15 +42,66 @@
       "saves",
     );
   });
+  
+  // get the playtime from the txt file in the launcher config folder
+  async function getPlaytime() {
+    const playtimeRaw = await readTextFile("playtime.txt", { dir: BaseDirectory.App });
+    const playtime = formatPlaytime(parseInt(playtimeRaw));
+    return playtime;
+  }
+
+  // format the time from the playtime.txt file which is stored as seconds
+  function formatPlaytime(playtimeRaw) {
+    // calculate the number of hours, minutes, and seconds
+    const hours = Math.floor(playtimeRaw / 3600);
+    const minutes = Math.floor((playtimeRaw % 3600) / 60);
+
+    // initialize the formatted playtime string
+    let formattedPlaytime = '';
+
+    // add the hours to the formatted playtime string
+    if (hours > 0) {
+      formattedPlaytime += `${hours} hour${hours > 1 ? 's' : ''}`;
+    }
+
+    // add the minutes to the formatted playtime string
+    if (minutes > 0) {
+      // add a comma if there are already hours in the formatted playtime string
+      if (formattedPlaytime.length > 0) {
+        formattedPlaytime += ', ';
+      }
+      formattedPlaytime += `${minutes} minute${minutes > 1 ? 's' : ''}`;
+    }
+
+    // return the formatted playtime string
+    return formattedPlaytime;
+  }
+
+  let playtime = '';
+
+  // run the function and assign the result to the playtime variable when the page first loads
+  getPlaytime().then((result) => {
+    playtime = result;
+  });
+
+  // listen for the custom playtiemUpdated event from the backend and then refresh the playtime on screen
+  listen<string>("playtimeUpdated", (event) => {
+    getPlaytime().then((result) => {
+      playtime = result;
+    });
+  });
+
 </script>
 
 <div class="flex flex-col justify-end items-end mt-auto">
-  <!-- TOOO - time played -->
   <h1
     class="tracking-tighter text-2xl font-bold pb-3 text-orange-500 text-outline pointer-events-none"
   >
     {$_(`gameName_${getInternalName(activeGame)}`)}
   </h1>
+  {#if playtime}
+    <h1 class="pb-4 text-xl text-outline tracking-tighter font-extrabold">{`Played For ${playtime}`}</h1>
+  {/if}
   <div class="flex flex-row gap-2">
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"

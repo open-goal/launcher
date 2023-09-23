@@ -4,12 +4,16 @@ use std::{
   collections::HashMap,
   path::{Path, PathBuf},
   process::Command,
+  time::Instant,
+  fs::File,
+  io::prelude::*,
 };
 
 use log::{info, warn};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use tauri::{api::path, Manager};
 
 use crate::{
   config::LauncherConfig,
@@ -695,6 +699,50 @@ pub async fn launch_game(
   {
     command.creation_flags(0x08000000);
   }
-  command.spawn()?;
+
+  let start_time = Instant::now(); // get the start time
+
+  if let Ok(mut child) = command.spawn() {
+    child.wait().expect("game failed to exit");
+
+    // get the playtime of the session
+    let mut elapsed_time = start_time.elapsed().as_secs();
+
+    let config_dir = path::config_dir().unwrap();
+
+    // save the playtime in the config directory when the game is closed
+    let playtime_path = config_dir.join("OpenGOAL-Launcher").join("playtime.txt");
+    
+    // initialise the playtime integer
+    let mut existing_playtime = 0;
+
+    // if playtime.txt exists, read the playtime.txt file and get the existing value
+    if let Ok(mut file) = File::open(&playtime_path) {
+      let mut contents = String::new();
+      file.read_to_string(&mut contents).unwrap();
+
+      // catch the int parse error and reset the existing playtime
+      existing_playtime = match contents.trim().parse::<u64>() {
+        Ok(playtime) => playtime,
+        Err(_) => 0,
+      };
+    }
+
+    // add the times together
+    elapsed_time = existing_playtime + elapsed_time;
+    
+    let mut file = File::create(playtime_path).unwrap();
+    file.write_all(elapsed_time.to_string().as_bytes()).unwrap(); // write playtime to file as a string
+
+    // send an event to the front end so that it can refresh the playtime on screen
+    app_handle
+      .emit_all("playtimeUpdated", ())
+      .expect("failed to emit event");
+
+  } 
+  else {
+    println!("game didn't start");
+  }
+
   Ok(())
 }
