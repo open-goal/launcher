@@ -157,7 +157,7 @@
                     )}
                   />
                 {:else if release.downloadUrl === undefined}
-                  <span>Incompatible</span>
+                  <span>{$_("settings_versions_incompatibleVersion")}</span>
                 {:else if release.pendingAction}
                   <Spinner color="yellow" size={"6"} />
                 {:else if release.releaseType === "official" && release.downloadUrl !== undefined}
@@ -173,13 +173,13 @@
               {#if release.invalid}
                 <Tooltip color="red">
                   {#if release.invalidationReasons.length > 0}
-                    Release marked as invalid for the following reasons:
+                    {$_("settings_versions_invalidReleaseGeneric")}
                     {#each release.invalidationReasons as reason}
                       <br />
                       - {reason}
                     {/each}
                   {:else}
-                    Release marked as invalid
+                    {$_("settings_versions_invalidReleaseGeneric")}
                   {/if}
                 </Tooltip>
               {/if}
@@ -199,7 +199,9 @@
                   {:else}
                     <IconRefresh
                       class="text-xl"
-                      aria-label="Redownload Version"
+                      aria-label={$_(
+                        "settings_versions_icon_redownloadVersion_altText",
+                      )}
                     />
                   {/if}
                 </Button>

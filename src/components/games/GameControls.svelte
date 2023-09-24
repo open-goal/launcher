@@ -141,10 +141,10 @@
           await writeText(launchString);
           toastStore.makeToast("Copied to clipboard!", "info");
         }}
-        >Copy Game Executable Command<Helper
+        >{$_("gameControls_button_copyExecutableCommand")}<Helper
           helperClass="!text-neutral-400 !text-xs"
-          >For running the game outside the launcher.<br />The command is
-          tooling-version specific.</Helper
+          >{$_("gameControls_button_copyExecutableCommand_helpText_1")}<br
+          />{$_("gameControls_button_copyExecutableCommand_helpText_2")}</Helper
         ></DropdownItem
       >
       <DropdownDivider />
