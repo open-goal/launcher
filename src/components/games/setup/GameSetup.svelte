@@ -44,11 +44,12 @@
   async function install(viaFolder: boolean) {
     let sourcePath = "";
     if (viaFolder) {
-      sourcePath = await folderPrompt(
-        "Select a folder with your ISO's data extracted",
-      );
+      sourcePath = await folderPrompt($_("setup_prompt_selectFolderWithISO"));
     } else {
-      sourcePath = await isoPrompt();
+      sourcePath = await isoPrompt(
+        $_("setup_prompt_ISOFileLabel"),
+        $_("setup_prompt_selectISO"),
+      );
     }
     if (sourcePath !== undefined) {
       installing = true;

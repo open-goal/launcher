@@ -105,7 +105,7 @@
         {#if localeFontDownloading}
           <Spinner class="mr-3" size="4" color="white" />
         {/if}
-        Download Locale Specific Font
+        {$_("settings_general_downloadLocaleSpecificFont")}
       </Button>
     {/if}
   </div>
