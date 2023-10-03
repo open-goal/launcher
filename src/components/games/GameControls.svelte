@@ -51,11 +51,11 @@
   }
 
   // format the time from the playtime.txt file which is stored as seconds
-  function formatPlaytime(playtimeRaw) {
+  function formatPlaytime(playtimeRaw: number) {
     // calculate the number of hours, minutes, and seconds
     const hours = Math.floor(playtimeRaw / 3600);
     const minutes = Math.floor((playtimeRaw % 3600) / 60);
-
+    
     // initialize the formatted playtime string
     let formattedPlaytime = '';
 

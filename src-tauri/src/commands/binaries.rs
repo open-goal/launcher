@@ -6,7 +6,7 @@ use std::{
   process::Command,
   time::Instant,
   fs::File,
-  io::prelude::*,
+  io::prelude::*, thread,
 };
 
 use log::{info, warn};
@@ -700,49 +700,85 @@ pub async fn launch_game(
     command.creation_flags(0x08000000);
   }
 
-  let start_time = Instant::now(); // get the start time
+  let start_time = Instant::now(); // get the start time of the game
 
   if let Ok(mut child) = command.spawn() {
-    child.wait().expect("game failed to exit");
-
-    // get the playtime of the session
-    let mut elapsed_time = start_time.elapsed().as_secs();
-
-    let config_dir = path::config_dir().unwrap();
-
-    // save the playtime in the config directory when the game is closed
-    let playtime_path = config_dir.join("OpenGOAL-Launcher").join("playtime.txt");
     
-    // initialise the playtime integer
-    let mut existing_playtime = 0;
+    // move all playtime tracking to a separate thread
+    thread::spawn(move || {
 
-    // if playtime.txt exists, read the playtime.txt file and get the existing value
-    if let Ok(mut file) = File::open(&playtime_path) {
-      let mut contents = String::new();
-      file.read_to_string(&mut contents).unwrap();
+      // start waiting for the game to exit
+      if let Err(err) = child.wait() {
+        log::error!("Error occured when waiting for game to exit: {}", err);
+        return;
+      }
+      
+      // once the game exits pass the time the game started to the track_playtine function
+      if let Err(err) = track_playtime(start_time, app_handle) {
+        log::error!("Error occured when tracking playtime: {}", err);
+        return; 
+      }
+      
+    });
+  }
+  Ok(())
+}
 
-      // catch the int parse error and reset the existing playtime
-      existing_playtime = match contents.trim().parse::<u64>() {
-        Ok(playtime) => playtime,
-        Err(_) => 0,
-      };
+fn track_playtime(
+  start_time: std::time::Instant,
+  app_handle: tauri::AppHandle,
+) -> Result<Option<bool>, CommandError> {
+
+  // get the playtime of the session
+  let mut elapsed_time = start_time.elapsed().as_secs();
+
+  let config_dir = match path::config_dir() {
+    None => {
+      log::error!("Couldn't determine application config directory");
+      return Err(CommandError::BinaryExecution("Couldn't determine application config directory".to_owned()))
+    }
+    Some(path) => path,
+  };
+
+  // save the playtime in the config directory when the game is closed
+  let playtime_path = config_dir.join("OpenGOAL-Launcher").join("playtime.txt");
+
+  // initialise the playtime integer
+  let mut existing_playtime = 0;
+
+  // if playtime.txt exists, read the playtime.txt file and get the existing value
+  if let Ok(mut file) = File::open(&playtime_path) {
+    let mut contents = String::new();
+
+    if let Err(err) = file.read_to_string(&mut contents) {
+      log::error!("Could not read playtime.txt: {}", err);
+      return Err(CommandError::BinaryExecution(format!("Could not read playtime.txt: {}", err)));
     }
 
-    // add the times together
-    elapsed_time = existing_playtime + elapsed_time;
-    
-    let mut file = File::create(playtime_path).unwrap();
-    file.write_all(elapsed_time.to_string().as_bytes()).unwrap(); // write playtime to file as a string
-
-    // send an event to the front end so that it can refresh the playtime on screen
-    app_handle
-      .emit_all("playtimeUpdated", ())
-      .expect("failed to emit event");
-
-  } 
-  else {
-    println!("game didn't start");
+    // if there is a int parse error and set the existing playtime to 0
+    existing_playtime = match contents.trim().parse::<u64>() {
+      Ok(playtime) => playtime,
+      Err(_) => 0,
+    };
   }
 
-  Ok(())
+  // add the times together
+  elapsed_time = existing_playtime + elapsed_time;
+
+  // create the playtime file
+  let mut file = File::create(playtime_path)?;
+
+  // add the new value to the playtime file
+  if let Err(err) = file.write_all(elapsed_time.to_string().as_bytes()) {
+    log::error!("Could not write playtime to file: {}", err);
+    return Err(CommandError::BinaryExecution(format!("Could not write playtime to file: {}", err)));
+  }
+
+  // send an event to the front end so that it can refresh the playtime on screen
+  if let Err(err) = app_handle.emit_all("playtimeUpdated", ()) {
+    log::error!("Failed to emit playtimeUpdated event: {}", err);
+    return Err(CommandError::BinaryExecution(format!("Failed to emit playtimeUpdated event: {}", err)));
+  }
+
+  Ok(None)
 }
