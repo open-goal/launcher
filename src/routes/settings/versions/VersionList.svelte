@@ -22,6 +22,7 @@
     TableBodyRow,
     TableHead,
     TableHeadCell,
+    Tooltip,
   } from "flowbite-svelte";
   import { createEventDispatcher } from "svelte";
   import { _ } from "svelte-i18n";
@@ -132,7 +133,10 @@
             >
               <Button
                 class="py-0 dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
-                disabled={release.pendingAction}
+                disabled={release.pendingAction ||
+                  (!release.isDownloaded &&
+                    release.downloadUrl !== undefined &&
+                    release.invalid)}
                 on:click={async () => {
                   if (release.isDownloaded) {
                     dispatch("removeVersion", { version: release.version });
@@ -153,7 +157,7 @@
                     )}
                   />
                 {:else if release.downloadUrl === undefined}
-                  <span>Incompatible</span>
+                  <span>{$_("settings_versions_incompatibleVersion")}</span>
                 {:else if release.pendingAction}
                   <Spinner color="yellow" size={"6"} />
                 {:else if release.releaseType === "official" && release.downloadUrl !== undefined}
@@ -166,6 +170,19 @@
                   />
                 {/if}
               </Button>
+              {#if release.invalid}
+                <Tooltip color="red">
+                  {#if release.invalidationReasons.length > 0}
+                    {$_("settings_versions_invalidReleaseGeneric")}
+                    {#each release.invalidationReasons as reason}
+                      <br />
+                      - {reason}
+                    {/each}
+                  {:else}
+                    {$_("settings_versions_invalidReleaseGeneric")}
+                  {/if}
+                </Tooltip>
+              {/if}
               {#if release.isDownloaded && release.releaseType == "official"}
                 <Button
                   class="py-0 dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
@@ -182,7 +199,9 @@
                   {:else}
                     <IconRefresh
                       class="text-xl"
-                      aria-label="Redownload Version"
+                      aria-label={$_(
+                        "settings_versions_icon_redownloadVersion_altText",
+                      )}
                     />
                   {/if}
                 </Button>

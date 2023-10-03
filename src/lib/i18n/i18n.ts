@@ -1,10 +1,12 @@
 import { addMessages, init, register } from "svelte-i18n";
 
-interface Locale {
+export interface Locale {
   id: string;
   flag: string;
   localizedName: string;
   fontFamily?: string;
+  fontFileName?: string;
+  fontDownloadUrl?: string;
 }
 
 // https://omniglot.com/language/names.htm
@@ -19,6 +21,9 @@ export const AVAILABLE_LOCALES: Locale[] = [
     flag: "🇸🇦",
     localizedName: "العربية الفصحى",
     fontFamily: "Noto Sans Arabic",
+    fontFileName: "NotoSansArabic-VariableFont.woff2",
+    fontDownloadUrl:
+      "https://github.com/open-goal/launcher-assets/releases/download/fonts%2Fv1.0.0/NotoSansArabic-VariableFont.woff2",
   },
   {
     id: "ca-ES",
@@ -90,11 +95,18 @@ export const AVAILABLE_LOCALES: Locale[] = [
     flag: "🇯🇵",
     localizedName: "日本語",
     fontFamily: "Noto Sans JP",
+    fontFileName: "NotoSansJP-VariableFont.woff2",
+    fontDownloadUrl:
+      "https://github.com/open-goal/launcher-assets/releases/download/fonts%2Fv1.0.0/NotoSansJP-VariableFont.woff2",
   },
   {
     id: "ko-KR",
     flag: "🇰🇷",
     localizedName: "한국어",
+    fontFamily: "Noto Sans KR",
+    fontFileName: "NotoSansKR-VariableFont_wght.woff2",
+    fontDownloadUrl:
+      "https://github.com/open-goal/launcher-assets/releases/download/fonts%2Fv1.0.0/NotoSansKR-VariableFont_wght.woff2",
   },
   {
     id: "nl-NL",
@@ -160,11 +172,19 @@ export const AVAILABLE_LOCALES: Locale[] = [
     id: "zh-CN",
     flag: "🇨🇳",
     localizedName: "简体中文",
+    fontFamily: "Noto Sans SC",
+    fontFileName: "NotoSansSC-VariableFont_wght.woff2",
+    fontDownloadUrl:
+      "https://github.com/open-goal/launcher-assets/releases/download/fonts%2Fv1.0.0/NotoSansSC-VariableFont_wght.woff2",
   },
   {
     id: "zh-TW",
     flag: "🇹🇼",
     localizedName: "繁體中文",
+    fontFamily: "Noto Sans TC",
+    fontFileName: "NotoSansTC-VariableFont_wght.woff2",
+    fontDownloadUrl:
+      "https://github.com/open-goal/launcher-assets/releases/download/fonts%2Fv1.0.0/NotoSansTC-VariableFont_wght.woff2",
   },
 ];
 

@@ -4,6 +4,7 @@
   import IconCog from "~icons/mdi/cog";
   import { configDir, join } from "@tauri-apps/api/path";
   import { createEventDispatcher, onMount } from "svelte";
+  import { writeText } from "@tauri-apps/api/clipboard";
   import { confirm } from "@tauri-apps/api/dialog";
   import {
     Button,
@@ -14,11 +15,12 @@
   } from "flowbite-svelte";
   import { resetGameSettings, uninstallGame } from "$lib/rpc/game";
   import { platform } from "@tauri-apps/api/os";
-  import { launchGame, openREPL } from "$lib/rpc/binaries";
+  import { getLaunchGameString, launchGame, openREPL } from "$lib/rpc/binaries";
   import { _ } from "svelte-i18n";
   import { navigate } from "svelte-navigator";
   import { readTextFile, BaseDirectory } from '@tauri-apps/api/fs';
   import { listen } from '@tauri-apps/api/event';
+  import { toastStore } from "$lib/stores/ToastStore";
 
   export let activeGame: SupportedGame;
 
@@ -182,6 +184,21 @@
         on:click={async () => {
           await openDir(savesDir);
         }}>{$_("gameControls_button_openSavesFolder")}</DropdownItem
+      >
+      <DropdownDivider />
+      <DropdownItem
+        on:click={async () => {
+          const launchString = await getLaunchGameString(
+            getInternalName(activeGame),
+          );
+          await writeText(launchString);
+          toastStore.makeToast("Copied to clipboard!", "info");
+        }}
+        >{$_("gameControls_button_copyExecutableCommand")}<Helper
+          helperClass="!text-neutral-400 !text-xs"
+          >{$_("gameControls_button_copyExecutableCommand_helpText_1")}<br
+          />{$_("gameControls_button_copyExecutableCommand_helpText_2")}</Helper
+        ></DropdownItem
       >
       <DropdownDivider />
       <!-- TODO - verify installation -->

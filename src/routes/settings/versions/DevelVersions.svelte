@@ -43,6 +43,8 @@
           downloadUrl: undefined,
           isDownloaded: true,
           pendingAction: false,
+          invalid: false,
+          invalidationReasons: [],
         },
       ];
     }

@@ -113,8 +113,8 @@
   </div>
   <div class="border-l shrink-0 border-[#9f9f9f] h-8 m-2" />
   <div class="flex flex-col shrink-0 text-neutral-500 mr-2 pointer-events-none">
-    <p class="font-mono text-sm">Launcher</p>
-    <p class="font-mono text-sm">Tooling</p>
+    <p class="font-mono text-sm">{$_("header_launcherVersionLabel")}</p>
+    <p class="font-mono text-sm">{$_("header_toolingVersionLabel")}</p>
   </div>
   <div
     class="flex flex-col text-neutral-300 mr-2 pointer-events-none max-w-[250px]"

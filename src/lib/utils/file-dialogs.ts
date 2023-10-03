@@ -39,12 +39,11 @@ export async function saveFolderPrompt(
   });
 }
 
-export async function isoPrompt(): Promise<string | undefined> {
-  const path = await filePrompt(
-    ["ISO", "iso"],
-    "Jak ISO File",
-    "Select your legitimately obtained ISO File",
-  );
+export async function isoPrompt(
+  fileExplanation: string,
+  title: string,
+): Promise<string | undefined> {
+  const path = await filePrompt(["ISO", "iso"], fileExplanation, title);
   if (path === null) {
     return undefined;
   }

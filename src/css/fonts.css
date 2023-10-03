@@ -1,70 +1,60 @@
 @font-face {
   font-family: "Noto Sans";
-  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Thin.ttf");
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Thin.woff2");
   font-weight: 100;
 }
 
 @font-face {
   font-family: "Noto Sans";
-  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-ExtraLight.ttf");
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-ExtraLight.woff2");
   font-weight: 200;
 }
 
 @font-face {
   font-family: "Noto Sans";
-  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Light.ttf");
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Light.woff2");
   font-weight: 300;
 }
 
 @font-face {
   font-family: "Noto Sans";
-  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Regular.ttf");
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Regular.woff2");
   font-weight: 400;
 }
 
 @font-face {
   font-family: "Noto Sans";
-  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Medium.ttf");
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Medium.woff2");
   font-weight: 500;
 }
 
 @font-face {
   font-family: "Noto Sans";
-  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-SemiBold.ttf");
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-SemiBold.woff2");
   font-weight: 600;
 }
 
 @font-face {
   font-family: "Noto Sans";
-  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Bold.ttf");
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Bold.woff2");
   font-weight: 700;
 }
 
 @font-face {
   font-family: "Noto Sans";
-  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-ExtraBold.ttf");
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-ExtraBold.woff2");
   font-weight: 800;
 }
 
 @font-face {
   font-family: "Noto Sans";
-  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Black.ttf");
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSans-Black.woff2");
   font-weight: 900;
 }
 
 @font-face {
   font-family: "Noto Sans Mono";
-  src: url("/src/assets/fonts/Noto Sans/general/NotoSansMono-VariableFont.ttf");
-}
-
-@font-face {
-  font-family: "Noto Sans Arabic";
-  src: url("/src/assets/fonts/Noto Sans/NotoSansArabic-VariableFont.ttf");
-}
-
-@font-face {
-  font-family: "Noto Sans JP";
-  src: url("/src/assets/fonts/Noto Sans/NotoSansJP-VariableFont.ttf");
+  src: url("/src/assets/fonts/Noto Sans/general/NotoSansMono-VariableFont.woff2");
 }
 
 .font-mono {

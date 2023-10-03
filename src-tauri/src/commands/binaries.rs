@@ -33,6 +33,7 @@ struct CommonConfigData {
   install_path: std::path::PathBuf,
   active_version: String,
   active_version_folder: String,
+  tooling_version: Version,
 }
 
 fn common_prelude(
@@ -62,10 +63,14 @@ fn common_prelude(
         "No active version folder set, can't perform operation".to_owned(),
       ))?;
 
+  let tooling_version = Version::parse(active_version.strip_prefix('v').unwrap_or(&active_version))
+    .unwrap_or(Version::new(0, 1, 35)); // assume new format if none can be found
+
   Ok(CommonConfigData {
     install_path: install_path.to_path_buf(),
     active_version: active_version.clone(),
     active_version_folder: active_version_folder.clone(),
+    tooling_version: tooling_version,
   })
 }
 
@@ -630,30 +635,19 @@ pub async fn run_game_gpu_test(
   }
 }
 
-#[tauri::command]
-pub async fn launch_game(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  app_handle: tauri::AppHandle,
+fn generate_launch_game_string(
+  config_info: &CommonConfigData,
   game_name: String,
   in_debug: bool,
-) -> Result<(), CommandError> {
-  let config_lock = config.lock().await;
-  let config_info = common_prelude(&config_lock)?;
-
-  let tooling_version = Version::parse(
-    config_info
-      .active_version
-      .strip_prefix('v')
-      .unwrap_or(&config_info.active_version),
-  )
-  .unwrap_or(Version::new(0, 1, 35)); // assume new format if none can be found
-
+) -> Result<Vec<String>, CommandError> {
   let data_folder = get_data_dir(&config_info, &game_name, false)?;
-  let exec_info = get_exec_location(&config_info, "gk")?;
 
   let mut args;
   // NOTE - order unfortunately matters for gk args
-  if tooling_version.major == 0 && tooling_version.minor <= 1 && tooling_version.patch < 35 {
+  if config_info.tooling_version.major == 0
+    && config_info.tooling_version.minor <= 1
+    && config_info.tooling_version.patch < 35
+  {
     // old argument format
     args = vec![
       "-boot".to_string(),
@@ -679,11 +673,44 @@ pub async fn launch_game(
       args.push("-debug".to_string());
     }
   }
+  Ok(args)
+}
+
+#[tauri::command]
+pub async fn get_launch_game_string(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+) -> Result<String, CommandError> {
+  let config_lock = config.lock().await;
+  let config_info = common_prelude(&config_lock)?;
+
+  let exec_info = get_exec_location(&config_info, "gk")?;
+  let args = generate_launch_game_string(&config_info, game_name, false)?;
+
+  Ok(format!(
+    "{} {}",
+    exec_info.executable_path.display(),
+    args.join(" ")
+  ))
+}
+
+#[tauri::command]
+pub async fn launch_game(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  app_handle: tauri::AppHandle,
+  game_name: String,
+  in_debug: bool,
+) -> Result<(), CommandError> {
+  let config_lock = config.lock().await;
+  let config_info = common_prelude(&config_lock)?;
+
+  let exec_info = get_exec_location(&config_info, "gk")?;
+  let args = generate_launch_game_string(&config_info, game_name, in_debug)?;
 
   log::info!(
     "Launching game version {:?} -> {:?} with args: {:?}",
     &config_info.active_version,
-    tooling_version,
+    &config_info.tooling_version,
     args
   );
 
