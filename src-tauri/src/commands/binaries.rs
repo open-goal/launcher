@@ -293,6 +293,8 @@ pub async fn extract_and_validate_iso(
 
   let mut args = vec![
     path_to_iso.clone(),
+    "--game".to_string(),
+    game_name.clone(),
     "--extract".to_string(),
     "--validate".to_string(),
     "--proj-path".to_string(),
@@ -391,6 +393,8 @@ pub async fn run_decompiler(
   command
     .args([
       source_path,
+      "--game".to_string(),
+      game_name.clone(),
       "--decompile".to_string(),
       "--proj-path".to_string(),
       data_folder.to_string_lossy().into_owned(),
@@ -477,6 +481,8 @@ pub async fn run_compiler(
   command
     .args([
       source_path,
+      "--game".to_string(),
+      game_name.clone(),
       "--compile".to_string(),
       "--proj-path".to_string(),
       data_folder.to_string_lossy().into_owned(),

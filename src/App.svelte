@@ -29,7 +29,10 @@
       window.sessionStorage.setItem("refreshHack", "true");
     }
     // Set locale from settings
-    setLocale(await getLocale());
+    const locale = await getLocale();
+    if (locale !== null) {
+      setLocale(locale);
+    }
   });
 
   if (!isInDebugMode()) {
@@ -79,12 +82,6 @@
           <Route
             path="/:game_name/features/:feature"
             component={GameFeature}
-            primary={false}
-            let:params
-          />
-          <Route
-            path="/jak2"
-            component={GameInProgress}
             primary={false}
             let:params
           />

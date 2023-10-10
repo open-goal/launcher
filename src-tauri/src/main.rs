@@ -140,6 +140,7 @@ fn main() {
       commands::binaries::update_data_directory,
       commands::config::cleanup_enabled_texture_packs,
       commands::config::delete_old_data_directory,
+      commands::config::does_active_tooling_version_support_game,
       commands::config::finalize_installation,
       commands::config::get_active_tooling_version_folder,
       commands::config::get_active_tooling_version,
