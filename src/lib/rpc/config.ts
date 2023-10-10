@@ -244,3 +244,15 @@ export async function setEnabledTexturePacks(
     },
   );
 }
+
+export async function doesActiveToolingVersionSupportGame(
+  gameName: string,
+): Promise<boolean> {
+  return await invoke_rpc(
+    "does_active_tooling_version_support_game",
+    {
+      gameName: gameName,
+    },
+    () => false,
+  );
+}
