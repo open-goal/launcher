@@ -12,7 +12,7 @@ rust-version = "1.61"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.4.0", features = [] }
+tauri-build = { version = "1.5.0", features = [] }
 
 [dependencies]
 backtrace = "0.3.69"
@@ -32,7 +32,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.107"
 sysinfo = "0.29.10"
 tar = "0.4.40"
-tauri = { version = "1.4.1", features = ["api-all", "devtools", "reqwest-client"] }
+tauri = { version = "1.5.1", features = ["api-all", "devtools", "reqwest-client"] }
 thiserror = "1.0.49"
 tokio = { version = "1", features = ["full"] }
 walkdir = "2.4.0"
