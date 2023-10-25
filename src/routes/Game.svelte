@@ -57,9 +57,7 @@
       activeGame = SupportedGame.Jak1;
     }
 
-    if (activeGame === SupportedGame.Jak2) {
-      gameInBeta = true;
-    }
+    gameInBeta = activeGame === SupportedGame.Jak2;
 
     gameSupportedByTooling = await doesActiveToolingVersionSupportGame(
       getInternalName(activeGame),
@@ -145,7 +143,7 @@
             {$_("gameControls_beta_issueTracker_linkPreText")}
             <a
               class="text-blue-400"
-              href="https://github.com/orgs/open-goal/projects/3/views/8?query=is%3Aopen+sort%3Aupdated-desc"
+              href="https://github.com/open-goal/jak-project/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3Ajak2"
               target="_blank"
               rel="noopener noreferrer"
               >{$_("gameControls_beta_issueTracker_linkText")}</a
