@@ -55,7 +55,9 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^1.5.1",
+    "@types/semver": "^7.5.4",
     "country-flag-emoji-polyfill": "^0.1.4",
+    "semver": "^7.5.4",
     "svelte-navigator": "^3.2.2"
   },
   "packageManager": "yarn@1.22.19"
