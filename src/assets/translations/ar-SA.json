@@ -152,5 +152,14 @@
   "update_changelog_header_pullRequest": "طلبات السحب",
   "update_description": "عرض التغييرات أدناه وانقر على الزر للتحديث إلى أحدث إصدار. سيتم إعادة تشغيل المشغل عند الانتهاء.",
   "update_header": "تحديث المُشغِل متاح",
-  "update_versionLabel": "النسخة"
+  "update_versionLabel": "النسخة",
+  "gameControls_toolingTooOld_button_setVersion": "Set Version",
+  "gameControls_toolingTooOld_header": "Tooling Version Does Not Support Game!",
+  "gameControls_toolingTooOld_subheader": "Head over to the following settings page to download the latest release",
+  "gameControls_beta_headerA": "Jak 2 is in Beta!",
+  "gameControls_beta_headerB": "You will encounter minor bugs and instability.",
+  "gameControls_beta_issueTracker_linkPreText": "For a list of all known issues, see",
+  "gameControls_beta_issueTracker_linkText": "here",
+  "gameControls_beta_bugReport_linkPreText": "To submit a non-duplicate bug report, see",
+  "gameControls_beta_bugReport_linkText": "here"
 }
