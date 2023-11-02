@@ -152,5 +152,14 @@
   "update_changelog_header_pullRequest": "Pull Request",
   "update_description": "Bekijk de wijzigingen hieronder en klik op de knop om bij te werken naar de laatste versie. De launcher zal opnieuw opstarten als hij klaar is.",
   "update_header": "Launcher Update beschikbaar",
-  "update_versionLabel": "Versie"
+  "update_versionLabel": "Versie",
+  "gameControls_toolingTooOld_button_setVersion": "Set Version",
+  "gameControls_toolingTooOld_header": "Tooling Version Does Not Support Game!",
+  "gameControls_toolingTooOld_subheader": "Head over to the following settings page to download the latest release",
+  "gameControls_beta_headerA": "Jak 2 is in Beta!",
+  "gameControls_beta_headerB": "You will encounter minor bugs and instability.",
+  "gameControls_beta_issueTracker_linkPreText": "For a list of all known issues, see",
+  "gameControls_beta_issueTracker_linkText": "here",
+  "gameControls_beta_bugReport_linkPreText": "To submit a non-duplicate bug report, see",
+  "gameControls_beta_bugReport_linkText": "here"
 }
