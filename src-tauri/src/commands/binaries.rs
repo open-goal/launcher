@@ -289,8 +289,6 @@ pub async fn extract_and_validate_iso(
 
   let mut args = vec![
     path_to_iso.clone(),
-    "--game".to_string(),
-    game_name.clone(),
     "--extract".to_string(),
     "--validate".to_string(),
     "--proj-path".to_string(),
@@ -298,6 +296,11 @@ pub async fn extract_and_validate_iso(
   ];
   if Path::new(&path_to_iso.clone()).is_dir() {
     args.push("--folder".to_string());
+  }
+  // Add new --game argument
+  if config_info.tooling_version.minor >= 1 && config_info.tooling_version.patch >= 44 {
+    args.push("--game".to_string());
+    args.push(game_name.clone());
   }
 
   // This is the first install step, reset the file
@@ -386,15 +389,21 @@ pub async fn run_decompiler(
 
   let log_file = create_log_file(&app_handle, "extractor.log", !truncate_logs)?;
   let mut command = Command::new(exec_info.executable_path);
+
+  let mut args = vec![
+    source_path,
+    "--decompile".to_string(),
+    "--proj-path".to_string(),
+    data_folder.to_string_lossy().into_owned(),
+  ];
+  // Add new --game argument
+  if config_info.tooling_version.minor >= 1 && config_info.tooling_version.patch >= 44 {
+    args.push("--game".to_string());
+    args.push(game_name.clone());
+  }
+
   command
-    .args([
-      source_path,
-      "--game".to_string(),
-      game_name.clone(),
-      "--decompile".to_string(),
-      "--proj-path".to_string(),
-      data_folder.to_string_lossy().into_owned(),
-    ])
+    .args(args)
     .stdout(log_file.try_clone()?)
     .stderr(log_file)
     .current_dir(exec_info.executable_dir);
@@ -473,16 +482,20 @@ pub async fn run_compiler(
   }
 
   let log_file = create_log_file(&app_handle, "extractor.log", !truncate_logs)?;
+  let mut args = vec![
+    source_path,
+    "--compile".to_string(),
+    "--proj-path".to_string(),
+    data_folder.to_string_lossy().into_owned(),
+  ];
+  // Add new --game argument
+  if config_info.tooling_version.minor >= 1 && config_info.tooling_version.patch >= 44 {
+    args.push("--game".to_string());
+    args.push(game_name.clone());
+  }
   let mut command = Command::new(exec_info.executable_path);
   command
-    .args([
-      source_path,
-      "--game".to_string(),
-      game_name.clone(),
-      "--compile".to_string(),
-      "--proj-path".to_string(),
-      data_folder.to_string_lossy().into_owned(),
-    ])
+    .args(args)
     .stdout(log_file.try_clone().unwrap())
     .stderr(log_file)
     .current_dir(exec_info.executable_dir);
@@ -663,14 +676,18 @@ fn generate_launch_game_string(
   } else {
     args = vec![
       "-v".to_string(),
-      "--game".to_string(),
-      game_name,
       "--proj-path".to_string(),
       data_folder.to_string_lossy().into_owned(),
-      "--".to_string(),
-      "-boot".to_string(),
-      "-fakeiso".to_string(),
     ];
+    // Add new --game argument
+    if config_info.tooling_version.minor >= 1 && config_info.tooling_version.patch >= 44 {
+      args.push("--game".to_string());
+      args.push(game_name.clone());
+    }
+    // passthru args
+    args.push("--".to_string());
+    args.push("-boot".to_string());
+    args.push("-fakeiso".to_string());
     if in_debug {
       args.push("-debug".to_string());
     }
