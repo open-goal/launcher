@@ -47,6 +47,19 @@ pub struct PerGameInfo {
   pub jakx: GameInfo,
 }
 
+impl PerGameInfo {
+  // TODO - switch this to enums or w/e, being lazy
+  fn get_game_info(&mut self, game_name: &str) -> &mut GameInfo {
+    match game_name {
+      "jak1" => &mut self.jak1,
+      "jak2" => &mut self.jak2,
+      "jak3" => &mut self.jak3,
+      "jakx" => &mut self.jakx,
+      _ => &mut self.jak1,
+    }
+  }
+}
+
 #[derive(Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SupportPackage {
@@ -63,6 +76,115 @@ pub struct SupportPackage {
   pub launcher_version: String,
   pub extractor_binary_exists: bool,
   pub game_binary_exists: bool,
+}
+
+fn dump_per_game_info(
+  config_lock: &tokio::sync::MutexGuard<'_, LauncherConfig>,
+  package: &mut SupportPackage,
+  zip_file: &mut zip::ZipWriter<std::fs::File>,
+  install_path: &Path,
+  game_name: &str,
+) -> Result<(), CommandError> {
+  // Save OpenGOAL config folder (this includes saves and settings)
+  let game_config_dir = match config_dir() {
+    None => {
+      return Err(CommandError::Support(
+        "Couldn't determine application config directory".to_owned(),
+      ))
+    }
+    Some(path) => path.join("OpenGOAL"),
+  };
+  append_dir_contents_to_zip(
+    zip_file,
+    &game_config_dir.join(&game_name).join("settings"),
+    format!("Game Settings and Saves/{game_name}/settings").as_str(),
+    vec!["gc", "json"],
+  )
+  .map_err(|_| {
+    CommandError::Support("Unable to append game settings to the support package".to_owned())
+  })?;
+  append_dir_contents_to_zip(
+    zip_file,
+    &game_config_dir.join(&game_name).join("misc"),
+    format!("Game Settings and Saves/{game_name}/misc").as_str(),
+    vec!["gc", "json"],
+  )
+  .map_err(|_| {
+    CommandError::Support("Unable to append game misc settings to the support package".to_owned())
+  })?;
+  append_dir_contents_to_zip(
+    zip_file,
+    &game_config_dir.join(&game_name).join("saves"),
+    format!("Game Settings and Saves/{game_name}/saves").as_str(),
+    vec!["bin"],
+  )
+  .map_err(|_| {
+    CommandError::Support("Unable to append game saves to the support package".to_owned())
+  })?;
+
+  // Save Logs
+  let active_version_dir = install_path.join("active");
+  let jak1_log_dir = active_version_dir.join(&game_name).join("data").join("log");
+  append_dir_contents_to_zip(
+    zip_file,
+    &jak1_log_dir,
+    format!("Game Logs and ISO Info/{game_name}").as_str(),
+    vec!["log", "json", "txt"],
+  )
+  .map_err(|_| CommandError::Support("Unable to append game logs to support package".to_owned()))?;
+
+  let texture_repl_dir = active_version_dir
+    .join(&game_name)
+    .join("data")
+    .join("texture_replacements");
+  package.game_info.get_game_info(game_name).has_texture_packs =
+    texture_repl_dir.exists() && texture_repl_dir.read_dir().unwrap().next().is_some();
+  let build_info_path = active_version_dir
+    .join(&game_name)
+    .join("data")
+    .join("iso_data")
+    .join(&game_name)
+    .join("buildinfo.json");
+  append_file_to_zip(
+    zip_file,
+    &build_info_path,
+    format!("Game Logs and ISO Info/{game_name}/buildinfo.json").as_str(),
+  )
+  .map_err(|_| {
+    CommandError::Support("Unable to append iso metadata to support package".to_owned())
+  })?;
+
+  if config_lock.active_version_folder.is_some() && config_lock.active_version_folder.is_some() {
+    let data_dir = active_version_dir.join(&game_name).join("data");
+    let version_data_dir = install_path
+      .join("versions")
+      .join(config_lock.active_version_folder.as_ref().unwrap())
+      .join(config_lock.active_version.as_ref().unwrap())
+      .join("data");
+    package
+      .game_info
+      .get_game_info(game_name)
+      .release_integrity
+      .decompiler_folder_modified = dir_diff::is_different(
+      data_dir.join("decompiler"),
+      version_data_dir.join("decompiler"),
+    )
+    .unwrap_or(true);
+    package
+      .game_info
+      .get_game_info(game_name)
+      .release_integrity
+      .game_folder_modified =
+      dir_diff::is_different(data_dir.join("game"), version_data_dir.join("game")).unwrap_or(true);
+    package
+      .game_info
+      .get_game_info(game_name)
+      .release_integrity
+      .goal_src_modified =
+      dir_diff::is_different(data_dir.join("goal_src"), version_data_dir.join("goal_src"))
+        .unwrap_or(true);
+  }
+  Ok(())
 }
 
 #[tauri::command]
@@ -129,7 +251,7 @@ pub async fn generate_support_package(
 
   for disk in system_info.disks() {
     package.disk_info.push(format!(
-      "{}:{}-{}GB/{}GB",
+      "{} | Name - {} | Capacity - {}GB/{}GB",
       disk.mount_point().to_string_lossy(),
       disk.name().to_string_lossy(),
       disk.available_space() / 1024 / 1024 / 1024,
@@ -154,43 +276,6 @@ pub async fn generate_support_package(
     .map_err(|_| CommandError::Support("Unable to create support file".to_owned()))?;
   let mut zip_file = zip::ZipWriter::new(save_file);
 
-  // Save OpenGOAL config folder (this includes saves and settings)
-  let game_config_dir = match config_dir() {
-    None => {
-      return Err(CommandError::Support(
-        "Couldn't determine application config directory".to_owned(),
-      ))
-    }
-    Some(path) => path.join("OpenGOAL"),
-  };
-  append_dir_contents_to_zip(
-    &mut zip_file,
-    &game_config_dir.join("jak1").join("settings"),
-    "Game Settings and Saves/jak1/settings",
-    vec!["gc", "json"],
-  )
-  .map_err(|_| {
-    CommandError::Support("Unable to append game settings to the support package".to_owned())
-  })?;
-  append_dir_contents_to_zip(
-    &mut zip_file,
-    &game_config_dir.join("jak1").join("misc"),
-    "Game Settings and Saves/jak1/misc",
-    vec!["gc", "json"],
-  )
-  .map_err(|_| {
-    CommandError::Support("Unable to append game misc settings to the support package".to_owned())
-  })?;
-  append_dir_contents_to_zip(
-    &mut zip_file,
-    &game_config_dir.join("jak1").join("saves"),
-    "Game Settings and Saves/jak1/saves",
-    vec!["bin"],
-  )
-  .map_err(|_| {
-    CommandError::Support("Unable to append game saves to the support package".to_owned())
-  })?;
-
   // Save Launcher config folder
   let launcher_config_dir = match app_handle.path_resolver().app_config_dir() {
     None => {
@@ -200,9 +285,17 @@ pub async fn generate_support_package(
     }
     Some(path) => path,
   };
+  let launcher_log_dir = match app_handle.path_resolver().app_log_dir() {
+    None => {
+      return Err(CommandError::Support(
+        "Couldn't determine launcher log directory".to_owned(),
+      ))
+    }
+    Some(path) => path,
+  };
   append_dir_contents_to_zip(
     &mut zip_file,
-    &launcher_config_dir.join("logs"),
+    &launcher_log_dir,
     "Launcher Settings and Logs/logs",
     vec!["log"],
   )
@@ -218,66 +311,31 @@ pub async fn generate_support_package(
     CommandError::Support("Unable to append launcher settings to the support package".to_owned())
   })?;
 
-  // Save Logs
-  let active_version_dir = install_path.join("active");
-  // TODO - for all games
-  let jak1_log_dir = active_version_dir.join("jak1").join("data").join("log");
-  append_dir_contents_to_zip(
-    &mut zip_file,
-    &jak1_log_dir,
-    "Game Logs and ISO Info/Jak 1",
-    vec!["log", "json", "txt"],
-  )
-  .map_err(|_| CommandError::Support("Unable to append game logs to support package".to_owned()))?;
-
   // Per Game Info
-  let texture_repl_dir = active_version_dir
-    .join("jak1")
-    .join("data")
-    .join("texture_replacements");
-  package.game_info.jak1.has_texture_packs =
-    texture_repl_dir.exists() && texture_repl_dir.read_dir().unwrap().next().is_some();
-  let build_info_path = active_version_dir
-    .join("jak1")
-    .join("data")
-    .join("iso_data")
-    .join("jak1")
-    .join("buildinfo.json");
-  append_file_to_zip(
+  dump_per_game_info(
+    &config_lock,
+    &mut package,
     &mut zip_file,
-    &build_info_path,
-    "Game Logs and ISO Info/Jak 1/buildinfo.json",
+    install_path,
+    "jak1",
   )
   .map_err(|_| {
-    CommandError::Support("Unable to append iso metadata to support package".to_owned())
-  })?;
-
-  if config_lock.active_version_folder.is_some() && config_lock.active_version_folder.is_some() {
-    let data_dir = active_version_dir.join("jak1").join("data");
-    let version_data_dir = install_path
-      .join("versions")
-      .join(config_lock.active_version_folder.as_ref().unwrap())
-      .join(config_lock.active_version.as_ref().unwrap())
-      .join("data");
-    package
-      .game_info
-      .jak1
-      .release_integrity
-      .decompiler_folder_modified = dir_diff::is_different(
-      data_dir.join("decompiler"),
-      version_data_dir.join("decompiler"),
+    CommandError::Support(
+      "Unable to dump per game info for jak 1 to the support package".to_owned(),
     )
-    .unwrap_or(true);
-    package
-      .game_info
-      .jak1
-      .release_integrity
-      .game_folder_modified =
-      dir_diff::is_different(data_dir.join("game"), version_data_dir.join("game")).unwrap_or(true);
-    package.game_info.jak1.release_integrity.goal_src_modified =
-      dir_diff::is_different(data_dir.join("goal_src"), version_data_dir.join("goal_src"))
-        .unwrap_or(true);
-  }
+  })?;
+  dump_per_game_info(
+    &config_lock,
+    &mut package,
+    &mut zip_file,
+    install_path,
+    "jak2",
+  )
+  .map_err(|_| {
+    CommandError::Support(
+      "Unable to dump per game info for jak 2 to the support package".to_owned(),
+    )
+  })?;
 
   // Dump High Level Info
   let options = FileOptions::default()
