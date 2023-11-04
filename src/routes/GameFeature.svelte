@@ -46,7 +46,6 @@
     texturePacksToDelete = event.detail.packsToDelete;
   }
 
-
   async function gameJobFinished() {
     gameJobToRun = undefined;
   }

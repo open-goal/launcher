@@ -18,8 +18,8 @@
   import { getLaunchGameString, launchGame, openREPL } from "$lib/rpc/binaries";
   import { _ } from "svelte-i18n";
   import { navigate } from "svelte-navigator";
-  import { readTextFile, BaseDirectory } from '@tauri-apps/api/fs';
-  import { listen } from '@tauri-apps/api/event';
+  import { readTextFile, BaseDirectory } from "@tauri-apps/api/fs";
+  import { listen } from "@tauri-apps/api/event";
   import { toastStore } from "$lib/stores/ToastStore";
 
   export let activeGame: SupportedGame;
@@ -44,10 +44,12 @@
       "saves",
     );
   });
-  
+
   // get the playtime from the txt file in the launcher config folder
   async function getPlaytime() {
-    const playtimeRaw = await readTextFile("playtime.txt", { dir: BaseDirectory.App });
+    const playtimeRaw = await readTextFile("playtime.txt", {
+      dir: BaseDirectory.App,
+    });
     const playtime = formatPlaytime(parseInt(playtimeRaw));
     return playtime;
   }
@@ -57,29 +59,29 @@
     // calculate the number of hours, minutes, and seconds
     const hours = Math.floor(playtimeRaw / 3600);
     const minutes = Math.floor((playtimeRaw % 3600) / 60);
-    
+
     // initialize the formatted playtime string
-    let formattedPlaytime = '';
+    let formattedPlaytime = "";
 
     // add the hours to the formatted playtime string
     if (hours > 0) {
-      formattedPlaytime += `${hours} hour${hours > 1 ? 's' : ''}`;
+      formattedPlaytime += `${hours} hour${hours > 1 ? "s" : ""}`;
     }
 
     // add the minutes to the formatted playtime string
     if (minutes > 0) {
       // add a comma if there are already hours in the formatted playtime string
       if (formattedPlaytime.length > 0) {
-        formattedPlaytime += ', ';
+        formattedPlaytime += ", ";
       }
-      formattedPlaytime += `${minutes} minute${minutes > 1 ? 's' : ''}`;
+      formattedPlaytime += `${minutes} minute${minutes > 1 ? "s" : ""}`;
     }
 
     // return the formatted playtime string
     return formattedPlaytime;
   }
 
-  let playtime = '';
+  let playtime = "";
 
   // run the function and assign the result to the playtime variable when the page first loads
   getPlaytime().then((result) => {
@@ -92,7 +94,6 @@
       playtime = result;
     });
   });
-
 </script>
 
 <div class="flex flex-col justify-end items-end mt-auto">
@@ -102,7 +103,9 @@
     {$_(`gameName_${getInternalName(activeGame)}`)}
   </h1>
   {#if playtime}
-    <h1 class="pb-4 text-xl text-outline tracking-tighter font-extrabold">{`Played For ${playtime}`}</h1>
+    <h1 class="pb-4 text-xl text-outline tracking-tighter font-extrabold">
+      {`Played For ${playtime}`}
+    </h1>
   {/if}
   <div class="flex flex-row gap-2">
     <Button

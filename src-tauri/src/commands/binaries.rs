@@ -2,11 +2,12 @@
 use std::os::windows::process::CommandExt;
 use std::{
   collections::HashMap,
+  fs::File,
+  io::prelude::*,
   path::{Path, PathBuf},
   process::Command,
+  thread,
   time::Instant,
-  fs::File,
-  io::prelude::*, thread,
 };
 
 use log::{info, warn};
@@ -753,22 +754,19 @@ pub async fn launch_game(
   let start_time = Instant::now(); // get the start time of the game
 
   if let Ok(mut child) = command.spawn() {
-    
     // move all playtime tracking to a separate thread
     thread::spawn(move || {
-
       // start waiting for the game to exit
       if let Err(err) = child.wait() {
         log::error!("Error occured when waiting for game to exit: {}", err);
         return;
       }
-      
+
       // once the game exits pass the time the game started to the track_playtine function
       if let Err(err) = track_playtime(start_time, app_handle) {
         log::error!("Error occured when tracking playtime: {}", err);
-        return; 
+        return;
       }
-      
     });
   }
   Ok(())
@@ -778,14 +776,15 @@ fn track_playtime(
   start_time: std::time::Instant,
   app_handle: tauri::AppHandle,
 ) -> Result<Option<bool>, CommandError> {
-
   // get the playtime of the session
   let mut elapsed_time = start_time.elapsed().as_secs();
 
   let config_dir = match path::config_dir() {
     None => {
       log::error!("Couldn't determine application config directory");
-      return Err(CommandError::BinaryExecution("Couldn't determine application config directory".to_owned()))
+      return Err(CommandError::BinaryExecution(
+        "Couldn't determine application config directory".to_owned(),
+      ));
     }
     Some(path) => path,
   };
@@ -802,7 +801,10 @@ fn track_playtime(
 
     if let Err(err) = file.read_to_string(&mut contents) {
       log::error!("Could not read playtime.txt: {}", err);
-      return Err(CommandError::BinaryExecution(format!("Could not read playtime.txt: {}", err)));
+      return Err(CommandError::BinaryExecution(format!(
+        "Could not read playtime.txt: {}",
+        err
+      )));
     }
 
     // if there is a int parse error and set the existing playtime to 0
@@ -821,13 +823,19 @@ fn track_playtime(
   // add the new value to the playtime file
   if let Err(err) = file.write_all(elapsed_time.to_string().as_bytes()) {
     log::error!("Could not write playtime to file: {}", err);
-    return Err(CommandError::BinaryExecution(format!("Could not write playtime to file: {}", err)));
+    return Err(CommandError::BinaryExecution(format!(
+      "Could not write playtime to file: {}",
+      err
+    )));
   }
 
   // send an event to the front end so that it can refresh the playtime on screen
   if let Err(err) = app_handle.emit_all("playtimeUpdated", ()) {
     log::error!("Failed to emit playtimeUpdated event: {}", err);
-    return Err(CommandError::BinaryExecution(format!("Failed to emit playtimeUpdated event: {}", err)));
+    return Err(CommandError::BinaryExecution(format!(
+      "Failed to emit playtimeUpdated event: {}",
+      err
+    )));
   }
 
   Ok(None)
