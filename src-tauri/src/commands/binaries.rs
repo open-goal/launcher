@@ -769,7 +769,6 @@ pub async fn launch_game(
       return;
     }
   });
-
   Ok(())
 }
 
@@ -777,10 +776,12 @@ async fn track_playtime(
   start_time: std::time::Instant,
   game_name: String,
 ) -> Result<(), CommandError> {
+
   // TODO - get rid of the unwrap
   let app_handle = TAURI_APP.get().unwrap().app_handle();
   let config = app_handle.state::<tokio::sync::Mutex<LauncherConfig>>();
   let mut config_lock = config.lock().await;
+
   // get the playtime of the session
   let elapsed_time = start_time.elapsed().as_secs();
   log::info!("elapsed time: {}", elapsed_time);
