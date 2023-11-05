@@ -28,6 +28,7 @@
   let settingsDir = undefined;
   let savesDir = undefined;
   let isLinux = false;
+  let playtime = "";
 
   onMount(async () => {
     isLinux = (await platform()) === "linux";
@@ -50,6 +51,7 @@
     // calculate the number of hours and minutes
     const hours = Math.floor(playtimeRaw / 3600);
     const minutes = Math.floor((playtimeRaw % 3600) / 60);
+    const seconds = Math.floor(playtimeRaw % 60);
 
     // initialize the formatted playtime string
     let formattedPlaytime = "";
@@ -68,11 +70,18 @@
       formattedPlaytime += `${minutes} minute${minutes > 1 ? "s" : ""}`;
     }
 
+    // add the seconds to the formatted playtime string
+    if (seconds > 0) {
+      // add a comma if there are already hours or minutes in the formatted playtime string
+      if (formattedPlaytime.length > 0) {
+        formattedPlaytime += ", ";
+      }
+      formattedPlaytime += `${seconds} second${seconds > 1 ? "s" : ""}`;
+    }
+
     // return the formatted playtime string
     return formattedPlaytime;
   }
-
-  let playtime = "";
 
   // get the playtime from the backend, format it, and assign it to the playtime variable when the page first loads
   getPlaytime(getInternalName(activeGame)).then((result) => {
