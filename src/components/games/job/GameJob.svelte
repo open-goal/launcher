@@ -122,7 +122,7 @@
       return;
     }
     progressTracker.proceed();
-    await finalizeInstallation("jak1");
+    await finalizeInstallation(getInternalName(activeGame));
     progressTracker.proceed();
   }
 
