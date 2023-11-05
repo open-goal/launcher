@@ -256,3 +256,13 @@ export async function doesActiveToolingVersionSupportGame(
     () => false,
   );
 }
+
+export async function getPlaytime(
+  gameName: string,
+): Promise<number> {
+  return await invoke_rpc(
+    "get_playtime",
+    { gameName: gameName },
+    () => 0,
+  );
+}

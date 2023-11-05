@@ -16,9 +16,9 @@
   import { resetGameSettings, uninstallGame } from "$lib/rpc/game";
   import { platform } from "@tauri-apps/api/os";
   import { getLaunchGameString, launchGame, openREPL } from "$lib/rpc/binaries";
+  import { getPlaytime } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { navigate } from "svelte-navigator";
-  import { readTextFile, BaseDirectory } from "@tauri-apps/api/fs";
   import { listen } from "@tauri-apps/api/event";
   import { toastStore } from "$lib/stores/ToastStore";
 
@@ -45,18 +45,9 @@
     );
   });
 
-  // get the playtime from the txt file in the launcher config folder
-  async function getPlaytime() {
-    const playtimeRaw = await readTextFile("playtime.txt", {
-      dir: BaseDirectory.App,
-    });
-    const playtime = formatPlaytime(parseInt(playtimeRaw));
-    return playtime;
-  }
-
-  // format the time from the playtime.txt file which is stored as seconds
+  // format the time from the settings file which is stored as seconds
   function formatPlaytime(playtimeRaw: number) {
-    // calculate the number of hours, minutes, and seconds
+    // calculate the number of hours and minutes
     const hours = Math.floor(playtimeRaw / 3600);
     const minutes = Math.floor((playtimeRaw % 3600) / 60);
 
@@ -83,15 +74,15 @@
 
   let playtime = "";
 
-  // run the function and assign the result to the playtime variable when the page first loads
-  getPlaytime().then((result) => {
-    playtime = result;
+  // get the playtime from the backend, format it, and assign it to the playtime variable when the page first loads
+  getPlaytime(activeGame).then((result) => {
+    playtime = formatPlaytime(result);
   });
 
   // listen for the custom playtiemUpdated event from the backend and then refresh the playtime on screen
   listen<string>("playtimeUpdated", (event) => {
-    getPlaytime().then((result) => {
-      playtime = result;
+    getPlaytime(activeGame).then((result) => {
+      playtime = formatPlaytime(result);
     });
   });
 </script>

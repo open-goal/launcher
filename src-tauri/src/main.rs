@@ -146,6 +146,7 @@ fn main() {
       commands::config::cleanup_enabled_texture_packs,
       commands::config::delete_old_data_directory,
       commands::config::does_active_tooling_version_support_game,
+      commands::config::get_playtime,
       commands::config::finalize_installation,
       commands::config::get_active_tooling_version_folder,
       commands::config::get_active_tooling_version,
