@@ -82,12 +82,9 @@
         installedVersionFolder = await getInstalledVersionFolder(
           getInternalName(activeGame),
         );
-        if (
+        versionMismatchDetected =
           installedVersion !== $VersionStore.activeVersionName ||
-          installedVersionFolder !== $VersionStore.activeVersionType
-        ) {
-          versionMismatchDetected = true;
-        }
+          installedVersionFolder !== $VersionStore.activeVersionType;
       }
     }
 
