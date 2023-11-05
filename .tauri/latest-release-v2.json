@@ -1,19 +1,19 @@
 {
-  "name": "v2.3.4",
-  "notes": "{\"changes\":[{\"description\":\"frontend: properly refresh version mismatch info when game page is switched\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/372\"}]}",
-  "pub_date": "2023-11-05T15:43:13Z",
+  "name": "v2.3.5",
+  "notes": "{\"changes\":[{\"description\":\"backend/frontend: don't finalize installation with `jak1` hard-coded\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/374\"}]}",
+  "pub_date": "2023-11-05T16:41:13Z",
   "platforms": {
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1Y0Y1lIR2NIR3Q5eVVpMldBUnhocUlpb0pIcXBlN0RhS3JyOGU4VGtCZ3RNdlpJemNnOGJRT3JUcVMrVTFsMWVZekZzWWpYc29LN0FyNksxSzIyYUFVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk5MTk5Mzk2CWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMy40X2FtZDY0LkFwcEltYWdlLnRhci5negpwY2ZpZWpnNXp1WERPRVhCNGxxdnFBc0xvZDUxV0dSTVRJVTQ2eFhoenluWmhocFBXVEVkVW5nYXltVFJlOVd5Y2J3TVlUaUlGek4vUFRZWWRVcWRBdz09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.3.4/open-goal-launcher_2.3.4_amd64.AppImage.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2Eyb29CMklPWjE5ZkFnM3YvUUF2c21hYnc1Mk5Hd2R2QTNqWndhZ0F6aTZ3elMwV2lqaThKQlBjazY5Q05TZkt2b3hoQkkzS2NmZVNzQjVLT0ljZVFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk5MjAyODQxCWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMy41X2FtZDY0LkFwcEltYWdlLnRhci5negpZV0VTYlNGZ0U0Q3hERGxCeXFKdW5yalc5T3czSlhIMVlsakhoYVFNeUdXb2cyV1RldVBDV1JqanRtcHlPK3hpQ01OTUszMDFOMWVTVVRwbTZXMTlBUT09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.3.5/open-goal-launcher_2.3.5_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1Q1cURpREJibDR3MDNSaEhZYVZrWDZ3azRUN2pibkc3Q05ERW9ZakR3ek1NL0VNTnlnVTI3ZTlOcXcrL3A5NGJPdTdhb2ljMkZNK2Q0VUtaSHpvbnc4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk5MTk5NTMyCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4zLjRfeDY0X2VuLVVTLm1zaS56aXAKdTd4d1hVSHBvWko0YWlyVXYrSEREbHNueGhzbkNFWFFmYjJVYmYyR1VOb05uZm1VQms4blZ4Z2pxejluTlpwT0NGMWFPNnhjdUFtQXp5OENNMW1QQ2c9PQo=",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.3.4/OpenGOAL-Launcher_2.3.4_x64_en-US.msi.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1ZlSkpyMm9tRHRkVklVL0xLK3Rkd3RLVmVpMHk5Z0VSNzVMYlZPb2dIc0JhazV0SzduRzcrdjJMUEhVYW03c0RCRXNmSnFxcjRSN2JYZFVHVWZDUHdBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk5MjAzMDA4CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4zLjVfeDY0X2VuLVVTLm1zaS56aXAKVmhOdkp2RVJ3VXhwTFNCWWlHVVE2dUk0b3pqWlZBNnY0WHI3VnkvTmlXb1VJcjJtQ255WmY3UHRQREFTWFl4R0dxMTN0RGZWVW9VV3hqZmF1K2RyREE9PQo=",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.3.5/OpenGOAL-Launcher_2.3.5_x64_en-US.msi.zip"
     },
     "darwin-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2NnRHZqelM0QWFGTW1mZDcybWd3RVg0UjVzKzdQRWdTQUU3NzFXeEpoV0F0VWJXaVZQMGJjTnRSU3BuVlNlRGJvbmdGdWxSV1NQNzVkMjFMVllWUWdJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk5MTk5NjQzCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negoza2lZVEk3R21pWXVEa0QwOEZzRTI0ek9xaDVFUzZPaWVlN2RTMGFncE9naE5VblFqa3dRT3VROGVFTG50Mm95L0d6cnJPNWtZQVVmQ2YzYzIyQ3ZEdz09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.3.4/OpenGOAL-Launcher_x64.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2R4TkErOHR1a2tkN0hkYk1MZVBvdmtDNmZtb1c3a0FibWVlUE5JdFVjN0VvL3J2RG1QS0Z0NG1MV1RaODlvMmdmRndNelp6KzVDQm15d0lKaHlscVFvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk5MjAyODU1CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpDMEU4VWR4SExHUXVJdmRnelB0WFRpT1dEejVES2R2VlFXNmd1SGxCRHI5Q3ZEZ2N2Y3hsRTN6Vms5akl3OWVzSmo1N0puZFplaXY2c2JVZk1vdlpBUT09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.3.5/OpenGOAL-Launcher_x64.app.tar.gz"
     }
   }
 }
