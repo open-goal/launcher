@@ -400,32 +400,20 @@ impl LauncherConfig {
     game_name: &String,
     installed: bool,
   ) -> Result<(), ConfigError> {
-    match SupportedGame::from_str(game_name) {
-      Ok(game) => {
-        // Retrieve relevant game from config
-        match self.games.get_mut(&game) {
-          Some(game) => {
-            game.is_installed = installed;
-            if installed {
-              game.version = self.active_version.clone();
-              game.version_folder = self.active_version_folder.clone();
-            } else {
-              game.version = None;
-              game.version_folder = None;
-            }
-          }
-          None => {
-            return Err(ConfigError::Configuration(format!(
-              "Invalid game name - {game_name}, can't update installation status!",
-            )));
-          }
-        }
-      }
-      Err(_) => {
-        return Err(ConfigError::Configuration(format!(
-          "Invalid game name - {game_name}, can't update installation status!",
-        )));
-      }
+    log::info!(
+      "Updating game installation status: {} - {}",
+      game_name,
+      installed
+    );
+    let active_version = self.active_version.clone();
+    let active_version_folder = self.active_version_folder.clone();
+    let game_config = self.get_supported_game_config_mut(game_name)?;
+    if installed {
+      game_config.version = active_version;
+      game_config.version_folder = active_version_folder;
+    } else {
+      game_config.version = None;
+      game_config.version_folder = None;
     }
     self.save_config()?;
     Ok(())

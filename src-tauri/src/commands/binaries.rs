@@ -301,13 +301,15 @@ pub async fn extract_and_validate_iso(
     args.push("--folder".to_string());
   }
   // Add new --game argument
-  if config_info.tooling_version.minor >= 1 && config_info.tooling_version.patch >= 44 {
+  if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
     args.push("--game".to_string());
     args.push(game_name.clone());
   }
 
   // This is the first install step, reset the file
   let log_file = create_log_file(&app_handle, "extractor.log", false)?;
+
+  log::info!("Running extractor with args: {:?}", args);
 
   let mut command = Command::new(exec_info.executable_path);
   command
@@ -400,10 +402,12 @@ pub async fn run_decompiler(
     data_folder.to_string_lossy().into_owned(),
   ];
   // Add new --game argument
-  if config_info.tooling_version.minor >= 1 && config_info.tooling_version.patch >= 44 {
+  if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
     args.push("--game".to_string());
     args.push(game_name.clone());
   }
+
+  log::info!("Running extractor with args: {:?}", args);
 
   command
     .args(args)
@@ -492,10 +496,13 @@ pub async fn run_compiler(
     data_folder.to_string_lossy().into_owned(),
   ];
   // Add new --game argument
-  if config_info.tooling_version.minor >= 1 && config_info.tooling_version.patch >= 44 {
+  if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
     args.push("--game".to_string());
     args.push(game_name.clone());
   }
+
+  log::info!("Running compiler with args: {:?}", args);
+
   let mut command = Command::new(exec_info.executable_path);
   command
     .args(args)
@@ -683,7 +690,7 @@ fn generate_launch_game_string(
       data_folder.to_string_lossy().into_owned(),
     ];
     // Add new --game argument
-    if config_info.tooling_version.minor >= 1 && config_info.tooling_version.patch >= 44 {
+    if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
       args.push("--game".to_string());
       args.push(game_name.clone());
     }
