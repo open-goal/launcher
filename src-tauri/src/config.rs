@@ -406,6 +406,7 @@ impl LauncherConfig {
     let active_version = self.active_version.clone();
     let active_version_folder = self.active_version_folder.clone();
     let game_config = self.get_supported_game_config_mut(game_name)?;
+    game_config.is_installed = installed;
     if installed {
       game_config.version = active_version;
       game_config.version_folder = active_version_folder;
