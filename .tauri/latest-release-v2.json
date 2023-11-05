@@ -1,19 +1,19 @@
 {
-  "name": "v2.3.2",
-  "notes": "{\"changes\":[{\"description\":\"support: multi-game support package dumping\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/366\"}]}",
-  "pub_date": "2023-11-04T18:37:23Z",
+  "name": "v2.3.3",
+  "notes": "{\"changes\":[{\"description\":\"backend: fix semver checking logic for jak 2\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/370\"}]}",
+  "pub_date": "2023-11-05T03:34:24Z",
   "platforms": {
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2ZyZ1kvZitrWmJqWXR4eTViZzlQOUR3dVVZL0FxT29OcnNueDFFZWN2aXB2TmJteG0xQlpCcnc1U1AwV0h2NTc4TGh2Ri9LZXY5Qm5RdXgyc0UwWFFzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk5MTIzNDcwCWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMy4yX2FtZDY0LkFwcEltYWdlLnRhci5negpsRG9wTkM3UWFSKzNSYkkwRlplSnFmZ3pZc2c5ZVBCWklKQWd2RmpzQVFPaGh6eGl5aGxSQ2t1aExhQzFIdHFWb0pmbUx4bDZIeDB3dDRwdVc4N2FEUT09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.3.2/open-goal-launcher_2.3.2_amd64.AppImage.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1htUTJrVXU4bjJxc1krSXJ0UkQ1MHM1R2dERSswMFZmTkdmRkJwUXlIZHY4K2lqZlFFVXdKNWlvcjNOZkhMTWRyZkVRYzZOZXhUbXFURE4wSDZqTGcwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk5MTU1NzAzCWZpbGU6b3Blbi1nb2FsLWxhdW5jaGVyXzIuMy4zX2FtZDY0LkFwcEltYWdlLnRhci5negpnRVFmRjl5MTQ4SGZUajBRZ2NkbEpCNWFleGJjK1ZqZVZWZWRLUDN4ZkUyNklUdVBhYWoybG9ydWpNY1FsdDdtQlZiU0wxcWZlZjNoREdJMzhORXhDZz09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.3.3/open-goal-launcher_2.3.3_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1Zxcm14RkErSGlwSVZhLzVZVWJQay9mWlpsNTV4eDRoNFp1OVV0alpoWXFiSnJidVZQaFpHMnloZWJ0eDhldUxXUTkzQmVWb0FxdSszVG4xM2o0VEFFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk5MTIzNTMxCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4zLjJfeDY0X2VuLVVTLm1zaS56aXAKaWhPTFpqaUEvY3dxR3RMZDI3RXR1ZmlJUzhBWm5heWdPeWxhNEd1eGR3VVVTaHIvZXFOR1VIaTVuOGd2NGZyVHEwcytTV0ZVTm5PbWp2c1ZnQ2kyQVE9PQo=",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.3.2/OpenGOAL-Launcher_2.3.2_x64_en-US.msi.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2JNZDQ4dGZ4VDlFbG1sakY2c1BqWXJwWmx0ditZNFU1U08wb3hZQ3ZmdUJCQ2g5a3A0L0cyb0NXVHR4L3R1UzhOU0dsb1c5TjBoaWhFUnh2OFRXY1FJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk5MTU1ODMyCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4zLjNfeDY0X2VuLVVTLm1zaS56aXAKalZ3ZVlkdms1SFd1ZHNmZmlVSlVqK21URXRWVHJEUXpsamhnSFp6OE8wVFlNbXBvYzJrcUp5N002MGZ2eXd0ckFIc3ZuRjhEL0o4SVk4eUtSYTA4Q3c9PQo=",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.3.3/OpenGOAL-Launcher_2.3.3_x64_en-US.msi.zip"
     },
     "darwin-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1VKaEpoaS91bDVJV0JwNVpFRXBuVjlZYlNlVzRIN2o2SCtlTXk0am5WcGFqVjRQOVp2RHZPeVc0bmxINGord0RwQ3l3VVA2RDB0RDRLYnIwcVc2dEEwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk5MTIzNDM1CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5nego4L2JJMUl4cHVTOCsrYTNuYjByMTAzQWgzL2VzMjdrZzBMZ3RnWDhsTlZzUkdYSWMxZmFmZlhtYjVlY2syR1NGUEY1QVNQQkJjRTFLcm5OK2ZOYXpBQT09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.3.2/OpenGOAL-Launcher_x64.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2ZLcHV5L1Zyc3pNZmlvTjBOR28yaTlRWDZEMUhzZE13dUlpbmo5TnJkMGNDNXF3OHB3c2F6ZmxlUkVGWS80NXJxR3ZHYjVhL2JhMVdQUk5ZNUgzT2dzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNjk5MTU1NjY0CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negp3RlpWRVdLQzkvS2kxbnpjNE5SUSsyNFBhNEdFMFRwS2pMWUh6NUVnOVZhL1lqeU5IaHFxRWVlU2pYckVVQTB4aW1vQUJLbmVINHd3bC8wZjFFTEhCQT09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.3.3/OpenGOAL-Launcher_x64.app.tar.gz"
     }
   }
 }
