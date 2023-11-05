@@ -410,7 +410,7 @@ pub async fn does_active_tooling_version_support_game(
     .unwrap_or(Version::new(0, 0, 1));
   match game_name.as_str() {
     "jak1" => Ok(true),
-    "jak2" => Ok(tooling_version.minor >= 1 && tooling_version.patch >= 44),
+    "jak2" => Ok(tooling_version.minor > 1 || tooling_version.patch >= 44),
     _ => Ok(false),
   }
 }
