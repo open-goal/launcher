@@ -776,7 +776,6 @@ async fn track_playtime(
   start_time: std::time::Instant,
   game_name: String,
 ) -> Result<(), CommandError> {
-
   // TODO - get rid of the unwrap
   let app_handle = TAURI_APP.get().unwrap().app_handle();
   let config = app_handle.state::<tokio::sync::Mutex<LauncherConfig>>();

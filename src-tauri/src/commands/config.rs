@@ -423,6 +423,9 @@ pub async fn get_playtime(
   let mut config_lock = config.lock().await;
   match config_lock.get_game_seconds_played(&game_name) {
     Ok(playtime) => Ok(playtime),
-    Err(err) => Err(CommandError::Configuration(format!("Error occurred when getting game playtime: {}", err))),
+    Err(err) => Err(CommandError::Configuration(format!(
+      "Error occurred when getting game playtime: {}",
+      err
+    ))),
   }
 }
