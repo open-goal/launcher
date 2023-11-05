@@ -2633,7 +2633,7 @@ dependencies = [
 
 [[package]]
 name = "opengoal-launcher"
-version = "2.3.2"
+version = "2.3.3"
 dependencies = [
  "backtrace",
  "chrono",
@@ -2983,14 +2983,14 @@ checksum = "26072860ba924cbfa98ea39c8c19b4dd6a4a25423dbdf219c1eca91aa0cf6964"
 
 [[package]]
 name = "plist"
-version = "1.5.1"
+version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a4a0cfc5fb21a09dc6af4bf834cf10d4a32fccd9e2ea468c4b1751a097487aa"
+checksum = "e5699cc8a63d1aa2b1ee8e12b9ad70ac790d65788cd36101fa37f87ea46c4cef"
 dependencies = [
  "base64 0.21.5",
- "indexmap 1.9.3",
+ "indexmap 2.1.0",
  "line-wrap",
- "quick-xml",
+ "quick-xml 0.31.0",
  "serde",
  "time",
 ]
@@ -3116,6 +3116,15 @@ name = "quick-xml"
 version = "0.30.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eff6510e86862b57b210fd8cbe8ed3f0d7d600b9c2863cd4549a2e033c66e956"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
+name = "quick-xml"
+version = "0.31.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1004a344b30a54e2ee58d66a71b32d2db2feb0a31f9a2d302bf0536f15de2a33"
 dependencies = [
  "memchr",
 ]
@@ -4242,7 +4251,7 @@ version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "006851c9ccefa3c38a7646b8cec804bb429def3da10497bfa977179869c3e8e2"
 dependencies = [
- "quick-xml",
+ "quick-xml 0.30.0",
  "windows 0.51.1",
 ]
 
