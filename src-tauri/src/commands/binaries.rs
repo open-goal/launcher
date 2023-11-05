@@ -738,31 +738,27 @@ pub async fn launch_game(
 
   let log_file = create_log_file(&app_handle, "game.log", false)?;
 
-  // move all playtime tracking to a separate thread
+  // TODO - log rotation here would be nice too, and for it to be game specific
+  let mut command = Command::new(exec_info.executable_path);
+  command
+    .args(args)
+    .stdout(log_file.try_clone().unwrap())
+    .stderr(log_file)
+    .current_dir(exec_info.executable_dir);
+  #[cfg(windows)]
+  {
+    command.creation_flags(0x08000000);
+  }
+  // Start the process here so if there is an error, we can return immediately
+  let mut child = command.spawn()?;
+  // if all goes well, we await the child to exit in the background (separate thread)
   tokio::spawn(async move {
-    // TODO - log rotation here would be nice too, and for it to be game specific
-    let mut command = Command::new(exec_info.executable_path);
-    command
-      .args(args)
-      .stdout(log_file.try_clone().unwrap())
-      .stderr(log_file)
-      .current_dir(exec_info.executable_dir);
-    #[cfg(windows)]
-    {
-      command.creation_flags(0x08000000);
-    }
     let start_time = Instant::now(); // get the start time of the game
                                      // start waiting for the game to exit
-    log::info!("blerg spawn");
-    let child = command.spawn(); // TODO - this swallows the error however!
-                                 // TODO - cleanup this unwrap
-    log::info!("blerg wait start");
-    if let Err(err) = child.unwrap().wait() {
+    if let Err(err) = child.wait() {
       log::error!("Error occured when waiting for game to exit: {}", err);
       return;
     }
-    log::info!("blerg wait end");
-
     // once the game exits pass the time the game started to the track_playtine function
     if let Err(err) = track_playtime(start_time, game_name).await {
       log::error!("Error occured when tracking playtime: {}", err);
@@ -776,8 +772,12 @@ async fn track_playtime(
   start_time: std::time::Instant,
   game_name: String,
 ) -> Result<(), CommandError> {
-  // TODO - get rid of the unwrap
-  let app_handle = TAURI_APP.get().unwrap().app_handle();
+  let app_handle = TAURI_APP
+    .get()
+    .ok_or_else(|| {
+      CommandError::BinaryExecution("Cannot access global app state to persist playtime".to_owned())
+    })?
+    .app_handle();
   let config = app_handle.state::<tokio::sync::Mutex<LauncherConfig>>();
   let mut config_lock = config.lock().await;
 

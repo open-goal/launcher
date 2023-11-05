@@ -10,7 +10,7 @@ use tokio::sync::OnceCell;
 use util::file::create_dir;
 
 use backtrace::Backtrace;
-use std::{io::Write, sync::Arc};
+use std::io::Write;
 
 mod commands;
 mod config;

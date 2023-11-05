@@ -591,15 +591,8 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn get_game_seconds_played(
-    &mut self,
-    game_name: &String,
-  ) -> Result<u64, ConfigError> {
-    // make lowercase and remove the space so that the game is recognised
-    let formatted_game = game_name.to_lowercase().replace(" ", "");
-
-    let game_config = self.get_supported_game_config_mut(&formatted_game)?;
+  pub fn get_game_seconds_played(&mut self, game_name: &String) -> Result<u64, ConfigError> {
+    let game_config = self.get_supported_game_config_mut(&game_name)?;
     Ok(game_config.seconds_played.unwrap_or(0))
   }
-
 }

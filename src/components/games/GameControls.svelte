@@ -75,13 +75,13 @@
   let playtime = "";
 
   // get the playtime from the backend, format it, and assign it to the playtime variable when the page first loads
-  getPlaytime(activeGame).then((result) => {
+  getPlaytime(getInternalName(activeGame)).then((result) => {
     playtime = formatPlaytime(result);
   });
 
   // listen for the custom playtiemUpdated event from the backend and then refresh the playtime on screen
   listen<string>("playtimeUpdated", (event) => {
-    getPlaytime(activeGame).then((result) => {
+    getPlaytime(getInternalName(activeGame)).then((result) => {
       playtime = formatPlaytime(result);
     });
   });
