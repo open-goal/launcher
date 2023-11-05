@@ -58,7 +58,11 @@
 
     // add the hours to the formatted playtime string
     if (hours > 0) {
-      formattedPlaytime += `${hours} hour${hours > 1 ? "s" : ""}`;
+      if (hours > 1) {
+        formattedPlaytime += `${hours} ${$_(`gameControls_timePlayed_hours`)}`;
+      } else {
+        formattedPlaytime += `${hours} ${$_(`gameControls_timePlayed_hour`)}`;
+      }
     }
 
     // add the minutes to the formatted playtime string
@@ -67,16 +71,32 @@
       if (formattedPlaytime.length > 0) {
         formattedPlaytime += ", ";
       }
-      formattedPlaytime += `${minutes} minute${minutes > 1 ? "s" : ""}`;
+      if (minutes > 1) {
+        formattedPlaytime += `${minutes} ${$_(
+          `gameControls_timePlayed_minutes`,
+        )}`;
+      } else {
+        formattedPlaytime += `${minutes} ${$_(
+          `gameControls_timePlayed_minute`,
+        )}`;
+      }
     }
 
     // add the seconds to the formatted playtime string
     if (seconds > 0) {
-      // add a comma if there are already hours or minutes in the formatted playtime string
+      // add a comma if there are already hours in the formatted playtime string
       if (formattedPlaytime.length > 0) {
         formattedPlaytime += ", ";
       }
-      formattedPlaytime += `${seconds} second${seconds > 1 ? "s" : ""}`;
+      if (seconds > 1) {
+        formattedPlaytime += `${seconds} ${$_(
+          `gameControls_timePlayed_seconds`,
+        )}`;
+      } else {
+        formattedPlaytime += `${seconds} ${$_(
+          `gameControls_timePlayed_second`,
+        )}`;
+      }
     }
 
     // return the formatted playtime string
@@ -104,7 +124,7 @@
   </h1>
   {#if playtime}
     <h1 class="pb-4 text-xl text-outline tracking-tighter font-extrabold">
-      {`Played For ${playtime}`}
+      {`${$_(`gameControls_timePlayed_label`)} ${playtime}`}
     </h1>
   {/if}
   <div class="flex flex-row gap-2">
