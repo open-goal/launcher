@@ -16,8 +16,10 @@
   import { resetGameSettings, uninstallGame } from "$lib/rpc/game";
   import { platform } from "@tauri-apps/api/os";
   import { getLaunchGameString, launchGame, openREPL } from "$lib/rpc/binaries";
+  import { getPlaytime } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { navigate } from "svelte-navigator";
+  import { listen } from "@tauri-apps/api/event";
   import { toastStore } from "$lib/stores/ToastStore";
 
   export let activeGame: SupportedGame;
@@ -26,6 +28,7 @@
   let settingsDir = undefined;
   let savesDir = undefined;
   let isLinux = false;
+  let playtime = "";
 
   onMount(async () => {
     isLinux = (await platform()) === "linux";
@@ -42,15 +45,70 @@
       "saves",
     );
   });
+
+  // format the time from the settings file which is stored as seconds
+  function formatPlaytime(playtimeRaw: number) {
+    // calculate the number of hours and minutes
+    const hours = Math.floor(playtimeRaw / 3600);
+    const minutes = Math.floor((playtimeRaw % 3600) / 60);
+
+    // initialize the formatted playtime string
+    let formattedPlaytime = "";
+
+    // add the hours to the formatted playtime string
+    if (hours > 0) {
+      if (hours > 1) {
+        formattedPlaytime += `${hours} ${$_(`gameControls_timePlayed_hours`)}`;
+      } else {
+        formattedPlaytime += `${hours} ${$_(`gameControls_timePlayed_hour`)}`;
+      }
+    }
+
+    // add the minutes to the formatted playtime string
+    if (minutes > 0) {
+      // add a comma if there are already hours in the formatted playtime string
+      if (formattedPlaytime.length > 0) {
+        formattedPlaytime += ", ";
+      }
+      if (minutes > 1) {
+        formattedPlaytime += `${minutes} ${$_(
+          `gameControls_timePlayed_minutes`,
+        )}`;
+      } else {
+        formattedPlaytime += `${minutes} ${$_(
+          `gameControls_timePlayed_minute`,
+        )}`;
+      }
+    }
+
+    // return the formatted playtime string
+    return formattedPlaytime;
+  }
+
+  // get the playtime from the backend, format it, and assign it to the playtime variable when the page first loads
+  getPlaytime(getInternalName(activeGame)).then((result) => {
+    playtime = formatPlaytime(result);
+  });
+
+  // listen for the custom playtiemUpdated event from the backend and then refresh the playtime on screen
+  listen<string>("playtimeUpdated", (event) => {
+    getPlaytime(getInternalName(activeGame)).then((result) => {
+      playtime = formatPlaytime(result);
+    });
+  });
 </script>
 
 <div class="flex flex-col justify-end items-end mt-auto">
-  <!-- TOOO - time played -->
   <h1
     class="tracking-tighter text-2xl font-bold pb-3 text-orange-500 text-outline pointer-events-none"
   >
     {$_(`gameName_${getInternalName(activeGame)}`)}
   </h1>
+  {#if playtime}
+    <h1 class="pb-4 text-xl text-outline tracking-tighter font-extrabold">
+      {`${$_(`gameControls_timePlayed_label`)} ${playtime}`}
+    </h1>
+  {/if}
   <div class="flex flex-row gap-2">
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"

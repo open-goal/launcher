@@ -4,16 +4,19 @@ use std::{
   collections::HashMap,
   path::{Path, PathBuf},
   process::Command,
+  time::Instant,
 };
 
 use log::{info, warn};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use tauri::Manager;
 
 use crate::{
   config::LauncherConfig,
   util::file::{create_dir, overwrite_dir, read_last_lines_from_file},
+  TAURI_APP,
 };
 
 use super::CommandError;
@@ -731,7 +734,7 @@ pub async fn launch_game(
   let config_info = common_prelude(&config_lock)?;
 
   let exec_info = get_exec_location(&config_info, "gk")?;
-  let args = generate_launch_game_string(&config_info, game_name, in_debug)?;
+  let args = generate_launch_game_string(&config_info, game_name.clone(), in_debug)?;
 
   log::info!(
     "Launching game version {:?} -> {:?} with args: {:?}",
@@ -740,8 +743,9 @@ pub async fn launch_game(
     args
   );
 
-  // TODO - log rotation here would be nice too, and for it to be game specific
   let log_file = create_log_file(&app_handle, "game.log", false)?;
+
+  // TODO - log rotation here would be nice too, and for it to be game specific
   let mut command = Command::new(exec_info.executable_path);
   command
     .args(args)
@@ -752,6 +756,54 @@ pub async fn launch_game(
   {
     command.creation_flags(0x08000000);
   }
-  command.spawn()?;
+  // Start the process here so if there is an error, we can return immediately
+  let mut child = command.spawn()?;
+  // if all goes well, we await the child to exit in the background (separate thread)
+  tokio::spawn(async move {
+    let start_time = Instant::now(); // get the start time of the game
+                                     // start waiting for the game to exit
+    if let Err(err) = child.wait() {
+      log::error!("Error occured when waiting for game to exit: {}", err);
+      return;
+    }
+    // once the game exits pass the time the game started to the track_playtine function
+    if let Err(err) = track_playtime(start_time, game_name).await {
+      log::error!("Error occured when tracking playtime: {}", err);
+      return;
+    }
+  });
+  Ok(())
+}
+
+async fn track_playtime(
+  start_time: std::time::Instant,
+  game_name: String,
+) -> Result<(), CommandError> {
+  let app_handle = TAURI_APP
+    .get()
+    .ok_or_else(|| {
+      CommandError::BinaryExecution("Cannot access global app state to persist playtime".to_owned())
+    })?
+    .app_handle();
+  let config = app_handle.state::<tokio::sync::Mutex<LauncherConfig>>();
+  let mut config_lock = config.lock().await;
+
+  // get the playtime of the session
+  let elapsed_time = start_time.elapsed().as_secs();
+  log::info!("elapsed time: {}", elapsed_time);
+
+  config_lock
+    .update_game_seconds_played(&game_name, elapsed_time)
+    .map_err(|_| CommandError::Configuration("Unable to persist time played".to_owned()))?;
+
+  // send an event to the front end so that it can refresh the playtime on screen
+  if let Err(err) = app_handle.emit_all("playtimeUpdated", ()) {
+    log::error!("Failed to emit playtimeUpdated event: {}", err);
+    return Err(CommandError::BinaryExecution(format!(
+      "Failed to emit playtimeUpdated event: {}",
+      err
+    )));
+  }
+
   Ok(())
 }

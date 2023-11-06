@@ -6,6 +6,7 @@
 use directories::UserDirs;
 use fern::colors::{Color, ColoredLevelConfig};
 use tauri::{Manager, RunEvent};
+use tokio::sync::OnceCell;
 use util::file::create_dir;
 
 use backtrace::Backtrace;
@@ -44,6 +45,8 @@ fn panic_hook(info: &std::panic::PanicInfo) {
   log_crash(Some(info), None);
 }
 
+static TAURI_APP: OnceCell<tauri::AppHandle> = OnceCell::const_new();
+
 fn main() {
   // In the event that some catastrophic happens, atleast log it out
   // the panic_hook will log to a file in the folder of the executable
@@ -51,6 +54,8 @@ fn main() {
 
   let tauri_setup = tauri::Builder::default()
     .setup(|app| {
+      TAURI_APP.set(app.app_handle());
+
       // Setup Logging
       let log_path = app
         .path_resolver()
@@ -141,6 +146,7 @@ fn main() {
       commands::config::cleanup_enabled_texture_packs,
       commands::config::delete_old_data_directory,
       commands::config::does_active_tooling_version_support_game,
+      commands::config::get_playtime,
       commands::config::finalize_installation,
       commands::config::get_active_tooling_version_folder,
       commands::config::get_active_tooling_version,

@@ -116,6 +116,7 @@ pub struct GameConfig {
   pub version: Option<String>,
   pub version_folder: Option<String>,
   pub features: Option<GameFeatureConfig>,
+  pub seconds_played: Option<u64>,
 }
 
 impl GameConfig {
@@ -125,6 +126,7 @@ impl GameConfig {
       version: None,
       version_folder: None,
       features: Some(GameFeatureConfig::default()),
+      seconds_played: Some(0),
     }
   }
 }
@@ -558,5 +560,28 @@ impl LauncherConfig {
     }
     self.save_config()?;
     Ok(())
+  }
+
+  pub fn update_game_seconds_played(
+    &mut self,
+    game_name: &String,
+    additional_seconds: u64,
+  ) -> Result<(), ConfigError> {
+    let game_config = self.get_supported_game_config_mut(game_name)?;
+    match game_config.seconds_played {
+      Some(seconds) => {
+        game_config.seconds_played = Some(seconds + additional_seconds);
+      }
+      None => {
+        game_config.seconds_played = Some(additional_seconds);
+      }
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn get_game_seconds_played(&mut self, game_name: &String) -> Result<u64, ConfigError> {
+    let game_config = self.get_supported_game_config_mut(&game_name)?;
+    Ok(game_config.seconds_played.unwrap_or(0))
   }
 }

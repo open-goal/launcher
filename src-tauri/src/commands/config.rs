@@ -414,3 +414,18 @@ pub async fn does_active_tooling_version_support_game(
     _ => Ok(false),
   }
 }
+
+#[tauri::command]
+pub async fn get_playtime(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+) -> Result<u64, CommandError> {
+  let mut config_lock = config.lock().await;
+  match config_lock.get_game_seconds_played(&game_name) {
+    Ok(playtime) => Ok(playtime),
+    Err(err) => Err(CommandError::Configuration(format!(
+      "Error occurred when getting game playtime: {}",
+      err
+    ))),
+  }
+}
