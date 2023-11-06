@@ -51,7 +51,6 @@
     // calculate the number of hours and minutes
     const hours = Math.floor(playtimeRaw / 3600);
     const minutes = Math.floor((playtimeRaw % 3600) / 60);
-    const seconds = Math.floor(playtimeRaw % 60);
 
     // initialize the formatted playtime string
     let formattedPlaytime = "";
@@ -78,23 +77,6 @@
       } else {
         formattedPlaytime += `${minutes} ${$_(
           `gameControls_timePlayed_minute`,
-        )}`;
-      }
-    }
-
-    // add the seconds to the formatted playtime string
-    if (seconds > 0) {
-      // add a comma if there are already hours in the formatted playtime string
-      if (formattedPlaytime.length > 0) {
-        formattedPlaytime += ", ";
-      }
-      if (seconds > 1) {
-        formattedPlaytime += `${seconds} ${$_(
-          `gameControls_timePlayed_seconds`,
-        )}`;
-      } else {
-        formattedPlaytime += `${seconds} ${$_(
-          `gameControls_timePlayed_second`,
         )}`;
       }
     }

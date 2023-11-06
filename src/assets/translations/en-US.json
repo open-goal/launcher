@@ -41,8 +41,6 @@
   "gameControls_timePlayed_hours": "hours",
   "gameControls_timePlayed_minute": "minute",
   "gameControls_timePlayed_minutes": "minutes",
-  "gameControls_timePlayed_second": "second",
-  "gameControls_timePlayed_seconds": "seconds",
   "gameJob_applyTexturePacks": "Applying Packs",
   "gameJob_deleteTexturePacks": "Deleting Packs",
   "gameJob_enablingTexturePacks": "Enabling Packs",
