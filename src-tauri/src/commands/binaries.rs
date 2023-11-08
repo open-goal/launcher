@@ -571,7 +571,7 @@ pub async fn open_repl(
       "--proj-path",
       &data_folder.to_string_lossy(),
       "--game",
-      game_name,
+      &game_name,
     ])
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
