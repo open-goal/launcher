@@ -563,17 +563,29 @@ pub async fn open_repl(
   let data_folder = get_data_dir(&config_info, &game_name, false)?;
   let exec_info = get_exec_location(&config_info, "goalc")?;
   let mut command = Command::new("cmd");
-  command
-    .args([
-      "/K",
-      "start",
-      &bin_ext("goalc"),
-      "--proj-path",
-      &data_folder.to_string_lossy(),
-      "--game",
-      &game_name,
-    ])
-    .current_dir(exec_info.executable_dir);
+  if game_name == "jak1" {
+    command
+      .args([
+        "/K",
+        "start",
+        &bin_ext("goalc"),
+        "--proj-path",
+        &data_folder.to_string_lossy(),
+      ])
+      .current_dir(exec_info.executable_dir);
+  } else {
+    command
+      .args([
+        "/K",
+        "start",
+        &bin_ext("goalc"),
+        "--proj-path",
+        &data_folder.to_string_lossy(),
+        "--game",
+        &game_name,
+      ])
+      .current_dir(exec_info.executable_dir);
+  }
   #[cfg(windows)]
   {
     command.creation_flags(0x08000000);
