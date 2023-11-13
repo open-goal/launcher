@@ -692,7 +692,7 @@ fn generate_launch_game_string(
       "-boot".to_string(),
       "-fakeiso".to_string(),
       "-proj-path".to_string(),
-      data_folder.to_string_lossy().into_owned(),
+      format!("\"{}\"", data_folder.to_string_lossy().into_owned()),
     ];
     if in_debug {
       args.push("-debug".to_string());
@@ -701,7 +701,7 @@ fn generate_launch_game_string(
     args = vec![
       "-v".to_string(),
       "--proj-path".to_string(),
-      data_folder.to_string_lossy().into_owned(),
+      format!("\"{}\"", data_folder.to_string_lossy().into_owned()),
     ];
     // Add new --game argument
     if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
@@ -718,6 +718,7 @@ fn generate_launch_game_string(
   }
   Ok(args)
 }
+
 
 #[tauri::command]
 pub async fn get_launch_game_string(
