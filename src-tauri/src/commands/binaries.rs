@@ -719,7 +719,6 @@ fn generate_launch_game_string(
   Ok(args)
 }
 
-
 #[tauri::command]
 pub async fn get_launch_game_string(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
