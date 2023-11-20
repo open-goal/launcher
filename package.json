@@ -48,7 +48,7 @@
     "svelte-i18n": "^4.0.0",
     "svelte-preprocess": "^5.0.3",
     "tailwindcss": "^3.3.5",
-    "typescript": "^5.2.2",
+    "typescript": "^5.3.2",
     "unplugin-icons": "^0.17.3",
     "vite": "^4.5.0",
     "vitest": "^0.34.6"
