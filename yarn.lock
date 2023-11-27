@@ -367,10 +367,10 @@
   dependencies:
     purgecss "^5.0.0"
 
-"@iconify-json/ic@^1.1.14":
-  version "1.1.14"
-  resolved "https://registry.yarnpkg.com/@iconify-json/ic/-/ic-1.1.14.tgz#22497cdaece38bfb10144e0cf5b7d8abe0552218"
-  integrity sha512-vbATa9uwb9pIsRWQ+iXObQCgLTePk/0vo4shBr3Td0GnTjsAU/7VUGTkrZFVf5vpgiG6OsXkcKMPzBPvt966sg==
+"@iconify-json/ic@^1.1.15":
+  version "1.1.15"
+  resolved "https://registry.yarnpkg.com/@iconify-json/ic/-/ic-1.1.15.tgz#b430e6edf3ecd4875a288d787310a712c1149ccd"
+  integrity sha512-/L7Yq5i+cao42RlDKArMKWgJ64f/M3PnNhBwJnutkRabvOKVk3p4Vli55bJywjA79c8S5yyXfemsHt+1C3hRZg==
   dependencies:
     "@iconify/types" "*"
 
