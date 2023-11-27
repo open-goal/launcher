@@ -2748,20 +2748,20 @@ find-versions@^3.0.0:
   dependencies:
     semver-regex "^2.0.0"
 
-flowbite-svelte@0.44.19:
-  version "0.44.19"
-  resolved "https://registry.yarnpkg.com/flowbite-svelte/-/flowbite-svelte-0.44.19.tgz#f39e04a118104435fbcdf80529b9ba063af5a642"
-  integrity sha512-ihP6NYxr34uTb/H91uqYLG830XffuSiPyezLufgjfS/ip3vWxTLRYrqQlRG8+ls7TqTmOsjJ9H/Yx4qN/oq+mQ==
+flowbite-svelte@0.44.20:
+  version "0.44.20"
+  resolved "https://registry.yarnpkg.com/flowbite-svelte/-/flowbite-svelte-0.44.20.tgz#e2e39e18a28172d96dfeec107ee7e98f4957321f"
+  integrity sha512-juvzolgEvGEga8PIe+vpzGf9/xfpvd4p9ZgtSPpWQLZB8iyY/ebbKb5HNu60uqoehdokFuy/0htBBLNmP2yd/g==
   dependencies:
     "@floating-ui/dom" "^1.5.3"
     apexcharts "^3.44.0"
-    flowbite "^2.0.0"
+    flowbite "^2.2.0"
     tailwind-merge "^2.0.0"
 
-flowbite@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/flowbite/-/flowbite-2.0.0.tgz#f149f63f4752722d888b1300a5f5071a6bf98b7d"
-  integrity sha512-gP/iC/WuznQ5XBzikhaSs4RDs49zrvoAdHbWMHSY3l7nVJX0xJz+dELIlLjh+czLdEVTMLxUjuARYYwCb5q34A==
+flowbite@^2.0.0, flowbite@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/flowbite/-/flowbite-2.2.0.tgz#638c223fa808241e1f64b4e068f819281d4c7c71"
+  integrity sha512-Eq0qWz4a5nlxaGuUcspzpu+8Ny0A7lKEJEKcuPpkdSoF8tWjbKeuVVgKk8/q10ZE9bhXh1GHBXdCsRxu0LZTNQ==
   dependencies:
     "@popperjs/core" "^2.9.3"
     mini-svg-data-uri "^1.4.3"

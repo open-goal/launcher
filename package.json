@@ -38,7 +38,7 @@
     "escape-html": "^1.0.3",
     "execa": "^8.0.1",
     "flowbite": "^2.0.0",
-    "flowbite-svelte": "0.44.19",
+    "flowbite-svelte": "0.44.20",
     "jsdom": "^22.1.0",
     "postcss": "^8.4.31",
     "postcss-load-config": "^4.0.1",
