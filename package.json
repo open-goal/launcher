@@ -39,7 +39,7 @@
     "execa": "^8.0.1",
     "flowbite": "^2.0.0",
     "flowbite-svelte": "0.44.19",
-    "jsdom": "^22.1.0",
+    "jsdom": "^23.0.0",
     "postcss": "^8.4.31",
     "postcss-load-config": "^4.0.1",
     "prettier": "^3.0.3",
