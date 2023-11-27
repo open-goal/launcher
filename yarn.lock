@@ -374,10 +374,10 @@
   dependencies:
     "@iconify/types" "*"
 
-"@iconify-json/mdi@^1.1.55":
-  version "1.1.55"
-  resolved "https://registry.yarnpkg.com/@iconify-json/mdi/-/mdi-1.1.55.tgz#af13d2b95542f6894a77a905263696ed84b9e269"
-  integrity sha512-ycnFub+EQx+3D/aDCg6iC7sjexOUa5GzxUNIZFFl0Pq7aDxbmhIludoyYnguEO3REyWf9FcOOmvVcQkdtwKHTw==
+"@iconify-json/mdi@^1.1.56":
+  version "1.1.56"
+  resolved "https://registry.yarnpkg.com/@iconify-json/mdi/-/mdi-1.1.56.tgz#302ee94051013d151b580b6688536f8d787a6d0f"
+  integrity sha512-a06ZCKGLa8DMcb95QbVfnL2qdhADB2laYwd//auU6unwl77t2ncxpxdCa62scAYk9IMzRR7SAXi3H64QsgRsGw==
   dependencies:
     "@iconify/types" "*"
 
