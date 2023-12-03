@@ -147,6 +147,8 @@
       }
     }
     releases = releases;
+    $VersionStore.selectedVersions.official = event.detail.version;
+    await saveOfficialVersionChange()
   }
 
   async function onRemoveVersion(event: any) {
