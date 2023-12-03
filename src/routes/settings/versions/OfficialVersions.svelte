@@ -148,7 +148,7 @@
     }
     releases = releases;
     $VersionStore.selectedVersions.official = event.detail.version;
-    await saveOfficialVersionChange()
+    await saveOfficialVersionChange();
   }
 
   async function onRemoveVersion(event: any) {

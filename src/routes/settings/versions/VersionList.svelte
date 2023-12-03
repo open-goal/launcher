@@ -1,8 +1,6 @@
 <script lang="ts">
   import type { VersionFolders } from "$lib/rpc/versions";
-  import {
-    VersionStore,
-  } from "$lib/stores/VersionStore";
+  import { VersionStore } from "$lib/stores/VersionStore";
   import type { ReleaseInfo } from "$lib/utils/github";
   import IconRefresh from "~icons/mdi/refresh";
   import IconFolderOpen from "~icons/mdi/folder-open";
