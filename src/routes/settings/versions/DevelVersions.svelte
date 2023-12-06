@@ -12,6 +12,7 @@
   import { VersionStore } from "$lib/stores/VersionStore";
   import { saveActiveVersionChange } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
+  import { toastStore } from "$lib/stores/ToastStore";
 
   let versionsLoaded = false;
 
@@ -61,6 +62,7 @@
       $VersionStore.activeVersionName = $VersionStore.selectedVersions.devel;
       $VersionStore.selectedVersions.official = null;
       $VersionStore.selectedVersions.unofficial = null;
+      toastStore.makeToast("Saved game version!", "info");
     }
   }
 
