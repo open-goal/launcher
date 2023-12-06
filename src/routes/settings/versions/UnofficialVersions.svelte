@@ -53,7 +53,7 @@
     versionsLoaded = true;
   }
 
-  async function onSaveVersionChange(evt: any) {
+  async function onSaveVersionChange() {
     const success = await saveActiveVersionChange(
       "unofficial",
       $VersionStore.selectedVersions.unofficial,
@@ -67,7 +67,7 @@
     }
   }
 
-  async function onOpenVersionFolder(evt: any) {
+  async function onOpenVersionFolder() {
     openVersionFolder("unofficial");
   }
 

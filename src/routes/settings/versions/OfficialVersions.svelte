@@ -14,6 +14,7 @@
   import { UpdateStore } from "$lib/stores/AppStore";
   import { saveActiveVersionChange } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
+  import { toastStore } from "$lib/stores/ToastStore";
 
   let versionsLoaded = false;
   let releases: ReleaseInfo[] = [];
@@ -102,7 +103,7 @@
     versionsLoaded = true;
   }
 
-  async function saveOfficialVersionChange(evt) {
+  async function saveOfficialVersionChange() {
     const success = await saveActiveVersionChange(
       "official",
       $VersionStore.selectedVersions.official,
@@ -112,10 +113,11 @@
       $VersionStore.activeVersionName = $VersionStore.selectedVersions.official;
       $VersionStore.selectedVersions.unofficial = null;
       $VersionStore.selectedVersions.devel = null;
+      toastStore.makeToast("Saved game version!", "info");
     }
   }
 
-  async function openOfficialVersionFolder(evt) {
+  async function openOfficialVersionFolder() {
     openVersionFolder("official");
   }
 
@@ -145,6 +147,8 @@
       }
     }
     releases = releases;
+    $VersionStore.selectedVersions.official = event.detail.version;
+    await saveOfficialVersionChange();
   }
 
   async function onRemoveVersion(event: any) {
