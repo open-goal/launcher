@@ -8,11 +8,9 @@
   import Background from "./components/background/Background.svelte";
   import Header from "./components/header/Header.svelte";
   import Update from "./routes/Update.svelte";
-  import GameInProgress from "./components/games/GameInProgress.svelte";
   import { isInDebugMode } from "$lib/utils/common";
-  import { Toast } from "flowbite-svelte";
+  import Toast from "./components/toast/Toast.svelte";
   import Help from "./routes/Help.svelte";
-  import { toastStore } from "$lib/stores/ToastStore";
   import { isLoading } from "svelte-i18n";
   import { getLocale, setLocale } from "$lib/rpc/config";
   import GameFeature from "./routes/GameFeature.svelte";
@@ -95,16 +93,7 @@
           <Route path="/update" component={Update} primary={false} />
         </div>
       </div>
-      {#if $toastStore.msg !== undefined}
-        <!-- TODO - make these look nice for info/warn/error levels -->
-        <Toast
-          color="green"
-          position="top-right"
-          class="w-full max-w-xs p-2 pl-4 z-50 top-20"
-        >
-          {$toastStore.msg}
-        </Toast>
-      {/if}
+      <Toast />
     {/if}
   </div>
 </Router>
