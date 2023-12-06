@@ -2,34 +2,28 @@ import { writable } from "svelte/store";
 
 export type ToastLevel = "error" | "warn" | "info" | undefined;
 
-interface ToastStore {
-  msg: string | undefined;
+interface ToastMessage {
+  msg: string;
   level: ToastLevel;
-  interval: any;
+  interval?: any;
 }
 
-const storeValue: ToastStore = {
-  msg: undefined,
-  level: undefined,
-  interval: undefined,
-};
+type ToastArray = ToastMessage[];
+const messageArray: ToastArray = [];
 
 function createToastStore() {
-  const { subscribe, update } = writable<ToastStore>(storeValue);
+  const { subscribe, update } = writable<ToastArray>(messageArray);
 
   return {
     subscribe,
-    makeToast: (msg: string, level: ToastLevel) =>
+    removeToast: () =>
       update((val) => {
-        val.msg = msg;
-        val.level = level;
+        val = val.slice(1);
         return val;
       }),
-
-    reset: () =>
+    makeToast: (msg: string, level: ToastLevel) =>
       update((val) => {
-        val.msg = undefined;
-        val.level = undefined;
+        val.push({ msg, level });
         return val;
       }),
   };

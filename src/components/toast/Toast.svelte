@@ -8,44 +8,43 @@
 
   let open = false;
   let counter;
+  let currentToast = null;
 
-  function timeout() {
-    if (--counter > 0) return setTimeout(timeout, 1000);
-    open = false;
-    toastStore.reset();
-  }
-
-  function trigger() {
+  $: if ($toastStore.length > 0 && !currentToast) {
+    currentToast = $toastStore[0];
     open = true;
     counter = 6;
     timeout();
   }
 
-  $: if ($toastStore.msg) {
-    trigger();
-  } else {
+  function timeout() {
+    if (--counter > 0) return setTimeout(timeout, 1000);
     open = false;
+    toastStore.removeToast();
+    currentToast = null;
   }
 </script>
 
-<Toast
-  {open}
-  dismissable={false}
-  position="top-right"
-  class="z-50 top-20"
-  transition={fly}
-  params={{ y: 200 }}
->
-  <svelte:fragment slot="icon">
-    {#if $toastStore.level == "info"}
-      <IconCheck class="text-green-500 text-5xl" />
-    {:else if $toastStore.level == "warn"}
-      <IconAlertCircle class="text-orange-500 text-5xl" />
-    {:else if $toastStore.level == "error"}
-      <IconAlert class="text-red-500 text-5xl" />
-    {/if}
-  </svelte:fragment>
-  <div class="ps-4 text-sm font-semibold">
-    {$toastStore.msg}
-  </div>
-</Toast>
+{#if currentToast}
+  <Toast
+    {open}
+    dismissable={false}
+    position="top-right"
+    class="z-50 top-20"
+    transition={fly}
+    params={{ y: 200 }}
+  >
+    <svelte:fragment slot="icon">
+      {#if currentToast.level == "info"}
+        <IconCheck class="text-green-500 text-5xl" />
+      {:else if currentToast.level == "warn"}
+        <IconAlertCircle class="text-orange-500 text-5xl" />
+      {:else if currentToast.level == "error"}
+        <IconAlert class="text-red-500 text-5xl" />
+      {/if}
+    </svelte:fragment>
+    <div class="ps-4 text-sm font-semibold">
+      {currentToast.msg}
+    </div>
+  </Toast>
+{/if}
