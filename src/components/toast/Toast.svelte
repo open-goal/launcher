@@ -1,7 +1,6 @@
 <script>
   import { Toast } from "flowbite-svelte";
   import { toastStore } from "$lib/stores/ToastStore";
-  import { onMount } from "svelte";
   import { fly } from "svelte/transition";
   import IconCheck from "~icons/mdi/check";
   import IconAlert from "~icons/mdi/stop-alert";
