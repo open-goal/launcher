@@ -1,11 +1,7 @@
 <script lang="ts">
   import type { VersionFolders } from "$lib/rpc/versions";
-  import {
-    VersionStore,
-    type VersionStoreIFace,
-  } from "$lib/stores/VersionStore";
+  import { VersionStore } from "$lib/stores/VersionStore";
   import type { ReleaseInfo } from "$lib/utils/github";
-  import IconSave from "~icons/mdi/content-save";
   import IconRefresh from "~icons/mdi/refresh";
   import IconFolderOpen from "~icons/mdi/folder-open";
   import IconGitHub from "~icons/mdi/github";
@@ -40,15 +36,6 @@
     "inline-block text-sm font-normal text-center disabled:cursor-not-allowed p-4 border-b-2 border-transparent text-gray-400 hover:text-orange-300 hover:border-orange-500 dark:hover:text-orange-300 dark:text-orange-400";
 
   const dispatch = createEventDispatcher();
-
-  function changesPending(versionStore: VersionStoreIFace): boolean {
-    return (
-      versionStore.selectedVersions[releaseType] !== null &&
-      versionStore.selectedVersions[releaseType] !== "" &&
-      versionStore.selectedVersions[releaseType] !==
-        versionStore.activeVersionName
-    );
-  }
 </script>
 
 <TabItem
@@ -69,14 +56,6 @@
         </p>
       </div>
       <div class="flex">
-        {#if changesPending($VersionStore)}
-          <Button
-            class="!p-2 mr-2 rounded-md dark:bg-green-500 hover:dark:bg-green-600 text-slate-900"
-            on:click={() => dispatch("versionChange")}
-          >
-            <IconSave aria-label={$_("settings_versions_icon_save_altText")} />
-          </Button>
-        {/if}
         <Button
           class="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
           on:click={() => dispatch("refreshVersions")}
@@ -121,6 +100,7 @@
                 <Radio
                   class="disabled:cursor-not-allowed p-0"
                   bind:group={$VersionStore.selectedVersions[releaseType]}
+                  on:change={() => dispatch("versionChange")}
                   value={release.version}
                   disabled={!release.isDownloaded}
                   name={`${releaseType}-release`}
