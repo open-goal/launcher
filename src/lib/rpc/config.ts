@@ -58,6 +58,16 @@ export async function isAVXRequirementMet(
   return await invoke_rpc("is_avx_requirement_met", { force }, () => undefined);
 }
 
+export async function diskSpaceRequirementMet(
+  gameName: string,
+): Promise<boolean | undefined> {
+  return await invoke_rpc(
+    "has_enough_drive_space",
+    { gameName },
+    () => undefined,
+  );
+}
+
 export async function isOpenGLRequirementMet(
   force: boolean,
 ): Promise<boolean | undefined> {

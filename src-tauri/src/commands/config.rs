@@ -1,5 +1,6 @@
 use crate::{config::LauncherConfig, util::file::delete_dir};
 use semver::Version;
+use sysinfo::{DiskExt, System, SystemExt};
 use tauri::Manager;
 use wgpu::InstanceDescriptor;
 
@@ -53,6 +54,30 @@ pub async fn set_install_directory(
     log::error!("Unable to persist installation directory: {:?}", err);
     CommandError::Configuration("Unable to persist installation directory".to_owned())
   })
+}
+
+fn get_threshold_for_game(game_name: &str) -> Result<u64, CommandError> {
+  match game_name {
+    "jak1" => Ok(4 * 1024 * 1024 * 1024),  // 4gb
+    "jak2" => Ok(11 * 1024 * 1024 * 1024), // 11gb
+    "jak3" => Ok(11 * 1024 * 1024 * 1024), // TODO! gb
+    "jakx" => Ok(11 * 1024 * 1024 * 1024), // TODO! gb
+    _ => Err(CommandError::UnknownGame(game_name.to_string())),
+  }
+}
+
+#[tauri::command]
+pub async fn has_enough_drive_space(game_name: &str) -> Result<bool, CommandError> {
+  let minimum_required_drive_space = get_threshold_for_game(game_name)?;
+  let mut sys = System::new_all();
+  sys.refresh_disks_list();
+
+  let disk_above_threshold = sys
+    .disks()
+    .iter()
+    .any(|disk| disk.available_space() > minimum_required_drive_space);
+
+  Ok(disk_above_threshold)
 }
 
 #[tauri::command]
