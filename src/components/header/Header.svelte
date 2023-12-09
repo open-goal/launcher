@@ -18,6 +18,7 @@
   import { VersionStore } from "$lib/stores/VersionStore";
   import { exceptionLog, infoLog } from "$lib/rpc/logging";
   import { _ } from "svelte-i18n";
+  import { toastStore } from "$lib/stores/ToastStore";
 
   let launcherVerison = null;
 
@@ -53,6 +54,7 @@
           changeLog: changeLog,
         };
         infoLog(`Launcher Update Available`);
+        toastStore.makeToast("Launcher update available!", "info");
       } else {
         $UpdateStore.launcher = {
           updateAvailable: false,

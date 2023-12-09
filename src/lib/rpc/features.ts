@@ -1,6 +1,6 @@
+import { toastStore } from "$lib/stores/ToastStore";
 import { invoke_rpc } from "./rpc";
 
-// TODO - toasts
 // TODO - just make this a generic interface for both binaries/feature jobs
 interface FeatureJobOutput {
   msg: string | null;
@@ -8,6 +8,7 @@ interface FeatureJobOutput {
 }
 
 function failed(msg: string): FeatureJobOutput {
+  toastStore.makeToast(msg, "error");
   return { success: false, msg };
 }
 
