@@ -27,7 +27,7 @@
     "@octokit/rest": "^20.0.2",
     "@popperjs/core": "^2.11.7",
     "@sveltejs/vite-plugin-svelte": "^2.4.6",
-    "@tauri-apps/cli": "^1.5.6",
+    "@tauri-apps/cli": "^1.5.7",
     "@tauri-apps/tauricon": "github:tauri-apps/tauricon",
     "@testing-library/svelte": "^4.0.5",
     "@tsconfig/svelte": "^5.0.2",
