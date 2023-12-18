@@ -32,7 +32,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.107"
 sysinfo = "0.29.10"
 tar = "0.4.40"
-tauri = { version = "1.5.2", features = ["api-all", "devtools", "reqwest-client"] }
+tauri = { version = "1.5.3", features = ["api-all", "devtools", "reqwest-client"] }
 thiserror = "1.0.50"
 tokio = { version = "1", features = ["full"] }
 walkdir = "2.4.0"
