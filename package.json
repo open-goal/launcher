@@ -27,7 +27,7 @@
     "@octokit/rest": "^20.0.2",
     "@popperjs/core": "^2.11.7",
     "@sveltejs/vite-plugin-svelte": "^3.0.1",
-    "@tauri-apps/cli": "^1.5.8",
+    "@tauri-apps/cli": "^1.5.9",
     "@tauri-apps/tauricon": "github:tauri-apps/tauricon",
     "@testing-library/svelte": "^4.0.5",
     "@tsconfig/svelte": "^5.0.2",
@@ -54,7 +54,7 @@
     "vitest": "^1.0.4"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1.5.2",
+    "@tauri-apps/api": "^1.5.3",
     "@types/semver": "^7.5.6",
     "country-flag-emoji-polyfill": "^0.1.5",
     "semver": "^7.5.4",
