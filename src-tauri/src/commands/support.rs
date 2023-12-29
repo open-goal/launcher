@@ -3,7 +3,7 @@ use std::{
   io::{BufWriter, Write},
   path::Path,
 };
-use sysinfo::{CpuExt, DiskExt, System, SystemExt};
+use sysinfo::{Disks, System};
 use zip::write::FileOptions;
 
 use tauri::api::path::config_dir;
@@ -211,13 +211,9 @@ pub async fn generate_support_package(
   package.cpu_name = system_info.cpus()[0].name().to_string();
   package.cpu_vendor = system_info.cpus()[0].vendor_id().to_string();
   package.cpu_brand = system_info.cpus()[0].brand().to_string();
-  package.os_name = system_info.os_version().unwrap_or("unknown".to_string());
-  package.os_name_long = system_info
-    .long_os_version()
-    .unwrap_or("unknown".to_string());
-  package.os_kernel_ver = system_info
-    .kernel_version()
-    .unwrap_or("unknown".to_string());
+  package.os_name = System::os_version().unwrap_or("unknown".to_string());
+  package.os_name_long = System::long_os_version().unwrap_or("unknown".to_string());
+  package.os_kernel_ver = System::kernel_version().unwrap_or("unknown".to_string());
   package.launcher_version = app_handle.package_info().version.to_string();
   if let Some(active_version) = &config_lock.active_version {
     if cfg!(windows) {
@@ -249,7 +245,7 @@ pub async fn generate_support_package(
     }
   }
 
-  for disk in system_info.disks() {
+  for disk in Disks::new_with_refreshed_list().into_iter() {
     package.disk_info.push(format!(
       "{} | Name - {} | Capacity - {}GB/{}GB",
       disk.mount_point().to_string_lossy(),
