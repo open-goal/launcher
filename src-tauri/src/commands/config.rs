@@ -1,7 +1,6 @@
 use crate::{config::LauncherConfig, util::file::delete_dir};
 use semver::Version;
 use tauri::Manager;
-use wgpu::InstanceDescriptor;
 
 use super::CommandError;
 
@@ -90,8 +89,10 @@ pub async fn is_avx_requirement_met(
 async fn check_opengl_via_heuristic(
   mut config_lock: tokio::sync::MutexGuard<'_, LauncherConfig>,
 ) -> Result<Option<bool>, CommandError> {
-  let instance = wgpu::Instance::new(InstanceDescriptor {
+  let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
     backends: wgpu::Backends::all(),
+    flags: wgpu::InstanceFlags::empty(),
+    gles_minor_version: wgpu::Gles3MinorVersion::Automatic,
     dx12_shader_compiler: wgpu::Dx12Compiler::default(),
   });
   let adapter = match instance
