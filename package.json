@@ -31,10 +31,10 @@
     "@tauri-apps/tauricon": "github:tauri-apps/tauricon",
     "@testing-library/svelte": "^4.0.5",
     "@tsconfig/svelte": "^5.0.2",
-    "@vitest/coverage-v8": "^1.1.0",
+    "@vitest/coverage-v8": "^1.1.1",
     "ansi-to-span": "^0.0.1",
     "autoprefixer": "^10.4.16",
-    "classnames": "^2.3.3",
+    "classnames": "^2.5.1",
     "escape-html": "^1.0.3",
     "execa": "^8.0.1",
     "flowbite": "^2.2.1",
@@ -51,7 +51,7 @@
     "typescript": "^5.3.3",
     "unplugin-icons": "^0.18.1",
     "vite": "^5.0.10",
-    "vitest": "^1.1.0"
+    "vitest": "^1.1.1"
   },
   "dependencies": {
     "@tauri-apps/api": "^1.5.3",
