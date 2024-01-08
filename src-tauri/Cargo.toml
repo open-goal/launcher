@@ -27,13 +27,13 @@ glob = "0.3.1"
 log = "0.4.20"
 reqwest = { version = "0.11", features = ["json"] }
 rev_buf_reader = "0.3.0"
-semver = "1.0.20"
+semver = "1.0.21"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.107"
-sysinfo = "0.30.1"
+serde_json = "1.0.111"
+sysinfo = "0.30.5"
 tar = "0.4.40"
 tauri = { version = "1.5.4", features = ["api-all", "devtools", "reqwest-client"] }
-thiserror = "1.0.52"
+thiserror = "1.0.56"
 tokio = { version = "1", features = ["full"] }
 walkdir = "2.4.0"
 wgpu = "0.18.0"
