@@ -59,10 +59,6 @@
 
     gameInBeta = activeGame === SupportedGame.Jak2;
 
-    gameSupportedByTooling = await doesActiveToolingVersionSupportGame(
-      getInternalName(activeGame),
-    );
-
     // First off, check that they've downloaded and have a jak-project release set
     const activeVersionExists = await ensureActiveVersionStillExists();
     $VersionStore.activeVersionType = await getActiveVersionFolder();
@@ -71,6 +67,10 @@
     if (activeVersionExists) {
       // First obvious thing to check -- is the game installed at all
       gameInstalled = await isGameInstalled(getInternalName(activeGame));
+
+      gameSupportedByTooling = await doesActiveToolingVersionSupportGame(
+        getInternalName(activeGame),
+      );
 
       // Next step, check if there is a version mismatch
       // - they installed the game before with a different version than what they currently have selected
