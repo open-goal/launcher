@@ -33,6 +33,7 @@
 
   // Events
   onMount(async () => {
+    svelteLocale.set("en-US");
     currentStatusText = $_("splash_step_readingSettings");
     await checkLocale();
     await checkInstallDirectory();
@@ -43,6 +44,7 @@
     const locale = await getLocale();
     if (locale) {
       setLocale(locale);
+      svelteLocale.set(locale);
       isLocaleSet = true;
       return;
     }
@@ -60,7 +62,6 @@
     }
 
     selectLocale = true;
-    svelteLocale.set("en-US");
   }
 
   async function checkInstallDirectory() {

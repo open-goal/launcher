@@ -23,7 +23,7 @@
 <Label class="px-4 self-center">
   {$_("splash_selectLocale")}
   <Select
-    data-testId="locale-select"
+    data-testid="locale-select"
     name="locales"
     id="locales"
     class="mt-1"

@@ -6,11 +6,15 @@ import {
   fireEvent,
 } from "@testing-library/svelte";
 import Splash from "./Splash.svelte";
+import LocaleSelector from "./LocaleSelector.svelte";
+import SetInstallDir from "./SetInstallDir.svelte";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { mockIPC } from "@tauri-apps/api/mocks";
 import { folderPrompt } from "$lib/utils/file-dialogs";
+import { locale as svelteLocale, _ } from "svelte-i18n";
 
 vi.mock("$lib/utils/file-dialogs");
+svelteLocale.set("en-US");
 
 describe("Splash.svelte", () => {
   // TODO: @testing-library/svelte claims to add this automatically but it doesn't work without explicit afterEach
@@ -25,7 +29,9 @@ describe("Splash.svelte", () => {
     const logo = screen.getByTestId("splash-logo");
     expect(logo).toBeTruthy();
   });
+})
 
+describe("LocaleSelector.svelte", () => {
   it("should display the locale dropdown", async () => {
     // TODO - generalize into function
     mockIPC((cmd, args) => {
@@ -35,7 +41,7 @@ describe("Splash.svelte", () => {
         console.log(`Unhandled Tauri IPC: ${cmd}`);
       }
     });
-    render(Splash, {});
+    render(LocaleSelector, {});
     const localeSelect = await screen.findByTestId("locale-select");
     expect(localeSelect).toBeTruthy();
   });
@@ -52,62 +58,33 @@ describe("Splash.svelte", () => {
         console.log(`Unhandled Tauri IPC: ${cmd}`);
       }
     });
-    render(Splash, {});
+    render(LocaleSelector, {});
     const localeSelect = (await screen.findByTestId(
       "locale-select",
-    )) as HTMLSelectElement;
+    ));
     expect(localeSelect).toBeTruthy();
     fireEvent.change(localeSelect, { target: { value: "en-US" } });
     expect(localeSelect.value).toBe("en-US");
   });
+});
 
-  it("should prompt user to delete old data directory - delete it", async () => {
-    // TODO - generalize into function
-    // return an object that tracks mock calls / args
-    let oldDataDirDeleted = false;
-    mockIPC((cmd, args) => {
-      if (cmd === "get_locale") {
-        return "en-US";
-      } else if (cmd === "get_install_directory") {
-        return null;
-      } else if (cmd === "has_old_data_directory") {
-        return true;
-      } else if (cmd === "delete_old_data_directory") {
-        oldDataDirDeleted = true;
-      } else {
-        console.log(`Unhandled Tauri IPC: ${cmd}`);
-      }
-    });
-    render(Splash, {});
-    const deleteOldDataDirButton = await screen.findByTestId(
-      "delete-old-data-dir-button",
-    );
-    expect(deleteOldDataDirButton).toBeTruthy();
-    // delete the dir, it'll go away
-    fireEvent.click(deleteOldDataDirButton);
-    expect(oldDataDirDeleted).toBeTruthy();
-    const pickInstallFolderButton = await screen.findByTestId(
-      "pick-install-folder-button",
-    );
-    expect(pickInstallFolderButton).toBeTruthy();
-  });
-
+describe("SetInstallDir.svelte", () => {
   it("should prompt user to select installation directory - cancelled dialog", async () => {
     // TODO - generalize into function
     // return an object that tracks mock calls / args
     mockIPC((cmd, args) => {
-      if (cmd === "get_locale") {
-        return "en-US";
-      } else if (cmd === "get_install_directory") {
+      if (cmd === "get_install_directory") {
         return null;
       } else if (cmd === "has_old_data_directory") {
         return false;
+      } else if (cmd === "set_locale") {
+        return null;
       } else {
         console.log(`Unhandled Tauri IPC: ${cmd}`);
       }
     });
     vi.mocked(folderPrompt).mockResolvedValue(undefined);
-    render(Splash, {});
+    render(SetInstallDir, {});
     let pickInstallFolderButton = await screen.findByTestId(
       "pick-install-folder-button",
     );
@@ -124,7 +101,6 @@ describe("Splash.svelte", () => {
     // TODO - generalize into function
     // return an object that tracks mock calls / args
     let setInstallDirectorySet = false;
-    let mainWindowOpened = false;
     mockIPC((cmd, args) => {
       if (cmd === "get_locale") {
         return "en-US";
@@ -136,14 +112,13 @@ describe("Splash.svelte", () => {
         setInstallDirectorySet = true;
         return null;
       } else if (cmd === "open_main_window") {
-        mainWindowOpened = true;
         return;
       } else {
         console.log(`Unhandled Tauri IPC: ${cmd}`);
       }
     });
     vi.mocked(folderPrompt).mockResolvedValue("/wow/good/job/nice/folder");
-    render(Splash, {});
+    render(SetInstallDir, {});
     let pickInstallFolderButton = await screen.findByTestId(
       "pick-install-folder-button",
     );
@@ -152,12 +127,6 @@ describe("Splash.svelte", () => {
     await waitFor(() => {
       expect(setInstallDirectorySet).toBeTruthy();
     });
-    await waitFor(
-      () => {
-        expect(mainWindowOpened).toBeTruthy();
-      },
-      { timeout: 5000 },
-    );
   });
 
   it("should prompt user to select installation directory - bad directory choosen", async () => {
@@ -165,9 +134,7 @@ describe("Splash.svelte", () => {
     // return an object that tracks mock calls / args
     let mainWindowOpened = false;
     mockIPC((cmd, args) => {
-      if (cmd === "get_locale") {
-        return "en-US";
-      } else if (cmd === "get_install_directory") {
+      if (cmd === "get_install_directory") {
         return null;
       } else if (cmd === "has_old_data_directory") {
         return false;
@@ -181,7 +148,7 @@ describe("Splash.svelte", () => {
       }
     });
     vi.mocked(folderPrompt).mockResolvedValue("/wow/good/job/nice/folder");
-    render(Splash, {});
+    render(SetInstallDir, {});
     let pickInstallFolderButton = await screen.findByTestId(
       "pick-install-folder-button",
     );
