@@ -5,6 +5,8 @@
   import { listen } from "@tauri-apps/api/event";
   import { getFurthestGameMilestone } from "$lib/rpc/game";
   import jak2Background from "$assets/images/background-jak2.webp";
+  import jak3InProgressVid from "$assets/videos/jak3-dev.mp4";
+  import jak3InProgressPoster from "$assets/videos/jak3-poster.png";
 
   const location = useLocation();
   $: $location.pathname, updateStyle();
@@ -52,4 +54,13 @@
   <img class={style} src={jak1Image} />
 {:else if $location.pathname == "/jak2"}
   <img class={style} src={jak2Background} />
+{:else if $location.pathname == "/jak3"}
+  <video
+    class={style}
+    poster={jak3InProgressPoster}
+    src={jak3InProgressVid}
+    autoplay
+    muted
+    loop
+  />
 {/if}
