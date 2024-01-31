@@ -1,6 +1,7 @@
 <script lang="ts">
   import logoJak1 from "$assets/images/jak-tpl.webp";
   import logoJak2 from "$assets/images/jak-2.webp";
+  import logoJak3 from "$assets/images/jak-3.webp";
   import IconCog from "~icons/mdi/cog";
   import IconChatQuestion from "~icons/mdi/chat-question";
   import { link, useLocation } from "svelte-navigator";
@@ -76,6 +77,20 @@
         <Tooltip placement="right" type="dark"
           >{modifyGameTitleName(
             $_(`gameName_${getInternalName(SupportedGame.Jak2)}`),
+          )}</Tooltip
+        >
+      </a>
+    </li>
+    <li>
+      <a
+        class={getNavItemStyle("jak3", $location.pathname)}
+        href="/jak3"
+        use:link
+      >
+        <img src={logoJak3} alt="Jak 3" aria-label="Jak 3" />
+        <Tooltip placement="right" type="dark"
+          >{modifyGameTitleName(
+            $_(`gameName_${getInternalName(SupportedGame.Jak3)}`),
           )}</Tooltip
         >
       </a>
