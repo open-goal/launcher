@@ -109,6 +109,11 @@ export const AVAILABLE_LOCALES: Locale[] = [
       "https://github.com/open-goal/launcher-assets/releases/download/fonts%2Fv1.0.0/NotoSansKR-VariableFont_wght.woff2",
   },
   {
+    id: "lt-LT",
+    flag: "🇱🇹",
+    localizedName: "Lietuvių kalba",
+  },
+  {
     id: "nl-NL",
     flag: "🇳🇱",
     localizedName: "Nederlands",
