@@ -145,74 +145,6 @@ pub async fn is_avx_requirement_met(
   }
 }
 
-async fn check_opengl_via_heuristic(
-  mut config_lock: tokio::sync::MutexGuard<'_, LauncherConfig>,
-) -> Result<Option<bool>, CommandError> {
-  let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
-    backends: wgpu::Backends::all(),
-    flags: wgpu::InstanceFlags::empty(),
-    gles_minor_version: wgpu::Gles3MinorVersion::Automatic,
-    dx12_shader_compiler: wgpu::Dx12Compiler::default(),
-  });
-  let adapter = match instance
-    .request_adapter(&wgpu::RequestAdapterOptions {
-      power_preference: wgpu::PowerPreference::default(),
-      force_fallback_adapter: false,
-      compatible_surface: None,
-    })
-    .await
-  {
-    None => {
-      config_lock.set_opengl_requirement_met(None).map_err(|_| {
-        CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
-      })?;
-      return Err(CommandError::Configuration(
-        "Unable to request GPU adapter to check for OpenGL support".to_owned(),
-      ));
-    }
-    Some(instance) => instance,
-  };
-
-  match adapter
-    .request_device(
-      &wgpu::DeviceDescriptor {
-        features: wgpu::Features::empty(),
-        limits: wgpu::Limits {
-          // These are OpenGL 4.3 minimums where these values
-          // were the maximum (not inclusive) for 4.2
-          max_texture_dimension_1d: 16384,
-          max_texture_dimension_2d: 16384,
-          max_texture_dimension_3d: 2048,
-          ..wgpu::Limits::default()
-        },
-        label: None,
-      },
-      None,
-    )
-    .await
-  {
-    Err(err) => {
-      config_lock
-        .set_opengl_requirement_met(Some(false))
-        .map_err(|_| {
-          CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
-        })?;
-      return Err(CommandError::Configuration(format!(
-        "Unable to request GPU device with adequate OpenGL support - {err:?}",
-      )));
-    }
-    Ok(device) => device,
-  };
-
-  // If we didn't support the above limits, we would have returned an error already
-  config_lock
-    .set_opengl_requirement_met(Some(true))
-    .map_err(|_| {
-      CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
-    })?;
-  Ok(Some(true))
-}
-
 #[tauri::command]
 pub async fn is_opengl_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -247,24 +179,25 @@ pub async fn is_opengl_requirement_met(
   let tooling_version = Version::parse(active_version.strip_prefix('v').unwrap_or(&active_version))
     .unwrap_or(Version::new(0, 1, 37));
   if tooling_version.major == 0 && tooling_version.minor <= 1 && tooling_version.patch < 38 {
-    // Do it the old way
-    log::info!("Checking for OpenGL support via heuristic");
-    return check_opengl_via_heuristic(config_lock).await;
-  } else {
-    // Do it the new way!
-    log::info!("Checking for OpenGL support via `gk`");
-    let test_result = super::binaries::run_game_gpu_test(&config_lock, app_handle).await?;
-    match test_result {
-      Some(result) => {
-        config_lock
-          .set_opengl_requirement_met(Some(result))
-          .map_err(|_| {
-            CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
-          })?;
-        Ok(Some(result))
-      }
-      None => Ok(None),
+    // Assume it's fine
+    log::warn!(
+      "We no longer check for OpenGL support via heuristics, assuming they meet the requirement"
+    );
+    return Ok(Some(true));
+  }
+  // Do it the new way!
+  log::info!("Checking for OpenGL support via `gk`");
+  let test_result = super::binaries::run_game_gpu_test(&config_lock, app_handle).await?;
+  match test_result {
+    Some(result) => {
+      config_lock
+        .set_opengl_requirement_met(Some(result))
+        .map_err(|_| {
+          CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
+        })?;
+      Ok(Some(result))
     }
+    None => Ok(None),
   }
 }
 
