@@ -4,6 +4,10 @@ use crate::{config::LauncherConfig, util::file::delete_dir};
 use semver::Version;
 use sysinfo::Disks;
 use tauri::Manager;
+use winreg::{
+  enums::{HKEY_LOCAL_MACHINE, KEY_READ},
+  RegKey,
+};
 
 use super::CommandError;
 
@@ -110,6 +114,26 @@ pub async fn is_diskspace_requirement_met(
   log::error!("Unable to find relevant drive to check for space");
   return Err(CommandError::Configuration(
     "Unable to find relevant drive to check for space".to_owned(),
+  ));
+}
+
+#[tauri::command]
+pub async fn is_vcc_runtime_installed(
+  _config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+  let path = r"SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64";
+
+  if let Ok(key) = hklm.open_subkey_with_flags(path, KEY_READ) {
+    let installed_value: u32 = key.get_value("Installed").map_err(|err| {
+      log::error!("Couldn't locate VCC runtime registry entry: {}", err);
+      CommandError::Configuration("Unable to check if VCC runtime is installed".to_owned())
+    })?;
+    return Ok(installed_value == 1);
+  }
+
+  return Err(CommandError::Configuration(
+    "Unable to check if VCC runtime is installed".to_owned(),
   ));
 }
 

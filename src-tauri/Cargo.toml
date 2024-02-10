@@ -37,6 +37,7 @@ thiserror = "1.0.56"
 tokio = { version = "1", features = ["full"] }
 walkdir = "2.4.0"
 wgpu = "0.18.0"
+winreg = "0.52.0"
 zip = { version = "0.6.2" }
 zip-extract = "0.1.3"
 
