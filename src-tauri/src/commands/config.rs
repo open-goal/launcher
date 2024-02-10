@@ -1,5 +1,8 @@
+use std::path::Path;
+
 use crate::{config::LauncherConfig, util::file::delete_dir};
 use semver::Version;
+use sysinfo::Disks;
 use tauri::Manager;
 
 use super::CommandError;
@@ -52,6 +55,62 @@ pub async fn set_install_directory(
     log::error!("Unable to persist installation directory: {:?}", err);
     CommandError::Configuration("Unable to persist installation directory".to_owned())
   })
+}
+
+fn diskspace_threshold_for_fresh_install(game_name: &str) -> Result<u64, CommandError> {
+  match game_name {
+    "jak1" => Ok(4 * 1024 * 1024 * 1024),  // 4gb
+    "jak2" => Ok(11 * 1024 * 1024 * 1024), // 11gb
+    "jak3" => Ok(11 * 1024 * 1024 * 1024), // TODO! gb
+    "jakx" => Ok(11 * 1024 * 1024 * 1024), // TODO! gb
+    _ => Err(CommandError::UnknownGame(game_name.to_string())),
+  }
+}
+
+#[tauri::command]
+pub async fn is_diskspace_requirement_met(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+) -> Result<bool, CommandError> {
+  // If the game is already installed, we assume they have enough drive space
+  let mut config_lock = config.lock().await;
+  if is_game_installed_impl(&mut config_lock, game_name.to_owned())? {
+    return Ok(true);
+  }
+  if let Some(bypass) = config_lock.requirements.bypass_requirements {
+    if bypass {
+      log::warn!("Bypassing the Disk Space requirements check!");
+      return Ok(true);
+    }
+  }
+
+  let install_dir = match &config_lock.installation_dir {
+    None => {
+      log::error!("Can't check disk space, no install directory has been choosen!");
+      return Err(CommandError::Configuration(
+        "Can't check disk space, no install directory has been choosen!".to_owned(),
+      ));
+    }
+    Some(dir) => Path::new(dir),
+  };
+
+  // Check the drive that the installation directory is set to
+  let minimum_required_drive_space = diskspace_threshold_for_fresh_install(&game_name)?;
+  for disk in Disks::new_with_refreshed_list().into_iter() {
+    if install_dir.starts_with(disk.mount_point()) {
+      if disk.available_space() < minimum_required_drive_space {
+        log::warn!("Not enough space left on disk: {:?}", disk.name());
+        return Ok(false);
+      } else {
+        return Ok(true);
+      }
+    }
+  }
+
+  log::error!("Unable to find relevant drive to check for space");
+  return Err(CommandError::Configuration(
+    "Unable to find relevant drive to check for space".to_owned(),
+  ));
 }
 
 #[tauri::command]
@@ -158,17 +217,10 @@ pub async fn finalize_installation(
   Ok(())
 }
 
-#[tauri::command]
-pub async fn is_game_installed(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+fn is_game_installed_impl(
+  config_lock: &mut tokio::sync::MutexGuard<LauncherConfig>,
   game_name: String,
 ) -> Result<bool, CommandError> {
-  let mut config_lock = config.lock().await;
-
-  if !config_lock.is_game_installed(&game_name) {
-    return Ok(false);
-  }
-
   // Check that the version and version folder config field is set properly as well
   let version = config_lock.game_install_version(&game_name);
   let version_folder = config_lock.game_install_version_folder(&game_name);
@@ -189,6 +241,20 @@ pub async fn is_game_installed(
   }
 
   Ok(true)
+}
+
+#[tauri::command]
+pub async fn is_game_installed(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+) -> Result<bool, CommandError> {
+  let mut config_lock = config.lock().await;
+
+  if !config_lock.is_game_installed(&game_name) {
+    return Ok(false);
+  }
+
+  return is_game_installed_impl(&mut config_lock, game_name);
 }
 
 #[tauri::command]

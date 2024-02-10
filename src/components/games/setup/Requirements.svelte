@@ -3,20 +3,28 @@
   import { Alert, Button } from "flowbite-svelte";
   import {
     isAVXRequirementMet,
+    isDiskSpaceRequirementMet,
     isOpenGLRequirementMet,
     setBypassRequirements,
   } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { confirm } from "@tauri-apps/api/dialog";
+  import { getInternalName, type SupportedGame } from "$lib/constants";
 
-  let isAVXMet = false;
-  let isOpenGLMet = false;
+  export let activeGame: SupportedGame;
+
+  let isAVXMet: boolean | undefined = false;
+  let isOpenGLMet: boolean | undefined = false;
+  let isDiskSpaceMet: boolean | undefined = false;
 
   const dispatch = createEventDispatcher();
 
   onMount(async () => {
     isAVXMet = await isAVXRequirementMet(false);
     isOpenGLMet = await isOpenGLRequirementMet(false);
+    isDiskSpaceMet = await isDiskSpaceRequirementMet(
+      getInternalName(activeGame),
+    );
   });
 
   function alertColor(val: boolean | undefined) {
@@ -27,18 +35,15 @@
   }
 </script>
 
+<!-- TODO - good spot for a new component -->
+
 <div
   class="flex flex-col h-full justify-center items-center p-5 text-center gap-3"
 >
   <h1 class="text-xl font-black mb-5 text-outline">
     {$_("requirements_notMet_header")}
   </h1>
-  <Alert
-    class="w-full text-start"
-    accent
-    rounded={false}
-    color={alertColor(isAVXMet)}
-  >
+  <Alert class="w-full text-start" rounded={false} color={alertColor(isAVXMet)}>
     {#if isAVXMet}
       <span class="font-bold">{$_("requirements_cpu_supportsAVX")}</span>
     {:else if isAVXMet === undefined}
@@ -62,7 +67,6 @@
   </Alert>
   <Alert
     class="w-full text-start"
-    accent
     rounded={false}
     color={alertColor(isOpenGLMet)}
   >
@@ -92,6 +96,28 @@
           {$_("requirements_gpu_avxExplanation_3")}
         </li>
       </ul>
+    {/if}
+  </Alert>
+  <Alert
+    class="w-full text-start"
+    rounded={false}
+    color={alertColor(isDiskSpaceMet)}
+  >
+    {#if isDiskSpaceMet}
+      <span class="font-bold"
+        >{$_(
+          `requirements_disk_enoughSpace_${getInternalName(activeGame)}`,
+        )}</span
+      >
+    {:else if isDiskSpaceMet === undefined}
+      <span class="font-bold">{$_(`requirements_disk_unableToCheckSpace`)}</span
+      >
+    {:else}
+      <span class="font-bold"
+        >{$_(
+          `requirements_disk_notEnoughSpace_${getInternalName(activeGame)}`,
+        )}</span
+      >
     {/if}
   </Alert>
   <div>

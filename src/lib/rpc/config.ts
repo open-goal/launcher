@@ -74,6 +74,16 @@ export async function isOpenGLRequirementMet(
   return result;
 }
 
+export async function isDiskSpaceRequirementMet(
+  gameName: string,
+): Promise<boolean | undefined> {
+  return await invoke_rpc(
+    "is_diskspace_requirement_met",
+    { gameName },
+    () => undefined,
+  );
+}
+
 export async function finalizeInstallation(gameName: string): Promise<void> {
   return await invoke_rpc("finalize_installation", { gameName }, () => {});
 }
