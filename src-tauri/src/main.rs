@@ -54,7 +54,7 @@ fn main() {
 
   let tauri_setup = tauri::Builder::default()
     .setup(|app| {
-      TAURI_APP.set(app.app_handle());
+      let _ = TAURI_APP.set(app.app_handle());
 
       // Setup Logging
       let log_path = app

@@ -678,9 +678,15 @@ fn generate_launch_game_string(
   config_info: &CommonConfigData,
   game_name: String,
   in_debug: bool,
+  quote_project_path: bool,
 ) -> Result<Vec<String>, CommandError> {
   let data_folder = get_data_dir(&config_info, &game_name, false)?;
 
+  let proj_path = if quote_project_path {
+    format!("\"{}\"", data_folder.to_string_lossy().into_owned())
+  } else {
+    data_folder.to_string_lossy().into_owned()
+  };
   let mut args;
   // NOTE - order unfortunately matters for gk args
   if config_info.tooling_version.major == 0
@@ -692,17 +698,13 @@ fn generate_launch_game_string(
       "-boot".to_string(),
       "-fakeiso".to_string(),
       "-proj-path".to_string(),
-      data_folder.to_string_lossy().into_owned(),
+      proj_path,
     ];
     if in_debug {
       args.push("-debug".to_string());
     }
   } else {
-    args = vec![
-      "-v".to_string(),
-      "--proj-path".to_string(),
-      data_folder.to_string_lossy().into_owned(),
-    ];
+    args = vec!["-v".to_string(), "--proj-path".to_string(), proj_path];
     // Add new --game argument
     if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
       args.push("--game".to_string());
@@ -728,7 +730,7 @@ pub async fn get_launch_game_string(
   let config_info = common_prelude(&config_lock)?;
 
   let exec_info = get_exec_location(&config_info, "gk")?;
-  let args = generate_launch_game_string(&config_info, game_name, false)?;
+  let args = generate_launch_game_string(&config_info, game_name, false, true)?;
 
   Ok(format!(
     "{} {}",
@@ -748,7 +750,7 @@ pub async fn launch_game(
   let config_info = common_prelude(&config_lock)?;
 
   let exec_info = get_exec_location(&config_info, "gk")?;
-  let args = generate_launch_game_string(&config_info, game_name.clone(), in_debug)?;
+  let args = generate_launch_game_string(&config_info, game_name.clone(), in_debug, false)?;
 
   log::info!(
     "Launching game version {:?} -> {:?} with args: {:?}",

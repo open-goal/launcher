@@ -1,6 +1,7 @@
 <script lang="ts">
   import logoJak1 from "$assets/images/jak-tpl.webp";
   import logoJak2 from "$assets/images/jak-2.webp";
+  import logoJak3 from "$assets/images/jak-3.webp";
   import IconCog from "~icons/mdi/cog";
   import IconChatQuestion from "~icons/mdi/chat-question";
   import { link, useLocation } from "svelte-navigator";
@@ -12,37 +13,24 @@
   $: $location.pathname;
 
   function getNavStyle(pathname: string): string {
-    let style = "grow-0 shrink-0 basis-1/10 h-full bg-[#101010] px-1 z-10";
-    if (
-      !pathname.startsWith("/settings") &&
-      !pathname.startsWith("/faq") &&
-      !pathname.startsWith("/update")
-    ) {
-      style += " opacity-50 hover:opacity-100 duration-500";
-    }
-    return style;
+    const baseStyle =
+      "grow-0 shrink-0 basis-1/10 h-full bg-[#101010] px-1 z-10";
+    const isOpaque =
+      pathname.startsWith("/settings") ||
+      pathname.startsWith("/faq") ||
+      pathname.startsWith("/update");
+    return isOpaque
+      ? baseStyle
+      : `${baseStyle} opacity-50 hover:opacity-100 duration-500`;
   }
 
   function getNavItemStyle(itemName: string, pathName: string): string {
-    let style =
-      "flex items-center hover:grayscale-0 hover:opacity-100 duration-500 text-orange-400 duration-500";
-    if (
-      itemName === "jak1" &&
-      (pathName.startsWith("/jak1") || pathName === "/")
-    ) {
-      return style;
-    } else if (itemName === "jak2" && pathName.startsWith("/jak2")) {
-      return style;
-    } else if (itemName === "jak3" && pathName.startsWith("/jak3")) {
-      return style;
-    } else if (itemName === "jakx" && pathName.startsWith("/jakx")) {
-      return style;
-    } else if (itemName === "settings" && pathName.startsWith("/settings")) {
-      return style;
-    } else if (itemName === "faq" && pathName === "/faq") {
-      return style;
-    }
-    return style + " grayscale";
+    const baseStyle =
+      "flex items-center hover:grayscale-0 hover:opacity-100 duration-500 text-orange-400";
+    const isActive =
+      pathName.startsWith(`/${itemName}`) ||
+      (itemName === "jak1" && pathName === "/");
+    return isActive ? baseStyle : `${baseStyle} grayscale`;
   }
 
   function modifyGameTitleName(gameName: string): string {
@@ -89,6 +77,20 @@
         <Tooltip placement="right" type="dark"
           >{modifyGameTitleName(
             $_(`gameName_${getInternalName(SupportedGame.Jak2)}`),
+          )}</Tooltip
+        >
+      </a>
+    </li>
+    <li>
+      <a
+        class={getNavItemStyle("jak3", $location.pathname)}
+        href="/jak3"
+        use:link
+      >
+        <img src={logoJak3} alt="Jak 3" aria-label="Jak 3" />
+        <Tooltip placement="right" type="dark"
+          >{modifyGameTitleName(
+            $_(`gameName_${getInternalName(SupportedGame.Jak3)}`),
           )}</Tooltip
         >
       </a>
