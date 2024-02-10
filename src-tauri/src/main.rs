@@ -158,7 +158,7 @@ fn main() {
       commands::config::get_locale,
       commands::config::has_old_data_directory,
       commands::config::is_avx_requirement_met,
-      commands::config::has_enough_drive_space,
+      commands::config::is_diskspace_requirement_met,
       commands::config::is_game_installed,
       commands::config::is_opengl_requirement_met,
       commands::config::reset_to_defaults,
