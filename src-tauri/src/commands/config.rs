@@ -4,10 +4,6 @@ use crate::{config::LauncherConfig, util::file::delete_dir};
 use semver::Version;
 use sysinfo::Disks;
 use tauri::Manager;
-use winreg::{
-  enums::{HKEY_LOCAL_MACHINE, KEY_READ},
-  RegKey,
-};
 
 use super::CommandError;
 
@@ -117,10 +113,15 @@ pub async fn is_diskspace_requirement_met(
   ));
 }
 
+#[cfg(target_os = "windows")]
 #[tauri::command]
 pub async fn is_vcc_runtime_installed(
   _config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<bool, CommandError> {
+  use winreg::{
+    enums::{HKEY_LOCAL_MACHINE, KEY_READ},
+    RegKey,
+  };
   let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
   let path = r"SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64";
 
@@ -135,6 +136,22 @@ pub async fn is_vcc_runtime_installed(
   return Err(CommandError::Configuration(
     "Unable to check if VCC runtime is installed".to_owned(),
   ));
+}
+
+#[cfg(target_os = "linux")]
+#[tauri::command]
+pub async fn is_vcc_runtime_installed(
+  _config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  return Ok(false);
+}
+
+#[cfg(target_os = "macos")]
+#[tauri::command]
+pub async fn is_vcc_runtime_installed(
+  _config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  return Ok(false);
 }
 
 #[tauri::command]
