@@ -5,17 +5,21 @@
     isAVXRequirementMet,
     isDiskSpaceRequirementMet,
     isOpenGLRequirementMet,
+    isVCCRuntimeInstalled,
     setBypassRequirements,
   } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { confirm } from "@tauri-apps/api/dialog";
   import { getInternalName, type SupportedGame } from "$lib/constants";
+  import { type } from "@tauri-apps/api/os";
 
   export let activeGame: SupportedGame;
 
   let isAVXMet: boolean | undefined = false;
   let isOpenGLMet: boolean | undefined = false;
   let isDiskSpaceMet: boolean | undefined = false;
+  let isVCCRelevant = false;
+  let isVCCInstalled: boolean | undefined = false;
 
   const dispatch = createEventDispatcher();
 
@@ -25,6 +29,11 @@
     isDiskSpaceMet = await isDiskSpaceRequirementMet(
       getInternalName(activeGame),
     );
+    const osType = await type();
+    isVCCRelevant = osType == "Windows_NT";
+    if (isVCCRelevant) {
+      isVCCInstalled = await isVCCRuntimeInstalled();
+    }
   });
 
   function alertColor(val: boolean | undefined) {
@@ -120,6 +129,41 @@
       >
     {/if}
   </Alert>
+  {#if isVCCRelevant}
+    <Alert
+      class="w-full text-start"
+      rounded={false}
+      color={alertColor(isVCCInstalled)}
+    >
+      {#if isVCCInstalled}
+        <span class="font-bold"
+          >{$_("requirements_windows_vccRuntimeInstalled")}</span
+        >
+      {:else if isVCCInstalled === undefined}
+        <span class="font-bold"
+          >{$_("requirements_windows_cantCheckIfVccRuntimeInstalled")}</span
+        >
+      {:else}
+        <span class="font-bold"
+          >{$_("requirements_windows_vccRuntimeNotInstalled")}</span
+        >
+        <ul class="font-medium list-disc list-inside">
+          <li>{$_("requirements_windows_vccRuntimeExplanation")}</li>
+          <li>
+            <a
+              class="font-bold text-blue-500"
+              target="_blank"
+              rel="noreferrer"
+              href="https://aka.ms/vs/17/release/vc_redist.x64.exe"
+              >{$_(
+                "requirements_windows_vccRuntimeExplanation_downloadLink",
+              )}</a
+            >
+          </li>
+        </ul>
+      {/if}
+    </Alert>
+  {/if}
   <div>
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"

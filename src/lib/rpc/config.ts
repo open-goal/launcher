@@ -84,6 +84,10 @@ export async function isDiskSpaceRequirementMet(
   );
 }
 
+export async function isVCCRuntimeInstalled(): Promise<boolean | undefined> {
+  return await invoke_rpc("is_vcc_runtime_installed", {}, () => undefined);
+}
+
 export async function finalizeInstallation(gameName: string): Promise<void> {
   return await invoke_rpc("finalize_installation", { gameName }, () => {});
 }

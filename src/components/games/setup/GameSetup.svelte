@@ -17,10 +17,12 @@
     isAVXRequirementMet,
     isDiskSpaceRequirementMet,
     isOpenGLRequirementMet,
+    isVCCRuntimeInstalled,
   } from "$lib/rpc/config";
   import { progressTracker } from "$lib/stores/ProgressStore";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { _ } from "svelte-i18n";
+  import { type } from "@tauri-apps/api/os";
 
   export let activeGame: SupportedGame;
 
@@ -42,7 +44,14 @@
     const isDiskSpaceMet = await isDiskSpaceRequirementMet(
       getInternalName(activeGame),
     );
-    requirementsMet = isAvxMet && isOpenGLMet && isDiskSpaceMet;
+    const osType = await type();
+    if (osType == "Windows_NT") {
+      const isVCCInstalled = await isVCCRuntimeInstalled();
+      requirementsMet =
+        isAvxMet && isOpenGLMet && isDiskSpaceMet && isVCCInstalled;
+    } else {
+      requirementsMet = isAvxMet && isOpenGLMet && isDiskSpaceMet;
+    }
   }
 
   async function install(viaFolder: boolean) {

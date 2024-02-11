@@ -54,6 +54,9 @@
       "protocol": {
         "asset": true,
         "assetScope": ["**"]
+      },
+      "os": {
+        "all": true
       }
     },
     "windows": [
