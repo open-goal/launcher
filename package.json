@@ -38,10 +38,10 @@
     "escape-html": "^1.0.3",
     "execa": "^8.0.1",
     "flowbite": "^2.2.1",
-    "flowbite-svelte": "0.44.22",
+    "flowbite-svelte": "0.44.23",
     "jsdom": "^24.0.0",
-    "postcss": "^8.4.34",
-    "postcss-load-config": "^5.0.2",
+    "postcss": "^8.4.35",
+    "postcss-load-config": "^5.0.3",
     "prettier": "^3.2.5",
     "prettier-plugin-svelte": "^3.1.2",
     "svelte": "^4.2.10",
@@ -50,12 +50,12 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
     "unplugin-icons": "^0.18.5",
-    "vite": "^5.0.12",
+    "vite": "^5.1.1",
     "vitest": "^1.2.2"
   },
   "dependencies": {
     "@tauri-apps/api": "^1.5.3",
-    "@types/semver": "^7.5.6",
+    "@types/semver": "^7.5.7",
     "country-flag-emoji-polyfill": "^0.1.8",
     "semver": "^7.6.0",
     "svelte-navigator": "^3.2.2"
