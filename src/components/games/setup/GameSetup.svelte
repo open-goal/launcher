@@ -15,11 +15,14 @@
   import {
     finalizeInstallation,
     isAVXRequirementMet,
+    isDiskSpaceRequirementMet,
     isOpenGLRequirementMet,
+    isVCCRuntimeInstalled,
   } from "$lib/rpc/config";
   import { progressTracker } from "$lib/stores/ProgressStore";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { _ } from "svelte-i18n";
+  import { type } from "@tauri-apps/api/os";
 
   export let activeGame: SupportedGame;
 
@@ -37,8 +40,18 @@
   async function checkRequirements() {
     // Check requirements
     const isAvxMet = await isAVXRequirementMet(false);
-    let isOpenGLMet = await isOpenGLRequirementMet(false);
-    requirementsMet = isAvxMet && isOpenGLMet;
+    const isOpenGLMet = await isOpenGLRequirementMet(false);
+    const isDiskSpaceMet = await isDiskSpaceRequirementMet(
+      getInternalName(activeGame),
+    );
+    const osType = await type();
+    if (osType == "Windows_NT") {
+      const isVCCInstalled = await isVCCRuntimeInstalled();
+      requirementsMet =
+        isAvxMet && isOpenGLMet && isDiskSpaceMet && isVCCInstalled;
+    } else {
+      requirementsMet = isAvxMet && isOpenGLMet && isDiskSpaceMet;
+    }
   }
 
   async function install(viaFolder: boolean) {
@@ -114,7 +127,7 @@
 </script>
 
 {#if !requirementsMet}
-  <Requirements on:recheckRequirements={checkRequirements} />
+  <Requirements {activeGame} on:recheckRequirements={checkRequirements} />
 {:else if installing}
   <div class="flex flex-col justify-content">
     <Progress />

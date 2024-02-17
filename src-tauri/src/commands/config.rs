@@ -1,5 +1,8 @@
+use std::path::Path;
+
 use crate::{config::LauncherConfig, util::file::delete_dir};
 use semver::Version;
+use sysinfo::Disks;
 use tauri::Manager;
 
 use super::CommandError;
@@ -54,6 +57,103 @@ pub async fn set_install_directory(
   })
 }
 
+fn diskspace_threshold_for_fresh_install(game_name: &str) -> Result<u64, CommandError> {
+  match game_name {
+    "jak1" => Ok(4 * 1024 * 1024 * 1024),  // 4gb
+    "jak2" => Ok(11 * 1024 * 1024 * 1024), // 11gb
+    "jak3" => Ok(11 * 1024 * 1024 * 1024), // TODO! gb
+    "jakx" => Ok(11 * 1024 * 1024 * 1024), // TODO! gb
+    _ => Err(CommandError::UnknownGame(game_name.to_string())),
+  }
+}
+
+#[tauri::command]
+pub async fn is_diskspace_requirement_met(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+) -> Result<bool, CommandError> {
+  // If the game is already installed, we assume they have enough drive space
+  let mut config_lock = config.lock().await;
+  if is_game_installed_impl(&mut config_lock, game_name.to_owned())? {
+    return Ok(true);
+  }
+  if let Some(bypass) = config_lock.requirements.bypass_requirements {
+    if bypass {
+      log::warn!("Bypassing the Disk Space requirements check!");
+      return Ok(true);
+    }
+  }
+
+  let install_dir = match &config_lock.installation_dir {
+    None => {
+      log::error!("Can't check disk space, no install directory has been choosen!");
+      return Err(CommandError::Configuration(
+        "Can't check disk space, no install directory has been choosen!".to_owned(),
+      ));
+    }
+    Some(dir) => Path::new(dir),
+  };
+
+  // Check the drive that the installation directory is set to
+  let minimum_required_drive_space = diskspace_threshold_for_fresh_install(&game_name)?;
+  for disk in Disks::new_with_refreshed_list().into_iter() {
+    if install_dir.starts_with(disk.mount_point()) {
+      if disk.available_space() < minimum_required_drive_space {
+        log::warn!("Not enough space left on disk: {:?}", disk.name());
+        return Ok(false);
+      } else {
+        return Ok(true);
+      }
+    }
+  }
+
+  log::error!("Unable to find relevant drive to check for space");
+  return Err(CommandError::Configuration(
+    "Unable to find relevant drive to check for space".to_owned(),
+  ));
+}
+
+#[cfg(target_os = "windows")]
+#[tauri::command]
+pub async fn is_vcc_runtime_installed(
+  _config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  use winreg::{
+    enums::{HKEY_LOCAL_MACHINE, KEY_READ},
+    RegKey,
+  };
+  let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+  let path = r"SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64";
+
+  if let Ok(key) = hklm.open_subkey_with_flags(path, KEY_READ) {
+    let installed_value: u32 = key.get_value("Installed").map_err(|err| {
+      log::error!("Couldn't locate VCC runtime registry entry: {}", err);
+      CommandError::Configuration("Unable to check if VCC runtime is installed".to_owned())
+    })?;
+    return Ok(installed_value == 1);
+  }
+
+  return Err(CommandError::Configuration(
+    "Unable to check if VCC runtime is installed".to_owned(),
+  ));
+}
+
+#[cfg(target_os = "linux")]
+#[tauri::command]
+pub async fn is_vcc_runtime_installed(
+  _config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  return Ok(false);
+}
+
+#[cfg(target_os = "macos")]
+#[tauri::command]
+pub async fn is_vcc_runtime_installed(
+  _config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  return Ok(false);
+}
+
 #[tauri::command]
 pub async fn is_avx_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -84,74 +184,6 @@ pub async fn is_avx_requirement_met(
     }
     Some(val) => Ok(val),
   }
-}
-
-async fn check_opengl_via_heuristic(
-  mut config_lock: tokio::sync::MutexGuard<'_, LauncherConfig>,
-) -> Result<Option<bool>, CommandError> {
-  let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
-    backends: wgpu::Backends::all(),
-    flags: wgpu::InstanceFlags::empty(),
-    gles_minor_version: wgpu::Gles3MinorVersion::Automatic,
-    dx12_shader_compiler: wgpu::Dx12Compiler::default(),
-  });
-  let adapter = match instance
-    .request_adapter(&wgpu::RequestAdapterOptions {
-      power_preference: wgpu::PowerPreference::default(),
-      force_fallback_adapter: false,
-      compatible_surface: None,
-    })
-    .await
-  {
-    None => {
-      config_lock.set_opengl_requirement_met(None).map_err(|_| {
-        CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
-      })?;
-      return Err(CommandError::Configuration(
-        "Unable to request GPU adapter to check for OpenGL support".to_owned(),
-      ));
-    }
-    Some(instance) => instance,
-  };
-
-  match adapter
-    .request_device(
-      &wgpu::DeviceDescriptor {
-        features: wgpu::Features::empty(),
-        limits: wgpu::Limits {
-          // These are OpenGL 4.3 minimums where these values
-          // were the maximum (not inclusive) for 4.2
-          max_texture_dimension_1d: 16384,
-          max_texture_dimension_2d: 16384,
-          max_texture_dimension_3d: 2048,
-          ..wgpu::Limits::default()
-        },
-        label: None,
-      },
-      None,
-    )
-    .await
-  {
-    Err(err) => {
-      config_lock
-        .set_opengl_requirement_met(Some(false))
-        .map_err(|_| {
-          CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
-        })?;
-      return Err(CommandError::Configuration(format!(
-        "Unable to request GPU device with adequate OpenGL support - {err:?}",
-      )));
-    }
-    Ok(device) => device,
-  };
-
-  // If we didn't support the above limits, we would have returned an error already
-  config_lock
-    .set_opengl_requirement_met(Some(true))
-    .map_err(|_| {
-      CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
-    })?;
-  Ok(Some(true))
 }
 
 #[tauri::command]
@@ -188,24 +220,25 @@ pub async fn is_opengl_requirement_met(
   let tooling_version = Version::parse(active_version.strip_prefix('v').unwrap_or(&active_version))
     .unwrap_or(Version::new(0, 1, 37));
   if tooling_version.major == 0 && tooling_version.minor <= 1 && tooling_version.patch < 38 {
-    // Do it the old way
-    log::info!("Checking for OpenGL support via heuristic");
-    return check_opengl_via_heuristic(config_lock).await;
-  } else {
-    // Do it the new way!
-    log::info!("Checking for OpenGL support via `gk`");
-    let test_result = super::binaries::run_game_gpu_test(&config_lock, app_handle).await?;
-    match test_result {
-      Some(result) => {
-        config_lock
-          .set_opengl_requirement_met(Some(result))
-          .map_err(|_| {
-            CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
-          })?;
-        Ok(Some(result))
-      }
-      None => Ok(None),
+    // Assume it's fine
+    log::warn!(
+      "We no longer check for OpenGL support via heuristics, assuming they meet the requirement"
+    );
+    return Ok(Some(true));
+  }
+  // Do it the new way!
+  log::info!("Checking for OpenGL support via `gk`");
+  let test_result = super::binaries::run_game_gpu_test(&config_lock, app_handle).await?;
+  match test_result {
+    Some(result) => {
+      config_lock
+        .set_opengl_requirement_met(Some(result))
+        .map_err(|_| {
+          CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
+        })?;
+      Ok(Some(result))
     }
+    None => Ok(None),
   }
 }
 
@@ -225,17 +258,10 @@ pub async fn finalize_installation(
   Ok(())
 }
 
-#[tauri::command]
-pub async fn is_game_installed(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+fn is_game_installed_impl(
+  config_lock: &mut tokio::sync::MutexGuard<LauncherConfig>,
   game_name: String,
 ) -> Result<bool, CommandError> {
-  let mut config_lock = config.lock().await;
-
-  if !config_lock.is_game_installed(&game_name) {
-    return Ok(false);
-  }
-
   // Check that the version and version folder config field is set properly as well
   let version = config_lock.game_install_version(&game_name);
   let version_folder = config_lock.game_install_version_folder(&game_name);
@@ -256,6 +282,20 @@ pub async fn is_game_installed(
   }
 
   Ok(true)
+}
+
+#[tauri::command]
+pub async fn is_game_installed(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+) -> Result<bool, CommandError> {
+  let mut config_lock = config.lock().await;
+
+  if !config_lock.is_game_installed(&game_name) {
+    return Ok(false);
+  }
+
+  return is_game_installed_impl(&mut config_lock, game_name);
 }
 
 #[tauri::command]

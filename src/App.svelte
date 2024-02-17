@@ -9,6 +9,7 @@
   import Header from "./components/header/Header.svelte";
   import Update from "./routes/Update.svelte";
   import { isInDebugMode } from "$lib/utils/common";
+  import GameInProgress from "./components/games/GameInProgress.svelte";
   import Toast from "./components/toast/Toast.svelte";
   import Help from "./routes/Help.svelte";
   import { isLoading } from "svelte-i18n";
@@ -80,6 +81,12 @@
           <Route
             path="/:game_name/features/:feature"
             component={GameFeature}
+            primary={false}
+            let:params
+          />
+          <Route
+            path="/jak3"
+            component={GameInProgress}
             primary={false}
             let:params
           />

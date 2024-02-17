@@ -36,6 +36,8 @@ pub enum CommandError {
   Support(String),
   #[error("{0}")]
   GameFeatures(String),
+  #[error("{0}")]
+  UnknownGame(String),
 }
 
 impl Serialize for CommandError {
