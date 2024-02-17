@@ -29,7 +29,7 @@ describe("Splash.svelte", () => {
     const logo = screen.getByTestId("splash-logo");
     expect(logo).toBeTruthy();
   });
-})
+});
 
 describe("LocaleSelector.svelte", () => {
   it("should display the locale dropdown", async () => {
@@ -59,9 +59,7 @@ describe("LocaleSelector.svelte", () => {
       }
     });
     render(LocaleSelector, {});
-    const localeSelect = (await screen.findByTestId(
-      "locale-select",
-    ));
+    const localeSelect = await screen.findByTestId("locale-select");
     expect(localeSelect).toBeTruthy();
     fireEvent.change(localeSelect, { target: { value: "en-US" } });
     expect(localeSelect.value).toBe("en-US");
