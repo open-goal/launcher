@@ -11,15 +11,18 @@
     runCompiler,
     runDecompiler,
   } from "$lib/rpc/binaries";
-  import { folderPrompt, isoPrompt } from "$lib/utils/file";
+  import { folderPrompt, isoPrompt } from "$lib/utils/file-dialogs";
   import {
     finalizeInstallation,
     isAVXRequirementMet,
+    isDiskSpaceRequirementMet,
     isOpenGLRequirementMet,
+    isVCCRuntimeInstalled,
   } from "$lib/rpc/config";
   import { progressTracker } from "$lib/stores/ProgressStore";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { _ } from "svelte-i18n";
+  import { type } from "@tauri-apps/api/os";
 
   export let activeGame: SupportedGame;
 
@@ -37,18 +40,29 @@
   async function checkRequirements() {
     // Check requirements
     const isAvxMet = await isAVXRequirementMet(false);
-    let isOpenGLMet = await isOpenGLRequirementMet(false);
-    requirementsMet = isAvxMet && isOpenGLMet;
+    const isOpenGLMet = await isOpenGLRequirementMet(false);
+    const isDiskSpaceMet = await isDiskSpaceRequirementMet(
+      getInternalName(activeGame),
+    );
+    const osType = await type();
+    if (osType == "Windows_NT") {
+      const isVCCInstalled = await isVCCRuntimeInstalled();
+      requirementsMet =
+        isAvxMet && isOpenGLMet && isDiskSpaceMet && isVCCInstalled;
+    } else {
+      requirementsMet = isAvxMet && isOpenGLMet && isDiskSpaceMet;
+    }
   }
 
   async function install(viaFolder: boolean) {
     let sourcePath = "";
     if (viaFolder) {
-      sourcePath = await folderPrompt(
-        "Select a folder with your ISO's data extracted"
-      );
+      sourcePath = await folderPrompt($_("setup_prompt_selectFolderWithISO"));
     } else {
-      sourcePath = await isoPrompt();
+      sourcePath = await isoPrompt(
+        $_("setup_prompt_ISOFileLabel"),
+        $_("setup_prompt_selectISO"),
+      );
     }
     if (sourcePath !== undefined) {
       installing = true;
@@ -76,7 +90,7 @@
       progressTracker.start();
       let resp = await extractAndValidateISO(
         sourcePath,
-        getInternalName(activeGame)
+        getInternalName(activeGame),
       );
       progressTracker.updateLogs(await getEndOfLogs());
       if (!resp.success) {
@@ -113,7 +127,7 @@
 </script>
 
 {#if !requirementsMet}
-  <Requirements on:recheckRequirements={checkRequirements} />
+  <Requirements {activeGame} on:recheckRequirements={checkRequirements} />
 {:else if installing}
   <div class="flex flex-col justify-content">
     <Progress />
@@ -125,7 +139,7 @@
     <div class="flex flex-col justify-end items-end mt-auto">
       <div class="flex flex-row gap-2">
         <Button
-          btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
           on:click={async () => await dispatchSetupEvent()}
           >{$_("setup_button_continue")}</Button
         >
@@ -134,13 +148,18 @@
   {:else if $progressTracker.overallStatus === "failed"}
     <div class="flex flex-col mt-auto">
       <div class="flex flex-row gap-2">
-        <Alert color="red" class="dark:bg-slate-900 flex-grow" accent={true}>
+        <Alert
+          color="red"
+          class="dark:bg-slate-900 flex-grow border-t-4"
+          rounded={false}
+        >
           <span class="font-medium text-red-500"
             >{$_("setup_installationFailed")}
           </span><span class="text-white"> {installationError}</span>
         </Alert>
+        <!-- TODO - no button to go back -->
         <Button
-          btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
           on:click={async () => await generateSupportPackage()}
           >{$_("setup_button_getSupportPackage")}</Button
         >
@@ -156,13 +175,13 @@
     </h1>
     <div class="flex flex-row gap-2">
       <Button
-        btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         on:click={async () => await install(false)}
         >{$_("setup_button_installViaISO")}</Button
       >
       <!-- TODO - disabled for now, needs fixes in the extractor -->
       <!-- <Button
-        btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         on:click={async () => await install(true)}
         >Install via Folder</Button
       > -->

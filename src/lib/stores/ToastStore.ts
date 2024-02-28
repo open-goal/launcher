@@ -2,43 +2,28 @@ import { writable } from "svelte/store";
 
 export type ToastLevel = "error" | "warn" | "info" | undefined;
 
-interface ToastStore {
-  msg: string | undefined;
+interface ToastMessage {
+  msg: string;
   level: ToastLevel;
-  interval: any;
+  interval?: any;
 }
 
-const storeValue: ToastStore = {
-  msg: undefined,
-  level: undefined,
-  interval: undefined,
-};
+type ToastArray = ToastMessage[];
+const messageArray: ToastArray = [];
 
 function createToastStore() {
-  // TODO - the TTL isn't correct still, look into it
-  const { subscribe, set, update } = writable<ToastStore>(storeValue);
-
-  const ttl = 5000;
-  let timeoutId: NodeJS.Timer;
-
-  function ttlCheck() {
-    return setTimeout(() => {
-      update((val) => {
-        val.msg = undefined;
-        val.level = undefined;
-        timeoutId = undefined;
-        return val;
-      });
-    }, ttl);
-  }
+  const { subscribe, update } = writable<ToastArray>(messageArray);
 
   return {
     subscribe,
+    removeToast: () =>
+      update((val) => {
+        val = val.slice(1);
+        return val;
+      }),
     makeToast: (msg: string, level: ToastLevel) =>
       update((val) => {
-        val.msg = msg;
-        val.level = level;
-        timeoutId = ttlCheck();
+        val.push({ msg, level });
         return val;
       }),
   };

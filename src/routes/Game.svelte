@@ -4,8 +4,10 @@
   import GameControls from "../components/games/GameControls.svelte";
   import GameSetup from "../components/games/setup/GameSetup.svelte";
   import { onMount } from "svelte";
-  import { Spinner } from "flowbite-svelte";
+  import { Alert, Spinner } from "flowbite-svelte";
+  import { _ } from "svelte-i18n";
   import {
+    doesActiveToolingVersionSupportGame,
     getInstalledVersion,
     getInstalledVersionFolder,
     isGameInstalled,
@@ -18,9 +20,12 @@
     getActiveVersionFolder,
   } from "$lib/rpc/versions";
   import GameToolsNotSet from "../components/games/GameToolsNotSet.svelte";
+  import GameNotSupportedByTooling from "../components/games/GameNotSupportedByTooling.svelte";
   import { VersionStore } from "$lib/stores/VersionStore";
 
   const params = useParams();
+  $: $params, loadGameInfo();
+
   let activeGame = SupportedGame.Jak1;
   let componentLoaded = false;
 
@@ -32,7 +37,15 @@
 
   let versionMismatchDetected = false;
 
+  let gameInBeta = false;
+  let gameSupportedByTooling = false;
+
   onMount(async () => {
+    loadGameInfo();
+  });
+
+  async function loadGameInfo() {
+    componentLoaded = false;
     // Figure out what game we are displaying
     if (
       $params["game_name"] !== undefined &&
@@ -43,6 +56,12 @@
     } else {
       activeGame = SupportedGame.Jak1;
     }
+
+    gameInBeta = activeGame === SupportedGame.Jak2;
+
+    gameSupportedByTooling = await doesActiveToolingVersionSupportGame(
+      getInternalName(activeGame),
+    );
 
     // First off, check that they've downloaded and have a jak-project release set
     const activeVersionExists = await ensureActiveVersionStillExists();
@@ -58,24 +77,21 @@
       // - prompt them to either reinstall OR go and select their previous version
       if (gameInstalled) {
         installedVersion = await getInstalledVersion(
-          getInternalName(activeGame)
+          getInternalName(activeGame),
         );
         installedVersionFolder = await getInstalledVersionFolder(
-          getInternalName(activeGame)
+          getInternalName(activeGame),
         );
-        if (
+        versionMismatchDetected =
           installedVersion !== $VersionStore.activeVersionName ||
-          installedVersionFolder !== $VersionStore.activeVersionType
-        ) {
-          versionMismatchDetected = true;
-        }
+          installedVersionFolder !== $VersionStore.activeVersionType;
       }
     }
 
     componentLoaded = true;
-  });
+  }
 
-  async function updateGameState(evt) {
+  async function updateGameState(event) {
     gameInstalled = await isGameInstalled(getInternalName(activeGame));
   }
 
@@ -94,6 +110,8 @@
     <div class="flex flex-col h-full justify-center items-center">
       <Spinner color="yellow" size={"12"} />
     </div>
+  {:else if !gameSupportedByTooling}
+    <GameNotSupportedByTooling />
   {:else if $VersionStore.activeVersionName === null || $VersionStore.activeVersionType === null}
     <GameToolsNotSet />
   {:else if !gameInstalled}
@@ -112,6 +130,35 @@
       on:job={runGameJob}
     />
   {:else}
+    {#if gameInBeta}
+      <Alert color="red" rounded={false} class="border-t-4">
+        <span class="font-bold">{$_("gameControls_beta_headerA")}</span>
+        <em>{$_("gameControls_beta_headerB")}</em>
+        <br />
+        <ul>
+          <li>
+            {$_("gameControls_beta_issueTracker_linkPreText")}
+            <a
+              class="text-blue-400"
+              href="https://github.com/open-goal/jak-project/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3Ajak2"
+              target="_blank"
+              rel="noopener noreferrer"
+              >{$_("gameControls_beta_issueTracker_linkText")}</a
+            >
+          </li>
+          <li>
+            {$_("gameControls_beta_bugReport_linkPreText")}
+            <a
+              class="text-blue-400"
+              href="https://github.com/open-goal/jak-project/issues/new?assignees=&labels=bug%2Cjak2&projects=&template=jak2-bug-report.yml"
+              target="_blank"
+              rel="noopener noreferrer"
+              >{$_("gameControls_beta_bugReport_linkText")}</a
+            >
+          </li>
+        </ul>
+      </Alert>
+    {/if}
     <GameControls
       {activeGame}
       on:change={updateGameState}

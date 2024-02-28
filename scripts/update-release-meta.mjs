@@ -17,7 +17,7 @@ const octokit = new Octokit({
   throttle: {
     onRateLimit: (retryAfter, options) => {
       octokit.log.warn(
-        `Request quota exhausted for request ${options.method} ${options.url}`
+        `Request quota exhausted for request ${options.method} ${options.url}`,
       );
 
       // Retry twice after hitting a rate limit error, then give up
@@ -29,7 +29,7 @@ const octokit = new Octokit({
     onAbuseLimit: (retryAfter, options) => {
       // does not retry, only logs a warning
       octokit.log.warn(
-        `Abuse detected for request ${options.method} ${options.url}`
+        `Abuse detected for request ${options.method} ${options.url}`,
       );
     },
   },
@@ -124,11 +124,12 @@ if (launcherRelease === undefined) {
   console.log(`Couldn't find launcher release with id ${releaseId}`);
   process.exit(1);
 }
+console.log(launcherRelease);
 
 // Get changes for the launcher
 const launcherChanges = changesFromBody(launcherRelease.body);
 
-// Retrieve linux and windows signatures
+// Retrieve application bundle signatures
 const { data: releaseAssets } = await octokit.rest.repos.listReleaseAssets({
   owner: "open-goal",
   repo: "launcher",
@@ -138,6 +139,7 @@ const { data: releaseAssets } = await octokit.rest.repos.listReleaseAssets({
 
 let linuxSignature = "";
 let windowsSignature = "";
+let macosSignature = "";
 for (var i = 0; i < releaseAssets.length; i++) {
   const asset = releaseAssets[i];
   if (asset.name.toLowerCase().endsWith("appimage.tar.gz.sig")) {
@@ -162,9 +164,19 @@ for (var i = 0; i < releaseAssets.length; i++) {
     });
     windowsSignature = Buffer.from(assetDownload.data).toString();
   }
+  if (asset.name.toLowerCase().endsWith("app.tar.gz.sig")) {
+    const assetDownload = await octokit.rest.repos.getReleaseAsset({
+      owner: "open-goal",
+      repo: "launcher",
+      asset_id: asset.id,
+      headers: {
+        Accept: "application/octet-stream",
+      },
+    });
+    macosSignature = Buffer.from(assetDownload.data).toString();
+  }
 }
 
-// TODO - no macOS yet
 const releaseMeta = {
   name: launcherRelease.tag_name,
   notes: JSON.stringify({
@@ -176,9 +188,9 @@ const releaseMeta = {
       signature: linuxSignature,
       url: `https://github.com/open-goal/launcher/releases/download/${
         launcherRelease.tag_name
-      }/OpenGOAL-Launcher_${launcherRelease.tag_name.replace(
+      }/open-goal-launcher_${launcherRelease.tag_name.replace(
         "v",
-        ""
+        "",
       )}_amd64.AppImage.tar.gz`,
     },
     "windows-x86_64": {
@@ -187,14 +199,18 @@ const releaseMeta = {
         launcherRelease.tag_name
       }/OpenGOAL-Launcher_${launcherRelease.tag_name.replace(
         "v",
-        ""
+        "",
       )}_x64_en-US.msi.zip`,
+    },
+    "darwin-x86_64": {
+      signature: macosSignature,
+      url: `https://github.com/open-goal/launcher/releases/download/${launcherRelease.tag_name}/OpenGOAL-Launcher_x64.app.tar.gz`,
     },
   },
 };
 fs.writeFileSync(
   "./.tauri/latest-release-v2.json",
-  JSON.stringify(releaseMeta, null, 2) + "\n"
+  JSON.stringify(releaseMeta, null, 2) + "\n",
 );
 
 // Publish the release

@@ -14,6 +14,7 @@
   import { UpdateStore } from "$lib/stores/AppStore";
   import { saveActiveVersionChange } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
+  import { toastStore } from "$lib/stores/ToastStore";
 
   let versionsLoaded = false;
   let releases: ReleaseInfo[] = [];
@@ -44,6 +45,8 @@
           downloadUrl: undefined,
           isDownloaded: true,
           pendingAction: false,
+          invalid: false,
+          invalidationReasons: [],
         },
       ];
     }
@@ -76,6 +79,8 @@
           downloadUrl: release.downloadUrl,
           isDownloaded: false,
           pendingAction: false,
+          invalid: release.invalid,
+          invalidationReasons: release.invalidationReasons,
         },
       ];
     }
@@ -98,20 +103,21 @@
     versionsLoaded = true;
   }
 
-  async function saveOfficialVersionChange(evt) {
+  async function saveOfficialVersionChange() {
     const success = await saveActiveVersionChange(
       "official",
-      $VersionStore.selectedVersions.official
+      $VersionStore.selectedVersions.official,
     );
     if (success) {
       $VersionStore.activeVersionType = "official";
       $VersionStore.activeVersionName = $VersionStore.selectedVersions.official;
       $VersionStore.selectedVersions.unofficial = null;
       $VersionStore.selectedVersions.devel = null;
+      toastStore.makeToast("Saved game version!", "info");
     }
   }
 
-  async function openOfficialVersionFolder(evt) {
+  async function openOfficialVersionFolder() {
     openVersionFolder("official");
   }
 
@@ -125,7 +131,7 @@
     releases = releases;
     const success = await downloadOfficialVersion(
       event.detail.version,
-      event.detail.downloadUrl
+      event.detail.downloadUrl,
     );
     // Then mark it as downloaded
     for (const release of releases) {
@@ -141,6 +147,8 @@
       }
     }
     releases = releases;
+    $VersionStore.selectedVersions.official = event.detail.version;
+    await saveOfficialVersionChange();
   }
 
   async function onRemoveVersion(event: any) {

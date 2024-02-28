@@ -42,13 +42,15 @@ pub async fn open_main_window(handle: tauri::AppHandle) -> Result<(), CommandErr
   .inner_size(800.0, 600.0)
   .focused(true)
   .build()
-  .map_err(|_| CommandError::WindowManagement(format!("Unable to create main launcher window")))?;
+  .map_err(|_| {
+    CommandError::WindowManagement("Unable to create main launcher window".to_owned())
+  })?;
   log::info!("Closing splash window");
   // Close splashscreen
   if let Some(splashscreen) = handle.app_handle().get_window("splashscreen") {
     splashscreen
       .close()
-      .map_err(|_| CommandError::WindowManagement(format!("Unable to close splash window")))?;
+      .map_err(|_| CommandError::WindowManagement("Unable to close splash window".to_owned()))?;
   }
   Ok(())
 }
@@ -65,6 +67,6 @@ pub async fn open_dir_in_os(directory: String) -> Result<(), CommandError> {
   }
 
   crate::util::os::open_dir_in_os(folder_path.to_string_lossy().into_owned())
-    .map_err(|_| CommandError::OSOperation(format!("Unable to go to open folder in OS")))?;
+    .map_err(|_| CommandError::OSOperation("Unable to go to open folder in OS".to_owned()))?;
   Ok(())
 }

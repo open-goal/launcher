@@ -1,17 +1,18 @@
 <script lang="ts">
-  import bgVideoJak1 from "$assets/videos/background-jak1.webm";
-  import bgVideoPosterJak1 from "$assets/images/background-jak1.webp";
-  import bgVideoJak2 from "$assets/videos/background-jak2.webm";
-  import bgVideoPosterJak2 from "$assets/images/background-jak2.webp";
   import { useLocation } from "svelte-navigator";
   import { isGameInstalled } from "$lib/rpc/config";
   import { onMount } from "svelte";
   import { listen } from "@tauri-apps/api/event";
+  import { getFurthestGameMilestone } from "$lib/rpc/game";
+  import jak2Background from "$assets/images/background-jak2.webp";
+  import jak3InProgressVid from "$assets/videos/jak3-dev.mp4";
+  import jak3InProgressPoster from "$assets/videos/jak3-poster.png";
 
   const location = useLocation();
   $: $location.pathname, updateStyle();
 
-  let style = "absolute object-fill h-screen";
+  let style = "absolute object-fill h-screen brightness-75";
+  let jak1Image = "";
 
   onMount(async () => {
     const unlistenInstalled = await listen("gameInstalled", (event) => {
@@ -20,10 +21,13 @@
     const unlistenUninstalled = await listen("gameUninstalled", (event) => {
       updateStyle();
     });
+    // TODO - call this if the game is closed as well
+    const jak1_milestone = await getFurthestGameMilestone("jak1");
+    jak1Image = `/images/jak1/${jak1_milestone}.jpg`;
   });
 
   async function updateStyle(): Promise<void> {
-    let newStyle = "absolute object-fill h-screen";
+    let newStyle = "absolute object-fill h-screen brightness-75";
     let pathname = $location.pathname;
     if (pathname.startsWith("/jak1") || pathname === "/") {
       if (!(await isGameInstalled("jak1"))) {
@@ -46,20 +50,15 @@
   }
 </script>
 
-{#if $location.pathname.startsWith("/jak1") || $location.pathname == "/"}
-  <video id="bgVideo"
+{#if $location.pathname == "/jak1" || $location.pathname == "/"}
+  <img class={style} src={jak1Image} />
+{:else if $location.pathname == "/jak2"}
+  <img class={style} src={jak2Background} />
+{:else if $location.pathname == "/jak3"}
+  <video
     class={style}
-    poster={bgVideoPosterJak1}
-    src={bgVideoJak1}
-    autoplay
-    muted
-    loop
-  />
-{:else if $location.pathname.startsWith("/jak2")}
-  <video id="bgVideo"
-    class={style}
-    poster={bgVideoPosterJak2}
-    src={bgVideoJak2}
+    poster={jak3InProgressPoster}
+    src={jak3InProgressVid}
     autoplay
     muted
     loop

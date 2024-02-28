@@ -1,126 +1,86 @@
-import { toastStore } from "$lib/stores/ToastStore";
-import { invoke } from "@tauri-apps/api/tauri";
-import { exceptionLog } from "./logging";
+import { invoke_rpc } from "./rpc";
 
 interface InstallationOutput {
   msg: string | null;
   success: boolean;
 }
 
+function failed(msg: string): InstallationOutput {
+  return { success: false, msg };
+}
+
 export async function updateDataDirectory(
-  gameName: string
+  gameName: string,
 ): Promise<InstallationOutput> {
-  try {
-    return await invoke("update_data_directory", {
-      gameName: gameName,
-    });
-  } catch (e) {
-    exceptionLog(
-      "Unexpected error encountered when updating data directory",
-      e
-    );
-    return {
-      msg: "An unexpected error occurred",
-      success: false,
-    };
-  }
+  return await invoke_rpc("update_data_directory", { gameName }, () =>
+    failed("Failed to update data directory"),
+  );
 }
 
 export async function getEndOfLogs(): Promise<string> {
-  try {
-    return await invoke("get_end_of_logs", {});
-  } catch (e) {
-    exceptionLog(
-      "Unexpected error encountered when tail'ing extractor logs",
-      e
-    );
-    return "";
-  }
+  return await invoke_rpc("get_end_of_logs", {}, () => "");
 }
 
 export async function extractAndValidateISO(
   pathToIso: string,
-  gameName: string
+  gameName: string,
 ): Promise<InstallationOutput> {
-  try {
-    return await invoke("extract_and_validate_iso", {
-      pathToIso: pathToIso,
-      gameName: gameName,
-    });
-  } catch (e) {
-    exceptionLog(
-      "Unexpected error encountered when extracing and validating the ISO",
-      e
-    );
-    return {
-      msg: "An unexpected error occurred",
-      success: false,
-    };
-  }
+  return await invoke_rpc(
+    "extract_and_validate_iso",
+    { pathToIso, gameName },
+    () => failed("Failed to extract and validate ISO"),
+  );
 }
 
 export async function runDecompiler(
   pathToIso: string,
   gameName: string,
-  truncateLogs: boolean = false
+  truncateLogs: boolean = false,
 ): Promise<InstallationOutput> {
-  try {
-    return await invoke("run_decompiler", {
-      pathToIso: pathToIso,
-      gameName: gameName,
-      truncateLogs: truncateLogs,
-    });
-  } catch (e) {
-    exceptionLog("Unexpected error encountered when running the decompiler", e);
-    return {
-      msg: "An unexpected error occurred",
-      success: false,
-    };
-  }
+  return await invoke_rpc(
+    "run_decompiler",
+    { pathToIso, gameName, truncateLogs },
+    () => failed("Failed to run decompiler"),
+  );
 }
 
 export async function runCompiler(
   pathToIso: string,
   gameName: string,
-  truncateLogs: boolean = false
+  truncateLogs: boolean = false,
 ): Promise<InstallationOutput> {
-  try {
-    return await invoke("run_compiler", {
-      pathToIso: pathToIso,
-      gameName: gameName,
-      truncateLogs: truncateLogs,
-    });
-  } catch (e) {
-    exceptionLog("Unexpected error encountered when running the compiler", e);
-    return {
-      msg: "An unexpected error occurred",
-      success: false,
-    };
-  }
+  return await invoke_rpc(
+    "run_compiler",
+    { pathToIso, gameName, truncateLogs },
+    () => failed("Failed to run compiler"),
+  );
+}
+
+export async function getLaunchGameString(gameName: string): Promise<string> {
+  return await invoke_rpc(
+    "get_launch_game_string",
+    { gameName },
+    () => "_mirror_",
+  );
 }
 
 export async function launchGame(
   gameName: string,
-  inDebugMode: boolean
+  inDebug: boolean,
 ): Promise<void> {
-  try {
-    return await invoke("launch_game", {
-      gameName: gameName,
-      inDebug: inDebugMode,
-    });
-  } catch (e) {
-    exceptionLog("Unexpected error encountered when launching the game", e);
-    toastStore.makeToast("Unable to launch game", "error");
-  }
+  return await invoke_rpc(
+    "launch_game",
+    { gameName, inDebug },
+    () => {},
+    "_mirror_",
+  );
 }
 
 export async function openREPL(gameName: string): Promise<void> {
-  try {
-    return await invoke("open_repl", {
-      gameName: gameName,
-    });
-  } catch (e) {
-    exceptionLog("Unexpected error encountered when opening the REPL", e);
-    toastStore.makeToast("Unable to open REPL", "error");
-  }
+  return await invoke_rpc(
+    "open_repl",
+    { gameName },
+    () => {},
+    "Unable to open REPL",
+  );
 }

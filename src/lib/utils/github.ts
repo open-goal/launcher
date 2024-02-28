@@ -1,4 +1,6 @@
-import { platform } from "@tauri-apps/api/os";
+import { getVersion } from "@tauri-apps/api/app";
+import { arch, platform } from "@tauri-apps/api/os";
+import semver from "semver";
 
 export interface ReleaseInfo {
   releaseType: "official" | "unofficial" | "devel";
@@ -8,30 +10,104 @@ export interface ReleaseInfo {
   downloadUrl: string | undefined;
   isDownloaded: boolean;
   pendingAction: boolean;
+  invalid: boolean;
+  invalidationReasons: string[];
+}
+
+function isIntelMacOsRelease(
+  platform: string,
+  architecture: string,
+  assetName: string,
+): boolean {
+  return (
+    platform === "darwin" &&
+    architecture === "x86_64" &&
+    assetName.startsWith("opengoal-macos-intel-v")
+  );
+}
+
+// TODO - go back and fix old asset names so windows/linux can be simplified
+function isWindowsRelease(
+  platform: string,
+  architecture: string,
+  assetName: string,
+): boolean {
+  return (
+    platform === "win32" &&
+    (assetName.startsWith("opengoal-windows-v") ||
+      (assetName.startsWith("opengoal-v") && assetName.includes("windows")))
+  );
+}
+
+function isLinuxRelease(
+  platform: string,
+  architecture: string,
+  assetName: string,
+): boolean {
+  return (
+    platform === "linux" &&
+    (assetName.startsWith("opengoal-linux-v") ||
+      (assetName.startsWith("opengoal-v") && assetName.includes("linux")))
+  );
 }
 
 async function getDownloadLinkForCurrentPlatform(
-  release
+  release: any,
 ): Promise<string | undefined> {
   const platformName = await platform();
+  const archName = await arch();
   for (const asset of release.assets) {
-    if (platformName === "darwin" && asset.name.includes("opengoal-macos-v")) {
+    if (isIntelMacOsRelease(platformName, archName, asset.name)) {
       return asset.browser_download_url;
-    } else if (
-      platformName === "win32" &&
-      (asset.name.startsWith("opengoal-windows-v") ||
-        (asset.name.startsWith("opengoal-v") && asset.name.includes("windows")))
-    ) {
+    } else if (isWindowsRelease(platformName, archName, asset.name)) {
       return asset.browser_download_url;
-    } else if (
-      platformName === "linux" &&
-      (asset.name.startsWith("opengoal-linux-v") ||
-        (asset.name.startsWith("opengoal-v") && asset.name.includes("linux")))
-    ) {
+    } else if (isLinuxRelease(platformName, archName, asset.name)) {
       return asset.browser_download_url;
     }
   }
   return undefined;
+}
+
+async function parseGithubRelease(githubRelease: any): Promise<ReleaseInfo> {
+  const releaseInfo: ReleaseInfo = {
+    releaseType: "official",
+    version: githubRelease.tag_name,
+    date: githubRelease.published_at,
+    githubLink: githubRelease.html_url,
+    downloadUrl: await getDownloadLinkForCurrentPlatform(githubRelease),
+    isDownloaded: false,
+    pendingAction: false,
+    invalid: false,
+    invalidationReasons: [],
+  };
+  if (githubRelease.body.includes("<!-- invalid:")) {
+    releaseInfo.invalid = true;
+    // Get the line it's on
+    try {
+      const line = githubRelease.body
+        .split("<!-- invalid:")[1]
+        .split("-->")[0]
+        .trim();
+      releaseInfo.invalidationReasons = line.split("|");
+    } catch (err) {
+      // do nothing, bad formatting
+      releaseInfo.invalidationReasons = ["Release invalid for unknown reasons"];
+    }
+  } else if (githubRelease.body.includes("<!-- requires-launcher-version:")) {
+    // Check the current semver and compare
+    const launcherVersion = await getVersion();
+    const requiredMinimumVersion = githubRelease.body
+      .split("<!-- requires-launcher-version:")[1]
+      .split("-->")[0]
+      .trim();
+    if (!semver.gte(launcherVersion, requiredMinimumVersion)) {
+      releaseInfo.invalid = true;
+      releaseInfo.invalidationReasons = [
+        `This version requires the launcher to be updated to atleast: ${requiredMinimumVersion}`,
+      ];
+    }
+  }
+  return releaseInfo;
 }
 
 export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
@@ -42,23 +118,14 @@ export async function listReleases(releaseType: string, repo: string): Promise<R
   let releases = [];
   // TODO - handle rate limiting
   // TODO - long term - handle pagination (more than 100 releases)
-  // TODO - even longer term - extract this out into an API we control (avoid github rate limiting) -- will be needed for unofficial releases as well anyway
   const resp = await fetch(
-    "https://api.github.com/repos/" + repo + "/releases?per_page=100"
+    "https://api.github.com/repos/open-goal/jak-project/releases?per_page=100",
   );
   // TODO - handle error
   const githubReleases = await resp.json();
 
   for (const release of githubReleases) {
-    releases.push({
-      releaseType: releaseType,
-      version: release.tag_name,
-      date: release.published_at,
-      githubLink: release.html_url,
-      downloadUrl: await getDownloadLinkForCurrentPlatform(release),
-      isDownloaded: false,
-      pendingAction: false,
-    });
+    releases.push(await parseGithubRelease(release));
   }
 
   return releases.sort((a, b) => b.date.localeCompare(a.date));
@@ -66,19 +133,10 @@ export async function listReleases(releaseType: string, repo: string): Promise<R
 
 export async function getLatestOfficialRelease(): Promise<ReleaseInfo> {
   // TODO - handle rate limiting
-  // TODO - even longer term - extract this out into an API we control (avoid github rate limiting) -- will be needed for unofficial releases as well anyway
   const resp = await fetch(
-    "https://api.github.com/repos/open-goal/jak-project/releases/latest"
+    "https://api.github.com/repos/open-goal/jak-project/releases/latest",
   );
   // TODO - handle error
   const githubRelease = await resp.json();
-  return {
-    releaseType: "official",
-    version: githubRelease.tag_name,
-    date: githubRelease.published_at,
-    githubLink: githubRelease.html_url,
-    downloadUrl: await getDownloadLinkForCurrentPlatform(githubRelease),
-    isDownloaded: false,
-    pendingAction: false,
-  };
+  return await parseGithubRelease(githubRelease);
 }

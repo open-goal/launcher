@@ -1,22 +1,10 @@
-@font-face {
-  font-family: "Inter";
-  src: url("/src/assets/fonts/Inter/Inter.ttf");
-}
-
-@font-face {
-  font-family: "Roboto Mono";
-  src: url("/src/assets/fonts/Roboto_Mono/static/RobotoMono-Regular.ttf");
-}
-
-@font-face {
-  font-family: "Roboto Mono";
-  src: url("/src/assets/fonts/Roboto_Mono/static/RobotoMono-Bold.ttf");
-  font-weight: 700;
+:root {
+  --launcher-font-family: "Noto Sans";
 }
 
 * {
   -webkit-user-drag: none;
-  font-family: "Twemoji Country Flags", "Inter", sans-serif;
+  font-family: "Twemoji Country Flags", var(--launcher-font-family), sans-serif;
 }
 
 body {
@@ -59,7 +47,10 @@ body {
 }
 
 .text-outline {
-  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+  text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
     1px 1px 0 #000;
 }
 
@@ -83,4 +74,14 @@ body {
 
 .basis-9\/10 {
   flex-basis: 90%;
+}
+
+.texture-pack-card img {
+  object-fit: contain;
+}
+
+.truncate-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

@@ -12,6 +12,7 @@
   import { VersionStore } from "$lib/stores/VersionStore";
   import { saveActiveVersionChange } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
+  import { toastStore } from "$lib/stores/ToastStore";
 
   let versionsLoaded = false;
 
@@ -45,16 +46,18 @@
           downloadUrl: undefined,
           isDownloaded: true,
           pendingAction: false,
+          invalid: false,
+          invalidationReasons: [],
         },
       ];
     }
     versionsLoaded = true;
   }
 
-  async function onSaveVersionChange(evt: any) {
+  async function onSaveVersionChange() {
     const success = await saveActiveVersionChange(
       "unofficial",
-      $VersionStore.selectedVersions.unofficial
+      $VersionStore.selectedVersions.unofficial,
     );
     if (success) {
       $VersionStore.activeVersionType = "unofficial";
@@ -62,10 +65,11 @@
         $VersionStore.selectedVersions.unofficial;
       $VersionStore.selectedVersions.official = null;
       $VersionStore.selectedVersions.devel = null;
+      toastStore.makeToast("Saved game version!", "info");
     }
   }
 
-  async function onOpenVersionFolder(evt: any) {
+  async function onOpenVersionFolder() {
     openVersionFolder("unofficial");
   }
 

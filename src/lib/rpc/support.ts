@@ -1,18 +1,16 @@
-import { toastStore } from "$lib/stores/ToastStore";
-import { saveFilePrompt } from "$lib/utils/file";
-import { invoke } from "@tauri-apps/api/tauri";
-import { exceptionLog } from "./logging";
+import { saveFilePrompt } from "$lib/utils/file-dialogs";
+import { invoke_rpc } from "./rpc";
 
-export async function generateSupportPackage(): Promise<boolean> {
-  try {
-    const savePath = await saveFilePrompt(
-      "ZIP",
-      ["zip"],
-      "opengoal-support-package.zip"
-    );
-    return await invoke("generate_support_package", { userPath: savePath });
-  } catch (e) {
-    exceptionLog("Unable to generate support package", e);
-    toastStore.makeToast("Unable to create support package", "error");
-  }
+export async function generateSupportPackage(): Promise<void> {
+  const userPath = await saveFilePrompt(
+    "ZIP",
+    ["zip"],
+    "opengoal-support-package.zip",
+  );
+  return await invoke_rpc(
+    "generate_support_package",
+    { userPath },
+    () => {},
+    "Unable to create support package",
+  );
 }

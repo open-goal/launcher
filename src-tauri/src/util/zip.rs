@@ -1,4 +1,4 @@
-use std::io::Cursor;
+use std::io::{BufReader, Cursor};
 use std::path::PathBuf;
 use std::{
   fs::File,
@@ -27,7 +27,7 @@ pub fn append_dir_contents_to_zip(
   let mut buffer = Vec::new();
   for entry in iter {
     let path = entry.path();
-    let temp_name = path.strip_prefix(dir.clone()).unwrap();
+    let temp_name = path.strip_prefix(dir).unwrap();
     let name = Path::new(internal_folder).join(temp_name);
 
     // Write file or directory explicitly
@@ -80,7 +80,7 @@ pub fn append_file_to_zip(
   let mut buffer = Vec::new();
   let name = Path::new(path_in_zip);
   #[allow(deprecated)]
-  zip_file.start_file_from_path(&name, options)?;
+  zip_file.start_file_from_path(name, options)?;
   let mut f = File::open(src)?;
 
   f.read_to_end(&mut buffer)?;
@@ -90,12 +90,39 @@ pub fn append_file_to_zip(
   Ok(())
 }
 
-pub fn extract_and_delete_zip_file(
+pub fn extract_zip_file(
   zip_path: &PathBuf,
-  extract_dir: &PathBuf,
+  extract_dir: &Path,
+  strip_top_dir: bool,
 ) -> Result<(), zip_extract::ZipExtractError> {
   let archive: Vec<u8> = std::fs::read(zip_path)?;
-  zip_extract::extract(Cursor::new(archive), extract_dir, true)?;
+  zip_extract::extract(Cursor::new(archive), extract_dir, strip_top_dir)?;
+  Ok(())
+}
+
+pub fn extract_and_delete_zip_file(
+  zip_path: &PathBuf,
+  extract_dir: &Path,
+  strip_top_dir: bool,
+) -> Result<(), zip_extract::ZipExtractError> {
+  extract_zip_file(zip_path, extract_dir, strip_top_dir)?;
   std::fs::remove_file(zip_path)?;
   Ok(())
+}
+
+pub fn check_if_zip_contains_top_level_dir(
+  zip_path: &PathBuf,
+  expected_dir: String,
+) -> Result<bool, Box<dyn std::error::Error>> {
+  let file = File::open(zip_path)?;
+  let reader = BufReader::new(file);
+  let mut zip = zip::ZipArchive::new(reader)?;
+  for i in 0..zip.len() {
+    let file = zip.by_index(i)?;
+    // Check if the entry is a directory and has the desired folder name
+    if file.name().starts_with(&expected_dir) {
+      return Ok(true);
+    }
+  }
+  Ok(false)
 }

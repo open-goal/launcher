@@ -2,6 +2,8 @@ use serde::{Serialize, Serializer};
 
 pub mod binaries;
 pub mod config;
+pub mod download;
+pub mod features;
 pub mod game;
 pub mod logging;
 pub mod support;
@@ -33,6 +35,10 @@ pub enum CommandError {
   BinaryExecution(String),
   #[error("{0}")]
   Support(String),
+  #[error("{0}")]
+  GameFeatures(String),
+  #[error("{0}")]
+  UnknownGame(String),
 }
 
 impl Serialize for CommandError {

@@ -2,7 +2,7 @@
   import { openMainWindow } from "$lib/rpc/window";
   import { onMount } from "svelte";
   import logo from "$assets/images/icon.webp";
-  import { folderPrompt } from "$lib/utils/file";
+  import { folderPrompt } from "$lib/utils/file-dialogs";
   import {
     deleteOldDataDirectory,
     getInstallationDirectory,
@@ -12,10 +12,10 @@
     setLocale,
   } from "$lib/rpc/config";
   import { AVAILABLE_LOCALES } from "$lib/i18n/i18n";
-  import { _ } from "svelte-i18n";
+  import { locale as svelteLocale, _ } from "svelte-i18n";
 
   let currentProgress = 10;
-  let currentStatusText = $_("splash_step_readingSettings");
+  let currentStatusText = "Loading Locales...";
 
   let selectLocale = false;
   let installationDirSet = true;
@@ -26,6 +26,7 @@
   onMount(async () => {
     // First, see if the user has selected a locale
     await checkLocale();
+    currentStatusText = $_("splash_step_readingSettings");
   });
 
   // TODO - cleanup this code and make it easier to add steps like with
@@ -36,6 +37,7 @@
     if (locale === null) {
       // Prompt the user to select a locale
       selectLocale = true;
+      svelteLocale.set("en-US");
     } else {
       // Set locale and continue
       setLocale(locale);
@@ -74,25 +76,35 @@
       currentStatusText = $_("splash_step_errorOpening");
     }
   }
+
+  async function handleLocaleChange(evt: Event) {
+    const selectElement = evt.target as HTMLSelectElement;
+    setLocale(selectElement.value);
+    selectLocale = false;
+    await checkDirectories();
+  }
 </script>
 
 <div class="content" data-tauri-drag-region>
   <div class="splash-logo no-pointer-events">
-    <img src={logo} alt="" draggable="false" />
+    <img
+      src={logo}
+      data-testId="splash-logo"
+      alt="OpenGOAL logo"
+      aria-label="OpenGOAL logo"
+      draggable="false"
+    />
   </div>
   <div class="splash-contents no-pointer-events">
     {#if selectLocale}
       <span class="mb-1">{$_("splash_selectLocale")}</span>
       <div class="splash-select">
         <select
-          name="cars"
-          id="cars"
+          data-testId="locale-select"
+          name="locales"
+          id="locales"
           class="pointer-events emoji-font"
-          on:change={async (evt) => {
-            setLocale(evt.target.value);
-            selectLocale = false;
-            await checkDirectories();
-          }}
+          on:change={handleLocaleChange}
         >
           <option disabled selected value hidden />
           {#each AVAILABLE_LOCALES as locale}
@@ -107,6 +119,7 @@
       <br />
       <span>
         <button
+          data-testId="delete-old-data-dir-button"
           class="splash-button pointer-events"
           on:click={() => {
             oldDataDirToClean = false;
@@ -114,6 +127,7 @@
           }}>{$_("splash_button_deleteOldInstallDir_yes")}</button
         >
         <button
+          data-testId="dont-delete-old-data-dir-button"
           class="splash-button pointer-events"
           on:click={() => {
             oldDataDirToClean = false;
@@ -128,13 +142,14 @@
       {/if}
       <br />
       <button
+        data-testId="pick-install-folder-button"
         class="splash-button pointer-events"
         on:click={async () => {
           // This is part of what allows for the user to install the games and such wherever they want
           currentStatusText = $_("splash_step_pickInstallFolder");
           currentProgress = 25;
           const newInstallDir = await folderPrompt(
-            $_("splash_button_setInstallFolder_prompt")
+            $_("splash_button_setInstallFolder_prompt"),
           );
           if (newInstallDir !== undefined) {
             const result = await setInstallationDirectory(newInstallDir);
@@ -162,16 +177,6 @@
 </div>
 
 <style>
-  @font-face {
-    font-family: "Roboto Mono";
-    src: url("/src/assets/fonts/Roboto_Mono/static/RobotoMono-Regular.ttf");
-  }
-  @font-face {
-    font-family: "Roboto Mono";
-    src: url("/src/assets/fonts/Roboto_Mono/static/RobotoMono-Bold.ttf");
-    font-weight: 700;
-  }
-
   .content {
     color: white;
     height: 100%;
@@ -183,7 +188,7 @@
     height: 35%;
     align-items: center;
     justify-content: center;
-    font-family: "Twemoji Country Flags", "Roboto Mono", monospace;
+    font-family: "Twemoji Country Flags", "Noto Sans Mono", monospace;
     font-size: 10pt;
     text-align: center;
     padding-left: 10px;

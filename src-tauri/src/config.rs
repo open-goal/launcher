@@ -9,6 +9,7 @@
 //
 // serde does not support defaultLiterals yet - https://github.com/serde-rs/serde/issues/368
 
+use crate::util::file::create_dir;
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -56,7 +57,7 @@ impl FromStr for SupportedGame {
       "jak2" => Ok(Self::Jak2),
       "jak3" => Ok(Self::Jak3),
       "jakx" => Ok(Self::JakX),
-      _ => Err(format!("Invalid variant: {}", s)),
+      _ => Err(format!("Invalid variant: {s}")),
     }
   }
 }
@@ -96,10 +97,26 @@ impl Serialize for SupportedGame {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct GameFeatureConfig {
+  pub texture_packs: Vec<String>,
+}
+
+impl GameFeatureConfig {
+  fn default() -> Self {
+    Self {
+      texture_packs: vec![],
+    }
+  }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GameConfig {
   pub is_installed: bool,
   pub version: Option<String>,
   pub version_folder: Option<String>,
+  pub features: Option<GameFeatureConfig>,
+  pub seconds_played: Option<u64>,
 }
 
 impl GameConfig {
@@ -108,6 +125,8 @@ impl GameConfig {
       is_installed: false,
       version: None,
       version_folder: None,
+      features: Some(GameFeatureConfig::default()),
+      seconds_played: Some(0),
     }
   }
 }
@@ -246,6 +265,51 @@ impl LauncherConfig {
     }
   }
 
+  fn get_supported_game_config_mut(
+    &mut self,
+    game_name: &String,
+  ) -> Result<&mut GameConfig, ConfigError> {
+    let game = match SupportedGame::from_str(game_name) {
+      Err(_) => {
+        log::warn!("Game is not supported: {}", game_name);
+        return Err(ConfigError::Configuration(
+          "Game is not supported".to_owned(),
+        ));
+      }
+      Ok(game) => game,
+    };
+    match self.games.get_mut(&game) {
+      None => {
+        log::error!("Supported game missing from games map: {}", game_name);
+        return Err(ConfigError::Configuration(format!(
+          "Supported game missing from games map: {game_name}"
+        )));
+      }
+      Some(cfg) => Ok(cfg),
+    }
+  }
+
+  fn get_supported_game_config(&mut self, game_name: &String) -> Result<&GameConfig, ConfigError> {
+    let game = match SupportedGame::from_str(game_name) {
+      Err(_) => {
+        log::warn!("Game is not supported: {}", game_name);
+        return Err(ConfigError::Configuration(
+          "Game is not supported".to_owned(),
+        ));
+      }
+      Ok(game) => game,
+    };
+    match self.games.get(&game) {
+      None => {
+        log::error!("Supported game missing from games map: {}", game_name);
+        return Err(ConfigError::Configuration(format!(
+          "Supported game missing from games map: {game_name}"
+        )));
+      }
+      Some(cfg) => Ok(cfg),
+    }
+  }
+
   pub fn load_config(config_dir: Option<std::path::PathBuf>) -> LauncherConfig {
     match config_dir {
       Some(config_dir) => {
@@ -272,16 +336,16 @@ impl LauncherConfig {
               config.version.as_ref().unwrap()
             );
             config.settings_path = Some(settings_path.to_path_buf());
-            return config;
+            config
           }
           Err(err) => {
             log::error!(
               "Could not parse settings.json file: {}, using defaults",
               err
             );
-            return LauncherConfig::default(Some(settings_path.to_path_buf()));
+            LauncherConfig::default(Some(settings_path.to_path_buf()))
           }
-        };
+        }
       }
       None => {
         log::warn!("Not loading configuration, no path provided. Using defaults");
@@ -294,12 +358,14 @@ impl LauncherConfig {
     let settings_path = match &self.settings_path {
       None => {
         log::warn!("Can't save the settings file, as no path was initialized!");
-        return Err(ConfigError::Configuration(format!(
-          "No settings path defined, unable to save settings!"
-        )));
+        return Err(ConfigError::Configuration(
+          "No settings path defined, unable to save settings!".to_owned(),
+        ));
       }
       Some(path) => path,
     };
+    // Ensure the directory exists
+    create_dir(&settings_path.parent().unwrap().to_path_buf())?;
     let file = fs::File::create(settings_path)?;
     serde_json::to_writer_pretty(file, &self)?;
     Ok(())
@@ -326,44 +392,30 @@ impl LauncherConfig {
 
     // Check our permissions on the folder by touching a file (and deleting it)
     let test_file = path.join(".perm-test.tmp");
-    match touch_file(&test_file) {
-      Err(e) => {
-        log::error!(
-          "Provided installation folder could not be written to: {}",
-          e
-        );
-        return Ok(Some("Provided folder cannot be written to".to_owned()));
-      }
-      _ => (),
+    if let Err(e) = touch_file(&test_file) {
+      log::error!(
+        "Provided installation folder could not be written to: {}",
+        e
+      );
+      return Ok(Some("Provided folder cannot be written to".to_owned()));
     }
 
     // If the directory changes (it's not a no-op), we need to:
     // - wipe any installed games (make them reinstall)
     // - wipe the active version/version types
-    match &self.installation_dir {
-      Some(old_dir) => {
-        if *old_dir != new_dir {
-          self.active_version = None;
-          self.active_version_folder = None;
-          self.update_installed_game_version(
-            &SupportedGame::Jak1.internal_str().to_string(),
-            false,
-          )?;
-          self.update_installed_game_version(
-            &SupportedGame::Jak2.internal_str().to_string(),
-            false,
-          )?;
-          self.update_installed_game_version(
-            &SupportedGame::Jak3.internal_str().to_string(),
-            false,
-          )?;
-          self.update_installed_game_version(
-            &SupportedGame::JakX.internal_str().to_string(),
-            false,
-          )?;
-        }
+    if let Some(old_dir) = &self.installation_dir {
+      if *old_dir != new_dir {
+        self.active_version = None;
+        self.active_version_folder = None;
+        self
+          .update_installed_game_version(&SupportedGame::Jak1.internal_str().to_string(), false)?;
+        self
+          .update_installed_game_version(&SupportedGame::Jak2.internal_str().to_string(), false)?;
+        self
+          .update_installed_game_version(&SupportedGame::Jak3.internal_str().to_string(), false)?;
+        self
+          .update_installed_game_version(&SupportedGame::JakX.internal_str().to_string(), false)?;
       }
-      _ => (),
     }
 
     self.installation_dir = Some(new_dir);
@@ -421,34 +473,21 @@ impl LauncherConfig {
     game_name: &String,
     installed: bool,
   ) -> Result<(), ConfigError> {
-    match SupportedGame::from_str(game_name) {
-      Ok(game) => {
-        // Retrieve relevant game from config
-        match self.games.get_mut(&game) {
-          Some(game) => {
-            game.is_installed = installed;
-            if installed {
-              game.version = self.active_version.clone();
-              game.version_folder = self.active_version_folder.clone();
-            } else {
-              game.version = None;
-              game.version_folder = None;
-            }
-          }
-          None => {
-            return Err(ConfigError::Configuration(format!(
-              "Invalid game name - {}, can't update installation status!",
-              game_name
-            )));
-          }
-        }
-      }
-      Err(_) => {
-        return Err(ConfigError::Configuration(format!(
-          "Invalid game name - {}, can't update installation status!",
-          game_name
-        )));
-      }
+    log::info!(
+      "Updating game installation status: {} - {}",
+      game_name,
+      installed
+    );
+    let active_version = self.active_version.clone();
+    let active_version_folder = self.active_version_folder.clone();
+    let game_config = self.get_supported_game_config_mut(game_name)?;
+    game_config.is_installed = installed;
+    if installed {
+      game_config.version = active_version;
+      game_config.version_folder = active_version_folder;
+    } else {
+      game_config.version = None;
+      game_config.version_folder = None;
     }
     self.save_config()?;
     Ok(())
@@ -459,15 +498,13 @@ impl LauncherConfig {
       Ok(game) => {
         // Retrieve relevant game from config
         match self.games.get(&game) {
-          Some(game) => {
-            return game.is_installed;
-          }
+          Some(game) => game.is_installed,
           None => {
             log::warn!(
               "Could not find game to check if it's installed: {}",
               game_name
             );
-            return false;
+            false
           }
         }
       }
@@ -476,7 +513,7 @@ impl LauncherConfig {
           "Could not find game to check if it's installed: {}",
           game_name
         );
-        return false;
+        false
       }
     }
   }
@@ -486,15 +523,13 @@ impl LauncherConfig {
       Ok(game) => {
         // Retrieve relevant game from config
         match self.games.get(&game) {
-          Some(game) => {
-            return game.version.clone().unwrap_or("".to_string());
-          }
+          Some(game) => game.version.clone().unwrap_or("".to_owned()),
           None => {
             log::warn!(
               "Could not find game to check what version is installed: {}",
               game_name
             );
-            return "".to_owned();
+            "".to_owned()
           }
         }
       }
@@ -503,7 +538,7 @@ impl LauncherConfig {
           "Could not find game to check what version is installed: {}",
           game_name
         );
-        return "".to_owned();
+        "".to_owned()
       }
     }
   }
@@ -513,15 +548,13 @@ impl LauncherConfig {
       Ok(game) => {
         // Retrieve relevant game from config
         match self.games.get(&game) {
-          Some(game) => {
-            return game.version_folder.clone().unwrap_or("".to_string());
-          }
+          Some(game) => game.version_folder.clone().unwrap_or("".to_string()),
           None => {
             log::warn!(
               "Could not find game to check what version type is installed: {}",
               game_name
             );
-            return "".to_owned();
+            "".to_owned()
           }
         }
       }
@@ -530,9 +563,99 @@ impl LauncherConfig {
           "Could not find game to check what version is installed: {}",
           game_name
         );
-        return "".to_owned();
+        "".to_owned()
       }
     }
+  }
+
+  pub fn game_enabled_textured_packs(&self, game_name: &String) -> Vec<String> {
+    // TODO - refactor out duplication
+    match SupportedGame::from_str(game_name) {
+      Ok(game) => {
+        // Retrieve relevant game from config
+        match self.games.get(&game) {
+          Some(game) => match &game.features {
+            Some(features) => features.texture_packs.to_owned(),
+            None => Vec::new(),
+          },
+          None => {
+            log::warn!(
+              "Could not find game to check which texture packs are enabled: {}",
+              game_name
+            );
+            Vec::new()
+          }
+        }
+      }
+      Err(_) => {
+        log::warn!(
+          "Could not find game to check which texture packs are enabled: {}",
+          game_name
+        );
+        Vec::new()
+      }
+    }
+  }
+
+  pub fn cleanup_game_enabled_texture_packs(
+    &mut self,
+    game_name: &String,
+    cleanup_list: Vec<String>,
+  ) -> Result<(), ConfigError> {
+    if !cleanup_list.is_empty() {
+      return Ok(());
+    }
+    let game_config = self.get_supported_game_config_mut(game_name)?;
+    if let Some(features) = &mut game_config.features {
+      features
+        .texture_packs
+        .retain(|pack| !cleanup_list.contains(pack));
+      self.save_config()?;
+    }
+    Ok(())
+  }
+
+  pub fn set_game_enabled_texture_packs(
+    &mut self,
+    game_name: &String,
+    packs: Vec<String>,
+  ) -> Result<(), ConfigError> {
+    let game_config = self.get_supported_game_config_mut(game_name)?;
+    match &mut game_config.features {
+      Some(features) => {
+        features.texture_packs = packs;
+      }
+      None => {
+        game_config.features = Some(GameFeatureConfig {
+          texture_packs: packs,
+        });
+      }
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn update_game_seconds_played(
+    &mut self,
+    game_name: &String,
+    additional_seconds: u64,
+  ) -> Result<(), ConfigError> {
+    let game_config = self.get_supported_game_config_mut(game_name)?;
+    match game_config.seconds_played {
+      Some(seconds) => {
+        game_config.seconds_played = Some(seconds + additional_seconds);
+      }
+      None => {
+        game_config.seconds_played = Some(additional_seconds);
+      }
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn get_game_seconds_played(&mut self, game_name: &String) -> Result<u64, ConfigError> {
+    let game_config = self.get_supported_game_config_mut(&game_name)?;
+    Ok(game_config.seconds_played.unwrap_or(0))
   }
 
   pub fn add_mod_list(&mut self, url: &String, identifier: &String, mods: Vec<ModConfig>) -> Result<(), ConfigError> {

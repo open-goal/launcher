@@ -10,15 +10,14 @@
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
   import Header from "./components/header/Header.svelte";
-  import Textures from "./routes/Textures.svelte";
   import Update from "./routes/Update.svelte";
-  import GameInProgress from "./components/games/GameInProgress.svelte";
   import { isInDebugMode } from "$lib/utils/common";
-  import { Toast } from "flowbite-svelte";
+  import GameInProgress from "./components/games/GameInProgress.svelte";
+  import Toast from "./components/toast/Toast.svelte";
   import Help from "./routes/Help.svelte";
-  import { toastStore } from "$lib/stores/ToastStore";
   import { isLoading } from "svelte-i18n";
   import { getLocale, setLocale } from "$lib/rpc/config";
+  import GameFeature from "./routes/GameFeature.svelte";
 
   let revokeSpecificActions = false;
 
@@ -32,7 +31,10 @@
       window.sessionStorage.setItem("refreshHack", "true");
     }
     // Set locale from settings
-    setLocale(await getLocale());
+    const locale = await getLocale();
+    if (locale !== null) {
+      setLocale(locale);
+    }
   });
 
   if (!isInDebugMode()) {
@@ -69,9 +71,9 @@
     {#if !$isLoading}
       <Background />
       <Header />
-      <div class="flex h-full z-10">
+      <div class="flex flex-row grow shrink h-[90%] z-10">
         <Sidebar />
-        <div id="content" class="basis-9/10">
+        <div id="content" class="overflow-y-auto grow shrink">
           <Route path="/" component={Game} primary={false} let:params />
           <Route path="/:game_name"
             component={Game}
@@ -99,7 +101,13 @@
             let:params
           />
           <Route
-            path="/jak2"
+            path="/:game_name/features/:feature"
+            component={GameFeature}
+            primary={false}
+            let:params
+          />
+          <Route
+            path="/jak3"
             component={GameInProgress}
             primary={false}
             let:params
@@ -111,21 +119,10 @@
             let:params
           />
           <Route path="/faq" component={Help} primary={false} />
-          <Route path="/textures" component={Textures} primary={false} />
           <Route path="/update" component={Update} primary={false} />
         </div>
       </div>
-      {#if $toastStore.msg !== undefined}
-        <!-- TODO - make these look nice for info/warn/error levels -->
-        <Toast
-          color="green"
-          position="top-right"
-          class="top-20"
-          divClass="w-full max-w-xs p-2 pl-4 z-50"
-        >
-          {$toastStore.msg}
-        </Toast>
-      {/if}
+      <Toast />
     {/if}
   </div>
 </Router>

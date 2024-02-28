@@ -1,24 +1,36 @@
 <script lang="ts">
-  import { AVAILABLE_LOCALES } from "$lib/i18n/i18n";
+  import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
   import {
     getBypassRequirements,
     getInstallationDirectory,
     getLocale,
+    localeSpecificFontAvailableForDownload,
     resetLauncherSettingsToDefaults,
     setBypassRequirements,
     setLocale,
   } from "$lib/rpc/config";
   import { getActiveVersion, getActiveVersionFolder } from "$lib/rpc/versions";
   import { VersionStore } from "$lib/stores/VersionStore";
-  import { Button, Helper, Label, Select, Toggle } from "flowbite-svelte";
+  import {
+    Button,
+    Helper,
+    Label,
+    Select,
+    Spinner,
+    Toggle,
+  } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import { confirm } from "@tauri-apps/api/dialog";
+  import { downloadFile } from "$lib/rpc/download";
+  import { appDataDir, join } from "@tauri-apps/api/path";
 
   let currentInstallationDirectory = "";
   let currentLocale;
   let availableLocales = [];
   let currentBypassRequirementsVal = false;
+  let localeFontForDownload: Locale | undefined = undefined;
+  let localeFontDownloading = false;
 
   onMount(async () => {
     currentInstallationDirectory = await getInstallationDirectory();
@@ -33,6 +45,10 @@
     }
     currentLocale = await getLocale();
     currentBypassRequirementsVal = await getBypassRequirements();
+    if (currentLocale !== null) {
+      localeFontForDownload =
+        await localeSpecificFontAvailableForDownload(currentLocale);
+    }
   });
 </script>
 
@@ -45,7 +61,10 @@
         items={availableLocales}
         bind:value={currentLocale}
         on:change={async (evt) => {
-          setLocale(evt.target.value);
+          await setLocale(evt.target.value);
+          localeFontForDownload = await localeSpecificFontAvailableForDownload(
+            evt.target.value,
+          );
         }}
       />
     </Label>
@@ -59,17 +78,48 @@
       >
       {$_("settings_general_localeChange_helper_2")}</Helper
     >
+    {#if localeFontForDownload !== undefined}
+      <Button
+        class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
+        disabled={localeFontDownloading}
+        on:click={async () => {
+          if (
+            localeFontForDownload !== undefined &&
+            localeFontForDownload.fontDownloadUrl !== undefined &&
+            localeFontForDownload.fontFileName !== undefined
+          ) {
+            localeFontDownloading = true;
+            const fontPath = await join(
+              await appDataDir(),
+              "fonts",
+              localeFontForDownload.fontFileName,
+            );
+            await downloadFile(localeFontForDownload.fontDownloadUrl, fontPath);
+            await setLocale(currentLocale);
+            localeFontForDownload =
+              await localeSpecificFontAvailableForDownload(currentLocale);
+            localeFontDownloading = false;
+          }
+        }}
+      >
+        {#if localeFontDownloading}
+          <Spinner class="mr-3" size="4" color="white" />
+        {/if}
+        {$_("settings_general_downloadLocaleSpecificFont")}
+      </Button>
+    {/if}
   </div>
   <div>
     <Toggle
       checked={currentBypassRequirementsVal}
+      color="orange"
       on:change={async (evt) => {
         if (evt.target.checked) {
           const confirmed = await confirm(
             `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
-              "requirements_button_bypass_warning_2"
+              "requirements_button_bypass_warning_2",
             )}`,
-            { title: "OpenGOAL Launcher", type: "warning" }
+            { title: "OpenGOAL Launcher", type: "warning" },
           );
           if (confirmed) {
             await setBypassRequirements(evt.target.checked);
@@ -86,10 +136,10 @@
   </div>
   <div>
     <Button
-      btnClass="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
+      class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
       on:click={async () => {
         const confirmed = await confirm(
-          $_("settings_general_button_resetSettings_confirmation")
+          $_("settings_general_button_resetSettings_confirmation"),
         );
         if (confirmed) {
           const result = resetLauncherSettingsToDefaults();

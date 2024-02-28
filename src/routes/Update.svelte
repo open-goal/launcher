@@ -13,7 +13,7 @@
     Toggle,
   } from "flowbite-svelte";
   import { UpdateStore } from "$lib/stores/AppStore";
-  import Icon from "@iconify/svelte";
+  import IconGitHub from "~icons/mdi/github";
   import { _ } from "svelte-i18n";
 
   $: launcherUpdateInfo = $UpdateStore?.launcher;
@@ -47,7 +47,7 @@
     </p>
     <div class="flex flex-row mt-1 gap-3">
       <Button
-        btnClass="border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
+        class="border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
         on:click={async () => await updateHandler()}
         disabled={updating}
       >
@@ -57,12 +57,13 @@
         {$_("update_button_doUpdate")}
       </Button>
       <Button
-        btnClass="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
+        class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
         on:click={() => (showChanges = !showChanges)}
         >{$_("update_button_viewChangelog")}</Button
       >
       <Toggle
         checked={showDependencyChanges}
+        color="orange"
         on:change={(evt) => {
           showDependencyChanges = evt.target.checked;
         }}>{$_("update_button_hideDependencyChanges")}</Toggle
@@ -105,13 +106,9 @@
                   href={note.pullRequestUrl}
                   target="_blank"
                   rel="noreferrer"
-                  ><Icon
-                    class="inline"
-                    icon="mdi:github"
-                    width="24"
-                    height="24"
-                  /></a
                 >
+                  <IconGitHub />
+                </a>
               </TableBodyCell>
             </TableBodyRow>
           {/each}

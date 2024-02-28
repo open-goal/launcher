@@ -1,9 +1,10 @@
 <script lang="ts">
   import { getInternalName, SupportedGame } from "$lib/constants";
   import { openDir } from "$lib/rpc/window";
-  import Icon from "@iconify/svelte";
+  import IconCog from "~icons/mdi/cog";
   import { configDir, join } from "@tauri-apps/api/path";
   import { createEventDispatcher, onMount } from "svelte";
+  import { writeText } from "@tauri-apps/api/clipboard";
   import { confirm } from "@tauri-apps/api/dialog";
   import {
     Button,
@@ -14,8 +15,12 @@
   } from "flowbite-svelte";
   import { resetGameSettings, uninstallGame } from "$lib/rpc/game";
   import { platform } from "@tauri-apps/api/os";
-  import { launchGame, openREPL } from "$lib/rpc/binaries";
+  import { getLaunchGameString, launchGame, openREPL } from "$lib/rpc/binaries";
+  import { getPlaytime } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
+  import { navigate } from "svelte-navigator";
+  import { listen } from "@tauri-apps/api/event";
+  import { toastStore } from "$lib/stores/ToastStore";
 
   export let activeGame: SupportedGame;
 
@@ -23,6 +28,7 @@
   let settingsDir = undefined;
   let savesDir = undefined;
   let isLinux = false;
+  let playtime = "";
 
   onMount(async () => {
     isLinux = (await platform()) === "linux";
@@ -30,45 +36,105 @@
       await configDir(),
       "OpenGOAL",
       getInternalName(activeGame),
-      "settings"
+      "settings",
     );
     savesDir = await join(
       await configDir(),
       "OpenGOAL",
       getInternalName(activeGame),
-      "saves"
+      "saves",
     );
+  });
+
+  // format the time from the settings file which is stored as seconds
+  function formatPlaytime(playtimeRaw: number) {
+    // calculate the number of hours and minutes
+    const hours = Math.floor(playtimeRaw / 3600);
+    const minutes = Math.floor((playtimeRaw % 3600) / 60);
+
+    // initialize the formatted playtime string
+    let formattedPlaytime = "";
+
+    // add the hours to the formatted playtime string
+    if (hours > 0) {
+      if (hours > 1) {
+        formattedPlaytime += `${hours} ${$_(`gameControls_timePlayed_hours`)}`;
+      } else {
+        formattedPlaytime += `${hours} ${$_(`gameControls_timePlayed_hour`)}`;
+      }
+    }
+
+    // add the minutes to the formatted playtime string
+    if (minutes > 0) {
+      // add a comma if there are already hours in the formatted playtime string
+      if (formattedPlaytime.length > 0) {
+        formattedPlaytime += ", ";
+      }
+      if (minutes > 1) {
+        formattedPlaytime += `${minutes} ${$_(
+          `gameControls_timePlayed_minutes`,
+        )}`;
+      } else {
+        formattedPlaytime += `${minutes} ${$_(
+          `gameControls_timePlayed_minute`,
+        )}`;
+      }
+    }
+
+    // return the formatted playtime string
+    return formattedPlaytime;
+  }
+
+  // get the playtime from the backend, format it, and assign it to the playtime variable when the page first loads
+  getPlaytime(getInternalName(activeGame)).then((result) => {
+    playtime = formatPlaytime(result);
+  });
+
+  // listen for the custom playtiemUpdated event from the backend and then refresh the playtime on screen
+  listen<string>("playtimeUpdated", (event) => {
+    getPlaytime(getInternalName(activeGame)).then((result) => {
+      playtime = formatPlaytime(result);
+    });
   });
 </script>
 
 <div class="flex flex-col justify-end items-end mt-auto">
-  <!-- TOOO - time played -->
   <h1
     class="tracking-tighter text-2xl font-bold pb-3 text-orange-500 text-outline pointer-events-none"
   >
     {$_(`gameName_${getInternalName(activeGame)}`)}
   </h1>
+  {#if playtime}
+    <h1 class="pb-4 text-xl text-outline tracking-tighter font-extrabold">
+      {`${$_(`gameControls_timePlayed_label`)} ${playtime}`}
+    </h1>
+  {/if}
   <div class="flex flex-row gap-2">
     <Button
-      btnClass="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+      class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       on:click={async () => {
         launchGame(getInternalName(activeGame), false);
       }}>{$_("gameControls_button_play")}</Button
     >
-    <!-- TODO - texture replacements left out for now, get everything else working end-to-end first -->
-    <!-- <Button
-      btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-5 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-      ><Chevron placement="top">Features</Chevron></Button
-    >
-    <Dropdown placement="top-end">
-      <DropdownItem>Texture&nbsp;Replacements</DropdownItem>
-    </Dropdown> -->
     <Button
-      btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+      >{$_("gameControls_button_features")}</Button
+    >
+    <Dropdown placement="top-end" class="!bg-slate-900">
+      <DropdownItem
+        on:click={async () => {
+          navigate(`/${getInternalName(activeGame)}/features/texture_packs`);
+        }}
+      >
+        {$_("gameControls_button_features_textures")}
+      </DropdownItem>
+    </Dropdown>
+    <Button
+      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
     >
       {$_("gameControls_button_advanced")}
     </Button>
-    <Dropdown placement="top-end" frameClass="!bg-slate-900">
+    <Dropdown placement="top-end" class="!bg-slate-900">
       <DropdownItem
         on:click={async () => {
           launchGame(getInternalName(activeGame), true);
@@ -127,11 +193,11 @@
       </Button>
     {/if}
     <Button
-      btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
     >
-      <Icon icon="material-symbols:settings" width={24} height={24} />
+      <IconCog />
     </Button>
-    <Dropdown placement="top-end" frameClass="!bg-slate-900">
+    <Dropdown placement="top-end" class="!bg-slate-900">
       <!-- TODO - screenshot folder? how do we even configure where those go? -->
       <DropdownItem
         on:click={async () => {
@@ -142,6 +208,21 @@
         on:click={async () => {
           await openDir(savesDir);
         }}>{$_("gameControls_button_openSavesFolder")}</DropdownItem
+      >
+      <DropdownDivider />
+      <DropdownItem
+        on:click={async () => {
+          const launchString = await getLaunchGameString(
+            getInternalName(activeGame),
+          );
+          await writeText(launchString);
+          toastStore.makeToast("Copied to clipboard!", "info");
+        }}
+        >{$_("gameControls_button_copyExecutableCommand")}<Helper
+          helperClass="!text-neutral-400 !text-xs"
+          >{$_("gameControls_button_copyExecutableCommand_helpText_1")}<br
+          />{$_("gameControls_button_copyExecutableCommand_helpText_2")}</Helper
+        ></DropdownItem
       >
       <DropdownDivider />
       <!-- TODO - verify installation -->
@@ -157,7 +238,7 @@
           // TODO - probably move these confirms into the actual launcher itself
           const confirmed = await confirm(
             $_("gameControls_button_uninstall_confirmation"),
-            { title: "OpenGOAL Launcher", type: "warning" }
+            { title: "OpenGOAL Launcher", type: "warning" },
           );
           if (confirmed) {
             await uninstallGame(getInternalName(activeGame));

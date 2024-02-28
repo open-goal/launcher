@@ -4,7 +4,7 @@
     setInstallationDirectory,
   } from "$lib/rpc/config";
   import { VersionStore } from "$lib/stores/VersionStore";
-  import { folderPrompt } from "$lib/utils/file";
+  import { folderPrompt } from "$lib/utils/file-dialogs";
   import { Label, Input } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
@@ -26,7 +26,7 @@
       placeholder={currentInstallationDirectory}
       on:click={async () => {
         const newInstallDir = await folderPrompt(
-          $_("settings_folders_installationDir_prompt")
+          $_("settings_folders_installationDir_prompt"),
         );
         if (
           newInstallDir !== undefined &&

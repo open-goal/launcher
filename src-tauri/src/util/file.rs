@@ -1,3 +1,6 @@
+// not all util functions are used yet, allow dead code in this module
+#![allow(dead_code)]
+
 use std::{io::BufRead, path::PathBuf};
 
 pub fn delete_dir(path: &PathBuf) -> Result<(), std::io::Error> {
