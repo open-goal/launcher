@@ -6,7 +6,7 @@
   } from "$lib/stores/VersionStore";
   import { Label, Input, Checkbox, Modal } from 'flowbite-svelte'
   import { addModList, removeModList, getModLists, type ModList } from "$lib/utils/mods";
-  import Icon from "@iconify/svelte";
+  // import Icon from "@iconify/svelte";
   import {
     Button,
     Radio,
@@ -21,7 +21,7 @@
   } from "flowbite-svelte";
   import { createEventDispatcher, onMount } from "svelte";
   import { _ } from "svelte-i18n";
-  
+
   export let game_name: String;
   export let releaseType: VersionFolders;
   let modLists: ModList[] = [];
@@ -35,7 +35,7 @@
     "inline-block text-sm font-normal text-center disabled:cursor-not-allowed p-4 border-b-2 border-transparent text-gray-400 hover:text-orange-300 hover:border-orange-500 dark:hover:text-orange-300 dark:text-orange-400";
 
   const dispatch = createEventDispatcher();
-  
+
   function changesPending(versionStore: VersionStoreIFace): boolean {
     return (
       releaseType != null &&
@@ -61,7 +61,7 @@
     } catch (e) {
       console.log("ERROR: ", e);
     }
-    
+
     return false;
   }
 
@@ -77,7 +77,7 @@
       ...await getModLists()
     ];
   }
-  
+
   onMount(async () => {
     refreshModLists();
   });
@@ -103,12 +103,13 @@
         btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
         on:click={() => history.back()}
       >
-        <Icon
+      icon!
+        <!-- <Icon
           icon="ic:baseline-arrow-back"
           color="#ffffff"
           width="20"
           height="20"
-        />
+        /> -->
       </Button>
       <div class="flex gap-3">
         <Button
@@ -122,12 +123,13 @@
     <Label>Installed Mod Lists
       {#if modLists.length == 0}
         <div class="flex flex-row gap-2 p-2 justify-center">
-            <Icon
+          icon!
+            <!-- <Icon
                 icon="material-symbols:warning"
                 width="25"
                 height="25"
                 color="yellow"
-              />
+              /> -->
             You haven't added any mod lists yet!
           </div>
       {:else}

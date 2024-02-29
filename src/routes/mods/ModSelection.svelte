@@ -1,30 +1,17 @@
 <script lang="ts">
-  import {
-    getInstallationDirectory,
-  } from "$lib/rpc/config";
-  import { getInternalName, fromRoute, SupportedGame } from "$lib/constants";
   import { useParams } from "svelte-navigator";
   import {
     downloadUnofficialVersion,
-    getActiveVersion,
-    getActiveVersionFolder,
     listUnofficialDownloadedVersions,
     openUnofficialVersionFolder,
     removeVersion,
   } from "$lib/rpc/versions";
   import { type ReleaseInfo } from "$lib/utils/github";
-  import Icon from "@iconify/svelte";
-  import { 
-    Button, 
+  // import Icon from "@iconify/svelte";
+  import {
+    Button,
     Label,
-    Spinner,
-    Select,
-    Table,
-    TableBody,
-    TableBodyCell,
-    TableBodyRow,
-    TableHead,
-    TableHeadCell, } from "flowbite-svelte";
+    Select, } from "flowbite-svelte";
   import ModVersionList from "./ModVersionList.svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
@@ -37,7 +24,7 @@
   let modDict = {};
   let modList = [];
   let selectedMod = null;
-  
+
   let versionsLoaded = false;
   let releases: ReleaseInfo[] = [];
 
@@ -64,7 +51,7 @@
   onMount(async () => {
     console.log("loading with selected id:", mod_composite_id);
     await refreshModListsAndDict();
-    
+
     if (mod_composite_id != null && mod_composite_id != undefined && mod_composite_id != "" && modDict.hasOwnProperty(mod_composite_id)) {
       selectedMod = modDict[mod_composite_id];
     }
@@ -219,24 +206,26 @@
         btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
         on:click={() => history.back()}
       >
-        <Icon
+      TODO
+        <!-- <Icon
           icon="ic:baseline-arrow-back"
           color="#ffffff"
           width="20"
           height="20"
-        />
+        /> -->
       </Button>
       <div class="flex gap-3">
       <Button
         btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
         on:click={() => location.reload()}
       >
-        <Icon
+      TODO
+        <!-- <Icon
           icon="ic:baseline-refresh"
           color="#ffffff"
           width="20"
           height="20"
-        />
+        /> -->
       </Button>
       <Button
         btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
@@ -249,12 +238,12 @@
     <Label>Select Mod
       {#if modList.length == 0}
         <div class="flex flex-row gap-2 p-2 justify-center">
-          <Icon
+          <!-- <Icon
               icon="material-symbols:warning"
               width="25"
               height="25"
               color="yellow"
-            />
+            /> --> TODO
           No mods found - you probably haven't added any mod lists yet!
         </div>
       {:else}

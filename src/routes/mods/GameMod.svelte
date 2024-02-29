@@ -1,27 +1,16 @@
 <script lang="ts">
-  import { fromRoute, getInternalName, SupportedGame } from "$lib/constants";
-  import { useParams } from "svelte-navigator";
+  import { fromRoute, SupportedGame } from "$lib/constants";
   import GameModControls from "./GameModControls.svelte";
   import GameSetup from "../../components/games/setup/GameSetup.svelte";
   import { onMount } from "svelte";
   import { Spinner, Button } from "flowbite-svelte";
-  import Icon from "@iconify/svelte";
+  // import Icon from "@iconify/svelte";
 
   import {
-    getInstalledVersion,
-    getInstalledVersionFolder,
     isGameInstalled,
   } from "$lib/rpc/config";
   import GameJob from "../../components/games/job/GameJob.svelte";
-  import GameUpdate from "../../components/games/setup/GameUpdate.svelte";
-  import {
-    ensureActiveVersionStillExists,
-    getActiveVersion,
-    getActiveVersionFolder,
-  } from "$lib/rpc/versions";
-  import GameToolsNotSet from "../../components/games/GameToolsNotSet.svelte";
-  import { VersionStore } from "$lib/stores/VersionStore";
-
+  
   export let game_name: string;
   export let mod_composite_id: string;
   export let mod_version: string;
@@ -85,12 +74,13 @@
         btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
         on:click={() => history.back()}
       >
-        <Icon
+        icon!
+        <!-- <Icon
           icon="ic:baseline-arrow-back"
           color="#ffffff"
           width="20"
           height="20"
-        />
+        /> -->
       </Button>
     </div>
     <GameModControls

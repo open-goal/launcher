@@ -1,7 +1,7 @@
 <script lang="ts">
   import { useParams } from "svelte-navigator";
   import { openDir } from "$lib/rpc/window";
-  import Icon from "@iconify/svelte";
+  // import Icon from "@iconify/svelte";
   import { configDir, join } from "@tauri-apps/api/path";
   import { createEventDispatcher, onMount } from "svelte";
   import { confirm } from "@tauri-apps/api/dialog";
@@ -173,7 +173,8 @@
     <Button
       btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
     >
-      <Icon icon="material-symbols:settings" width={24} height={24} />
+        icon!
+      <!-- <Icon icon="material-symbols:settings" width={24} height={24} /> -->
     </Button>
     <Dropdown placement="top-end" frameClass="!bg-slate-900">
       <!-- TODO - screenshot folder? how do we even configure where those go? -->

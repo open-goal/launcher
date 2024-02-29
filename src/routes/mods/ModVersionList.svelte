@@ -1,17 +1,13 @@
 <script lang="ts">
   import { type VersionFolders } from "$lib/rpc/versions";
   import {
-    VersionStore,
     type VersionStoreIFace,
   } from "$lib/stores/VersionStore";
   import type { ReleaseInfo } from "$lib/utils/github";
   import { getModDetails } from "$lib/utils/mods";
-  import Icon from "@iconify/svelte";
   import {
     Button,
-    Radio,
     Spinner,
-    TabItem,
     Table,
     TableBody,
     TableBodyCell,
@@ -92,12 +88,13 @@
         btnClass="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
         on:click={() => dispatch("refreshVersions")}
       >
-        <Icon
+      TODO
+        <!-- <Icon
           icon="material-symbols:refresh"
           width="20"
           height="20"
           alt={$_("settings_versions_icon_refresh_altText")}
-        />
+        /> -->
       </Button>
     </div>
     <div style="align-self:flex-end;">
@@ -105,12 +102,13 @@
         btnClass="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
         on:click={() => dispatch("openVersionFolder")}
       >
-        <Icon
+      TODO
+        <!-- <Icon
           icon="material-symbols:folder-open-rounded"
           width="20"
           height="20"
           alt={$_("settings_versions_icon_openFolder_altText")}
-        />
+        /> -->
       </Button>
     </div>
   </div>
