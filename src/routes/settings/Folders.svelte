@@ -9,7 +9,7 @@
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
 
-  let currentInstallationDirectory = "";
+  let currentInstallationDirectory: string | null = "";
 
   onMount(async () => {
     currentInstallationDirectory = await getInstallationDirectory();

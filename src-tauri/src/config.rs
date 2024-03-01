@@ -204,18 +204,14 @@ impl ModConfig {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct ModList {
-  pub identifier: String,
+pub struct ModSource {
   pub url: String,
-  pub mods: HashMap<String,ModConfig>,
 }
 
-impl ModList {
+impl ModSource {
   fn default() -> Self {
     Self {
-      identifier: "".to_string(),
       url: "".to_string(),
-      mods: HashMap::new(),
     }
   }
 }
@@ -236,8 +232,7 @@ pub struct LauncherConfig {
   pub active_version: Option<String>,
   pub active_version_folder: Option<String>,
   pub locale: Option<String>,
-  #[serde(default)]
-  pub mod_lists: HashMap<String, ModList>,
+  pub mod_sources: Option<Vec<ModSource>>,
 }
 
 fn default_version() -> Option<String> {
@@ -261,7 +256,7 @@ impl LauncherConfig {
       active_version: None,
       active_version_folder: Some("official".to_string()),
       locale: None,
-      mod_lists: HashMap::new(),
+      mod_sources: None,
     }
   }
 
@@ -658,44 +653,37 @@ impl LauncherConfig {
     Ok(game_config.seconds_played.unwrap_or(0))
   }
 
-  pub fn add_mod_list(&mut self, url: &String, identifier: &String, mods: Vec<ModConfig>) -> Result<(), ConfigError> {
-    if self.mod_lists.contains_key(identifier) {
-      // TODO: throw error
-    }
-
-    self.mod_lists.insert(identifier.to_string(), ModList {
-      identifier: identifier.to_string(),
-      url: url.to_string(),
-      mods: mods.into_iter().map(|m| (m.identifier.to_string(), m)).collect(),
-    });
+  pub fn add_new_mod_source(&mut self, url: &String) -> Result<(), ConfigError> {
+    // TODO - dedup by URL
+    self.mod_sources = match &mut self.mod_sources {
+      Some(sources) => {
+        sources.push(ModSource {
+          url: url.to_string(),
+        });
+        Some(sources.to_vec())
+      }
+      None => Some(vec![ModSource {
+        url: url.to_string(),
+      }]),
+    };
     self.save_config()?;
     Ok(())
   }
 
-  pub fn remove_mod_list(&mut self, identifier: &String) -> Result<(), ConfigError> {
-    if !self.mod_lists.contains_key(identifier) {
-      // TODO: throw error
+  pub fn remove_mod_source(&mut self, mod_source_index: usize) -> Result<(), ConfigError> {
+    if let Some(sources) = &mut self.mod_sources {
+      if (mod_source_index as usize) < sources.len() {
+        sources.remove(mod_source_index);
+      }
     }
-
-    self.mod_lists.remove(identifier);
     self.save_config()?;
     Ok(())
   }
 
-  pub fn get_mod_lists(&self) -> Vec<ModList> {
-    let mut result = Vec::<ModList>::new();
-
-    for (k, v) in &self.mod_lists {
-      // let mut modsCopy: HashMap<String,ModConfig> = HashMap::new();
-      // modsCopy.extend(v.mods.iter().cloned());
-
-      result.push(ModList {
-        identifier: v.identifier.to_string(),
-        url: v.url.to_string(),
-        mods: v.mods.clone(),
-      });
+  pub fn get_mod_sources(&self) -> Vec<ModSource> {
+    match &self.mod_sources {
+      Some(sources) => sources.to_vec(),
+      None => Vec::new(),
     }
-
-    return result;
   }
 }

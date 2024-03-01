@@ -53,14 +53,9 @@
       await configDir(),
       "OpenGOAL",
       game_name,
-      "settings"
+      "settings",
     );
-    savesDir = await join(
-      await configDir(),
-      "OpenGOAL",
-      game_name,
-      "saves"
-    );
+    savesDir = await join(await configDir(), "OpenGOAL", game_name, "saves");
   });
 </script>
 
@@ -73,16 +68,12 @@
       {modDetails["name"]}
     {/if}
   </h1>
-  <div
-    class="tracking-tighter text-sm pb-3 text-outline pointer-events-none"
-  >
+  <div class="tracking-tighter text-sm pb-3 text-outline pointer-events-none">
     {#if modDetails.hasOwnProperty("description")}
       {modDetails["description"]}
     {/if}
   </div>
-  <div
-    class="tracking-tighter text-xs pb-3 text-outline pointer-events-none"
-  >
+  <div class="tracking-tighter text-xs pb-3 text-outline pointer-events-none">
     {#if mod_version != null && mod_version != undefined && mod_version != ""}
       Version: {mod_version}
     {/if}
@@ -173,7 +164,7 @@
     <Button
       btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
     >
-        icon!
+      icon!
       <!-- <Icon icon="material-symbols:settings" width={24} height={24} /> -->
     </Button>
     <Dropdown placement="top-end" frameClass="!bg-slate-900">
@@ -202,7 +193,7 @@
           // TODO - probably move these confirms into the actual launcher itself
           const confirmed = await confirm(
             $_("gameControls_button_uninstall_confirmation"),
-            { title: "OpenGOAL Launcher", type: "warning" }
+            { title: "OpenGOAL Launcher", type: "warning" },
           );
           if (confirmed) {
             await uninstallGame(game_name);

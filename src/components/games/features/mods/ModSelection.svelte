@@ -8,10 +8,7 @@
   } from "$lib/rpc/versions";
   import { type ReleaseInfo } from "$lib/utils/github";
   // import Icon from "@iconify/svelte";
-  import {
-    Button,
-    Label,
-    Select, } from "flowbite-svelte";
+  import { Button, Label, Select } from "flowbite-svelte";
   import ModVersionList from "./ModVersionList.svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
@@ -35,14 +32,14 @@
     modList.length = 0;
     for (let composite_id in modDict) {
       let list_id = composite_id.split("$$", 1)[0];
-      let displayName = modDict[composite_id].name + " (" + list_id+  ")";
+      let displayName = modDict[composite_id].name + " (" + list_id + ")";
 
       modList = [
         ...modList,
         {
           value: composite_id,
-          name: displayName
-        }
+          name: displayName,
+        },
       ];
     }
     console.log("reloaded with modlist: ", modList);
@@ -52,7 +49,12 @@
     console.log("loading with selected id:", mod_composite_id);
     await refreshModListsAndDict();
 
-    if (mod_composite_id != null && mod_composite_id != undefined && mod_composite_id != "" && modDict.hasOwnProperty(mod_composite_id)) {
+    if (
+      mod_composite_id != null &&
+      mod_composite_id != undefined &&
+      mod_composite_id != "" &&
+      modDict.hasOwnProperty(mod_composite_id)
+    ) {
       selectedMod = modDict[mod_composite_id];
     }
     console.log("loading with selected mod:", selectedMod);
@@ -78,7 +80,9 @@
 
     if (selectedMod != null && selectedMod != undefined) {
       // Check the backend to see if the folder has any versions
-      const installedVersions = await listUnofficialDownloadedVersions(`${mod_composite_id}`);
+      const installedVersions = await listUnofficialDownloadedVersions(
+        `${mod_composite_id}`,
+      );
       for (const version of installedVersions) {
         releases = [
           ...releases,
@@ -107,7 +111,7 @@
           // found it! update some metadata
           if (existingRelease.version === v.version) {
             // existingRelease.date = v.date;
-            existingRelease.githubLink = v.description;  // hacking this in here for now
+            existingRelease.githubLink = v.description; // hacking this in here for now
             existingRelease.downloadUrl = v.windowsurl; // TODO linux
             foundExistingRelease = true;
             break;
@@ -122,7 +126,7 @@
               releaseType: "unofficial",
               version: v.version,
               date: undefined,
-              githubLink: v.description,  // hacking this in here for now
+              githubLink: v.description, // hacking this in here for now
               downloadUrl: v.windowsurl, // TODO linux
               isDownloaded: false,
               pendingAction: false,
@@ -159,7 +163,7 @@
     const success = await downloadUnofficialVersion(
       event.detail.version,
       mod_composite_id,
-      event.detail.downloadUrl
+      event.detail.downloadUrl,
     );
     // Then mark it as downloaded
     for (const release of releases) {
@@ -179,7 +183,10 @@
       }
     }
     releases = releases;
-    const ok = await removeVersion(event.detail.version, `unofficial/${mod_composite_id}`);
+    const ok = await removeVersion(
+      event.detail.version,
+      `unofficial/${mod_composite_id}`,
+    );
     if (ok) {
       // Then mark it as not downloaded
       for (const release of releases) {
@@ -196,7 +203,6 @@
     await onRemoveVersion(event);
     await onDownloadVersion(event);
   }
-
 </script>
 
 <div class="flex flex-col h-full p-5">
@@ -206,7 +212,7 @@
         btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
         on:click={() => history.back()}
       >
-      TODO
+        TODO
         <!-- <Icon
           icon="ic:baseline-arrow-back"
           color="#ffffff"
@@ -215,27 +221,28 @@
         /> -->
       </Button>
       <div class="flex gap-3">
-      <Button
-        btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-        on:click={() => location.reload()}
-      >
-      TODO
-        <!-- <Icon
+        <Button
+          btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+          on:click={() => location.reload()}
+        >
+          TODO
+          <!-- <Icon
           icon="ic:baseline-refresh"
           color="#ffffff"
           width="20"
           height="20"
         /> -->
-      </Button>
-      <Button
-        btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-        href="/{game_name}/mod_lists"
-      >
-        Manage Mod Lists
-      </Button>
+        </Button>
+        <Button
+          btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+          href="/{game_name}/mod_lists"
+        >
+          Manage Mod Lists
+        </Button>
       </div>
     </div>
-    <Label>Select Mod
+    <Label
+      >Select Mod
       {#if modList.length == 0}
         <div class="flex flex-row gap-2 p-2 justify-center">
           <!-- <Icon
@@ -243,8 +250,8 @@
               width="25"
               height="25"
               color="yellow"
-            /> --> TODO
-          No mods found - you probably haven't added any mod lists yet!
+            /> -->
+          TODO No mods found - you probably haven't added any mod lists yet!
         </div>
       {:else}
         <Select
@@ -257,20 +264,21 @@
         />
       {/if}
     </Label>
-        {#if mod_composite_id != null && mod_composite_id != undefined && mod_composite_id != ""}
-          <ModVersionList
-            initiallyOpen={true}
-            game_name={game_name}
-            mod_id={mod_composite_id}
-            releaseList={releases}
-            loaded={versionsLoaded}
-            releaseType="unofficial"
-            on:openVersionFolder={() => openUnofficialVersionFolder(`${mod_composite_id}`)}
-            on:refreshVersions={refreshVersionList}
-            on:removeVersion={onRemoveVersion}
-            on:downloadVersion={onDownloadVersion}
-            on:redownloadVersion={onRedownloadVersion}
-          />
-        {/if}
+    {#if mod_composite_id != null && mod_composite_id != undefined && mod_composite_id != ""}
+      <ModVersionList
+        initiallyOpen={true}
+        {game_name}
+        mod_id={mod_composite_id}
+        releaseList={releases}
+        loaded={versionsLoaded}
+        releaseType="unofficial"
+        on:openVersionFolder={() =>
+          openUnofficialVersionFolder(`${mod_composite_id}`)}
+        on:refreshVersions={refreshVersionList}
+        on:removeVersion={onRemoveVersion}
+        on:downloadVersion={onDownloadVersion}
+        on:redownloadVersion={onRedownloadVersion}
+      />
+    {/if}
   </div>
 </div>

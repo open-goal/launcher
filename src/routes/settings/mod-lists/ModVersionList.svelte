@@ -1,8 +1,6 @@
 <script lang="ts">
   import { type VersionFolders } from "$lib/rpc/versions";
-  import {
-    type VersionStoreIFace,
-  } from "$lib/stores/VersionStore";
+  import { type VersionStoreIFace } from "$lib/stores/VersionStore";
   import type { ReleaseInfo } from "$lib/utils/github";
   import { getModDetails } from "$lib/utils/mods";
   import {
@@ -17,7 +15,7 @@
   } from "flowbite-svelte";
   import { createEventDispatcher, onMount } from "svelte";
   import { _ } from "svelte-i18n";
-  
+
   export let game_name: string;
   export let mod_id: string;
   export let releaseList: ReleaseInfo[];
@@ -44,14 +42,13 @@
   }
 
   function fixedEncodeURIComponent(str) {
-    return encodeURIComponent(str).replace(/\./g, '-DOT-')
+    return encodeURIComponent(str).replace(/\./g, "-DOT-");
   }
-  
+
   onMount(async () => {
     console.log(game_name, mod_id);
 
-    if (game_name !== null && 
-        mod_id !== null) {
+    if (game_name !== null && mod_id !== null) {
       modDetails = await getModDetails(game_name, mod_id);
     }
     console.log(modDetails);
@@ -70,13 +67,13 @@
           {modDetails["description"]}
         {/if}
       </p>
-      <br>
+      <br />
       <p class="text-sm text-gray-400 dark:text-gray-300">
         {#if modDetails.hasOwnProperty("contributors")}
           Contributors: {modDetails["contributors"].join(", ")}
         {/if}
       </p>
-      <br>
+      <br />
       <p class="text-sm text-gray-400 dark:text-gray-300">
         {#if modDetails.hasOwnProperty("tags")}
           Tags: {modDetails["tags"].join(", ")}
@@ -88,7 +85,7 @@
         btnClass="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
         on:click={() => dispatch("refreshVersions")}
       >
-      TODO
+        TODO
         <!-- <Icon
           icon="material-symbols:refresh"
           width="20"
@@ -102,7 +99,7 @@
         btnClass="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
         on:click={() => dispatch("openVersionFolder")}
       >
-      TODO
+        TODO
         <!-- <Icon
           icon="material-symbols:folder-open-rounded"
           width="20"
@@ -114,9 +111,7 @@
   </div>
   <Table>
     <TableHead>
-      <TableHeadCell>
-        Manage
-      </TableHeadCell>
+      <TableHeadCell>Manage</TableHeadCell>
       <TableHeadCell
         >{$_("settings_versions_table_header_version")}</TableHeadCell
       >
@@ -205,24 +200,25 @@
             {/if}
           </TableBodyCell> -->
           <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium">
-            {release.githubLink}  <!--description of changes actually-->
+            {release.githubLink}
+            <!--description of changes actually-->
           </TableBodyCell>
           <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium">
             {#if release.isDownloaded}
-            <Button
-              btnClass="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
-              disabled={release.pendingAction}
-              on:click={() => {
-                location.href = `/${game_name}/mods/${mod_id}/${fixedEncodeURIComponent(release.version)}`;
-              }}
-            >
-              <Icon
-                icon="ic:outline-arrow-circle-right"
-                width="24"
-                height="24"
-                color="green"
-              />
-            </Button>
+              <Button
+                btnClass="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
+                disabled={release.pendingAction}
+                on:click={() => {
+                  location.href = `/${game_name}/mods/${mod_id}/${fixedEncodeURIComponent(release.version)}`;
+                }}
+              >
+                <Icon
+                  icon="ic:outline-arrow-circle-right"
+                  width="24"
+                  height="24"
+                  color="green"
+                />
+              </Button>
             {/if}
           </TableBodyCell>
         </TableBodyRow>

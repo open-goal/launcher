@@ -25,8 +25,8 @@
   export let activeGame: SupportedGame;
 
   const dispatch = createEventDispatcher();
-  let settingsDir = undefined;
-  let savesDir = undefined;
+  let settingsDir: string | undefined = undefined;
+  let savesDir: string | undefined = undefined;
   let isLinux = false;
   let playtime = "";
 
@@ -128,6 +128,13 @@
       >
         {$_("gameControls_button_features_textures")}
       </DropdownItem>
+      <DropdownItem
+        on:click={async () => {
+          navigate(`/${getInternalName(activeGame)}/features/mods`);
+        }}
+      >
+        {$_("gameControls_button_features_mods")}
+      </DropdownItem>
     </Dropdown>
     <Button
       class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
@@ -173,25 +180,6 @@
         </Helper></DropdownItem
       >
     </Dropdown>
-    {#if location.href.includes("/mods/")}
-      <Button
-        btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-        on:click={() => {
-          location.href = "/" + getInternalName(activeGame);
-        }}
-      >
-        Back to Original
-      </Button>
-    {:else}
-      <Button
-        btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-        on:click={() => {
-          location.href = "/" + getInternalName(activeGame) + "/mods";
-        }}
-      >
-        Mods
-      </Button>
-    {/if}
     <Button
       class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
     >
@@ -201,12 +189,16 @@
       <!-- TODO - screenshot folder? how do we even configure where those go? -->
       <DropdownItem
         on:click={async () => {
-          await openDir(settingsDir);
+          if (settingsDir) {
+            await openDir(settingsDir);
+          }
         }}>{$_("gameControls_button_openSettingsFolder")}</DropdownItem
       >
       <DropdownItem
         on:click={async () => {
-          await openDir(savesDir);
+          if (savesDir) {
+            await openDir(savesDir);
+          }
         }}>{$_("gameControls_button_openSavesFolder")}</DropdownItem
       >
       <DropdownDivider />

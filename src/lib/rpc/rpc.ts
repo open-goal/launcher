@@ -25,7 +25,7 @@ export async function invoke_rpc<T>(
       return onSuccess(result);
     }
     return result;
-  } catch (e) {
+  } catch (e: any) {
     if (typeof e === "string") {
       errorLog(`Error calling '${cmd}': ${e}`);
     } else {

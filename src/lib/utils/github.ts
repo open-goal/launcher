@@ -114,7 +114,10 @@ export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
   return listReleases("official", "open-goal/jak-project");
 }
 
-export async function listReleases(releaseType: string, repo: string): Promise<ReleaseInfo[]> {
+export async function listReleases(
+  releaseType: string,
+  repo: string,
+): Promise<ReleaseInfo[]> {
   let releases = [];
   // TODO - handle rate limiting
   // TODO - long term - handle pagination (more than 100 releases)

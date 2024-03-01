@@ -13,10 +13,12 @@ export async function listDownloadedVersions(
 }
 
 export async function listUnofficialDownloadedVersions(
-  versionPath: String
+  versionPath: String,
 ): Promise<string[]> {
   try {
-    return await invoke("list_downloaded_versions", { versionFolder: `unofficial/${versionPath}` });
+    return await invoke("list_downloaded_versions", {
+      versionFolder: `unofficial/${versionPath}`,
+    });
   } catch (e) {
     exceptionLog("Unable to list out downloaded versions", e);
     return [];
@@ -39,7 +41,7 @@ export async function downloadOfficialVersion(
 export async function downloadUnofficialVersion(
   version: String,
   versionFolder: String,
-  url: String
+  url: String,
 ): Promise<boolean> {
   try {
     await invoke("download_version", {
@@ -80,7 +82,9 @@ export async function openVersionFolder(versionFolder: VersionFolders) {
 export async function openUnofficialVersionFolder(folder: String) {
   console.log(`opening unofficial folder: 'unofficial\\${folder}'`);
   try {
-    return await invoke("go_to_version_folder", { versionFolder: `unofficial\\${folder}` });
+    return await invoke("go_to_version_folder", {
+      versionFolder: `unofficial\\${folder}`,
+    });
   } catch (e) {
     exceptionLog("Unable to open version folder", e);
     toastStore.makeToast("Unable to open version folder", "error");

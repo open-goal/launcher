@@ -15,7 +15,8 @@
     "update-release-meta": "node ./scripts/update-release-meta.mjs",
     "release": "npm run tauri build -- --config ./.tauri/release-config.json",
     "release-id": "node ./scripts/get-release-id.mjs",
-    "verify-release-assets": "node ./scripts/verify-release-assets.mjs"
+    "verify-release-assets": "node ./scripts/verify-release-assets.mjs",
+    "mock-mod-source": "npx http-server -p 8081 -S -C ./fixtures/cert.pem -K ./fixtures/key.pem ./fixtures"
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^5.0.0",
@@ -56,7 +57,8 @@
     "@types/semver": "^7.5.8",
     "country-flag-emoji-polyfill": "^0.1.8",
     "semver": "^7.6.0",
-    "svelte-navigator": "^3.2.2"
+    "svelte-navigator": "^3.2.2",
+    "http-server": "^14.1.1"
   },
   "packageManager": "yarn@1.22.19"
 }

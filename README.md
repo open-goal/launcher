@@ -63,3 +63,9 @@ yarn tauri dev
 ```
 
 <!-- https://www.pwabuilder.com/imageGenerator for generating icons (removed tauricon )-->
+
+TODO:
+
+- clicking on an incompatible version is no longer ignored / is set?
+- tabs dont effect the router, fix
+- try getting rid of the click border around the icon again

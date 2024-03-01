@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { fromRoute, SupportedGame } from "$lib/constants";
   import { useParams } from "svelte-navigator";
   import { onMount } from "svelte";
@@ -11,10 +11,10 @@
   let selectedFeature = "texture_packs";
   let componentLoaded = false;
 
-  let gameJobToRun = undefined;
+  let gameJobToRun: undefined = undefined;
 
-  let texturePacksToEnable = [];
-  let texturePacksToDelete = [];
+  let texturePacksToEnable: any[] = [];
+  let texturePacksToDelete: any[] = [];
 
   onMount(async () => {
     // Figure out what game we are displaying
@@ -40,7 +40,9 @@
     componentLoaded = true;
   });
 
-  async function runGameJob(event) {
+  async function runGameJob(event: {
+    detail: { type: undefined; enabledPacks: any[]; packsToDelete: any[] };
+  }) {
     gameJobToRun = event.detail.type;
     texturePacksToEnable = event.detail.enabledPacks;
     texturePacksToDelete = event.detail.packsToDelete;

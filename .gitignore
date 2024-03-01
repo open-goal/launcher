@@ -42,3 +42,5 @@ vite.config.ts.timestamp*
 .yarn/
 .yarnrc.yml
 coverage/
+
+*.pem

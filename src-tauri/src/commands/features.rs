@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
   config::LauncherConfig,
+  config::ModSource,
   util::{
     file::{create_dir, delete_dir, overwrite_dir},
     zip::{check_if_zip_contains_top_level_dir, extract_zip_file},
@@ -317,4 +318,43 @@ pub async fn delete_texture_packs(
     success: true,
     msg: None,
   })
+}
+
+#[tauri::command]
+pub async fn add_mod_source(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  url: String,
+) -> Result<(), CommandError> {
+  log::info!("Adding mod source {}", url);
+  let mut config_lock = config.lock().await;
+  config_lock.add_new_mod_source(&url).map_err(|err| {
+    log::error!("Unable to persist new mod source: {:?}", err);
+    CommandError::Configuration("Unable to persist new mod source".to_owned())
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn remove_mod_source(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  mod_source_index: i32,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+
+  log::info!("Removing mod source at index {}", mod_source_index);
+  config_lock
+    .remove_mod_source(mod_source_index as usize)
+    .map_err(|err| {
+      log::error!("Unable to remove mod source: {:?}", err);
+      CommandError::Configuration("Unable to remove mod source".to_owned())
+    })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn get_mod_sources(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<Vec<ModSource>, CommandError> {
+  let config_lock = config.lock().await;
+  Ok(config_lock.get_mod_sources())
 }

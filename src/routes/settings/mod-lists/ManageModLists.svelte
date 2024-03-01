@@ -4,8 +4,13 @@
     VersionStore,
     type VersionStoreIFace,
   } from "$lib/stores/VersionStore";
-  import { Label, Input, Checkbox, Modal } from 'flowbite-svelte'
-  import { addModList, removeModList, getModLists, type ModList } from "$lib/utils/mods";
+  import { Label, Input, Checkbox, Modal } from "flowbite-svelte";
+  import {
+    addModList,
+    removeModList,
+    getModLists,
+    type ModList,
+  } from "$lib/utils/mods";
   // import Icon from "@iconify/svelte";
   import {
     Button,
@@ -72,28 +77,49 @@
 
   async function refreshModLists() {
     modLists.length = 0;
-    modLists = [
-      ...modLists,
-      ...await getModLists()
-    ];
+    modLists = [...modLists, ...(await getModLists())];
   }
 
   onMount(async () => {
     refreshModLists();
   });
 </script>
+
 <Modal bind:open={addModListModal} size="xs">
-  <form class="flex flex-col space-y-6" action="about:blank" on:submit={(event) => {event.preventDefault(); handleAddModListSave(); }}>
-    <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Add Mod List</h3>
+  <form
+    class="flex flex-col space-y-6"
+    action="about:blank"
+    on:submit={(event) => {
+      event.preventDefault();
+      handleAddModListSave();
+    }}
+  >
+    <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">
+      Add Mod List
+    </h3>
     <Label class="space-y-2">
       <span>URL:</span>
-      <Input type="url" name="url" bind:value={newModListUrl} placeholder="all-things-andy-gavin.com/og_mod_list.json" required />
+      <Input
+        type="url"
+        name="url"
+        bind:value={newModListUrl}
+        placeholder="all-things-andy-gavin.com/og_mod_list.json"
+        required
+      />
     </Label>
     <Label class="space-y-2">
       <span>Give this list a unique ID:</span>
-      <Input name="id" bind:value={newModListId} placeholder="andys_mod_list" required />
+      <Input
+        name="id"
+        bind:value={newModListId}
+        placeholder="andys_mod_list"
+        required
+      />
     </Label>
-    <Button btnClass="!p-2 mr-2 rounded-md dark:bg-green-500 hover:dark:bg-green-600 text-slate-900" type="submit">Save</Button>
+    <Button
+      btnClass="!p-2 mr-2 rounded-md dark:bg-green-500 hover:dark:bg-green-600 text-slate-900"
+      type="submit">Save</Button
+    >
   </form>
 </Modal>
 <div class="flex flex-col p-5">
@@ -103,7 +129,7 @@
         btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
         on:click={() => history.back()}
       >
-      icon!
+        icon!
         <!-- <Icon
           icon="ic:baseline-arrow-back"
           color="#ffffff"
@@ -114,24 +140,25 @@
       <div class="flex gap-3">
         <Button
           btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-          on:click={() => addModListModal = true}
+          on:click={() => (addModListModal = true)}
         >
           Add Mod List
         </Button>
       </div>
     </div>
-    <Label>Installed Mod Lists
+    <Label
+      >Installed Mod Lists
       {#if modLists.length == 0}
         <div class="flex flex-row gap-2 p-2 justify-center">
           icon!
-            <!-- <Icon
+          <!-- <Icon
                 icon="material-symbols:warning"
                 width="25"
                 height="25"
                 color="yellow"
               /> -->
-            You haven't added any mod lists yet!
-          </div>
+          You haven't added any mod lists yet!
+        </div>
       {:else}
         <div class="flex flex-row gap-2 p-2 justify-center">
           <Table style="table-layout: fixed;">
@@ -143,17 +170,17 @@
             <TableBody tableBodyClass="divide-y">
               {#each modLists as modList (modList.identifier)}
                 <TableBodyRow>
-                  <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium"
+                  <TableBodyCell
+                    tdClass="px-6 py-2 whitespace-nowrap font-medium"
                     >{modList.identifier}</TableBodyCell
                   >
-                  <TableBodyCell tdClass="px-6 py-2 whitespace-nowrap font-medium" style="width: 55%; overflow: hidden; text-overflow: ellipsis">
-                      <a
-                        href={modList.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        >
-                        {modList.url}
-                        </a>
+                  <TableBodyCell
+                    tdClass="px-6 py-2 whitespace-nowrap font-medium"
+                    style="width: 55%; overflow: hidden; text-overflow: ellipsis"
+                  >
+                    <a href={modList.url} target="_blank" rel="noreferrer">
+                      {modList.url}
+                    </a>
                   </TableBodyCell>
                   <TableBodyCell
                     tdClass="px-6 py-2 whitespace-nowrap font-medium text-center"
@@ -161,7 +188,11 @@
                   >
                     <Button
                       btnClass="dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
-                      on:click={async (event) => { if (event["pointerId"] >= 0) { handleRemoveModList(modList.identifier) } }}
+                      on:click={async (event) => {
+                        if (event["pointerId"] >= 0) {
+                          handleRemoveModList(modList.identifier);
+                        }
+                      }}
                     >
                       <Icon
                         icon="ic:baseline-delete-forever"

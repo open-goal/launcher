@@ -3,9 +3,6 @@
   import { onMount } from "svelte";
   import { Router, Route } from "svelte-navigator";
   import Game from "./routes/Game.svelte";
-  import ModSelection from "./routes/mods/ModSelection.svelte";
-  import ManageModLists from "./routes/mods/ManageModLists.svelte";
-  import GameMod from "./routes/mods/GameMod.svelte";
   import Settings from "./routes/Settings.svelte";
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
@@ -75,28 +72,9 @@
         <Sidebar />
         <div id="content" class="overflow-y-auto grow shrink">
           <Route path="/" component={Game} primary={false} let:params />
-          <Route path="/:game_name"
+          <Route
+            path="/:game_name"
             component={Game}
-            primary={false}
-            let:params
-          />
-          <Route path="/:game_name/mods"
-            component={ModSelection}
-            primary={false}
-            let:params
-            />
-          <Route path="/:game_name/mods/:mod_composite_id"
-            component={ModSelection}
-            primary={false}
-            let:params
-            />
-          <Route path="/:game_name/mods/:mod_composite_id/:mod_version"
-            component={GameMod}
-            primary={false}
-            let:params
-            />
-          <Route path="/:game_name/mod_lists"
-            component={ManageModLists}
             primary={false}
             let:params
           />

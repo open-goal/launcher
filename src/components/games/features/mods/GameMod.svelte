@@ -1,16 +1,14 @@
 <script lang="ts">
   import { fromRoute, SupportedGame } from "$lib/constants";
-  import GameModControls from "./GameModControls.svelte";
-  import GameSetup from "../../components/games/setup/GameSetup.svelte";
+  import GameModControls from "../../../../routes/mods/GameModControls.svelte";
+  import GameSetup from "../../setup/GameSetup.svelte";
   import { onMount } from "svelte";
   import { Spinner, Button } from "flowbite-svelte";
   // import Icon from "@iconify/svelte";
 
-  import {
-    isGameInstalled,
-  } from "$lib/rpc/config";
-  import GameJob from "../../components/games/job/GameJob.svelte";
-  
+  import { isGameInstalled } from "$lib/rpc/config";
+  import GameJob from "../../job/GameJob.svelte";
+
   export let game_name: string;
   export let mod_composite_id: string;
   export let mod_version: string;
@@ -27,7 +25,7 @@
   let versionMismatchDetected = false;
 
   function fixedDecodeURIComponent(str) {
-    return decodeURIComponent(str.replace(/-DOT-/g, '.'))
+    return decodeURIComponent(str.replace(/-DOT-/g, "."));
   }
 
   onMount(async () => {
@@ -36,7 +34,7 @@
     // TODO: do this right
     gameInstalled = true;
 
-    console.log(mod_version, fixedDecodeURIComponent(mod_version))
+    console.log(mod_version, fixedDecodeURIComponent(mod_version));
 
     componentLoaded = true;
   });
@@ -84,8 +82,8 @@
       </Button>
     </div>
     <GameModControls
-      game_name={game_name}
-      mod_composite_id={mod_composite_id}
+      {game_name}
+      {mod_composite_id}
       mod_version={fixedDecodeURIComponent(mod_version)}
       on:change={updateGameState}
       on:job={runGameJob}

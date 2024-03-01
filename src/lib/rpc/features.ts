@@ -71,3 +71,35 @@ export async function deleteTexturePacks(
     },
   );
 }
+
+export async function addModSource(url: string): Promise<void> {
+  await invoke_rpc(
+    "add_mod_source",
+    {
+      url: url,
+    },
+    () => {
+      toastStore.makeToast("Unable to add mod source", "error");
+    },
+  );
+}
+
+export async function removeModSource(modSourceIndex: number): Promise<void> {
+  await invoke_rpc(
+    "remove_mod_source",
+    {
+      modSourceIndex: modSourceIndex,
+    },
+    () => {
+      toastStore.makeToast("Unable to remove mod source", "error");
+    },
+  );
+}
+
+export interface ModSource {
+  url: string;
+}
+
+export async function getModSources(): Promise<ModSource[]> {
+  return await invoke_rpc("get_mod_sources", {}, () => []);
+}
