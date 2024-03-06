@@ -1,7 +1,6 @@
 use std::path::Path;
 
 use crate::{config::LauncherConfig, util::file::delete_dir};
-use log::log;
 use semver::Version;
 use sysinfo::Disks;
 use tauri::Manager;
@@ -442,20 +441,20 @@ pub async fn does_active_tooling_version_support_game(
 ) -> Result<bool, CommandError> {
   let config_lock = config.lock().await;
   match &config_lock.active_version {
-      Some(version) => {
-        // If we can't determine the version, assume its our first release
-        let tooling_version = Version::parse(version.strip_prefix('v').unwrap_or(&version))
+    Some(version) => {
+      // If we can't determine the version, assume its our first release
+      let tooling_version = Version::parse(version.strip_prefix('v').unwrap_or(&version))
         .unwrap_or(Version::new(0, 0, 1));
-        match game_name.as_str() {
+      match game_name.as_str() {
         "jak1" => Ok(true),
         "jak2" => Ok(tooling_version.minor > 1 || tooling_version.patch >= 44),
         _ => Ok(false),
-        }
       }
-      None => {
-        log::warn!("No active tooling version set, can't check the game supports it!");
-        Ok(false)
-      }
+    }
+    None => {
+      log::warn!("No active tooling version set, can't check the game supports it!");
+      Ok(false)
+    }
   }
 }
 
