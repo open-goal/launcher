@@ -17,7 +17,7 @@
   import { launchGame, openREPL } from "$lib/rpc/binaries";
   import { _ } from "svelte-i18n";
   import { VersionStore } from "$lib/stores/VersionStore";
-  import { getModDetails } from "$lib/utils/mods";
+  import { getModDetails } from "$lib/rpc/mods";
 
   export let game_name: string;
   export let mod_composite_id: string;

@@ -10,7 +10,7 @@
     removeModList,
     getModLists,
     type ModList,
-  } from "$lib/utils/mods";
+  } from "$lib/rpc/mods";
   // import Icon from "@iconify/svelte";
   import {
     Button,

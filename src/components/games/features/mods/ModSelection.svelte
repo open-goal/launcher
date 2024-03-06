@@ -9,10 +9,10 @@
   import { type ReleaseInfo } from "$lib/utils/github";
   // import Icon from "@iconify/svelte";
   import { Button, Label, Select } from "flowbite-svelte";
-  import ModVersionList from "./ModVersionList.svelte";
+  import ModVersionList from "../../../../routes/mods/ModVersionList.svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
-  import { getModDict } from "$lib/utils/mods";
+  import { getModDict } from "$lib/rpc/mods";
 
   export let game_name;
   export let mod_composite_id;

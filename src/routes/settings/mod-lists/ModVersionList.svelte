@@ -2,7 +2,7 @@
   import { type VersionFolders } from "$lib/rpc/versions";
   import { type VersionStoreIFace } from "$lib/stores/VersionStore";
   import type { ReleaseInfo } from "$lib/utils/github";
-  import { getModDetails } from "$lib/utils/mods";
+  import { getModDetails } from "$lib/rpc/mods";
   import {
     Button,
     Spinner,
