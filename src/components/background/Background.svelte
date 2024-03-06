@@ -7,14 +7,17 @@
   import jak2Background from "$assets/images/background-jak2.webp";
   import jak3InProgressVid from "$assets/videos/jak3-dev.mp4";
   import jak3InProgressPoster from "$assets/videos/jak3-poster.png";
+  import { platform } from "@tauri-apps/api/os";
 
   const location = useLocation();
   $: $location.pathname, updateStyle();
 
   let style = "absolute object-fill h-screen brightness-75";
   let jak1Image = "";
+  let onWindows = false;
 
   onMount(async () => {
+    onWindows = (await platform()) === "win32";
     const unlistenInstalled = await listen("gameInstalled", (event) => {
       updateStyle();
     });
@@ -55,12 +58,16 @@
 {:else if $location.pathname == "/jak2"}
   <img class={style} src={jak2Background} />
 {:else if $location.pathname == "/jak3"}
-  <video
-    class={style}
-    poster={jak3InProgressPoster}
-    src={jak3InProgressVid}
-    autoplay
-    muted
-    loop
-  />
+  {#if onWindows}
+    <video
+      class={style}
+      poster={jak3InProgressPoster}
+      src={jak3InProgressVid}
+      autoplay
+      muted
+      loop
+    />
+  {:else}
+    <img class={style} src={jak3InProgressPoster} />
+  {/if}
 {/if}
