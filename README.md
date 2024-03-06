@@ -4,7 +4,7 @@
 
 Our attempt at distributing the [OpenGOAL](https://github.com/open-goal/jak-project) releases in a cross-platform and easy to use and update way. It also is a place for features involving the games, such as texture pack or mod management.
 
-The launcher uses the [Tauri](https://tauri.app/) framework, if you are interested in our motivation for _why_ see below.
+The launcher uses the [Tauri](https://tauri.app/) framework.
 
 - [Usage](#usage)
 - [Asking for help](#asking-for-help)
@@ -63,9 +63,3 @@ yarn tauri dev
 ```
 
 <!-- https://www.pwabuilder.com/imageGenerator for generating icons (removed tauricon )-->
-
-TODO:
-
-- clicking on an incompatible version is no longer ignored / is set?
-- tabs dont effect the router, fix
-- try getting rid of the click border around the icon again
