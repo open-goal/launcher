@@ -59,16 +59,15 @@
 
     gameInBeta = activeGame === SupportedGame.Jak2;
 
-    gameSupportedByTooling = await doesActiveToolingVersionSupportGame(
-      getInternalName(activeGame),
-    );
-
     // First off, check that they've downloaded and have a jak-project release set
     const activeVersionExists = await ensureActiveVersionStillExists();
     $VersionStore.activeVersionType = await getActiveVersionFolder();
     $VersionStore.activeVersionName = await getActiveVersion();
 
     if (activeVersionExists) {
+      gameSupportedByTooling = await doesActiveToolingVersionSupportGame(
+        getInternalName(activeGame),
+      );
       // First obvious thing to check -- is the game installed at all
       gameInstalled = await isGameInstalled(getInternalName(activeGame));
 
@@ -110,10 +109,10 @@
     <div class="flex flex-col h-full justify-center items-center">
       <Spinner color="yellow" size={"12"} />
     </div>
-  {:else if !gameSupportedByTooling}
-    <GameNotSupportedByTooling />
   {:else if $VersionStore.activeVersionName === null || $VersionStore.activeVersionType === null}
     <GameToolsNotSet />
+  {:else if !gameSupportedByTooling}
+    <GameNotSupportedByTooling />
   {:else if !gameInstalled}
     <GameSetup {activeGame} on:change={updateGameState} />
   {:else if gameJobToRun !== undefined}
