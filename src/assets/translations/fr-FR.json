@@ -29,7 +29,7 @@
   "gameControls_button_openSettingsFolder": "Ouvrir le dossier des paramètres",
   "gameControls_button_play": "Jouer",
   "gameControls_button_playInDebug": "Jouer en mode Debug",
-  "gameControls_button_resetSettings": "Réinitialiser les paramètres",
+  "gameControls_button_resetSettings": "Réinitialiser les paramètres ",
   "gameControls_button_uninstall_confirmation": "Êtes-vous sûr de vouloir désinstaller ?",
   "gameControls_button_uninstall_helpText": "Ceci ne supprimera aucune sauvegarde ni aucun paramètre",
   "gameControls_button_uninstall": "Désinstaller",
