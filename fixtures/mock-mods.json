@@ -1,35 +1,51 @@
-[
-  {
-    "schemaVersion": "1.0.0",
-    "version": "1.0.0",
-    "name": "test",
-    "description": "test description",
-    "authors": ["test author"],
-    "tags": ["custom-level"],
-    "supportedGames": ["jak1"],
-    "publishedDate": "2020-01-01",
-    "websiteUrl": "https://example.com"
+{
+  "schemaVersion": "1.0.0",
+  "mods": {
+    "test": [
+      {
+        "version": "0.0.2",
+        "displayName": "test",
+        "description": "test description",
+        "authors": ["test author"],
+        "tags": ["custom-level"],
+        "supportedGames": ["jak1"],
+        "publishedDate": "2020-01-01",
+        "websiteUrl": "https://example.com"
+      },
+      {
+        "version": "0.0.1",
+        "displayName": "test",
+        "description": "test description",
+        "authors": ["test author"],
+        "tags": ["custom-level"],
+        "supportedGames": ["jak1"],
+        "publishedDate": "2020-01-01",
+        "websiteUrl": "https://example.com"
+      }
+    ],
+    "test2": [
+      {
+        "version": "1.0.0",
+        "displayName": "second test",
+        "description": "test description",
+        "authors": ["test author"],
+        "tags": ["beta"],
+        "supportedGames": ["jak1", "jak2"],
+        "publishedDate": "2020-01-01",
+        "websiteUrl": "https://example.com"
+      }
+    ]
   },
-  {
-    "schemaVersion": "1.0.0",
-    "version": "1.0.0",
-    "name": "test",
-    "description": "test description",
-    "authors": ["test author"],
-    "tags": ["challenge"],
-    "supportedGames": ["jak2"],
-    "publishedDate": "2020-01-01",
-    "websiteUrl": "https://example.com"
-  },
-  {
-    "schemaVersion": "1.0.0",
-    "version": "1.0.0",
-    "name": "test",
-    "description": "test description",
-    "authors": ["test author"],
-    "tags": ["beta"],
-    "supportedGames": ["jak1", "jak2"],
-    "publishedDate": "2020-01-01",
-    "websiteUrl": "https://example.com"
+  "texture-packs": {
+    "snowy": {
+      "version": "1.0.0",
+      "displayName": "Snowy Legacy",
+      "description": "test description",
+      "authors": ["test author"],
+      "tags": ["texture-pack"],
+      "supportedGames": ["jak1", "jak2"],
+      "publishedDate": "2020-01-01",
+      "websiteUrl": "https://example.com"
+    }
   }
-]
+}
