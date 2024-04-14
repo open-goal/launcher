@@ -1,4 +1,3 @@
-use futures_util::StreamExt;
 use std::path::PathBuf;
 use tokio::{fs::File, io::AsyncWriteExt};
 
@@ -16,11 +15,7 @@ pub async fn download_file(url: &String, destination: &PathBuf) -> Result<(), Ne
   let res = req.send().await?;
 
   let mut file = File::create(destination).await?;
-  let mut stream = res.bytes_stream();
-
-  while let Some(chunk) = stream.next().await {
-    let chunk = chunk?;
-    file.write_all(&chunk).await?;
-  }
+  let resp_bytes = res.bytes().await?;
+  file.write_all(&resp_bytes).await?;
   Ok(())
 }
