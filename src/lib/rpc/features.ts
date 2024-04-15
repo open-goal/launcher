@@ -72,15 +72,27 @@ export async function deleteTexturePacks(
   );
 }
 
-export async function addModSource(url: string): Promise<void> {
-  await invoke_rpc(
+export async function addModSource(url: string): Promise<boolean> {
+  // Check that the URL is valid, easiest to do this on the client-side
+  try {
+    const sourceResp = await fetch(url);
+    if (sourceResp.status !== 200) {
+      toastStore.makeToast(`Mod source unreachable - Status ${sourceResp.status}`, "error");
+      return false;
+    }
+  } catch (e) {
+    toastStore.makeToast(`Mod source unreachable`, "error");
+    return false;
+  }
+  
+  return await invoke_rpc(
     "add_mod_source",
     {
       url: url,
     },
-    () => {
-      toastStore.makeToast("Unable to add mod source", "error");
-    },
+    () => false,
+    "Unable to add mod source",
+    () => true
   );
 }
 

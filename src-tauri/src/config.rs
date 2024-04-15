@@ -654,9 +654,13 @@ impl LauncherConfig {
   }
 
   pub fn add_new_mod_source(&mut self, url: &String) -> Result<(), ConfigError> {
-    // TODO - dedup by URL
     self.mod_sources = match &mut self.mod_sources {
       Some(sources) => {
+        if sources.iter().any(|s| s.url == *url) {
+          return Err(ConfigError::Configuration(
+            "Duplicate mod source!".to_owned(),
+          ));
+        }
         sources.push(ModSource {
           url: url.to_string(),
         });

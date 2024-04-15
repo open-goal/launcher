@@ -16,7 +16,8 @@
     "release": "npm run tauri build -- --config ./.tauri/release-config.json",
     "release-id": "node ./scripts/get-release-id.mjs",
     "verify-release-assets": "node ./scripts/verify-release-assets.mjs",
-    "mock-mod-source": "npx http-server -p 8081 -S -C ./fixtures/cert.pem -K ./fixtures/key.pem ./fixtures"
+    "mock-mkcert": "mkcert -cert-file ./fixtures/cert.pem -key-file ./fixtures/key.pem localhost",
+    "mock-mod-source": "npx http-server --cors -p 8081 -S -C ./fixtures/cert.pem -K ./fixtures/key.pem ./fixtures"
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^6.0.0",
