@@ -152,68 +152,8 @@ impl Requirements {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct ModVersion {
-  pub version: String,
-  pub description: Option<String>,
-  pub supportedgames: Vec<String>,
-  pub windowsurl: Option<String>,
-  pub linuxsurl: Option<String>,
-  #[serde(default)]
-  pub installedgames: Vec<String>,
-}
-
-impl ModVersion {
-  fn default() -> Self {
-    Self {
-      version: "".to_string(),
-      description: None,
-      supportedgames: Vec::new(),
-      windowsurl: None,
-      linuxsurl: None,
-      installedgames: Vec::new(),
-    }
-  }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct ModConfig {
-  pub identifier: String,
-  pub name: String,
-  pub description: Option<String>,
-  #[serde(default)]
-  pub contributors: Vec<String>,
-  #[serde(default)]
-  pub tags: Vec<String>,
-  #[serde(default)]
-  pub versions: Vec<ModVersion>,
-}
-
-impl ModConfig {
-  fn default() -> Self {
-    Self {
-      identifier: "".to_string(),
-      name: "".to_string(),
-      description: None,
-      contributors: Vec::new(),
-      tags: Vec::new(),
-      versions: Vec::new(),
-    }
-  }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct ModSource {
   pub url: String,
-}
-
-impl ModSource {
-  fn default() -> Self {
-    Self {
-      url: "".to_string(),
-    }
-  }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

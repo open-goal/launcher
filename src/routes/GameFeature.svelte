@@ -5,6 +5,7 @@
   import { Spinner } from "flowbite-svelte";
   import GameJob from "../components/games/job/GameJob.svelte";
   import TexturePacks from "../components/games/features/texture-packs/TexturePacks.svelte";
+  import { refreshModSources } from "$lib/rpc/cache";
 
   const params = useParams();
   let activeGame = SupportedGame.Jak1;
@@ -35,6 +36,10 @@
       selectedFeature = $params["feature"];
     } else {
       selectedFeature = "texture_packs";
+    }
+
+    if (selectedFeature === "mods") {
+      await refreshModSources();
     }
 
     componentLoaded = true;

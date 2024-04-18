@@ -184,5 +184,6 @@
   "settings_mods_icon_addSource_buttonText": "Add",
   "settings_mods_icon_addSource_buttonAltText": "Add mod source button",
   "settings_mods_icon_deleteSource_buttonText": "Delete",
-  "settings_mods_icon_deleteSource_buttonAltText": "Delete mod source button"
+  "settings_mods_icon_deleteSource_buttonAltText": "Delete mod source button",
+  "gameControls_button_features_mods": "Mods"
 }

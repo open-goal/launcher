@@ -12,6 +12,7 @@ use util::file::create_dir;
 use backtrace::Backtrace;
 use std::io::Write;
 
+mod cache;
 mod commands;
 mod config;
 mod util;
@@ -132,6 +133,8 @@ fn main() {
         app.path_resolver().app_config_dir(),
       ));
       app.manage(config);
+      let cache = tokio::sync::Mutex::new(cache::LauncherCache::default());
+      app.manage(cache);
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
@@ -143,6 +146,7 @@ fn main() {
       commands::binaries::run_compiler,
       commands::binaries::run_decompiler,
       commands::binaries::update_data_directory,
+      commands::cache::refresh_mod_sources,
       commands::config::cleanup_enabled_texture_packs,
       commands::config::delete_old_data_directory,
       commands::config::does_active_tooling_version_support_game,

@@ -1,26 +1,52 @@
 {
   "schemaVersion": "1.0.0",
+  "sourceName": "Fixture Source",
+  "lastUpdated": "2024-04-18T12:30:00Z",
   "mods": {
     "test": [
       {
         "version": "0.0.2",
         "displayName": "test",
         "description": "test description",
-        "authors": ["test author"],
-        "tags": ["custom-level"],
-        "supportedGames": ["jak1"],
+        "authors": [
+          "test author"
+        ],
+        "tags": [
+          "custom-level"
+        ],
+        "supportedGames": [
+          "jak1"
+        ],
         "publishedDate": "2020-01-01",
-        "websiteUrl": "https://example.com"
+        "websiteUrl": "https://example.com",
+        "coverArtUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQuKmzjYulECD9I4ERduqu7FQ9b9l0_N1Ib2ocC1tCsGQ&s",
+        "assets": {
+          "windows": "https://example.com",
+          "linux": "https://example.com",
+          "macos": "https://example.com"
+        }
       },
       {
         "version": "0.0.1",
         "displayName": "test",
         "description": "test description",
-        "authors": ["test author"],
-        "tags": ["custom-level"],
-        "supportedGames": ["jak1"],
+        "authors": [
+          "test author"
+        ],
+        "tags": [
+          "custom-level"
+        ],
+        "supportedGames": [
+          "jak1"
+        ],
         "publishedDate": "2020-01-01",
-        "websiteUrl": "https://example.com"
+        "websiteUrl": "https://example.com",
+        "coverArtUrl": "https://www.simplilearn.com/ice9/free_resources_article_thumb/what_is_image_Processing.jpg",
+        "assets": {
+          "windows": "https://example.com",
+          "linux": "https://example.com",
+          "macos": "https://example.com"
+        }
       }
     ],
     "test2": [
@@ -28,24 +54,49 @@
         "version": "1.0.0",
         "displayName": "second test",
         "description": "test description",
-        "authors": ["test author"],
-        "tags": ["beta"],
-        "supportedGames": ["jak1", "jak2"],
+        "authors": [
+          "test author"
+        ],
+        "tags": [
+          "beta"
+        ],
+        "supportedGames": [
+          "jak1",
+          "jak2"
+        ],
         "publishedDate": "2020-01-01",
-        "websiteUrl": "https://example.com"
+        "websiteUrl": "https://example.com",
+        "coverArtUrl": "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_1280.jpg",
+        "assets": {
+          "linux": "https://example.com",
+          "macos": "https://example.com"
+        }
       }
     ]
   },
-  "texture-packs": {
+  "texturePacks": {
     "snowy": {
       "version": "1.0.0",
       "displayName": "Snowy Legacy",
       "description": "test description",
-      "authors": ["test author"],
-      "tags": ["texture-pack"],
-      "supportedGames": ["jak1", "jak2"],
+      "authors": [
+        "test author"
+      ],
+      "tags": [
+        "texture-pack"
+      ],
+      "supportedGames": [
+        "jak1",
+        "jak2"
+      ],
       "publishedDate": "2020-01-01",
-      "websiteUrl": "https://example.com"
+      "websiteUrl": "https://example.com",
+      "coverArtUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/CargoNet_Di_12_Euro_4000_L%C3%B8nsdal_-_Bolna.jpg/800px-CargoNet_Di_12_Euro_4000_L%C3%B8nsdal_-_Bolna.jpg",
+      "assets": {
+        "windows": "https://example.com",
+        "linux": "https://example.com",
+        "macos": "https://example.com"
+      }
     }
   }
 }
