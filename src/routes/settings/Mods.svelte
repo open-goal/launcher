@@ -40,6 +40,7 @@
     <div class="grow">
       <Input id="default-input" bind:value={newSourceURL} />
     </div>
+    <!-- TODO - forbid adding two mod sources with the same sourceName -->
     <Button
       class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-3 py-2 ml-2"
       disabled={newSourceURL === ""}
@@ -47,15 +48,12 @@
         await addModSource(newSourceURL);
         currentSources = await getModSources();
       }}
-    ><IconPlus
-    class="text-xl"
-    color="green"
-    aria-label={$_(
-      "settings_mods_icon_addSource_buttonAltText",
-    )}
-  />{$_(
-    "settings_mods_icon_addSource_buttonText",
-  )}</Button>
+      ><IconPlus
+        class="text-xl"
+        color="green"
+        aria-label={$_("settings_mods_icon_addSource_buttonAltText")}
+      />{$_("settings_mods_icon_addSource_buttonText")}</Button
+    >
   </div>
   <div class="mt-2">
     {#if pageLoaded && currentSources.length > 0}
@@ -63,10 +61,13 @@
         <TableBody tableBodyClass="divide-y">
           {#each currentSources as source, i}
             <TableBodyRow class="flex items-center">
-              <TableBodyCell tdClass="px-6 whitespace-nowrap font-medium text-gray-900 dark:text-white text-wrap"
+              <TableBodyCell
+                tdClass="px-6 whitespace-nowrap font-medium text-gray-900 dark:text-white text-wrap"
                 >{source.url}</TableBodyCell
               >
-              <TableBodyCell tdClass="flex ml-auto justify-end px-6 whitespace-nowrap font-medium text-gray-900 dark:text-white text-red-600"><Button
+              <TableBodyCell
+                tdClass="flex ml-auto justify-end px-6 whitespace-nowrap font-medium text-gray-900 dark:text-white text-red-600"
+                ><Button
                   class="p-0 m-3 hover:text-red-500"
                   on:click={async () => {
                     await removeModSource(i);
@@ -75,12 +76,9 @@
                   ><IconDeleteForever
                     class="text-xl"
                     color="red"
-                    aria-label={$_(
-                      "settings_mods_icon_deleteSource_altText",
-                    )}
-                  /> {$_(
-                    "settings_mods_icon_deleteSource_buttonText"
-                  )}</Button
+                    aria-label={$_("settings_mods_icon_deleteSource_altText")}
+                  />
+                  {$_("settings_mods_icon_deleteSource_buttonText")}</Button
                 ></TableBodyCell
               >
             </TableBodyRow>

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { fromRoute, getInternalName, SupportedGame } from "$lib/constants";
   import { useParams } from "svelte-navigator";
   import GameControls from "../components/games/GameControls.svelte";
@@ -22,6 +22,7 @@
   import GameToolsNotSet from "../components/games/GameToolsNotSet.svelte";
   import GameNotSupportedByTooling from "../components/games/GameNotSupportedByTooling.svelte";
   import { VersionStore } from "$lib/stores/VersionStore";
+  import type { Job } from "$lib/utils/jobs";
 
   const params = useParams();
   $: $params, loadGameInfo();
@@ -30,10 +31,10 @@
   let componentLoaded = false;
 
   let gameInstalled = false;
-  let gameJobToRun = undefined;
+  let gameJobToRun: Job | undefined = undefined;
 
-  let installedVersion;
-  let installedVersionFolder;
+  let installedVersion: String | undefined;
+  let installedVersionFolder: String | undefined;
 
   let versionMismatchDetected = false;
 
@@ -90,11 +91,11 @@
     componentLoaded = true;
   }
 
-  async function updateGameState(event) {
+  async function updateGameState(event: any) {
     gameInstalled = await isGameInstalled(getInternalName(activeGame));
   }
 
-  async function runGameJob(event) {
+  async function runGameJob(event: any) {
     gameJobToRun = event.detail.type;
   }
 

@@ -5,6 +5,7 @@
   import { Spinner } from "flowbite-svelte";
   import GameJob from "../components/games/job/GameJob.svelte";
   import TexturePacks from "../components/games/features/texture-packs/TexturePacks.svelte";
+  import ModSelection from "../components/games/features/mods/ModSelection.svelte";
   import { refreshModSources } from "$lib/rpc/cache";
 
   const params = useParams();
@@ -38,19 +39,21 @@
       selectedFeature = "texture_packs";
     }
 
-    if (selectedFeature === "mods") {
-      await refreshModSources();
-    }
-
     componentLoaded = true;
   });
 
-  async function runGameJob(event: {
+  async function runTexturePackGameJob(event: {
     detail: { type: undefined; enabledPacks: any[]; packsToDelete: any[] };
   }) {
     gameJobToRun = event.detail.type;
     texturePacksToEnable = event.detail.enabledPacks;
     texturePacksToDelete = event.detail.packsToDelete;
+  }
+
+  async function runModInstallGameJob(event: {
+    detail: { type: undefined; enabledPacks: any[]; packsToDelete: any[] };
+  }) {
+    console.log("todo!");
   }
 
   async function gameJobFinished() {
@@ -74,6 +77,8 @@
       />
     </div>
   {:else if selectedFeature === "texture_packs"}
-    <TexturePacks {activeGame} on:job={runGameJob} />
+    <TexturePacks {activeGame} on:job={runTexturePackGameJob} />
+  {:else if selectedFeature === "mods"}
+    <ModSelection {activeGame} on:job={runModInstallGameJob}></ModSelection>
   {/if}
 </div>

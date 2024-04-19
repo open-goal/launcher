@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use log::error;
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 use crate::util::network::download_json;
 
@@ -11,29 +12,39 @@ pub enum CacheError {
   ModSource(String),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, TS)]
 #[serde(rename_all = "camelCase")]
+#[ts(export)]
 pub struct ModVersion {
   pub version: String,
+  pub published_date: String,
+  pub assets: HashMap<String, String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct ModInfo {
   pub display_name: String,
   pub description: String,
   pub authors: Vec<String>,
   pub tags: Vec<String>,
   pub supported_games: Vec<String>, // map to SupportedMap
-  pub published_date: String,
-  pub assets: HashMap<String, String>,
   pub website_url: Option<String>,
   pub cover_art_url: Option<String>,
+  pub thumbnail_art_url: Option<String>,
+  pub versions: Vec<ModVersion>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, TS)]
 #[serde(rename_all = "camelCase")]
+#[ts(export)]
 pub struct ModSourceData {
   pub schema_version: String,
   pub source_name: String,
   pub last_updated: String,
-  pub mods: HashMap<String, Vec<ModVersion>>,
-  pub texture_packs: HashMap<String, ModVersion>,
+  pub mods: HashMap<String, ModInfo>,
+  pub texture_packs: HashMap<String, ModInfo>,
 }
 
 pub struct LauncherCache {

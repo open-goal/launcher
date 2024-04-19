@@ -85,6 +85,12 @@
             let:params
           />
           <Route
+            path="/:game_name/features/mods/:source_url/:mod_name"
+            component={Game}
+            primary={false}
+            let:params
+          />
+          <Route
             path="/jak3"
             component={GameInProgress}
             primary={false}

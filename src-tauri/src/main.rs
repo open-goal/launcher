@@ -147,6 +147,7 @@ fn main() {
       commands::binaries::run_decompiler,
       commands::binaries::update_data_directory,
       commands::cache::refresh_mod_sources,
+      commands::cache::get_mod_sources_data,
       commands::config::cleanup_enabled_texture_packs,
       commands::config::delete_old_data_directory,
       commands::config::does_active_tooling_version_support_game,

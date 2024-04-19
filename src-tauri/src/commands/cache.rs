@@ -1,4 +1,6 @@
-use crate::cache::LauncherCache;
+use std::collections::HashMap;
+
+use crate::cache::{LauncherCache, ModSourceData};
 
 use super::CommandError;
 
@@ -13,4 +15,13 @@ pub async fn refresh_mod_sources(
     .await
     .map_err(|_| CommandError::Cache("Unable to refresh mod source ca che".to_owned()))?;
   Ok(())
+}
+
+#[tauri::command]
+pub async fn get_mod_sources_data(
+  app_handle: tauri::AppHandle,
+  cache: tauri::State<'_, tokio::sync::Mutex<LauncherCache>>,
+) -> Result<HashMap<String, ModSourceData>, CommandError> {
+  let cache_lock = cache.lock().await;
+  Ok(cache_lock.mod_sources.clone())
 }

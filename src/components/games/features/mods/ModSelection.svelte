@@ -1,284 +1,113 @@
+<!-- 
+    install a mod / pick the version
+    uninstalling
+    and updating to latest version
+    display picture
+    when selecting the mod, you go back to the game page but the background is different
+ -->
+
+<!-- future improvements:
+- order by last played -->
+
 <script lang="ts">
-  import { useParams } from "svelte-navigator";
-  import {
-    downloadUnofficialVersion,
-    listUnofficialDownloadedVersions,
-    openUnofficialVersionFolder,
-    removeVersion,
-  } from "$lib/rpc/versions";
-  import { type ReleaseInfo } from "$lib/utils/github";
-  // import Icon from "@iconify/svelte";
-  import { Button, Label, Select } from "flowbite-svelte";
-  import ModVersionList from "../../../../routes/mods/ModVersionList.svelte";
-  import { onMount } from "svelte";
+  import { getInternalName, SupportedGame } from "$lib/constants";
+  import { createEventDispatcher, onMount } from "svelte";
+  import { navigate } from "svelte-navigator";
   import { _ } from "svelte-i18n";
-  import { getModDict } from "$lib/rpc/mods";
+  import { Button, Input, Spinner, Tooltip } from "flowbite-svelte";
+  import IconArrowLeft from "~icons/mdi/arrow-left";
+  import IconUpdate from "~icons/mdi/update";
+  import IconGlobe from "~icons/mdi/globe";
+  import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
+  import type { ModSourceData } from "$lib/rpc/bindings/ModSourceData";
 
-  export let game_name;
-  export let mod_composite_id;
-  const params = useParams();
+  const dispatch = createEventDispatcher();
+  export let activeGame: SupportedGame;
 
-  let modDict = {};
-  let modList = [];
-  let selectedMod = null;
-
-  let versionsLoaded = false;
-  let releases: ReleaseInfo[] = [];
-
-  async function refreshModListsAndDict() {
-    modDict = await getModDict(game_name);
-    console.log("dict: ", modDict);
-    // refresh modList for dropdown
-    modList.length = 0;
-    for (let composite_id in modDict) {
-      let list_id = composite_id.split("$$", 1)[0];
-      let displayName = modDict[composite_id].name + " (" + list_id + ")";
-
-      modList = [
-        ...modList,
-        {
-          value: composite_id,
-          name: displayName,
-        },
-      ];
-    }
-    console.log("reloaded with modlist: ", modList);
-  }
+  let loaded = false;
+  let modFilter = "";
+  let sourceData: Record<string, ModSourceData> = {};
 
   onMount(async () => {
-    console.log("loading with selected id:", mod_composite_id);
-    await refreshModListsAndDict();
-
-    if (
-      mod_composite_id != null &&
-      mod_composite_id != undefined &&
-      mod_composite_id != "" &&
-      modDict.hasOwnProperty(mod_composite_id)
-    ) {
-      selectedMod = modDict[mod_composite_id];
-    }
-    console.log("loading with selected mod:", selectedMod);
-    refreshVersionList();
+    await refreshModSources();
+    sourceData = await getModSourcesData();
+    loaded = true;
   });
 
-  async function setSelectedMod(value: string) {
-    mod_composite_id = value;
-    if (modDict.hasOwnProperty(mod_composite_id)) {
-      selectedMod = modDict[mod_composite_id];
-      console.log("switching to:", selectedMod);
-      location.href = `/${game_name}/mods/${mod_composite_id}`;
-    } else {
-      // error?
-      mod_composite_id = "";
-      selectedMod = {};
-    }
-  }
-
-  async function refreshVersionList() {
-    versionsLoaded = false;
-    releases.length = 0;
-
-    if (selectedMod != null && selectedMod != undefined) {
-      // Check the backend to see if the folder has any versions
-      const installedVersions = await listUnofficialDownloadedVersions(
-        `${mod_composite_id}`,
-      );
-      for (const version of installedVersions) {
-        releases = [
-          ...releases,
-          {
-            releaseType: "unofficial",
-            version: version,
-            date: undefined,
-            githubLink: undefined,
-            downloadUrl: undefined,
-            isDownloaded: true,
-            pendingAction: false,
-          },
-        ];
-      }
-
-      // merge known versions from mod list with installed versions
-      for (const v of selectedMod.versions) {
-        console.log(selectedMod, v);
-        if (v.supportedgames.indexOf(game_name) == -1) {
-          // current game not supported
-          continue;
-        }
-
-        let foundExistingRelease = false;
-        for (const existingRelease of releases) {
-          // found it! update some metadata
-          if (existingRelease.version === v.version) {
-            // existingRelease.date = v.date;
-            existingRelease.githubLink = v.description; // hacking this in here for now
-            existingRelease.downloadUrl = v.windowsurl; // TODO linux
-            foundExistingRelease = true;
-            break;
-          }
-        }
-
-        // not installed, add to list
-        if (!foundExistingRelease) {
-          releases = [
-            ...releases,
-            {
-              releaseType: "unofficial",
-              version: v.version,
-              date: undefined,
-              githubLink: v.description, // hacking this in here for now
-              downloadUrl: v.windowsurl, // TODO linux
-              isDownloaded: false,
-              pendingAction: false,
-            },
-          ];
-        }
-      }
-
-      // Sort releases by published date
-      // releases = releases.sort((a, b) => {
-      //   if (a.date === undefined) {
-      //     return 1;
-      //   }
-      //   if (b.date === undefined) {
-      //     return -1;
-      //   }
-      //   return b.date.localeCompare(a.date);
-      // });
-
-      console.log("RELEASES: ", releases);
-
-      versionsLoaded = true;
-    }
-  }
-
-  async function onDownloadVersion(event: any) {
-    // Mark that release as being downloaded
-    for (const release of releases) {
-      if (release.version === event.detail.version) {
-        release.pendingAction = true;
-      }
-    }
-    releases = releases;
-    const success = await downloadUnofficialVersion(
-      event.detail.version,
-      mod_composite_id,
-      event.detail.downloadUrl,
-    );
-    // Then mark it as downloaded
-    for (const release of releases) {
-      if (release.version === event.detail.version) {
-        release.pendingAction = false;
-        release.isDownloaded = success;
-      }
-    }
-    releases = releases;
-  }
-
-  async function onRemoveVersion(event: any) {
-    // Mark that release as being downloaded
-    for (const release of releases) {
-      if (release.version === event.detail.version) {
-        release.pendingAction = true;
-      }
-    }
-    releases = releases;
-    const ok = await removeVersion(
-      event.detail.version,
-      `unofficial/${mod_composite_id}`,
-    );
-    if (ok) {
-      // Then mark it as not downloaded
-      for (const release of releases) {
-        if (release.version === event.detail.version) {
-          release.pendingAction = false;
-          release.isDownloaded = false;
-        }
-      }
-      releases = releases;
-    }
-  }
-
-  async function onRedownloadVersion(event: any) {
-    await onRemoveVersion(event);
-    await onDownloadVersion(event);
+  async function handleFilterChange(evt: Event) {
+    const inputElement = evt.target as HTMLInputElement;
+    modFilter = inputElement.value;
+    console.log("ye");
   }
 </script>
 
-<div class="flex flex-col h-full p-5">
-  <div class="flex flex-col gap-5">
-    <div class="flex flex-row" style="justify-content: space-between;">
-      <Button
-        btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-        on:click={() => history.back()}
-      >
-        TODO
-        <!-- <Icon
-          icon="ic:baseline-arrow-back"
-          color="#ffffff"
-          width="20"
-          height="20"
-        /> -->
-      </Button>
-      <div class="flex gap-3">
-        <Button
-          btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-          on:click={() => location.reload()}
-        >
-          TODO
-          <!-- <Icon
-          icon="ic:baseline-refresh"
-          color="#ffffff"
-          width="20"
-          height="20"
-        /> -->
-        </Button>
-        <Button
-          btnClass="text-center font-semibold focus:ring-0 focus:outline-none inline-flex justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-          href="/{game_name}/mod_lists"
-        >
-          Manage Mod Lists
-        </Button>
-      </div>
+<div class="flex flex-col h-full bg-slate-900">
+  {#if !loaded}
+    <div class="flex flex-col h-full justify-center items-center">
+      <Spinner color="yellow" size={"12"} />
     </div>
-    <Label
-      >Select Mod
-      {#if modList.length == 0}
-        <div class="flex flex-row gap-2 p-2 justify-center">
-          <!-- <Icon
-              icon="material-symbols:warning"
-              width="25"
-              height="25"
-              color="yellow"
-            /> -->
-          TODO No mods found - you probably haven't added any mod lists yet!
+  {:else}
+    <div class="pb-20 overflow-y-auto p-4">
+      <div class="flex flex-row gap-2 items-center">
+        <Button
+          outline
+          class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
+          on:click={async () =>
+            navigate(`/${getInternalName(activeGame)}`, { replace: true })}
+          aria-label={$_("features_backToGamePage_buttonAlt")}
+        >
+          <IconArrowLeft />
+        </Button>
+        <!-- TODO - add mod from file -->
+      </div>
+      <div class="mt-4">
+        <Input placeholder="Filter Mods..." on:input={handleFilterChange} />
+      </div>
+      <!-- TODO - handle no sources added -->
+      <!-- Installed (all sources) -->
+      <!-- <div
+          class="h-[200px] bg-cover p-1 flex justify-center items-end relative"
+          style="background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQuKmzjYulECD9I4ERduqu7FQ9b9l0_N1Ib2ocC1tCsGQ&s')"
+        >
+          <h3>Test Mod Name</h3>
+          <div class="absolute top-0 right-0 m-2 flex gap-1">
+            <IconUpdate />
+            <IconGlobe />
+            <Tooltip placement="bottom">Source URL</Tooltip>
+          </div>
+        </div> -->
+      <!-- Sources (uninstalled) -->
+      <h2 class="font-bold mt-2">Installed Mods</h2>
+      <h2 class="font-bold">Available Mods</h2>
+      {#each Object.entries(sourceData) as [sourceUrl, sourceInfo]}
+        <div class="grid grid-cols-4 gap-4 mt-2">
+          {#each Object.entries(sourceInfo.mods) as [modName, modInfo]}
+            {#if modFilter === "" || modInfo.displayName
+                .toLocaleLowerCase()
+                .startsWith(modFilter.toLocaleLowerCase())}
+              <button
+                class="h-[200px] bg-cover p-1 flex justify-center items-end relative grayscale"
+                style="background-image: url('{modInfo.thumbnailArtUrl}')"
+                on:click={async () => {
+                  navigate(
+                    `/${getInternalName(activeGame)}/features/mods/${encodeURI(sourceInfo.sourceName)}/${encodeURI(modName)}`,
+                  );
+                }}
+              >
+                <h3 class="pointer-events-none select-none">
+                  {modInfo.displayName}
+                </h3>
+                <div class="absolute top-0 right-0 m-2 flex gap-1">
+                  <IconGlobe />
+                  <Tooltip placement="bottom">{sourceInfo.sourceName}</Tooltip>
+                </div>
+              </button>
+            {/if}
+          {/each}
         </div>
-      {:else}
-        <Select
-          class="mt-2"
-          value={mod_composite_id}
-          items={modList}
-          on:change={async (evt) => {
-            setSelectedMod(evt.target.value);
-          }}
-        />
-      {/if}
-    </Label>
-    {#if mod_composite_id != null && mod_composite_id != undefined && mod_composite_id != ""}
-      <ModVersionList
-        initiallyOpen={true}
-        {game_name}
-        mod_id={mod_composite_id}
-        releaseList={releases}
-        loaded={versionsLoaded}
-        releaseType="unofficial"
-        on:openVersionFolder={() =>
-          openUnofficialVersionFolder(`${mod_composite_id}`)}
-        on:refreshVersions={refreshVersionList}
-        on:removeVersion={onRemoveVersion}
-        on:downloadVersion={onDownloadVersion}
-        on:redownloadVersion={onRedownloadVersion}
-      />
-    {/if}
-  </div>
+      {/each}
+    </div>
+  {/if}
 </div>
+
+<!-- navigate(`/${getInternalName(activeGame)}/features/texture_packs`); -->
