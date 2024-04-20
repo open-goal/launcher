@@ -71,37 +71,20 @@
       <div class="flex flex-row grow shrink h-[90%] z-10">
         <Sidebar />
         <div id="content" class="overflow-y-auto grow shrink">
-          <Route path="/" component={Game} primary={false} let:params />
-          <Route
-            path="/:game_name"
-            component={Game}
-            primary={false}
-            let:params
-          />
+          <Route path="/" component={Game} primary={false} />
+          <Route path="/:game_name" component={Game} primary={false} />
           <Route
             path="/:game_name/features/:feature"
             component={GameFeature}
             primary={false}
-            let:params
           />
           <Route
             path="/:game_name/features/mods/:source_url/:mod_name"
             component={Game}
             primary={false}
-            let:params
           />
-          <Route
-            path="/jak3"
-            component={GameInProgress}
-            primary={false}
-            let:params
-          />
-          <Route
-            path="/settings/:tab"
-            component={Settings}
-            primary={false}
-            let:params
-          />
+          <Route path="/jak3" component={GameInProgress} primary={false} />
+          <Route path="/settings/:tab" component={Settings} primary={false} />
           <Route path="/faq" component={Help} primary={false} />
           <Route path="/update" component={Update} primary={false} />
         </div>

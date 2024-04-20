@@ -2,8 +2,6 @@
     install a mod / pick the version
     uninstalling
     and updating to latest version
-    display picture
-    when selecting the mod, you go back to the game page but the background is different
  -->
 
 <!-- future improvements:
