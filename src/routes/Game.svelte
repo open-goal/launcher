@@ -27,6 +27,10 @@
   const params = useParams();
   $: $params, loadGameInfo();
 
+  export let modName: string | undefined = undefined;
+  export let modSource: string | undefined = undefined;
+  export let modPage: boolean = false;
+
   let activeGame = SupportedGame.Jak1;
   let componentLoaded = false;
 
@@ -56,6 +60,20 @@
       activeGame = fromRoute($params["game_name"]);
     } else {
       activeGame = SupportedGame.Jak1;
+    }
+    if (
+      $params["mod_name"] !== undefined &&
+      $params["mod_name"] !== null &&
+      $params["mod_name"] !== ""
+    ) {
+      modName = $params["mod_name"];
+    }
+    if (
+      $params["source_url"] !== undefined &&
+      $params["source_url"] !== null &&
+      $params["source_url"] !== ""
+    ) {
+      modSource = $params["source_url"];
     }
 
     gameInBeta = activeGame === SupportedGame.Jak2;
@@ -161,6 +179,9 @@
     {/if}
     <GameControls
       {activeGame}
+      {modName}
+      {modSource}
+      {modPage}
       on:change={updateGameState}
       on:job={runGameJob}
     />

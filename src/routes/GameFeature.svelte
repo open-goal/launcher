@@ -15,8 +15,12 @@
 
   let gameJobToRun: undefined = undefined;
 
-  let texturePacksToEnable: any[] = [];
-  let texturePacksToDelete: any[] = [];
+  let texturePacksToEnable: any[] | undefined = undefined;
+  let texturePacksToDelete: any[] | undefined = undefined;
+
+  let modSourceName: string | undefined = undefined;
+  let modName: string | undefined = undefined;
+  let modVersion: string | undefined = undefined;
 
   onMount(async () => {
     // Figure out what game we are displaying
@@ -43,17 +47,25 @@
   });
 
   async function runTexturePackGameJob(event: {
-    detail: { type: undefined; enabledPacks: any[]; packsToDelete: any[] };
+    detail: { type: any; enabledPacks: any[]; packsToDelete: any[] };
   }) {
     gameJobToRun = event.detail.type;
     texturePacksToEnable = event.detail.enabledPacks;
     texturePacksToDelete = event.detail.packsToDelete;
+    modSourceName = undefined;
+    modName = undefined;
+    modVersion = undefined;
   }
 
   async function runModInstallGameJob(event: {
-    detail: { type: undefined; enabledPacks: any[]; packsToDelete: any[] };
+    detail: { type: any; modSourceName: string; modName: string };
   }) {
-    console.log("todo!");
+    gameJobToRun = event.detail.type;
+    texturePacksToEnable = undefined;
+    texturePacksToDelete = undefined;
+    modSourceName = event.detail.modSourceName;
+    modName = event.detail.modName;
+    modVersion = event.detail.modVersion;
   }
 
   async function gameJobFinished() {
@@ -61,7 +73,7 @@
   }
 </script>
 
-<div class="flex flex-col h-full bg-slate-900">
+<div class="flex flex-col h-full bg-[#1e1e1e]">
   {#if !componentLoaded}
     <div class="flex flex-col h-full justify-center items-center">
       <Spinner color="yellow" size={"12"} />
@@ -73,6 +85,9 @@
         jobType={gameJobToRun}
         {texturePacksToEnable}
         {texturePacksToDelete}
+        {modSourceName}
+        {modName}
+        {modVersion}
         on:jobFinished={gameJobFinished}
       />
     </div>

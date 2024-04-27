@@ -82,6 +82,7 @@
             path="/:game_name/features/mods/:source_url/:mod_name"
             component={Game}
             primary={false}
+            modPage={true}
           />
           <Route path="/jak3" component={GameInProgress} primary={false} />
           <Route path="/settings/:tab" component={Settings} primary={false} />

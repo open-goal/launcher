@@ -218,7 +218,7 @@
   }
 </script>
 
-<div class="flex flex-col h-full bg-slate-900">
+<div class="flex flex-col h-full bg-[#1e1e1e]">
   {#if !loaded}
     <div class="flex flex-col h-full justify-center items-center">
       <Spinner color="yellow" size={"12"} />

@@ -18,16 +18,31 @@
   } from "$lib/rpc/config";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { _ } from "svelte-i18n";
-  import { deleteTexturePacks, updateTexturePackData } from "$lib/rpc/features";
+  import {
+    baseGameIsoExists,
+    compileForModInstall,
+    decompileForModInstall,
+    deleteTexturePacks,
+    extractIsoForModInstall,
+    saveModInstallInfo,
+    updateTexturePackData,
+  } from "$lib/rpc/features";
+  import { isoPrompt } from "$lib/utils/file-dialogs";
 
   export let activeGame: SupportedGame;
   export let jobType: Job;
 
-  export let texturePacksToDelete: string[] = [];
-  export let texturePacksToEnable: string[] = [];
+  // texture packs
+  export let texturePacksToDelete: string[] | undefined = undefined;
+  export let texturePacksToEnable: string[] | undefined = undefined;
+
+  // mods
+  export let modSourceName: string | undefined = undefined;
+  export let modName: string | undefined = undefined;
+  export let modVersion: string | undefined = undefined;
 
   const dispatch = createEventDispatcher();
-  let installationError = undefined;
+  let installationError: string | undefined | null = undefined;
 
   async function setupDecompileJob() {
     installationError = undefined;
@@ -190,6 +205,98 @@
     progressTracker.proceed();
   }
 
+  async function setupModInstallation() {
+    // Check to see if we need to prompt for the ISO or not
+    installationError = undefined;
+    let jobs = [];
+    const isoAlreadyExtracted = await baseGameIsoExists(
+      getInternalName(activeGame),
+    );
+    if (!isoAlreadyExtracted) {
+      jobs.push({
+        status: "queued",
+        label: $_("setup_extractAndVerify"),
+      });
+    }
+    jobs.push(
+      {
+        status: "queued",
+        label: $_("setup_decompile"),
+      },
+      {
+        status: "queued",
+        label: $_("setup_compile"),
+      },
+      {
+        status: "queued",
+        label: $_("setup_done"),
+      },
+    );
+    progressTracker.init(jobs);
+    progressTracker.start();
+    if (!isoAlreadyExtracted) {
+      let sourcePath = await isoPrompt(
+        $_("setup_prompt_ISOFileLabel"),
+        $_("setup_prompt_selectISO"),
+      );
+      if (sourcePath !== undefined) {
+        let resp = await extractIsoForModInstall(
+          getInternalName(activeGame),
+          modName,
+          modSourceName,
+          sourcePath,
+        );
+        progressTracker.updateLogs(await getEndOfLogs());
+        if (!resp.success) {
+          progressTracker.halt();
+          installationError = resp.msg;
+          return;
+        }
+      } else {
+        progressTracker.halt();
+        installationError = "Can't continue without an ISO - TODO translate";
+        return;
+      }
+      progressTracker.proceed();
+    }
+    let resp = await decompileForModInstall(
+      getInternalName(activeGame),
+      modName,
+      modSourceName,
+    );
+    progressTracker.updateLogs(await getEndOfLogs());
+    if (!resp.success) {
+      progressTracker.halt();
+      installationError = resp.msg;
+      return;
+    }
+    progressTracker.proceed();
+    resp = await compileForModInstall(
+      getInternalName(activeGame),
+      modName,
+      modSourceName,
+    );
+    progressTracker.updateLogs(await getEndOfLogs());
+    if (!resp.success) {
+      progressTracker.halt();
+      installationError = resp.msg;
+      return;
+    }
+    progressTracker.proceed();
+    resp = await saveModInstallInfo(
+      getInternalName(activeGame),
+      modName,
+      modSourceName,
+      modVersion,
+    );
+    if (!resp.success) {
+      progressTracker.halt();
+      installationError = resp.msg;
+      return;
+    }
+    progressTracker.proceed();
+  }
+
   // This is basically a stripped down `GameSetup` component that doesn't care about user initiation,
   // requirement checking, etc
   //
@@ -204,6 +311,8 @@
       await setupUpdateGameJob();
     } else if (jobType === "updateTexturePacks") {
       await setupTexturePacks();
+    } else if (jobType === "installMod") {
+      await setupModInstallation();
     }
   });
 
