@@ -1,7 +1,7 @@
 {
   "name": "opengoal-launcher",
   "private": true,
-  "version": "2.4.3",
+  "version": "2.4.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -58,9 +58,9 @@
     "@tauri-apps/api": "^1.5.4",
     "@types/semver": "^7.5.8",
     "country-flag-emoji-polyfill": "^0.1.8",
+    "http-server": "^14.1.1",
     "semver": "^7.6.0",
-    "svelte-navigator": "^3.2.2",
-    "http-server": "^14.1.1"
+    "svelte-navigator": "^3.2.2"
   },
   "packageManager": "yarn@1.22.19"
 }
