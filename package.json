@@ -10,13 +10,15 @@
     "build": "vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "tauricon": "tauricon",
     "lint": "npx prettier --plugin prettier-plugin-svelte --check .",
     "format": "npx prettier --plugin prettier-plugin-svelte --write .",
     "update-release-meta": "node ./scripts/update-release-meta.mjs",
     "release": "npm run tauri build -- --config ./.tauri/release-config.json",
     "release-id": "node ./scripts/get-release-id.mjs",
-    "verify-release-assets": "node ./scripts/verify-release-assets.mjs"
+    "verify-release-assets": "node ./scripts/verify-release-assets.mjs",
+    "mock-mkcert": "mkcert -cert-file ./fixtures/cert.pem -key-file ./fixtures/key.pem localhost",
+    "mock-mod-source": "npx http-server --cors -p 8081 -S -C ./fixtures/cert.pem -K ./fixtures/key.pem ./fixtures",
+    "update-rust-bindings": "cd src-tauri && cargo test"
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^6.0.0",
@@ -28,7 +30,6 @@
     "@popperjs/core": "^2.11.7",
     "@sveltejs/vite-plugin-svelte": "^3.1.0",
     "@tauri-apps/cli": "^1.5.11",
-    "@tauri-apps/tauricon": "github:tauri-apps/tauricon",
     "@testing-library/svelte": "^5.1.0",
     "@tsconfig/svelte": "^5.0.4",
     "@vitest/coverage-v8": "^1.5.2",
@@ -58,7 +59,8 @@
     "@types/semver": "^7.5.8",
     "country-flag-emoji-polyfill": "^0.1.8",
     "semver": "^7.6.0",
-    "svelte-navigator": "^3.2.2"
+    "svelte-navigator": "^3.2.2",
+    "http-server": "^14.1.1"
   },
   "packageManager": "yarn@1.22.19"
 }

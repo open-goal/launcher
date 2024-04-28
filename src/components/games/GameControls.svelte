@@ -1,6 +1,7 @@
 <script lang="ts">
   import { getInternalName, SupportedGame } from "$lib/constants";
   import { openDir } from "$lib/rpc/window";
+  import IconArrowLeft from "~icons/mdi/arrow-left";
   import IconCog from "~icons/mdi/cog";
   import { configDir, join } from "@tauri-apps/api/path";
   import { createEventDispatcher, onMount } from "svelte";
@@ -21,16 +22,22 @@
   import { navigate } from "svelte-navigator";
   import { listen } from "@tauri-apps/api/event";
   import { toastStore } from "$lib/stores/ToastStore";
+  import { isModSupportEanbled, launchMod } from "$lib/rpc/features";
 
   export let activeGame: SupportedGame;
+  export let modName: string | undefined = undefined;
+  export let modSource: string | undefined = undefined;
+  export let modPage: boolean = false;
 
   const dispatch = createEventDispatcher();
-  let settingsDir = undefined;
-  let savesDir = undefined;
+  let settingsDir: string | undefined = undefined;
+  let savesDir: string | undefined = undefined;
   let isLinux = false;
   let playtime = "";
+  let modSupportEnabled = false;
 
   onMount(async () => {
+    modSupportEnabled = await isModSupportEanbled();
     isLinux = (await platform()) === "linux";
     settingsDir = await join(
       await configDir(),
@@ -44,6 +51,13 @@
       getInternalName(activeGame),
       "saves",
     );
+
+    if (!modPage) {
+      // get the playtime from the backend, format it, and assign it to the playtime variable when the page first loads
+      getPlaytime(getInternalName(activeGame)).then((result) => {
+        playtime = formatPlaytime(result);
+      });
+    }
   });
 
   // format the time from the settings file which is stored as seconds
@@ -85,16 +99,13 @@
     return formattedPlaytime;
   }
 
-  // get the playtime from the backend, format it, and assign it to the playtime variable when the page first loads
-  getPlaytime(getInternalName(activeGame)).then((result) => {
-    playtime = formatPlaytime(result);
-  });
-
   // listen for the custom playtiemUpdated event from the backend and then refresh the playtime on screen
   listen<string>("playtimeUpdated", (event) => {
-    getPlaytime(getInternalName(activeGame)).then((result) => {
-      playtime = formatPlaytime(result);
-    });
+    if (!modPage) {
+      getPlaytime(getInternalName(activeGame)).then((result) => {
+        playtime = formatPlaytime(result);
+      });
+    }
   });
 </script>
 
@@ -102,33 +113,62 @@
   <h1
     class="tracking-tighter text-2xl font-bold pb-3 text-orange-500 text-outline pointer-events-none"
   >
-    {$_(`gameName_${getInternalName(activeGame)}`)}
+    {#if modPage && modName !== undefined}
+      {modName}
+    {:else}
+      {$_(`gameName_${getInternalName(activeGame)}`)}
+    {/if}
   </h1>
-  {#if playtime}
+  {#if playtime && !modPage}
     <h1 class="pb-4 text-xl text-outline tracking-tighter font-extrabold">
       {`${$_(`gameControls_timePlayed_label`)} ${playtime}`}
     </h1>
   {/if}
   <div class="flex flex-row gap-2">
+    {#if modPage}
+      <Button
+        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+        on:click={async () => {
+          navigate(`/${getInternalName(activeGame)}/features/mods`, {
+            replace: true,
+          });
+        }}><IconArrowLeft />&nbsp;Back</Button
+      >
+    {/if}
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       on:click={async () => {
-        launchGame(getInternalName(activeGame), false);
+        if (modPage && modName !== undefined && modSource !== undefined) {
+          launchMod(getInternalName(activeGame), false, modName, modSource);
+        } else {
+          launchGame(getInternalName(activeGame), false);
+        }
       }}>{$_("gameControls_button_play")}</Button
     >
-    <Button
-      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-      >{$_("gameControls_button_features")}</Button
-    >
-    <Dropdown placement="top-end" class="!bg-slate-900">
-      <DropdownItem
-        on:click={async () => {
-          navigate(`/${getInternalName(activeGame)}/features/texture_packs`);
-        }}
+    {#if !modPage}
+      <Button
+        class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+        >{$_("gameControls_button_features")}</Button
       >
-        {$_("gameControls_button_features_textures")}
-      </DropdownItem>
-    </Dropdown>
+      <Dropdown placement="top-end" class="!bg-slate-900">
+        <DropdownItem
+          on:click={async () => {
+            navigate(`/${getInternalName(activeGame)}/features/texture_packs`);
+          }}
+        >
+          {$_("gameControls_button_features_textures")}
+        </DropdownItem>
+        {#if modSupportEnabled}
+          <DropdownItem
+            on:click={async () => {
+              navigate(`/${getInternalName(activeGame)}/features/mods`);
+            }}
+          >
+            {$_("gameControls_button_features_mods")}
+          </DropdownItem>
+        {/if}
+      </Dropdown>
+    {/if}
     <Button
       class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
     >
@@ -137,7 +177,11 @@
     <Dropdown placement="top-end" class="!bg-slate-900">
       <DropdownItem
         on:click={async () => {
-          launchGame(getInternalName(activeGame), true);
+          if (modPage && modName !== undefined && modSource !== undefined) {
+            launchMod(getInternalName(activeGame), true, modName, modSource);
+          } else {
+            launchGame(getInternalName(activeGame), true);
+          }
         }}>{$_("gameControls_button_playInDebug")}</DropdownItem
       >
       {#if !isLinux}
@@ -182,12 +226,16 @@
       <!-- TODO - screenshot folder? how do we even configure where those go? -->
       <DropdownItem
         on:click={async () => {
-          await openDir(settingsDir);
+          if (settingsDir) {
+            await openDir(settingsDir);
+          }
         }}>{$_("gameControls_button_openSettingsFolder")}</DropdownItem
       >
       <DropdownItem
         on:click={async () => {
-          await openDir(savesDir);
+          if (savesDir) {
+            await openDir(savesDir);
+          }
         }}>{$_("gameControls_button_openSavesFolder")}</DropdownItem
       >
       <DropdownDivider />
@@ -206,8 +254,6 @@
         ></DropdownItem
       >
       <DropdownDivider />
-      <!-- TODO - verify installation -->
-      <!-- <DropdownItem>Verify&nbsp;Install</DropdownItem> -->
       <DropdownItem
         on:click={async () => {
           await resetGameSettings(getInternalName(activeGame));

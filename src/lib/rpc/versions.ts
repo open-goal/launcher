@@ -12,6 +12,19 @@ export async function listDownloadedVersions(
   );
 }
 
+export async function listUnofficialDownloadedVersions(
+  versionPath: String,
+): Promise<string[]> {
+  try {
+    return await invoke("list_downloaded_versions", {
+      versionFolder: `unofficial/${versionPath}`,
+    });
+  } catch (e) {
+    exceptionLog("Unable to list out downloaded versions", e);
+    return [];
+  }
+}
+
 export async function downloadOfficialVersion(
   version: String,
   url: String,
@@ -23,6 +36,25 @@ export async function downloadOfficialVersion(
     "Unable to download official version",
     () => true,
   );
+}
+
+export async function downloadUnofficialVersion(
+  version: String,
+  versionFolder: String,
+  url: String,
+): Promise<boolean> {
+  try {
+    await invoke("download_version", {
+      version: version,
+      versionFolder: `unofficial/${versionFolder}`,
+      url: url,
+    });
+  } catch (e) {
+    exceptionLog("Unable to download unofficial version", e);
+    toastStore.makeToast(e, "error");
+    return false;
+  }
+  return true;
 }
 
 export async function removeVersion(
@@ -45,6 +77,18 @@ export async function openVersionFolder(versionFolder: VersionFolders) {
     () => {},
     "Unable to open version folder",
   );
+}
+
+export async function openUnofficialVersionFolder(folder: String) {
+  console.log(`opening unofficial folder: 'unofficial\\${folder}'`);
+  try {
+    return await invoke("go_to_version_folder", {
+      versionFolder: `unofficial\\${folder}`,
+    });
+  } catch (e) {
+    exceptionLog("Unable to open version folder", e);
+    toastStore.makeToast("Unable to open version folder", "error");
+  }
 }
 
 export async function getActiveVersion(): Promise<string | null> {

@@ -12,6 +12,7 @@ use util::file::create_dir;
 use backtrace::Backtrace;
 use std::io::Write;
 
+mod cache;
 mod commands;
 mod config;
 mod util;
@@ -132,6 +133,8 @@ fn main() {
         app.path_resolver().app_config_dir(),
       ));
       app.manage(config);
+      let cache = tokio::sync::Mutex::new(cache::LauncherCache::default());
+      app.manage(cache);
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
@@ -143,10 +146,11 @@ fn main() {
       commands::binaries::run_compiler,
       commands::binaries::run_decompiler,
       commands::binaries::update_data_directory,
+      commands::cache::get_mod_sources_data,
+      commands::cache::refresh_mod_sources,
       commands::config::cleanup_enabled_texture_packs,
       commands::config::delete_old_data_directory,
       commands::config::does_active_tooling_version_support_game,
-      commands::config::get_playtime,
       commands::config::finalize_installation,
       commands::config::get_active_tooling_version_folder,
       commands::config::get_active_tooling_version,
@@ -156,6 +160,7 @@ fn main() {
       commands::config::get_installed_version_folder,
       commands::config::get_installed_version,
       commands::config::get_locale,
+      commands::config::get_playtime,
       commands::config::has_old_data_directory,
       commands::config::is_avx_requirement_met,
       commands::config::is_diskspace_requirement_met,
@@ -169,9 +174,21 @@ fn main() {
       commands::config::set_install_directory,
       commands::config::set_locale,
       commands::download::download_file,
+      commands::features::add_mod_source,
+      commands::features::base_game_iso_exists,
+      commands::features::compile_for_mod_install,
+      commands::features::decompile_for_mod_install,
       commands::features::delete_texture_packs,
+      commands::features::extract_iso_for_mod_install,
+      commands::features::extract_new_mod,
       commands::features::extract_new_texture_pack,
+      commands::features::get_installed_mods,
+      commands::features::get_mod_sources,
+      commands::features::is_mod_support_enabled,
+      commands::features::launch_mod,
       commands::features::list_extracted_texture_pack_info,
+      commands::features::remove_mod_source,
+      commands::features::save_mod_install_info,
       commands::features::update_texture_pack_data,
       commands::game::get_furthest_game_milestone,
       commands::game::reset_game_settings,
@@ -184,7 +201,7 @@ fn main() {
       commands::versions::list_downloaded_versions,
       commands::versions::remove_version,
       commands::window::open_dir_in_os,
-      commands::window::open_main_window
+      commands::window::open_main_window,
     ])
     .build(tauri::generate_context!())
     .map_err(|err| {

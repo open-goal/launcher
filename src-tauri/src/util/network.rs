@@ -19,3 +19,10 @@ pub async fn download_file(url: &String, destination: &PathBuf) -> Result<(), Ne
   file.write_all(&resp_bytes).await?;
   Ok(())
 }
+
+pub async fn download_json(url: &String) -> Result<String, NetworkError> {
+  let client = reqwest::Client::new();
+  let req = client.get(url);
+  let resp = req.send().await?;
+  Ok(resp.text().await?)
+}

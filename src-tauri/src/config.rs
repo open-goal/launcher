@@ -117,6 +117,7 @@ pub struct GameConfig {
   pub version_folder: Option<String>,
   pub features: Option<GameFeatureConfig>,
   pub seconds_played: Option<u64>,
+  pub mods_installed_version: Option<HashMap<String, HashMap<String, String>>>,
 }
 
 impl GameConfig {
@@ -127,6 +128,7 @@ impl GameConfig {
       version_folder: None,
       features: Some(GameFeatureConfig::default()),
       seconds_played: Some(0),
+      mods_installed_version: None,
     }
   }
 }
@@ -150,13 +152,22 @@ impl Requirements {
   }
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ModSource {
+  pub url: String,
+}
+
+fn default_as_false() -> Option<bool> {
+  Some(false)
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LauncherConfig {
   #[serde(skip_serializing)]
   #[serde(skip_deserializing)]
   settings_path: Option<PathBuf>,
-
   #[serde(default = "default_version")]
   pub version: Option<String>,
   pub requirements: Requirements,
@@ -166,6 +177,9 @@ pub struct LauncherConfig {
   pub active_version: Option<String>,
   pub active_version_folder: Option<String>,
   pub locale: Option<String>,
+  pub mod_sources: Option<Vec<ModSource>>,
+  #[serde(default = "default_as_false")]
+  pub mods_enabled: Option<bool>,
 }
 
 fn default_version() -> Option<String> {
@@ -189,6 +203,8 @@ impl LauncherConfig {
       active_version: None,
       active_version_folder: Some("official".to_string()),
       locale: None,
+      mod_sources: None,
+      mods_enabled: Some(false),
     }
   }
 
@@ -216,7 +232,7 @@ impl LauncherConfig {
     }
   }
 
-  fn get_supported_game_config(&mut self, game_name: &String) -> Result<&GameConfig, ConfigError> {
+  fn get_supported_game_config(&self, game_name: &String) -> Result<&GameConfig, ConfigError> {
     let game = match SupportedGame::from_str(game_name) {
       Err(_) => {
         log::warn!("Game is not supported: {}", game_name);
@@ -583,5 +599,88 @@ impl LauncherConfig {
   pub fn get_game_seconds_played(&mut self, game_name: &String) -> Result<u64, ConfigError> {
     let game_config = self.get_supported_game_config_mut(&game_name)?;
     Ok(game_config.seconds_played.unwrap_or(0))
+  }
+
+  pub fn add_new_mod_source(&mut self, url: &String) -> Result<(), ConfigError> {
+    self.mod_sources = match &mut self.mod_sources {
+      Some(sources) => {
+        if sources.iter().any(|s| s.url == *url) {
+          return Err(ConfigError::Configuration(
+            "Duplicate mod source!".to_owned(),
+          ));
+        }
+        sources.push(ModSource {
+          url: url.to_string(),
+        });
+        Some(sources.to_vec())
+      }
+      None => Some(vec![ModSource {
+        url: url.to_string(),
+      }]),
+    };
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn remove_mod_source(&mut self, mod_source_index: usize) -> Result<(), ConfigError> {
+    if let Some(sources) = &mut self.mod_sources {
+      if (mod_source_index as usize) < sources.len() {
+        sources.remove(mod_source_index);
+      }
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn get_mod_sources(&self) -> Vec<ModSource> {
+    match &self.mod_sources {
+      Some(sources) => sources.to_vec(),
+      None => Vec::new(),
+    }
+  }
+
+  pub fn save_mod_install_info(
+    &mut self,
+    game_name: String,
+    mod_name: String,
+    source_name: String,
+    version_name: String,
+  ) -> Result<(), ConfigError> {
+    let game_config = self.get_supported_game_config_mut(&game_name)?;
+    match game_config.mods_installed_version.take() {
+      Some(mut installed_mods) => {
+        if !installed_mods.contains_key(&source_name) {
+          installed_mods.insert(source_name.clone(), HashMap::new());
+        }
+        installed_mods
+          .get_mut(&source_name)
+          .unwrap()
+          .insert(mod_name.clone(), version_name);
+      }
+      None => {
+        let mut installed_mods: HashMap<String, HashMap<String, String>> = HashMap::new();
+        if !installed_mods.contains_key(&source_name) {
+          installed_mods.insert(source_name.clone(), HashMap::new());
+        }
+        installed_mods
+          .get_mut(&source_name)
+          .unwrap()
+          .insert(mod_name.clone(), version_name);
+        game_config.mods_installed_version = Some(installed_mods);
+      }
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn get_installed_mods(
+    &self,
+    game_name: String,
+  ) -> Result<HashMap<String, HashMap<String, String>>, ConfigError> {
+    let game_config = self.get_supported_game_config(&game_name)?;
+    match &game_config.mods_installed_version {
+      Some(installed_mods) => Ok(installed_mods.clone()),
+      None => Ok(HashMap::new()),
+    }
   }
 }

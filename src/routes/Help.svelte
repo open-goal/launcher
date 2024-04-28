@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { Button, Spinner } from "flowbite-svelte";
   import IconDiscord from "~icons/ic/baseline-discord";
   import IconGitHub from "~icons/mdi/github";
@@ -8,7 +8,7 @@
   import { appConfigDir } from "@tauri-apps/api/path";
   import { _ } from "svelte-i18n";
 
-  let appDir = undefined;
+  let appDir: string | undefined = undefined;
   let downloadingPackage = false;
 
   onMount(async () => {
@@ -39,7 +39,9 @@
       <Button
         class="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
         on:click={() => {
-          openDir(appDir);
+          if (appDir) {
+            openDir(appDir);
+          }
         }}>{$_("help_button_openLogFolder")}</Button
       >
     {/if}

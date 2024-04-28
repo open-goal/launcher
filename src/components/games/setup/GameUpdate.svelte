@@ -9,8 +9,8 @@
 
   const dispatch = createEventDispatcher();
 
-  export let installedVersion: String;
-  export let installedVersionFolder: String;
+  export let installedVersion: String | undefined;
+  export let installedVersionFolder: String | undefined;
 </script>
 
 <div class="flex flex-col h-full justify-center items-center">
