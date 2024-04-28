@@ -6,7 +6,7 @@ use std::{
   path::Path,
 };
 use walkdir::WalkDir;
-use zip::write::FileOptions;
+use zip::write::SimpleFileOptions;
 
 pub fn append_dir_contents_to_zip(
   zip_file: &mut zip::ZipWriter<File>,
@@ -20,7 +20,7 @@ pub fn append_dir_contents_to_zip(
 
   let iter = WalkDir::new(dir).into_iter().filter_map(|e| e.ok());
 
-  let options = FileOptions::default()
+  let options = SimpleFileOptions::default()
     .compression_method(zip::CompressionMethod::DEFLATE)
     .unix_permissions(0o755);
 
@@ -73,7 +73,7 @@ pub fn append_file_to_zip(
     return Ok(());
   }
 
-  let options = FileOptions::default()
+  let options = SimpleFileOptions::default()
     .compression_method(zip::CompressionMethod::DEFLATE)
     .unix_permissions(0o755);
 

@@ -4,7 +4,7 @@ use std::{
   path::Path,
 };
 use sysinfo::{Disks, System};
-use zip::write::FileOptions;
+use zip::write::SimpleFileOptions;
 
 use tauri::api::path::config_dir;
 
@@ -334,7 +334,7 @@ pub async fn generate_support_package(
   })?;
 
   // Dump High Level Info
-  let options = FileOptions::default()
+  let options = SimpleFileOptions::default()
     .compression_method(zip::CompressionMethod::DEFLATE)
     .unix_permissions(0o755);
   zip_file
