@@ -29,7 +29,7 @@
     "@octokit/rest": "^20.1.0",
     "@popperjs/core": "^2.11.7",
     "@sveltejs/vite-plugin-svelte": "^3.1.0",
-    "@tauri-apps/cli": "^1.5.11",
+    "@tauri-apps/cli": "^1.5.12",
     "@testing-library/svelte": "^5.1.0",
     "@tsconfig/svelte": "^5.0.4",
     "@vitest/coverage-v8": "^1.5.2",
