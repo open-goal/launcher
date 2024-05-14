@@ -6,7 +6,7 @@ use std::{
   path::Path,
 };
 use walkdir::WalkDir;
-use zip::write::FileOptions;
+use zip::write::SimpleFileOptions;
 
 pub fn append_dir_contents_to_zip(
   zip_file: &mut zip::ZipWriter<File>,
@@ -20,8 +20,9 @@ pub fn append_dir_contents_to_zip(
 
   let iter = WalkDir::new(dir).into_iter().filter_map(|e| e.ok());
 
-  let options = FileOptions::default()
-    .compression_method(zip::CompressionMethod::DEFLATE)
+  let options = SimpleFileOptions::default()
+    .compression_method(zip::CompressionMethod::Deflated)
+    .compression_level(Some(9))
     .unix_permissions(0o755);
 
   let mut buffer = Vec::new();
@@ -73,8 +74,9 @@ pub fn append_file_to_zip(
     return Ok(());
   }
 
-  let options = FileOptions::default()
-    .compression_method(zip::CompressionMethod::DEFLATE)
+  let options = SimpleFileOptions::default()
+    .compression_method(zip::CompressionMethod::Deflated)
+    .compression_level(Some(9))
     .unix_permissions(0o755);
 
   let mut buffer = Vec::new();
@@ -121,6 +123,24 @@ pub fn check_if_zip_contains_top_level_dir(
     let file = zip.by_index(i)?;
     // Check if the entry is a directory and has the desired folder name
     if file.name().starts_with(&expected_dir) {
+      return Ok(true);
+    }
+  }
+  Ok(false)
+}
+
+// TODO - identical to the above, consolidate
+pub fn check_if_zip_contains_top_level_file(
+  zip_path: &PathBuf,
+  expected_file: String,
+) -> Result<bool, Box<dyn std::error::Error>> {
+  let file = File::open(zip_path)?;
+  let reader = BufReader::new(file);
+  let mut zip = zip::ZipArchive::new(reader)?;
+  for i in 0..zip.len() {
+    let file = zip.by_index(i)?;
+    // Check if the entry is a directory and has the desired folder name
+    if file.name().starts_with(&expected_file) {
       return Ok(true);
     }
   }
