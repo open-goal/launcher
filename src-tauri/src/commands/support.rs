@@ -4,13 +4,15 @@ use std::{
   path::Path,
 };
 use sysinfo::{Disks, System};
-use zip::write::FileOptions;
+use zip::write::SimpleFileOptions;
 
 use tauri::api::path::config_dir;
 
 use crate::{
   config::LauncherConfig,
-  util::zip::{append_dir_contents_to_zip, append_file_to_zip},
+  util::zip::{
+    append_dir_contents_to_zip, append_file_to_zip, check_if_zip_contains_top_level_file,
+  },
 };
 
 use super::CommandError;
@@ -334,8 +336,9 @@ pub async fn generate_support_package(
   })?;
 
   // Dump High Level Info
-  let options = FileOptions::default()
-    .compression_method(zip::CompressionMethod::DEFLATE)
+  let options = SimpleFileOptions::default()
+    .compression_method(zip::CompressionMethod::Deflated)
+    .compression_level(Some(9))
     .unix_permissions(0o755);
   zip_file
     .start_file("support-info.json", options)
@@ -358,5 +361,16 @@ pub async fn generate_support_package(
     .finish()
     .map_err(|_| CommandError::Support("Unable to finalize zip file".to_owned()))?;
 
+  // Sanity check that the zip file was actually made correctly
+  let info_found =
+    check_if_zip_contains_top_level_file(&save_path.to_path_buf(), "support-info.json".to_string())
+      .map_err(|_| {
+        CommandError::Support("Support package was unable to be written properly".to_owned())
+      })?;
+  if !info_found {
+    return Err(CommandError::Support(
+      "Support package was unable to be written properly".to_owned(),
+    ));
+  }
   Ok(())
 }

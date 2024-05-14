@@ -23,6 +23,7 @@
   </p>
   <div class="flex flex-row mt-1 gap-2">
     <Button
+      disabled={downloadingPackage}
       class="border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-4 py-2"
       on:click={async () => {
         downloadingPackage = true;
