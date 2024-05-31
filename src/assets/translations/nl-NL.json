@@ -9,7 +9,7 @@
   "features_textures_description": "Je kunt zoveel pakketten inschakelen als je wilt, maar als meerdere pakketten hetzelfde bestand vervangen, is de volgorde van belang. Als bijvoorbeeld twee pakketten het gras vervangen, krijgt het eerste pakket op de lijst voorrang.",
   "features_textures_disabled": "Uitgeschakeld",
   "features_textures_enabled": "Ingeschakeld",
-  "features_textures_invalidPack": "Ongeldig Texture Pakket Formaat. Zorg dat het zeker een top-level 'texture_replacements'-map bevat.",
+  "features_textures_invalidPack": "Invalid texture pack format, ensure it contains the correct top-level folder and valid metadata.",
   "features_textures_listHeading": "Huidige Toegevoegde Packs",
   "features_textures_moveDown_buttonAlt": "Texture Pack lager in volgorde verplaatsen",
   "features_textures_moveUp_buttonAlt": "Texture Pack hoger in volgorde verplaatsen",
@@ -23,6 +23,7 @@
   "gameControls_button_decompile_helpText": "Extraheer spelassets (bv. om textuurvervangingen toe te passen)",
   "gameControls_button_decompile": "Decompileren",
   "gameControls_button_features_textures": "Texture Pack",
+  "gameControls_button_features_textures_disabled": "Texture pack feature disabled, update your launcher and tooling version",
   "gameControls_button_features": "Functies",
   "gameControls_button_openREPL": "Open REPL",
   "gameControls_button_openSavesFolder": "Open map met opgeslagen gegevens",
@@ -178,5 +179,14 @@
   "gameControls_beta_issueTracker_linkPreText": "Voor een lijst van alle bekende problemen, zie",
   "gameControls_beta_issueTracker_linkText": "hier",
   "gameControls_beta_bugReport_linkPreText": "Om een niet-duplicaat melding van een door jou vastgestelde bug te maken, zie",
-  "gameControls_beta_bugReport_linkText": "hier"
+  "gameControls_beta_bugReport_linkText": "hier",
+  "settings_tabs_mods": "Mods",
+  "settings_mods_addSource_label": "Mod Source URL",
+  "settings_mods_icon_addSource_buttonText": "Add",
+  "settings_mods_icon_addSource_buttonAltText": "Add mod source button",
+  "settings_mods_icon_deleteSource_buttonText": "Delete",
+  "settings_mods_icon_deleteSource_buttonAltText": "Delete mod source button",
+  "gameControls_button_features_mods": "Mods",
+  "features_mods_listHeading": "Available Mods",
+  "features_mods_addFromFile": "Add from File"
 }
