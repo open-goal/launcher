@@ -9,7 +9,7 @@
   "features_textures_description": "You can enable as many packs as you want, but if multiple packs replace the same file the order matters. For example if two packs replace the grass, the first pack in the list will take precedence.",
   "features_textures_disabled": "Disabled",
   "features_textures_enabled": "Enabled",
-  "features_textures_invalidPack": "Invalid texture pack format, ensure it contains a top-level `texture_replacements` folder.",
+  "features_textures_invalidPack": "Invalid texture pack format, ensure it contains the correct top-level folder and valid metadata.",
   "features_textures_listHeading": "Currently Added Packs",
   "features_textures_moveDown_buttonAlt": "move texture pack down in order",
   "features_textures_moveUp_buttonAlt": "move texture pack up in order",
@@ -23,6 +23,7 @@
   "gameControls_button_decompile_helpText": "Extrage activele jocului (de ex. aplicarea înlocuirilor texturilor)",
   "gameControls_button_decompile": "Decompilare",
   "gameControls_button_features_textures": "Texture Packs",
+  "gameControls_button_features_textures_disabled": "Texture pack feature disabled, update your launcher and tooling version",
   "gameControls_button_features": "Features",
   "gameControls_button_openREPL": "Deschide REPL",
   "gameControls_button_openSavesFolder": "Deschide dosarul Salvări",
@@ -178,5 +179,14 @@
   "gameControls_beta_issueTracker_linkPreText": "For a list of all known issues, see",
   "gameControls_beta_issueTracker_linkText": "here",
   "gameControls_beta_bugReport_linkPreText": "To submit a non-duplicate bug report, see",
-  "gameControls_beta_bugReport_linkText": "here"
+  "gameControls_beta_bugReport_linkText": "here",
+  "settings_tabs_mods": "Mods",
+  "settings_mods_addSource_label": "Mod Source URL",
+  "settings_mods_icon_addSource_buttonText": "Add",
+  "settings_mods_icon_addSource_buttonAltText": "Add mod source button",
+  "settings_mods_icon_deleteSource_buttonText": "Delete",
+  "settings_mods_icon_deleteSource_buttonAltText": "Delete mod source button",
+  "gameControls_button_features_mods": "Mods",
+  "features_mods_listHeading": "Available Mods",
+  "features_mods_addFromFile": "Add from File"
 }

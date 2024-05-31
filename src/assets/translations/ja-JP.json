@@ -9,7 +9,7 @@
   "features_textures_description": "複数のパックを同時に有効にすることはできますが、複数のパックを同じファイルに置き換えると、順序に従って適用します。 たとえば、2 つのパックを草に置き換える場合、リストの最初のパックが優先です。",
   "features_textures_disabled": "無効",
   "features_textures_enabled": "有効",
-  "features_textures_invalidPack": "テクスチャパックのフォーマットが無効です。トップレベルの「texture_replacements」フォルダが含まれているかをご確認してください。",
+  "features_textures_invalidPack": "Invalid texture pack format, ensure it contains the correct top-level folder and valid metadata.",
   "features_textures_listHeading": "現在追加されたパック",
   "features_textures_moveDown_buttonAlt": "テクスチャパックの順番の位置を下にする",
   "features_textures_moveUp_buttonAlt": "テクスチャパックの順番の位置を上にする",
@@ -23,6 +23,7 @@
   "gameControls_button_decompile_helpText": "ゲームアセットを抽出します。（テクスチャの置き換えなど）",
   "gameControls_button_decompile": "デコンパイル",
   "gameControls_button_features_textures": "テクスチャパック",
+  "gameControls_button_features_textures_disabled": "Texture pack feature disabled, update your launcher and tooling version",
   "gameControls_button_features": "機能",
   "gameControls_button_openREPL": "REPLを開く",
   "gameControls_button_openSavesFolder": "セーブフォルダを開く",
@@ -178,5 +179,14 @@
   "gameControls_beta_issueTracker_linkPreText": "すべての既知の問題のリストについてには、",
   "gameControls_beta_issueTracker_linkText": "こちら",
   "gameControls_beta_bugReport_linkPreText": "重複のないバグレポートを通報するには、",
-  "gameControls_beta_bugReport_linkText": "こちら"
+  "gameControls_beta_bugReport_linkText": "こちら",
+  "settings_tabs_mods": "Mods",
+  "settings_mods_addSource_label": "Mod Source URL",
+  "settings_mods_icon_addSource_buttonText": "Add",
+  "settings_mods_icon_addSource_buttonAltText": "Add mod source button",
+  "settings_mods_icon_deleteSource_buttonText": "Delete",
+  "settings_mods_icon_deleteSource_buttonAltText": "Delete mod source button",
+  "gameControls_button_features_mods": "Mods",
+  "features_mods_listHeading": "Available Mods",
+  "features_mods_addFromFile": "Add from File"
 }

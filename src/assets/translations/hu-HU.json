@@ -9,7 +9,7 @@
   "features_textures_description": "Bármennyi csomagot bekapcsolhatsz, viszont ha több csomag lecserél egy adott fájlt (pl. két csomag lecseréli a fű textúrát), akkor a listában a legfelső csomag élvez elsőbbséget.",
   "features_textures_disabled": "Kikapcsolva",
   "features_textures_enabled": "Bekapcsolva",
-  "features_textures_invalidPack": "Érvénytelen textúracsomag formátum, győződj meg, hogy a csomag tartalmaz egy 'texture_replacements' gyökérmappát.",
+  "features_textures_invalidPack": "Invalid texture pack format, ensure it contains the correct top-level folder and valid metadata.",
   "features_textures_listHeading": "Jelenleg hozzáadott csomagok",
   "features_textures_moveDown_buttonAlt": "Textúracsomag lejjebb mozgatása a sorban",
   "features_textures_moveUp_buttonAlt": "Textúracsomag feljebb mozgatása a sorban",
@@ -23,6 +23,7 @@
   "gameControls_button_decompile_helpText": "Játék assetek kicsomagolása (pl. hogy textúrakicseréléseket alkalmazz)",
   "gameControls_button_decompile": "Dekompilálás",
   "gameControls_button_features_textures": "Textúracsomagok",
+  "gameControls_button_features_textures_disabled": "Texture pack feature disabled, update your launcher and tooling version",
   "gameControls_button_features": "Extrák",
   "gameControls_button_openREPL": "REPL Megnyitása",
   "gameControls_button_openSavesFolder": "Mentés Mappa Megnyitása",
@@ -178,5 +179,14 @@
   "gameControls_beta_issueTracker_linkPreText": "Minden ismert hibáért kattints",
   "gameControls_beta_issueTracker_linkText": "ide",
   "gameControls_beta_bugReport_linkPreText": "Hibajelentés beküldéséhez kattints",
-  "gameControls_beta_bugReport_linkText": "ide"
+  "gameControls_beta_bugReport_linkText": "ide",
+  "settings_tabs_mods": "Modok",
+  "settings_mods_addSource_label": "Mod Forrás Linkje",
+  "settings_mods_icon_addSource_buttonText": "Hozzáadás",
+  "settings_mods_icon_addSource_buttonAltText": "Add mod source button",
+  "settings_mods_icon_deleteSource_buttonText": "Törlés",
+  "settings_mods_icon_deleteSource_buttonAltText": "Delete mod source button",
+  "gameControls_button_features_mods": "Modok",
+  "features_mods_listHeading": "Elérhető Modok",
+  "features_mods_addFromFile": "Hozzáadás Fájlból"
 }

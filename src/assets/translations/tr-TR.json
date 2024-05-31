@@ -9,7 +9,7 @@
   "features_textures_description": "İstediğiniz kadar paket etkinleştirebilirsiniz ancak eğer birden fazla paket aynı dosyayı değiştirmeye çalışıyorsa öncelik önemlidir. Örneğin, iki paket de çimen dokusunu değiştirmeye çalışıyorsa, listenin en başındaki paket önceliğe sahip olacaktır.",
   "features_textures_disabled": "Devre dışı",
   "features_textures_enabled": "Etkin",
-  "features_textures_invalidPack": "Geçersiz doku paketi biçimi, `texture_replacements` klasörüne sahip olduğundan emin olun.",
+  "features_textures_invalidPack": "Invalid texture pack format, ensure it contains the correct top-level folder and valid metadata.",
   "features_textures_listHeading": "Ekli Paketler",
   "features_textures_moveDown_buttonAlt": "doku paketini aşağıya taşı",
   "features_textures_moveUp_buttonAlt": "doku paketini yukarıya taşı",
@@ -23,6 +23,7 @@
   "gameControls_button_decompile_helpText": "Oyun assetlerini çıkart. (örn. oyun dokularını değiştirmek için)",
   "gameControls_button_decompile": "Geri Derle",
   "gameControls_button_features_textures": "Doku Paketleri",
+  "gameControls_button_features_textures_disabled": "Texture pack feature disabled, update your launcher and tooling version",
   "gameControls_button_features": "Özellikler",
   "gameControls_button_openREPL": "REPL'i Aç",
   "gameControls_button_openSavesFolder": "Kayıtlar Klasörünü Aç",
@@ -178,5 +179,14 @@
   "gameControls_beta_issueTracker_linkPreText": "Bilinen tüm sıkıntıları görmek istiyorsanız,",
   "gameControls_beta_issueTracker_linkText": "buraya tıklayın",
   "gameControls_beta_bugReport_linkPreText": "Daha önce belirtilmemiş bir hata raporu vermek istiyorsanız,",
-  "gameControls_beta_bugReport_linkText": "buraya tıklayın"
+  "gameControls_beta_bugReport_linkText": "buraya tıklayın",
+  "settings_tabs_mods": "Mods",
+  "settings_mods_addSource_label": "Mod Source URL",
+  "settings_mods_icon_addSource_buttonText": "Add",
+  "settings_mods_icon_addSource_buttonAltText": "Add mod source button",
+  "settings_mods_icon_deleteSource_buttonText": "Delete",
+  "settings_mods_icon_deleteSource_buttonAltText": "Delete mod source button",
+  "gameControls_button_features_mods": "Mods",
+  "features_mods_listHeading": "Available Mods",
+  "features_mods_addFromFile": "Add from File"
 }
