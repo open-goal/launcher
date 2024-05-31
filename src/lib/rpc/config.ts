@@ -285,7 +285,7 @@ export async function doesActiveToolingVersionMeetMinimum(
     {
       minimumPatch: minimumPatch,
       minimumMinor: minimumMinor,
-      minimumMajor: minimumMajor
+      minimumMajor: minimumMajor,
     },
     () => false,
   );

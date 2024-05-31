@@ -98,7 +98,12 @@ pub async fn list_extracted_texture_pack_info(
         match entry {
           Ok(path) => {
             let relative_path = path
-              .strip_prefix(&entry_path.join("custom_assets").join(&game_name).join("texture_replacements"))
+              .strip_prefix(
+                &entry_path
+                  .join("custom_assets")
+                  .join(&game_name)
+                  .join("texture_replacements"),
+              )
               .map_err(|_| {
                 CommandError::GameFeatures(format!(
                   "Unable to read texture packs from {}",
@@ -190,17 +195,19 @@ pub async fn extract_new_texture_pack(
       ));
     }
   };
-  let expected_top_level_dir = PathBuf::from("custom_assets").join(&game_name).join("texture_replacements");
+  let expected_top_level_dir = format!("custom_assets/{}/texture_replacements", &game_name);
   let valid_zip =
-    check_if_zip_contains_top_level_dir(&zip_path_buf, expected_top_level_dir.to_string_lossy().to_string())
-      .map_err(|err| {
+    check_if_zip_contains_top_level_dir(&zip_path_buf, expected_top_level_dir.clone()).map_err(
+      |err| {
         log::error!("Unable to read texture replacement zip file: {}", err);
         CommandError::GameFeatures(format!("Unable to read texture replacement pack: {}", err))
-      })?;
+      },
+    )?;
   if !valid_zip {
     log::error!(
       "Invalid texture pack, no top-level `{}` folder in: {}",
-      expected_top_level_dir.display(), zip_path_buf.display()
+      &expected_top_level_dir,
+      zip_path_buf.display()
     );
     return Ok(false);
   }
@@ -253,7 +260,9 @@ pub async fn update_texture_pack_data(
     .join("active")
     .join(&game_name)
     .join("data")
-    .join("custom_assets").join(&game_name).join("texture_replacements");
+    .join("custom_assets")
+    .join(&game_name)
+    .join("texture_replacements");
   // Reset texture replacement directory
   delete_dir(&game_texture_pack_dir)?;
   create_dir(&game_texture_pack_dir)?;
@@ -267,7 +276,9 @@ pub async fn update_texture_pack_data(
       .join(&game_name)
       .join("texture-packs")
       .join(&pack)
-      .join("custom_assets").join(&game_name).join("texture_replacements");
+      .join("custom_assets")
+      .join(&game_name)
+      .join("texture_replacements");
     log::info!("Appending textures from: {}", texture_pack_dir.display());
     match overwrite_dir(&texture_pack_dir, &game_texture_pack_dir) {
       Ok(_) => (),
