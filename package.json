@@ -55,7 +55,7 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1.5.5",
+    "@tauri-apps/api": "^1.5.6",
     "@types/semver": "^7.5.8",
     "country-flag-emoji-polyfill": "^0.1.8",
     "http-server": "^14.1.1",
