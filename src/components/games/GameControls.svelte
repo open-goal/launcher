@@ -13,11 +13,12 @@
     DropdownItem,
     DropdownDivider,
     Helper,
+    Tooltip,
   } from "flowbite-svelte";
   import { resetGameSettings, uninstallGame } from "$lib/rpc/game";
   import { platform } from "@tauri-apps/api/os";
   import { getLaunchGameString, launchGame, openREPL } from "$lib/rpc/binaries";
-  import { getPlaytime } from "$lib/rpc/config";
+  import { doesActiveToolingVersionMeetMinimum, getPlaytime } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { navigate } from "svelte-navigator";
   import { listen } from "@tauri-apps/api/event";
@@ -35,6 +36,7 @@
   let isLinux = false;
   let playtime = "";
   let modSupportEnabled = false;
+  let textureSupportEnabled = true;
 
   onMount(async () => {
     modSupportEnabled = await isModSupportEanbled();
@@ -58,6 +60,8 @@
         playtime = formatPlaytime(result);
       });
     }
+
+    textureSupportEnabled = await doesActiveToolingVersionMeetMinimum(0, 2, 10);
   });
 
   // format the time from the settings file which is stored as seconds
@@ -152,12 +156,16 @@
       >
       <Dropdown placement="top-end" class="!bg-slate-900">
         <DropdownItem
+          disabled={!textureSupportEnabled}
           on:click={async () => {
             navigate(`/${getInternalName(activeGame)}/features/texture_packs`);
           }}
         >
           {$_("gameControls_button_features_textures")}
         </DropdownItem>
+        {#if !textureSupportEnabled}
+        <Tooltip>{$_("gameControls_button_features_textures_disabled")}</Tooltip>
+        {/if}
         {#if modSupportEnabled}
           <DropdownItem
             on:click={async () => {

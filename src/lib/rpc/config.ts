@@ -274,3 +274,19 @@ export async function doesActiveToolingVersionSupportGame(
 export async function getPlaytime(gameName: string): Promise<number> {
   return await invoke_rpc("get_playtime", { gameName: gameName }, () => 0);
 }
+
+export async function doesActiveToolingVersionMeetMinimum(
+  minimumMajor: number,
+  minimumMinor: number,
+  minimumPatch: number,
+): Promise<boolean> {
+  return await invoke_rpc(
+    "does_active_tooling_version_meet_minimum",
+    {
+      minimumPatch: minimumPatch,
+      minimumMinor: minimumMinor,
+      minimumMajor: minimumMajor
+    },
+    () => false,
+  );
+}

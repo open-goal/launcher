@@ -23,6 +23,7 @@
   "gameControls_button_decompile_helpText": "Extracts game assets (ie. to apply texture replacements)",
   "gameControls_button_decompile": "Decompile",
   "gameControls_button_features_textures": "Texture Packs",
+  "gameControls_button_features_textures_disabled": "Texture pack feature disabled, update your launcher and tooling version",
   "gameControls_button_features": "Features",
   "gameControls_button_openREPL": "Open REPL",
   "gameControls_button_openSavesFolder": "Open Saves Folder",

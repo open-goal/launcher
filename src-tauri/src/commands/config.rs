@@ -472,3 +472,27 @@ pub async fn get_playtime(
     ))),
   }
 }
+
+#[tauri::command]
+pub async fn does_active_tooling_version_meet_minimum(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  minimum_patch: u64, minimum_minor: u64, minimum_major: u64
+) -> Result<bool, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.active_version {
+    Some(version) => {
+      // If we can't determine the version, assume 0,0,0
+      let tooling_version = Version::parse(version.strip_prefix('v').unwrap_or(&version))
+        .unwrap_or(Version::new(0, 0, 0));
+      if tooling_version.patch >= minimum_patch && tooling_version.minor >= minimum_minor && tooling_version.major >= minimum_major {
+        Ok(true)
+      } else {
+        Ok(false)
+      }
+    }
+    None => {
+      log::warn!("No active tooling version set, can't check if the minimum!");
+      Ok(false)
+    }
+  }
+}
