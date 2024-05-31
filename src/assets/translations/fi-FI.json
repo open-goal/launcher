@@ -9,7 +9,7 @@
   "features_textures_description": "Voit ottaa käyttöön niin monta pakettia kuin haluat, mutta jos useat paketit korvaavat saman tiedoston, järjestyksellä on väliä. Esimerkiksi jos kaksi pakettia korvaavat ruohotekstuurin, luettelon ensimmäinen pakkaus on etusijalla.",
   "features_textures_disabled": "Pois käytöstä",
   "features_textures_enabled": "Käytössä",
-  "features_textures_invalidPack": "Virheellinen tekstuuripakettiformaatti. Varmista, että se sisältää ylimmän tason `texture_replacements`-kansion.",
+  "features_textures_invalidPack": "Invalid texture pack format, ensure it contains the correct top-level folder and valid metadata.",
   "features_textures_listHeading": "Lisätyt paketit",
   "features_textures_moveDown_buttonAlt": "siirrä tekstuuripaketti alaspäin järjestyksessä",
   "features_textures_moveUp_buttonAlt": "siirrä tekstuuripaketti ylöspäin järjestyksessä",
@@ -23,6 +23,7 @@
   "gameControls_button_decompile_helpText": "Purkaa pelin sisällöt (esim. tekstuurikorvauksien käyttöönottoon)",
   "gameControls_button_decompile": "Pura",
   "gameControls_button_features_textures": "Tekstuuripaketit",
+  "gameControls_button_features_textures_disabled": "Texture pack feature disabled, update your launcher and tooling version",
   "gameControls_button_features": "Ominaisuudet",
   "gameControls_button_openREPL": "Avaa REPL",
   "gameControls_button_openSavesFolder": "Avaa tallennusten kansio",
@@ -178,5 +179,14 @@
   "gameControls_beta_issueTracker_linkPreText": "Luettelo kaikista tunnetuista vioista, katso",
   "gameControls_beta_issueTracker_linkText": "täältä",
   "gameControls_beta_bugReport_linkPreText": "Lähettääksesi ilmoittamattoman virheraportin, katso",
-  "gameControls_beta_bugReport_linkText": "täältä"
+  "gameControls_beta_bugReport_linkText": "täältä",
+  "settings_tabs_mods": "Modit",
+  "settings_mods_addSource_label": "Modin lähde-URL-osoite",
+  "settings_mods_icon_addSource_buttonText": "Lisää",
+  "settings_mods_icon_addSource_buttonAltText": "Modin lähteen lisäyspainike",
+  "settings_mods_icon_deleteSource_buttonText": "Poista",
+  "settings_mods_icon_deleteSource_buttonAltText": "Modin lähteen poistopainike",
+  "gameControls_button_features_mods": "Modit",
+  "features_mods_listHeading": "Saatavilla olevat modit",
+  "features_mods_addFromFile": "Lisää tiedostosta"
 }
