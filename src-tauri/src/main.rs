@@ -161,6 +161,7 @@ fn main() {
       commands::config::get_installed_version,
       commands::config::get_locale,
       commands::config::get_playtime,
+      commands::config::does_active_tooling_version_meet_minimum,
       commands::config::has_old_data_directory,
       commands::config::is_avx_requirement_met,
       commands::config::is_diskspace_requirement_met,

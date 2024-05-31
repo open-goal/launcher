@@ -88,6 +88,8 @@ pub async fn list_extracted_texture_pack_info(
       let mut file_list = Vec::new();
       for entry in glob::glob(
         &entry_path
+          .join("custom_assets")
+          .join(&game_name)
           .join("texture_replacements/**/*.png")
           .to_string_lossy(),
       )
@@ -96,7 +98,12 @@ pub async fn list_extracted_texture_pack_info(
         match entry {
           Ok(path) => {
             let relative_path = path
-              .strip_prefix(&entry_path.join("texture_replacements"))
+              .strip_prefix(
+                &entry_path
+                  .join("custom_assets")
+                  .join(&game_name)
+                  .join("texture_replacements"),
+              )
               .map_err(|_| {
                 CommandError::GameFeatures(format!(
                   "Unable to read texture packs from {}",
@@ -178,7 +185,7 @@ pub async fn extract_new_texture_pack(
     Some(path) => Path::new(path),
   };
 
-  // First, we'll check the zip file to make sure it has a `texture_replacements` folder before extracting
+  // First, we'll check the zip file to make sure it has a `custom_assets/<game>/texture_replacements` folder before extracting
   let zip_path_buf = PathBuf::from(zip_path);
   let texture_pack_name = match zip_path_buf.file_stem() {
     Some(name) => name.to_string_lossy().to_string(),
@@ -188,15 +195,18 @@ pub async fn extract_new_texture_pack(
       ));
     }
   };
+  let expected_top_level_dir = format!("custom_assets/{}/texture_replacements", &game_name);
   let valid_zip =
-    check_if_zip_contains_top_level_dir(&zip_path_buf, "texture_replacements".to_string())
-      .map_err(|err| {
+    check_if_zip_contains_top_level_dir(&zip_path_buf, expected_top_level_dir.clone()).map_err(
+      |err| {
         log::error!("Unable to read texture replacement zip file: {}", err);
         CommandError::GameFeatures(format!("Unable to read texture replacement pack: {}", err))
-      })?;
+      },
+    )?;
   if !valid_zip {
     log::error!(
-      "Invalid texture pack, no top-level `texture_replacements` folder: {}",
+      "Invalid texture pack, no top-level `{}` folder in: {}",
+      &expected_top_level_dir,
       zip_path_buf.display()
     );
     return Ok(false);
@@ -250,6 +260,8 @@ pub async fn update_texture_pack_data(
     .join("active")
     .join(&game_name)
     .join("data")
+    .join("custom_assets")
+    .join(&game_name)
     .join("texture_replacements");
   // Reset texture replacement directory
   delete_dir(&game_texture_pack_dir)?;
@@ -264,6 +276,8 @@ pub async fn update_texture_pack_data(
       .join(&game_name)
       .join("texture-packs")
       .join(&pack)
+      .join("custom_assets")
+      .join(&game_name)
       .join("texture_replacements");
     log::info!("Appending textures from: {}", texture_pack_dir.display());
     match overwrite_dir(&texture_pack_dir, &game_texture_pack_dir) {
