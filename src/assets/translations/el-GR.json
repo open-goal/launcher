@@ -9,7 +9,7 @@
   "features_textures_description": "Μπορείτε να ενεργοποιήσετε όσα πακέτα θέλετε, αλλά αν πολλά πακέτα αντικαταστούν το ίδιο αρχείο έχει σημασία η σειρά εφαρμογής. Για παράδειγμα, αν δύο πακέτα αντικαταστήσουν το γρασίδι, το πρώτο πακέτο στη λίστα θα υπερισχύσει.",
   "features_textures_disabled": "Ανενεργό",
   "features_textures_enabled": "Ενεργό",
-  "features_textures_invalidPack": "Μη έγκυρη μορφή πακέτου textures, βεβαιωθείτε ότι περιέχει τον φάκελο `texture_replacements`.",
+  "features_textures_invalidPack": "Invalid texture pack format, ensure it contains the correct top-level folder and valid metadata.",
   "features_textures_listHeading": "Πακέτα Που Προστέθηκαν",
   "features_textures_moveDown_buttonAlt": "μετακίνηση πακέτου υφής κάτω στη σειρά",
   "features_textures_moveUp_buttonAlt": "μετακίνηση πακέτου υφής επάνω στη σειρά",
@@ -23,6 +23,7 @@
   "gameControls_button_decompile_helpText": "Εξάγει αρχεία του παιχνιδιού (π.χ. για να αντικαταστήσετε textures)",
   "gameControls_button_decompile": "Decompile",
   "gameControls_button_features_textures": "Πακέτα Textures",
+  "gameControls_button_features_textures_disabled": "Texture pack feature disabled, update your launcher and tooling version",
   "gameControls_button_features": "Δυνατότητες",
   "gameControls_button_openREPL": "Άνοιγμα REPL",
   "gameControls_button_openSavesFolder": "Άνοιγμα Φακέλου Αποθηκεύσεων",
@@ -178,5 +179,14 @@
   "gameControls_beta_issueTracker_linkPreText": "Για κατάλογο γνωστών ζητημάτων και σφαλμάτων, βλέπετε",
   "gameControls_beta_issueTracker_linkText": "εδώ",
   "gameControls_beta_bugReport_linkPreText": "Για να αναφέρετε μη-διπλότυπο σφάλμα, βλέπετε",
-  "gameControls_beta_bugReport_linkText": "εδώ"
+  "gameControls_beta_bugReport_linkText": "εδώ",
+  "settings_tabs_mods": "Mods",
+  "settings_mods_addSource_label": "URL της Mod",
+  "settings_mods_icon_addSource_buttonText": "Προσθήκη",
+  "settings_mods_icon_addSource_buttonAltText": "Προσθήκη πλήκτρου πηγής mod",
+  "settings_mods_icon_deleteSource_buttonText": "Διαγραφή",
+  "settings_mods_icon_deleteSource_buttonAltText": "Προσθήκη πλήκτρου πηγής mod",
+  "gameControls_button_features_mods": "Mods",
+  "features_mods_listHeading": "Διαθέσιμες Mods",
+  "features_mods_addFromFile": "Προσθήκη από Αρχείο"
 }
