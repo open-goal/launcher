@@ -9,7 +9,7 @@
   "features_textures_description": "Pode ativar quantos pacotes quiser, mas se vários pactos substituírem o mesmo ficheiro, a ordem será importante. Por exemplo, se dois pacotes substituírem a relva, o primeiro pacote terá prioridade.",
   "features_textures_disabled": "Desativado",
   "features_textures_enabled": "Ativado",
-  "features_textures_invalidPack": "Formato do pacote de texturas inválido, certifique-se de que contém uma pasta de nível superior `texture_substituements`.",
+  "features_textures_invalidPack": "Invalid texture pack format, ensure it contains the correct top-level folder and valid metadata.",
   "features_textures_listHeading": "Pacotes adicionados",
   "features_textures_moveDown_buttonAlt": "mover o pacote de texturas para baixo em ordem",
   "features_textures_moveUp_buttonAlt": "mover o pacote de texturas para cima em ordem",
@@ -23,6 +23,7 @@
   "gameControls_button_decompile_helpText": "Extrai recursos do jogo (ex: para aplicar substituições de textura)",
   "gameControls_button_decompile": "Descompilar",
   "gameControls_button_features_textures": "Pacotes de texturas",
+  "gameControls_button_features_textures_disabled": "Texture pack feature disabled, update your launcher and tooling version",
   "gameControls_button_features": "Funcionalidades",
   "gameControls_button_openREPL": "Abrir REPL",
   "gameControls_button_openSavesFolder": "Abrir pasta de salvamento",
@@ -178,5 +179,14 @@
   "gameControls_beta_issueTracker_linkPreText": "Para uma lista de todos os problemas conhecidos, veja",
   "gameControls_beta_issueTracker_linkText": "aqui",
   "gameControls_beta_bugReport_linkPreText": "Para enviar um relatório de erro não duplicado, veja",
-  "gameControls_beta_bugReport_linkText": "aqui"
+  "gameControls_beta_bugReport_linkText": "aqui",
+  "settings_tabs_mods": "Mods",
+  "settings_mods_addSource_label": "Mod Source URL",
+  "settings_mods_icon_addSource_buttonText": "Add",
+  "settings_mods_icon_addSource_buttonAltText": "Add mod source button",
+  "settings_mods_icon_deleteSource_buttonText": "Delete",
+  "settings_mods_icon_deleteSource_buttonAltText": "Delete mod source button",
+  "gameControls_button_features_mods": "Mods",
+  "features_mods_listHeading": "Available Mods",
+  "features_mods_addFromFile": "Add from File"
 }
