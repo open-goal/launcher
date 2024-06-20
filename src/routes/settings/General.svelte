@@ -7,6 +7,7 @@
     localeSpecificFontAvailableForDownload,
     resetLauncherSettingsToDefaults,
     setBypassRequirements,
+    setInstallationDirectory,
     setLocale,
   } from "$lib/rpc/config";
   import { getActiveVersion, getActiveVersionFolder } from "$lib/rpc/versions";
@@ -14,6 +15,7 @@
   import {
     Button,
     Helper,
+    Input,
     Label,
     Select,
     Spinner,
@@ -24,6 +26,7 @@
   import { confirm } from "@tauri-apps/api/dialog";
   import { downloadFile } from "$lib/rpc/download";
   import { appDataDir, join } from "@tauri-apps/api/path";
+  import { folderPrompt } from "$lib/utils/file-dialogs";
 
   let currentInstallationDirectory = "";
   let currentLocale;
@@ -108,6 +111,33 @@
         {$_("settings_general_downloadLocaleSpecificFont")}
       </Button>
     {/if}
+  </div>
+  <div>
+    <Label for="default-input" class="block mb-2"
+      >{$_("settings_folders_installationDir")}</Label
+    >
+    <Input
+      id="default-input"
+      placeholder={currentInstallationDirectory}
+      on:click={async () => {
+        const newInstallDir = await folderPrompt(
+          $_("settings_folders_installationDir_prompt"),
+        );
+        if (
+          newInstallDir !== undefined &&
+          newInstallDir !== currentInstallationDirectory
+        ) {
+          const errMsg = await setInstallationDirectory(newInstallDir);
+          if (errMsg === null) {
+            if (currentInstallationDirectory !== newInstallDir) {
+              $VersionStore.activeVersionType = null;
+              $VersionStore.activeVersionName = null;
+            }
+            currentInstallationDirectory = newInstallDir;
+          }
+        }
+      }}
+    />
   </div>
   <div>
     <Toggle
