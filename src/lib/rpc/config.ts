@@ -290,3 +290,41 @@ export async function doesActiveToolingVersionMeetMinimum(
     () => false,
   );
 }
+
+export async function isRipLevelsEnabled(): Promise<boolean> {
+  return await invoke_rpc("is_rip_levels_enabled", {}, () => false);
+}
+
+export async function setRipLevelsEnabled(enabled: boolean): Promise<void> {
+  return await invoke_rpc("set_rip_levels_enabled", { enabled }, () => {});
+}
+
+export async function isRipCollisionEnabled(): Promise<boolean> {
+  return await invoke_rpc("is_rip_collision_enabled", {}, () => false);
+}
+
+export async function setRipCollisionEnabled(enabled: boolean): Promise<void> {
+  return await invoke_rpc("set_rip_collision_enabled", { enabled }, () => {});
+}
+
+export async function isRipTexturesEnabled(): Promise<boolean> {
+  return await invoke_rpc("is_rip_textures_enabled", {}, () => false);
+}
+
+export async function setRipTexturesEnabled(enabled: boolean): Promise<void> {
+  return await invoke_rpc("set_rip_textures_enabled", { enabled }, () => {});
+}
+
+export async function isRipStreamedAudioEnabled(): Promise<boolean> {
+  return await invoke_rpc("is_rip_streamed_audio_enabled", {}, () => false);
+}
+
+export async function setRipStreamedAudioEnabled(
+  enabled: boolean,
+): Promise<void> {
+  return await invoke_rpc(
+    "set_rip_streamed_audio_enabled",
+    { enabled },
+    () => {},
+  );
+}

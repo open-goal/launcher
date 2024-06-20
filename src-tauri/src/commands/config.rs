@@ -501,3 +501,99 @@ pub async fn does_active_tooling_version_meet_minimum(
     }
   }
 }
+
+#[tauri::command]
+pub async fn is_rip_levels_enabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.decompiler_settings {
+    Some(settings) => Ok(settings.rip_levels_enabled.unwrap_or(false)),
+    _ => Ok(false),
+  }
+}
+
+#[tauri::command]
+pub async fn set_rip_levels_enabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_rip_levels_enabled(enabled).map_err(|_| {
+    CommandError::Configuration("Unable to persist change to rip_levels_enabled".to_owned())
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn is_rip_collision_enabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.decompiler_settings {
+    Some(settings) => Ok(settings.rip_collision_enabled.unwrap_or(false)),
+    _ => Ok(false),
+  }
+}
+
+#[tauri::command]
+pub async fn set_rip_collision_enabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .set_rip_collision_enabled(enabled)
+    .map_err(|_| {
+      CommandError::Configuration("Unable to persist change to rip_levels_enabled".to_owned())
+    })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn is_rip_textures_enabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.decompiler_settings {
+    Some(settings) => Ok(settings.rip_textures_enabled.unwrap_or(false)),
+    _ => Ok(false),
+  }
+}
+
+#[tauri::command]
+pub async fn set_rip_textures_enabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_rip_textures_enabled(enabled).map_err(|_| {
+    CommandError::Configuration("Unable to persist change to rip_levels_enabled".to_owned())
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn is_rip_streamed_audio_enabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.decompiler_settings {
+    Some(settings) => Ok(settings.rip_streamed_audio_enabled.unwrap_or(false)),
+    _ => Ok(false),
+  }
+}
+
+#[tauri::command]
+pub async fn set_rip_streamed_audio_enabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .set_rip_streamed_audio_enabled(enabled)
+    .map_err(|_| {
+      CommandError::Configuration("Unable to persist change to rip_levels_enabled".to_owned())
+    })?;
+  Ok(())
+}

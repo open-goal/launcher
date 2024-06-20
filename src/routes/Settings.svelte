@@ -1,13 +1,13 @@
 <script>
   import { Tabs, TabItem } from "flowbite-svelte";
   import { useParams } from "svelte-navigator";
-  import Folders from "./settings/Folders.svelte";
   import Versions from "./settings/Versions.svelte";
   import General from "./settings/General.svelte";
   import { _ } from "svelte-i18n";
   import Mods from "./settings/Mods.svelte";
   import { onMount } from "svelte";
   import { isModSupportEanbled } from "$lib/rpc/features";
+  import Decompiler from "./settings/Decompiler.svelte";
 
   const params = useParams();
   $: activeTab = $params["tab"];
@@ -41,20 +41,20 @@
       <General />
     </TabItem>
     <TabItem
-      open={!activeTab || activeTab === "folders"}
-      title={$_("settings_tabs_folders")}
-      activeClasses={tabItemActiveClasses}
-      inactiveClasses={tabItemInactiveClasses}
-    >
-      <Folders />
-    </TabItem>
-    <TabItem
       open={activeTab === "versions"}
       title={$_("settings_tabs_versions")}
       activeClasses={tabItemActiveClasses}
       inactiveClasses={tabItemInactiveClasses}
     >
       <Versions />
+    </TabItem>
+    <TabItem
+      open={activeTab === "decompiler"}
+      title={$_("settings_tabs_decompiler")}
+      activeClasses={tabItemActiveClasses}
+      inactiveClasses={tabItemInactiveClasses}
+    >
+      <Decompiler />
     </TabItem>
     {#if modSupportEnabled}
       <TabItem

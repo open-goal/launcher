@@ -152,6 +152,30 @@ impl Requirements {
   }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DecompilerSettings {
+  #[serde(default = "default_as_false")]
+  pub rip_levels_enabled: Option<bool>,
+  #[serde(default = "default_as_false")]
+  pub rip_collision_enabled: Option<bool>,
+  #[serde(default = "default_as_false")]
+  pub rip_textures_enabled: Option<bool>,
+  #[serde(default = "default_as_false")]
+  pub rip_streamed_audio_enabled: Option<bool>,
+}
+
+impl DecompilerSettings {
+  fn default() -> Self {
+    Self {
+      rip_levels_enabled: Some(false),
+      rip_collision_enabled: Some(false),
+      rip_textures_enabled: Some(false),
+      rip_streamed_audio_enabled: Some(false),
+    }
+  }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModSource {
@@ -180,6 +204,7 @@ pub struct LauncherConfig {
   pub mod_sources: Option<Vec<ModSource>>,
   #[serde(default = "default_as_false")]
   pub mods_enabled: Option<bool>,
+  pub decompiler_settings: Option<DecompilerSettings>,
 }
 
 fn default_version() -> Option<String> {
@@ -205,6 +230,7 @@ impl LauncherConfig {
       locale: None,
       mod_sources: None,
       mods_enabled: Some(false),
+      decompiler_settings: Some(DecompilerSettings::default()),
     }
   }
 
@@ -646,6 +672,7 @@ impl LauncherConfig {
     source_name: String,
     version_name: String,
   ) -> Result<(), ConfigError> {
+    // TODO - remove `take` usage here, bug
     let game_config = self.get_supported_game_config_mut(&game_name)?;
     match game_config.mods_installed_version.take() {
       Some(mut installed_mods) => {
@@ -682,5 +709,54 @@ impl LauncherConfig {
       Some(installed_mods) => Ok(installed_mods.clone()),
       None => Ok(HashMap::new()),
     }
+  }
+
+  pub fn set_rip_levels_enabled(&mut self, enabled: bool) -> Result<(), ConfigError> {
+    if let Some(ref mut settings) = self.decompiler_settings {
+      settings.rip_levels_enabled = Some(enabled);
+    } else {
+      let mut new_settings = DecompilerSettings::default();
+      new_settings.rip_levels_enabled = Some(enabled);
+      self.decompiler_settings = Some(new_settings);
+    }
+
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_rip_collision_enabled(&mut self, enabled: bool) -> Result<(), ConfigError> {
+    if let Some(ref mut settings) = self.decompiler_settings {
+      settings.rip_collision_enabled = Some(enabled);
+    } else {
+      let mut new_settings = DecompilerSettings::default();
+      new_settings.rip_collision_enabled = Some(enabled);
+      self.decompiler_settings = Some(new_settings);
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_rip_textures_enabled(&mut self, enabled: bool) -> Result<(), ConfigError> {
+    if let Some(ref mut settings) = self.decompiler_settings {
+      settings.rip_textures_enabled = Some(enabled);
+    } else {
+      let mut new_settings = DecompilerSettings::default();
+      new_settings.rip_textures_enabled = Some(enabled);
+      self.decompiler_settings = Some(new_settings);
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_rip_streamed_audio_enabled(&mut self, enabled: bool) -> Result<(), ConfigError> {
+    if let Some(ref mut settings) = self.decompiler_settings {
+      settings.rip_streamed_audio_enabled = Some(enabled);
+    } else {
+      let mut new_settings = DecompilerSettings::default();
+      new_settings.rip_streamed_audio_enabled = Some(enabled);
+      self.decompiler_settings = Some(new_settings);
+    }
+    self.save_config()?;
+    Ok(())
   }
 }
