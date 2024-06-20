@@ -27,13 +27,14 @@
 </script>
 
 <div class="flex flex-col gap-4 mt-2">
+    <!-- TODO NOW - hide if version is too low -->
   <Toggle
     checked={ripLevels}
     color="orange"
     on:change={async (evt) => {
       await setRipLevelsEnabled(evt.target.checked);
       ripLevels = await isRipLevelsEnabled();
-    }}>Rip Levels (.glb files)</Toggle
+    }}>Rip Levels (.glb files in 'glb_out/')</Toggle
   >
   <Toggle
     checked={ripCollision}
@@ -41,7 +42,7 @@
     on:change={async (evt) => {
       await setRipCollisionEnabled(evt.target.checked);
       ripCollision = await isRipCollisionEnabled();
-    }}>Rip Collision (.obj files)</Toggle
+    }}>Rip Collision (.obj files in 'debug_out/')</Toggle
   >
   <Toggle
     checked={ripTextures}
@@ -49,7 +50,7 @@
     on:change={async (evt) => {
       await setRipTexturesEnabled(evt.target.checked);
       ripTextures = await isRipTexturesEnabled();
-    }}>Rip Textures (.png files)</Toggle
+    }}>Rip Textures (.png files in 'decompiler_out/textures')</Toggle
   >
   <Toggle
     checked={ripStreamedAudio}
@@ -57,6 +58,6 @@
     on:change={async (evt) => {
       await setRipStreamedAudioEnabled(evt.target.checked);
       ripStreamedAudio = await isRipStreamedAudioEnabled();
-    }}>Rip Streamed Audio (.wav files)</Toggle
+    }}>Rip Streamed Audio (.wav files in 'decompiler_out/audio')</Toggle
   >
 </div>
