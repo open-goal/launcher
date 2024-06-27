@@ -42,7 +42,7 @@ jobs:
           toolchain: stable
 
       - name: Install Appstreamcli
-      	run: sudo apt-get update && sudo apt-get install -y appstream
+        run: sudo apt-get update && sudo apt-get install -y appstream
 
       - name: Bump Version
         id: version_bump
