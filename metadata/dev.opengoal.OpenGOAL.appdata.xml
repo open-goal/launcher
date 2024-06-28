@@ -13,24 +13,21 @@
   </supports>
   <launchable type="desktop-id">dev.opengoal.OpenGOAL.desktop</launchable>
   <url type="homepage">https://opengoal.dev/</url>
-  <url type="vcs-browser">https://github.com/open-goal/launcher</url>
-  <url type="translate">https://crowdin.com/project/opengoal-launcher</url>
   <url type="faq">https://opengoal.dev/docs/faq</url>
-  <url type="contribute">https://opengoal.dev/docs/category/contributing</url>
+  <url type="translate">https://crowdin.com/project/opengoal-launcher</url>
   <url type="contact">https://discord.gg/VZbXMHXzWv</url>
   <screenshots>
     <screenshot>
-      <image type="source">https://opengoal.dev/assets/images/launcher-install-a-33691bfe513b67a2b35bf13ab298a39e.png</image>
       <caption>Play the Jak and Daxter PlayStation 2 classics natively on your computer.</caption>
+      <image type="source">https://opengoal.dev/assets/images/launcher-install-a-33691bfe513b67a2b35bf13ab298a39e.png</image>
     </screenshot>
     <screenshot>
-      <image type="source">https://opengoal.dev/assets/images/launcher-support-package-6e7fb3e810098907fb6bc7a83b6f91dc.png</image>
       <caption>If at any point during the installation something goes wrong and you are going to ask for help or report an issue. Download the Support Package in order to easily give the person helping you everything they could ask for all at once.</caption>
+      <image type="source">https://opengoal.dev/assets/images/launcher-support-package-6e7fb3e810098907fb6bc7a83b6f91dc.png</image>
     </screenshot>
   </screenshots>
   <releases>
-      <release version="2.4.6" date="2024-06-1"/>
+    <release type="stable" version="2.4.7" date="2024-06-28T00:00:00Z"/>
   </releases>
   <content_rating type="oars-1.1"/>
 </component>
-
