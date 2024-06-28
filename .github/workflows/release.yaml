@@ -54,8 +54,11 @@ jobs:
           cd ./src-tauri
           cargo generate-lockfile
           echo "new_tag=v${NEW_VERSION}" >> $GITHUB_OUTPUT
+          ls -l
           echo -e "---\nVersion: $NEW_VERSION\nDate: $(date +'%Y-%m-%d')\n---" > metadata/news.yaml
+          ls -l metadata/
           appstreamcli news-to-metainfo metadata/news.yaml metadata/dev.opengoal.OpenGOAL.appdata.xml
+          ls -l metadata/
           rm metadata/news.yaml
 
       - name: Commit Version Bump
