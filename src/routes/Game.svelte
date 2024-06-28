@@ -11,6 +11,7 @@
     getInstalledVersion,
     getInstalledVersionFolder,
     isGameInstalled,
+    isMinimumVCCRuntimeInstalled,
   } from "$lib/rpc/config";
   import GameJob from "../components/games/job/GameJob.svelte";
   import GameUpdate from "../components/games/setup/GameUpdate.svelte";
@@ -23,6 +24,7 @@
   import GameNotSupportedByTooling from "../components/games/GameNotSupportedByTooling.svelte";
   import { VersionStore } from "$lib/stores/VersionStore";
   import type { Job } from "$lib/utils/jobs";
+  import { type } from "@tauri-apps/api/os";
 
   const params = useParams();
   $: $params, loadGameInfo();
@@ -44,9 +46,14 @@
 
   let gameInBeta = false;
   let gameSupportedByTooling = false;
+  let showVccWarning = false;
 
   onMount(async () => {
     loadGameInfo();
+    const osType = await type();
+    if (osType == "Windows_NT") {
+      showVccWarning = !(await isMinimumVCCRuntimeInstalled());
+    }
   });
 
   async function loadGameInfo() {
@@ -148,6 +155,28 @@
       on:job={runGameJob}
     />
   {:else}
+    {#if showVccWarning}
+      <Alert color="red" rounded={false} class="border-t-4">
+        <span class="font-bold"
+          >{$_("gameControls_warning_vccVersion_headerA")}</span
+        >
+        <em>{$_("gameControls_warning_vccVersion_headerB")}</em>
+        <br />
+        <ul>
+          <li>
+            <a
+              class="font-bold text-blue-500"
+              target="_blank"
+              rel="noreferrer"
+              href="https://aka.ms/vs/17/release/vc_redist.x64.exe"
+              >{$_(
+                "requirements_windows_vccRuntimeExplanation_downloadLink",
+              )}</a
+            >
+          </li>
+        </ul>
+      </Alert>
+    {/if}
     {#if gameInBeta}
       <Alert color="red" rounded={false} class="border-t-4">
         <span class="font-bold">{$_("gameControls_beta_headerA")}</span>

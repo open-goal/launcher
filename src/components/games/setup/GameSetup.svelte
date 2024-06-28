@@ -17,7 +17,7 @@
     isAVXRequirementMet,
     isDiskSpaceRequirementMet,
     isOpenGLRequirementMet,
-    isVCCRuntimeInstalled,
+    isMinimumVCCRuntimeInstalled,
   } from "$lib/rpc/config";
   import { progressTracker } from "$lib/stores/ProgressStore";
   import { generateSupportPackage } from "$lib/rpc/support";
@@ -46,7 +46,7 @@
     );
     const osType = await type();
     if (osType == "Windows_NT") {
-      const isVCCInstalled = await isVCCRuntimeInstalled();
+      const isVCCInstalled = await isMinimumVCCRuntimeInstalled();
       requirementsMet =
         isAvxMet && isOpenGLMet && isDiskSpaceMet && isVCCInstalled;
     } else {
