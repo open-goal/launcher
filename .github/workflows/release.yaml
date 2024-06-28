@@ -41,6 +41,9 @@ jobs:
         with:
           toolchain: stable
 
+      - name: Install Appstreamcli
+        run: sudo apt-get update && sudo apt-get install -y appstream
+
       - name: Bump Version
         id: version_bump
         run: |
@@ -51,6 +54,9 @@ jobs:
           cd ./src-tauri
           cargo generate-lockfile
           echo "new_tag=v${NEW_VERSION}" >> $GITHUB_OUTPUT
+          echo -e "---\nVersion: $NEW_VERSION\nDate: $(date +'%Y-%m-%d')\n---" > metadata/news.yaml
+          appstreamcli news-to-metainfo metadata/news.yaml metadata/dev.opengoal.OpenGOAL.appdata.xml
+          rm metadata/news.yaml
 
       - name: Commit Version Bump
         uses: EndBug/add-and-commit@v9
