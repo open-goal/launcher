@@ -417,7 +417,7 @@ pub async fn run_decompiler(
     "--proj-path".to_string(),
     data_folder.to_string_lossy().into_owned(),
   ];
-  
+
   // Add new --game argument
   if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
     args.push("--game".to_string());

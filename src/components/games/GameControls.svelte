@@ -20,6 +20,7 @@
   import { getLaunchGameString, launchGame, openREPL } from "$lib/rpc/binaries";
   import {
     doesActiveToolingVersionMeetMinimum,
+    getInstallationDirectory,
     getPlaytime,
   } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
@@ -34,6 +35,7 @@
   export let modPage: boolean = false;
 
   const dispatch = createEventDispatcher();
+  let gameDataDir: string | undefined = undefined;
   let settingsDir: string | undefined = undefined;
   let savesDir: string | undefined = undefined;
   let isLinux = false;
@@ -44,6 +46,15 @@
   onMount(async () => {
     modSupportEnabled = await isModSupportEanbled();
     isLinux = (await platform()) === "linux";
+    let installationDir = await getInstallationDirectory();
+    if (installationDir !== null) {
+      gameDataDir = await join(
+        installationDir,
+        "active",
+        getInternalName(activeGame),
+        "data",
+      );
+    }
     settingsDir = await join(
       await configDir(),
       "OpenGOAL",
@@ -228,6 +239,14 @@
         <Helper helperClass="!text-neutral-400 !text-xs"
           >{$_("gameControls_button_compile_helpText")}
         </Helper></DropdownItem
+      >
+      <DropdownDivider />
+      <DropdownItem
+        on:click={async () => {
+          if (gameDataDir) {
+            await openDir(gameDataDir);
+          }
+        }}>{$_("gameControls_button_openGameFolder")}</DropdownItem
       >
     </Dropdown>
     <Button

@@ -486,10 +486,8 @@ pub async fn does_active_tooling_version_meet_minimum(
       // If we can't determine the version, assume 0,0,0
       let tooling_version = Version::parse(version.strip_prefix('v').unwrap_or(&version))
         .unwrap_or(Version::new(0, 0, 0));
-      if tooling_version.patch >= minimum_patch
-        && tooling_version.minor >= minimum_minor
-        && tooling_version.major >= minimum_major
-      {
+      let compare_version = Version::new(minimum_major, minimum_minor, minimum_patch);
+      if tooling_version >= compare_version {
         Ok(true)
       } else {
         Ok(false)
