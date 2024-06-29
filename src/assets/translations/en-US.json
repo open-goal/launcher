@@ -42,6 +42,8 @@
   "gameControls_timePlayed_hours": "hours",
   "gameControls_timePlayed_minute": "minute",
   "gameControls_timePlayed_minutes": "minutes",
+  "gameControls_warning_vccVersion_headerA": "Your Microsoft Visual C++ Runtime is out of date",
+  "gameControls_warning_vccVersion_headerB": "Due to recent changes, the tools may fail to launch if this is not updated, please update using the link below.",
   "gameJob_applyTexturePacks": "Applying Packs",
   "gameJob_deleteTexturePacks": "Deleting Packs",
   "gameJob_enablingTexturePacks": "Enabling Packs",

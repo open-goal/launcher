@@ -115,9 +115,10 @@ pub async fn is_diskspace_requirement_met(
 
 #[cfg(target_os = "windows")]
 #[tauri::command]
-pub async fn is_vcc_runtime_installed(
+pub async fn is_minimum_vcc_runtime_installed(
   _config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<bool, CommandError> {
+  use log::info;
   use winreg::{
     enums::{HKEY_LOCAL_MACHINE, KEY_READ},
     RegKey,
@@ -130,17 +131,40 @@ pub async fn is_vcc_runtime_installed(
       log::error!("Couldn't locate VCC runtime registry entry: {}", err);
       CommandError::Configuration("Unable to check if VCC runtime is installed".to_owned())
     })?;
-    return Ok(installed_value == 1);
+    let is_installed = installed_value == 1;
+    if !is_installed {
+      return Ok(false);
+    }
+    let minimum_version = semver::Version::new(14, 40, 33810);
+    let patch_version: u32 = key.get_value("Bld").map_err(|err| {
+      log::error!("Couldn't locate VCC runtime registry entry: {}", err);
+      CommandError::Configuration("Unable to check if VCC runtime is installed".to_owned())
+    })?;
+    let minor_version: u32 = key.get_value("Minor").map_err(|err| {
+      log::error!("Couldn't locate VCC runtime registry entry: {}", err);
+      CommandError::Configuration("Unable to check if VCC runtime is installed".to_owned())
+    })?;
+    let major_version: u32 = key.get_value("Major").map_err(|err| {
+      log::error!("Couldn't locate VCC runtime registry entry: {}", err);
+      CommandError::Configuration("Unable to check if VCC runtime is installed".to_owned())
+    })?;
+    let installed_version = semver::Version::new(
+      major_version.into(),
+      minor_version.into(),
+      patch_version.into(),
+    );
+    info!("Detected VCC Runtime: {major_version}.{minor_version}.{patch_version}");
+    return Ok(installed_version >= minimum_version);
   }
 
   return Err(CommandError::Configuration(
-    "Unable to check if VCC runtime is installed".to_owned(),
+    "Unable to check if minimum VCC runtime is installed".to_owned(),
   ));
 }
 
 #[cfg(target_os = "linux")]
 #[tauri::command]
-pub async fn is_vcc_runtime_installed(
+pub async fn is_minimum_vcc_runtime_installed(
   _config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<bool, CommandError> {
   return Ok(false);
@@ -148,7 +172,7 @@ pub async fn is_vcc_runtime_installed(
 
 #[cfg(target_os = "macos")]
 #[tauri::command]
-pub async fn is_vcc_runtime_installed(
+pub async fn is_minimum_vcc_runtime_installed(
   _config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<bool, CommandError> {
   return Ok(false);

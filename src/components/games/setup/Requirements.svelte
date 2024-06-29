@@ -5,7 +5,7 @@
     isAVXRequirementMet,
     isDiskSpaceRequirementMet,
     isOpenGLRequirementMet,
-    isVCCRuntimeInstalled,
+    isMinimumVCCRuntimeInstalled,
     setBypassRequirements,
   } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
@@ -32,7 +32,7 @@
     const osType = await type();
     isVCCRelevant = osType == "Windows_NT";
     if (isVCCRelevant) {
-      isVCCInstalled = await isVCCRuntimeInstalled();
+      isVCCInstalled = await isMinimumVCCRuntimeInstalled();
     }
   });
 
