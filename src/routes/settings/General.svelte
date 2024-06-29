@@ -71,7 +71,7 @@
         }}
       />
     </Label>
-    <Helper class="text-sm mt-2"
+    <Helper class="text-xs mt-2 italic"
       >{$_("settings_general_localeChange_helper_1")}
       <a
         class=" text-orange-400 hover:text-orange-600"
@@ -138,6 +138,9 @@
         }
       }}
     />
+    <Helper class="text-xs mt-2 italic"
+      >{$_("settings_general_installationDir_helper")}</Helper
+    >
   </div>
   <div>
     <Toggle
