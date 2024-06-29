@@ -395,16 +395,39 @@ pub async fn run_decompiler(
   let log_file = create_log_file(&app_handle, "extractor.log", !truncate_logs)?;
   let mut command = Command::new(exec_info.executable_path);
 
+  let mut decomp_config_overrides = vec![];
+  if let Some(decomp_settings) = &config_lock.decompiler_settings {
+    if let Some(rip_levels) = decomp_settings.rip_levels_enabled {
+      decomp_config_overrides.push(format!("\"rip_levels\": {rip_levels}"));
+    }
+    if let Some(rip_collision) = decomp_settings.rip_collision_enabled {
+      decomp_config_overrides.push(format!("\"rip_collision\": {rip_collision}"));
+    }
+    if let Some(rip_textures) = decomp_settings.rip_textures_enabled {
+      decomp_config_overrides.push(format!("\"save_texture_pngs\": {rip_textures}"));
+    }
+    if let Some(rip_streamed_audio) = decomp_settings.rip_streamed_audio_enabled {
+      decomp_config_overrides.push(format!("\"rip_streamed_audio\": {rip_streamed_audio}"));
+    }
+  }
+
   let mut args = vec![
     source_path,
     "--decompile".to_string(),
     "--proj-path".to_string(),
     data_folder.to_string_lossy().into_owned(),
   ];
+
   // Add new --game argument
   if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
     args.push("--game".to_string());
     args.push(game_name.clone());
+  }
+
+  // TODO NOW - minimum
+  if !decomp_config_overrides.is_empty() {
+    args.push("--decomp-config-override".to_string());
+    args.push(format!("{{{}}}", decomp_config_overrides.join(", ")));
   }
 
   log::info!("Running extractor with args: {:?}", args);
