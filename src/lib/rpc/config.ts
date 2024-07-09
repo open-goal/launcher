@@ -326,15 +326,15 @@ export async function isRipStreamedAudioEnabled(): Promise<boolean> {
 }
 
 export async function isGameScopeInstalled(): Promise<string> {
-  return await invoke_rpc("find_gamescope_binary", {}, () => '');
+  return await invoke_rpc("find_gamescope_binary", {}, () => "");
 }
 
-export async function setGamescopeBinary(value: string):  Promise<string> {
-  return await invoke_rpc("set_gamescope_binary", { value }, () => '');
+export async function setGamescopeBinary(value: string): Promise<string> {
+  return await invoke_rpc("set_gamescope_binary", { value }, () => "");
 }
 
 export async function getGamescopeBinary(): Promise<string> {
-  return await invoke_rpc("get_gamescope_binary", {}, () => '');
+  return await invoke_rpc("get_gamescope_binary", {}, () => "");
 }
 
 export async function setGamescopeEnabled(enabled: boolean): Promise<void> {
@@ -357,12 +357,12 @@ export async function getWindowType(): Promise<boolean> {
   return await invoke_rpc("get_window_type", {}, () => false);
 }
 
-export async function setWindowType(fullscreen: boolean):  Promise<void> {
+export async function setWindowType(fullscreen: boolean): Promise<void> {
   return await invoke_rpc("set_window_type", { fullscreen }, () => {});
 }
 
 export async function getWindowWidth(): Promise<string> {
-  return await invoke_rpc("get_window_width", {}, () => '');
+  return await invoke_rpc("get_window_width", {}, () => "");
 }
 
 export async function setWindowWidth(value: string): Promise<void> {
@@ -370,7 +370,7 @@ export async function setWindowWidth(value: string): Promise<void> {
 }
 
 export async function getWindowHeight(): Promise<string> {
-  return await invoke_rpc("get_window_height", {}, () => '');
+  return await invoke_rpc("get_window_height", {}, () => "");
 }
 
 export async function setWindowHeight(value: string): Promise<void> {
@@ -394,7 +394,7 @@ export async function isHDREnabled(): Promise<boolean> {
 }
 
 export async function getUpscaleWidth(): Promise<string> {
-  return await invoke_rpc("get_upscale_width", {}, () => '');
+  return await invoke_rpc("get_upscale_width", {}, () => "");
 }
 
 export async function setUpscaleWidth(value: string): Promise<void> {
@@ -402,7 +402,7 @@ export async function setUpscaleWidth(value: string): Promise<void> {
 }
 
 export async function getUpscaleHeight(): Promise<string> {
-  return await invoke_rpc("get_upscale_height", {}, () => '');
+  return await invoke_rpc("get_upscale_height", {}, () => "");
 }
 
 export async function setUpscaleHeight(value: string): Promise<void> {
@@ -410,13 +410,12 @@ export async function setUpscaleHeight(value: string): Promise<void> {
 }
 
 export async function getUpscaleMethod(): Promise<string> {
-  return await invoke_rpc("get_upscale_method", {}, () => '');
+  return await invoke_rpc("get_upscale_method", {}, () => "");
 }
 
 export async function setUpscaleMethod(value: string): Promise<void> {
   return await invoke_rpc("set_upscale_method", { value }, () => {});
 }
-
 
 export async function setRipStreamedAudioEnabled(
   enabled: boolean,

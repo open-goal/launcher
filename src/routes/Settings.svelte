@@ -71,14 +71,14 @@
       </TabItem>
     {/if}
     {#if isLinux}
-    <TabItem
-      open={activeTab === "gamescope"}
-      title={$_("settings_tabs_gamescope")}
-      activeClasses={tabItemActiveClasses}
-      inactiveClasses={tabItemInactiveClasses}
-    >
-      <Gamescope />
-    </TabItem>
+      <TabItem
+        open={activeTab === "gamescope"}
+        title={$_("settings_tabs_gamescope")}
+        activeClasses={tabItemActiveClasses}
+        inactiveClasses={tabItemInactiveClasses}
+      >
+        <Gamescope />
+      </TabItem>
     {/if}
   </Tabs>
 </div>

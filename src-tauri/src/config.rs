@@ -195,8 +195,7 @@ pub struct GamescopeSettings {
   pub upscale_height: Option<String>,
   pub upscale_method: Option<String>,
   #[serde(default = "default_as_false")]
-  pub hdr: Option<bool>
-  
+  pub hdr: Option<bool>,
 }
 
 impl GamescopeSettings {
@@ -212,7 +211,7 @@ impl GamescopeSettings {
       upscale_width: None,
       upscale_height: None,
       upscale_method: None,
-      hdr: Some(false)
+      hdr: Some(false),
     }
   }
 }
@@ -246,7 +245,7 @@ pub struct LauncherConfig {
   #[serde(default = "default_as_false")]
   pub mods_enabled: Option<bool>,
   pub decompiler_settings: Option<DecompilerSettings>,
-  pub gamescope_settings: Option<GamescopeSettings>
+  pub gamescope_settings: Option<GamescopeSettings>,
 }
 
 fn default_version() -> Option<String> {
@@ -273,7 +272,7 @@ impl LauncherConfig {
       mod_sources: None,
       mods_enabled: Some(false),
       decompiler_settings: Some(DecompilerSettings::default()),
-      gamescope_settings: Some(GamescopeSettings::default())
+      gamescope_settings: Some(GamescopeSettings::default()),
     }
   }
 
@@ -934,5 +933,4 @@ impl LauncherConfig {
     self.save_config()?;
     Ok(())
   }
-
 }

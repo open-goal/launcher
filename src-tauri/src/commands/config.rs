@@ -1,13 +1,13 @@
+use super::CommandError;
 use crate::{config::LauncherConfig, util::file::delete_dir};
 use semver::Version;
+use std::{
+  path::Path,
+  process::{Command, Output},
+  string,
+};
 use sysinfo::Disks;
 use tauri::Manager;
-use std::{
-  path::{Path},
-  string,
-  process::{Command, Output},
-};
-use super::CommandError;
 
 #[tauri::command]
 pub async fn has_old_data_directory(app_handle: tauri::AppHandle) -> Result<bool, CommandError> {
@@ -891,4 +891,3 @@ pub async fn get_upscale_method(
     None => Ok("".to_owned()),
   }
 }
-

@@ -1,3 +1,7 @@
+use log::{info, warn};
+use semver::Version;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 use std::{
@@ -6,10 +10,6 @@ use std::{
   process::{Command, Output},
   time::Instant,
 };
-use log::{info, warn};
-use semver::Version;
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use tauri::Manager;
 
 use crate::{
@@ -753,7 +753,7 @@ pub async fn get_launch_game_string(
 
   let exec_info = get_exec_location(&config_info, "gk")?;
   let args = generate_launch_game_string(&config_info, game_name, false, true)?;
-  
+
   Ok(format!(
     "{} {}",
     exec_info.executable_path.display(),
@@ -780,16 +780,14 @@ pub async fn launch_game(
     &config_info.tooling_version,
     args
   );
-  
+
   let mut command = Command::new("");
 
   if let Some(gamescope_settings) = &config_lock.gamescope_settings {
     command = configure_gamescope_command(gamescope_settings, exec_info.executable_path, args);
   } else {
     command = Command::new(exec_info.executable_path);
-    command
-      .args(args)
-      .current_dir(exec_info.executable_dir);
+    command.args(args).current_dir(exec_info.executable_dir);
   }
 
   let log_file = create_log_file(&app_handle, "game.log", false)?;
@@ -855,10 +853,10 @@ async fn track_playtime(
 fn configure_gamescope_command(
   gamescope: &GamescopeSettings,
   executable_path: PathBuf,
-  args: Vec<String>
+  args: Vec<String>,
 ) -> Command {
   let mut command = Command::new("");
-  
+
   if gamescope.gamescope_enabled.unwrap_or(false) {
     let gamescope_args = generate_gamescope_command(gamescope);
     command = Command::new(gamescope.gamescope_binary.clone().unwrap());
@@ -882,9 +880,9 @@ fn generate_gamescope_command(settings: &GamescopeSettings) -> Vec<String> {
   if let Some(window_width) = &settings.window_width {
     command.push(format!("-W {}", window_width));
   }
- 
+
   if let Some(upscale_enabled) = settings.upscale_enabled {
-    if(upscale_enabled) {
+    if (upscale_enabled) {
       if let Some(upscale_height) = &settings.upscale_height {
         command.push(format!("-h"));
         command.push(upscale_height.to_string());
@@ -909,16 +907,16 @@ fn generate_gamescope_command(settings: &GamescopeSettings) -> Vec<String> {
   }
 
   if let Some(mangohud_enabled) = settings.mangohud_enabled {
-      if mangohud_enabled {
-          command.push("--mangoapp".to_string());
-      }
+    if mangohud_enabled {
+      command.push("--mangoapp".to_string());
+    }
   }
   if let Some(fullscreen) = settings.fullscreen {
-      if fullscreen {
-          command.push("-f".to_string());
-      } else {
-          command.push("-b".to_string());
-      }
+    if fullscreen {
+      command.push("-f".to_string());
+    } else {
+      command.push("-b".to_string());
+    }
   }
 
   command.push("--".to_string());
