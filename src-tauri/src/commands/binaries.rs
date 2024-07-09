@@ -750,7 +750,6 @@ pub async fn get_launch_game_string(
 ) -> Result<String, CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
-  let gamescope = &config_lock.gamescope_settings.as_ref().unwrap();
   let exec_info = get_exec_location(&config_info, "gk")?;
   let args = generate_launch_game_string(&config_info, game_name, false, true)?;
   Ok(format!(
