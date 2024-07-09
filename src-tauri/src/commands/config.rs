@@ -1,10 +1,12 @@
-use std::path::Path;
-
 use crate::{config::LauncherConfig, util::file::delete_dir};
 use semver::Version;
 use sysinfo::Disks;
 use tauri::Manager;
-
+use std::{
+  path::{Path},
+  string,
+  process::{Command, Output},
+};
 use super::CommandError;
 
 #[tauri::command]
@@ -619,3 +621,274 @@ pub async fn set_rip_streamed_audio_enabled(
     })?;
   Ok(())
 }
+
+#[tauri::command]
+pub async fn find_gamescope_binary() -> Result<Option<String>, CommandError> {
+  let output = Command::new("which")
+    .arg("gamescope")
+    .output()
+    .map(|output| {
+      if output.status.success() {
+        Some(String::from_utf8_lossy(&output.stdout).trim().to_string())
+      } else {
+        None
+      }
+    })
+    .unwrap_or(None);
+
+  Ok(output)
+}
+
+#[tauri::command]
+pub async fn get_gamescope_binary(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<String, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.gamescope_settings {
+    Some(settings) => Ok(settings.gamescope_binary.clone().unwrap_or("".to_owned())),
+    None => Ok("".to_owned()),
+  }
+}
+
+#[tauri::command]
+pub async fn set_gamescope_binary(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  value: String,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_gamescope_binary(value).map_err(|_| {
+    CommandError::Configuration("Unable to persist change to window_width".to_owned())
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn is_gamescope_enabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.gamescope_settings {
+    Some(settings) => Ok(settings.gamescope_enabled.unwrap_or(false)),
+    _ => Ok(false),
+  }
+}
+
+#[tauri::command]
+pub async fn set_gamescope_enabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_gamescope_enabled(enabled).map_err(|_| {
+    CommandError::Configuration("Unable to persist change to enable_gamescope".to_owned())
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn is_mangohud_enabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.gamescope_settings {
+    Some(settings) => Ok(settings.mangohud_enabled.unwrap_or(false)),
+    _ => Ok(false),
+  }
+}
+
+#[tauri::command]
+pub async fn set_mangohud_enabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_mangohud_enabled(enabled).map_err(|_| {
+    CommandError::Configuration("Unable to persist change to mangohud_enabled".to_owned())
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn get_window_type(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.gamescope_settings {
+    Some(settings) => Ok(settings.fullscreen.unwrap_or(false)),
+    _ => Ok(false),
+  }
+}
+
+#[tauri::command]
+pub async fn set_window_type(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  fullscreen: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_window_type(fullscreen).map_err(|_| {
+    CommandError::Configuration("Unable to persist change to mangohud_enabled".to_owned())
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn set_window_width(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  value: String,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_window_width(value).map_err(|_| {
+    CommandError::Configuration("Unable to persist change to window_width".to_owned())
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn get_window_width(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<String, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.gamescope_settings {
+    Some(settings) => Ok(settings.window_width.clone().unwrap_or("".to_owned())),
+    None => Ok("".to_owned()),
+  }
+}
+
+#[tauri::command]
+pub async fn set_window_height(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  value: String,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_window_height(value).map_err(|_| {
+    CommandError::Configuration("Unable to persist change to window_height".to_owned())
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn get_window_height(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<String, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.gamescope_settings {
+    Some(settings) => Ok(settings.window_height.clone().unwrap_or("".to_owned())),
+    None => Ok("".to_owned()),
+  }
+}
+
+#[tauri::command]
+pub async fn is_upscale_enabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.gamescope_settings {
+    Some(settings) => Ok(settings.upscale_enabled.unwrap_or(false)),
+    _ => Ok(false),
+  }
+}
+
+#[tauri::command]
+pub async fn set_upscale_enabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_upscale_enabled(enabled).map_err(|_| {
+    CommandError::Configuration("Unable to persist change to upscale_enabled".to_owned())
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn is_hdr_enabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.gamescope_settings {
+    Some(settings) => Ok(settings.hdr.unwrap_or(false)),
+    _ => Ok(false),
+  }
+}
+
+#[tauri::command]
+pub async fn set_hdr_enabled(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_hdr_enabled(enabled).map_err(|_| {
+    CommandError::Configuration("Unable to persist change to hdr_enabled".to_owned())
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn set_upscale_width(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  value: String,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_upscale_width(value).map_err(|_| {
+    CommandError::Configuration("Unable to persist change to upscale_width".to_owned())
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn get_upscale_width(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<String, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.gamescope_settings {
+    Some(settings) => Ok(settings.upscale_width.clone().unwrap_or("".to_owned())),
+    None => Ok("".to_owned()),
+  }
+}
+
+#[tauri::command]
+pub async fn set_upscale_height(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  value: String,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_upscale_height(value).map_err(|_| {
+    CommandError::Configuration("Unable to persist change to upscale_height".to_owned())
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn get_upscale_height(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<String, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.gamescope_settings {
+    Some(settings) => Ok(settings.upscale_height.clone().unwrap_or("".to_owned())),
+    None => Ok("".to_owned()),
+  }
+}
+
+#[tauri::command]
+pub async fn set_upscale_method(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  value: String,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_upscale_method(value).map_err(|_| {
+    CommandError::Configuration("Unable to persist change to upscale_height".to_owned())
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn get_upscale_method(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<String, CommandError> {
+  let config_lock = config.lock().await;
+  match &config_lock.gamescope_settings {
+    Some(settings) => Ok(settings.upscale_method.clone().unwrap_or("".to_owned())),
+    None => Ok("".to_owned()),
+  }
+}
+
