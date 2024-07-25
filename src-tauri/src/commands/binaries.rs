@@ -398,16 +398,24 @@ pub async fn run_decompiler(
   let mut decomp_config_overrides = vec![];
   if let Some(decomp_settings) = &config_lock.decompiler_settings {
     if let Some(rip_levels) = decomp_settings.rip_levels_enabled {
-      decomp_config_overrides.push(format!("\"rip_levels\": {rip_levels}"));
+      if rip_levels {
+        decomp_config_overrides.push(format!("\"rip_levels\": {rip_levels}"));
+      }
     }
     if let Some(rip_collision) = decomp_settings.rip_collision_enabled {
-      decomp_config_overrides.push(format!("\"rip_collision\": {rip_collision}"));
+      if rip_collision {
+        decomp_config_overrides.push(format!("\"rip_collision\": {rip_collision}"));
+      }
     }
     if let Some(rip_textures) = decomp_settings.rip_textures_enabled {
-      decomp_config_overrides.push(format!("\"save_texture_pngs\": {rip_textures}"));
+      if rip_textures {
+        decomp_config_overrides.push(format!("\"save_texture_pngs\": {rip_textures}"));
+      }
     }
     if let Some(rip_streamed_audio) = decomp_settings.rip_streamed_audio_enabled {
-      decomp_config_overrides.push(format!("\"rip_streamed_audio\": {rip_streamed_audio}"));
+      if rip_streamed_audio {
+        decomp_config_overrides.push(format!("\"rip_streamed_audio\": {rip_streamed_audio}"));
+      }
     }
   }
 
