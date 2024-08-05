@@ -662,29 +662,26 @@ impl LauncherConfig {
     source_name: String,
     version_name: String,
   ) -> Result<(), ConfigError> {
-    // TODO - remove `take` usage here, bug
     let game_config = self.get_supported_game_config_mut(&game_name)?;
-    match game_config.mods_installed_version.take() {
-      Some(mut installed_mods) => {
-        if !installed_mods.contains_key(&source_name) {
-          installed_mods.insert(source_name.clone(), HashMap::new());
-        }
-        installed_mods
-          .get_mut(&source_name)
-          .unwrap()
-          .insert(mod_name.clone(), version_name);
+
+    let installed_mods_option = game_config.mods_installed_version.as_mut();
+    if installed_mods_option.is_some() {
+      let installed_mods = installed_mods_option.unwrap();
+      if !installed_mods.contains_key(&source_name) {
+        installed_mods.insert(source_name.clone(), HashMap::new());
       }
-      None => {
-        let mut installed_mods: HashMap<String, HashMap<String, String>> = HashMap::new();
-        if !installed_mods.contains_key(&source_name) {
-          installed_mods.insert(source_name.clone(), HashMap::new());
-        }
-        installed_mods
-          .get_mut(&source_name)
-          .unwrap()
-          .insert(mod_name.clone(), version_name);
-        game_config.mods_installed_version = Some(installed_mods);
-      }
+      installed_mods
+        .get_mut(&source_name)
+        .unwrap()
+        .insert(mod_name.clone(), version_name);
+    } else {
+      let mut installed_mods: HashMap<String, HashMap<String, String>> = HashMap::new();
+      installed_mods.insert(source_name.clone(), HashMap::new());
+      installed_mods
+        .get_mut(&source_name)
+        .unwrap()
+        .insert(mod_name.clone(), version_name);
+      game_config.mods_installed_version = Some(installed_mods);
     }
     self.save_config()?;
     Ok(())
