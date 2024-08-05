@@ -1,10 +1,10 @@
 // not all util functions are used yet, allow dead code in this module
 #![allow(dead_code)]
 
-use std::{io::BufRead, path::PathBuf};
+use std::{io::BufRead, path::{Path, PathBuf}};
 
-pub fn delete_dir(path: &PathBuf) -> Result<(), std::io::Error> {
-  if path.exists() && path.is_dir() {
+pub fn delete_dir<T: AsRef<Path>>(path: T) -> Result<(), std::io::Error> {
+  if path.as_ref().exists() && path.as_ref().is_dir() {
     std::fs::remove_dir_all(path)?;
   }
   Ok(())

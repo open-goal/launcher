@@ -18,7 +18,15 @@ pub enum CacheError {
 pub struct ModVersion {
   pub version: String,
   pub published_date: String,
-  pub assets: HashMap<String, String>,
+  pub assets: HashMap<String, Option<String>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct ModPerGameConfig {
+  pub cover_art_url: Option<String>,
+  pub thumbnail_art_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, TS)]
@@ -31,9 +39,11 @@ pub struct ModInfo {
   pub tags: Vec<String>,
   pub supported_games: Vec<String>, // map to SupportedMap
   pub website_url: Option<String>,
+  pub versions: Vec<ModVersion>,
+  pub per_game_config: Option<HashMap<String, ModPerGameConfig>>,
   pub cover_art_url: Option<String>,
   pub thumbnail_art_url: Option<String>,
-  pub versions: Vec<ModVersion>,
+  pub external_link: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, TS)]

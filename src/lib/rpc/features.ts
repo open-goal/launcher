@@ -83,6 +83,7 @@ export async function addModSource(url: string): Promise<boolean> {
       );
       return false;
     }
+    // TODO - ensure it doesnt have the same name as another already added source!
   } catch (e) {
     toastStore.makeToast(`Mod source unreachable`, "error");
     return false;
@@ -128,6 +129,20 @@ export async function extractNewMod(
   return await invoke_rpc(
     "extract_new_mod",
     { gameName, zipPath, modSource },
+    () => false,
+  );
+}
+
+export async function downloadAndExtractNewMod(
+  gameName: string,
+  downloadUrl: string,
+  modName: string,
+  sourceName: string,
+): Promise<boolean> {
+  // TODO - error handling
+  return await invoke_rpc(
+    "download_and_extract_new_mod",
+    { gameName, downloadUrl, modName, sourceName },
     () => false,
   );
 }
@@ -214,6 +229,6 @@ export async function launchMod(
   );
 }
 
-export async function isModSupportEanbled(): Promise<boolean> {
+export async function isModSupportEnabled(): Promise<boolean> {
   return await invoke_rpc("is_mod_support_enabled", {}, () => false);
 }

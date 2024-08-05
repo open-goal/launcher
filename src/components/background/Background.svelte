@@ -9,6 +9,8 @@
   import jak3InProgressPoster from "$assets/videos/jak3-poster.png";
   import { platform } from "@tauri-apps/api/os";
   import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
+  import coverArtPlaceholder from "$assets/images/mod-coverart-placeholder.webp";
+  import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
 
   const location = useLocation();
   $: $location.pathname, updateStyle();
@@ -33,6 +35,20 @@
   });
 
   async function updateStyle(): Promise<void> {
+    // figure out the game
+    let pathname = $location.pathname;
+    let activeGame = "";
+    if (pathname.startsWith("/jak1") || pathname === "/") {
+      activeGame = "jak1";
+    } else if (pathname.startsWith("/jak2")) {
+      activeGame = "jak2";
+    } else if (pathname.startsWith("/jak3")) {
+      activeGame = "jak3";
+    } else if (pathname.startsWith("/jakx")) {
+      activeGame = "jakx";
+    }
+
+
     // Handle mod backgrounds
     const pathComponents = $location.pathname
       .split("/")
@@ -40,41 +56,47 @@
     if (pathComponents.length === 5) {
       const modSourceName = decodeURI(pathComponents[3]);
       const modName = decodeURI(pathComponents[4]);
-      // TODO - centralize this in a store so we don't unnecessarily fetch the info
+      // TODO now - centralize this in a store so we don't unnecessarily fetch the info
       await refreshModSources();
       const modSourceData = await getModSourcesData();
       // Find the source
-      let foundMod = undefined;
+      let foundMod: ModInfo | undefined = undefined;
       for (const [sourceUrl, sourceInfo] of Object.entries(modSourceData)) {
         if (
           sourceInfo.sourceName === modSourceName &&
           sourceInfo.mods.hasOwnProperty(modName)
         ) {
           foundMod = sourceInfo.mods[modName];
+          break;
         }
       }
-      if (foundMod !== undefined && foundMod.coverArtUrl !== null) {
-        modBackground = foundMod.coverArtUrl;
+      // Prefer pre-game-config if available
+      if (foundMod !== undefined) {
+        if (foundMod.perGameConfig !== null && foundMod.perGameConfig.hasOwnProperty(activeGame) && foundMod.perGameConfig[activeGame].coverArtUrl !== null) {
+          modBackground = foundMod.perGameConfig[activeGame].coverArtUrl;
+        } else if (foundMod.coverArtUrl !== null) {
+          modBackground = foundMod.coverArtUrl;
+        }
+      } else {
+        modBackground = coverArtPlaceholder;
       }
     } else {
       modBackground = "";
     }
     let newStyle = "absolute object-fill h-screen brightness-75";
-    let pathname = $location.pathname;
-    // TODO - check if mod is installed or not
-    if (pathname.startsWith("/jak1") || pathname === "/") {
+    if (activeGame === "jak1") {
       if (!(await isGameInstalled("jak1"))) {
         newStyle += " grayscale";
       }
-    } else if (pathname.startsWith("/jak2")) {
+    } else if (activeGame === "jak2") {
       if (!(await isGameInstalled("jak2"))) {
         newStyle += " grayscale";
       }
-    } else if (pathname.startsWith("/jak3")) {
+    } else if (activeGame === "jak3") {
       if (!(await isGameInstalled("jak3"))) {
         newStyle += " grayscale";
       }
-    } else if (pathname.startsWith("/jakx")) {
+    } else if (activeGame === "jakx") {
       if (!(await isGameInstalled("jakx"))) {
         newStyle += " grayscale";
       }

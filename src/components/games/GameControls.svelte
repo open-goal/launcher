@@ -27,10 +27,11 @@
   import { navigate } from "svelte-navigator";
   import { listen } from "@tauri-apps/api/event";
   import { toastStore } from "$lib/stores/ToastStore";
-  import { isModSupportEanbled, launchMod } from "$lib/rpc/features";
+  import { isModSupportEnabled, launchMod } from "$lib/rpc/features";
 
   export let activeGame: SupportedGame;
   export let modName: string | undefined = undefined;
+  export let modDisplayName: string | undefined = undefined;
   export let modSource: string | undefined = undefined;
   export let modPage: boolean = false;
 
@@ -44,7 +45,7 @@
   let textureSupportEnabled = true;
 
   onMount(async () => {
-    modSupportEnabled = await isModSupportEanbled();
+    modSupportEnabled = await isModSupportEnabled();
     isLinux = (await platform()) === "linux";
     let installationDir = await getInstallationDirectory();
     if (installationDir !== null) {
@@ -131,8 +132,8 @@
   <h1
     class="tracking-tighter text-2xl font-bold pb-3 text-orange-500 text-outline pointer-events-none"
   >
-    {#if modPage && modName !== undefined}
-      {modName}
+    {#if modPage && modDisplayName !== undefined}
+      {modDisplayName}
     {:else}
       {$_(`gameName_${getInternalName(activeGame)}`)}
     {/if}

@@ -176,12 +176,6 @@ impl DecompilerSettings {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct ModSource {
-  pub url: String,
-}
-
 fn default_as_false() -> Option<bool> {
   Some(false)
 }
@@ -201,7 +195,7 @@ pub struct LauncherConfig {
   pub active_version: Option<String>,
   pub active_version_folder: Option<String>,
   pub locale: Option<String>,
-  pub mod_sources: Option<Vec<ModSource>>,
+  pub mod_sources: Option<Vec<String>>,
   #[serde(default = "default_as_false")]
   pub mods_enabled: Option<bool>,
   pub decompiler_settings: Option<DecompilerSettings>,
@@ -630,19 +624,15 @@ impl LauncherConfig {
   pub fn add_new_mod_source(&mut self, url: &String) -> Result<(), ConfigError> {
     self.mod_sources = match &mut self.mod_sources {
       Some(sources) => {
-        if sources.iter().any(|s| s.url == *url) {
+        if sources.iter().any(|s| *s == *url) {
           return Err(ConfigError::Configuration(
             "Duplicate mod source!".to_owned(),
           ));
         }
-        sources.push(ModSource {
-          url: url.to_string(),
-        });
+        sources.push(url.to_string());
         Some(sources.to_vec())
       }
-      None => Some(vec![ModSource {
-        url: url.to_string(),
-      }]),
+      None => Some(vec![url.to_string()]),
     };
     self.save_config()?;
     Ok(())
@@ -658,7 +648,7 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn get_mod_sources(&self) -> Vec<ModSource> {
+  pub fn get_mod_sources(&self) -> Vec<String> {
     match &self.mod_sources {
       Some(sources) => sources.to_vec(),
       None => Vec::new(),

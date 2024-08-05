@@ -3,24 +3,22 @@ use std::os::windows::process::CommandExt;
 use std::{
   collections::HashMap,
   path::{Path, PathBuf},
-  process::Command,
-  time::Instant,
+  process::Command
 };
 
 use log::info;
 use serde::{Deserialize, Serialize};
-use tauri::api::version;
 
 use crate::{
   commands::binaries::InstallStepOutput,
-  config::{LauncherConfig, ModSource},
+  config::LauncherConfig,
   util::{
     file::{create_dir, delete_dir, overwrite_dir},
-    zip::{check_if_zip_contains_top_level_dir, extract_zip_file},
+    zip::{check_if_zip_contains_top_level_dir, extract_and_delete_zip_file, extract_zip_file},
   },
 };
 
-use super::CommandError;
+use super::{download::download_file, CommandError};
 
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -382,7 +380,7 @@ pub async fn remove_mod_source(
 #[tauri::command]
 pub async fn get_mod_sources(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<Vec<ModSource>, CommandError> {
+) -> Result<Vec<String>, CommandError> {
   let config_lock = config.lock().await;
   Ok(config_lock.get_mod_sources())
 }
@@ -433,6 +431,47 @@ pub async fn extract_new_mod(
 }
 
 #[tauri::command]
+pub async fn download_and_extract_new_mod(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+  download_url: String,
+  mod_name: String,
+  source_name: String,
+) -> Result<bool, CommandError> {
+  let config_lock = config.lock().await;
+  let install_path = match &config_lock.installation_dir {
+    None => {
+      return Err(CommandError::GameFeatures(
+        "No installation directory set, can't download and extract mod".to_string(),
+      ))
+    }
+    Some(path) => Path::new(path),
+  };
+
+  // Download the file
+  let download_path = &install_path
+      .join("features")
+      .join(game_name)
+      .join("mods")
+      .join(&source_name)
+      .join(&mod_name)
+      .join(format!("{mod_name}.zip"));
+  // TODO now - safer
+  delete_dir(download_path.parent().unwrap())?;
+
+  download_file(download_url.clone(), download_path.to_string_lossy().to_string()).await.map_err(|_| {
+    CommandError::GameFeatures("Unable to successfully download mod version".to_owned())
+  })?;
+
+  // TODO now - safer
+  extract_and_delete_zip_file(&download_path, &download_path.parent().unwrap(), false).map_err(|err| {
+    log::error!("Unable to extract mod: {}", err);
+    CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
+  })?;
+  Ok(true)
+}
+
+#[tauri::command]
 pub async fn base_game_iso_exists(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: String,
@@ -476,14 +515,12 @@ fn get_mod_exec_location(
   mod_name: &str,
   source_name: &str,
 ) -> Result<ExecutableLocation, CommandError> {
-  info!("what1? {:?}", mod_name);
   let exec_dir = install_path
     .join("features")
     .join(game_name)
     .join("mods")
     .join(source_name)
     .join(mod_name);
-  info!("what2? {:?}", exec_dir);
   let exec_path = exec_dir.join(bin_ext(executable_name));
   if !exec_path.exists() {
     log::error!(
@@ -901,6 +938,12 @@ pub async fn launch_mod(
     }
     Some(path) => Path::new(path),
   };
+  let exec_dir = install_path
+    .join("features")
+    .join(&game_name)
+    .join("mods")
+    .join(&source_name)
+    .join(&mod_name);
   let exec_info = get_mod_exec_location(
     install_path.to_path_buf(),
     "gk",
@@ -913,7 +956,7 @@ pub async fn launch_mod(
     "--game".to_string(),
     game_name.clone(),
     "--config-path".to_string(),
-    "./".to_string(),
+    exec_dir.to_string_lossy().to_string(),
     "--".to_string(),
     "-boot".to_string(),
     "-fakeiso".to_string(),

@@ -190,6 +190,7 @@ fn main() {
       commands::features::delete_texture_packs,
       commands::features::extract_iso_for_mod_install,
       commands::features::extract_new_mod,
+      commands::features::download_and_extract_new_mod,
       commands::features::extract_new_texture_pack,
       commands::features::get_installed_mods,
       commands::features::get_mod_sources,
