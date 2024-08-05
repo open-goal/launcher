@@ -299,6 +299,26 @@ impl LauncherConfig {
               config.version.as_ref().unwrap()
             );
             config.settings_path = Some(settings_path.to_path_buf());
+            // Remove usages of non-official versions
+            let mut found_violations = false;
+            if config.active_version_folder.as_ref().is_some_and(|x| x != "official") {
+              log::warn!("non-official versions is a deprecated feature, erasing!");
+              config.active_version = None;
+              config.active_version_folder = None;
+              found_violations = true;
+            }
+            // check the games as well
+            for (_, game_info) in config.games.iter_mut() {
+              if game_info.version_folder.as_ref().is_some_and(|x| x != "official") {
+                log::warn!("non-official versions is a deprecated feature, erasing!");
+                game_info.version = None;
+                game_info.version_folder = None;
+                found_violations = true;
+              }
+            }
+            if found_violations {
+              config.save_config().expect("TODO NOW");
+            }
             config
           }
           Err(err) => {
