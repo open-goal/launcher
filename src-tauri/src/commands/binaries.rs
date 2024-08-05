@@ -1,20 +1,19 @@
+use log::{info, warn};
+use semver::Version;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 use std::{
   collections::HashMap,
   path::{Path, PathBuf},
-  process::Command,
+  process::{Command, Output},
   time::Instant,
 };
-
-use log::{info, warn};
-use semver::Version;
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use tauri::Manager;
 
 use crate::{
-  config::LauncherConfig,
+  config::{GamescopeSettings, LauncherConfig},
   util::file::{create_dir, overwrite_dir, read_last_lines_from_file},
   TAURI_APP,
 };
@@ -790,15 +789,19 @@ pub async fn launch_game(
     args
   );
 
-  let log_file = create_log_file(&app_handle, "game.log", false)?;
+  let mut command = Command::new("");
 
+  if let Some(gamescope_settings) = &config_lock.gamescope_settings {
+    command = configure_gamescope_command(gamescope_settings, exec_info.executable_path, args);
+  } else {
+    command = Command::new(exec_info.executable_path);
+    command.args(args).current_dir(exec_info.executable_dir);
+  }
+
+  let log_file = create_log_file(&app_handle, "game.log", false)?;
+  command.stdout(log_file.try_clone().unwrap());
+  command.stderr(log_file);
   // TODO - log rotation here would be nice too, and for it to be game specific
-  let mut command = Command::new(exec_info.executable_path);
-  command
-    .args(args)
-    .stdout(log_file.try_clone().unwrap())
-    .stderr(log_file)
-    .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
     command.creation_flags(0x08000000);
@@ -853,4 +856,80 @@ async fn track_playtime(
   }
 
   Ok(())
+}
+
+fn configure_gamescope_command(
+  gamescope: &GamescopeSettings,
+  executable_path: PathBuf,
+  args: Vec<String>,
+) -> Command {
+  let mut command = Command::new("");
+
+  if gamescope.gamescope_enabled.unwrap_or(false) {
+    let gamescope_args = generate_gamescope_command(gamescope);
+    command = Command::new(gamescope.gamescope_binary.clone().unwrap());
+    command.args(gamescope_args);
+    command.arg(executable_path);
+    command.args(args);
+  } else {
+    command = Command::new(executable_path);
+    command.args(args);
+  }
+
+  command
+}
+
+fn generate_gamescope_command(settings: &GamescopeSettings) -> Vec<String> {
+  let mut command = Vec::new();
+
+  if let Some(window_height) = &settings.window_height {
+    command.push(format!("-H {}", window_height));
+  }
+  if let Some(window_width) = &settings.window_width {
+    command.push(format!("-W {}", window_width));
+  }
+
+  if let Some(upscale_enabled) = settings.upscale_enabled {
+    if (upscale_enabled) {
+      if let Some(upscale_height) = &settings.upscale_height {
+        command.push(format!("-h"));
+        command.push(upscale_height.to_string());
+      }
+      if let Some(upscale_width) = &settings.upscale_width {
+        command.push(format!("-w"));
+        command.push(upscale_width.to_string());
+      }
+      if let Some(upscale_method) = &settings.upscale_method {
+        let method = upscale_method.trim();
+        info!("Upscale method: '{}'", method);
+        command.push(format!("-F"));
+        command.push(method.to_string());
+      }
+    }
+  }
+
+  if let Some(hdr) = settings.hdr {
+    if hdr {
+      command.push("--hdr-enabled".to_string());
+    }
+  }
+
+  if let Some(mangohud_enabled) = settings.mangohud_enabled {
+    if mangohud_enabled {
+      command.push("--mangoapp".to_string());
+    }
+  }
+  if let Some(fullscreen) = settings.fullscreen {
+    if fullscreen {
+      command.push("-f".to_string());
+    } else {
+      command.push("-b".to_string());
+    }
+  }
+
+  command.push("--".to_string());
+
+  log::info!("Created gamescope args: {:?}", &command);
+
+  command
 }

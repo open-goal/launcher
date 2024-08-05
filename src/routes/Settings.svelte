@@ -7,7 +7,9 @@
   import Mods from "./settings/Mods.svelte";
   import { onMount } from "svelte";
   import { isModSupportEanbled } from "$lib/rpc/features";
+  import { platform } from "@tauri-apps/api/os";
   import Decompiler from "./settings/Decompiler.svelte";
+  import Gamescope from "./settings/Gamescope.svelte";
 
   const params = useParams();
   $: activeTab = $params["tab"];
@@ -18,9 +20,11 @@
     "inline-block text-sm font-normal text-center disabled:cursor-not-allowed p-4 border-b-2 border-transparent text-gray-400 hover:text-orange-300 hover:border-orange-500 dark:hover:text-orange-300 dark:text-orange-400";
 
   let modSupportEnabled = false;
+  let isLinux = false;
 
   onMount(async () => {
     modSupportEnabled = await isModSupportEanbled();
+    isLinux = (await platform()) === "linux";
   });
 </script>
 
@@ -64,6 +68,16 @@
         inactiveClasses={tabItemInactiveClasses}
       >
         <Mods />
+      </TabItem>
+    {/if}
+    {#if isLinux}
+      <TabItem
+        open={activeTab === "gamescope"}
+        title={$_("settings_tabs_gamescope")}
+        activeClasses={tabItemActiveClasses}
+        inactiveClasses={tabItemInactiveClasses}
+      >
+        <Gamescope />
       </TabItem>
     {/if}
   </Tabs>
