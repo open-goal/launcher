@@ -3102,6 +3102,7 @@ dependencies = [
  "log",
  "reqwest 0.12.5",
  "rev_buf_reader",
+ "rustc-serialize",
  "semver",
  "serde",
  "serde_json",
@@ -4011,6 +4012,12 @@ name = "rustc-hash"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
+
+[[package]]
+name = "rustc-serialize"
+version = "0.3.25"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fe834bc780604f4674073badbad26d7219cadfb4a2275802db12cbae17498401"
 
 [[package]]
 name = "rustc_version"

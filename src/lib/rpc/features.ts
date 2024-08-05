@@ -232,3 +232,27 @@ export async function launchMod(
 export async function isModSupportEnabled(): Promise<boolean> {
   return await invoke_rpc("is_mod_support_enabled", {}, () => false);
 }
+
+export async function getLocalModThumbnailBase64(
+  gameName: string,
+  modName: string,
+): Promise<string> {
+  return await invoke_rpc(
+    "get_local_mod_thumbnail_base64",
+    { gameName, modName },
+    () => "",
+    "_mirror_",
+  );
+}
+
+export async function getLocalModCoverBase64(
+  gameName: string,
+  modName: string,
+): Promise<string> {
+  return await invoke_rpc(
+    "get_local_mod_cover_base64",
+    { gameName, modName },
+    () => "",
+    "_mirror_",
+  );
+}

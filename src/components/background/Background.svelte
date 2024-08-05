@@ -11,6 +11,7 @@
   import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
   import coverArtPlaceholder from "$assets/images/mod-coverart-placeholder.webp";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
+  import { getLocalModThumbnailBase64 } from "$lib/rpc/features";
 
   const location = useLocation();
   $: $location.pathname, updateStyle();
@@ -70,8 +71,16 @@
           break;
         }
       }
+      if (modSourceName === "_local") {
+        const coverResult = await getLocalModThumbnailBase64(activeGame, modName);
+        if (coverResult === "") {
+          modBackground = coverArtPlaceholder;
+        } else {
+          modBackground = coverResult;
+        }
+      }
       // Prefer pre-game-config if available
-      if (foundMod !== undefined) {
+      else if (foundMod !== undefined) {
         if (foundMod.perGameConfig !== null && foundMod.perGameConfig.hasOwnProperty(activeGame) && foundMod.perGameConfig[activeGame].coverArtUrl !== null) {
           modBackground = foundMod.perGameConfig[activeGame].coverArtUrl;
         } else if (foundMod.coverArtUrl !== null) {

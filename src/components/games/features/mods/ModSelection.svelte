@@ -30,7 +30,7 @@
   import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
   import type { ModSourceData } from "$lib/rpc/bindings/ModSourceData";
   import { filePrompt } from "$lib/utils/file-dialogs";
-  import { downloadAndExtractNewMod, extractNewMod, getInstalledMods } from "$lib/rpc/features";
+  import { downloadAndExtractNewMod, extractNewMod, getInstalledMods, getLocalModThumbnailBase64 } from "$lib/rpc/features";
   import { basename } from "@tauri-apps/api/path";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import thumbnailPlaceholder from "$assets/images/mod-thumbnail-placeholder.webp";
@@ -110,10 +110,14 @@
     return thumbnailPlaceholder;
   }
 
-  function getThumbnailImageFromSources(sourceName: string, modName: string): string {
+  async function getThumbnailImageFromSources(sourceName: string, modName: string): Promise<string> {
+    if (sourceName === "_local") {
+      return await getLocalModThumbnailBase64(getInternalName(activeGame), modName);
+    }
     // Find the mod by looking at the sources, if we can't find it then return the placeholder
     for (const [sourceUrl, sourceInfo] of Object.entries(sourceData)) {
       if (sourceInfo.sourceName === sourceName && Object.keys(sourceInfo.mods).includes(modName)) {
+        // TODO NOW - pass in active game incase of per-game?
         return getThumbnailImage(sourceInfo.mods[modName]);
       }
     }
@@ -186,9 +190,10 @@
                   .toLocaleLowerCase()
                   .startsWith(modFilter.toLocaleLowerCase())}
                 <!-- TODO - background image -->
-                <button
+                {#await getThumbnailImageFromSources(sourceName, modName) then thumbnailSrc}
+                  <button
                   class="h-[200px] bg-cover p-1 flex justify-center items-end relative"
-                  style="background-image: url('{getThumbnailImageFromSources(sourceName, modName)}')"
+                  style="background-image: url('{thumbnailSrc}')"
                   on:click={async () => {
                     navigate(
                       `/${getInternalName(activeGame)}/features/mods/${encodeURI(sourceName)}/${encodeURI(modName)}`,
@@ -203,6 +208,7 @@
                     <Tooltip placement="bottom">{sourceName}</Tooltip>
                   </div>
                 </button>
+                {/await}
               {/if}
             {/each}
           </div>

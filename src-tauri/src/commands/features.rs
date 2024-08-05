@@ -13,7 +13,7 @@ use crate::{
   commands::binaries::InstallStepOutput,
   config::LauncherConfig,
   util::{
-    file::{create_dir, delete_dir, overwrite_dir},
+    file::{create_dir, delete_dir, overwrite_dir, to_image_base64},
     zip::{check_if_zip_contains_top_level_dir, extract_and_delete_zip_file, extract_zip_file},
   },
 };
@@ -997,4 +997,56 @@ pub async fn launch_mod(
     // }
   });
   Ok(())
+}
+
+#[tauri::command]
+pub async fn get_local_mod_thumbnail_base64(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+  mod_name: String,
+) -> Result<String, CommandError> {
+  let config_lock = config.lock().await;
+  let install_path = match &config_lock.installation_dir {
+    None => return Ok("".to_string()),
+    Some(path) => Path::new(path),
+  };
+
+  let cover_path = install_path
+    .join("features")
+    .join(game_name)
+    .join("mods")
+    .join("_local")
+    .join(mod_name)
+    .join("thumbnail.png");
+  if cover_path.exists() {
+    // todo now - safer
+    return Ok(to_image_base64(cover_path.to_str().unwrap()));
+  }
+  Ok("".to_string())
+}
+
+#[tauri::command]
+pub async fn get_local_mod_cover_base64(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+  mod_name: String,
+) -> Result<String, CommandError> {
+  let config_lock = config.lock().await;
+  let install_path = match &config_lock.installation_dir {
+    None => return Ok("".to_string()),
+    Some(path) => Path::new(path),
+  };
+
+  let cover_path = install_path
+    .join("features")
+    .join(game_name)
+    .join("mods")
+    .join("_local")
+    .join(mod_name)
+    .join("cover.png");
+  if cover_path.exists() {
+    // todo now - safer
+    return Ok(to_image_base64(cover_path.to_str().unwrap()));
+  }
+  Ok("".to_string())
 }
