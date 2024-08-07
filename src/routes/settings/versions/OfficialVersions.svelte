@@ -193,8 +193,6 @@
 </script>
 
 <VersionList
-  initiallyOpen={true}
-  name={$_("settings_versions_official_tabName")}
   description={$_("settings_versions_official_description")}
   releaseList={releases}
   loaded={versionsLoaded}

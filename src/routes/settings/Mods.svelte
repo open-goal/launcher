@@ -40,7 +40,6 @@
     <div class="grow">
       <Input id="default-input" bind:value={newSourceURL} />
     </div>
-    <!-- TODO - forbid adding two mod sources with the same sourceName -->
     <Button
       class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-3 py-2 ml-2"
       disabled={newSourceURL === ""}
@@ -63,7 +62,7 @@
             <TableBodyRow class="flex items-center">
               <TableBodyCell
                 tdClass="px-6 whitespace-nowrap font-medium text-gray-900 dark:text-white text-wrap"
-                >{source.url}</TableBodyCell
+                >{source}</TableBodyCell
               >
               <TableBodyCell
                 tdClass="flex ml-auto justify-end px-6 whitespace-nowrap font-medium text-gray-900 dark:text-white text-red-600"
@@ -85,8 +84,6 @@
           {/each}
         </TableBody>
       </Table>
-    {:else}
-      TODO loading
     {/if}
   </div>
 </div>

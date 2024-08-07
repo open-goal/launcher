@@ -6,7 +6,7 @@
   import { _ } from "svelte-i18n";
   import Mods from "./settings/Mods.svelte";
   import { onMount } from "svelte";
-  import { isModSupportEanbled } from "$lib/rpc/features";
+  import { isModSupportEnabled } from "$lib/rpc/features";
   import Decompiler from "./settings/Decompiler.svelte";
 
   const params = useParams();
@@ -20,7 +20,7 @@
   let modSupportEnabled = false;
 
   onMount(async () => {
-    modSupportEnabled = await isModSupportEanbled();
+    modSupportEnabled = await isModSupportEnabled();
   });
 </script>
 

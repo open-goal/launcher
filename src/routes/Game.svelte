@@ -25,6 +25,8 @@
   import { VersionStore } from "$lib/stores/VersionStore";
   import type { Job } from "$lib/utils/jobs";
   import { type } from "@tauri-apps/api/os";
+  import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
+  import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
 
   const params = useParams();
   $: $params, loadGameInfo();
@@ -34,6 +36,7 @@
   export let modPage: boolean = false;
 
   let activeGame = SupportedGame.Jak1;
+  let modDisplayName: string | undefined = undefined;
   let componentLoaded = false;
 
   let gameInstalled = false;
@@ -74,6 +77,27 @@
       $params["mod_name"] !== ""
     ) {
       modName = $params["mod_name"];
+      // Go get the mod's display name
+      // TODO now - centralize this in a store so we don't unnecessarily fetch the info
+      await refreshModSources();
+      const modSourceData = await getModSourcesData();
+      // Find the source
+      let foundMod: ModInfo | undefined = undefined;
+      for (const [sourceUrl, sourceInfo] of Object.entries(modSourceData)) {
+        if (
+          sourceInfo.sourceName === modSource &&
+          sourceInfo.mods.hasOwnProperty(modName)
+        ) {
+          foundMod = sourceInfo.mods[modName];
+          break;
+        }
+      }
+      // Prefer pre-game-config if available
+      if (foundMod !== undefined) {
+        modDisplayName = foundMod.displayName;
+      } else {
+        modDisplayName = modName;
+      }
     }
     if (
       $params["source_url"] !== undefined &&
@@ -209,6 +233,7 @@
     <GameControls
       {activeGame}
       {modName}
+      {modDisplayName}
       {modSource}
       {modPage}
       on:change={updateGameState}

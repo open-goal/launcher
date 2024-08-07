@@ -1,25 +1,27 @@
 use std::collections::HashMap;
 
-use crate::cache::{LauncherCache, ModSourceData};
+use crate::{cache::{LauncherCache, ModSourceData}, config::LauncherConfig};
 
 use super::CommandError;
 
 #[tauri::command]
 pub async fn refresh_mod_sources(
-  app_handle: tauri::AppHandle,
   cache: tauri::State<'_, tokio::sync::Mutex<LauncherCache>>,
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<(), CommandError> {
   let mut cache_lock = cache.lock().await;
-  cache_lock
-    .refresh_mod_sources(vec!["https://localhost:8081/mock-mods.json".to_string()])
+  let config_lock = config.lock().await;
+  if let Some(mod_sources) = &config_lock.mod_sources {
+    cache_lock
+    .refresh_mod_sources(mod_sources.to_vec())
     .await
-    .map_err(|_| CommandError::Cache("Unable to refresh mod source ca che".to_owned()))?;
+    .map_err(|_| CommandError::Cache("Unable to refresh mod source cache".to_owned()))?;
+  }
   Ok(())
 }
 
 #[tauri::command]
 pub async fn get_mod_sources_data(
-  app_handle: tauri::AppHandle,
   cache: tauri::State<'_, tokio::sync::Mutex<LauncherCache>>,
 ) -> Result<HashMap<String, ModSourceData>, CommandError> {
   let cache_lock = cache.lock().await;

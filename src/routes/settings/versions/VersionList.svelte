@@ -11,7 +11,6 @@
     Button,
     Radio,
     Spinner,
-    TabItem,
     Table,
     TableBody,
     TableBodyCell,
@@ -23,27 +22,15 @@
   import { createEventDispatcher } from "svelte";
   import { _ } from "svelte-i18n";
 
-  export let name: string;
   export let description: string;
   export let releaseList: ReleaseInfo[];
   export let loaded: boolean;
   export let releaseType: VersionFolders;
-  export let initiallyOpen: boolean;
-
-  const tabItemActiveClasses =
-    "inline-block text-sm font-bold text-center disabled:cursor-not-allowed p-4 text-orange-500 border-b-2 border-orange-500 dark:text-orange-500 dark:border-orange-500";
-  const tabItemInactiveClasses =
-    "inline-block text-sm font-normal text-center disabled:cursor-not-allowed p-4 border-b-2 border-transparent text-gray-400 hover:text-orange-300 hover:border-orange-500 dark:hover:text-orange-300 dark:text-orange-400";
 
   const dispatch = createEventDispatcher();
 </script>
 
-<TabItem
-  open={initiallyOpen}
-  activeClasses={tabItemActiveClasses}
-  inactiveClasses={tabItemInactiveClasses}
->
-  <span slot="title">{name}</span>
+
   {#if !loaded}
     <div class="flex flex-col justify-center items-center">
       <Spinner color="yellow" size={"12"} />
@@ -217,4 +204,3 @@
       </TableBody>
     </Table>
   {/if}
-</TabItem>

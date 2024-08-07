@@ -176,12 +176,6 @@ impl DecompilerSettings {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct ModSource {
-  pub url: String,
-}
-
 fn default_as_false() -> Option<bool> {
   Some(false)
 }
@@ -201,7 +195,7 @@ pub struct LauncherConfig {
   pub active_version: Option<String>,
   pub active_version_folder: Option<String>,
   pub locale: Option<String>,
-  pub mod_sources: Option<Vec<ModSource>>,
+  pub mod_sources: Option<Vec<String>>,
   #[serde(default = "default_as_false")]
   pub mods_enabled: Option<bool>,
   pub decompiler_settings: Option<DecompilerSettings>,
@@ -305,6 +299,26 @@ impl LauncherConfig {
               config.version.as_ref().unwrap()
             );
             config.settings_path = Some(settings_path.to_path_buf());
+            // Remove usages of non-official versions
+            let mut found_violations = false;
+            if config.active_version_folder.as_ref().is_some_and(|x| x != "official") {
+              log::warn!("non-official versions is a deprecated feature, erasing!");
+              config.active_version = None;
+              config.active_version_folder = None;
+              found_violations = true;
+            }
+            // check the games as well
+            for (_, game_info) in config.games.iter_mut() {
+              if game_info.version_folder.as_ref().is_some_and(|x| x != "official") {
+                log::warn!("non-official versions is a deprecated feature, erasing!");
+                game_info.version = None;
+                game_info.version_folder = None;
+                found_violations = true;
+              }
+            }
+            if found_violations {
+              config.save_config().expect("TODO NOW");
+            }
             config
           }
           Err(err) => {
@@ -630,19 +644,15 @@ impl LauncherConfig {
   pub fn add_new_mod_source(&mut self, url: &String) -> Result<(), ConfigError> {
     self.mod_sources = match &mut self.mod_sources {
       Some(sources) => {
-        if sources.iter().any(|s| s.url == *url) {
+        if sources.iter().any(|s| *s == *url) {
           return Err(ConfigError::Configuration(
             "Duplicate mod source!".to_owned(),
           ));
         }
-        sources.push(ModSource {
-          url: url.to_string(),
-        });
+        sources.push(url.to_string());
         Some(sources.to_vec())
       }
-      None => Some(vec![ModSource {
-        url: url.to_string(),
-      }]),
+      None => Some(vec![url.to_string()]),
     };
     self.save_config()?;
     Ok(())
@@ -658,7 +668,7 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn get_mod_sources(&self) -> Vec<ModSource> {
+  pub fn get_mod_sources(&self) -> Vec<String> {
     match &self.mod_sources {
       Some(sources) => sources.to_vec(),
       None => Vec::new(),
@@ -672,29 +682,26 @@ impl LauncherConfig {
     source_name: String,
     version_name: String,
   ) -> Result<(), ConfigError> {
-    // TODO - remove `take` usage here, bug
     let game_config = self.get_supported_game_config_mut(&game_name)?;
-    match game_config.mods_installed_version.take() {
-      Some(mut installed_mods) => {
-        if !installed_mods.contains_key(&source_name) {
-          installed_mods.insert(source_name.clone(), HashMap::new());
-        }
-        installed_mods
-          .get_mut(&source_name)
-          .unwrap()
-          .insert(mod_name.clone(), version_name);
+
+    let installed_mods_option = game_config.mods_installed_version.as_mut();
+    if installed_mods_option.is_some() {
+      let installed_mods = installed_mods_option.unwrap();
+      if !installed_mods.contains_key(&source_name) {
+        installed_mods.insert(source_name.clone(), HashMap::new());
       }
-      None => {
-        let mut installed_mods: HashMap<String, HashMap<String, String>> = HashMap::new();
-        if !installed_mods.contains_key(&source_name) {
-          installed_mods.insert(source_name.clone(), HashMap::new());
-        }
-        installed_mods
-          .get_mut(&source_name)
-          .unwrap()
-          .insert(mod_name.clone(), version_name);
-        game_config.mods_installed_version = Some(installed_mods);
-      }
+      installed_mods
+        .get_mut(&source_name)
+        .unwrap()
+        .insert(mod_name.clone(), version_name);
+    } else {
+      let mut installed_mods: HashMap<String, HashMap<String, String>> = HashMap::new();
+      installed_mods.insert(source_name.clone(), HashMap::new());
+      installed_mods
+        .get_mut(&source_name)
+        .unwrap()
+        .insert(mod_name.clone(), version_name);
+      game_config.mods_installed_version = Some(installed_mods);
     }
     self.save_config()?;
     Ok(())
