@@ -22,8 +22,8 @@
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^6.0.0",
-    "@iconify-json/ic": "^1.1.17",
-    "@iconify-json/mdi": "^1.1.67",
+    "@iconify-json/ic": "^1.1.18",
+    "@iconify-json/mdi": "^1.1.68",
     "@octokit/plugin-retry": "^7.1.1",
     "@octokit/plugin-throttling": "^9.3.1",
     "@octokit/rest": "^21.0.1",
@@ -32,13 +32,13 @@
     "@tauri-apps/cli": "^1.6.0",
     "@testing-library/svelte": "^5.2.1",
     "@tsconfig/svelte": "^5.0.4",
-    "@vitest/coverage-v8": "^2.0.4",
+    "@vitest/coverage-v8": "^2.0.5",
     "ansi-to-span": "^0.0.1",
-    "autoprefixer": "^10.4.19",
+    "autoprefixer": "^10.4.20",
     "classnames": "^2.5.1",
     "escape-html": "^1.0.3",
     "execa": "^9.3.0",
-    "flowbite": "^2.4.1",
+    "flowbite": "^2.5.1",
     "flowbite-svelte": "0.46.15",
     "jsdom": "^24.1.1",
     "postcss": "^8.4.40",
@@ -52,7 +52,7 @@
     "typescript": "^5.5.4",
     "unplugin-icons": "^0.19.1",
     "vite": "^5.3.5",
-    "vitest": "^2.0.4"
+    "vitest": "^2.0.5"
   },
   "dependencies": {
     "@tauri-apps/api": "^1.6.0",
