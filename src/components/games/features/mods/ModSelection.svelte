@@ -188,7 +188,7 @@
             {#each Object.entries(sourceInstalledMods) as [modName, modVersion]}
               {#if modFilter === "" || modName
                   .toLocaleLowerCase()
-                  .startsWith(modFilter.toLocaleLowerCase())}
+                  .includes(modFilter.toLocaleLowerCase())}
                 <!-- TODO - background image -->
                 {#await getThumbnailImageFromSources(sourceName, modName) then thumbnailSrc}
                   <button
@@ -231,27 +231,29 @@
         {#each Object.entries(sourceData) as [sourceUrl, sourceInfo]}
           <div class="grid grid-cols-4 gap-4 mt-2">
             {#each Object.entries(sourceInfo.mods) as [modName, modInfo]}
-              {#if modFilter === "" || modInfo.displayName
-                  .toLocaleLowerCase()
-                  .startsWith(modFilter.toLocaleLowerCase())}
-                <!-- TODO - disable with tooltip if not on their platform -->
-                <button
-                  class="h-[200px] max-w-[160px] bg-cover p-1 flex justify-center items-end relative grayscale"
-                  style="background-image: url('{getThumbnailImage(modInfo)}')"
-                  on:click={async () => {
-                    // Install the mod
-                    const assetUrl = await getModAssetUrl(modInfo);
-                    await addModFromUrl(assetUrl, modName, sourceInfo.sourceName, modInfo.versions[0].version);
-                  }}
-                >
-                  <h3 class="pointer-events-none select-none text-outline">
-                    {modInfo.displayName}
-                  </h3>
-                  <div class="absolute top-0 right-0 m-2 flex gap-1">
-                    <IconGlobe />
-                    <Tooltip placement="bottom">{sourceInfo.sourceName}</Tooltip>
-                  </div>
-                </button>
+              {#if modInfo.supportedGames.includes(getInternalName(activeGame))}
+                {#if modFilter === "" || modInfo.displayName
+                    .toLocaleLowerCase()
+                    .includes(modFilter.toLocaleLowerCase())}
+                  <!-- TODO - disable with tooltip if not on their platform -->
+                  <button
+                    class="h-[200px] max-w-[160px] bg-cover p-1 flex justify-center items-end relative grayscale"
+                    style="background-image: url('{getThumbnailImage(modInfo)}')"
+                    on:click={async () => {
+                      // Install the mod
+                      const assetUrl = await getModAssetUrl(modInfo);
+                      await addModFromUrl(assetUrl, modName, sourceInfo.sourceName, modInfo.versions[0].version);
+                    }}
+                  >
+                    <h3 class="pointer-events-none select-none text-outline">
+                      {modInfo.displayName}
+                    </h3>
+                    <div class="absolute top-0 right-0 m-2 flex gap-1">
+                      <IconGlobe />
+                      <Tooltip placement="bottom">{sourceInfo.sourceName}</Tooltip>
+                    </div>
+                  </button>
+                {/if}
               {/if}
             {/each}
           </div>
