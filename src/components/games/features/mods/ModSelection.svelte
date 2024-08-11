@@ -102,8 +102,8 @@
 
   function getThumbnailImage(modInfo: ModInfo): string {
     // Prefer pre-game-config if available
-    if (modInfo.perGameConfig !== null && modInfo.perGameConfig.hasOwnProperty(activeGame) && modInfo.perGameConfig[activeGame].thumbnailArtUrl !== null) {
-      return modInfo.perGameConfig[activeGame].thumbnailArtUrl;
+    if (modInfo.perGameConfig !== null && modInfo.perGameConfig.hasOwnProperty(getInternalName(activeGame)) && modInfo.perGameConfig[getInternalName(activeGame)].thumbnailArtUrl !== null) {
+      return modInfo.perGameConfig[getInternalName(activeGame)].thumbnailArtUrl;
     } else if (modInfo.thumbnailArtUrl !== null) {
       return modInfo.coverArtUrl;
     }
