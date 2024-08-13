@@ -54,6 +54,10 @@ body {
     1px 1px 0 #000;
 }
 
+.text-shadow {
+  text-shadow: 0 1px 0 black;
+}
+
 .log-accordian > div > div.p-5 {
   /* TODO - no idea how else to customize the div that wraps the body slot in the accordian? */
   padding: 0;
