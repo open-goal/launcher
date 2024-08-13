@@ -18,6 +18,7 @@
   let texturePacksToEnable: any[] | undefined = undefined;
   let texturePacksToDelete: any[] | undefined = undefined;
 
+  let modDownloadUrl: string | undefined = undefined;
   let modSourceName: string | undefined = undefined;
   let modName: string | undefined = undefined;
   let modVersion: string | undefined = undefined;
@@ -58,11 +59,12 @@
   }
 
   async function runModInstallGameJob(event: {
-    detail: { type: any; modSourceName: string; modName: string };
+    detail: { type: any; modDownloadUrl: string, modSourceName: string; modName: string };
   }) {
     gameJobToRun = event.detail.type;
     texturePacksToEnable = undefined;
     texturePacksToDelete = undefined;
+    modDownloadUrl = event.detail.modDownloadUrl;
     modSourceName = event.detail.modSourceName;
     modName = event.detail.modName;
     modVersion = event.detail.modVersion;
@@ -85,6 +87,7 @@
         jobType={gameJobToRun}
         {texturePacksToEnable}
         {texturePacksToDelete}
+        {modDownloadUrl}
         {modSourceName}
         {modName}
         {modVersion}

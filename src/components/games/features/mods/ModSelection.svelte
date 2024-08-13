@@ -31,7 +31,6 @@
   import type { ModSourceData } from "$lib/rpc/bindings/ModSourceData";
   import { filePrompt } from "$lib/utils/file-dialogs";
   import {
-    downloadAndExtractNewMod,
     extractNewMod,
     getInstalledMods,
     getLocalModThumbnailBase64,
@@ -95,19 +94,13 @@
     modVersion: string,
   ) {
     addingMod = true;
-    // extract the file into install_dir/features/<game>/<sourceName>/<modName>
-    await downloadAndExtractNewMod(
-      getInternalName(activeGame),
-      url,
-      modName,
-      sourceName,
-    );
     // install it immediately
     // - prompt user for iso if it doesn't exist
     // - decompile
     // - compile
     dispatch("job", {
-      type: "installMod",
+      type: "installModExternal",
+      modDownloadUrl: url,
       modSourceName: sourceName,
       modName: modName,
       modVersion: modVersion,
