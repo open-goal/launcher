@@ -7,7 +7,6 @@
  - launch string (shortcuts)
  - uninstalling
  - pick the version / updating to latest version
- - remove unnecessary version lists (developer,unofficial)
  - cleanup rust code and frontend code
  - translations
  - order by last played
@@ -231,37 +230,39 @@
         <p class="mt-2 mb-2 text-slate-400 italic">No mods installed!</p>
       {:else}
         {#each Object.entries(installedMods) as [sourceName, sourceInstalledMods]}
-          <h2 class="mt-2 text-orange-400">{sourceName}</h2>
-          <div class="grid grid-cols-4 gap-4 mt-2">
-            {#each Object.entries(sourceInstalledMods) as [modName, modVersion]}
-              {#if modFilter === "" || getModDisplayName(sourceName, modName)
-                  .toLocaleLowerCase()
-                  .includes(modFilter.toLocaleLowerCase()) || getModTags(sourceName, modName)
-                  .join(",")
-                  .toLocaleLowerCase()
-                  .includes(modFilter.toLocaleLowerCase())}
-                {#await getThumbnailImageFromSources(sourceName, modName) then thumbnailSrc}
-                  <button
-                    class="h-[200px] bg-cover p-1 flex justify-center items-end relative"
-                    style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{thumbnailSrc}'); background-size: cover;"
-                    on:click={async () => {
-                      navigate(
-                        `/${getInternalName(activeGame)}/features/mods/${encodeURI(sourceName)}/${encodeURI(modName)}`,
-                      );
-                    }}
-                  >
-                    <h3 class="pointer-events-none select-none text-shadow">
-                      {getModDisplayName(sourceName, modName)}
-                    </h3>
-                    <div class="absolute top-0 right-0 m-2 flex gap-1">
-                      <IconGlobe />
-                      <Tooltip placement="bottom">{sourceName}</Tooltip>
-                    </div>
-                  </button>
-                {/await}
-              {/if}
-            {/each}
-          </div>
+          {#if Object.entries(sourceInstalledMods).length !== 0}
+            <h2 class="mt-2 text-orange-400">{sourceName}</h2>
+            <div class="grid grid-cols-4 gap-4 mt-2">
+              {#each Object.entries(sourceInstalledMods) as [modName, modVersion]}
+                {#if modFilter === "" || getModDisplayName(sourceName, modName)
+                    .toLocaleLowerCase()
+                    .includes(modFilter.toLocaleLowerCase()) || getModTags(sourceName, modName)
+                    .join(",")
+                    .toLocaleLowerCase()
+                    .includes(modFilter.toLocaleLowerCase())}
+                  {#await getThumbnailImageFromSources(sourceName, modName) then thumbnailSrc}
+                    <button
+                      class="h-[200px] bg-cover p-1 flex justify-center items-end relative"
+                      style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{thumbnailSrc}'); background-size: cover;"
+                      on:click={async () => {
+                        navigate(
+                          `/${getInternalName(activeGame)}/features/mods/${encodeURI(sourceName)}/${encodeURI(modName)}`,
+                        );
+                      }}
+                    >
+                      <h3 class="pointer-events-none select-none text-shadow">
+                        {getModDisplayName(sourceName, modName)}
+                      </h3>
+                      <div class="absolute top-0 right-0 m-2 flex gap-1">
+                        <IconGlobe />
+                        <Tooltip placement="bottom">{sourceName}</Tooltip>
+                      </div>
+                    </button>
+                  {/await}
+                {/if}
+              {/each}
+            </div>
+          {/if}
         {/each}
       {/if}
       <h2 class="font-bold mt-5">Available Mods</h2>

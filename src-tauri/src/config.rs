@@ -707,6 +707,32 @@ impl LauncherConfig {
     Ok(())
   }
 
+  pub fn uninstall_mod(
+    &mut self,
+    game_name: String,
+    mod_name: String,
+    source_name: String,
+  ) -> Result<(), ConfigError> {
+    log::info!(
+      "Uninstalling mod {}:{} from {}",
+      game_name, mod_name, source_name
+    );
+    let game_config = self.get_supported_game_config_mut(&game_name)?;
+
+    let installed_mods_option = game_config.mods_installed_version.as_mut();
+    if installed_mods_option.is_some() {
+      let installed_mods = installed_mods_option.unwrap();
+      if installed_mods.contains_key(&source_name) {
+        installed_mods
+        .get_mut(&source_name)
+        .unwrap()
+        .remove(&mod_name);
+      }
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
   pub fn get_installed_mods(
     &self,
     game_name: String,

@@ -256,3 +256,16 @@ export async function getLocalModCoverBase64(
     "_mirror_",
   );
 }
+
+export async function uninstallMod(
+  gameName: string,
+  modName: string,
+  sourceName: string,
+): Promise<void> {
+  return await invoke_rpc(
+    "uninstall_mod",
+    { gameName, modName, sourceName },
+    () => {},
+    "_mirror_",
+  );
+}

@@ -30,10 +30,6 @@
   import { isModSupportEnabled, launchMod } from "$lib/rpc/features";
 
   export let activeGame: SupportedGame;
-  export let modName: string | undefined = undefined;
-  export let modDisplayName: string | undefined = undefined;
-  export let modSource: string | undefined = undefined;
-  export let modPage: boolean = false;
 
   const dispatch = createEventDispatcher();
   let gameDataDir: string | undefined = undefined;
@@ -68,13 +64,6 @@
       getInternalName(activeGame),
       "saves",
     );
-
-    if (!modPage) {
-      // get the playtime from the backend, format it, and assign it to the playtime variable when the page first loads
-      getPlaytime(getInternalName(activeGame)).then((result) => {
-        playtime = formatPlaytime(result);
-      });
-    }
 
     textureSupportEnabled = await doesActiveToolingVersionMeetMinimum(0, 2, 13);
   });
@@ -120,11 +109,9 @@
 
   // listen for the custom playtiemUpdated event from the backend and then refresh the playtime on screen
   listen<string>("playtimeUpdated", (event) => {
-    if (!modPage) {
-      getPlaytime(getInternalName(activeGame)).then((result) => {
-        playtime = formatPlaytime(result);
-      });
-    }
+    getPlaytime(getInternalName(activeGame)).then((result) => {
+      playtime = formatPlaytime(result);
+    });
   });
 </script>
 
@@ -132,68 +119,47 @@
   <h1
     class="tracking-tighter text-2xl font-bold pb-3 text-orange-500 text-outline pointer-events-none"
   >
-    {#if modPage && modDisplayName !== undefined}
-      {modDisplayName}
-    {:else}
-      {$_(`gameName_${getInternalName(activeGame)}`)}
-    {/if}
+    {$_(`gameName_${getInternalName(activeGame)}`)}
   </h1>
-  {#if playtime && !modPage}
+  {#if playtime}
     <h1 class="pb-4 text-xl text-outline tracking-tighter font-extrabold">
       {`${$_(`gameControls_timePlayed_label`)} ${playtime}`}
     </h1>
   {/if}
   <div class="flex flex-row gap-2">
-    {#if modPage}
-      <Button
-        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-        on:click={async () => {
-          navigate(`/${getInternalName(activeGame)}/features/mods`, {
-            replace: true,
-          });
-        }}><IconArrowLeft />&nbsp;Back</Button
-      >
-    {/if}
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       on:click={async () => {
-        if (modPage && modName !== undefined && modSource !== undefined) {
-          launchMod(getInternalName(activeGame), false, modName, modSource);
-        } else {
-          launchGame(getInternalName(activeGame), false);
-        }
+        launchGame(getInternalName(activeGame), false);
       }}>{$_("gameControls_button_play")}</Button
     >
-    {#if !modPage}
-      <Button
-        class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-        >{$_("gameControls_button_features")}</Button
+    <Button
+      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+      >{$_("gameControls_button_features")}</Button
+    >
+    <Dropdown placement="top-end" class="!bg-slate-900">
+      <DropdownItem
+        disabled={!textureSupportEnabled}
+        on:click={async () => {
+          navigate(`/${getInternalName(activeGame)}/features/texture_packs`);
+        }}
       >
-      <Dropdown placement="top-end" class="!bg-slate-900">
+        {$_("gameControls_button_features_textures")}
+      </DropdownItem>
+      {#if !textureSupportEnabled}
+        <Tooltip>{$_("gameControls_button_features_textures_disabled")}</Tooltip
+        >
+      {/if}
+      {#if modSupportEnabled}
         <DropdownItem
-          disabled={!textureSupportEnabled}
           on:click={async () => {
-            navigate(`/${getInternalName(activeGame)}/features/texture_packs`);
+            navigate(`/${getInternalName(activeGame)}/features/mods`);
           }}
         >
-          {$_("gameControls_button_features_textures")}
+          {$_("gameControls_button_features_mods")}
         </DropdownItem>
-        {#if !textureSupportEnabled}
-          <Tooltip
-            >{$_("gameControls_button_features_textures_disabled")}</Tooltip
-          >
-        {/if}
-        {#if modSupportEnabled}
-          <DropdownItem
-            on:click={async () => {
-              navigate(`/${getInternalName(activeGame)}/features/mods`);
-            }}
-          >
-            {$_("gameControls_button_features_mods")}
-          </DropdownItem>
-        {/if}
-      </Dropdown>
-    {/if}
+      {/if}
+    </Dropdown>
     <Button
       class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
     >
@@ -202,11 +168,7 @@
     <Dropdown placement="top-end" class="!bg-slate-900">
       <DropdownItem
         on:click={async () => {
-          if (modPage && modName !== undefined && modSource !== undefined) {
-            launchMod(getInternalName(activeGame), true, modName, modSource);
-          } else {
-            launchGame(getInternalName(activeGame), true);
-          }
+          launchGame(getInternalName(activeGame), true);
         }}>{$_("gameControls_button_playInDebug")}</DropdownItem
       >
       {#if !isLinux}

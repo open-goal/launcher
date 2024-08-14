@@ -27,6 +27,7 @@
   import { type } from "@tauri-apps/api/os";
   import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
+  import GameControlsMod from "../components/games/GameControlsMod.svelte";
 
   const params = useParams();
   $: $params, loadGameInfo();
@@ -230,7 +231,8 @@
         </ul>
       </Alert>
     {/if}
-    <GameControls
+    {#if modName !== undefined}
+    <GameControlsMod
       {activeGame}
       {modName}
       {modDisplayName}
@@ -239,5 +241,12 @@
       on:change={updateGameState}
       on:job={runGameJob}
     />
+    {:else}
+    <GameControls
+      {activeGame}
+      on:change={updateGameState}
+      on:job={runGameJob}
+    />
+    {/if}
   {/if}
 </div>

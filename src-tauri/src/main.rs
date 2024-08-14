@@ -202,6 +202,7 @@ fn main() {
       commands::features::update_texture_pack_data,
       commands::features::get_local_mod_thumbnail_base64,
       commands::features::get_local_mod_cover_base64,
+      commands::features::uninstall_mod,
       commands::game::get_furthest_game_milestone,
       commands::game::reset_game_settings,
       commands::game::uninstall_game,

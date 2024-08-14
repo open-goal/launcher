@@ -8,6 +8,7 @@ use std::{
 
 use log::info;
 use serde::{Deserialize, Serialize};
+use tauri::Manager;
 
 use crate::{
   commands::binaries::InstallStepOutput,
@@ -938,11 +939,12 @@ pub async fn launch_mod(
     }
     Some(path) => Path::new(path),
   };
-  let exec_dir = install_path
+  let config_dir = install_path
     .join("features")
     .join(&game_name)
     .join("mods")
     .join(&source_name)
+    .join("_settings")
     .join(&mod_name);
   let exec_info = get_mod_exec_location(
     install_path.to_path_buf(),
@@ -956,7 +958,7 @@ pub async fn launch_mod(
     "--game".to_string(),
     game_name.clone(),
     "--config-path".to_string(),
-    exec_dir.to_string_lossy().to_string(),
+    config_dir.to_string_lossy().to_string(),
     "--".to_string(),
     "-boot".to_string(),
     "-fakeiso".to_string(),
@@ -1049,4 +1051,36 @@ pub async fn get_local_mod_cover_base64(
     return Ok(to_image_base64(cover_path.to_str().unwrap()));
   }
   Ok("".to_string())
+}
+
+#[tauri::command]
+pub async fn uninstall_mod(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  app_handle: tauri::AppHandle,
+  game_name: String,
+  mod_name: String,
+  source_name: String,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  let install_path = match &config_lock.installation_dir {
+    None => {
+      return Err(CommandError::GameFeatures(
+        "No installation directory set, can't extract mod".to_string(),
+      ))
+    }
+    Some(path) => Path::new(path),
+  };
+  let mod_dir = install_path
+    .join("features")
+    .join(&game_name)
+    .join("mods")
+    .join(&source_name)
+    .join(&mod_name);
+  std::fs::remove_dir_all(mod_dir)?;
+  config_lock
+    .uninstall_mod(game_name, mod_name, source_name)
+    .map_err(|_| {
+      CommandError::GameFeatures("Unable to uninstall mod".to_owned())
+    })?;
+  Ok(())
 }
