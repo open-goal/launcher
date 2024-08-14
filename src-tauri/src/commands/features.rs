@@ -3,7 +3,7 @@ use std::os::windows::process::CommandExt;
 use std::{
   collections::HashMap,
   path::{Path, PathBuf},
-  process::Command
+  process::Command,
 };
 
 use log::info;
@@ -451,24 +451,31 @@ pub async fn download_and_extract_new_mod(
 
   // Download the file
   let download_path = &install_path
-      .join("features")
-      .join(game_name)
-      .join("mods")
-      .join(&source_name)
-      .join(&mod_name)
-      .join(format!("{mod_name}.zip"));
+    .join("features")
+    .join(game_name)
+    .join("mods")
+    .join(&source_name)
+    .join(&mod_name)
+    .join(format!("{mod_name}.zip"));
   // TODO now - safer
   delete_dir(download_path.parent().unwrap())?;
 
-  download_file(download_url.clone(), download_path.to_string_lossy().to_string()).await.map_err(|_| {
+  download_file(
+    download_url.clone(),
+    download_path.to_string_lossy().to_string(),
+  )
+  .await
+  .map_err(|_| {
     CommandError::GameFeatures("Unable to successfully download mod version".to_owned())
   })?;
 
   // TODO now - safer
-  extract_and_delete_zip_file(&download_path, &download_path.parent().unwrap(), false).map_err(|err| {
-    log::error!("Unable to extract mod: {}", err);
-    CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
-  })?;
+  extract_and_delete_zip_file(&download_path, &download_path.parent().unwrap(), false).map_err(
+    |err| {
+      log::error!("Unable to extract mod: {}", err);
+      CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
+    },
+  )?;
   Ok(true)
 }
 
@@ -1079,8 +1086,6 @@ pub async fn uninstall_mod(
   std::fs::remove_dir_all(mod_dir)?;
   config_lock
     .uninstall_mod(game_name, mod_name, source_name)
-    .map_err(|_| {
-      CommandError::GameFeatures("Unable to uninstall mod".to_owned())
-    })?;
+    .map_err(|_| CommandError::GameFeatures("Unable to uninstall mod".to_owned()))?;
   Ok(())
 }

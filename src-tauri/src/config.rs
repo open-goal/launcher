@@ -301,7 +301,11 @@ impl LauncherConfig {
             config.settings_path = Some(settings_path.to_path_buf());
             // Remove usages of non-official versions
             let mut found_violations = false;
-            if config.active_version_folder.as_ref().is_some_and(|x| x != "official") {
+            if config
+              .active_version_folder
+              .as_ref()
+              .is_some_and(|x| x != "official")
+            {
               log::warn!("non-official versions is a deprecated feature, erasing!");
               config.active_version = None;
               config.active_version_folder = None;
@@ -309,7 +313,11 @@ impl LauncherConfig {
             }
             // check the games as well
             for (_, game_info) in config.games.iter_mut() {
-              if game_info.version_folder.as_ref().is_some_and(|x| x != "official") {
+              if game_info
+                .version_folder
+                .as_ref()
+                .is_some_and(|x| x != "official")
+              {
                 log::warn!("non-official versions is a deprecated feature, erasing!");
                 game_info.version = None;
                 game_info.version_folder = None;
@@ -715,7 +723,9 @@ impl LauncherConfig {
   ) -> Result<(), ConfigError> {
     log::info!(
       "Uninstalling mod {}:{} from {}",
-      game_name, mod_name, source_name
+      game_name,
+      mod_name,
+      source_name
     );
     let game_config = self.get_supported_game_config_mut(&game_name)?;
 
@@ -724,9 +734,9 @@ impl LauncherConfig {
       let installed_mods = installed_mods_option.unwrap();
       if installed_mods.contains_key(&source_name) {
         installed_mods
-        .get_mut(&source_name)
-        .unwrap()
-        .remove(&mod_name);
+          .get_mut(&source_name)
+          .unwrap()
+          .remove(&mod_name);
       }
     }
     self.save_config()?;

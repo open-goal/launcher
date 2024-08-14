@@ -49,7 +49,6 @@
       activeGame = "jakx";
     }
 
-
     // Handle mod backgrounds
     const pathComponents = $location.pathname
       .split("/")
@@ -72,7 +71,10 @@
         }
       }
       if (modSourceName === "_local") {
-        const coverResult = await getLocalModThumbnailBase64(activeGame, modName);
+        const coverResult = await getLocalModThumbnailBase64(
+          activeGame,
+          modName,
+        );
         if (coverResult === "") {
           modBackground = coverArtPlaceholder;
         } else {
@@ -81,7 +83,11 @@
       }
       // Prefer pre-game-config if available
       else if (foundMod !== undefined) {
-        if (foundMod.perGameConfig !== null && foundMod.perGameConfig.hasOwnProperty(activeGame) && foundMod.perGameConfig[activeGame].coverArtUrl !== null) {
+        if (
+          foundMod.perGameConfig !== null &&
+          foundMod.perGameConfig.hasOwnProperty(activeGame) &&
+          foundMod.perGameConfig[activeGame].coverArtUrl !== null
+        ) {
           modBackground = foundMod.perGameConfig[activeGame].coverArtUrl;
         } else if (foundMod.coverArtUrl !== null) {
           modBackground = foundMod.coverArtUrl;

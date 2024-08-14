@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use crate::{cache::{LauncherCache, ModSourceData}, config::LauncherConfig};
+use crate::{
+  cache::{LauncherCache, ModSourceData},
+  config::LauncherConfig,
+};
 
 use super::CommandError;
 
@@ -13,9 +16,9 @@ pub async fn refresh_mod_sources(
   let config_lock = config.lock().await;
   if let Some(mod_sources) = &config_lock.mod_sources {
     cache_lock
-    .refresh_mod_sources(mod_sources.to_vec())
-    .await
-    .map_err(|_| CommandError::Cache("Unable to refresh mod source cache".to_owned()))?;
+      .refresh_mod_sources(mod_sources.to_vec())
+      .await
+      .map_err(|_| CommandError::Cache("Unable to refresh mod source cache".to_owned()))?;
   }
   Ok(())
 }

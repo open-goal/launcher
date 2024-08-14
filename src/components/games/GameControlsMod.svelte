@@ -17,9 +17,7 @@
   import { resetGameSettings } from "$lib/rpc/game";
   import { platform } from "@tauri-apps/api/os";
   import { getLaunchGameString, openREPL } from "$lib/rpc/binaries";
-  import {
-    getInstallationDirectory,
-  } from "$lib/rpc/config";
+  import { getInstallationDirectory } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { navigate } from "svelte-navigator";
   import { toastStore } from "$lib/stores/ToastStore";
@@ -98,7 +96,7 @@
       {#if !isLinux}
         <DropdownItem
           on:click={async () => {
-          // TODO - update
+            // TODO - update
             openREPL(getInternalName(activeGame));
           }}>{$_("gameControls_button_openREPL")}</DropdownItem
         >
@@ -197,8 +195,8 @@
           if (confirmed) {
             await uninstallMod(getInternalName(activeGame), modName, modSource);
             navigate(`/${getInternalName(activeGame)}/features/mods`, {
-            replace: true,
-          });
+              replace: true,
+            });
           }
         }}
         >{$_("gameControls_button_uninstall")}<Helper

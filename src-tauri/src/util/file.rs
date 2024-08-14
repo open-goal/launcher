@@ -3,8 +3,12 @@
 extern crate rustc_serialize;
 
 use rustc_serialize::base64::{FromBase64, ToBase64, MIME};
-use rustc_serialize::hex::{ToHex};
-use std::{fs::File, io::{BufRead, Read}, path::{Path, PathBuf}};
+use rustc_serialize::hex::ToHex;
+use std::{
+  fs::File,
+  io::{BufRead, Read},
+  path::{Path, PathBuf},
+};
 
 pub fn delete_dir<T: AsRef<Path>>(path: T) -> Result<(), std::io::Error> {
   if path.as_ref().exists() && path.as_ref().is_dir() {
@@ -74,11 +78,11 @@ pub fn touch_file(path: &PathBuf) -> std::io::Result<()> {
 
 pub fn get_image_file_type(hex: &str) -> &str {
   if hex.starts_with("ffd8ffe0") {
-      return "jpeg"
+    return "jpeg";
   } else if hex.starts_with("89504e47") {
-      return "png"
+    return "png";
   } else if hex.starts_with("47494638") {
-      return "gif"
+    return "gif";
   }
   panic!("invalid file type")
 }
@@ -89,5 +93,9 @@ pub fn to_image_base64(path: &str) -> String {
   let _ = file.read_to_end(&mut vec);
   let base64 = vec.to_base64(MIME);
   let hex = vec.to_hex();
-  return format!("data:image/{};base64,{}", get_image_file_type(&hex), base64.replace("\r\n", ""));
+  return format!(
+    "data:image/{};base64,{}",
+    get_image_file_type(&hex),
+    base64.replace("\r\n", "")
+  );
 }

@@ -2,4 +2,16 @@
 import type { ModPerGameConfig } from "./ModPerGameConfig";
 import type { ModVersion } from "./ModVersion";
 
-export type ModInfo = { displayName: string, description: string, authors: Array<string>, tags: Array<string>, supportedGames: Array<string>, websiteUrl: string | null, versions: Array<ModVersion>, perGameConfig: { [key: string]: ModPerGameConfig } | null, coverArtUrl: string | null, thumbnailArtUrl: string | null, externalLink: string | null, };
+export type ModInfo = {
+  displayName: string;
+  description: string;
+  authors: Array<string>;
+  tags: Array<string>;
+  supportedGames: Array<string>;
+  websiteUrl: string | null;
+  versions: Array<ModVersion>;
+  perGameConfig: { [key: string]: ModPerGameConfig } | null;
+  coverArtUrl: string | null;
+  thumbnailArtUrl: string | null;
+  externalLink: string | null;
+};

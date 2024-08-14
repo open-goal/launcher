@@ -59,7 +59,12 @@
   }
 
   async function runModInstallGameJob(event: {
-    detail: { type: any; modDownloadUrl: string, modSourceName: string; modName: string };
+    detail: {
+      type: any;
+      modDownloadUrl: string;
+      modSourceName: string;
+      modName: string;
+    };
   }) {
     gameJobToRun = event.detail.type;
     texturePacksToEnable = undefined;

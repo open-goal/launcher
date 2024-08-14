@@ -232,21 +232,21 @@
       </Alert>
     {/if}
     {#if modName !== undefined}
-    <GameControlsMod
-      {activeGame}
-      {modName}
-      {modDisplayName}
-      {modSource}
-      {modPage}
-      on:change={updateGameState}
-      on:job={runGameJob}
-    />
+      <GameControlsMod
+        {activeGame}
+        {modName}
+        {modDisplayName}
+        {modSource}
+        {modPage}
+        on:change={updateGameState}
+        on:job={runGameJob}
+      />
     {:else}
-    <GameControls
-      {activeGame}
-      on:change={updateGameState}
-      on:job={runGameJob}
-    />
+      <GameControls
+        {activeGame}
+        on:change={updateGameState}
+        on:job={runGameJob}
+      />
     {/if}
   {/if}
 </div>
