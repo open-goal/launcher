@@ -1,17 +1,9 @@
 <!-- TODO
- BUGS
- - 'extract_new_mod' complains due to something already being in use
- - when reinstalling the same mod, the settings map ends up as 'null'
-
- FEATURES
- - launch string (shortcuts)
- - uninstalling
+ - update all buttons on control page
  - pick the version / updating to latest version
+ - order by name
  - cleanup rust code and frontend code
  - translations
- - order by last played
-
- WRAP UP
  - do a pass of and close https://github.com/open-goal/launcher/discussions/452 features are captured here
    - anything extra, make an actual issue for it (ie. metrics)
  - enable it by default
@@ -41,6 +33,7 @@
   const dispatch = createEventDispatcher();
   export let activeGame: SupportedGame;
 
+  let userPlatform = "";
   let loaded = false;
   let modFilter = "";
   let installedMods: Record<string, Record<string, string>> = {};
@@ -54,6 +47,7 @@
     installedMods = await getInstalledMods(getInternalName(activeGame));
     await refreshModSources();
     sourceData = await getModSourcesData();
+    userPlatform = await platform();
     loaded = true;
   });
 
@@ -126,6 +120,7 @@
     sourceName: string,
     modName: string,
   ): Promise<string> {
+    // TODO - make this not a promise, do it in the initial component loading
     if (sourceName === "_local") {
       return await getLocalModThumbnailBase64(
         getInternalName(activeGame),
@@ -171,12 +166,11 @@
     return [];
   }
 
-  async function getModAssetUrl(modInfo: ModInfo): Promise<string> {
+  function getModAssetUrl(modInfo: ModInfo): string {
     // TODO - make safer
-    const plat = await platform();
-    if (plat === "linux") {
+    if (userPlatform === "linux") {
       return modInfo.versions[0].assets["linux"];
-    } else if (plat == "darwin") {
+    } else if (userPlatform == "darwin") {
       return modInfo.versions[0].assets["macos"];
     }
     return modInfo.versions[0].assets["windows"];
@@ -188,6 +182,19 @@
       Object.keys(installedMods[sourceName]).includes(modName)
     ) {
       return true;
+    }
+    return false;
+  }
+
+  function isModSupportedOnCurrentPlatform(modInfo: ModInfo): boolean {
+    // TODO - make safer
+    if (modInfo.versions.length > 0) {
+      if (userPlatform === "linux") {
+        return Object.keys(modInfo.versions[0].assets).includes("linux");
+      } else if (userPlatform == "darwin") {
+        return Object.keys(modInfo.versions[0].assets).includes("macos");
+      }
+      return Object.keys(modInfo.versions[0].assets).includes("windows");
     }
     return false;
   }
@@ -292,33 +299,62 @@
                     .join(",")
                     .toLocaleLowerCase()
                     .includes(modFilter.toLocaleLowerCase())}
-                  <!-- TODO - disable with tooltip if not on their platform -->
-                  <button
-                    class="h-[200px] max-w-[160px] bg-cover p-1 flex justify-center items-end relative grayscale"
-                    style="background-image: url('{getThumbnailImage(
-                      modInfo,
-                    )}')"
-                    on:click={async () => {
-                      // Install the mod
-                      const assetUrl = await getModAssetUrl(modInfo);
-                      await addModFromUrl(
-                        assetUrl,
-                        modName,
-                        sourceInfo.sourceName,
-                        modInfo.versions[0].version,
-                      );
-                    }}
-                  >
-                    <h3 class="pointer-events-none select-none text-outline">
-                      {modInfo.displayName}
-                    </h3>
-                    <div class="absolute top-0 right-0 m-2 flex gap-1">
-                      <IconGlobe />
-                      <Tooltip placement="bottom"
-                        >{sourceInfo.sourceName}</Tooltip
-                      >
-                    </div>
-                  </button>
+                  {#if modInfo.externalLink !== null}
+                    <a
+                      href={modInfo.externalLink}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      class="h-[200px] max-w-[160px] bg-cover p-1 flex justify-center items-end relative grayscale"
+                      style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{getThumbnailImage(
+                        modInfo,
+                      )}'); background-size: cover;"
+                    >
+                      <h3 class="pointer-events-none select-none text-outline">
+                        {modInfo.displayName}
+                      </h3>
+                      <div class="absolute top-0 right-0 m-2 flex gap-1">
+                        <IconGlobe />
+                        <Tooltip placement="bottom"
+                          >{sourceInfo.sourceName}</Tooltip
+                        >
+                      </div>
+                    </a>
+                  {:else}
+                    <button
+                      disabled={!isModSupportedOnCurrentPlatform(modInfo)}
+                      class="h-[200px] max-w-[160px] bg-cover p-1 flex justify-center items-end relative grayscale"
+                      style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{getThumbnailImage(
+                        modInfo,
+                      )}'); background-size: cover;"
+                      on:click={async () => {
+                        // Install the mod
+                        const assetUrl = getModAssetUrl(modInfo);
+                        await addModFromUrl(
+                          assetUrl,
+                          modName,
+                          sourceInfo.sourceName,
+                          modInfo.versions[0].version,
+                        );
+                      }}
+                    >
+                      <h3 class="pointer-events-none select-none text-outline">
+                        {modInfo.displayName}
+                      </h3>
+                      <div class="absolute top-0 right-0 m-2 flex gap-1">
+                        <IconGlobe />
+                        <Tooltip placement="bottom"
+                          >{sourceInfo.sourceName}</Tooltip
+                        >
+                      </div>
+                    </button>
+                  {/if}
+
+                  {#if !isModSupportedOnCurrentPlatform(modInfo) && modInfo.externalLink === null}
+                    <Tooltip placement="top"
+                      >Mod not supported on your platform ({userPlatform})<br
+                      />Ask the author to fix this!</Tooltip
+                    >
+                  {/if}
                 {/if}
               {/if}
             {/each}
