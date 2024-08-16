@@ -16,6 +16,7 @@ use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde_json::Number;
 
 use crate::util::file::touch_file;
 
@@ -176,6 +177,45 @@ impl DecompilerSettings {
   }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GamescopeSettings {
+  pub gamescope_binary: Option<String>,
+  #[serde(default = "default_as_false")]
+  pub gamescope_enabled: Option<bool>,
+  #[serde(default = "default_as_false")]
+  pub mangohud_enabled: Option<bool>,
+  #[serde(default = "default_as_false")]
+  pub fullscreen: Option<bool>,
+  pub window_width: Option<String>,
+  pub window_height: Option<String>,
+  #[serde(default = "default_as_false")]
+  pub upscale_enabled: Option<bool>,
+  pub upscale_width: Option<String>,
+  pub upscale_height: Option<String>,
+  pub upscale_method: Option<String>,
+  #[serde(default = "default_as_false")]
+  pub hdr: Option<bool>,
+}
+
+impl GamescopeSettings {
+  fn default() -> Self {
+    Self {
+      gamescope_binary: None,
+      gamescope_enabled: Some(false),
+      mangohud_enabled: Some(false),
+      fullscreen: Some(true),
+      window_width: None,
+      window_height: None,
+      upscale_enabled: Some(false),
+      upscale_width: None,
+      upscale_height: None,
+      upscale_method: None,
+      hdr: Some(false),
+    }
+  }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ModSource {
@@ -205,6 +245,7 @@ pub struct LauncherConfig {
   #[serde(default = "default_as_false")]
   pub mods_enabled: Option<bool>,
   pub decompiler_settings: Option<DecompilerSettings>,
+  pub gamescope_settings: Option<GamescopeSettings>,
 }
 
 fn default_version() -> Option<String> {
@@ -231,6 +272,7 @@ impl LauncherConfig {
       mod_sources: None,
       mods_enabled: Some(false),
       decompiler_settings: Some(DecompilerSettings::default()),
+      gamescope_settings: Some(GamescopeSettings::default()),
     }
   }
 
@@ -755,6 +797,138 @@ impl LauncherConfig {
       let mut new_settings = DecompilerSettings::default();
       new_settings.rip_streamed_audio_enabled = Some(enabled);
       self.decompiler_settings = Some(new_settings);
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_gamescope_binary(&mut self, value: String) -> Result<(), ConfigError> {
+    if let Some(ref mut settings) = self.gamescope_settings {
+      settings.gamescope_binary = Some(value);
+    } else {
+      let mut new_settings = GamescopeSettings::default();
+      new_settings.gamescope_binary = Some(value);
+      self.gamescope_settings = Some(new_settings);
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_gamescope_enabled(&mut self, enabled: bool) -> Result<(), ConfigError> {
+    if let Some(ref mut settings) = self.gamescope_settings {
+      settings.gamescope_enabled = Some(enabled);
+    } else {
+      let mut new_settings = GamescopeSettings::default();
+      new_settings.gamescope_enabled = Some(enabled);
+      self.gamescope_settings = Some(new_settings);
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_mangohud_enabled(&mut self, enabled: bool) -> Result<(), ConfigError> {
+    if let Some(ref mut settings) = self.gamescope_settings {
+      settings.mangohud_enabled = Some(enabled);
+    } else {
+      let mut new_settings = GamescopeSettings::default();
+      new_settings.mangohud_enabled = Some(enabled);
+      self.gamescope_settings = Some(new_settings);
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_upscale_enabled(&mut self, enabled: bool) -> Result<(), ConfigError> {
+    if let Some(ref mut settings) = self.gamescope_settings {
+      settings.upscale_enabled = Some(enabled);
+    } else {
+      let mut new_settings = GamescopeSettings::default();
+      new_settings.upscale_enabled = Some(enabled);
+      self.gamescope_settings = Some(new_settings);
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_hdr_enabled(&mut self, enabled: bool) -> Result<(), ConfigError> {
+    if let Some(ref mut settings) = self.gamescope_settings {
+      settings.hdr = Some(enabled);
+    } else {
+      let mut new_settings = GamescopeSettings::default();
+      new_settings.hdr = Some(enabled);
+      self.gamescope_settings = Some(new_settings);
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_window_type(&mut self, fullscreen: bool) -> Result<(), ConfigError> {
+    if let Some(ref mut settings) = self.gamescope_settings {
+      settings.fullscreen = Some(fullscreen);
+    } else {
+      let mut new_settings = GamescopeSettings::default();
+      new_settings.fullscreen = Some(fullscreen);
+      self.gamescope_settings = Some(new_settings);
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_window_width(&mut self, value: String) -> Result<(), ConfigError> {
+    if let Some(ref mut settings) = self.gamescope_settings {
+      settings.window_width = Some(value);
+    } else {
+      let mut new_settings = GamescopeSettings::default();
+      new_settings.window_width = Some(value);
+      self.gamescope_settings = Some(new_settings);
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_window_height(&mut self, value: String) -> Result<(), ConfigError> {
+    if let Some(ref mut settings) = self.gamescope_settings {
+      settings.window_height = Some(value);
+    } else {
+      let mut new_settings = GamescopeSettings::default();
+      new_settings.window_height = Some(value);
+      self.gamescope_settings = Some(new_settings);
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_upscale_width(&mut self, value: String) -> Result<(), ConfigError> {
+    if let Some(ref mut settings) = self.gamescope_settings {
+      settings.upscale_width = Some(value);
+    } else {
+      let mut new_settings = GamescopeSettings::default();
+      new_settings.upscale_width = Some(value);
+      self.gamescope_settings = Some(new_settings);
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_upscale_height(&mut self, value: String) -> Result<(), ConfigError> {
+    if let Some(ref mut settings) = self.gamescope_settings {
+      settings.upscale_height = Some(value);
+    } else {
+      let mut new_settings = GamescopeSettings::default();
+      new_settings.upscale_height = Some(value);
+      self.gamescope_settings = Some(new_settings);
+    }
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_upscale_method(&mut self, value: String) -> Result<(), ConfigError> {
+    if let Some(ref mut settings) = self.gamescope_settings {
+      settings.upscale_method = Some(value);
+    } else {
+      let mut new_settings = GamescopeSettings::default();
+      new_settings.upscale_height = Some(value);
+      self.gamescope_settings = Some(new_settings);
     }
     self.save_config()?;
     Ok(())
