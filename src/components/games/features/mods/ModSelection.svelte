@@ -1,7 +1,5 @@
 <!-- TODO
- - update all buttons on control page
  - pick the version / updating to latest version
- - order by name
  - cleanup rust code and frontend code
  - translations
  - warning on mod source page
@@ -30,6 +28,7 @@
   import { basename } from "@tauri-apps/api/path";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import thumbnailPlaceholder from "$assets/images/mod-thumbnail-placeholder.webp";
+  import { sort } from "semver";
 
   const dispatch = createEventDispatcher();
   export let activeGame: SupportedGame;
@@ -235,11 +234,12 @@
       {#if Object.entries(installedMods).length === 0}
         <p class="mt-2 mb-2 text-slate-400 italic">No mods installed!</p>
       {:else}
-        {#each Object.entries(installedMods) as [sourceName, sourceInstalledMods]}
+        {#each Object.keys(installedMods).sort() as sourceName}
+          {@const sourceInstalledMods = installedMods[sourceName]}
           {#if Object.entries(sourceInstalledMods).length !== 0}
             <h2 class="mt-2 text-orange-400">{sourceName}</h2>
             <div class="grid grid-cols-4 gap-4 mt-2">
-              {#each Object.entries(sourceInstalledMods) as [modName, modVersion]}
+              {#each Object.keys(sourceInstalledMods).sort() as modName}
                 {#if modFilter === "" || getModDisplayName(sourceName, modName)
                     .toLocaleLowerCase()
                     .includes(modFilter.toLocaleLowerCase()) || getModTags(sourceName, modName)
@@ -287,10 +287,12 @@
           >
         </div>
       {:else}
-        {#each Object.entries(sourceData) as [sourceUrl, sourceInfo]}
+        {#each Object.keys(sourceData).sort() as sourceUrl}
+          {@const sourceInfo = sourceData[sourceUrl]}
           <h2 class="mt-2 text-orange-400">{sourceInfo.sourceName}</h2>
           <div class="grid grid-cols-4 gap-4 mt-2">
-            {#each Object.entries(sourceInfo.mods) as [modName, modInfo]}
+            {#each Object.keys(sourceInfo.mods).sort() as modName}
+              {@const modInfo = sourceInfo.mods[modName]}
               {#if modInfo.supportedGames.includes(getInternalName(activeGame)) && !isModAlreadyInstalled(sourceInfo.sourceName, modName)}
                 {#if modFilter === "" || modInfo.displayName
                     .toLocaleLowerCase()
