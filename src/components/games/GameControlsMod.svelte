@@ -13,6 +13,7 @@
     DropdownItem,
     DropdownDivider,
     Helper,
+    Indicator,
   } from "flowbite-svelte";
   import { platform } from "@tauri-apps/api/os";
   import { getInstallationDirectory } from "$lib/rpc/config";
@@ -20,6 +21,7 @@
   import { navigate } from "svelte-navigator";
   import { toastStore } from "$lib/stores/ToastStore";
   import {
+    getInstalledMods,
     getLaunchModString,
     launchMod,
     openREPLForMod,
@@ -27,6 +29,8 @@
     uninstallMod,
   } from "$lib/rpc/features";
   import { pathExists } from "$lib/rpc/util";
+  import { getModSourcesData } from "$lib/rpc/cache";
+  import type { ModVersion } from "$lib/rpc/bindings/ModVersion";
 
   export let activeGame: SupportedGame;
   export let modName: string = "";
@@ -38,6 +42,51 @@
   let settingsDir: string | undefined = undefined;
   let savesDir: string | undefined = undefined;
   let isLinux = false;
+  let modVersionList: string[] = [];
+  let modAssetUrls: string[] = [];
+  let currentlyInstalledVersion: string = "";
+  let numberOfVersionsOutOfDate = 0;
+  let userPlatform: string = "";
+
+  function isVersionSupportedOnPlatform(version: ModVersion): boolean {
+    if (userPlatform === "linux") {
+      return Object.keys(version.assets).includes("linux");
+    } else if (userPlatform == "darwin") {
+      return Object.keys(version.assets).includes("macos");
+    }
+    return Object.keys(version.assets).includes("windows");
+  }
+
+  // TODO - dupe
+  function getModAssetUrl(version: ModVersion): string {
+    // TODO - make safer
+    if (userPlatform === "linux") {
+      return version.assets["linux"];
+    } else if (userPlatform == "darwin") {
+      return version.assets["macos"];
+    }
+    return version.assets["windows"];
+  }
+
+  // TODO - duplication
+  async function addModFromUrl(
+    url: string,
+    modName: string,
+    sourceName: string,
+    modVersion: string,
+  ) {
+    // install it immediately
+    // - prompt user for iso if it doesn't exist
+    // - decompile
+    // - compile
+    dispatch("job", {
+      type: "installModExternal",
+      modDownloadUrl: url,
+      modSourceName: sourceName,
+      modName: modName,
+      modVersion: modVersion,
+    });
+  }
 
   onMount(async () => {
     isLinux = (await platform()) === "linux";
@@ -83,6 +132,43 @@
         savesDir = undefined;
       }
     }
+    // Get a list of available versions, this is how we see if we're on the latest!
+    let sourceData = await getModSourcesData();
+    userPlatform = await platform();
+
+    let relevantSourceData = undefined;
+    for (const [sourceUrl, sourceDataEntry] of Object.entries(sourceData)) {
+      if (sourceDataEntry.sourceName === modSource) {
+        relevantSourceData = sourceDataEntry;
+      }
+    }
+    if (
+      relevantSourceData !== undefined &&
+      Object.keys(relevantSourceData.mods).includes(modName)
+    ) {
+      for (const version of relevantSourceData.mods[modName].versions) {
+        if (isVersionSupportedOnPlatform(version)) {
+          modVersionList = [...modVersionList, version.version];
+          modAssetUrls.push(getModAssetUrl(version));
+        }
+      }
+    }
+
+    // get current installed version
+    let installedMods = await getInstalledMods(getInternalName(activeGame));
+    if (
+      Object.keys(installedMods).includes(modSource) &&
+      Object.keys(installedMods[modSource]).includes(modName)
+    ) {
+      currentlyInstalledVersion = installedMods[modSource][modName];
+    }
+
+    for (const version of modVersionList) {
+      if (version === currentlyInstalledVersion) {
+        break;
+      }
+      numberOfVersionsOutOfDate = numberOfVersionsOutOfDate + 1;
+    }
   });
 </script>
 
@@ -101,6 +187,47 @@
         });
       }}><IconArrowLeft />&nbsp;Back</Button
     >
+    {#if modVersionList.length > 0}
+      <Button
+        class="relative text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+      >
+        Versions
+        {#if numberOfVersionsOutOfDate > 0}
+          <Indicator
+            color="red"
+            border
+            size="xl"
+            placement="top-right"
+            class="text-xs font-bold"
+          >
+            {numberOfVersionsOutOfDate}
+          </Indicator>
+        {/if}
+      </Button>
+      <Dropdown
+        placement="top-end"
+        class="!bg-slate-900 overflow-y-auto max-h-[300px]"
+      >
+        {#each modVersionList as version, i}
+          {#if version === currentlyInstalledVersion}
+            <DropdownItem class="text-orange-400 cursor-auto"
+              >{version}</DropdownItem
+            >
+          {:else}
+            <DropdownItem
+              on:click={async () => {
+                await addModFromUrl(
+                  modAssetUrls[i],
+                  modName,
+                  modSource,
+                  version,
+                );
+              }}>{version}</DropdownItem
+            >
+          {/if}
+        {/each}
+      </Dropdown>
+    {/if}
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       on:click={async () => {

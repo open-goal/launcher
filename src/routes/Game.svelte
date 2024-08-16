@@ -34,6 +34,8 @@
 
   export let modName: string | undefined = undefined;
   export let modSource: string | undefined = undefined;
+  let modVersionToInstall: string = "";
+  let modDownloadUrlToInstall: string = "";
 
   let activeGame = SupportedGame.Jak1;
   let modDisplayName: string | undefined = undefined;
@@ -146,6 +148,10 @@
 
   async function runGameJob(event: any) {
     gameJobToRun = event.detail.type;
+    if (gameJobToRun === "installModExternal") {
+      modDownloadUrlToInstall = event.detail.modDownloadUrl;
+      modVersionToInstall = event.detail.modVersion;
+    }
   }
 
   async function gameJobFinished() {
@@ -170,6 +176,8 @@
       {activeGame}
       jobType={gameJobToRun}
       modSourceName={modSource}
+      modDownloadUrl={modDownloadUrlToInstall}
+      modVersion={modVersionToInstall}
       {modName}
       on:jobFinished={gameJobFinished}
     />

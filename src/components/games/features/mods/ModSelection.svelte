@@ -1,9 +1,6 @@
 <!-- TODO
- - pick the version / updating to latest version
  - cleanup rust code and frontend code
  - translations
- - do a pass of and close https://github.com/open-goal/launcher/discussions/452 features are captured here
-   - anything extra, make an actual issue for it (ie. metrics)
  - enable it by default
 -->
 
@@ -27,7 +24,6 @@
   import { basename } from "@tauri-apps/api/path";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import thumbnailPlaceholder from "$assets/images/mod-thumbnail-placeholder.webp";
-  import { sort } from "semver";
 
   const dispatch = createEventDispatcher();
   export let activeGame: SupportedGame;
@@ -42,6 +38,7 @@
 
   onMount(async () => {
     installedMods = await getInstalledMods(getInternalName(activeGame));
+    // TODO - move this to a central store!
     await refreshModSources();
     sourceData = await getModSourcesData();
     userPlatform = await platform();
