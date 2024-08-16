@@ -105,7 +105,7 @@
     ) {
       return modInfo.perGameConfig[getInternalName(activeGame)].thumbnailArtUrl;
     } else if (modInfo.thumbnailArtUrl !== null) {
-      return modInfo.coverArtUrl;
+      return modInfo.thumbnailArtUrl;
     }
     return thumbnailPlaceholder;
   }
