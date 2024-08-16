@@ -34,7 +34,6 @@
 
   export let modName: string | undefined = undefined;
   export let modSource: string | undefined = undefined;
-  export let modPage: boolean = false;
 
   let activeGame = SupportedGame.Jak1;
   let modDisplayName: string | undefined = undefined;
@@ -170,6 +169,8 @@
     <GameJob
       {activeGame}
       jobType={gameJobToRun}
+      modSourceName={modSource}
+      {modName}
       on:jobFinished={gameJobFinished}
     />
   {:else if versionMismatchDetected}
@@ -237,7 +238,6 @@
         {modName}
         {modDisplayName}
         {modSource}
-        {modPage}
         on:change={updateGameState}
         on:job={runGameJob}
       />

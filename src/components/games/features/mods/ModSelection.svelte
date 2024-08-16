@@ -4,6 +4,7 @@
  - order by name
  - cleanup rust code and frontend code
  - translations
+ - warning on mod source page
  - do a pass of and close https://github.com/open-goal/launcher/discussions/452 features are captured here
    - anything extra, make an actual issue for it (ie. metrics)
  - enable it by default
@@ -38,8 +39,6 @@
   let modFilter = "";
   let installedMods: Record<string, Record<string, string>> = {};
   let sourceData: Record<string, ModSourceData> = {};
-  // TODO - sort mods by name
-  let sortedAvailableModNames: Record<string, string[]> = {};
   let addingMod = false;
   let addingFromFile = false;
 

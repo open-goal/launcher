@@ -928,6 +928,35 @@ pub async fn get_installed_mods(
   }
 }
 
+fn generate_launch_mod_args(
+  game_name: String,
+  in_debug: bool,
+  config_dir: PathBuf,
+  quote_project_path: bool,
+) -> Result<Vec<String>, CommandError> {
+  let config_dir_adjusted = if quote_project_path {
+    format!("\"{}\"", config_dir.to_string_lossy().into_owned())
+  } else {
+    config_dir.to_string_lossy().into_owned()
+  };
+
+  let mut args = vec![
+    "-v".to_string(),
+    "--game".to_string(),
+    game_name.clone(),
+    "--config-path".to_string(),
+    config_dir_adjusted,
+    "--".to_string(),
+    "-boot".to_string(),
+    "-fakeiso".to_string(),
+  ];
+  if in_debug {
+    args.push("-debug".to_string());
+  }
+
+  Ok(args)
+}
+
 #[tauri::command]
 pub async fn launch_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -960,19 +989,7 @@ pub async fn launch_mod(
     &mod_name,
     &source_name,
   )?;
-  let mut args = vec![
-    "-v".to_string(),
-    "--game".to_string(),
-    game_name.clone(),
-    "--config-path".to_string(),
-    config_dir.to_string_lossy().to_string(),
-    "--".to_string(),
-    "-boot".to_string(),
-    "-fakeiso".to_string(),
-  ];
-  if in_debug {
-    args.push("-debug".to_string());
-  }
+  let args = generate_launch_mod_args(game_name, in_debug, config_dir, false)?;
 
   log::info!("Launching gk args: {:?}", args);
 
@@ -991,20 +1008,6 @@ pub async fn launch_mod(
   }
   // Start the process here so if there is an error, we can return immediately
   let mut child = command.spawn()?;
-  // if all goes well, we await the child to exit in the background (separate thread)
-  tokio::spawn(async move {
-    // let start_time = Instant::now(); // get the start time of the game
-    //                                  // start waiting for the game to exit
-    // if let Err(err) = child.wait() {
-    //   log::error!("Error occured when waiting for game to exit: {}", err);
-    //   return;
-    // }
-    // // once the game exits pass the time the game started to the track_playtine function
-    // if let Err(err) = track_playtime(start_time, game_name).await {
-    //   log::error!("Error occured when tracking playtime: {}", err);
-    //   return;
-    // }
-  });
   Ok(())
 }
 
@@ -1087,5 +1090,123 @@ pub async fn uninstall_mod(
   config_lock
     .uninstall_mod(game_name, mod_name, source_name)
     .map_err(|_| CommandError::GameFeatures("Unable to uninstall mod".to_owned()))?;
+  Ok(())
+}
+
+#[tauri::command]
+pub async fn reset_mod_settings(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+  mod_name: String,
+  source_name: String,
+) -> Result<(), CommandError> {
+  let config_lock = config.lock().await;
+  let install_path = match &config_lock.installation_dir {
+    None => {
+      return Err(CommandError::GameFeatures(
+        "No installation directory set, can't reset mod settings".to_string(),
+      ))
+    }
+    Some(path) => Path::new(path),
+  };
+  let path_to_settings = install_path
+    .join("features")
+    .join(&game_name)
+    .join("mods")
+    .join(&source_name)
+    .join("_settings")
+    .join(&mod_name)
+    .join("OpenGOAL")
+    .join(&game_name)
+    .join("settings")
+    .join("pc-settings.gc");
+
+  if path_to_settings.exists() {
+    let mut backup_file = path_to_settings.clone();
+    backup_file.set_file_name("pc-settings.old.gc");
+    std::fs::rename(path_to_settings, backup_file)?;
+    Ok(())
+  } else {
+    Err(CommandError::GameFeatures(
+      "Game config directory does not exist, cannot reset settings".to_owned(),
+    ))
+  }
+}
+
+#[tauri::command]
+pub async fn get_launch_mod_string(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+  mod_name: String,
+  source_name: String,
+) -> Result<String, CommandError> {
+  let config_lock = config.lock().await;
+  let install_path = match &config_lock.installation_dir {
+    None => {
+      return Err(CommandError::GameFeatures(
+        "No installation directory set, can't extract mod".to_string(),
+      ))
+    }
+    Some(path) => Path::new(path),
+  };
+  let exec_info = get_mod_exec_location(
+    install_path.to_path_buf(),
+    "gk",
+    &game_name,
+    &mod_name,
+    &source_name,
+  )?;
+  let config_dir = install_path
+    .join("features")
+    .join(&game_name)
+    .join("mods")
+    .join(&source_name)
+    .join("_settings")
+    .join(&mod_name);
+  let args = generate_launch_mod_args(game_name, false, config_dir, true)?;
+
+  Ok(format!(
+    "{} {}",
+    exec_info.executable_path.display(),
+    args.join(" ")
+  ))
+}
+
+#[tauri::command]
+pub async fn open_repl_for_mod(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: String,
+  mod_name: String,
+  source_name: String,
+) -> Result<(), CommandError> {
+  // TODO - explore a linux option though this is very annoying because without doing a ton of research
+  // we seem to have to handle various terminals.  Which honestly we should probably do on windows too
+  //
+  // So maybe we can make a menu where the user will specify what terminal to use / what launch-options to use
+  let config_lock = config.lock().await;
+  let install_path = match &config_lock.installation_dir {
+    None => {
+      return Err(CommandError::GameFeatures(
+        "No installation directory set, can't open REPL for mod".to_string(),
+      ))
+    }
+    Some(path) => Path::new(path),
+  };
+  let exec_info = get_mod_exec_location(
+    install_path.to_path_buf(),
+    "goalc",
+    &game_name,
+    &mod_name,
+    &source_name,
+  )?;
+  let mut command = Command::new("cmd");
+  command
+    .args(["/K", "start", &bin_ext("goalc"), "--game", &game_name])
+    .current_dir(exec_info.executable_dir);
+  #[cfg(windows)]
+  {
+    command.creation_flags(0x08000000);
+  }
+  command.spawn()?;
   Ok(())
 }

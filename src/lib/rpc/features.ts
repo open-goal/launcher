@@ -269,3 +269,34 @@ export async function uninstallMod(
     "_mirror_",
   );
 }
+
+export async function resetModSettings(gameName: string,
+  modName: string,
+  sourceName: string): Promise<void> {
+  return await invoke_rpc(
+    "reset_mod_settings",
+    { gameName, modName, sourceName },
+    () => {},
+    "Unable to reset mod settings",
+  );
+}
+
+export async function getLaunchModString(gameName: string,
+  modName: string,
+  sourceName: string): Promise<string> {
+  return await invoke_rpc(
+    "get_launch_mod_string",
+    { gameName, modName, sourceName },
+    () => "_mirror_",
+  );
+}
+
+export async function openREPLForMod(gameName: string, modName: string,
+  sourceName: string): Promise<void> {
+  return await invoke_rpc(
+    "open_repl_for_mod",
+    { gameName, modName, sourceName },
+    () => {},
+    "Unable to open REPL for mod",
+  );
+}

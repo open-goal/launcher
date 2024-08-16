@@ -3,7 +3,7 @@
   import { openDir } from "$lib/rpc/window";
   import IconArrowLeft from "~icons/mdi/arrow-left";
   import IconCog from "~icons/mdi/cog";
-  import { configDir, join } from "@tauri-apps/api/path";
+  import { join } from "@tauri-apps/api/path";
   import { createEventDispatcher, onMount } from "svelte";
   import { writeText } from "@tauri-apps/api/clipboard";
   import { confirm } from "@tauri-apps/api/dialog";
@@ -14,19 +14,24 @@
     DropdownDivider,
     Helper,
   } from "flowbite-svelte";
-  import { resetGameSettings } from "$lib/rpc/game";
   import { platform } from "@tauri-apps/api/os";
-  import { getLaunchGameString, openREPL } from "$lib/rpc/binaries";
   import { getInstallationDirectory } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { navigate } from "svelte-navigator";
   import { toastStore } from "$lib/stores/ToastStore";
-  import { launchMod, uninstallMod } from "$lib/rpc/features";
+  import {
+    getLaunchModString,
+    launchMod,
+    openREPLForMod,
+    resetModSettings,
+    uninstallMod,
+  } from "$lib/rpc/features";
+  import { pathExists } from "$lib/rpc/util";
 
   export let activeGame: SupportedGame;
-  export let modName: string | undefined = undefined;
-  export let modDisplayName: string | undefined = undefined;
-  export let modSource: string | undefined = undefined;
+  export let modName: string = "";
+  export let modDisplayName: string = "";
+  export let modSource: string = "";
 
   const dispatch = createEventDispatcher();
   let gameDataDir: string | undefined = undefined;
@@ -40,23 +45,44 @@
     if (installationDir !== null) {
       gameDataDir = await join(
         installationDir,
-        "active",
+        "features",
         getInternalName(activeGame),
+        "mods",
+        modSource,
+        modName,
         "data",
       );
+      settingsDir = await join(
+        installationDir,
+        "features",
+        getInternalName(activeGame),
+        "mods",
+        modSource,
+        "_settings",
+        modName,
+        "OpenGOAL",
+        getInternalName(activeGame),
+        "settings",
+      );
+      if (!(await pathExists(settingsDir))) {
+        settingsDir = undefined;
+      }
+      savesDir = await join(
+        installationDir,
+        "features",
+        getInternalName(activeGame),
+        "mods",
+        modSource,
+        "_settings",
+        modName,
+        "OpenGOAL",
+        getInternalName(activeGame),
+        "saves",
+      );
+      if (!(await pathExists(savesDir))) {
+        savesDir = undefined;
+      }
     }
-    settingsDir = await join(
-      await configDir(),
-      "OpenGOAL",
-      getInternalName(activeGame),
-      "settings",
-    );
-    savesDir = await join(
-      await configDir(),
-      "OpenGOAL",
-      getInternalName(activeGame),
-      "saves",
-    );
   });
 </script>
 
@@ -89,24 +115,21 @@
     <Dropdown placement="top-end" class="!bg-slate-900">
       <DropdownItem
         on:click={async () => {
-          // TODO - update
           launchMod(getInternalName(activeGame), true, modName, modSource);
         }}>{$_("gameControls_button_playInDebug")}</DropdownItem
       >
       {#if !isLinux}
         <DropdownItem
           on:click={async () => {
-            // TODO - update
-            openREPL(getInternalName(activeGame));
+            openREPLForMod(getInternalName(activeGame), modName, modSource);
           }}>{$_("gameControls_button_openREPL")}</DropdownItem
         >
       {/if}
       <DropdownDivider />
       <DropdownItem
         on:click={async () => {
-          // TODO - update
           dispatch("job", {
-            type: "decompile",
+            type: "decompileMod",
           });
         }}
         >{$_("gameControls_button_decompile")}
@@ -117,9 +140,8 @@
       >
       <DropdownItem
         on:click={async () => {
-          // TODO - update
           dispatch("job", {
-            type: "compile",
+            type: "compileMod",
           });
         }}
         >{$_("gameControls_button_compile")}
@@ -131,7 +153,6 @@
       <DropdownDivider />
       <DropdownItem
         on:click={async () => {
-          // TODO - update
           if (gameDataDir) {
             await openDir(gameDataDir);
           }
@@ -145,28 +166,33 @@
     </Button>
     <Dropdown placement="top-end" class="!bg-slate-900">
       <!-- TODO - screenshot folder? how do we even configure where those go? -->
+      {#if settingsDir}
+        <DropdownItem
+          on:click={async () => {
+            if (settingsDir) {
+              await openDir(settingsDir);
+            }
+          }}>{$_("gameControls_button_openSettingsFolder")}</DropdownItem
+        >
+      {/if}
+      {#if savesDir}
+        <DropdownItem
+          on:click={async () => {
+            if (savesDir) {
+              await openDir(savesDir);
+            }
+          }}>{$_("gameControls_button_openSavesFolder")}</DropdownItem
+        >
+      {/if}
+      {#if settingsDir || savesDir}
+        <DropdownDivider />
+      {/if}
       <DropdownItem
         on:click={async () => {
-          // TODO - update
-          if (settingsDir) {
-            await openDir(settingsDir);
-          }
-        }}>{$_("gameControls_button_openSettingsFolder")}</DropdownItem
-      >
-      <DropdownItem
-        on:click={async () => {
-          // TODO - update
-          if (savesDir) {
-            await openDir(savesDir);
-          }
-        }}>{$_("gameControls_button_openSavesFolder")}</DropdownItem
-      >
-      <DropdownDivider />
-      <DropdownItem
-        on:click={async () => {
-          // TODO - update
-          const launchString = await getLaunchGameString(
+          const launchString = await getLaunchModString(
             getInternalName(activeGame),
+            modName,
+            modSource,
           );
           await writeText(launchString);
           toastStore.makeToast("Copied to clipboard!", "info");
@@ -180,8 +206,11 @@
       <DropdownDivider />
       <DropdownItem
         on:click={async () => {
-          // TODO - update
-          await resetGameSettings(getInternalName(activeGame));
+          await resetModSettings(
+            getInternalName(activeGame),
+            modName,
+            modSource,
+          );
         }}>{$_("gameControls_button_resetSettings")}</DropdownItem
       >
       <DropdownItem

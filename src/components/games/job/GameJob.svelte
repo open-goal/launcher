@@ -397,11 +397,72 @@
     progressTracker.proceed();
   }
 
+  async function setupDecompileModJob() {
+    // Check to see if we need to prompt for the ISO or not
+    installationError = undefined;
+    progressTracker.init([
+      {
+        status: "queued",
+        label: $_("setup_decompile"),
+      },
+      {
+        status: "queued",
+        label: $_("setup_done"),
+      },
+    ]);
+    progressTracker.start();
+    let resp = await decompileForModInstall(
+      getInternalName(activeGame),
+      modName,
+      modSourceName,
+    );
+    progressTracker.updateLogs(await getEndOfLogs());
+    if (!resp.success) {
+      progressTracker.halt();
+      installationError = resp.msg;
+      return;
+    }
+    progressTracker.proceed();
+    progressTracker.proceed();
+  }
+
+  async function setupCompileModJob() {
+    // Check to see if we need to prompt for the ISO or not
+    installationError = undefined;
+    progressTracker.init([
+      {
+        status: "queued",
+        label: $_("setup_compile"),
+      },
+      {
+        status: "queued",
+        label: $_("setup_done"),
+      },
+    ]);
+    progressTracker.start();
+    let resp = await compileForModInstall(
+      getInternalName(activeGame),
+      modName,
+      modSourceName,
+    );
+    // TODO - stream logs
+    progressTracker.updateLogs(await getEndOfLogs());
+    if (!resp.success) {
+      progressTracker.halt();
+      installationError = resp.msg;
+      return;
+    }
+    progressTracker.proceed();
+    progressTracker.proceed();
+  }
+
   // This is basically a stripped down `GameSetup` component that doesn't care about user initiation,
   // requirement checking, etc
   //
   // It's used to provide almost the same interface as the normal installation, with logs, etc
   // but for arbitrary jobs.  Such as updating versions, decompiling, or compiling.
+  //
+  // TODO - break this up into multiple files, getting cumbersome
   onMount(async () => {
     if (jobType === "decompile") {
       await setupDecompileJob();
@@ -415,6 +476,10 @@
       await setupModInstallation();
     } else if (jobType === "installModExternal") {
       await setupModInstallationExternal();
+    } else if (jobType === "decompileMod") {
+      await setupDecompileModJob();
+    } else if (jobType === "compileMod") {
+      await setupCompileModJob();
     }
   });
 
