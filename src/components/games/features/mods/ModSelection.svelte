@@ -2,7 +2,6 @@
  - pick the version / updating to latest version
  - cleanup rust code and frontend code
  - translations
- - warning on mod source page
  - do a pass of and close https://github.com/open-goal/launcher/discussions/452 features are captured here
    - anything extra, make an actual issue for it (ie. metrics)
  - enable it by default

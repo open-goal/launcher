@@ -13,6 +13,7 @@
     TableBody,
     TableBodyCell,
     TableBodyRow,
+    Alert,
   } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
@@ -31,6 +32,21 @@
 </script>
 
 <div class="flex flex-col gap-2 mt-2">
+  <Alert color="red" rounded={false} class="border-t-4">
+    <span class="font-bold"
+      >Mods are provided by third-parties and are not vetted, endorsed or
+      supported by the official team.</span
+    >
+    <br />
+    <p>
+      They can run arbitrary unverified code on your system so only install mods
+      from sources that you trust!
+    </p>
+    <p>
+      If you run into a problem with the mod you will likely have to reach out
+      to it's author and not the OpenGOAL team.
+    </p>
+  </Alert>
   <div>
     <Label for="default-input" class="block mb-2"
       >{$_("settings_mods_addSource_label")}</Label
