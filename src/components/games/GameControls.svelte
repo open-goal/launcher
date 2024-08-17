@@ -27,7 +27,7 @@
   import { navigate } from "svelte-navigator";
   import { listen } from "@tauri-apps/api/event";
   import { toastStore } from "$lib/stores/ToastStore";
-  import { isModSupportEnabled, launchMod } from "$lib/rpc/features";
+  import { launchMod } from "$lib/rpc/features";
 
   export let activeGame: SupportedGame;
 
@@ -37,11 +37,9 @@
   let savesDir: string | undefined = undefined;
   let isLinux = false;
   let playtime = "";
-  let modSupportEnabled = false;
   let textureSupportEnabled = true;
 
   onMount(async () => {
-    modSupportEnabled = await isModSupportEnabled();
     isLinux = (await platform()) === "linux";
     let installationDir = await getInstallationDirectory();
     if (installationDir !== null) {
@@ -150,15 +148,13 @@
         <Tooltip>{$_("gameControls_button_features_textures_disabled")}</Tooltip
         >
       {/if}
-      {#if modSupportEnabled}
-        <DropdownItem
-          on:click={async () => {
-            navigate(`/${getInternalName(activeGame)}/features/mods`);
-          }}
-        >
-          {$_("gameControls_button_features_mods")}
-        </DropdownItem>
-      {/if}
+      <DropdownItem
+        on:click={async () => {
+          navigate(`/${getInternalName(activeGame)}/features/mods`);
+        }}
+      >
+        {$_("gameControls_button_features_mods")}
+      </DropdownItem>
     </Dropdown>
     <Button
       class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"

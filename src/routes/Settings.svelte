@@ -5,8 +5,6 @@
   import General from "./settings/General.svelte";
   import { _ } from "svelte-i18n";
   import Mods from "./settings/Mods.svelte";
-  import { onMount } from "svelte";
-  import { isModSupportEnabled } from "$lib/rpc/features";
   import Decompiler from "./settings/Decompiler.svelte";
 
   const params = useParams();
@@ -17,11 +15,6 @@
   const tabItemInactiveClasses =
     "inline-block text-sm font-normal text-center disabled:cursor-not-allowed p-4 border-b-2 border-transparent text-gray-400 hover:text-orange-300 hover:border-orange-500 dark:hover:text-orange-300 dark:text-orange-400";
 
-  let modSupportEnabled = false;
-
-  onMount(async () => {
-    modSupportEnabled = await isModSupportEnabled();
-  });
 </script>
 
 <div class="flex flex-col h-full bg-[#141414]">
@@ -56,15 +49,13 @@
     >
       <Decompiler />
     </TabItem>
-    {#if modSupportEnabled}
-      <TabItem
-        open={activeTab === "mods"}
-        title={$_("settings_tabs_mods")}
-        activeClasses={tabItemActiveClasses}
-        inactiveClasses={tabItemInactiveClasses}
-      >
-        <Mods />
-      </TabItem>
-    {/if}
+    <TabItem
+      open={activeTab === "mods"}
+      title={$_("settings_tabs_mods")}
+      activeClasses={tabItemActiveClasses}
+      inactiveClasses={tabItemInactiveClasses}
+    >
+      <Mods />
+    </TabItem>
   </Tabs>
 </div>

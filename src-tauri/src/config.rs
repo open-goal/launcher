@@ -196,8 +196,6 @@ pub struct LauncherConfig {
   pub active_version_folder: Option<String>,
   pub locale: Option<String>,
   pub mod_sources: Option<Vec<String>>,
-  #[serde(default = "default_as_false")]
-  pub mods_enabled: Option<bool>,
   pub decompiler_settings: Option<DecompilerSettings>,
 }
 
@@ -223,7 +221,6 @@ impl LauncherConfig {
       active_version_folder: Some("official".to_string()),
       locale: None,
       mod_sources: None,
-      mods_enabled: Some(false),
       decompiler_settings: Some(DecompilerSettings::default()),
     }
   }

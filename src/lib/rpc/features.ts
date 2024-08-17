@@ -229,10 +229,6 @@ export async function launchMod(
   );
 }
 
-export async function isModSupportEnabled(): Promise<boolean> {
-  return await invoke_rpc("is_mod_support_enabled", {}, () => false);
-}
-
 export async function getLocalModThumbnailBase64(
   gameName: string,
   modName: string,

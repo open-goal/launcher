@@ -197,7 +197,6 @@ fn main() {
       commands::features::get_local_mod_cover_base64,
       commands::features::get_local_mod_thumbnail_base64,
       commands::features::get_mod_sources,
-      commands::features::is_mod_support_enabled,
       commands::features::launch_mod,
       commands::features::list_extracted_texture_pack_info,
       commands::features::open_repl_for_mod,

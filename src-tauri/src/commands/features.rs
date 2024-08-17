@@ -340,14 +340,6 @@ pub async fn delete_texture_packs(
 }
 
 #[tauri::command]
-pub async fn is_mod_support_enabled(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<bool, CommandError> {
-  let config_lock = config.lock().await;
-  Ok(config_lock.mods_enabled.unwrap_or(false))
-}
-
-#[tauri::command]
 pub async fn add_mod_source(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   url: String,
