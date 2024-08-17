@@ -19,6 +19,7 @@ pub struct ModVersion {
   pub version: String,
   pub published_date: String,
   pub assets: HashMap<String, Option<String>>,
+  pub supported_games: Option<Vec<String>>, // TODO map to SupportedMap
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, TS)]
@@ -27,6 +28,7 @@ pub struct ModVersion {
 pub struct ModPerGameConfig {
   pub cover_art_url: Option<String>,
   pub thumbnail_art_url: Option<String>,
+  pub release_date: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, TS)]
@@ -37,7 +39,7 @@ pub struct ModInfo {
   pub description: String,
   pub authors: Vec<String>,
   pub tags: Vec<String>,
-  pub supported_games: Vec<String>, // map to SupportedMap
+  pub supported_games: Vec<String>, // TODO map to SupportedMap
   pub website_url: Option<String>,
   pub versions: Vec<ModVersion>,
   pub per_game_config: Option<HashMap<String, ModPerGameConfig>>,

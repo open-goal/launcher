@@ -1,16 +1,10 @@
-<!-- TODO
- - cleanup rust code and frontend code
- - translations
- - enable it by default
--->
-
 <script lang="ts">
   import { platform } from "@tauri-apps/api/os";
   import { getInternalName, SupportedGame } from "$lib/constants";
   import { createEventDispatcher, onMount } from "svelte";
   import { navigate } from "svelte-navigator";
   import { _ } from "svelte-i18n";
-  import { Button, Input, Spinner, Tooltip } from "flowbite-svelte";
+  import { Button, Indicator, Input, Spinner, Tooltip } from "flowbite-svelte";
   import IconArrowLeft from "~icons/mdi/arrow-left";
   import IconGlobe from "~icons/mdi/globe";
   import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
@@ -192,6 +186,36 @@
     }
     return false;
   }
+
+  function isModSupportedByCurrentGame(modInfo: ModInfo): boolean {
+    if (
+      modInfo.versions.length > 0 &&
+      modInfo.versions[0].supportedGames !== null
+    ) {
+      return modInfo.versions[0].supportedGames.includes(
+        getInternalName(activeGame),
+      );
+    }
+    return modInfo.supportedGames.includes(getInternalName(activeGame));
+  }
+
+  function ageOfModInDays(modInfo: ModInfo): number | undefined {
+    if (
+      modInfo.perGameConfig !== null &&
+      Object.keys(modInfo.perGameConfig).includes(
+        getInternalName(activeGame),
+      ) &&
+      modInfo.perGameConfig[getInternalName(activeGame)].releaseDate !== null
+    ) {
+      const difference =
+        new Date().getTime() -
+        Date.parse(
+          modInfo.perGameConfig[getInternalName(activeGame)].releaseDate,
+        );
+      return Math.round(difference / (1000 * 3600 * 24));
+    }
+    return undefined;
+  }
 </script>
 
 <div class="flex flex-col h-full bg-[#1e1e1e]">
@@ -287,9 +311,11 @@
           {@const sourceInfo = sourceData[sourceUrl]}
           <h2 class="mt-2 text-orange-400">{sourceInfo.sourceName}</h2>
           <div class="grid grid-cols-4 gap-4 mt-2">
+            <!-- TODO - sort new mods to the top -->
             {#each Object.keys(sourceInfo.mods).sort() as modName}
               {@const modInfo = sourceInfo.mods[modName]}
-              {#if modInfo.supportedGames.includes(getInternalName(activeGame)) && !isModAlreadyInstalled(sourceInfo.sourceName, modName)}
+              {@const modAge = ageOfModInDays(modInfo)}
+              {#if isModSupportedByCurrentGame(modInfo) && !isModAlreadyInstalled(sourceInfo.sourceName, modName)}
                 {#if modFilter === "" || modInfo.displayName
                     .toLocaleLowerCase()
                     .includes(modFilter.toLocaleLowerCase()) || modInfo.tags
@@ -319,7 +345,7 @@
                   {:else}
                     <button
                       disabled={!isModSupportedOnCurrentPlatform(modInfo)}
-                      class="h-[200px] max-w-[160px] bg-cover p-1 flex justify-center items-end relative grayscale"
+                      class="h-[200px] max-w-[160px] bg-cover p-1 flex justify-center items-end relative"
                       style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{getThumbnailImage(
                         modInfo,
                       )}'); background-size: cover;"
@@ -343,6 +369,16 @@
                           >{sourceInfo.sourceName}</Tooltip
                         >
                       </div>
+                      {#if modAge !== undefined && modAge < 30}
+                        <Indicator
+                          color="green"
+                          border
+                          size="xl"
+                          placement="top-right"
+                        >
+                          <span class="text-white text-xs font-bold">!</span>
+                        </Indicator>
+                      {/if}
                     </button>
                   {/if}
 

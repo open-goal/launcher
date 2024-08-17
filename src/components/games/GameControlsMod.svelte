@@ -147,7 +147,11 @@
       Object.keys(relevantSourceData.mods).includes(modName)
     ) {
       for (const version of relevantSourceData.mods[modName].versions) {
-        if (isVersionSupportedOnPlatform(version)) {
+        if (
+          isVersionSupportedOnPlatform(version) &&
+          version.supportedGames !== null &&
+          version.supportedGames.includes(getInternalName(activeGame))
+        ) {
           modVersionList = [...modVersionList, version.version];
           modAssetUrls.push(getModAssetUrl(version));
         }
