@@ -63,10 +63,10 @@
   <Table>
     <TableHead>
       <TableHeadCell>
-        <span class="sr-only">Select</span>
+        <span class="sr-only"></span>
       </TableHeadCell>
       <TableHeadCell>
-        <span class="sr-only">Controls</span>
+        <span class="sr-only"></span>
       </TableHeadCell>
       <TableHeadCell
         >{$_("settings_versions_table_header_version")}</TableHeadCell

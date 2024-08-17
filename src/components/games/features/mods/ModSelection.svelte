@@ -248,11 +248,16 @@
         >
       </div>
       <div class="mt-4">
-        <Input placeholder="Filter Mods..." on:input={handleFilterChange} />
+        <Input
+          placeholder={$_("features_mods_filter_placeholder")}
+          on:input={handleFilterChange}
+        />
       </div>
-      <h2 class="font-bold mt-2">Installed Mods</h2>
+      <h2 class="font-bold mt-2">{$_("features_mods_installed_header")}</h2>
       {#if Object.entries(installedMods).length === 0}
-        <p class="mt-2 mb-2 text-slate-400 italic">No mods installed!</p>
+        <p class="mt-2 mb-2 text-slate-400 italic">
+          {$_("features_mods_nothing_installed")}
+        </p>
       {:else}
         {#each Object.keys(installedMods).sort() as sourceName}
           {@const sourceInstalledMods = installedMods[sourceName]}
@@ -291,11 +296,11 @@
           {/if}
         {/each}
       {/if}
-      <h2 class="font-bold mt-5">Available Mods</h2>
+      <h2 class="font-bold mt-5">{$_("features_mods_available_header")}</h2>
       {#if Object.keys(sourceData).length <= 0}
         <div class="mt-2 mb-2">
           <p class="text-slate-400 italic">
-            You have no mod sources configured or they are unavailable!
+            {$_("features_mods_no_sources")}
           </p>
           <Button
             class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
@@ -303,7 +308,7 @@
               navigate(`/settings/mods`, {
                 replace: true,
               });
-            }}>Go to Mod Settings</Button
+            }}>{$_("features_mods_go_to_settings")}</Button
           >
         </div>
       {:else}
@@ -384,8 +389,8 @@
 
                   {#if !isModSupportedOnCurrentPlatform(modInfo) && modInfo.externalLink === null}
                     <Tooltip placement="top"
-                      >Mod not supported on your platform ({userPlatform})<br
-                      />Ask the author to fix this!</Tooltip
+                      >{$_("features_mods_not_supported_platform_1")} ({userPlatform})<br
+                      />{$_("features_mods_not_supported_platform_2")}</Tooltip
                     >
                   {/if}
                 {/if}

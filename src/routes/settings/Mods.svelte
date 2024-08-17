@@ -33,18 +33,13 @@
 
 <div class="flex flex-col gap-2 mt-2">
   <Alert color="red" rounded={false} class="border-t-4">
-    <span class="font-bold"
-      >Mods are provided by third-parties and are not vetted, endorsed or
-      supported by the official team.</span
-    >
+    <span class="font-bold">{$_("settings_mods_warning_header")}</span>
     <br />
     <p>
-      They can run arbitrary unverified code on your system so only install mods
-      from sources that you trust!
+      {$_("settings_mods_warning_description_part1")}
     </p>
     <p>
-      If you run into a problem with the mod you will likely have to reach out
-      to it's author and not the OpenGOAL team.
+      {$_("settings_mods_warning_description_part2")}
     </p>
   </Alert>
   <div>

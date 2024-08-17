@@ -189,13 +189,13 @@
         navigate(`/${getInternalName(activeGame)}/features/mods`, {
           replace: true,
         });
-      }}><IconArrowLeft />&nbsp;Back</Button
+      }}><IconArrowLeft />&nbsp;{$_("features_mods_go_back")}</Button
     >
     {#if modVersionList.length > 0}
       <Button
         class="relative text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
       >
-        Versions
+        {$_("features_mods_versions")}
         {#if numberOfVersionsOutOfDate > 0}
           <Indicator
             color="red"

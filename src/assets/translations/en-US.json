@@ -193,5 +193,18 @@
   "settings_mods_icon_deleteSource_buttonAltText": "Delete mod source button",
   "gameControls_button_features_mods": "Mods",
   "features_mods_listHeading": "Available Mods",
-  "features_mods_addFromFile": "Add from File"
+  "features_mods_addFromFile": "Add from File",
+  "settings_mods_warning_header": "Mods are provided by third-parties and are not vetted, endorsed or supported by the official team.",
+  "settings_mods_warning_description_part1": "They can run arbitrary unverified code on your system so only install mods from sources that you trust!",
+  "settings_mods_warning_description_part2": "If you run into a problem with the mod you will likely have to reach out to it's author and not the OpenGOAL team.",
+  "features_mods_installed_header": "Installed Mods",
+  "features_mods_nothing_installed": "No mods installed!",
+  "features_mods_available_header": "Available Mods",
+  "features_mods_no_sources": "You have no mod sources configured or they are unavailable!",
+  "features_mods_go_to_settings": "Go to Mod Settings",
+  "features_mods_not_supported_platform_1": "Mod not supported on your platform",
+  "features_mods_not_supported_platform_2": "Ask the author to fix this!",
+  "features_mods_go_back": "Back",
+  "features_mods_versions": "Versions",
+  "features_mods_filter_placeholder": "Filter Mods..."
 }
