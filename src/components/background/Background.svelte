@@ -16,7 +16,7 @@
   const location = useLocation();
   $: $location.pathname, updateStyle();
 
-  let style = "absolute object-fill h-screen brightness-75";
+  let style = "absolute object-fill h-screen brightness-75 pt-[60px] w-full";
   let jak1Image = "";
   let onWindows = false;
   let modBackground = "";
@@ -98,7 +98,7 @@
     } else {
       modBackground = "";
     }
-    let newStyle = "absolute object-fill h-screen brightness-75";
+    let newStyle = "absolute object-fill h-screen brightness-75 pt-[60px] w-full";
     if (activeGame === "jak1") {
       if (!(await isGameInstalled("jak1"))) {
         newStyle += " grayscale";
