@@ -124,37 +124,35 @@ pub async fn download_and_extract_new_mod(
   };
 
   // Download the file
-  let download_path = &install_path
+  let parent_path = &install_path
     .join("features")
     .join(game_name)
     .join("mods")
     .join(&source_name)
-    .join(&mod_name)
+    .join(&mod_name);
+  let download_path = &parent_path
     .join(format!("{mod_name}.zip"));
 
-  if let Some(parent_path) = download_path.parent() {
-    delete_dir(parent_path)?;
-    download_file(&download_url, &download_path)
-      .await
-      .map_err(|_| {
-        CommandError::GameFeatures("Unable to successfully download mod version".to_owned())
-      })?;
-
-    extract_and_delete_zip_file(&download_path, &parent_path, false).map_err(|err| {
-      log::error!("Unable to extract mod: {}", err);
-      CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
+  delete_dir(parent_path)?;
+  create_dir(parent_path).map_err(|err| {
+    log::error!("Unable to create directory for mod: {}", err);
+    CommandError::GameFeatures(format!("Unable to create directory for mod: {}", err))
+  })?;
+  download_file(&download_url, &download_path)
+    .await
+    .map_err(|err| {
+      CommandError::GameFeatures(format!("Unable to successfully download mod version from {} to {}, error: {}", download_url, download_path.to_string_lossy(), err).to_owned())
     })?;
 
-    return Ok(InstallStepOutput {
-      success: true,
-      msg: None,
-    });
-  }
+  extract_and_delete_zip_file(&download_path, &parent_path, false).map_err(|err| {
+    log::error!("Unable to extract mod: {}", err);
+    CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
+  })?;
 
-  Ok(InstallStepOutput {
-    success: false,
-    msg: Some("Unexpected error occurred".to_owned()),
-  })
+  return Ok(InstallStepOutput {
+    success: true,
+    msg: None,
+  });
 }
 
 #[tauri::command]
