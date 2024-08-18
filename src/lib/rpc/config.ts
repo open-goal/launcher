@@ -4,7 +4,7 @@ import { errorLog } from "./logging";
 import { invoke_rpc } from "./rpc";
 import type { VersionFolders } from "./versions";
 import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
-import { readBinaryFile, BaseDirectory, exists } from "@tauri-apps/api/fs";
+import { exists } from "@tauri-apps/api/fs";
 import { appDataDir, join } from "@tauri-apps/api/path";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 

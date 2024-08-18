@@ -113,7 +113,7 @@
       $VersionStore.activeVersionName = $VersionStore.selectedVersions.official;
       $VersionStore.selectedVersions.unofficial = null;
       $VersionStore.selectedVersions.devel = null;
-      toastStore.makeToast("Saved game version!", "info");
+      toastStore.makeToast($_("toasts_savedToolingVersion"), "info");
     }
   }
 

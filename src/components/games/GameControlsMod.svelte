@@ -30,7 +30,10 @@
   } from "$lib/rpc/features";
   import { pathExists } from "$lib/rpc/util";
   import { getModSourcesData } from "$lib/rpc/cache";
-  import type { ModVersion } from "$lib/rpc/bindings/ModVersion";
+  import {
+    getModAssetUrl,
+    isVersionSupportedOnPlatform,
+  } from "$lib/features/mods";
 
   export let activeGame: SupportedGame;
   export let modName: string = "";
@@ -48,27 +51,6 @@
   let numberOfVersionsOutOfDate = 0;
   let userPlatform: string = "";
 
-  function isVersionSupportedOnPlatform(version: ModVersion): boolean {
-    if (userPlatform === "linux") {
-      return Object.keys(version.assets).includes("linux");
-    } else if (userPlatform == "darwin") {
-      return Object.keys(version.assets).includes("macos");
-    }
-    return Object.keys(version.assets).includes("windows");
-  }
-
-  // TODO - dupe
-  function getModAssetUrl(version: ModVersion): string {
-    // TODO - make safer
-    if (userPlatform === "linux") {
-      return version.assets["linux"];
-    } else if (userPlatform == "darwin") {
-      return version.assets["macos"];
-    }
-    return version.assets["windows"];
-  }
-
-  // TODO - duplication
   async function addModFromUrl(
     url: string,
     modName: string,
@@ -148,12 +130,15 @@
     ) {
       for (const version of relevantSourceData.mods[modName].versions) {
         if (
-          isVersionSupportedOnPlatform(version) &&
+          isVersionSupportedOnPlatform(userPlatform, version) &&
           version.supportedGames !== null &&
           version.supportedGames.includes(getInternalName(activeGame))
         ) {
           modVersionList = [...modVersionList, version.version];
-          modAssetUrls.push(getModAssetUrl(version));
+          const assetUrl = getModAssetUrl(userPlatform, version);
+          if (assetUrl !== undefined) {
+            modAssetUrls.push();
+          }
         }
       }
     }
@@ -326,7 +311,7 @@
             modSource,
           );
           await writeText(launchString);
-          toastStore.makeToast("Copied to clipboard!", "info");
+          toastStore.makeToast($_("toasts_copiedToClipboard"), "info");
         }}
         >{$_("gameControls_button_copyExecutableCommand")}<Helper
           helperClass="!text-neutral-400 !text-xs"

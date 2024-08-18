@@ -54,7 +54,6 @@
           changeLog: changeLog,
         };
         infoLog(`Launcher Update Available`);
-        toastStore.makeToast("Launcher update available!", "info");
       } else {
         $UpdateStore.launcher = {
           updateAvailable: false,

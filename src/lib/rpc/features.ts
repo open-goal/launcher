@@ -1,5 +1,10 @@
 import { toastStore } from "$lib/stores/ToastStore";
+import type { ModSourceData } from "./bindings/ModSourceData";
+import { errorLog } from "./logging";
 import { invoke_rpc } from "./rpc";
+import { unwrapFunctionStore, format } from "svelte-i18n";
+
+const $format = unwrapFunctionStore(format);
 
 // TODO - just make this a generic interface for both binaries/feature jobs
 interface FeatureJobOutput {
@@ -72,20 +77,34 @@ export async function deleteTexturePacks(
   );
 }
 
-export async function addModSource(url: string): Promise<boolean> {
+export async function addModSource(
+  url: string,
+  currentSources: Record<string, ModSourceData>,
+): Promise<boolean> {
   // Check that the URL is valid, easiest to do this on the client-side
   try {
     const sourceResp = await fetch(url);
     if (sourceResp.status !== 200) {
       toastStore.makeToast(
-        `Mod source unreachable - Status ${sourceResp.status}`,
+        `${$format("toasts_modSourceUnreachable")} - Status ${sourceResp.status}`,
         "error",
       );
       return false;
     }
-    // TODO - ensure it doesnt have the same name as another already added source!
+    const newSourceData = await sourceResp.json();
+    // Make sure that we don't already have a mod source with the same display name
+    for (const [sourceUrl, sourceData] of Object.entries(currentSources)) {
+      if (sourceData.sourceName === newSourceData["sourceName"]) {
+        toastStore.makeToast(
+          `${$format("toasts_modSourceDuplicateName")}: ${sourceData.sourceName}@${sourceUrl}`,
+          "error",
+        );
+        return false;
+      }
+    }
   } catch (e) {
-    toastStore.makeToast(`Mod source unreachable`, "error");
+    errorLog(`Unable to add mod source: ${e}`);
+    toastStore.makeToast(`${$format("toasts_modSourceUnreachable")}`, "error");
     return false;
   }
 
@@ -107,7 +126,10 @@ export async function removeModSource(modSourceIndex: number): Promise<void> {
       modSourceIndex: modSourceIndex,
     },
     () => {
-      toastStore.makeToast("Unable to remove mod source", "error");
+      toastStore.makeToast(
+        `${$format("toasts_couldNotRemoveModSource")}`,
+        "error",
+      );
     },
   );
 }
@@ -124,12 +146,11 @@ export async function extractNewMod(
   gameName: string,
   zipPath: string,
   modSource: string,
-): Promise<boolean> {
-  // TODO - error handling
+): Promise<InstallationOutput> {
   return await invoke_rpc(
     "extract_new_mod",
     { gameName, zipPath, modSource },
-    () => false,
+    () => failed("Failed to extract mod"),
   );
 }
 
@@ -138,12 +159,11 @@ export async function downloadAndExtractNewMod(
   downloadUrl: string,
   modName: string,
   sourceName: string,
-): Promise<boolean> {
-  // TODO - error handling
+): Promise<InstallationOutput> {
   return await invoke_rpc(
     "download_and_extract_new_mod",
     { gameName, downloadUrl, modName, sourceName },
-    () => false,
+    () => failed("Failed to download and extract mod"),
   );
 }
 

@@ -21,7 +21,7 @@
   // Events
   onMount(async () => {
     // Temporary fix related to https://github.com/open-goal/launcher/issues/110
-    // TODO - this doesn't feel required anymore after i fixed the window switching
+    // NOTE - this doesn't feel required anymore after i fixed the window switching
     // but let's keep it for now because im paranoid about the issue cropping up again...
     if (window.sessionStorage.getItem("refreshHack") !== "true") {
       location.reload();

@@ -98,7 +98,8 @@
     } else {
       modBackground = "";
     }
-    let newStyle = "absolute object-fill h-screen brightness-75 pt-[60px] w-full";
+    let newStyle =
+      "absolute object-fill h-screen brightness-75 pt-[60px] w-full";
     if (activeGame === "jak1") {
       if (!(await isGameInstalled("jak1"))) {
         newStyle += " grayscale";

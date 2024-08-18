@@ -206,5 +206,11 @@
   "features_mods_not_supported_platform_2": "Ask the author to fix this!",
   "features_mods_go_back": "Back",
   "features_mods_versions": "Versions",
-  "features_mods_filter_placeholder": "Filter Mods..."
+  "features_mods_filter_placeholder": "Filter Mods..",
+  "toasts_copiedToClipboard": "Copied to clipboard",
+  "toasts_savedToolingVersion": "Saved tooling version",
+  "toasts_modSourceUnreachable": "Mod source unreachable",
+  "toasts_couldNotRemoveModSource": "Unable to remove mod source",
+  "toasts_modSourceDuplicateName": "Mod source has the same display name as one you already have added",
+  "toasts_unableToRetrieveModDownloadURL": "Unable to retrieve mod download URL"
 }

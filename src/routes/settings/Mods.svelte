@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { ModSourceData } from "$lib/rpc/bindings/ModSourceData";
+  import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
   import {
     addModSource,
     getModSources,
@@ -22,11 +24,14 @@
 
   let newSourceURL = "";
   let currentSources: ModSource[] = [];
+  let currentSourceData: Record<string, ModSourceData> = {};
 
   let pageLoaded = false;
 
   onMount(async () => {
     currentSources = await getModSources();
+    await refreshModSources();
+    currentSourceData = await getModSourcesData();
     pageLoaded = true;
   });
 </script>
@@ -55,7 +60,7 @@
       class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-3 py-2 ml-2"
       disabled={newSourceURL === ""}
       on:click={async () => {
-        await addModSource(newSourceURL);
+        await addModSource(newSourceURL, currentSourceData);
         currentSources = await getModSources();
       }}
       ><IconPlus

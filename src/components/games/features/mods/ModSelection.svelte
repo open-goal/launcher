@@ -18,6 +18,11 @@
   import { basename } from "@tauri-apps/api/path";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import thumbnailPlaceholder from "$assets/images/mod-thumbnail-placeholder.webp";
+  import {
+    getModAssetUrlFromLatestVersion,
+    isLatestVersionOfModSupportedOnCurrentPlatform,
+  } from "$lib/features/mods";
+  import { toastStore } from "$lib/stores/ToastStore";
 
   const dispatch = createEventDispatcher();
   export let activeGame: SupportedGame;
@@ -121,7 +126,6 @@
         sourceInfo.sourceName === sourceName &&
         Object.keys(sourceInfo.mods).includes(modName)
       ) {
-        // TODO NOW - pass in active game incase of per-game?
         return getThumbnailImage(sourceInfo.mods[modName]);
       }
     }
@@ -154,35 +158,12 @@
     return [];
   }
 
-  function getModAssetUrl(modInfo: ModInfo): string {
-    // TODO - make safer
-    if (userPlatform === "linux") {
-      return modInfo.versions[0].assets["linux"];
-    } else if (userPlatform == "darwin") {
-      return modInfo.versions[0].assets["macos"];
-    }
-    return modInfo.versions[0].assets["windows"];
-  }
-
   function isModAlreadyInstalled(sourceName: string, modName: string): boolean {
     if (
       Object.keys(installedMods).includes(sourceName) &&
       Object.keys(installedMods[sourceName]).includes(modName)
     ) {
       return true;
-    }
-    return false;
-  }
-
-  function isModSupportedOnCurrentPlatform(modInfo: ModInfo): boolean {
-    // TODO - make safer
-    if (modInfo.versions.length > 0) {
-      if (userPlatform === "linux") {
-        return Object.keys(modInfo.versions[0].assets).includes("linux");
-      } else if (userPlatform == "darwin") {
-        return Object.keys(modInfo.versions[0].assets).includes("macos");
-      }
-      return Object.keys(modInfo.versions[0].assets).includes("windows");
     }
     return false;
   }
@@ -349,20 +330,33 @@
                     </a>
                   {:else}
                     <button
-                      disabled={!isModSupportedOnCurrentPlatform(modInfo)}
+                      disabled={!isLatestVersionOfModSupportedOnCurrentPlatform(
+                        userPlatform,
+                        modInfo,
+                      )}
                       class="h-[200px] max-w-[160px] bg-cover p-1 flex justify-center items-end relative"
                       style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{getThumbnailImage(
                         modInfo,
                       )}'); background-size: cover;"
                       on:click={async () => {
                         // Install the mod
-                        const assetUrl = getModAssetUrl(modInfo);
-                        await addModFromUrl(
-                          assetUrl,
-                          modName,
-                          sourceInfo.sourceName,
-                          modInfo.versions[0].version,
+                        const assetUrl = getModAssetUrlFromLatestVersion(
+                          userPlatform,
+                          modInfo,
                         );
+                        if (assetUrl !== undefined) {
+                          await addModFromUrl(
+                            assetUrl,
+                            modName,
+                            sourceInfo.sourceName,
+                            modInfo.versions[0].version,
+                          );
+                        } else {
+                          toastStore.makeToast(
+                            $_("toasts_unableToRetrieveModDownloadURL"),
+                            "error",
+                          );
+                        }
                       }}
                     >
                       <h3 class="pointer-events-none select-none text-outline">
@@ -387,7 +381,7 @@
                     </button>
                   {/if}
 
-                  {#if !isModSupportedOnCurrentPlatform(modInfo) && modInfo.externalLink === null}
+                  {#if !isLatestVersionOfModSupportedOnCurrentPlatform(userPlatform, modInfo) && modInfo.externalLink === null}
                     <Tooltip placement="top"
                       >{$_("features_mods_not_supported_platform_1")} ({userPlatform})<br
                       />{$_("features_mods_not_supported_platform_2")}</Tooltip

@@ -351,15 +351,19 @@
       }
     }
     // extract the file into install_dir/features/<game>/<sourceName>/<modName>
-    // TODO - make this return InstallationOutput
-    await downloadAndExtractNewMod(
+    let resp = await downloadAndExtractNewMod(
       getInternalName(activeGame),
       modDownloadUrl,
       modName,
       modSourceName,
     );
+    if (!resp.success) {
+      progressTracker.halt();
+      installationError = resp.msg;
+      return;
+    }
     progressTracker.proceed();
-    let resp = await decompileForModInstall(
+    resp = await decompileForModInstall(
       getInternalName(activeGame),
       modName,
       modSourceName,

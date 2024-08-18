@@ -236,7 +236,7 @@
             getInternalName(activeGame),
           );
           await writeText(launchString);
-          toastStore.makeToast("Copied to clipboard!", "info");
+          toastStore.makeToast($_("toasts_copiedToClipboard"), "info");
         }}
         >{$_("gameControls_button_copyExecutableCommand")}<Helper
           helperClass="!text-neutral-400 !text-xs"
