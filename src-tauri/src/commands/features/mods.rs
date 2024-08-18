@@ -130,8 +130,7 @@ pub async fn download_and_extract_new_mod(
     .join("mods")
     .join(&source_name)
     .join(&mod_name);
-  let download_path = &parent_path
-    .join(format!("{mod_name}.zip"));
+  let download_path = &parent_path.join(format!("{mod_name}.zip"));
 
   delete_dir(parent_path)?;
   create_dir(parent_path).map_err(|err| {
@@ -141,7 +140,15 @@ pub async fn download_and_extract_new_mod(
   download_file(&download_url, &download_path)
     .await
     .map_err(|err| {
-      CommandError::GameFeatures(format!("Unable to successfully download mod version from {} to {}, error: {}", download_url, download_path.to_string_lossy(), err).to_owned())
+      CommandError::GameFeatures(
+        format!(
+          "Unable to successfully download mod version from {} to {}, error: {}",
+          download_url,
+          download_path.to_string_lossy(),
+          err
+        )
+        .to_owned(),
+      )
     })?;
 
   extract_and_delete_zip_file(&download_path, &parent_path, false).map_err(|err| {
