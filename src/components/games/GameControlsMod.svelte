@@ -137,7 +137,7 @@
           modVersionList = [...modVersionList, version.version];
           const assetUrl = getModAssetUrl(userPlatform, version);
           if (assetUrl !== undefined) {
-            modAssetUrls.push();
+            modAssetUrls.push(assetUrl);
           }
         }
       }
