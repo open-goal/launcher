@@ -213,6 +213,14 @@ export async function getBypassRequirements(): Promise<boolean> {
   return await invoke_rpc("get_bypass_requirements", {}, () => false);
 }
 
+export async function setModAutoUpdate(autoupdate: boolean): Promise<void> {
+  return await invoke_rpc("set_mod_auto_update", { autoupdate }, () => {});
+}
+
+export async function getModAutoUpdate(): Promise<boolean> {
+  return await invoke_rpc("get_mod_auto_update", {}, () => false);
+}
+
 export async function getEnabledTexturePacks(
   gameName: string,
 ): Promise<string[]> {
