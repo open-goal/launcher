@@ -15,6 +15,7 @@
   "features_textures_moveUp_buttonAlt": "上移纹理包",
   "features_textures_replacedCount": "替换纹理数量",
   "gameControls_update_mod": "Update Mod",
+  "gameControls_current": "(Current)",
   "gameControls_button_advanced": "高级",
   "gameControls_button_compile_helpText": "重建游戏。（即修改 OpenGOAL 源代码后）",
   "gameControls_button_compile": "编译",

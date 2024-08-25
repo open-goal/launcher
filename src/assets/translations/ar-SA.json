@@ -15,6 +15,7 @@
   "features_textures_moveUp_buttonAlt": "move texture pack up in order",
   "features_textures_replacedCount": "تم استبدال النسيج",
   "gameControls_update_mod": "Update Mod",
+  "gameControls_current": "(Current)",
   "gameControls_button_advanced": "Advanced",
   "gameControls_button_compile_helpText": "إعادة بناء اللعبة. (أي بعد تعديل رمز مصدر OpenGOAL)",
   "gameControls_button_compile": "Compile",

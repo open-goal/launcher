@@ -15,6 +15,7 @@
   "features_textures_moveUp_buttonAlt": "déplacer le pack de textures vers le haut",
   "features_textures_replacedCount": "Textures remplacées",
   "gameControls_update_mod": "Update Mod",
+  "gameControls_current": "(Current)",
   "gameControls_button_advanced": "Paramètres avancés",
   "gameControls_button_compile_helpText": "Recompiler le jeu (ex. après avoir modifié le code source OpenGOAL).",
   "gameControls_button_compile": "Compiler",

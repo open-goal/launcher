@@ -15,6 +15,7 @@
   "features_textures_moveUp_buttonAlt": "הזז חבילת טקסטורה (texture) למעלה ברשימה",
   "features_textures_replacedCount": "הטקסטורות (Textures) הוחלפו",
   "gameControls_update_mod": "Update Mod",
+  "gameControls_current": "(Current)",
   "gameControls_button_advanced": "מתקדם",
   "gameControls_button_compile_helpText": "Rebuild the game. (ie. after modifying OpenGOAL source code)",
   "gameControls_button_compile": "בנייה (מקוד מקור)",

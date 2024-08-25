@@ -249,7 +249,7 @@
         {#each modVersionList as version, i}
           {#if version === currentlyInstalledVersion}
             <DropdownItem class="text-orange-400 cursor-auto">
-              {version} (current)
+              {version} {$_("gameControls_current")}
             </DropdownItem>
           {:else}
             <DropdownItem

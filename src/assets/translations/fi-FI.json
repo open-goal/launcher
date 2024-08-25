@@ -15,6 +15,7 @@
   "features_textures_moveUp_buttonAlt": "siirrä tekstuuripaketti ylöspäin järjestyksessä",
   "features_textures_replacedCount": "Tekstuureja korvattu",
   "gameControls_update_mod": "Update Mod",
+  "gameControls_current": "(Current)",
   "gameControls_button_advanced": "Lisäasetukset",
   "gameControls_button_compile_helpText": "Rakenna peli. (esim. OpenGOAL-lähdekoodin muokkaamisen jälkeen)",
   "gameControls_button_compile": "Käännä",

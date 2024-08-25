@@ -15,6 +15,7 @@
   "features_textures_moveUp_buttonAlt": "move texture pack up in order",
   "features_textures_replacedCount": "Textures replaced",
   "gameControls_update_mod": "Update Mod",
+  "gameControls_current": "(Current)",
   "gameControls_button_advanced": "Avansert",
   "gameControls_button_compile_helpText": "Gjenoppbygg spillet. (f.eks etter endring av OpenGOAL kildekode)",
   "gameControls_button_compile": "Kompiler",
