@@ -241,7 +241,7 @@
               on:change={toggleAutoUpdate}
             />
             <span class="text-sm text-white font-semibold"
-              >Get Newest Version</span
+              >{$_("gameControls_get_newest_version")}</span
             >
           </label>
         </div>

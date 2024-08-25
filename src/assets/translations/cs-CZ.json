@@ -16,6 +16,7 @@
   "features_textures_replacedCount": "Textures replaced",
   "gameControls_update_mod": "Update Mod",
   "gameControls_current": "(Current)",
+  "gameControls_get_newest_version": "Get Newest Version",
   "gameControls_button_advanced": "Pokročilé",
   "gameControls_button_compile_helpText": "Znovu sestaví hru. (tj. po úpravě zdrojového kódu OpenGOAL).",
   "gameControls_button_compile": "Kompilovat",

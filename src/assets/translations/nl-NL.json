@@ -16,6 +16,7 @@
   "features_textures_replacedCount": "Aantal textures vervangen",
   "gameControls_update_mod": "Update Mod",
   "gameControls_current": "(Current)",
+  "gameControls_get_newest_version": "Get Newest Version",
   "gameControls_button_advanced": "Geavanceerd",
   "gameControls_button_compile_helpText": "Herbouw het spel. (bv. na het aanpassen van de OpenGOAL broncode)",
   "gameControls_button_compile": "Compileren",

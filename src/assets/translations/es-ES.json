@@ -16,6 +16,7 @@
   "features_textures_replacedCount": "Texturas reemplazadas",
   "gameControls_update_mod": "Update Mod",
   "gameControls_current": "(Current)",
+  "gameControls_get_newest_version": "Get Newest Version",
   "gameControls_button_advanced": "Avanzado",
   "gameControls_button_compile_helpText": "Reconstruir el juego. (Ej. después de modificar el código fuente de OpenGOAL)",
   "gameControls_button_compile": "Compilar",
