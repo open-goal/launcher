@@ -283,7 +283,7 @@
             modSource,
             getNewestVersion(modVersionList),
           );
-        }}>Update Mod</Button
+        }}>{$_("gameControls_update_mod")}</Button
       >
     {/if}
     <Button

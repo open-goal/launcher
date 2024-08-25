@@ -14,6 +14,7 @@
   "features_textures_moveDown_buttonAlt": "Textúracsomag lejjebb mozgatása a sorban",
   "features_textures_moveUp_buttonAlt": "Textúracsomag feljebb mozgatása a sorban",
   "features_textures_replacedCount": "Kicserélt textúrák",
+  "gameControls_update_mod": "Update Mod",
   "gameControls_button_advanced": "Haladó",
   "gameControls_button_compile_helpText": "Játék újraépítése. (pl. miután OpenGOAL forráskódot módosítottál)",
   "gameControls_button_compile": "Kompilálás",

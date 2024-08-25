@@ -14,6 +14,7 @@
   "features_textures_moveDown_buttonAlt": "mover el orden del paquete de textura hacia abajo",
   "features_textures_moveUp_buttonAlt": "mover el orden del paquete de textura hacia arriba",
   "features_textures_replacedCount": "Texturas reemplazadas",
+  "gameControls_update_mod": "Update Mod",
   "gameControls_button_advanced": "Avanzado",
   "gameControls_button_compile_helpText": "Reconstruir el juego. (Ej. después de modificar el código fuente de OpenGOAL)",
   "gameControls_button_compile": "Compilar",

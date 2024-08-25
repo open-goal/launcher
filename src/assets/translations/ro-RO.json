@@ -14,6 +14,7 @@
   "features_textures_moveDown_buttonAlt": "move texture pack down in order",
   "features_textures_moveUp_buttonAlt": "move texture pack up in order",
   "features_textures_replacedCount": "Textures replaced",
+  "gameControls_update_mod": "Update Mod",
   "gameControls_button_advanced": "Avansat",
   "gameControls_button_compile_helpText": "Reconstruieşte jocul. (ex. după modificarea codului sursă OpenGOAL)",
   "gameControls_button_compile": "Compilare",
