@@ -14,6 +14,7 @@ use crate::{
   util::{
     file::{create_dir, delete_dir, to_image_base64},
     network::download_file,
+    tar::{extract_and_delete_tar_ball, extract_tar_ball},
     zip::{extract_and_delete_zip_file, extract_zip_file},
   },
 };
@@ -61,7 +62,7 @@ pub async fn get_mod_sources(
 pub async fn extract_new_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: String,
-  zip_path: String,
+  bundle_path: String,
   mod_source: String,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
@@ -75,8 +76,8 @@ pub async fn extract_new_mod(
   };
 
   // The name of the zip becomes the folder, if one already exists it will be deleted!
-  let zip_path_buf = PathBuf::from(zip_path);
-  let mod_name = match zip_path_buf.file_stem() {
+  let bundle_path_buf = PathBuf::from(bundle_path);
+  let mod_name = match bundle_path_buf.file_stem() {
     Some(name) => name.to_string_lossy().to_string(),
     None => {
       return Err(CommandError::GameFeatures(
@@ -95,10 +96,21 @@ pub async fn extract_new_mod(
     log::error!("Unable to create directory for mod: {}", err);
     CommandError::GameFeatures(format!("Unable to create directory for mod: {}", err))
   })?;
-  extract_zip_file(&zip_path_buf, &destination_dir, false).map_err(|err| {
-    log::error!("Unable to extract mod: {}", err);
-    CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
-  })?;
+  if cfg!(windows) {
+    extract_zip_file(&bundle_path_buf, &destination_dir, false).map_err(|err| {
+      log::error!("Unable to extract mod: {}", err);
+      CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
+    })?;
+  } else if cfg!(unix) {
+    extract_tar_ball(&bundle_path_buf, &destination_dir).map_err(|err| {
+      log::error!("Unable to extract mod: {}", err);
+      CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
+    })?;
+  } else {
+    Err(CommandError::VersionManagement(
+      "Unknown operating system, unable to download and extract mod".to_owned(),
+    ))?;
+  }
   Ok(InstallStepOutput {
     success: true,
     msg: None,
@@ -151,10 +163,21 @@ pub async fn download_and_extract_new_mod(
       )
     })?;
 
-  extract_and_delete_zip_file(&download_path, &parent_path, false).map_err(|err| {
-    log::error!("Unable to extract mod: {}", err);
-    CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
-  })?;
+  if cfg!(windows) {
+    extract_and_delete_zip_file(&download_path, &parent_path, false).map_err(|err| {
+      log::error!("Unable to extract mod: {}", err);
+      CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
+    })?;
+  } else if cfg!(unix) {
+    extract_and_delete_tar_ball(&download_path, &parent_path).map_err(|err| {
+      log::error!("Unable to extract mod: {}", err);
+      CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
+    })?;
+  } else {
+    Err(CommandError::VersionManagement(
+      "Unknown operating system, unable to download and extract mod".to_owned(),
+    ))?;
+  }
 
   return Ok(InstallStepOutput {
     success: true,
