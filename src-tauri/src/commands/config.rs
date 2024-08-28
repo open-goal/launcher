@@ -420,6 +420,26 @@ pub async fn set_bypass_requirements(
 }
 
 #[tauri::command]
+pub async fn get_mod_auto_update(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  let config_lock = config.lock().await;
+  Ok(config_lock.autoupdate)
+}
+
+#[tauri::command]
+pub async fn set_mod_auto_update(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  autoupdate: Option<bool>,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_mod_auto_update(autoupdate.expect("REASON")).map_err(|_| {
+    CommandError::Configuration("Unable to set mod auto update flag".to_owned())
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
 pub async fn get_enabled_texture_packs(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: String,
