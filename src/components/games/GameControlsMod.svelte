@@ -195,13 +195,15 @@
         });
       }}><IconArrowLeft />&nbsp;{$_("features_mods_go_back")}</Button
     >
-    {#if modVersionListSorted[0] === currentlyInstalledVersion || !checkForLatestModVersionChecked}
+    <!-- show Play button if we have no version list (offline), if we're up to date, or we dont want forced updates -->
+    {#if modVersionListSorted.length == 0 || modVersionListSorted[0] === currentlyInstalledVersion || !checkForLatestModVersionChecked}
       <Button
         class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         on:click={async () => {
           launchMod(getInternalName(activeGame), false, modName, modSource);
         }}>{$_("gameControls_button_play")}</Button
       >
+      <!-- otherwise show Update button -->
     {:else}
       <Button
         class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
