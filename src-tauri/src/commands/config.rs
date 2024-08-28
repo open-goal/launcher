@@ -436,9 +436,11 @@ pub async fn set_check_for_latest_mod_version(
   check_for_latest_mod_version: bool,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
-  config_lock.set_check_for_latest_mod_version(check_for_latest_mod_version).map_err(|_| {
-    CommandError::Configuration("Unable to set check_for_latest_mod_version flag".to_owned())
-  })?;
+  config_lock
+    .set_check_for_latest_mod_version(check_for_latest_mod_version)
+    .map_err(|_| {
+      CommandError::Configuration("Unable to set check_for_latest_mod_version flag".to_owned())
+    })?;
   Ok(())
 }
 

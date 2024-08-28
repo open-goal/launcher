@@ -197,7 +197,7 @@ pub struct LauncherConfig {
   pub locale: Option<String>,
   pub mod_sources: Option<Vec<String>>,
   pub decompiler_settings: Option<DecompilerSettings>,
-  pub check_for_latest_mod_version: Option<bool>
+  pub check_for_latest_mod_version: Option<bool>,
 }
 
 fn default_version() -> Option<String> {
@@ -223,7 +223,7 @@ impl LauncherConfig {
       locale: None,
       mod_sources: None,
       decompiler_settings: Some(DecompilerSettings::default()),
-      check_for_latest_mod_version: Some(true)
+      check_for_latest_mod_version: Some(true),
     }
   }
 
@@ -458,7 +458,10 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn set_check_for_latest_mod_version(&mut self, check_for_latest_mod_version: bool) -> Result<(), ConfigError> {
+  pub fn set_check_for_latest_mod_version(
+    &mut self,
+    check_for_latest_mod_version: bool,
+  ) -> Result<(), ConfigError> {
     self.check_for_latest_mod_version = Some(check_for_latest_mod_version);
     self.save_config()?;
     Ok(())
