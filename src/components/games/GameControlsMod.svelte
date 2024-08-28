@@ -237,15 +237,24 @@
         class="!bg-slate-900 overflow-y-auto px-2 py-2 max-h-[300px]"
       >
         <!-- wrap checkbox in div so that both box and text get tooltip -->
-        <div id="checkbox_always_use_newest"><Checkbox color="orange" checked={checkForLatestModVersionChecked} on:change={toggleCheckForLatestModVersion}>
-          {$_("gameControls_always_use_newest")}
-        </Checkbox></div>
-        <Tooltip triggeredBy="#checkbox_always_use_newest">{$_("gameControls_always_use_newest_tooltip")}</Tooltip>
+        <div id="checkbox_always_use_newest">
+          <Checkbox
+            color="orange"
+            checked={checkForLatestModVersionChecked}
+            on:change={toggleCheckForLatestModVersion}
+          >
+            {$_("gameControls_always_use_newest")}
+          </Checkbox>
+        </div>
+        <Tooltip triggeredBy="#checkbox_always_use_newest"
+          >{$_("gameControls_always_use_newest_tooltip")}</Tooltip
+        >
         <DropdownDivider />
         {#each modVersionListSorted as version, i}
           {#if version === currentlyInstalledVersion}
             <DropdownItem class="text-orange-400 cursor-auto">
-              {version} {$_("gameControls_active")}
+              {version}
+              {$_("gameControls_active")}
             </DropdownItem>
           {:else}
             <DropdownItem

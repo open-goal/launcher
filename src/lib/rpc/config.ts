@@ -213,8 +213,14 @@ export async function getBypassRequirements(): Promise<boolean> {
   return await invoke_rpc("get_bypass_requirements", {}, () => false);
 }
 
-export async function setCheckForLatestModVersion(check_for_latest_mod_version: boolean): Promise<void> {
-  return await invoke_rpc("set_check_for_latest_mod_version", { checkForLatestModVersion: check_for_latest_mod_version }, () => {});
+export async function setCheckForLatestModVersion(
+  check_for_latest_mod_version: boolean,
+): Promise<void> {
+  return await invoke_rpc(
+    "set_check_for_latest_mod_version",
+    { checkForLatestModVersion: check_for_latest_mod_version },
+    () => {},
+  );
 }
 
 export async function getCheckForLatestModVersion(): Promise<boolean> {
