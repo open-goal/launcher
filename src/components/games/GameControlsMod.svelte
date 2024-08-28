@@ -9,17 +9,19 @@
   import { confirm } from "@tauri-apps/api/dialog";
   import {
     Button,
+    Checkbox,
     Dropdown,
     DropdownItem,
     DropdownDivider,
     Helper,
     Indicator,
+    Tooltip,
   } from "flowbite-svelte";
   import { platform } from "@tauri-apps/api/os";
   import {
     getInstallationDirectory,
-    setModAutoUpdate,
-    getModAutoUpdate,
+    setCheckForLatestModVersion,
+    getCheckForLatestModVersion,
   } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { navigate } from "svelte-navigator";
@@ -49,12 +51,12 @@
   let settingsDir: string | undefined = undefined;
   let savesDir: string | undefined = undefined;
   let isLinux = false;
-  let modVersionList: string[] = [];
-  let modAssetUrls: string[] = [];
+  let modVersionListSorted: string[] = [];
+  let modAssetUrlsSorted: string[] = [];
   let currentlyInstalledVersion: string = "";
   let numberOfVersionsOutOfDate = 0;
   let userPlatform: string = "";
-  let autoUpdateChecked = false;
+  let checkForLatestModVersionChecked = false;
 
   async function addModFromUrl(
     url: string,
@@ -75,31 +77,8 @@
     });
   }
 
-  function getNewestVersion(versions: string[]): string {
-    const versionsCopy = [...versions];
-
-    return (
-      versionsCopy
-        .sort((a, b) => {
-          const aParts = a.split(".").map(Number);
-          const bParts = b.split(".").map(Number);
-
-          for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
-            const aPart = aParts[i] || 0;
-            const bPart = bParts[i] || 0;
-
-            if (aPart !== bPart) {
-              return aPart - bPart;
-            }
-          }
-          return 0;
-        })
-        .pop() || ""
-    );
-  }
-
   onMount(async () => {
-    autoUpdateChecked = await getModAutoUpdate();
+    checkForLatestModVersionChecked = await getCheckForLatestModVersion();
     isLinux = (await platform()) === "linux";
     let installationDir = await getInstallationDirectory();
     if (installationDir !== null) {
@@ -143,7 +122,7 @@
         savesDir = undefined;
       }
     }
-    // Get a list of available versions.
+    // Get a list of available versions, this is how we see if we're on the latest!
     let sourceData = await getModSourcesData();
     userPlatform = await platform();
 
@@ -157,16 +136,22 @@
       relevantSourceData !== undefined &&
       Object.keys(relevantSourceData.mods).includes(modName)
     ) {
-      for (const version of relevantSourceData.mods[modName].versions) {
+      // ensure versions are sorted by date desc (newest first)
+      let versions = relevantSourceData.mods[modName].versions;
+      versions.sort((a, b) => {
+        return Date.parse(b.publishedDate) - Date.parse(a.publishedDate);
+      });
+
+      for (const version of versions) {
         if (
           isVersionSupportedOnPlatform(userPlatform, version) &&
           version.supportedGames !== null &&
           version.supportedGames.includes(getInternalName(activeGame))
         ) {
-          modVersionList = [...modVersionList, version.version];
+          modVersionListSorted = [...modVersionListSorted, version.version];
           const assetUrl = getModAssetUrl(userPlatform, version);
           if (assetUrl !== undefined) {
-            modAssetUrls.push(assetUrl);
+            modAssetUrlsSorted.push(assetUrl);
           }
         }
       }
@@ -181,7 +166,7 @@
       currentlyInstalledVersion = installedMods[modSource][modName];
     }
 
-    for (const version of modVersionList) {
+    for (const version of modVersionListSorted) {
       if (version === currentlyInstalledVersion) {
         break;
       }
@@ -189,9 +174,9 @@
     }
   });
 
-  async function toggleAutoUpdate() {
-    autoUpdateChecked = !autoUpdateChecked;
-    await setModAutoUpdate(autoUpdateChecked);
+  async function toggleCheckForLatestModVersion() {
+    checkForLatestModVersionChecked = !checkForLatestModVersionChecked;
+    await setCheckForLatestModVersion(checkForLatestModVersionChecked);
   }
 </script>
 
@@ -210,7 +195,27 @@
         });
       }}><IconArrowLeft />&nbsp;{$_("features_mods_go_back")}</Button
     >
-    {#if modVersionList.length > 0}
+    {#if modVersionListSorted[0] === currentlyInstalledVersion || !checkForLatestModVersionChecked}
+      <Button
+        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+        on:click={async () => {
+          launchMod(getInternalName(activeGame), false, modName, modSource);
+        }}>{$_("gameControls_button_play")}</Button
+      >
+    {:else}
+      <Button
+        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+        on:click={async () => {
+          await addModFromUrl(
+            modAssetUrlsSorted[0],
+            modName,
+            modSource,
+            modVersionListSorted[0],
+          );
+        }}>{$_("gameControls_update_mod")}</Button
+      >
+    {/if}
+    {#if modVersionListSorted.length > 0}
       <Button
         class="relative text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
       >
@@ -229,33 +234,24 @@
       </Button>
       <Dropdown
         placement="top-end"
-        class="!bg-slate-900 overflow-y-auto max-h-[300px]"
+        class="!bg-slate-900 overflow-y-auto px-2 py-2 max-h-[300px]"
       >
-        <div class="p-2">
-          <label class="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              class="form-checkbox text-orange-500 bg-slate-700 rounded focus:ring-orange-500"
-              id="autoUpdate"
-              checked={autoUpdateChecked}
-              on:change={toggleAutoUpdate}
-            />
-            <span class="text-sm text-white font-semibold"
-              >{$_("gameControls_get_newest_version")}</span
-            >
-          </label>
-        </div>
+        <!-- wrap checkbox in div so that both box and text get tooltip -->
+        <div id="checkbox_always_use_newest"><Checkbox color="orange" checked={checkForLatestModVersionChecked} on:change={toggleCheckForLatestModVersion}>
+          {$_("gameControls_always_use_newest")}
+        </Checkbox></div>
+        <Tooltip triggeredBy="#checkbox_always_use_newest">{$_("gameControls_always_use_newest_tooltip")}</Tooltip>
         <DropdownDivider />
-        {#each modVersionList as version, i}
+        {#each modVersionListSorted as version, i}
           {#if version === currentlyInstalledVersion}
             <DropdownItem class="text-orange-400 cursor-auto">
-              {version} {$_("gameControls_current")}
+              {version} {$_("gameControls_active")}
             </DropdownItem>
           {:else}
             <DropdownItem
               on:click={async () => {
                 await addModFromUrl(
-                  modAssetUrls[i],
+                  modAssetUrlsSorted[i],
                   modName,
                   modSource,
                   version,
@@ -265,26 +261,6 @@
           {/if}
         {/each}
       </Dropdown>
-    {/if}
-    {#if getNewestVersion(modVersionList) === currentlyInstalledVersion || !autoUpdateChecked}
-      <Button
-        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-        on:click={async () => {
-          launchMod(getInternalName(activeGame), false, modName, modSource);
-        }}>{$_("gameControls_button_play")}</Button
-      >
-    {:else}
-      <Button
-        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-        on:click={async () => {
-          await addModFromUrl(
-            modAssetUrls[0],
-            modName,
-            modSource,
-            getNewestVersion(modVersionList),
-          );
-        }}>{$_("gameControls_update_mod")}</Button
-      >
     {/if}
     <Button
       class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
@@ -303,9 +279,9 @@
             openREPLForMod(getInternalName(activeGame), modName, modSource);
           }}>{$_("gameControls_button_openREPL")}</DropdownItem
         >
-        {/if}
-        <DropdownDivider />
-        <DropdownItem
+      {/if}
+      <DropdownDivider />
+      <DropdownItem
         on:click={async () => {
           dispatch("job", {
             type: "decompileMod",

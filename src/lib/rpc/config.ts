@@ -213,12 +213,12 @@ export async function getBypassRequirements(): Promise<boolean> {
   return await invoke_rpc("get_bypass_requirements", {}, () => false);
 }
 
-export async function setModAutoUpdate(autoupdate: boolean): Promise<void> {
-  return await invoke_rpc("set_mod_auto_update", { autoupdate }, () => {});
+export async function setCheckForLatestModVersion(check_for_latest_mod_version: boolean): Promise<void> {
+  return await invoke_rpc("set_check_for_latest_mod_version", { checkForLatestModVersion: check_for_latest_mod_version }, () => {});
 }
 
-export async function getModAutoUpdate(): Promise<boolean> {
-  return await invoke_rpc("get_mod_auto_update", {}, () => false);
+export async function getCheckForLatestModVersion(): Promise<boolean> {
+  return await invoke_rpc("get_check_for_latest_mod_version", {}, () => false);
 }
 
 export async function getEnabledTexturePacks(
