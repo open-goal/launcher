@@ -3,5 +3,6 @@
 export type ModVersion = {
   version: string;
   publishedDate: string;
-  assets: { [key: string]: string };
+  assets: { [key: string]: string | null };
+  supportedGames: Array<string> | null;
 };

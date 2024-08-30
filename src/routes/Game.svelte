@@ -25,15 +25,20 @@
   import { VersionStore } from "$lib/stores/VersionStore";
   import type { Job } from "$lib/utils/jobs";
   import { type } from "@tauri-apps/api/os";
+  import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
+  import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
+  import GameControlsMod from "../components/games/GameControlsMod.svelte";
 
   const params = useParams();
   $: $params, loadGameInfo();
 
   export let modName: string | undefined = undefined;
   export let modSource: string | undefined = undefined;
-  export let modPage: boolean = false;
+  let modVersionToInstall: string = "";
+  let modDownloadUrlToInstall: string = "";
 
   let activeGame = SupportedGame.Jak1;
+  let modDisplayName: string | undefined = undefined;
   let componentLoaded = false;
 
   let gameInstalled = false;
@@ -74,6 +79,27 @@
       $params["mod_name"] !== ""
     ) {
       modName = $params["mod_name"];
+      // Go get the mod's display name
+      // TODO now - centralize this in a store so we don't unnecessarily fetch the info
+      await refreshModSources();
+      const modSourceData = await getModSourcesData();
+      // Find the source
+      let foundMod: ModInfo | undefined = undefined;
+      for (const [sourceUrl, sourceInfo] of Object.entries(modSourceData)) {
+        if (
+          sourceInfo.sourceName === modSource &&
+          sourceInfo.mods.hasOwnProperty(modName)
+        ) {
+          foundMod = sourceInfo.mods[modName];
+          break;
+        }
+      }
+      // Prefer pre-game-config if available
+      if (foundMod !== undefined) {
+        modDisplayName = foundMod.displayName;
+      } else {
+        modDisplayName = modName;
+      }
     }
     if (
       $params["source_url"] !== undefined &&
@@ -122,6 +148,10 @@
 
   async function runGameJob(event: any) {
     gameJobToRun = event.detail.type;
+    if (gameJobToRun === "installModExternal") {
+      modDownloadUrlToInstall = event.detail.modDownloadUrl;
+      modVersionToInstall = event.detail.modVersion;
+    }
   }
 
   async function gameJobFinished() {
@@ -145,6 +175,10 @@
     <GameJob
       {activeGame}
       jobType={gameJobToRun}
+      modSourceName={modSource}
+      modDownloadUrl={modDownloadUrlToInstall}
+      modVersion={modVersionToInstall}
+      {modName}
       on:jobFinished={gameJobFinished}
     />
   {:else if versionMismatchDetected}
@@ -206,13 +240,21 @@
         </ul>
       </Alert>
     {/if}
-    <GameControls
-      {activeGame}
-      {modName}
-      {modSource}
-      {modPage}
-      on:change={updateGameState}
-      on:job={runGameJob}
-    />
+    {#if modName !== undefined}
+      <GameControlsMod
+        {activeGame}
+        {modName}
+        {modDisplayName}
+        {modSource}
+        on:change={updateGameState}
+        on:job={runGameJob}
+      />
+    {:else}
+      <GameControls
+        {activeGame}
+        on:change={updateGameState}
+        on:job={runGameJob}
+      />
+    {/if}
   {/if}
 </div>

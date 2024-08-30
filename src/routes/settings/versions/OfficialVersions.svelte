@@ -113,7 +113,7 @@
       $VersionStore.activeVersionName = $VersionStore.selectedVersions.official;
       $VersionStore.selectedVersions.unofficial = null;
       $VersionStore.selectedVersions.devel = null;
-      toastStore.makeToast("Saved game version!", "info");
+      toastStore.makeToast($_("toasts_savedToolingVersion"), "info");
     }
   }
 
@@ -193,8 +193,6 @@
 </script>
 
 <VersionList
-  initiallyOpen={true}
-  name={$_("settings_versions_official_tabName")}
   description={$_("settings_versions_official_description")}
   releaseList={releases}
   loaded={versionsLoaded}

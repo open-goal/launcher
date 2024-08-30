@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { ModSourceData } from "$lib/rpc/bindings/ModSourceData";
+  import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
   import {
     addModSource,
     getModSources,
@@ -13,6 +15,7 @@
     TableBody,
     TableBodyCell,
     TableBodyRow,
+    Alert,
   } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
@@ -21,16 +24,29 @@
 
   let newSourceURL = "";
   let currentSources: ModSource[] = [];
+  let currentSourceData: Record<string, ModSourceData> = {};
 
   let pageLoaded = false;
 
   onMount(async () => {
     currentSources = await getModSources();
+    await refreshModSources();
+    currentSourceData = await getModSourcesData();
     pageLoaded = true;
   });
 </script>
 
 <div class="flex flex-col gap-2 mt-2">
+  <Alert color="red" rounded={false} class="border-t-4">
+    <span class="font-bold">{$_("settings_mods_warning_header")}</span>
+    <br />
+    <p>
+      {$_("settings_mods_warning_description_part1")}
+    </p>
+    <p>
+      {$_("settings_mods_warning_description_part2")}
+    </p>
+  </Alert>
   <div>
     <Label for="default-input" class="block mb-2"
       >{$_("settings_mods_addSource_label")}</Label
@@ -40,12 +56,11 @@
     <div class="grow">
       <Input id="default-input" bind:value={newSourceURL} />
     </div>
-    <!-- TODO - forbid adding two mod sources with the same sourceName -->
     <Button
       class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-3 py-2 ml-2"
       disabled={newSourceURL === ""}
       on:click={async () => {
-        await addModSource(newSourceURL);
+        await addModSource(newSourceURL, currentSourceData);
         currentSources = await getModSources();
       }}
       ><IconPlus
@@ -63,7 +78,7 @@
             <TableBodyRow class="flex items-center">
               <TableBodyCell
                 tdClass="px-6 whitespace-nowrap font-medium text-gray-900 dark:text-white text-wrap"
-                >{source.url}</TableBodyCell
+                >{source}</TableBodyCell
               >
               <TableBodyCell
                 tdClass="flex ml-auto justify-end px-6 whitespace-nowrap font-medium text-gray-900 dark:text-white text-red-600"
@@ -85,8 +100,6 @@
           {/each}
         </TableBody>
       </Table>
-    {:else}
-      TODO loading
     {/if}
   </div>
 </div>

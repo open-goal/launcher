@@ -4,7 +4,7 @@ import { errorLog } from "./logging";
 import { invoke_rpc } from "./rpc";
 import type { VersionFolders } from "./versions";
 import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
-import { readBinaryFile, BaseDirectory, exists } from "@tauri-apps/api/fs";
+import { exists } from "@tauri-apps/api/fs";
 import { appDataDir, join } from "@tauri-apps/api/path";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 
@@ -211,6 +211,20 @@ export async function setBypassRequirements(bypass: boolean): Promise<void> {
 
 export async function getBypassRequirements(): Promise<boolean> {
   return await invoke_rpc("get_bypass_requirements", {}, () => false);
+}
+
+export async function setCheckForLatestModVersion(
+  check_for_latest_mod_version: boolean,
+): Promise<void> {
+  return await invoke_rpc(
+    "set_check_for_latest_mod_version",
+    { checkForLatestModVersion: check_for_latest_mod_version },
+    () => {},
+  );
+}
+
+export async function getCheckForLatestModVersion(): Promise<boolean> {
+  return await invoke_rpc("get_check_for_latest_mod_version", {}, () => false);
 }
 
 export async function getEnabledTexturePacks(

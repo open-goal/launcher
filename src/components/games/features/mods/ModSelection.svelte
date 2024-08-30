@@ -1,48 +1,46 @@
-<!-- TODO
- BUGS
- - 'extract_new_mod' complains due to something already being in use
- - when reinstalling the same mod, the settings map ends up as 'null'
- 
- WRAP UP
- - launch string
- - cleanup rust code and such
- - uninstalling
- - pick the version / updating to latest version
- - remove unnecessary version lists
- - handle sources not being available
- - implement the things discussed here
-     - https://github.com/open-goal/launcher/discussions/452
- - order by last played 
- - enable it by default
--->
-
 <script lang="ts">
+  import { platform } from "@tauri-apps/api/os";
   import { getInternalName, SupportedGame } from "$lib/constants";
   import { createEventDispatcher, onMount } from "svelte";
   import { navigate } from "svelte-navigator";
   import { _ } from "svelte-i18n";
-  import { Button, Input, Spinner, Tooltip } from "flowbite-svelte";
+  import { Button, Indicator, Input, Spinner, Tooltip } from "flowbite-svelte";
   import IconArrowLeft from "~icons/mdi/arrow-left";
   import IconGlobe from "~icons/mdi/globe";
   import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
   import type { ModSourceData } from "$lib/rpc/bindings/ModSourceData";
   import { filePrompt } from "$lib/utils/file-dialogs";
-  import { extractNewMod, getInstalledMods } from "$lib/rpc/features";
+  import {
+    extractNewMod,
+    getInstalledMods,
+    getLocalModThumbnailBase64,
+  } from "$lib/rpc/features";
   import { basename } from "@tauri-apps/api/path";
+  import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
+  import thumbnailPlaceholder from "$assets/images/mod-thumbnail-placeholder.webp";
+  import {
+    getModAssetUrlFromLatestVersion,
+    isLatestVersionOfModSupportedOnCurrentPlatform,
+  } from "$lib/features/mods";
+  import { toastStore } from "$lib/stores/ToastStore";
 
   const dispatch = createEventDispatcher();
   export let activeGame: SupportedGame;
 
+  let userPlatform = "";
   let loaded = false;
   let modFilter = "";
   let installedMods: Record<string, Record<string, string>> = {};
   let sourceData: Record<string, ModSourceData> = {};
+  let addingMod = false;
   let addingFromFile = false;
 
   onMount(async () => {
     installedMods = await getInstalledMods(getInternalName(activeGame));
+    // TODO - move this to a central store!
     await refreshModSources();
     sourceData = await getModSourcesData();
+    userPlatform = await platform();
     loaded = true;
   });
 
@@ -52,10 +50,11 @@
   }
 
   async function addModFromFile(evt: Event) {
+    addingMod = true;
     addingFromFile = true;
     const modArchivePath = await filePrompt(["zip"], "ZIP", "Select a mod");
     if (modArchivePath === null) {
-      addingFromFile = false;
+      addingMod = false;
       return;
     }
     // extract the file into install_dir/features/<game>/_local/zip-name
@@ -70,8 +69,133 @@
       modName: await basename(modArchivePath, ".zip"),
       modVersion: "local",
     });
-    // remember that it is installed in the configuration
+    addingMod = false;
     addingFromFile = false;
+  }
+
+  async function addModFromUrl(
+    url: string,
+    modName: string,
+    sourceName: string,
+    modVersion: string,
+  ) {
+    addingMod = true;
+    // install it immediately
+    // - prompt user for iso if it doesn't exist
+    // - decompile
+    // - compile
+    dispatch("job", {
+      type: "installModExternal",
+      modDownloadUrl: url,
+      modSourceName: sourceName,
+      modName: modName,
+      modVersion: modVersion,
+    });
+    addingMod = false;
+  }
+
+  function getThumbnailImage(modInfo: ModInfo): string {
+    // Prefer pre-game-config if available
+    if (
+      modInfo.perGameConfig !== null &&
+      modInfo.perGameConfig.hasOwnProperty(getInternalName(activeGame)) &&
+      modInfo.perGameConfig[getInternalName(activeGame)].thumbnailArtUrl !==
+        null
+    ) {
+      return modInfo.perGameConfig[getInternalName(activeGame)].thumbnailArtUrl;
+    } else if (modInfo.thumbnailArtUrl !== null) {
+      return modInfo.thumbnailArtUrl;
+    }
+    return thumbnailPlaceholder;
+  }
+
+  async function getThumbnailImageFromSources(
+    sourceName: string,
+    modName: string,
+  ): Promise<string> {
+    // TODO - make this not a promise, do it in the initial component loading
+    if (sourceName === "_local") {
+      return await getLocalModThumbnailBase64(
+        getInternalName(activeGame),
+        modName,
+      );
+    }
+    // Find the mod by looking at the sources, if we can't find it then return the placeholder
+    for (const [sourceUrl, sourceInfo] of Object.entries(sourceData)) {
+      if (
+        sourceInfo.sourceName === sourceName &&
+        Object.keys(sourceInfo.mods).includes(modName)
+      ) {
+        return getThumbnailImage(sourceInfo.mods[modName]);
+      }
+    }
+    return thumbnailPlaceholder;
+  }
+
+  function getModDisplayName(sourceName: string, modName: string): string {
+    // Find the mod by looking at the sources, if we can't find it then return the placeholder
+    for (const [sourceUrl, sourceInfo] of Object.entries(sourceData)) {
+      if (
+        sourceInfo.sourceName === sourceName &&
+        Object.keys(sourceInfo.mods).includes(modName)
+      ) {
+        return sourceInfo.mods[modName].displayName;
+      }
+    }
+    return modName;
+  }
+
+  function getModTags(sourceName: string, modName: string): Array<string> {
+    // Find the mod by looking at the sources, if we can't find it then return the placeholder
+    for (const [sourceUrl, sourceInfo] of Object.entries(sourceData)) {
+      if (
+        sourceInfo.sourceName === sourceName &&
+        Object.keys(sourceInfo.mods).includes(modName)
+      ) {
+        return sourceInfo.mods[modName].tags;
+      }
+    }
+    return [];
+  }
+
+  function isModAlreadyInstalled(sourceName: string, modName: string): boolean {
+    if (
+      Object.keys(installedMods).includes(sourceName) &&
+      Object.keys(installedMods[sourceName]).includes(modName)
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  function isModSupportedByCurrentGame(modInfo: ModInfo): boolean {
+    if (
+      modInfo.versions.length > 0 &&
+      modInfo.versions[0].supportedGames !== null
+    ) {
+      return modInfo.versions[0].supportedGames.includes(
+        getInternalName(activeGame),
+      );
+    }
+    return modInfo.supportedGames.includes(getInternalName(activeGame));
+  }
+
+  function ageOfModInDays(modInfo: ModInfo): number | undefined {
+    if (
+      modInfo.perGameConfig !== null &&
+      Object.keys(modInfo.perGameConfig).includes(
+        getInternalName(activeGame),
+      ) &&
+      modInfo.perGameConfig[getInternalName(activeGame)].releaseDate !== null
+    ) {
+      const difference =
+        new Date().getTime() -
+        Date.parse(
+          modInfo.perGameConfig[getInternalName(activeGame)].releaseDate,
+        );
+      return Math.round(difference / (1000 * 3600 * 24));
+    }
+    return undefined;
   }
 </script>
 
@@ -96,7 +220,7 @@
           class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
           on:click={addModFromFile}
           aria-label={$_("features_mods_addFromFile_buttonAlt")}
-          disabled={addingFromFile}
+          disabled={addingMod}
         >
           {#if addingFromFile}
             <Spinner class="mr-3" size="4" color="white" />
@@ -105,72 +229,170 @@
         >
       </div>
       <div class="mt-4">
-        <Input placeholder="Filter Mods..." on:input={handleFilterChange} />
+        <Input
+          placeholder={$_("features_mods_filter_placeholder")}
+          on:input={handleFilterChange}
+        />
       </div>
-      <!-- TODO - handle no sources added -->
-      <h2 class="font-bold mt-2">Installed Mods</h2>
+      <h2 class="font-bold mt-2">{$_("features_mods_installed_header")}</h2>
       {#if Object.entries(installedMods).length === 0}
-        <p>No mods installed!</p>
+        <p class="mt-2 mb-2 text-slate-400 italic">
+          {$_("features_mods_nothing_installed")}
+        </p>
       {:else}
-        {#each Object.entries(installedMods) as [sourceUrl, sourceInstalledMods]}
+        {#each Object.keys(installedMods).sort() as sourceName}
+          {@const sourceInstalledMods = installedMods[sourceName]}
+          {#if Object.entries(sourceInstalledMods).length !== 0}
+            <h2 class="mt-2 text-orange-400">{sourceName}</h2>
+            <div class="grid grid-cols-4 gap-4 mt-2">
+              {#each Object.keys(sourceInstalledMods).sort() as modName}
+                {#if modFilter === "" || getModDisplayName(sourceName, modName)
+                    .toLocaleLowerCase()
+                    .includes(modFilter.toLocaleLowerCase()) || getModTags(sourceName, modName)
+                    .join(",")
+                    .toLocaleLowerCase()
+                    .includes(modFilter.toLocaleLowerCase())}
+                  {#await getThumbnailImageFromSources(sourceName, modName) then thumbnailSrc}
+                    <button
+                      class="h-[200px] bg-cover p-1 flex justify-center items-end relative"
+                      style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{thumbnailSrc}'); background-size: cover;"
+                      on:click={async () => {
+                        navigate(
+                          `/${getInternalName(activeGame)}/features/mods/${encodeURI(sourceName)}/${encodeURI(modName)}`,
+                        );
+                      }}
+                    >
+                      <h3 class="pointer-events-none select-none text-shadow">
+                        {getModDisplayName(sourceName, modName)}
+                      </h3>
+                      <div class="absolute top-0 right-0 m-2 flex gap-1">
+                        <IconGlobe />
+                        <Tooltip placement="bottom">{sourceName}</Tooltip>
+                      </div>
+                    </button>
+                  {/await}
+                {/if}
+              {/each}
+            </div>
+          {/if}
+        {/each}
+      {/if}
+      <h2 class="font-bold mt-5">{$_("features_mods_available_header")}</h2>
+      {#if Object.keys(sourceData).length <= 0}
+        <div class="mt-2 mb-2">
+          <p class="text-slate-400 italic">
+            {$_("features_mods_no_sources")}
+          </p>
+          <Button
+            class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
+            on:click={async () => {
+              navigate(`/settings/mods`, {
+                replace: true,
+              });
+            }}>{$_("features_mods_go_to_settings")}</Button
+          >
+        </div>
+      {:else}
+        {#each Object.keys(sourceData).sort() as sourceUrl}
+          {@const sourceInfo = sourceData[sourceUrl]}
+          <h2 class="mt-2 text-orange-400">{sourceInfo.sourceName}</h2>
           <div class="grid grid-cols-4 gap-4 mt-2">
-            <!-- TODO - for real mods, go fetch the metadata using the version and name from the source -->
-            {#each Object.entries(sourceInstalledMods) as [modName, modVersion]}
-              {#if modFilter === "" || modName
-                  .toLocaleLowerCase()
-                  .startsWith(modFilter.toLocaleLowerCase())}
-                <!-- TODO - background image -->
-                <!-- TODO - source name -->
-                <button
-                  class="h-[200px] bg-cover p-1 flex justify-center items-end relative"
-                  style="background-color: magenta"
-                  on:click={async () => {
-                    navigate(
-                      `/${getInternalName(activeGame)}/features/mods/${encodeURI("_local")}/${encodeURI(modName)}`,
-                    );
-                  }}
-                >
-                  <h3 class="pointer-events-none select-none">
-                    {modName}
-                  </h3>
-                  <div class="absolute top-0 right-0 m-2 flex gap-1">
-                    <IconGlobe />
-                    <Tooltip placement="bottom">{sourceUrl}</Tooltip>
-                  </div>
-                </button>
+            <!-- TODO - sort new mods to the top -->
+            {#each Object.keys(sourceInfo.mods).sort() as modName}
+              {@const modInfo = sourceInfo.mods[modName]}
+              {@const modAge = ageOfModInDays(modInfo)}
+              {#if isModSupportedByCurrentGame(modInfo) && !isModAlreadyInstalled(sourceInfo.sourceName, modName)}
+                {#if modFilter === "" || modInfo.displayName
+                    .toLocaleLowerCase()
+                    .includes(modFilter.toLocaleLowerCase()) || modInfo.tags
+                    .join(",")
+                    .toLocaleLowerCase()
+                    .includes(modFilter.toLocaleLowerCase())}
+                  {#if modInfo.externalLink !== null}
+                    <a
+                      href={modInfo.externalLink}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      class="h-[200px] max-w-[160px] bg-cover p-1 flex justify-center items-end relative grayscale"
+                      style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{getThumbnailImage(
+                        modInfo,
+                      )}'); background-size: cover;"
+                    >
+                      <h3 class="pointer-events-none select-none text-outline">
+                        {modInfo.displayName}
+                      </h3>
+                      <div class="absolute top-0 right-0 m-2 flex gap-1">
+                        <IconGlobe />
+                        <Tooltip placement="bottom"
+                          >{sourceInfo.sourceName}</Tooltip
+                        >
+                      </div>
+                    </a>
+                  {:else}
+                    <button
+                      disabled={!isLatestVersionOfModSupportedOnCurrentPlatform(
+                        userPlatform,
+                        modInfo,
+                      )}
+                      class="h-[200px] max-w-[160px] bg-cover p-1 flex justify-center items-end relative"
+                      style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{getThumbnailImage(
+                        modInfo,
+                      )}'); background-size: cover;"
+                      on:click={async () => {
+                        // Install the mod
+                        const assetUrl = getModAssetUrlFromLatestVersion(
+                          userPlatform,
+                          modInfo,
+                        );
+                        if (assetUrl !== undefined) {
+                          await addModFromUrl(
+                            assetUrl,
+                            modName,
+                            sourceInfo.sourceName,
+                            modInfo.versions[0].version,
+                          );
+                        } else {
+                          toastStore.makeToast(
+                            $_("toasts_unableToRetrieveModDownloadURL"),
+                            "error",
+                          );
+                        }
+                      }}
+                    >
+                      <h3 class="pointer-events-none select-none text-outline">
+                        {modInfo.displayName}
+                      </h3>
+                      <div class="absolute top-0 right-0 m-2 flex gap-1">
+                        <IconGlobe />
+                        <Tooltip placement="bottom"
+                          >{sourceInfo.sourceName}</Tooltip
+                        >
+                      </div>
+                      {#if modAge !== undefined && modAge < 30}
+                        <Indicator
+                          color="green"
+                          border
+                          size="xl"
+                          placement="top-right"
+                        >
+                          <span class="text-white text-xs font-bold">!</span>
+                        </Indicator>
+                      {/if}
+                    </button>
+                  {/if}
+
+                  {#if !isLatestVersionOfModSupportedOnCurrentPlatform(userPlatform, modInfo) && modInfo.externalLink === null}
+                    <Tooltip placement="top"
+                      >{$_("features_mods_not_supported_platform_1")} ({userPlatform})<br
+                      />{$_("features_mods_not_supported_platform_2")}</Tooltip
+                    >
+                  {/if}
+                {/if}
               {/if}
             {/each}
           </div>
         {/each}
       {/if}
-      <h2 class="font-bold">Available Mods</h2>
-      {#each Object.entries(sourceData) as [sourceUrl, sourceInfo]}
-        <div class="grid grid-cols-4 gap-4 mt-2">
-          {#each Object.entries(sourceInfo.mods) as [modName, modInfo]}
-            {#if modFilter === "" || modInfo.displayName
-                .toLocaleLowerCase()
-                .startsWith(modFilter.toLocaleLowerCase())}
-              <button
-                class="h-[200px] bg-cover p-1 flex justify-center items-end relative grayscale"
-                style="background-image: url('{modInfo.thumbnailArtUrl}')"
-                on:click={async () => {
-                  navigate(
-                    `/${getInternalName(activeGame)}/features/mods/${encodeURI(sourceInfo.sourceName)}/${encodeURI(modName)}`,
-                  );
-                }}
-              >
-                <h3 class="pointer-events-none select-none">
-                  {modInfo.displayName}
-                </h3>
-                <div class="absolute top-0 right-0 m-2 flex gap-1">
-                  <IconGlobe />
-                  <Tooltip placement="bottom">{sourceInfo.sourceName}</Tooltip>
-                </div>
-              </button>
-            {/if}
-          {/each}
-        </div>
-      {/each}
     </div>
   {/if}
 </div>

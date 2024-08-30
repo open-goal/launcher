@@ -1,5 +1,10 @@
 import { toastStore } from "$lib/stores/ToastStore";
+import type { ModSourceData } from "./bindings/ModSourceData";
+import { errorLog } from "./logging";
 import { invoke_rpc } from "./rpc";
+import { unwrapFunctionStore, format } from "svelte-i18n";
+
+const $format = unwrapFunctionStore(format);
 
 // TODO - just make this a generic interface for both binaries/feature jobs
 interface FeatureJobOutput {
@@ -72,19 +77,34 @@ export async function deleteTexturePacks(
   );
 }
 
-export async function addModSource(url: string): Promise<boolean> {
+export async function addModSource(
+  url: string,
+  currentSources: Record<string, ModSourceData>,
+): Promise<boolean> {
   // Check that the URL is valid, easiest to do this on the client-side
   try {
     const sourceResp = await fetch(url);
     if (sourceResp.status !== 200) {
       toastStore.makeToast(
-        `Mod source unreachable - Status ${sourceResp.status}`,
+        `${$format("toasts_modSourceUnreachable")} - Status ${sourceResp.status}`,
         "error",
       );
       return false;
     }
+    const newSourceData = await sourceResp.json();
+    // Make sure that we don't already have a mod source with the same display name
+    for (const [sourceUrl, sourceData] of Object.entries(currentSources)) {
+      if (sourceData.sourceName === newSourceData["sourceName"]) {
+        toastStore.makeToast(
+          `${$format("toasts_modSourceDuplicateName")}: ${sourceData.sourceName}@${sourceUrl}`,
+          "error",
+        );
+        return false;
+      }
+    }
   } catch (e) {
-    toastStore.makeToast(`Mod source unreachable`, "error");
+    errorLog(`Unable to add mod source: ${e}`);
+    toastStore.makeToast(`${$format("toasts_modSourceUnreachable")}`, "error");
     return false;
   }
 
@@ -106,7 +126,10 @@ export async function removeModSource(modSourceIndex: number): Promise<void> {
       modSourceIndex: modSourceIndex,
     },
     () => {
-      toastStore.makeToast("Unable to remove mod source", "error");
+      toastStore.makeToast(
+        `${$format("toasts_couldNotRemoveModSource")}`,
+        "error",
+      );
     },
   );
 }
@@ -123,12 +146,24 @@ export async function extractNewMod(
   gameName: string,
   zipPath: string,
   modSource: string,
-): Promise<boolean> {
-  // TODO - error handling
+): Promise<InstallationOutput> {
   return await invoke_rpc(
     "extract_new_mod",
     { gameName, zipPath, modSource },
-    () => false,
+    () => failed("Failed to extract mod"),
+  );
+}
+
+export async function downloadAndExtractNewMod(
+  gameName: string,
+  downloadUrl: string,
+  modName: string,
+  sourceName: string,
+): Promise<InstallationOutput> {
+  return await invoke_rpc(
+    "download_and_extract_new_mod",
+    { gameName, downloadUrl, modName, sourceName },
+    () => failed("Failed to download and extract mod"),
   );
 }
 
@@ -214,6 +249,77 @@ export async function launchMod(
   );
 }
 
-export async function isModSupportEanbled(): Promise<boolean> {
-  return await invoke_rpc("is_mod_support_enabled", {}, () => false);
+export async function getLocalModThumbnailBase64(
+  gameName: string,
+  modName: string,
+): Promise<string> {
+  return await invoke_rpc(
+    "get_local_mod_thumbnail_base64",
+    { gameName, modName },
+    () => "",
+    "_mirror_",
+  );
+}
+
+export async function getLocalModCoverBase64(
+  gameName: string,
+  modName: string,
+): Promise<string> {
+  return await invoke_rpc(
+    "get_local_mod_cover_base64",
+    { gameName, modName },
+    () => "",
+    "_mirror_",
+  );
+}
+
+export async function uninstallMod(
+  gameName: string,
+  modName: string,
+  sourceName: string,
+): Promise<void> {
+  return await invoke_rpc(
+    "uninstall_mod",
+    { gameName, modName, sourceName },
+    () => {},
+    "_mirror_",
+  );
+}
+
+export async function resetModSettings(
+  gameName: string,
+  modName: string,
+  sourceName: string,
+): Promise<void> {
+  return await invoke_rpc(
+    "reset_mod_settings",
+    { gameName, modName, sourceName },
+    () => {},
+    "Unable to reset mod settings",
+  );
+}
+
+export async function getLaunchModString(
+  gameName: string,
+  modName: string,
+  sourceName: string,
+): Promise<string> {
+  return await invoke_rpc(
+    "get_launch_mod_string",
+    { gameName, modName, sourceName },
+    () => "_mirror_",
+  );
+}
+
+export async function openREPLForMod(
+  gameName: string,
+  modName: string,
+  sourceName: string,
+): Promise<void> {
+  return await invoke_rpc(
+    "open_repl_for_mod",
+    { gameName, modName, sourceName },
+    () => {},
+    "Unable to open REPL for mod",
+  );
 }

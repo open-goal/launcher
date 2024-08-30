@@ -18,7 +18,9 @@
   }
 
   function timeout() {
-    if (--counter > 0) return setTimeout(timeout, 1000);
+    if (--counter > 0) {
+      return setTimeout(timeout, 1000);
+    }
     open = false;
     toastStore.removeToast();
     currentToast = null;
@@ -30,7 +32,8 @@
     {open}
     dismissable={false}
     position="top-right"
-    class="z-50 top-20"
+    class="z-50 top-20 text-wrap"
+    contentClass="w-full text-sm font-normal overflow-hidden"
     transition={fly}
     params={{ y: 200 }}
   >
@@ -43,8 +46,8 @@
         <IconAlert class="text-red-500 text-5xl" />
       {/if}
     </svelte:fragment>
-    <div class="ps-4 text-sm font-semibold">
+    <p class="text-sm font-semibold">
       {currentToast.msg}
-    </div>
+    </p>
   </Toast>
 {/if}
