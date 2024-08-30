@@ -10,7 +10,7 @@ use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
 
 pub fn append_dir_contents_to_zip(
-  zip_file: &mut zip::ZipWriter<File>,
+  zip_file: &mut zip::ZipWriter<&File>,
   dir: &Path,
   internal_folder: &str,
   allowed_extensions: Vec<&str>,
@@ -66,7 +66,7 @@ pub fn append_dir_contents_to_zip(
 }
 
 pub fn append_file_to_zip(
-  zip_file: &mut zip::ZipWriter<File>,
+  zip_file: &mut zip::ZipWriter<&File>,
   src: &Path,
   path_in_zip: &str,
 ) -> zip::result::ZipResult<()> {

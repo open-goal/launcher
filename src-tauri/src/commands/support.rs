@@ -1,10 +1,12 @@
 use log::info;
 use serde::{Deserialize, Serialize};
 use std::{
+  fs,
   io::{BufWriter, Write},
   path::Path,
 };
 use sysinfo::{Disks, System};
+use tempfile::NamedTempFile;
 use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
 
@@ -85,7 +87,7 @@ pub struct SupportPackage {
 fn dump_per_game_info(
   config_lock: &tokio::sync::MutexGuard<'_, LauncherConfig>,
   package: &mut SupportPackage,
-  zip_file: &mut zip::ZipWriter<std::fs::File>,
+  zip_file: &mut zip::ZipWriter<&std::fs::File>,
   install_path: &Path,
   game_name: &str,
 ) -> Result<(), CommandError> {
@@ -342,9 +344,9 @@ pub async fn generate_support_package(
 
   // Create zip file
   let save_path = Path::new(&user_path);
-  let save_file = std::fs::File::create(save_path)
+  let save_file = NamedTempFile::new()
     .map_err(|_| CommandError::Support("Unable to create support file".to_owned()))?;
-  let mut zip_file = zip::ZipWriter::new(save_file);
+  let mut zip_file = zip::ZipWriter::new(save_file.as_file());
 
   // Save Launcher config folder
   let launcher_config_dir = match app_handle.path_resolver().app_config_dir() {
@@ -434,15 +436,23 @@ pub async fn generate_support_package(
     .map_err(|_| CommandError::Support("Unable to finalize zip file".to_owned()))?;
 
   // Sanity check that the zip file was actually made correctly
-  let info_found =
-    check_if_zip_contains_top_level_file(&save_path.to_path_buf(), "support-info.json".to_string())
-      .map_err(|_| {
-        CommandError::Support("Support package was unable to be written properly".to_owned())
-      })?;
+  let info_found = check_if_zip_contains_top_level_file(
+    &save_file.path().to_path_buf(),
+    "support-info.json".to_string(),
+  )
+  .map_err(|_| {
+    CommandError::Support("Support package was unable to be written properly".to_owned())
+  })?;
   if !info_found {
     return Err(CommandError::Support(
       "Support package was unable to be written properly".to_owned(),
     ));
   }
+  // Seems good, move it to the user's intended destination
+  fs::rename(&save_file.path(), save_path).map_err(|_| {
+    CommandError::Support(
+      "Support package was unable to be moved from it's temporary file location".to_owned(),
+    )
+  })?;
   Ok(())
 }
