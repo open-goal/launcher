@@ -1,9 +1,11 @@
+use log::info;
 use serde::{Deserialize, Serialize};
 use std::{
   io::{BufWriter, Write},
   path::Path,
 };
 use sysinfo::{Disks, System};
+use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
 
 use tauri::api::path::config_dir;
@@ -186,6 +188,76 @@ fn dump_per_game_info(
       dir_diff::is_different(data_dir.join("goal_src"), version_data_dir.join("goal_src"))
         .unwrap_or(true);
   }
+
+  // Append mod settings and logs
+  let mod_directory = install_path.join("features").join(&game_name).join("mods");
+  info!("Scanning mod directory {mod_directory:?}");
+  if mod_directory.exists() {
+    let mod_source_iter = WalkDir::new(mod_directory)
+      .into_iter()
+      .filter_map(|e| e.ok());
+    for source_entry in mod_source_iter {
+      let mod_source_path = source_entry.path();
+      let mod_source_name = mod_source_path.file_name().unwrap().to_string_lossy(); // TODO
+      if mod_source_path.is_dir() {
+        let mod_iter = WalkDir::new(mod_source_path)
+          .max_depth(0)
+          .into_iter()
+          .filter_map(|e| e.ok());
+        for mod_entry in mod_iter {
+          let mod_path = mod_entry.path();
+          if mod_path.is_dir() {
+            let folder_name = mod_path.file_name().unwrap().to_string_lossy();
+            // Check for settings
+            if folder_name.eq("_settings") {
+              if mod_path.exists() {
+                append_dir_contents_to_zip(
+                  zip_file,
+                  &mod_path,
+                  format!("Game Settings and Saves/{game_name}/mods/{mod_source_name}/settings")
+                    .as_str(),
+                  vec!["gc", "json"],
+                )
+                .map_err(|_| {
+                  CommandError::Support(
+                    "Unable to append mod settings to support package".to_owned(),
+                  )
+                })?;
+                append_dir_contents_to_zip(
+                  zip_file,
+                  &mod_path,
+                  format!("Game Settings and Saves/{game_name}/mods/{mod_source_name}/saves")
+                    .as_str(),
+                  vec!["bin"],
+                )
+                .map_err(|_| {
+                  CommandError::Support("Unable to append mod saves to support package".to_owned())
+                })?;
+              }
+            } else {
+              // Get logs for each individual mod
+              let mod_log_folder = mod_path.join("data").join("log");
+              if mod_log_folder.exists() {
+                append_dir_contents_to_zip(
+                  zip_file,
+                  &mod_log_folder,
+                  format!(
+                    "Game Logs and ISO Info/{game_name}/mods/{mod_source_name}/{folder_name}/logs"
+                  )
+                  .as_str(),
+                  vec!["log", "json", "txt"],
+                )
+                .map_err(|_| {
+                  CommandError::Support("Unable to append mod logs to support package".to_owned())
+                })?;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   Ok(())
 }
 
