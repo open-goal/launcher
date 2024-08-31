@@ -28,10 +28,14 @@
 
   let pageLoaded = false;
 
-  onMount(async () => {
+  async function refreshModSourceData() {
     currentSources = await getModSources();
     await refreshModSources();
     currentSourceData = await getModSourcesData();
+  }
+
+  onMount(async () => {
+    await refreshModSourceData();
     pageLoaded = true;
   });
 </script>
@@ -61,7 +65,7 @@
       disabled={newSourceURL === ""}
       on:click={async () => {
         await addModSource(newSourceURL, currentSourceData);
-        currentSources = await getModSources();
+        await refreshModSourceData();
       }}
       ><IconPlus
         class="text-xl"
@@ -86,7 +90,7 @@
                   class="p-0 m-3 hover:text-red-500"
                   on:click={async () => {
                     await removeModSource(i);
-                    currentSources = await getModSources();
+                    await refreshModSourceData();
                   }}
                   ><IconDeleteForever
                     class="text-xl"
