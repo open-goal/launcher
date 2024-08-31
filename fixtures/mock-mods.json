@@ -8,45 +8,75 @@
       "description": "test description",
       "authors": ["test author"],
       "tags": ["custom-level"],
-      "supportedGames": ["jak1"],
+      "supportedGames": ["jak1", "jak2"],
       "websiteUrl": "https://example.com",
       "coverArtUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQuKmzjYulECD9I4ERduqu7FQ9b9l0_N1Ib2ocC1tCsGQ&s",
       "thumbnailArtUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQuKmzjYulECD9I4ERduqu7FQ9b9l0_N1Ib2ocC1tCsGQ&s",
       "versions": [
         {
-          "version": "0.0.2",
-          "publishedDate": "2020-01-01",
+          "version": "0.2.0",
+          "publishedDate": "2024-08-25T04:31:59Z",
+          "supportedGames": [
+            "jak1",
+            "jak2"
+          ],
           "settings": {
             "decompConfigOverride": "",
             "shareVanillaSaves": false
           },
           "assets": {
-            "windows": "https://example.com",
-            "linux": "https://example.com",
-            "macos": "https://example.com"
+            "windows": "https://github.com/example/example/releases/download/v0.2.0/windows-v0.2.0.zip",
+            "linux": null,
+            "macos": null
+          },
+          "assetDownloadCounts": {
+            "windows": 10,
+            "linux": 0,
+            "macos": 0
           }
         },
         {
-          "version": "0.0.1",
-          "publishedDate": "2019-01-01",
+          "version": "0.1.21",
+          "publishedDate": "2024-08-16T20:29:19Z",
+          "supportedGames": [
+            "jak1"
+          ],
           "settings": {
             "decompConfigOverride": "",
             "shareVanillaSaves": false
           },
           "assets": {
-            "windows": "https://example.com",
-            "linux": "https://example.com",
-            "macos": "https://example.com"
+            "windows": "https://github.com/example/example/releases/download/v0.1.21/windows-v0.1.21.zip",
+            "linux": null,
+            "macos": null
+          },
+          "assetDownloadCounts": {
+            "windows": 10,
+            "linux": 0,
+            "macos": 0
           }
         }
-      ]
+      ],
+      "perGameConfig": {
+        "jak1": {
+          "coverArtUrl": "https://raw.githubusercontent.com/example/example/main/ModImage.png",
+          "thumbnailArtUrl": "https://raw.githubusercontent.com/example/example/main/ModImage.png",
+          "releaseDate": "2022-10-23"
+        },
+        "jak2": {
+          "coverArtUrl": "https://raw.githubusercontent.com/example/example/main/ModImage2.jpeg",
+          "thumbnailArtUrl": "https://raw.githubusercontent.com/example/example/main/ModImage2.jpeg",
+          "releaseDate": "2023-12-11"
+        }
+      },
+      "externalLink": null
     },
     "test2": {
       "displayName": "Bad Mod",
       "description": "test description",
       "authors": ["test author"],
       "tags": ["beta"],
-      "supportedGames": ["jak1", "jak2"],
+      "supportedGames": ["jak1"],
       "websiteUrl": "https://example.com",
       "coverArtUrl": "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_1280.jpg",
       "thumbnailArtUrl": "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_1280.jpg",
@@ -63,7 +93,35 @@
             "macos": "https://example.com"
           }
         }
-      ]
+      ],
+      "perGameConfig": {
+        "jak1": {
+          "coverArtUrl": "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_1280.jpg",
+          "thumbnailArtUrl": "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_1280.jpg",
+          "releaseDate": "2022-10-23"
+        }
+      },
+      "externalLink": null
+    },
+    "external-mod": {
+      "displayName": "Some External Mod",
+      "description": "These 'external' mod listings will just provide a link to the provided URL.",
+      "authors": [
+        "test author"
+      ],
+      "tags": [
+        "multiplayer"
+      ],
+      "supportedGames": [
+        "jak1"
+      ],
+      "versions": [],
+      "coverArtUrl": "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_1280.jpg",
+      "thumbnailArtUrl": "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_1280.jpg",
+      "perGameConfig": {
+
+      },
+      "externalLink": "https://teamruns.web.app/"
     }
   },
   "texturePacks": {
