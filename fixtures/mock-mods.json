@@ -16,10 +16,7 @@
         {
           "version": "0.2.0",
           "publishedDate": "2024-08-25T04:31:59Z",
-          "supportedGames": [
-            "jak1",
-            "jak2"
-          ],
+          "supportedGames": ["jak1", "jak2"],
           "settings": {
             "decompConfigOverride": "",
             "shareVanillaSaves": false
@@ -38,9 +35,7 @@
         {
           "version": "0.1.21",
           "publishedDate": "2024-08-16T20:29:19Z",
-          "supportedGames": [
-            "jak1"
-          ],
+          "supportedGames": ["jak1"],
           "settings": {
             "decompConfigOverride": "",
             "shareVanillaSaves": false
@@ -106,21 +101,13 @@
     "external-mod": {
       "displayName": "Some External Mod",
       "description": "These 'external' mod listings will just provide a link to the provided URL.",
-      "authors": [
-        "test author"
-      ],
-      "tags": [
-        "multiplayer"
-      ],
-      "supportedGames": [
-        "jak1"
-      ],
+      "authors": ["test author"],
+      "tags": ["multiplayer"],
+      "supportedGames": ["jak1"],
       "versions": [],
       "coverArtUrl": "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_1280.jpg",
       "thumbnailArtUrl": "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_1280.jpg",
-      "perGameConfig": {
-
-      },
+      "perGameConfig": {},
       "externalLink": "https://jak-multiplayer-totally-real-website.web.app/"
     }
   },
