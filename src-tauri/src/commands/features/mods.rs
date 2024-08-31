@@ -780,7 +780,9 @@ pub async fn uninstall_mod(
     .join("mods")
     .join(&source_name)
     .join(&mod_name);
-  std::fs::remove_dir_all(mod_dir)?;
+  if mod_dir.exists() {
+    std::fs::remove_dir_all(mod_dir)?;
+  }
   config_lock
     .uninstall_mod(game_name, mod_name, source_name)
     .map_err(|_| CommandError::GameFeatures("Unable to uninstall mod".to_owned()))?;
