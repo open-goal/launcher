@@ -97,7 +97,7 @@ pub async fn extract_new_mod(
     CommandError::GameFeatures(format!("Unable to create directory for mod: {}", err))
   })?;
   if cfg!(windows) {
-    extract_zip_file(&bundle_path_buf, &destination_dir, false).map_err(|err| {
+    extract_zip_file(&bundle_path_buf, &destination_dir, true).map_err(|err| {
       log::error!("Unable to extract mod: {}", err);
       CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
     })?;
@@ -895,9 +895,18 @@ pub async fn open_repl_for_mod(
     &mod_name,
     &source_name,
   )?;
+
+  let iso_dir = install_path
+    .join("active")
+    .join(&game_name)
+    .join("data")
+    .join("iso_data")
+    .join(&game_name)
+    .to_path_buf();
+
   let mut command = Command::new("cmd");
   command
-    .args(["/K", "start", &bin_ext("goalc"), "--game", &game_name])
+    .args(["/K", "start", &bin_ext("goalc"), "--game", &game_name, "--iso-path", &iso_dir.clone().to_string_lossy().into_owned()])
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
