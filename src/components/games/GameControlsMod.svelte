@@ -184,7 +184,7 @@
 </script>
 
 <div
-  class="[margin-left:35%] p-3 rounded-md flex flex-col justify-end items-end mt-auto [background-color:rgba(0,0,0,.5)]"
+  class="[margin-left:35%] p-3 rounded-lg flex flex-col justify-end items-end mt-auto [background-color:rgba(0,0,0,.5)]"
 >
   <h1
     class="tracking-tighter text-2xl font-bold pb-2 text-orange-500 text-outline pointer-events-none"
