@@ -339,24 +339,9 @@
                         modInfo,
                       )}'); background-size: cover;"
                       on:click={async () => {
-                        // Install the mod
-                        const assetUrl = getModAssetUrlFromLatestVersion(
-                          userPlatform,
-                          modInfo,
+                        navigate(
+                          `/${getInternalName(activeGame)}/features/mods/${encodeURI(sourceInfo.sourceName)}/${encodeURI(modName)}`,
                         );
-                        if (assetUrl !== undefined) {
-                          await addModFromUrl(
-                            assetUrl,
-                            modName,
-                            sourceInfo.sourceName,
-                            modInfo.versions[0].version,
-                          );
-                        } else {
-                          toastStore.makeToast(
-                            $_("toasts_unableToRetrieveModDownloadURL"),
-                            "error",
-                          );
-                        }
                       }}
                     >
                       <h3 class="pointer-events-none select-none text-outline">
