@@ -213,16 +213,35 @@
         });
       }}><IconArrowLeft />&nbsp;{$_("features_mods_go_back")}</Button
     >
-    <!-- show Play button if we have no version list (offline), if we're up to date, or we dont want forced updates -->
-    {#if modVersionListSorted.length == 0 || modVersionListSorted[0] === currentlyInstalledVersion || !checkForLatestModVersionChecked}
+    {#if currentlyInstalledVersion == "" && modVersionListSorted.length == 0}
+      <!-- show disabled Install button if no version installed and we have no version list (offline) -->
+      <Button
+        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+        disabled>{$_("gameControls_button_install")}</Button
+      >
+    {:else if currentlyInstalledVersion == ""}
+      <!-- show Install button if no version installed but we're online -->
+      <Button
+        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+        on:click={async () => {
+          await addModFromUrl(
+            modAssetUrlsSorted[0],
+            modName,
+            modSource,
+            modVersionListSorted[0],
+          );
+        }}>{$_("gameControls_button_install")}</Button
+      >
+    {:else if modVersionListSorted.length == 0 || modVersionListSorted[0] === currentlyInstalledVersion || !checkForLatestModVersionChecked}
+      <!-- show Play button if we have no version list (offline), if we're up to date, or we dont want forced updates -->
       <Button
         class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         on:click={async () => {
           launchMod(getInternalName(activeGame), false, modName, modSource);
         }}>{$_("gameControls_button_play")}</Button
       >
-      <!-- otherwise show Update button -->
     {:else}
+      <!-- otherwise show Update button -->
       <Button
         class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         on:click={async () => {
@@ -291,132 +310,158 @@
         {/each}
       </Dropdown>
     {/if}
-    <Button
-      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-    >
-      {$_("gameControls_button_advanced")}
-    </Button>
-    <Dropdown placement="top-end" class="!bg-slate-900">
-      <DropdownItem
-        on:click={async () => {
-          launchMod(getInternalName(activeGame), true, modName, modSource);
-        }}>{$_("gameControls_button_playInDebug")}</DropdownItem
+    {#if currentlyInstalledVersion == ""}
+      <!-- Disabled "advanced" button if not installed -->
+      <Button
+        class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+        disabled
       >
-      {#if !isLinux}
+        {$_("gameControls_button_advanced")}
+      </Button>
+    {:else}
+      <Button
+        class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+      >
+        {$_("gameControls_button_advanced")}
+      </Button>
+      <Dropdown placement="top-end" class="!bg-slate-900">
         <DropdownItem
           on:click={async () => {
-            openREPLForMod(getInternalName(activeGame), modName, modSource);
-          }}>{$_("gameControls_button_openREPL")}</DropdownItem
+            launchMod(getInternalName(activeGame), true, modName, modSource);
+          }}>{$_("gameControls_button_playInDebug")}</DropdownItem
         >
-      {/if}
-      <DropdownDivider />
-      <DropdownItem
-        on:click={async () => {
-          dispatch("job", {
-            type: "decompileMod",
-          });
-        }}
-        >{$_("gameControls_button_decompile")}
-        <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-        <Helper helperClass="!text-neutral-400 !text-xs"
-          >{$_("gameControls_button_decompile_helpText")}</Helper
-        ></DropdownItem
-      >
-      <DropdownItem
-        on:click={async () => {
-          dispatch("job", {
-            type: "compileMod",
-          });
-        }}
-        >{$_("gameControls_button_compile")}
-        <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-        <Helper helperClass="!text-neutral-400 !text-xs"
-          >{$_("gameControls_button_compile_helpText")}
-        </Helper></DropdownItem
-      >
-      <DropdownDivider />
-      <DropdownItem
-        on:click={async () => {
-          if (gameDataDir) {
-            await openDir(gameDataDir);
-          }
-        }}>{$_("gameControls_button_openGameFolder")}</DropdownItem
-      >
-    </Dropdown>
-    <Button
-      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
-    >
-      <IconCog />
-    </Button>
-    <Dropdown placement="top-end" class="!bg-slate-900">
-      <!-- TODO - screenshot folder? how do we even configure where those go? -->
-      {#if settingsDir}
-        <DropdownItem
-          on:click={async () => {
-            if (settingsDir) {
-              await openDir(settingsDir);
-            }
-          }}>{$_("gameControls_button_openSettingsFolder")}</DropdownItem
-        >
-      {/if}
-      {#if savesDir}
-        <DropdownItem
-          on:click={async () => {
-            if (savesDir) {
-              await openDir(savesDir);
-            }
-          }}>{$_("gameControls_button_openSavesFolder")}</DropdownItem
-        >
-      {/if}
-      {#if settingsDir || savesDir}
+        {#if !isLinux}
+          <DropdownItem
+            on:click={async () => {
+              openREPLForMod(getInternalName(activeGame), modName, modSource);
+            }}>{$_("gameControls_button_openREPL")}</DropdownItem
+          >
+        {/if}
         <DropdownDivider />
-      {/if}
-      <DropdownItem
-        on:click={async () => {
-          const launchString = await getLaunchModString(
-            getInternalName(activeGame),
-            modName,
-            modSource,
-          );
-          await writeText(launchString);
-          toastStore.makeToast($_("toasts_copiedToClipboard"), "info");
-        }}
-        >{$_("gameControls_button_copyExecutableCommand")}<Helper
-          helperClass="!text-neutral-400 !text-xs"
-          >{$_("gameControls_button_copyExecutableCommand_helpText_1")}<br
-          />{$_("gameControls_button_copyExecutableCommand_helpText_2")}</Helper
-        ></DropdownItem
-      >
-      <DropdownDivider />
-      <DropdownItem
-        on:click={async () => {
-          await resetModSettings(
-            getInternalName(activeGame),
-            modName,
-            modSource,
-          );
-        }}>{$_("gameControls_button_resetSettings")}</DropdownItem
-      >
-      <DropdownItem
-        on:click={async () => {
-          // Get confirmation
-          // TODO - probably move these confirms into the actual launcher itself
-          const confirmed = await confirm(
-            $_("gameControls_button_uninstall_confirmation"),
-            { title: "OpenGOAL Launcher", type: "warning" },
-          );
-          if (confirmed) {
-            await uninstallMod(getInternalName(activeGame), modName, modSource);
-            navigate(`/${getInternalName(activeGame)}/features/mods`, {
-              replace: true,
+        <DropdownItem
+          on:click={async () => {
+            dispatch("job", {
+              type: "decompileMod",
             });
-          }
-        }}
-        >{$_("gameControls_button_uninstall")}<Helper
-          helperClass="!text-neutral-400 !text-xs"
-          >{$_("gameControls_button_uninstall_helpText")}</Helper
-        ></DropdownItem
+          }}
+          >{$_("gameControls_button_decompile")}
+          <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
+          <Helper helperClass="!text-neutral-400 !text-xs"
+            >{$_("gameControls_button_decompile_helpText")}</Helper
+          ></DropdownItem
+        >
+        <DropdownItem
+          on:click={async () => {
+            dispatch("job", {
+              type: "compileMod",
+            });
+          }}
+          >{$_("gameControls_button_compile")}
+          <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
+          <Helper helperClass="!text-neutral-400 !text-xs"
+            >{$_("gameControls_button_compile_helpText")}
+          </Helper></DropdownItem
+        >
+        <DropdownDivider />
+        <DropdownItem
+          on:click={async () => {
+            if (gameDataDir) {
+              await openDir(gameDataDir);
+            }
+          }}>{$_("gameControls_button_openGameFolder")}</DropdownItem
+        >
+      </Dropdown>
+    {/if}
+    {#if currentlyInstalledVersion == ""}
+      <!-- Disabled cog/settings button if not installed -->
+      <Button
+        class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+        disabled
       >
-    </Dropdown>
+        <IconCog />
+      </Button>
+    {:else}
+      <Button
+        class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+      >
+        <IconCog />
+      </Button>
+      <Dropdown placement="top-end" class="!bg-slate-900">
+        <!-- TODO - screenshot folder? how do we even configure where those go? -->
+        {#if settingsDir}
+          <DropdownItem
+            on:click={async () => {
+              if (settingsDir) {
+                await openDir(settingsDir);
+              }
+            }}>{$_("gameControls_button_openSettingsFolder")}</DropdownItem
+          >
+        {/if}
+        {#if savesDir}
+          <DropdownItem
+            on:click={async () => {
+              if (savesDir) {
+                await openDir(savesDir);
+              }
+            }}>{$_("gameControls_button_openSavesFolder")}</DropdownItem
+          >
+        {/if}
+        {#if settingsDir || savesDir}
+          <DropdownDivider />
+        {/if}
+        <DropdownItem
+          on:click={async () => {
+            const launchString = await getLaunchModString(
+              getInternalName(activeGame),
+              modName,
+              modSource,
+            );
+            await writeText(launchString);
+            toastStore.makeToast($_("toasts_copiedToClipboard"), "info");
+          }}
+          >{$_("gameControls_button_copyExecutableCommand")}<Helper
+            helperClass="!text-neutral-400 !text-xs"
+            >{$_("gameControls_button_copyExecutableCommand_helpText_1")}<br
+            />{$_(
+              "gameControls_button_copyExecutableCommand_helpText_2",
+            )}</Helper
+          ></DropdownItem
+        >
+        <DropdownDivider />
+        <DropdownItem
+          on:click={async () => {
+            await resetModSettings(
+              getInternalName(activeGame),
+              modName,
+              modSource,
+            );
+          }}>{$_("gameControls_button_resetSettings")}</DropdownItem
+        >
+        <DropdownItem
+          on:click={async () => {
+            // Get confirmation
+            // TODO - probably move these confirms into the actual launcher itself
+            const confirmed = await confirm(
+              $_("gameControls_button_uninstall_confirmation"),
+              { title: "OpenGOAL Launcher", type: "warning" },
+            );
+            if (confirmed) {
+              await uninstallMod(
+                getInternalName(activeGame),
+                modName,
+                modSource,
+              );
+              navigate(`/${getInternalName(activeGame)}/features/mods`, {
+                replace: true,
+              });
+            }
+          }}
+          >{$_("gameControls_button_uninstall")}<Helper
+            helperClass="!text-neutral-400 !text-xs"
+            >{$_("gameControls_button_uninstall_helpText")}</Helper
+          ></DropdownItem
+        >
+      </Dropdown>
+    {/if}
   </div>
 </div>
