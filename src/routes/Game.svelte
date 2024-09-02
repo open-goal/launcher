@@ -39,6 +39,9 @@
 
   let activeGame = SupportedGame.Jak1;
   let modDisplayName: string | undefined = undefined;
+  let modDescription: string | undefined = undefined;
+  let modTags: string | undefined = undefined;
+  let modAuthors: string | undefined = undefined;
   let componentLoaded = false;
 
   let gameInstalled = false;
@@ -97,6 +100,9 @@
       // Prefer pre-game-config if available
       if (foundMod !== undefined) {
         modDisplayName = foundMod.displayName;
+        modDescription = foundMod.description;
+        modTags = foundMod.tags.join(", ");
+        modAuthors = foundMod.authors.join(", ");
       } else {
         modDisplayName = modName;
       }
@@ -245,6 +251,9 @@
         {activeGame}
         {modName}
         {modDisplayName}
+        {modDescription}
+        {modTags}
+        {modAuthors}
         {modSource}
         on:change={updateGameState}
         on:job={runGameJob}

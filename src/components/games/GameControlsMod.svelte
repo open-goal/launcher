@@ -44,6 +44,9 @@
   export let activeGame: SupportedGame;
   export let modName: string = "";
   export let modDisplayName: string = "";
+  export let modDescription: string = "";
+  export let modTags: string = "";
+  export let modAuthors: string = "";
   export let modSource: string = "";
 
   const dispatch = createEventDispatcher();
@@ -180,12 +183,27 @@
   }
 </script>
 
-<div class="flex flex-col justify-end items-end mt-auto">
+<div
+  class="[margin-left:35%] p-3 rounded-md flex flex-col justify-end items-end mt-auto [background-color:rgba(0,0,0,.5)]"
+>
   <h1
-    class="tracking-tighter text-2xl font-bold pb-3 text-orange-500 text-outline pointer-events-none"
+    class="tracking-tighter text-2xl font-bold pb-2 text-orange-500 text-outline pointer-events-none"
   >
     {modDisplayName}
   </h1>
+  <h1
+    class="tracking-tighter pb-2 font-bold text-outline text-justify [text-align-last:right]"
+  >
+    {modDescription}
+  </h1>
+  <p class="pb-2 text-outline">
+    {$_("features_mods_tags")}: {modTags}
+  </p>
+  <p class="text-outline">
+    {$_("features_mods_authors")}: {modAuthors}
+  </p>
+</div>
+<div class="flex flex-col justify-end items-end mt-3">
   <div class="flex flex-row gap-2">
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"

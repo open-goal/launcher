@@ -211,6 +211,8 @@
   "features_mods_go_back": "Back",
   "features_mods_versions": "Versions",
   "features_mods_filter_placeholder": "Filter Mods..",
+  "features_mods_authors": "Author(s)",
+  "features_mods_tags": "Tag(s)",
   "toasts_copiedToClipboard": "Copied to clipboard",
   "toasts_savedToolingVersion": "Saved tooling version",
   "toasts_modSourceUnreachable": "Mod source unreachable",
