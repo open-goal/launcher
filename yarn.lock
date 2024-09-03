@@ -390,17 +390,17 @@
   dependencies:
     purgecss "^6.0.0"
 
-"@iconify-json/ic@^1.1.18":
-  version "1.1.18"
-  resolved "https://registry.yarnpkg.com/@iconify-json/ic/-/ic-1.1.18.tgz#e8bbb0fd7f7410cbe69f90e726746e43728a2258"
-  integrity sha512-RcfnSFVmQP6aEKQJM3Iczg9e5TXWlN0slIjiyH9l378YkhDPAhXdQ8xP8+tBwfz7B9jysqsV+vs9Iu8DMHvE6Q==
+"@iconify-json/ic@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@iconify-json/ic/-/ic-1.2.0.tgz#c0188790f6f07058b70a58c7f9d0d9e522d15a0b"
+  integrity sha512-L4+m77xTQB08X3I+3xs1+IrvK+aNcuN/7ODu5aUPznHKLU+/8UYcsjUgNHze6vPOGPQ0AG+kCwvy91EYPXSRxw==
   dependencies:
     "@iconify/types" "*"
 
-"@iconify-json/mdi@^1.1.68":
-  version "1.1.68"
-  resolved "https://registry.yarnpkg.com/@iconify-json/mdi/-/mdi-1.1.68.tgz#478afe1d75780cb9a1bd5854fb457eccb0f1053d"
-  integrity sha512-7//TKCiXLU6kNWeOJRTBbisofVO7rF1sD1TZTL4/V9nqlmVNczQ5IOY0GgKOTsitkcTnX9GXgrgbjw3OI5B69w==
+"@iconify-json/mdi@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@iconify-json/mdi/-/mdi-1.2.0.tgz#264ac2ceeb6135ad5e3d8dc63562a47df13b5a4a"
+  integrity sha512-E9/3l5Syg3wfuarorFodhn4s8YorxhH3U3U20LaNBNiqw1kFNIDWhF6HymuzAD35k7RH0OBasJ+ZUyFtVVV6eg==
   dependencies:
     "@iconify/types" "*"
 
@@ -2800,10 +2800,10 @@ postcss-value-parser@^4.0.0, postcss-value-parser@^4.2.0:
   resolved "https://registry.npmjs.org/postcss-value-parser/-/postcss-value-parser-4.2.0.tgz"
   integrity sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==
 
-postcss@^8.4.23, postcss@^8.4.4, postcss@^8.4.41:
-  version "8.4.41"
-  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.41.tgz#d6104d3ba272d882fe18fc07d15dc2da62fa2681"
-  integrity sha512-TesUflQ0WKZqAvg52PWL6kHgLKP6xB6heTOdoYM0Wt2UHyxNa4K25EZZMgKns3BH1RLVbZCREPpLY0rhnNoHVQ==
+postcss@^8.4.23, postcss@^8.4.4, postcss@^8.4.41, postcss@^8.4.44:
+  version "8.4.44"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.44.tgz#d56834ef6508610ba224bb22b2457b2169ed0480"
+  integrity sha512-Aweb9unOEpQ3ezu4Q00DPvvM2ZTUitJdNKeP/+uQgr1IBIqu574IaZoURId7BKtWMREwzKa9OgzPzezWGPWFQw==
   dependencies:
     nanoid "^3.3.7"
     picocolors "^1.0.1"
