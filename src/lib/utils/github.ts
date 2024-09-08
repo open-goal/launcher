@@ -93,20 +93,8 @@ async function parseGithubRelease(githubRelease: any): Promise<ReleaseInfo> {
       // do nothing, bad formatting
       releaseInfo.invalidationReasons = ["Release invalid for unknown reasons"];
     }
-  } else if (githubRelease.body.includes("<!-- requires-launcher-version:")) {
-    // Check the current semver and compare
-    const launcherVersion = await getVersion();
-    const requiredMinimumVersion = githubRelease.body
-      .split("<!-- requires-launcher-version:")[1]
-      .split("-->")[0]
-      .trim();
-    if (!semver.gte(launcherVersion, requiredMinimumVersion)) {
-      releaseInfo.invalid = true;
-      releaseInfo.invalidationReasons = [
-        `This version requires the launcher to be updated to atleast: ${requiredMinimumVersion}`,
-      ];
-    }
   }
+
   return releaseInfo;
 }
 
