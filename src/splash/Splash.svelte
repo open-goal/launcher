@@ -12,6 +12,7 @@
   import LocaleQuickChanger from "./components/LocaleQuickChanger.svelte";
   import { openMainWindow } from "$lib/rpc/window";
 
+  let loaded = false;
   let timeStartedAt = 0;
   let minimumTime = 500;
   let stepsToDo = [
@@ -35,6 +36,8 @@
 
   // Events
   onMount(async () => {
+    // Ensure a default locale is set
+    await svelteLocale.set("en-US");
     timeStartedAt = Date.now();
     stepsToDo.push({
       statusText: "splash_step_finishingUp",
@@ -53,7 +56,8 @@
       },
       waitingForInteraction: false,
     });
-    proceedInSteps(false, false);
+    loaded = true;
+    await proceedInSteps(false, false);
   });
 
   async function proceedInSteps(stepForward: boolean, stepBackward: boolean) {
@@ -87,7 +91,6 @@
     const locale = await getLocale();
     if (locale === null) {
       // Prompt the user to select a locale
-      svelteLocale.set("en-US");
       stepsToDo.splice(currentStepIndex + 1, 0, {
         statusText: "splash_selectLocale",
         waitingForInteraction: true,
@@ -114,52 +117,54 @@
 
   async function handleLocaleChange(event: any) {
     await setLocale(event.detail.newLocale);
-    proceedInSteps(true, false);
+    await proceedInSteps(true, false);
   }
 </script>
 
 <div class="content" data-tauri-drag-region>
-  <div class="splash-logo pointer-events-none">
-    <img
-      src={logo}
-      data-testId="splash-logo"
-      alt="OpenGOAL logo"
-      aria-label="OpenGOAL logo"
-      draggable="false"
-    />
-  </div>
-  <div class="splash-contents pointer-events-none">
-    {#if errorText !== ""}
-      <div class="splash-status-text">
-        {errorText}
-      </div>
-    {:else if stepsToDo[currentStepIndex].statusText === "splash_selectLocale"}
-      <div class="splash-status-text">
-        {$_(stepsToDo[currentStepIndex].statusText)}
-      </div>
-      <SelectLocale on:change={handleLocaleChange} />
-    {:else if stepsToDo[currentStepIndex].statusText === "splash_noInstallDirSet"}
-      <ChooseInstallFolder
-        on:complete={() => {
-          proceedInSteps(true, false);
-        }}
+  {#if loaded}
+    <div class="splash-logo pointer-events-none">
+      <img
+        src={logo}
+        data-testId="splash-logo"
+        alt="OpenGOAL logo"
+        aria-label="OpenGOAL logo"
+        draggable="false"
       />
-    {:else}
-      <div class="splash-status-text">
-        {$_(stepsToDo[currentStepIndex].statusText)}
-      </div>
+    </div>
+    <div class="splash-contents pointer-events-none">
+      {#if errorText !== ""}
+        <div class="splash-status-text">
+          {errorText}
+        </div>
+      {:else if stepsToDo[currentStepIndex].statusText === "splash_selectLocale"}
+        <div class="splash-status-text">
+          {$_(stepsToDo[currentStepIndex].statusText)}
+        </div>
+        <SelectLocale on:change={handleLocaleChange} />
+      {:else if stepsToDo[currentStepIndex].statusText === "splash_noInstallDirSet"}
+        <ChooseInstallFolder
+          on:complete={async () => {
+            await proceedInSteps(true, false);
+          }}
+        />
+      {:else}
+        <div class="splash-status-text">
+          {$_(stepsToDo[currentStepIndex].statusText)}
+        </div>
+      {/if}
+    </div>
+    <div class="splash-bar">
+      <div
+        data-tauri-drag-region
+        class="splash-status-bar fg"
+        style="width: {((currentStepIndex + 1) / stepsToDo.length) * 100}%"
+      />
+      <div data-tauri-drag-region class="splash-status-bar bg" />
+    </div>
+    {#if stepsToDo[currentStepIndex].statusText === "splash_noInstallDirSet"}
+      <LocaleQuickChanger on:change={handleLocaleChange} />
     {/if}
-  </div>
-  <div class="splash-bar">
-    <div
-      data-tauri-drag-region
-      class="splash-status-bar fg"
-      style="width: {((currentStepIndex + 1) / stepsToDo.length) * 100}%"
-    />
-    <div data-tauri-drag-region class="splash-status-bar bg" />
-  </div>
-  {#if stepsToDo[currentStepIndex].statusText === "splash_noInstallDirSet"}
-    <LocaleQuickChanger on:change={handleLocaleChange} />
   {/if}
 </div>
 
