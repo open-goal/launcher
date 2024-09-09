@@ -15,7 +15,7 @@ rust-version = "1.61"
 tauri-build = { version = "1.5.3", features = [] }
 
 [dependencies]
-backtrace = "0.3.73"
+backtrace = "0.3.74"
 chrono = "0.4.38"
 dir-diff = "0.3.3"
 directories = "5.0.1"
@@ -30,7 +30,7 @@ reqwest = { version = "0.12", features = ["json"] }
 rev_buf_reader = "0.3.0"
 semver = "1.0.23"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.127"
+serde_json = "1.0.128"
 sysinfo = "0.31.3"
 tar = "0.4.41"
 tauri = { version = "1.6.8", features = ["api-all", "devtools", "reqwest-client"] }
