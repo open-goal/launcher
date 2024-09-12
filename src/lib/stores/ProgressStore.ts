@@ -16,7 +16,7 @@ interface ProgressTracker {
   currentStep: number;
   overallStatus: ProgressStatus;
   steps: ProgressStep[];
-  logs: string;
+  logs: string | undefined;
 }
 
 const storeValue: ProgressTracker = {

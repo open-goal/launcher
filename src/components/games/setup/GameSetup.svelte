@@ -129,11 +129,9 @@
 {#if !requirementsMet}
   <Requirements {activeGame} on:recheckRequirements={checkRequirements} />
 {:else if installing}
-  <div class="flex flex-col justify-content">
+  <div class="flex flex-col justify-content shrink">
     <Progress />
-    {#if $progressTracker.logs !== undefined}
-      <LogViewer />
-    {/if}
+    <LogViewer />
   </div>
   {#if $progressTracker.overallStatus === "success"}
     <div class="flex flex-col justify-end items-end mt-auto">

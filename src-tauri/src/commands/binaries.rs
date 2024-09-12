@@ -1,10 +1,11 @@
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 use std::{
-  collections::HashMap,
-  path::{Path, PathBuf},
-  process::Command,
-  time::Instant,
+  collections::HashMap, io::{BufRead, BufReader}, path::{Path, PathBuf}, process::Stdio, sync::Arc, time::{Duration, Instant}
+};
+use tokio::{
+  io::{AsyncBufReadExt, AsyncWriteExt},
+  process::Command, sync::Mutex,
 };
 
 use log::{info, warn};
@@ -12,6 +13,7 @@ use semver::Version;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::Manager;
+use tokio_util::sync::CancellationToken;
 
 use crate::{
   config::LauncherConfig,
@@ -204,11 +206,11 @@ fn get_exec_location(
   })
 }
 
-fn create_log_file(
+async fn create_log_file(
   app_handle: &tauri::AppHandle,
-  name: &str,
+  name: String,
   append: bool,
-) -> Result<std::fs::File, CommandError> {
+) -> Result<tokio::fs::File, CommandError> {
   let log_path = &match app_handle.path_resolver().app_log_dir() {
     None => {
       return Err(CommandError::Installation(
@@ -218,13 +220,28 @@ fn create_log_file(
     Some(path) => path,
   };
   create_dir(log_path)?;
-  let mut file_options = std::fs::OpenOptions::new();
+  let mut file_options = tokio::fs::OpenOptions::new();
   file_options.create(true);
   if append {
     file_options.append(true);
   } else {
     file_options.write(true).truncate(true);
   }
+  let file = file_options.open(log_path.join(name)).await?;
+  Ok(file)
+}
+
+fn open_log_file(app_handle: &tauri::AppHandle, name: &str) -> Result<std::fs::File, CommandError> {
+  let log_path = &match app_handle.path_resolver().app_log_dir() {
+    None => {
+      return Err(CommandError::Installation(
+        "Could not determine path to save installation logs".to_owned(),
+      ))
+    }
+    Some(path) => path,
+  };
+  let mut file_options = std::fs::OpenOptions::new();
+  file_options.read(true);
   let file = file_options.open(log_path.join(name))?;
   Ok(file)
 }
@@ -307,21 +324,24 @@ pub async fn extract_and_validate_iso(
   }
 
   // This is the first install step, reset the file
-  let log_file = create_log_file(&app_handle, "extractor.log", false)?;
+  let mut log_file = create_log_file(
+    &app_handle,
+    format!("extractor-{game_name}.log"),
+    false,
+  )
+  .await?;
 
   log::info!("Running extractor with args: {:?}", args);
 
   let mut command = Command::new(exec_info.executable_path);
   command
     .args(args)
-    .current_dir(exec_info.executable_dir)
-    .stdout(log_file.try_clone()?)
-    .stderr(log_file.try_clone()?);
+    .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
     command.creation_flags(0x08000000);
   }
-  let output = command.output()?;
+  let output = command.output().await?;
   match output.status.code() {
     Some(code) => {
       if code == 0 {
@@ -354,6 +374,11 @@ pub async fn extract_and_validate_iso(
       })
     }
   }
+}
+
+#[derive(Clone, serde::Serialize)]
+struct LogPayload {
+  logs: String,
 }
 
 #[tauri::command]
@@ -392,7 +417,14 @@ pub async fn run_decompiler(
       .to_string();
   }
 
-  let log_file = create_log_file(&app_handle, "extractor.log", !truncate_logs)?;
+  // TODO - ensure stderr also is getting flushed
+  let mut log_file = create_log_file(
+    &app_handle,
+    format!("extractor-{game_name}.log"),
+    !truncate_logs,
+  )
+  .await?;
+
   let mut command = Command::new(exec_info.executable_path);
 
   let mut decomp_config_overrides = vec![];
@@ -442,15 +474,72 @@ pub async fn run_decompiler(
 
   command
     .args(args)
-    .stdout(log_file.try_clone()?)
-    .stderr(log_file)
+    .stdout(Stdio::piped())
+    .stderr(Stdio::piped())
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
     command.creation_flags(0x08000000);
   }
-  let output = command.output()?;
-  match output.status.code() {
+
+  let mut child = command.spawn()?;
+
+  let stdout = child.stdout.take().unwrap();
+  let stderr = child.stderr.take().unwrap();
+
+  let mut stdout_reader = tokio::io::BufReader::new(stdout).lines();
+  let mut stderr_reader = tokio::io::BufReader::new(stderr).lines();
+  let combined_buffer = Arc::new(Mutex::new(String::new()));
+
+  let mut interval = tokio::time::interval(Duration::from_millis(50));
+
+  // Periodically read from stdout and stderr, and flush to file
+  let process_status;
+  loop {
+    let buffer_clone = Arc::clone(&combined_buffer);
+    tokio::select! {
+        Ok(Some(line)) = stdout_reader.next_line() => {
+          let formatted_line = format!("{line}\n");
+          log_file.write_all(formatted_line.as_bytes()).await?;
+          if formatted_line != "\n" {
+            let mut buf = buffer_clone.lock().await;
+            buf.push_str(&formatted_line);
+          }
+        },
+        Ok(Some(line)) = stderr_reader.next_line() => {
+          let formatted_line = format!("{line}\n");
+          log_file.write_all(formatted_line.as_bytes()).await?;
+          if formatted_line != "\n" {
+            let mut buf = buffer_clone.lock().await;
+            buf.push_str(&formatted_line);
+          }
+        },
+        _ = interval.tick() => {
+          log_file.flush().await?;
+          // TODO - handle error
+          {
+            let buf = buffer_clone.lock().await;
+            app_handle.emit_all("log_update", LogPayload { logs: buf.clone() }).unwrap();
+          }
+        },
+        // Wait for the child process to finish
+        status = child.wait() => {
+          process_status = Some(status?);
+          break;
+        }
+    }
+  }
+
+  // Ensure all remaining data is flushed to the file
+  log_file.flush().await?;
+  if process_status.is_none() {
+    log::error!("decompilation was not successful. No status code");
+    return Ok(InstallStepOutput {
+      success: false,
+      msg: Some("Unexpected error occurred".to_owned()),
+    });
+  }
+  match process_status.unwrap().code() {
     Some(code) => {
       if code == 0 {
         log::info!("decompilation was successful");
@@ -465,8 +554,6 @@ pub async fn run_decompiler(
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
       log::error!("decompilation was not successful. Code {code}");
-      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some(message.msg.clone()),
@@ -474,8 +561,6 @@ pub async fn run_decompiler(
     }
     None => {
       log::error!("decompilation was not successful. No status code");
-      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some("Unexpected error occurred".to_owned()),
@@ -519,7 +604,12 @@ pub async fn run_compiler(
       .to_string();
   }
 
-  let log_file = create_log_file(&app_handle, "extractor.log", !truncate_logs)?;
+  let mut log_file = create_log_file(
+    &app_handle,
+    format!("extractor-{game_name}.log"),
+    false,
+  )
+  .await?;
   let mut args = vec![
     source_path,
     "--compile".to_string(),
@@ -537,14 +627,12 @@ pub async fn run_compiler(
   let mut command = Command::new(exec_info.executable_path);
   command
     .args(args)
-    .stdout(log_file.try_clone().unwrap())
-    .stderr(log_file)
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
     command.creation_flags(0x08000000);
   }
-  let output = command.output()?;
+  let output = command.output().await?;
   match output.status.code() {
     Some(code) => {
       if code == 0 {
@@ -657,7 +745,7 @@ pub async fn run_game_gpu_test(
   {
     command.creation_flags(0x08000000);
   }
-  let output = command.output()?;
+  let output = command.output().await?;
   match output.status.code() {
     Some(code) => {
       if code == 0 {
@@ -776,14 +864,14 @@ pub async fn launch_game(
     args
   );
 
-  let log_file = create_log_file(&app_handle, "game.log", false)?;
+  // let log_file = create_log_file(&app_handle, "game.log", false)?;
 
   // TODO - log rotation here would be nice too, and for it to be game specific
   let mut command = Command::new(exec_info.executable_path);
   command
     .args(args)
-    .stdout(log_file.try_clone().unwrap())
-    .stderr(log_file)
+    // .stdout(log_file.try_clone().unwrap())
+    // .stderr(log_file)
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
@@ -795,7 +883,7 @@ pub async fn launch_game(
   tokio::spawn(async move {
     let start_time = Instant::now(); // get the start time of the game
                                      // start waiting for the game to exit
-    if let Err(err) = child.wait() {
+    if let Err(err) = child.wait().await {
       log::error!("Error occured when waiting for game to exit: {}", err);
       return;
     }

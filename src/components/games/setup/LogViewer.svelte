@@ -1,31 +1,36 @@
-<script>
+<script lang="ts">
   import { progressTracker } from "$lib/stores/ProgressStore";
-  import IconDocument from "~icons/mdi/file-document-outline";
-  import { Accordion, AccordionItem } from "flowbite-svelte";
+  import { listen } from "@tauri-apps/api/event";
   import { ansiSpan } from "ansi-to-span";
   import escapeHtml from "escape-html";
+  import { onDestroy, onMount } from "svelte";
   import { _ } from "svelte-i18n";
+
+  let logListener: any = undefined;
+  let logElement;
+
+  const scrollToBottom = async (node) => {
+    node.scroll({ top: node.scrollHeight, behavior: 'smooth' });
+  };
+
+  onMount(async () => {
+    logListener = await listen("log_update", (event) => {
+      progressTracker.updateLogs(event.payload.logs);
+      if (logElement) {
+        scrollToBottom(logElement);
+      }
+    });
+  });
+
+  onDestroy(() => {
+    if (logListener !== undefined) {
+      logListener();
+    }
+  })
 
   function convertLogColors(text) {
     return ansiSpan(escapeHtml(text)).replaceAll("\n", "<br/>");
   }
 </script>
 
-<Accordion class="log-accordian p-0 mb-2">
-  <AccordionItem class="bg-slate-900 rounded p-[1rem]">
-    <span slot="header" class="text-sm font-semibold text-white flex gap-2">
-      <IconDocument />
-      <span>{$_("setup_logs_header")}</span>
-    </span>
-    <div
-      slot="default"
-      class="bg-slate-900 px-4 max-h-52 overflow-y-scroll scrollbar"
-    >
-      <p class="py-4 text-clip overflow-hidden font-mono log-output">
-        ...{$_("setup_logs_truncation")}:
-        <br />
-        {@html convertLogColors($progressTracker.logs)}
-      </p>
-    </div>
-  </AccordionItem>
-</Accordion>
+<pre class="rounded p-2 bg-[#141414] text-[11px] max-h-[300px] overflow-auto text-pretty font-mono" bind:this={logElement}>{@html convertLogColors($progressTracker.logs)}</pre>
