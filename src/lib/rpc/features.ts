@@ -144,12 +144,12 @@ export async function getModSources(): Promise<ModSource[]> {
 
 export async function extractNewMod(
   gameName: string,
-  zipPath: string,
+  bundlePath: string,
   modSource: string,
 ): Promise<InstallationOutput> {
   return await invoke_rpc(
     "extract_new_mod",
-    { gameName, zipPath, modSource },
+    { gameName, bundlePath, modSource },
     () => failed("Failed to extract mod"),
   );
 }
