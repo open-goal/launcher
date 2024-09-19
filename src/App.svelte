@@ -1,6 +1,6 @@
-<script>
+<script lang="ts">
   // Other Imports
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { Router, Route } from "svelte-navigator";
   import Game from "./routes/Game.svelte";
   import Settings from "./routes/Settings.svelte";
@@ -15,8 +15,11 @@
   import { isLoading } from "svelte-i18n";
   import { getLocale, setLocale } from "$lib/rpc/config";
   import GameFeature from "./routes/GameFeature.svelte";
+  import { listen } from "@tauri-apps/api/event";
+  import { toastStore } from "$lib/stores/ToastStore";
 
   let revokeSpecificActions = false;
+  let toastListener: any = undefined;
 
   // Events
   onMount(async () => {
@@ -31,6 +34,16 @@
     const locale = await getLocale();
     if (locale !== null) {
       setLocale(locale);
+    }
+
+    toastListener = await listen("toast_msg", (event) => {
+      toastStore.makeToast(event.payload.toast, event.payload.level);
+    });
+  });
+
+  onDestroy(() => {
+    if (toastListener !== undefined) {
+      toastListener();
     }
   });
 
