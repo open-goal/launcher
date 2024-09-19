@@ -4,6 +4,7 @@ use std::{
   collections::HashMap,
   path::{Path, PathBuf},
   process::Command,
+  str::FromStr,
   time::Instant,
 };
 
@@ -762,18 +763,31 @@ pub async fn launch_game(
   app_handle: tauri::AppHandle,
   game_name: String,
   in_debug: bool,
+  executable_location: Option<String>,
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
-  let exec_info = get_exec_location(&config_info, "gk")?;
+  let mut exec_info = get_exec_location(&config_info, "gk")?;
+  if executable_location.is_some() {
+    let exec_path = PathBuf::from_str(executable_location.unwrap().as_str());
+    if exec_path.is_ok() {
+      exec_info = ExecutableLocation {
+        executable_dir: exec_path.clone().unwrap().parent().unwrap().to_path_buf(),
+        executable_path: exec_path.clone().unwrap(),
+      };
+    }
+  }
+
   let args = generate_launch_game_string(&config_info, game_name.clone(), in_debug, false)?;
 
   log::info!(
-    "Launching game version {:?} -> {:?} with args: {:?}",
+    "Launching game version {:?} -> {:?} with args: {:?}. Working Directory: {:?}, Path: {:?}",
     &config_info.active_version,
     &config_info.tooling_version,
-    args
+    args,
+    exec_info.executable_dir,
+    exec_info.executable_path,
   );
 
   let log_file = create_log_file(&app_handle, "game.log", false)?;

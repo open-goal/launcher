@@ -1,3 +1,4 @@
+import { filePrompt } from "$lib/utils/file-dialogs";
 import { invoke_rpc } from "./rpc";
 
 interface InstallationOutput {
@@ -70,10 +71,25 @@ export async function launchGame(
 ): Promise<void> {
   return await invoke_rpc(
     "launch_game",
-    { gameName, inDebug },
+    { gameName, inDebug, executableLocation: null },
     () => {},
     "_mirror_",
   );
+}
+
+export async function launchGameWithCustomExecutable(
+  gameName: string,
+): Promise<void> {
+  // Get custom executable location
+  const customExecutable = await filePrompt(["exe"], "executables", "pick exe");
+  if (customExecutable !== null) {
+    return await invoke_rpc(
+      "launch_game",
+      { gameName, inDebug: false, executableLocation: customExecutable},
+      () => {},
+      "_mirror_",
+    );
+  }
 }
 
 export async function openREPL(gameName: string): Promise<void> {

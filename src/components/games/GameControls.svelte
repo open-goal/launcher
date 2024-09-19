@@ -17,7 +17,7 @@
   } from "flowbite-svelte";
   import { resetGameSettings, uninstallGame } from "$lib/rpc/game";
   import { platform } from "@tauri-apps/api/os";
-  import { getLaunchGameString, launchGame, openREPL } from "$lib/rpc/binaries";
+  import { getLaunchGameString, launchGame, launchGameWithCustomExecutable, openREPL } from "$lib/rpc/binaries";
   import {
     doesActiveToolingVersionMeetMinimum,
     getInstallationDirectory,
@@ -166,6 +166,11 @@
         on:click={async () => {
           launchGame(getInternalName(activeGame), true);
         }}>{$_("gameControls_button_playInDebug")}</DropdownItem
+      >
+      <DropdownItem
+        on:click={async () => {
+          launchGameWithCustomExecutable(getInternalName(activeGame));
+        }}>Launch with Custom Executable</DropdownItem
       >
       {#if !isLinux}
         <DropdownItem
