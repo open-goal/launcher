@@ -7,7 +7,6 @@
   import type { Job } from "$lib/utils/jobs";
   import { getInternalName, type SupportedGame } from "$lib/constants";
   import {
-    getEndOfLogs,
     runCompiler,
     runDecompiler,
     updateDataDirectory,
@@ -193,7 +192,6 @@
     }
     progressTracker.proceed();
     resp = await runDecompiler("", getInternalName(activeGame), true);
-    progressTracker.updateLogs(await getEndOfLogs());
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;

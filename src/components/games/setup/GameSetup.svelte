@@ -7,7 +7,6 @@
   import { Alert, Button } from "flowbite-svelte";
   import {
     extractAndValidateISO,
-    getEndOfLogs,
     runCompiler,
     runDecompiler,
   } from "$lib/rpc/binaries";
@@ -92,7 +91,6 @@
         sourcePath,
         getInternalName(activeGame),
       );
-      progressTracker.updateLogs(await getEndOfLogs());
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
@@ -100,7 +98,6 @@
       }
       progressTracker.proceed();
       resp = await runDecompiler(sourcePath, getInternalName(activeGame));
-      progressTracker.updateLogs(await getEndOfLogs());
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
@@ -108,7 +105,6 @@
       }
       progressTracker.proceed();
       resp = await runCompiler(sourcePath, getInternalName(activeGame));
-      progressTracker.updateLogs(await getEndOfLogs());
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;

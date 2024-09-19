@@ -10,12 +10,12 @@
   let logElement;
 
   const scrollToBottom = async (node) => {
-    node.scroll({ top: node.scrollHeight, behavior: 'smooth' });
+    node.scroll({ top: node.scrollHeight, behavior: "instant" });
   };
 
   onMount(async () => {
     logListener = await listen("log_update", (event) => {
-      progressTracker.updateLogs(event.payload.logs);
+      progressTracker.appendLogs(event.payload.logs);
       if (logElement) {
         scrollToBottom(logElement);
       }
@@ -26,11 +26,15 @@
     if (logListener !== undefined) {
       logListener();
     }
-  })
+  });
 
   function convertLogColors(text) {
     return ansiSpan(escapeHtml(text)).replaceAll("\n", "<br/>");
   }
 </script>
 
-<pre class="rounded p-2 bg-[#141414] text-[11px] max-h-[300px] overflow-auto text-pretty font-mono" bind:this={logElement}>{@html convertLogColors($progressTracker.logs)}</pre>
+{#if $progressTracker.logs}
+  <pre
+    class="rounded p-2 bg-[#141414] text-[11px] max-h-[300px] overflow-auto text-pretty font-mono"
+    bind:this={logElement}>{@html convertLogColors($progressTracker.logs)}</pre>
+{/if}
