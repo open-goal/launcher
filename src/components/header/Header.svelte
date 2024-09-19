@@ -75,7 +75,10 @@
       $VersionStore.activeVersionType === "official"
     ) {
       const latestToolingVersion = await getLatestOfficialRelease();
-      if ($VersionStore.activeVersionName !== latestToolingVersion.version) {
+      if (
+        latestToolingVersion !== undefined &&
+        $VersionStore.activeVersionName !== latestToolingVersion.version
+      ) {
         // Check that we havn't already downloaded it
         let alreadyHaveRelease = false;
         const downloadedOfficialVersions =
@@ -127,11 +130,6 @@
       {$VersionStore.activeVersionName === null
         ? "not set!"
         : $VersionStore.activeVersionName}
-      {#if $VersionStore.activeVersionType === "unofficial"}
-        (unf)
-      {:else if $VersionStore.activeVersionType === "devel"}
-        (dev)
-      {/if}
     </p>
   </div>
   <div

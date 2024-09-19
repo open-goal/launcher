@@ -1,6 +1,6 @@
 import { invoke_rpc } from "./rpc";
 
-export type VersionFolders = null | "official" | "unofficial" | "devel";
+export type VersionFolders = null | "official";
 
 export async function listDownloadedVersions(
   versionFolder: VersionFolders,
