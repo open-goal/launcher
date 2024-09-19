@@ -14,6 +14,7 @@
   "features_textures_moveDown_buttonAlt": "move texture pack down in order",
   "features_textures_moveUp_buttonAlt": "move texture pack up in order",
   "features_textures_replacedCount": "Textures replaced",
+  "features_textures_largePackWarning": "Very large texture packs (hundreds of megabytes) may fail to install or impact game performance.",
   "gameControls_update_mod": "Update",
   "gameControls_active": "(Active)",
   "gameControls_always_use_newest": "Always Use Newest",
