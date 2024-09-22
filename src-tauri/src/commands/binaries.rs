@@ -1,7 +1,8 @@
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
 use std::{
   collections::HashMap,
   io::ErrorKind,
-  os::windows::process::CommandExt,
   path::{Path, PathBuf},
   process::Stdio,
   str::FromStr,

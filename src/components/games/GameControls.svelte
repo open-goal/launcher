@@ -16,7 +16,12 @@
   } from "flowbite-svelte";
   import { resetGameSettings, uninstallGame } from "$lib/rpc/game";
   import { platform } from "@tauri-apps/api/os";
-  import { getLaunchGameString, launchGame, launchGameWithCustomExecutable, openREPL } from "$lib/rpc/binaries";
+  import {
+    getLaunchGameString,
+    launchGame,
+    launchGameWithCustomExecutable,
+    openREPL,
+  } from "$lib/rpc/binaries";
   import {
     doesActiveToolingVersionMeetMinimum,
     getInstallationDirectory,

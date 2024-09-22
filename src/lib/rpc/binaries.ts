@@ -81,7 +81,7 @@ export async function launchGameWithCustomExecutable(
   if (customExecutable !== null) {
     return await invoke_rpc(
       "launch_game",
-      { gameName, inDebug: false, executableLocation: customExecutable},
+      { gameName, inDebug: false, executableLocation: customExecutable },
       () => {},
       "_mirror_",
     );
