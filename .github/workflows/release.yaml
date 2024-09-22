@@ -158,7 +158,7 @@ jobs:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
-          args: "--config ./.tauri/release-config.json"
+          args: "--verbose --config ./.tauri/release-config.json"
           releaseId: ${{needs.create-release.outputs.release_id}}
 
   verify-release:

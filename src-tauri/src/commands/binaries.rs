@@ -748,6 +748,12 @@ pub async fn get_launch_game_string(
   ))
 }
 
+#[derive(Clone, serde::Serialize)]
+struct ToastPayload {
+  toast: String,
+  level: String,
+}
+
 #[tauri::command]
 pub async fn launch_game(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -770,7 +776,7 @@ pub async fn launch_game(
 
   let log_file = create_std_log_file(&app_handle, format!("game-{game_name}.log"), false)?;
 
-  let mut command = Command::new(exec_info.executable_path);
+  let mut command = std::process::Command::new(exec_info.executable_path);
   command
     .args(args)
     .stdout(log_file.try_clone().unwrap())
@@ -778,7 +784,7 @@ pub async fn launch_game(
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
-    command.creation_flags(0x08000000);
+    std::os::windows::process::CommandExt::creation_flags(&mut command, 0x08000000);
   }
   // Start the process here so if there is an error, we can return immediately
   let mut child = command.spawn()?;
@@ -786,9 +792,22 @@ pub async fn launch_game(
   tokio::spawn(async move {
     let start_time = Instant::now(); // get the start time of the game
                                      // start waiting for the game to exit
-    if let Err(err) = child.wait().await {
-      log::error!("Error occured when waiting for game to exit: {}", err);
-      return;
+    match child.wait() {
+      Ok(status_code) => {
+        if !status_code.code().is_some() || status_code.code().unwrap() != 0 {
+          let _ = app_handle.emit_all(
+            "toast_msg",
+            ToastPayload {
+              toast: "Game crashed unexpectedly!".to_string(),
+              level: "error".to_string(),
+            },
+          );
+        }
+      }
+      Err(err) => {
+        log::error!("Error occured when waiting for game to exit: {}", err);
+        return;
+      }
     }
     // once the game exits pass the time the game started to the track_playtine function
     if let Err(err) = track_playtime(start_time, game_name).await {

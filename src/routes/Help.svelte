@@ -7,6 +7,7 @@
   import { onMount } from "svelte";
   import { appConfigDir } from "@tauri-apps/api/path";
   import { _ } from "svelte-i18n";
+  import { navigate } from "svelte-navigator";
 
   let appDir: string | undefined = undefined;
   let downloadingPackage = false;
@@ -46,6 +47,12 @@
         }}>{$_("help_button_openLogFolder")}</Button
       >
     {/if}
+    <Button
+      class="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
+      href="https://raw.githubusercontent.com/open-goal/launcher/refs/heads/main/docs/default-keybinds.png"
+      target="_blank"
+      rel="noreferrer noopener">{$_("help_button_defaultKeybinds")}</Button
+    >
   </div>
   <p class="mt-3 text-sm">
     {$_("help_description_createAnIssue")}
