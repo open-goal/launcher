@@ -261,6 +261,12 @@
             {packAddingError}
           </Alert>
         </div>
+      {:else}
+        <div class="flex flex-row font-bold mt-3">
+          <Alert color="red" class="flex-grow">
+            {$_("features_textures_largePackWarning")}
+          </Alert>
+        </div>
       {/if}
       <div class="flex flex-row font-bold mt-3">
         <h2>{$_("features_textures_listHeading")}</h2>

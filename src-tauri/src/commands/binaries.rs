@@ -776,6 +776,12 @@ pub async fn get_launch_game_string(
   ))
 }
 
+#[derive(Clone, serde::Serialize)]
+struct ToastPayload {
+  toast: String,
+  level: String,
+}
+
 #[tauri::command]
 pub async fn launch_game(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -815,9 +821,22 @@ pub async fn launch_game(
   tokio::spawn(async move {
     let start_time = Instant::now(); // get the start time of the game
                                      // start waiting for the game to exit
-    if let Err(err) = child.wait() {
-      log::error!("Error occured when waiting for game to exit: {}", err);
-      return;
+    match child.wait() {
+      Ok(status_code) => {
+        if !status_code.code().is_some() || status_code.code().unwrap() != 0 {
+          let _ = app_handle.emit_all(
+            "toast_msg",
+            ToastPayload {
+              toast: "Game crashed unexpectedly!".to_string(),
+              level: "error".to_string(),
+            },
+          );
+        }
+      }
+      Err(err) => {
+        log::error!("Error occured when waiting for game to exit: {}", err);
+        return;
+      }
     }
     // once the game exits pass the time the game started to the track_playtine function
     if let Err(err) = track_playtime(start_time, game_name).await {
