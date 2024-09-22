@@ -330,13 +330,11 @@
             launchMod(getInternalName(activeGame), true, modName, modSource);
           }}>{$_("gameControls_button_playInDebug")}</DropdownItem
         >
-        {#if !isLinux}
-          <DropdownItem
-            on:click={async () => {
-              openREPLForMod(getInternalName(activeGame), modName, modSource);
-            }}>{$_("gameControls_button_openREPL")}</DropdownItem
-          >
-        {/if}
+        <DropdownItem
+          on:click={async () => {
+            openREPLForMod(getInternalName(activeGame), modName, modSource);
+          }}>{$_("gameControls_button_openREPL")}</DropdownItem
+        >
         <DropdownDivider />
         <DropdownItem
           on:click={async () => {

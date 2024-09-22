@@ -584,30 +584,55 @@ pub async fn open_repl(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: String,
 ) -> Result<(), CommandError> {
-  // TODO - explore a linux option though this is very annoying because without doing a ton of research
-  // we seem to have to handle various terminals.  Which honestly we should probably do on windows too
-  //
-  // So maybe we can make a menu where the user will specify what terminal to use / what launch-options to use
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
-
   let data_folder = get_data_dir(&config_info, &game_name, false)?;
   let exec_info = get_exec_location(&config_info, "goalc")?;
-  let mut command = Command::new("cmd");
-  command
-    .args([
-      "/K",
-      "start",
-      &bin_ext("goalc"),
-      "--proj-path",
-      &data_folder.to_string_lossy(),
-    ])
-    .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
-    command.creation_flags(0x08000000);
+    let mut command = Command::new("cmd");
+    command
+      .args([
+        "/K",
+        "start",
+        &bin_ext("goalc"),
+        "--proj-path",
+        &data_folder.to_string_lossy(),
+      ])
+      .current_dir(exec_info.executable_dir)
+      .creation_flags(0x08000000);
+    command.spawn()?;
   }
-  command.spawn()?;
+  #[cfg(target_os = "linux")]
+  {
+    let mut command = Command::new("xdg-terminal-exec");
+    command
+      .args([
+        "./goalc",
+        "--",
+        "--proj-path",
+        &data_folder.to_string_lossy(),
+      ])
+      .current_dir(exec_info.executable_dir);
+    command.spawn()?;
+  }
+  #[cfg(target_os = "macos")]
+  {
+    let mut command = Command::new("open");
+    command
+      .args([
+        "-a",
+        "Terminal",
+        "--args",
+        "bash",
+        "-c",
+        "./goalc",
+        "--",
+        "--proj-path",
+      ])
+      .current_dir(exec_info.executable_dir);
+    command.spawn()?;
+  }
   Ok(())
 }
 
