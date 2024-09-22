@@ -1,8 +1,11 @@
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
 use std::{
   collections::HashMap,
   io::ErrorKind,
   path::{Path, PathBuf},
   process::Stdio,
+  str::FromStr,
   time::Instant,
 };
 use tokio::{io::AsyncWriteExt, process::Command};
@@ -591,7 +594,7 @@ pub async fn open_repl(
   let mut command;
   #[cfg(windows)]
   {
-    command = Command::new("cmd");
+    command = std::process::Command::new("cmd");
     command
       .args([
         "/K",
@@ -605,14 +608,14 @@ pub async fn open_repl(
   }
   #[cfg(target_os = "linux")]
   {
-    command = Command::new("xdg-terminal-exec");
+    command = std::process::Command::new("xdg-terminal-exec");
     command
       .args(["./goalc", "--proj-path", &data_folder.to_string_lossy()])
       .current_dir(exec_info.executable_dir);
   }
   #[cfg(target_os = "macos")]
   {
-    command = Command::new("osascript");
+    command = std::process::Command::new("osascript");
     command
       .args([
         "-e",
@@ -794,18 +797,44 @@ pub async fn launch_game(
   app_handle: tauri::AppHandle,
   game_name: String,
   in_debug: bool,
+  executable_location: Option<String>,
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
-  let exec_info = get_exec_location(&config_info, "gk")?;
+  let mut exec_info = get_exec_location(&config_info, "gk")?;
+  if let Some(custom_exec_location) = executable_location {
+    match PathBuf::from_str(custom_exec_location.as_str()) {
+      Ok(exec_path) => {
+        let path_copy = exec_path.clone();
+        if path_copy.parent().is_none() {
+          return Err(CommandError::BinaryExecution(format!(
+            "Failed to resolve custom binary parent directory"
+          )));
+        }
+        exec_info = ExecutableLocation {
+          executable_dir: exec_path.clone().parent().unwrap().to_path_buf(),
+          executable_path: exec_path.clone(),
+        };
+      }
+      Err(err) => {
+        return Err(CommandError::BinaryExecution(format!(
+          "Failed to resolve custom binary location {}",
+          err
+        )));
+      }
+    }
+  }
+
   let args = generate_launch_game_string(&config_info, game_name.clone(), in_debug, false)?;
 
   log::info!(
-    "Launching game version {:?} -> {:?} with args: {:?}",
+    "Launching game version {:?} -> {:?} with args: {:?}. Working Directory: {:?}, Path: {:?}",
     &config_info.active_version,
     &config_info.tooling_version,
-    args
+    args,
+    exec_info.executable_dir,
+    exec_info.executable_path,
   );
 
   let log_file = create_std_log_file(&app_handle, format!("game-{game_name}.log"), false)?;
