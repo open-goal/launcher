@@ -6,12 +6,14 @@ Our attempt at distributing the [OpenGOAL](https://github.com/open-goal/jak-proj
 
 The launcher uses the [Tauri](https://tauri.app/) framework.
 
-- [Usage](#usage)
-- [Asking for help](#asking-for-help)
-- [Development](#development)
-  - [Windows](#windows)
-  - [Linux (Ubuntu 22.04)](#linux-ubuntu-2204)
-  - [Building and Running](#building-and-running)
+- [OpenGOAL Launcher](#opengoal-launcher)
+  - [Usage](#usage)
+  - [Asking for help](#asking-for-help)
+  - [Development](#development)
+    - [Windows](#windows)
+    - [Linux (Ubuntu 22.04)](#linux-ubuntu-2204)
+    - [macOS](#macos)
+    - [Building and Running](#building-and-running)
 
 ## Usage
 
@@ -50,6 +52,12 @@ sudo apt install libwebkit2gtk-4.0-dev build-essential curl wget libssl-dev libg
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash # installs Node Version Manager (ubuntus package is woefully out of date)
 source ~/.bashrc
 nvm install lts/hydrogen # installs latest nodejs 18.X
+npm install -g yarn
+```
+
+### macOS
+
+```bash
 npm install -g yarn
 ```
 
