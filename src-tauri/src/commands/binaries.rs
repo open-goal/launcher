@@ -620,17 +620,15 @@ pub async fn open_repl(
   }
   #[cfg(target_os = "macos")]
   {
-    command = Command::new("open");
+    command = Command::new("osascript");
     command
       .args([
-        "-a",
-        "Terminal",
-        "--args",
-        "bash",
-        "-c",
+        "-e",
+        "'tell app \"Terminal\" to do script",
+        format!("\"cd {:?}\" &&", exec_info.executable_dir).as_str(),
         "./goalc",
-        "--",
         "--proj-path",
+        &data_folder.to_string_lossy(),
       ])
       .current_dir(exec_info.executable_dir);
   }
