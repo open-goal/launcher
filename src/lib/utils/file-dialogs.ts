@@ -1,5 +1,22 @@
 import { open, save } from "@tauri-apps/api/dialog";
 
+export async function filePromptNoFilters(
+  title: string,
+): Promise<string | null> {
+  const path = await open({
+    title: title,
+    multiple: false,
+    directory: false,
+    filters: undefined,
+  });
+
+  if (Array.isArray(path) || path === null) {
+    return null;
+  }
+
+  return path;
+}
+
 export async function filePrompt(
   extensions: string[],
   name: string,

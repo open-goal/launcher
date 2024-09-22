@@ -3193,6 +3193,7 @@ dependencies = [
  "tempfile",
  "thiserror",
  "tokio",
+ "tokio-util",
  "ts-rs",
  "walkdir",
  "wgpu",

@@ -1,7 +1,6 @@
 <script lang="ts">
   import { getInternalName, SupportedGame } from "$lib/constants";
   import { openDir } from "$lib/rpc/window";
-  import IconArrowLeft from "~icons/mdi/arrow-left";
   import IconCog from "~icons/mdi/cog";
   import { configDir, join } from "@tauri-apps/api/path";
   import { createEventDispatcher, onMount } from "svelte";
@@ -27,7 +26,6 @@
   import { navigate } from "svelte-navigator";
   import { listen } from "@tauri-apps/api/event";
   import { toastStore } from "$lib/stores/ToastStore";
-  import { launchMod } from "$lib/rpc/features";
 
   export let activeGame: SupportedGame;
 
@@ -172,13 +170,11 @@
           launchGameWithCustomExecutable(getInternalName(activeGame));
         }}>Launch with Custom Executable</DropdownItem
       >
-      {#if !isLinux}
-        <DropdownItem
-          on:click={async () => {
-            openREPL(getInternalName(activeGame));
-          }}>{$_("gameControls_button_openREPL")}</DropdownItem
-        >
-      {/if}
+      <DropdownItem
+        on:click={async () => {
+          openREPL(getInternalName(activeGame));
+        }}>{$_("gameControls_button_openREPL")}</DropdownItem
+      >
       <DropdownDivider />
       <DropdownItem
         on:click={async () => {

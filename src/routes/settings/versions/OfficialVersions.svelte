@@ -50,7 +50,6 @@
         },
       ];
     }
-    // TODO - "no releases found"
 
     // Merge that with the actual current releases on github
     const githubReleases = await listOfficialReleases();
@@ -111,8 +110,6 @@
     if (success) {
       $VersionStore.activeVersionType = "official";
       $VersionStore.activeVersionName = $VersionStore.selectedVersions.official;
-      $VersionStore.selectedVersions.unofficial = null;
-      $VersionStore.selectedVersions.devel = null;
       toastStore.makeToast($_("toasts_savedToolingVersion"), "info");
     }
   }

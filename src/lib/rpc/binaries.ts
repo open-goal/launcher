@@ -1,4 +1,4 @@
-import { filePrompt } from "$lib/utils/file-dialogs";
+import { filePrompt, filePromptNoFilters } from "$lib/utils/file-dialogs";
 import { invoke_rpc } from "./rpc";
 
 interface InstallationOutput {
@@ -16,10 +16,6 @@ export async function updateDataDirectory(
   return await invoke_rpc("update_data_directory", { gameName }, () =>
     failed("Failed to update data directory"),
   );
-}
-
-export async function getEndOfLogs(): Promise<string> {
-  return await invoke_rpc("get_end_of_logs", {}, () => "");
 }
 
 export async function extractAndValidateISO(
@@ -81,7 +77,7 @@ export async function launchGameWithCustomExecutable(
   gameName: string,
 ): Promise<void> {
   // Get custom executable location
-  const customExecutable = await filePrompt(["exe"], "executables", "pick exe");
+  const customExecutable = await filePromptNoFilters("Select custom 'gk'");
   if (customExecutable !== null) {
     return await invoke_rpc(
       "launch_game",

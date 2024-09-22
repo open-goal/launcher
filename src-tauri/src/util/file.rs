@@ -47,24 +47,6 @@ pub fn read_lines_in_file(path: &PathBuf) -> Result<String, Box<dyn std::error::
   Ok(std::fs::read_to_string(path)?)
 }
 
-pub fn read_last_lines_from_file(path: &PathBuf, lines: usize) -> Result<String, std::io::Error> {
-  if !path.exists() {
-    return Ok("".to_owned());
-  }
-  let buf = rev_buf_reader::RevBufReader::new(std::fs::File::open(path)?);
-  Ok(
-    buf
-      .lines()
-      .take(lines)
-      .map(|l| l.unwrap_or("".to_owned()))
-      .collect::<Vec<String>>()
-      .into_iter()
-      .rev()
-      .collect::<Vec<String>>()
-      .join("\n"),
-  )
-}
-
 pub fn touch_file(path: &PathBuf) -> std::io::Result<()> {
   match std::fs::OpenOptions::new()
     .create(true)
