@@ -141,6 +141,7 @@
   "settings_versions_table_header_changes": "Changes",
   "settings_versions_table_header_date": "Date",
   "settings_versions_table_header_version": "Version",
+  "settings_versions_noReleasesFound": "No releases could be retrieved from GitHub!",
   "setup_button_continue": "Continue",
   "setup_button_getSupportPackage": "Get Support Package",
   "setup_button_installViaISO": "Install via ISO",
@@ -221,5 +222,7 @@
   "toasts_modSourceUnreachable": "Mod source unreachable",
   "toasts_couldNotRemoveModSource": "Unable to remove mod source",
   "toasts_modSourceDuplicateName": "Mod source has the same display name as one you already have added",
-  "toasts_unableToRetrieveModDownloadURL": "Unable to retrieve mod download URL"
+  "toasts_unableToRetrieveModDownloadURL": "Unable to retrieve mod download URL",
+  "toasts_githubRateLimit": "Unable to hit GitHub's API, you are rate-limited",
+  "toasts_githubUnexpectedError": "Unexpected error when hitting GitHub's API"
 }

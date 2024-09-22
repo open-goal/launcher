@@ -8,6 +8,7 @@
   import IconDownload from "~icons/mdi/download";
   import IconDeleteForever from "~icons/mdi/delete-forever";
   import {
+    Alert,
     Button,
     Radio,
     Spinner,
@@ -60,144 +61,152 @@
       </Button>
     </div>
   </div>
-  <Table>
-    <TableHead>
-      <TableHeadCell>
-        <span class="sr-only"></span>
-      </TableHeadCell>
-      <TableHeadCell>
-        <span class="sr-only"></span>
-      </TableHeadCell>
-      <TableHeadCell
-        >{$_("settings_versions_table_header_version")}</TableHeadCell
-      >
-      <TableHeadCell>{$_("settings_versions_table_header_date")}</TableHeadCell>
-      <TableHeadCell
-        >{$_("settings_versions_table_header_changes")}</TableHeadCell
-      >
-    </TableHead>
-    <TableBody tableBodyClass="divide-y">
-      {#each releaseList as release (release.version)}
-        <TableBodyRow>
-          <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
-            {#if release.isDownloaded}
-              <Radio
-                class="disabled:cursor-not-allowed p-0"
-                bind:group={$VersionStore.selectedVersions[releaseType]}
-                on:change={() => dispatch("versionChange")}
-                value={release.version}
-                disabled={!release.isDownloaded}
-                name={`${releaseType}-release`}
-              />
-            {/if}
-          </TableBodyCell>
-          <TableBodyCell
-            class="px-6 py-2 whitespace-nowrap font-medium"
-            style="line-height: 0;"
-          >
-            <Button
-              class="py-0 dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
-              disabled={release.pendingAction ||
-                (!release.isDownloaded &&
-                  release.downloadUrl !== undefined &&
-                  release.invalid)}
-              on:click={async () => {
-                if (release.isDownloaded) {
-                  dispatch("removeVersion", { version: release.version });
-                } else {
-                  dispatch("downloadVersion", {
-                    version: release.version,
-                    downloadUrl: release.downloadUrl,
-                  });
-                }
-              }}
-            >
+  {#if releaseList === undefined || releaseList.length <= 0}
+    <Alert color="red" class="dark:bg-slate-900 flex-grow">
+      {$_("settings_versions_noReleasesFound")}
+    </Alert>
+  {:else}
+    <Table>
+      <TableHead>
+        <TableHeadCell>
+          <span class="sr-only"></span>
+        </TableHeadCell>
+        <TableHeadCell>
+          <span class="sr-only"></span>
+        </TableHeadCell>
+        <TableHeadCell
+          >{$_("settings_versions_table_header_version")}</TableHeadCell
+        >
+        <TableHeadCell
+          >{$_("settings_versions_table_header_date")}</TableHeadCell
+        >
+        <TableHeadCell
+          >{$_("settings_versions_table_header_changes")}</TableHeadCell
+        >
+      </TableHead>
+      <TableBody tableBodyClass="divide-y">
+        {#each releaseList as release (release.version)}
+          <TableBodyRow>
+            <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
               {#if release.isDownloaded}
-                <IconDeleteForever
-                  class="text-xl"
-                  color="red"
-                  aria-label={$_(
-                    "settings_versions_icon_removeVersion_altText",
-                  )}
-                />
-              {:else if release.downloadUrl === undefined}
-                <span>{$_("settings_versions_incompatibleVersion")}</span>
-              {:else if release.pendingAction}
-                <Spinner color="yellow" size={"6"} />
-              {:else if release.releaseType === "official" && release.downloadUrl !== undefined}
-                <IconDownload
-                  class="text-xl"
-                  color="#00d500"
-                  aria-label={$_(
-                    "settings_versions_icon_downloadVersion_altText",
-                  )}
+                <Radio
+                  class="disabled:cursor-not-allowed p-0"
+                  bind:group={$VersionStore.selectedVersions[releaseType]}
+                  on:change={() => dispatch("versionChange")}
+                  value={release.version}
+                  disabled={!release.isDownloaded}
+                  name={`${releaseType}-release`}
                 />
               {/if}
-            </Button>
-            {#if release.invalid}
-              <Tooltip color="red">
-                {#if release.invalidationReasons.length > 0}
-                  {$_("settings_versions_invalidReleaseGeneric")}
-                  {#each release.invalidationReasons as reason}
-                    <br />
-                    - {reason}
-                  {/each}
-                {:else}
-                  {$_("settings_versions_invalidReleaseGeneric")}
-                {/if}
-              </Tooltip>
-            {/if}
-            {#if release.isDownloaded && release.releaseType == "official"}
+            </TableBodyCell>
+            <TableBodyCell
+              class="px-6 py-2 whitespace-nowrap font-medium"
+              style="line-height: 0;"
+            >
               <Button
                 class="py-0 dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
-                disabled={release.pendingAction}
+                disabled={release.pendingAction ||
+                  (!release.isDownloaded &&
+                    release.downloadUrl !== undefined &&
+                    release.invalid)}
                 on:click={async () => {
-                  dispatch("redownloadVersion", {
-                    version: release.version,
-                    downloadUrl: release.downloadUrl,
-                  });
+                  if (release.isDownloaded) {
+                    dispatch("removeVersion", { version: release.version });
+                  } else {
+                    dispatch("downloadVersion", {
+                      version: release.version,
+                      downloadUrl: release.downloadUrl,
+                    });
+                  }
                 }}
               >
-                {#if release.pendingAction}
-                  <Spinner color="yellow" size={"6"} />
-                {:else}
-                  <IconRefresh
+                {#if release.isDownloaded}
+                  <IconDeleteForever
                     class="text-xl"
+                    color="red"
                     aria-label={$_(
-                      "settings_versions_icon_redownloadVersion_altText",
+                      "settings_versions_icon_removeVersion_altText",
+                    )}
+                  />
+                {:else if release.downloadUrl === undefined}
+                  <span>{$_("settings_versions_incompatibleVersion")}</span>
+                {:else if release.pendingAction}
+                  <Spinner color="yellow" size={"6"} />
+                {:else if release.releaseType === "official" && release.downloadUrl !== undefined}
+                  <IconDownload
+                    class="text-xl"
+                    color="#00d500"
+                    aria-label={$_(
+                      "settings_versions_icon_downloadVersion_altText",
                     )}
                   />
                 {/if}
               </Button>
-            {/if}
-          </TableBodyCell>
-          <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium"
-            >{release.version}</TableBodyCell
-          >
-          <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
-            {#if release.date}
-              {new Date(release.date).toLocaleDateString()}
-            {/if}
-          </TableBodyCell>
-          <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
-            {#if release.githubLink}
-              <a
-                class="inline-block"
-                href={release.githubLink}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <IconGitHub
-                  class="text-xl"
-                  aria-label={$_(
-                    "settings_versions_icon_githubRelease_altText",
-                  )}
-                />
-              </a>
-            {/if}
-          </TableBodyCell>
-        </TableBodyRow>
-      {/each}
-    </TableBody>
-  </Table>
+              {#if release.invalid}
+                <Tooltip color="red">
+                  {#if release.invalidationReasons.length > 0}
+                    {$_("settings_versions_invalidReleaseGeneric")}
+                    {#each release.invalidationReasons as reason}
+                      <br />
+                      - {reason}
+                    {/each}
+                  {:else}
+                    {$_("settings_versions_invalidReleaseGeneric")}
+                  {/if}
+                </Tooltip>
+              {/if}
+              {#if release.isDownloaded && release.releaseType == "official"}
+                <Button
+                  class="py-0 dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
+                  disabled={release.pendingAction}
+                  on:click={async () => {
+                    dispatch("redownloadVersion", {
+                      version: release.version,
+                      downloadUrl: release.downloadUrl,
+                    });
+                  }}
+                >
+                  {#if release.pendingAction}
+                    <Spinner color="yellow" size={"6"} />
+                  {:else}
+                    <IconRefresh
+                      class="text-xl"
+                      aria-label={$_(
+                        "settings_versions_icon_redownloadVersion_altText",
+                      )}
+                    />
+                  {/if}
+                </Button>
+              {/if}
+            </TableBodyCell>
+            <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium"
+              >{release.version}</TableBodyCell
+            >
+            <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
+              {#if release.date}
+                {new Date(release.date).toLocaleDateString()}
+              {/if}
+            </TableBodyCell>
+            <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
+              {#if release.githubLink}
+                <a
+                  class="inline-block"
+                  href={release.githubLink}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <IconGitHub
+                    class="text-xl"
+                    aria-label={$_(
+                      "settings_versions_icon_githubRelease_altText",
+                    )}
+                  />
+                </a>
+              {/if}
+            </TableBodyCell>
+          </TableBodyRow>
+        {/each}
+      </TableBody>
+    </Table>
+  {/if}
 {/if}
