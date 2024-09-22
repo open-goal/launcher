@@ -609,7 +609,6 @@ pub async fn open_repl(
     command
       .args([
         "./goalc",
-        "--",
         "--proj-path",
         &data_folder.to_string_lossy(),
       ])
