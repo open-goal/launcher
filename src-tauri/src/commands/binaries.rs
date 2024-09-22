@@ -607,11 +607,7 @@ pub async fn open_repl(
   {
     let mut command = Command::new("xdg-terminal-exec");
     command
-      .args([
-        "./goalc",
-        "--proj-path",
-        &data_folder.to_string_lossy(),
-      ])
+      .args(["./goalc", "--proj-path", &data_folder.to_string_lossy()])
       .current_dir(exec_info.executable_dir);
     command.spawn()?;
   }
