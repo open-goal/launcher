@@ -2,6 +2,7 @@
 use std::os::windows::process::CommandExt;
 use std::{
   collections::HashMap,
+  io::ErrorKind,
   path::{Path, PathBuf},
   process::Command,
   time::Instant,
@@ -33,6 +34,12 @@ struct CommonConfigData {
   active_version: String,
   active_version_folder: String,
   tooling_version: Version,
+}
+
+#[derive(Clone, serde::Serialize)]
+struct ToastPayload {
+  toast: String,
+  level: String,
 }
 
 fn common_prelude(
@@ -582,15 +589,17 @@ pub async fn run_compiler(
 #[tauri::command]
 pub async fn open_repl(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  app_handle: tauri::AppHandle,
   game_name: String,
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
   let data_folder = get_data_dir(&config_info, &game_name, false)?;
   let exec_info = get_exec_location(&config_info, "goalc")?;
+  let mut command;
   #[cfg(windows)]
   {
-    let mut command = Command::new("cmd");
+    command = Command::new("cmd");
     command
       .args([
         "/K",
@@ -601,19 +610,17 @@ pub async fn open_repl(
       ])
       .current_dir(exec_info.executable_dir)
       .creation_flags(0x08000000);
-    command.spawn()?;
   }
   #[cfg(target_os = "linux")]
   {
-    let mut command = Command::new("xdg-terminal-exec");
+    command = Command::new("xdg-terminal-exec");
     command
       .args(["./goalc", "--proj-path", &data_folder.to_string_lossy()])
       .current_dir(exec_info.executable_dir);
-    command.spawn()?;
   }
   #[cfg(target_os = "macos")]
   {
-    let mut command = Command::new("open");
+    command = Command::new("open");
     command
       .args([
         "-a",
@@ -626,9 +633,24 @@ pub async fn open_repl(
         "--proj-path",
       ])
       .current_dir(exec_info.executable_dir);
-    command.spawn()?;
   }
-  Ok(())
+  match command.spawn() {
+    Ok(_) => Ok(()),
+    Err(e) => {
+      if let ErrorKind::NotFound = e.kind() {
+        let _ = app_handle.emit_all(
+          "toast_msg",
+          ToastPayload {
+            toast: format!("'{:?}' not found in PATH!", command.get_program()),
+            level: "error".to_string(),
+          },
+        );
+      }
+      return Err(CommandError::BinaryExecution(
+        "Unable to launch REPL".to_owned(),
+      ));
+    }
+  }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -774,12 +796,6 @@ pub async fn get_launch_game_string(
     exec_info.executable_path.display(),
     args.join(" ")
   ))
-}
-
-#[derive(Clone, serde::Serialize)]
-struct ToastPayload {
-  toast: String,
-  level: String,
 }
 
 #[tauri::command]
