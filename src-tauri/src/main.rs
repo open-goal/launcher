@@ -153,7 +153,6 @@ fn main() {
     })
     .invoke_handler(tauri::generate_handler![
       commands::binaries::extract_and_validate_iso,
-      commands::binaries::get_end_of_logs,
       commands::binaries::get_launch_game_string,
       commands::binaries::launch_game,
       commands::binaries::open_repl,

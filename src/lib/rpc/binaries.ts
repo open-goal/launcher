@@ -17,10 +17,6 @@ export async function updateDataDirectory(
   );
 }
 
-export async function getEndOfLogs(): Promise<string> {
-  return await invoke_rpc("get_end_of_logs", {}, () => "");
-}
-
 export async function extractAndValidateISO(
   pathToIso: string,
   gameName: string,

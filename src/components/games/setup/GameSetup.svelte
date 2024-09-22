@@ -7,7 +7,6 @@
   import { Alert, Button } from "flowbite-svelte";
   import {
     extractAndValidateISO,
-    getEndOfLogs,
     runCompiler,
     runDecompiler,
   } from "$lib/rpc/binaries";
@@ -92,7 +91,6 @@
         sourcePath,
         getInternalName(activeGame),
       );
-      progressTracker.updateLogs(await getEndOfLogs());
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
@@ -100,7 +98,6 @@
       }
       progressTracker.proceed();
       resp = await runDecompiler(sourcePath, getInternalName(activeGame));
-      progressTracker.updateLogs(await getEndOfLogs());
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
@@ -108,7 +105,6 @@
       }
       progressTracker.proceed();
       resp = await runCompiler(sourcePath, getInternalName(activeGame));
-      progressTracker.updateLogs(await getEndOfLogs());
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
@@ -129,11 +125,9 @@
 {#if !requirementsMet}
   <Requirements {activeGame} on:recheckRequirements={checkRequirements} />
 {:else if installing}
-  <div class="flex flex-col justify-content">
+  <div class="flex flex-col justify-content shrink">
     <Progress />
-    {#if $progressTracker.logs !== undefined}
-      <LogViewer />
-    {/if}
+    <LogViewer />
   </div>
   {#if $progressTracker.overallStatus === "success"}
     <div class="flex flex-col justify-end items-end mt-auto">

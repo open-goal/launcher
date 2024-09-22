@@ -1,11 +1,10 @@
-#[cfg(target_os = "windows")]
-use std::os::windows::process::CommandExt;
 use std::{
   collections::HashMap,
   path::{Path, PathBuf},
-  process::Command,
+  process::Stdio,
   time::Instant,
 };
+use tokio::{io::AsyncWriteExt, process::Command};
 
 use log::{info, warn};
 use semver::Version;
@@ -15,7 +14,10 @@ use tauri::Manager;
 
 use crate::{
   config::LauncherConfig,
-  util::file::{create_dir, overwrite_dir, read_last_lines_from_file},
+  util::{
+    file::{create_dir, overwrite_dir},
+    process::{create_log_file, create_std_log_file, watch_process},
+  },
   TAURI_APP,
 };
 
@@ -204,31 +206,6 @@ fn get_exec_location(
   })
 }
 
-fn create_log_file(
-  app_handle: &tauri::AppHandle,
-  name: &str,
-  append: bool,
-) -> Result<std::fs::File, CommandError> {
-  let log_path = &match app_handle.path_resolver().app_log_dir() {
-    None => {
-      return Err(CommandError::Installation(
-        "Could not determine path to save installation logs".to_owned(),
-      ))
-    }
-    Some(path) => path,
-  };
-  create_dir(log_path)?;
-  let mut file_options = std::fs::OpenOptions::new();
-  file_options.create(true);
-  if append {
-    file_options.append(true);
-  } else {
-    file_options.write(true).truncate(true);
-  }
-  let file = file_options.open(log_path.join(name))?;
-  Ok(file)
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InstallStepOutput {
@@ -250,18 +227,6 @@ pub async fn update_data_directory(
     success: true,
     msg: None,
   })
-}
-
-#[tauri::command]
-pub async fn get_end_of_logs(app_handle: tauri::AppHandle) -> Result<String, CommandError> {
-  Ok(read_last_lines_from_file(
-    &app_handle
-      .path_resolver()
-      .app_log_dir()
-      .unwrap()
-      .join("extractor.log"),
-    250,
-  )?)
 }
 
 #[tauri::command]
@@ -306,23 +271,34 @@ pub async fn extract_and_validate_iso(
     args.push(game_name.clone());
   }
 
-  // This is the first install step, reset the file
-  let log_file = create_log_file(&app_handle, "extractor.log", false)?;
-
   log::info!("Running extractor with args: {:?}", args);
 
   let mut command = Command::new(exec_info.executable_path);
   command
     .args(args)
-    .current_dir(exec_info.executable_dir)
-    .stdout(log_file.try_clone()?)
-    .stderr(log_file.try_clone()?);
+    .stdout(Stdio::piped())
+    .stderr(Stdio::piped())
+    .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
     command.creation_flags(0x08000000);
   }
-  let output = command.output()?;
-  match output.status.code() {
+  let mut child = command.spawn()?;
+
+  // This is the first install step, reset the file
+  let mut log_file =
+    create_log_file(&app_handle, format!("extractor-{game_name}.log"), true).await?;
+
+  let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
+  log_file.flush().await?;
+  if process_status.is_none() {
+    log::error!("extraction and validation was not successful. No status code");
+    return Ok(InstallStepOutput {
+      success: false,
+      msg: Some("Unexpected error occurred".to_owned()),
+    });
+  }
+  match process_status.unwrap().code() {
     Some(code) => {
       if code == 0 {
         log::info!("extraction and validation was successful");
@@ -337,8 +313,6 @@ pub async fn extract_and_validate_iso(
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
       log::error!("extraction and validation was not successful. Code {code}");
-      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some(message.msg.clone()),
@@ -346,8 +320,6 @@ pub async fn extract_and_validate_iso(
     }
     None => {
       log::error!("extraction and validation was not successful. No status code");
-      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some("Unexpected error occurred".to_owned()),
@@ -392,7 +364,6 @@ pub async fn run_decompiler(
       .to_string();
   }
 
-  let log_file = create_log_file(&app_handle, "extractor.log", !truncate_logs)?;
   let mut command = Command::new(exec_info.executable_path);
 
   let mut decomp_config_overrides = vec![];
@@ -442,15 +413,35 @@ pub async fn run_decompiler(
 
   command
     .args(args)
-    .stdout(log_file.try_clone()?)
-    .stderr(log_file)
+    .stdout(Stdio::piped())
+    .stderr(Stdio::piped())
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
     command.creation_flags(0x08000000);
   }
-  let output = command.output()?;
-  match output.status.code() {
+
+  let mut child = command.spawn()?;
+
+  let mut log_file = create_log_file(
+    &app_handle,
+    format!("extractor-{game_name}.log"),
+    !truncate_logs,
+  )
+  .await?;
+
+  let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
+
+  // Ensure all remaining data is flushed to the file
+  log_file.flush().await?;
+  if process_status.is_none() {
+    log::error!("decompilation was not successful. No status code");
+    return Ok(InstallStepOutput {
+      success: false,
+      msg: Some("Unexpected error occurred".to_owned()),
+    });
+  }
+  match process_status.unwrap().code() {
     Some(code) => {
       if code == 0 {
         log::info!("decompilation was successful");
@@ -465,8 +456,6 @@ pub async fn run_decompiler(
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
       log::error!("decompilation was not successful. Code {code}");
-      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some(message.msg.clone()),
@@ -474,8 +463,6 @@ pub async fn run_decompiler(
     }
     None => {
       log::error!("decompilation was not successful. No status code");
-      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some("Unexpected error occurred".to_owned()),
@@ -519,7 +506,6 @@ pub async fn run_compiler(
       .to_string();
   }
 
-  let log_file = create_log_file(&app_handle, "extractor.log", !truncate_logs)?;
   let mut args = vec![
     source_path,
     "--compile".to_string(),
@@ -537,15 +523,25 @@ pub async fn run_compiler(
   let mut command = Command::new(exec_info.executable_path);
   command
     .args(args)
-    .stdout(log_file.try_clone().unwrap())
-    .stderr(log_file)
+    .stdout(Stdio::piped())
+    .stderr(Stdio::piped())
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
     command.creation_flags(0x08000000);
   }
-  let output = command.output()?;
-  match output.status.code() {
+  let mut child = command.spawn()?;
+
+  let mut log_file = create_log_file(
+    &app_handle,
+    format!("extractor-{game_name}.log"),
+    !truncate_logs,
+  )
+  .await?;
+
+  let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
+  log_file.flush().await?;
+  match process_status.unwrap().code() {
     Some(code) => {
       if code == 0 {
         log::info!("compilation was successful");
@@ -560,8 +556,6 @@ pub async fn run_compiler(
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
       log::error!("compilation was not successful. Code {code}");
-      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some(message.msg.clone()),
@@ -569,8 +563,6 @@ pub async fn run_compiler(
     }
     None => {
       log::error!("compilation was not successful. No status code");
-      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some("Unexpected error occurred".to_owned()),
@@ -657,7 +649,7 @@ pub async fn run_game_gpu_test(
   {
     command.creation_flags(0x08000000);
   }
-  let output = command.output()?;
+  let output = command.output().await?;
   match output.status.code() {
     Some(code) => {
       if code == 0 {
@@ -782,10 +774,9 @@ pub async fn launch_game(
     args
   );
 
-  let log_file = create_log_file(&app_handle, "game.log", false)?;
+  let log_file = create_std_log_file(&app_handle, format!("game-{game_name}.log"), false)?;
 
-  // TODO - log rotation here would be nice too, and for it to be game specific
-  let mut command = Command::new(exec_info.executable_path);
+  let mut command = std::process::Command::new(exec_info.executable_path);
   command
     .args(args)
     .stdout(log_file.try_clone().unwrap())
@@ -793,7 +784,7 @@ pub async fn launch_game(
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
-    command.creation_flags(0x08000000);
+    std::os::windows::process::CommandExt::creation_flags(&mut command, 0x08000000);
   }
   // Start the process here so if there is an error, we can return immediately
   let mut child = command.spawn()?;
