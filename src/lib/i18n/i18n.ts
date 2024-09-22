@@ -215,5 +215,7 @@ export async function initLocales(async: boolean) {
   });
   if (!async) {
     await initPromise;
+  } else {
+    return initPromise;
   }
 }
