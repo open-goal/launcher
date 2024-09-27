@@ -19,14 +19,14 @@
     {
       statusText: "splash_step_loadingTranslations",
       func: async () => {
-        return await checkLocale();
+        await checkLocale();
       },
       waitingForInteraction: false,
     },
     {
       statusText: "splash_step_checkingDirectories",
       func: async () => {
-        return await checkDirectories();
+        await checkDirectories();
       },
       waitingForInteraction: false,
     },
@@ -52,7 +52,6 @@
         if (!errorClosing) {
           errorText = $_("splash_step_errorOpening");
         }
-        return checkDirectories();
       },
       waitingForInteraction: false,
     });
@@ -107,7 +106,7 @@
     const install_dir = await getInstallationDirectory();
     if (install_dir === null) {
       // If not -- let's ask the user to set one up
-      stepsToDo.push({
+      stepsToDo.splice(currentStepIndex + 1, 0, {
         statusText: "splash_noInstallDirSet",
         waitingForInteraction: true,
         func: async () => {},
@@ -115,9 +114,11 @@
     }
   }
 
-  async function handleLocaleChange(event: any) {
+  async function handleLocaleChange(event: any, forStep: boolean) {
     await setLocale(event.detail.newLocale);
-    await proceedInSteps(true, false);
+    if (forStep) {
+      await proceedInSteps(true, false);
+    }
   }
 </script>
 
@@ -141,7 +142,7 @@
         <div class="splash-status-text">
           {$_(stepsToDo[currentStepIndex].statusText)}
         </div>
-        <SelectLocale on:change={handleLocaleChange} />
+        <SelectLocale on:change={(evt) => handleLocaleChange(evt, true)} />
       {:else if stepsToDo[currentStepIndex].statusText === "splash_noInstallDirSet"}
         <ChooseInstallFolder
           on:complete={async () => {
@@ -163,7 +164,7 @@
       <div data-tauri-drag-region class="splash-status-bar bg" />
     </div>
     {#if stepsToDo[currentStepIndex].statusText === "splash_noInstallDirSet"}
-      <LocaleQuickChanger on:change={handleLocaleChange} />
+      <LocaleQuickChanger on:change={(evt) => handleLocaleChange(evt, false)} />
     {/if}
   {/if}
 </div>
