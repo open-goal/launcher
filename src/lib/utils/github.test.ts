@@ -1,12 +1,28 @@
-import { afterEach, describe, expect, it, vi, type Mock } from "vitest";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type Mock,
+} from "vitest";
 import { arch, platform } from "@tauri-apps/api/os";
 import { listOfficialReleases } from "./github";
+import { init } from "svelte-i18n";
+import { initLocales } from "$lib/i18n/i18n";
 
 vi.mock("@tauri-apps/api/os");
 global.fetch = vi.fn();
 
 function createFetchResponse(data: any) {
-  return { json: () => new Promise((resolve) => resolve(data)) };
+  return {
+    ok: true,
+    status: 200,
+    headers: new Map(),
+    json: () => new Promise((resolve) => resolve(data)),
+  };
 }
 
 function createFakeGithubReleaseAsset(assetName) {
@@ -120,6 +136,10 @@ function createFakeGithubRelease(assetNames: string[]) {
     mentions_count: 1,
   };
 }
+
+beforeAll(async () => {
+  await initLocales(true);
+});
 
 describe("listOfficialReleases", () => {
   afterEach(() => {

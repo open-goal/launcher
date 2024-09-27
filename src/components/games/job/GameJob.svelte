@@ -7,7 +7,6 @@
   import type { Job } from "$lib/utils/jobs";
   import { getInternalName, type SupportedGame } from "$lib/constants";
   import {
-    getEndOfLogs,
     runCompiler,
     runDecompiler,
     updateDataDirectory,
@@ -60,7 +59,6 @@
     ]);
     progressTracker.start();
     let resp = await runDecompiler("", getInternalName(activeGame), true);
-    progressTracker.updateLogs(await getEndOfLogs());
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -84,7 +82,6 @@
     ]);
     progressTracker.start();
     let resp = await runCompiler("", getInternalName(activeGame), true);
-    progressTracker.updateLogs(await getEndOfLogs());
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -116,7 +113,6 @@
     ]);
     progressTracker.start();
     let resp = await updateDataDirectory(getInternalName(activeGame));
-    progressTracker.updateLogs(await getEndOfLogs());
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -124,7 +120,6 @@
     }
     progressTracker.proceed();
     resp = await runDecompiler("", getInternalName(activeGame), true);
-    progressTracker.updateLogs(await getEndOfLogs());
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -132,7 +127,6 @@
     }
     progressTracker.proceed();
     resp = await runCompiler("", getInternalName(activeGame));
-    progressTracker.updateLogs(await getEndOfLogs());
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -198,7 +192,6 @@
     }
     progressTracker.proceed();
     resp = await runDecompiler("", getInternalName(activeGame), true);
-    progressTracker.updateLogs(await getEndOfLogs());
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -248,7 +241,6 @@
           modSourceName,
           sourcePath,
         );
-        progressTracker.updateLogs(await getEndOfLogs());
         if (!resp.success) {
           progressTracker.halt();
           installationError = resp.msg;
@@ -266,7 +258,6 @@
       modName,
       modSourceName,
     );
-    progressTracker.updateLogs(await getEndOfLogs());
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -278,7 +269,6 @@
       modName,
       modSourceName,
     );
-    progressTracker.updateLogs(await getEndOfLogs());
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -338,7 +328,6 @@
           modSourceName,
           sourcePath,
         );
-        progressTracker.updateLogs(await getEndOfLogs());
         if (!resp.success) {
           progressTracker.halt();
           installationError = resp.msg;
@@ -368,7 +357,6 @@
       modName,
       modSourceName,
     );
-    progressTracker.updateLogs(await getEndOfLogs());
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -380,7 +368,6 @@
       modName,
       modSourceName,
     );
-    progressTracker.updateLogs(await getEndOfLogs());
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -420,7 +407,6 @@
       modName,
       modSourceName,
     );
-    progressTracker.updateLogs(await getEndOfLogs());
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -449,8 +435,6 @@
       modName,
       modSourceName,
     );
-    // TODO - stream logs
-    progressTracker.updateLogs(await getEndOfLogs());
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -494,9 +478,7 @@
 
 <div class="flex flex-col justify-content">
   <Progress />
-  {#if $progressTracker.logs !== undefined}
-    <LogViewer />
-  {/if}
+  <LogViewer />
 </div>
 {#if $progressTracker.overallStatus === "success"}
   <div class="flex flex-col justify-end items-end mt-auto">

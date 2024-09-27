@@ -60,3 +60,7 @@
 .font-mono {
   font-family: "Noto Sans Mono", monospace !important;
 }
+
+.font-mono span {
+  font-family: "Noto Sans Mono", monospace !important;
+}

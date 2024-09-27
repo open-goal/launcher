@@ -1,7 +1,6 @@
 <script lang="ts">
   import { getInternalName, SupportedGame } from "$lib/constants";
   import { openDir } from "$lib/rpc/window";
-  import IconArrowLeft from "~icons/mdi/arrow-left";
   import IconCog from "~icons/mdi/cog";
   import { configDir, join } from "@tauri-apps/api/path";
   import { createEventDispatcher, onMount } from "svelte";
@@ -17,7 +16,12 @@
   } from "flowbite-svelte";
   import { resetGameSettings, uninstallGame } from "$lib/rpc/game";
   import { platform } from "@tauri-apps/api/os";
-  import { getLaunchGameString, launchGame, openREPL } from "$lib/rpc/binaries";
+  import {
+    getLaunchGameString,
+    launchGame,
+    launchGameWithCustomExecutable,
+    openREPL,
+  } from "$lib/rpc/binaries";
   import {
     doesActiveToolingVersionMeetMinimum,
     getInstallationDirectory,
@@ -27,7 +31,6 @@
   import { navigate } from "svelte-navigator";
   import { listen } from "@tauri-apps/api/event";
   import { toastStore } from "$lib/stores/ToastStore";
-  import { launchMod } from "$lib/rpc/features";
 
   export let activeGame: SupportedGame;
 
@@ -167,13 +170,16 @@
           launchGame(getInternalName(activeGame), true);
         }}>{$_("gameControls_button_playInDebug")}</DropdownItem
       >
-      {#if !isLinux}
-        <DropdownItem
-          on:click={async () => {
-            openREPL(getInternalName(activeGame));
-          }}>{$_("gameControls_button_openREPL")}</DropdownItem
-        >
-      {/if}
+      <DropdownItem
+        on:click={async () => {
+          launchGameWithCustomExecutable(getInternalName(activeGame));
+        }}>Launch with Custom Executable</DropdownItem
+      >
+      <DropdownItem
+        on:click={async () => {
+          openREPL(getInternalName(activeGame));
+        }}>{$_("gameControls_button_openREPL")}</DropdownItem
+      >
       <DropdownDivider />
       <DropdownItem
         on:click={async () => {

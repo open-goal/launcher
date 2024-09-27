@@ -10,6 +10,7 @@ use tokio::sync::OnceCell;
 use util::file::create_dir;
 
 use backtrace::Backtrace;
+use native_dialog::{MessageDialog, MessageType};
 use std::io::Write;
 
 mod cache;
@@ -40,6 +41,19 @@ fn log_crash(panic_info: Option<&std::panic::PanicInfo>, error: Option<tauri::Er
       }
     }
   }
+
+  let mut dialog_text = format!("Unrecoverable crash occurred!");
+  if cfg!(windows) {
+    dialog_text = format!("{dialog_text} Ensure you have not uninstalled WebView2: https://developer.microsoft.com/en-us/microsoft-edge/webview2/?form=MA13LH#download");
+  }
+  dialog_text = format!("{dialog_text}\n\nDetails:\n{log_contents}");
+
+  MessageDialog::new()
+    .set_type(MessageType::Error)
+    .set_title("OpenGOAL Launcher Crash Info")
+    .set_text(&dialog_text)
+    .show_alert()
+    .unwrap();
 }
 
 fn panic_hook(info: &std::panic::PanicInfo) {
@@ -139,7 +153,6 @@ fn main() {
     })
     .invoke_handler(tauri::generate_handler![
       commands::binaries::extract_and_validate_iso,
-      commands::binaries::get_end_of_logs,
       commands::binaries::get_launch_game_string,
       commands::binaries::launch_game,
       commands::binaries::open_repl,

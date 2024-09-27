@@ -2,10 +2,13 @@
 use std::os::windows::process::CommandExt;
 use std::{
   collections::HashMap,
+  io::ErrorKind,
   path::{Path, PathBuf},
-  process::Command,
+  process::Stdio,
+  str::FromStr,
   time::Instant,
 };
+use tokio::{io::AsyncWriteExt, process::Command};
 
 use log::{info, warn};
 use semver::Version;
@@ -15,7 +18,10 @@ use tauri::Manager;
 
 use crate::{
   config::LauncherConfig,
-  util::file::{create_dir, overwrite_dir, read_last_lines_from_file},
+  util::{
+    file::{create_dir, overwrite_dir},
+    process::{create_log_file, create_std_log_file, watch_process},
+  },
   TAURI_APP,
 };
 
@@ -33,6 +39,12 @@ struct CommonConfigData {
   active_version: String,
   active_version_folder: String,
   tooling_version: Version,
+}
+
+#[derive(Clone, serde::Serialize)]
+struct ToastPayload {
+  toast: String,
+  level: String,
 }
 
 fn common_prelude(
@@ -204,31 +216,6 @@ fn get_exec_location(
   })
 }
 
-fn create_log_file(
-  app_handle: &tauri::AppHandle,
-  name: &str,
-  append: bool,
-) -> Result<std::fs::File, CommandError> {
-  let log_path = &match app_handle.path_resolver().app_log_dir() {
-    None => {
-      return Err(CommandError::Installation(
-        "Could not determine path to save installation logs".to_owned(),
-      ))
-    }
-    Some(path) => path,
-  };
-  create_dir(log_path)?;
-  let mut file_options = std::fs::OpenOptions::new();
-  file_options.create(true);
-  if append {
-    file_options.append(true);
-  } else {
-    file_options.write(true).truncate(true);
-  }
-  let file = file_options.open(log_path.join(name))?;
-  Ok(file)
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InstallStepOutput {
@@ -250,18 +237,6 @@ pub async fn update_data_directory(
     success: true,
     msg: None,
   })
-}
-
-#[tauri::command]
-pub async fn get_end_of_logs(app_handle: tauri::AppHandle) -> Result<String, CommandError> {
-  Ok(read_last_lines_from_file(
-    &app_handle
-      .path_resolver()
-      .app_log_dir()
-      .unwrap()
-      .join("extractor.log"),
-    250,
-  )?)
 }
 
 #[tauri::command]
@@ -306,23 +281,34 @@ pub async fn extract_and_validate_iso(
     args.push(game_name.clone());
   }
 
-  // This is the first install step, reset the file
-  let log_file = create_log_file(&app_handle, "extractor.log", false)?;
-
   log::info!("Running extractor with args: {:?}", args);
 
   let mut command = Command::new(exec_info.executable_path);
   command
     .args(args)
-    .current_dir(exec_info.executable_dir)
-    .stdout(log_file.try_clone()?)
-    .stderr(log_file.try_clone()?);
+    .stdout(Stdio::piped())
+    .stderr(Stdio::piped())
+    .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
     command.creation_flags(0x08000000);
   }
-  let output = command.output()?;
-  match output.status.code() {
+  let mut child = command.spawn()?;
+
+  // This is the first install step, reset the file
+  let mut log_file =
+    create_log_file(&app_handle, format!("extractor-{game_name}.log"), true).await?;
+
+  let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
+  log_file.flush().await?;
+  if process_status.is_none() {
+    log::error!("extraction and validation was not successful. No status code");
+    return Ok(InstallStepOutput {
+      success: false,
+      msg: Some("Unexpected error occurred".to_owned()),
+    });
+  }
+  match process_status.unwrap().code() {
     Some(code) => {
       if code == 0 {
         log::info!("extraction and validation was successful");
@@ -337,8 +323,6 @@ pub async fn extract_and_validate_iso(
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
       log::error!("extraction and validation was not successful. Code {code}");
-      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some(message.msg.clone()),
@@ -346,8 +330,6 @@ pub async fn extract_and_validate_iso(
     }
     None => {
       log::error!("extraction and validation was not successful. No status code");
-      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some("Unexpected error occurred".to_owned()),
@@ -392,7 +374,6 @@ pub async fn run_decompiler(
       .to_string();
   }
 
-  let log_file = create_log_file(&app_handle, "extractor.log", !truncate_logs)?;
   let mut command = Command::new(exec_info.executable_path);
 
   let mut decomp_config_overrides = vec![];
@@ -442,15 +423,35 @@ pub async fn run_decompiler(
 
   command
     .args(args)
-    .stdout(log_file.try_clone()?)
-    .stderr(log_file)
+    .stdout(Stdio::piped())
+    .stderr(Stdio::piped())
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
     command.creation_flags(0x08000000);
   }
-  let output = command.output()?;
-  match output.status.code() {
+
+  let mut child = command.spawn()?;
+
+  let mut log_file = create_log_file(
+    &app_handle,
+    format!("extractor-{game_name}.log"),
+    !truncate_logs,
+  )
+  .await?;
+
+  let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
+
+  // Ensure all remaining data is flushed to the file
+  log_file.flush().await?;
+  if process_status.is_none() {
+    log::error!("decompilation was not successful. No status code");
+    return Ok(InstallStepOutput {
+      success: false,
+      msg: Some("Unexpected error occurred".to_owned()),
+    });
+  }
+  match process_status.unwrap().code() {
     Some(code) => {
       if code == 0 {
         log::info!("decompilation was successful");
@@ -465,8 +466,6 @@ pub async fn run_decompiler(
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
       log::error!("decompilation was not successful. Code {code}");
-      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some(message.msg.clone()),
@@ -474,8 +473,6 @@ pub async fn run_decompiler(
     }
     None => {
       log::error!("decompilation was not successful. No status code");
-      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some("Unexpected error occurred".to_owned()),
@@ -519,7 +516,6 @@ pub async fn run_compiler(
       .to_string();
   }
 
-  let log_file = create_log_file(&app_handle, "extractor.log", !truncate_logs)?;
   let mut args = vec![
     source_path,
     "--compile".to_string(),
@@ -537,15 +533,25 @@ pub async fn run_compiler(
   let mut command = Command::new(exec_info.executable_path);
   command
     .args(args)
-    .stdout(log_file.try_clone().unwrap())
-    .stderr(log_file)
+    .stdout(Stdio::piped())
+    .stderr(Stdio::piped())
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
     command.creation_flags(0x08000000);
   }
-  let output = command.output()?;
-  match output.status.code() {
+  let mut child = command.spawn()?;
+
+  let mut log_file = create_log_file(
+    &app_handle,
+    format!("extractor-{game_name}.log"),
+    !truncate_logs,
+  )
+  .await?;
+
+  let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
+  log_file.flush().await?;
+  match process_status.unwrap().code() {
     Some(code) => {
       if code == 0 {
         log::info!("compilation was successful");
@@ -560,8 +566,6 @@ pub async fn run_compiler(
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
       log::error!("compilation was not successful. Code {code}");
-      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some(message.msg.clone()),
@@ -569,8 +573,6 @@ pub async fn run_compiler(
     }
     None => {
       log::error!("compilation was not successful. No status code");
-      log::error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
-      log::error!("stdout: {}", String::from_utf8_lossy(&output.stdout));
       Ok(InstallStepOutput {
         success: false,
         msg: Some("Unexpected error occurred".to_owned()),
@@ -582,33 +584,66 @@ pub async fn run_compiler(
 #[tauri::command]
 pub async fn open_repl(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  app_handle: tauri::AppHandle,
   game_name: String,
 ) -> Result<(), CommandError> {
-  // TODO - explore a linux option though this is very annoying because without doing a ton of research
-  // we seem to have to handle various terminals.  Which honestly we should probably do on windows too
-  //
-  // So maybe we can make a menu where the user will specify what terminal to use / what launch-options to use
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
-
   let data_folder = get_data_dir(&config_info, &game_name, false)?;
   let exec_info = get_exec_location(&config_info, "goalc")?;
-  let mut command = Command::new("cmd");
-  command
-    .args([
-      "/K",
-      "start",
-      &bin_ext("goalc"),
-      "--proj-path",
-      &data_folder.to_string_lossy(),
-    ])
-    .current_dir(exec_info.executable_dir);
+  let mut command;
   #[cfg(windows)]
   {
-    command.creation_flags(0x08000000);
+    command = std::process::Command::new("cmd");
+    command
+      .args([
+        "/K",
+        "start",
+        &bin_ext("goalc"),
+        "--proj-path",
+        &data_folder.to_string_lossy(),
+      ])
+      .current_dir(exec_info.executable_dir)
+      .creation_flags(0x08000000);
   }
-  command.spawn()?;
-  Ok(())
+  #[cfg(target_os = "linux")]
+  {
+    command = std::process::Command::new("xdg-terminal-exec");
+    command
+      .args(["./goalc", "--proj-path", &data_folder.to_string_lossy()])
+      .current_dir(exec_info.executable_dir);
+  }
+  #[cfg(target_os = "macos")]
+  {
+    command = std::process::Command::new("osascript");
+    command
+      .args([
+        "-e",
+        "'tell app \"Terminal\" to do script",
+        format!("\"cd {:?}\" &&", exec_info.executable_dir).as_str(),
+        "./goalc",
+        "--proj-path",
+        &data_folder.to_string_lossy(),
+      ])
+      .current_dir(exec_info.executable_dir);
+  }
+  match command.spawn() {
+    Ok(_) => Ok(()),
+    Err(e) => {
+      if let ErrorKind::NotFound = e.kind() {
+        let _ = app_handle.emit_all(
+          "toast_msg",
+          ToastPayload {
+            toast: format!("'{:?}' not found in PATH!", command.get_program()),
+            level: "error".to_string(),
+          },
+        );
+      }
+      return Err(CommandError::BinaryExecution(
+        "Unable to launch REPL".to_owned(),
+      ));
+    }
+  }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -657,7 +692,7 @@ pub async fn run_game_gpu_test(
   {
     command.creation_flags(0x08000000);
   }
-  let output = command.output()?;
+  let output = command.output().await?;
   match output.status.code() {
     Some(code) => {
       if code == 0 {
@@ -762,24 +797,49 @@ pub async fn launch_game(
   app_handle: tauri::AppHandle,
   game_name: String,
   in_debug: bool,
+  executable_location: Option<String>,
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
-  let exec_info = get_exec_location(&config_info, "gk")?;
+  let mut exec_info = get_exec_location(&config_info, "gk")?;
+  if let Some(custom_exec_location) = executable_location {
+    match PathBuf::from_str(custom_exec_location.as_str()) {
+      Ok(exec_path) => {
+        let path_copy = exec_path.clone();
+        if path_copy.parent().is_none() {
+          return Err(CommandError::BinaryExecution(format!(
+            "Failed to resolve custom binary parent directory"
+          )));
+        }
+        exec_info = ExecutableLocation {
+          executable_dir: exec_path.clone().parent().unwrap().to_path_buf(),
+          executable_path: exec_path.clone(),
+        };
+      }
+      Err(err) => {
+        return Err(CommandError::BinaryExecution(format!(
+          "Failed to resolve custom binary location {}",
+          err
+        )));
+      }
+    }
+  }
+
   let args = generate_launch_game_string(&config_info, game_name.clone(), in_debug, false)?;
 
   log::info!(
-    "Launching game version {:?} -> {:?} with args: {:?}",
+    "Launching game version {:?} -> {:?} with args: {:?}. Working Directory: {:?}, Path: {:?}",
     &config_info.active_version,
     &config_info.tooling_version,
-    args
+    args,
+    exec_info.executable_dir,
+    exec_info.executable_path,
   );
 
-  let log_file = create_log_file(&app_handle, "game.log", false)?;
+  let log_file = create_std_log_file(&app_handle, format!("game-{game_name}.log"), false)?;
 
-  // TODO - log rotation here would be nice too, and for it to be game specific
-  let mut command = Command::new(exec_info.executable_path);
+  let mut command = std::process::Command::new(exec_info.executable_path);
   command
     .args(args)
     .stdout(log_file.try_clone().unwrap())
@@ -787,7 +847,7 @@ pub async fn launch_game(
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
-    command.creation_flags(0x08000000);
+    std::os::windows::process::CommandExt::creation_flags(&mut command, 0x08000000);
   }
   // Start the process here so if there is an error, we can return immediately
   let mut child = command.spawn()?;
@@ -795,9 +855,22 @@ pub async fn launch_game(
   tokio::spawn(async move {
     let start_time = Instant::now(); // get the start time of the game
                                      // start waiting for the game to exit
-    if let Err(err) = child.wait() {
-      log::error!("Error occured when waiting for game to exit: {}", err);
-      return;
+    match child.wait() {
+      Ok(status_code) => {
+        if !status_code.code().is_some() || status_code.code().unwrap() != 0 {
+          let _ = app_handle.emit_all(
+            "toast_msg",
+            ToastPayload {
+              toast: "Game crashed unexpectedly!".to_string(),
+              level: "error".to_string(),
+            },
+          );
+        }
+      }
+      Err(err) => {
+        log::error!("Error occured when waiting for game to exit: {}", err);
+        return;
+      }
     }
     // once the game exits pass the time the game started to the track_playtine function
     if let Err(err) = track_playtime(start_time, game_name).await {
