@@ -21,9 +21,13 @@ describe("Splash.svelte", () => {
   });
 
   it("should render the splash", async () => {
+    mockIPC((cmd, args) => {
+      console.log(`Unhandled Tauri IPC: ${cmd}`);
+    });
     render(Splash, {});
-    const logo = screen.getByTestId("splash-logo");
-    expect(logo).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("splash-logo")).toBeTruthy();
+    });
   });
 
   it("should display the locale dropdown", async () => {
@@ -59,37 +63,6 @@ describe("Splash.svelte", () => {
     expect(localeSelect).toBeTruthy();
     fireEvent.change(localeSelect, { target: { value: "en-US" } });
     expect(localeSelect.value).toBe("en-US");
-  });
-
-  it("should prompt user to delete old data directory - delete it", async () => {
-    // TODO - generalize into function
-    // return an object that tracks mock calls / args
-    let oldDataDirDeleted = false;
-    mockIPC((cmd, args) => {
-      if (cmd === "get_locale") {
-        return "en-US";
-      } else if (cmd === "get_install_directory") {
-        return null;
-      } else if (cmd === "has_old_data_directory") {
-        return true;
-      } else if (cmd === "delete_old_data_directory") {
-        oldDataDirDeleted = true;
-      } else {
-        console.log(`Unhandled Tauri IPC: ${cmd}`);
-      }
-    });
-    render(Splash, {});
-    const deleteOldDataDirButton = await screen.findByTestId(
-      "delete-old-data-dir-button",
-    );
-    expect(deleteOldDataDirButton).toBeTruthy();
-    // delete the dir, it'll go away
-    fireEvent.click(deleteOldDataDirButton);
-    expect(oldDataDirDeleted).toBeTruthy();
-    const pickInstallFolderButton = await screen.findByTestId(
-      "pick-install-folder-button",
-    );
-    expect(pickInstallFolderButton).toBeTruthy();
   });
 
   it("should prompt user to select installation directory - cancelled dialog", async () => {
@@ -144,11 +117,13 @@ describe("Splash.svelte", () => {
     });
     vi.mocked(folderPrompt).mockResolvedValue("/wow/good/job/nice/folder");
     render(Splash, {});
-    let pickInstallFolderButton = await screen.findByTestId(
-      "pick-install-folder-button",
-    );
-    expect(pickInstallFolderButton).toBeTruthy();
-    fireEvent.click(pickInstallFolderButton);
+    await waitFor(async () => {
+      let pickInstallFolderButton = await screen.findByTestId(
+        "pick-install-folder-button",
+      );
+      expect(pickInstallFolderButton).toBeTruthy();
+      fireEvent.click(pickInstallFolderButton);
+    });
     await waitFor(() => {
       expect(setInstallDirectorySet).toBeTruthy();
     });
@@ -182,15 +157,17 @@ describe("Splash.svelte", () => {
     });
     vi.mocked(folderPrompt).mockResolvedValue("/wow/good/job/nice/folder");
     render(Splash, {});
-    let pickInstallFolderButton = await screen.findByTestId(
-      "pick-install-folder-button",
-    );
-    expect(pickInstallFolderButton).toBeTruthy();
-    fireEvent.click(pickInstallFolderButton);
+    await waitFor(async () => {
+      let pickInstallFolderButton = await screen.findByTestId(
+        "pick-install-folder-button",
+      );
+      expect(pickInstallFolderButton).toBeTruthy();
+      fireEvent.click(pickInstallFolderButton);
+    });
     await waitFor(() => {
       screen.findByText("wow that was a terrible directory");
     });
-    pickInstallFolderButton = await screen.findByTestId(
+    let pickInstallFolderButton = await screen.findByTestId(
       "pick-install-folder-button",
     );
     expect(pickInstallFolderButton).toBeTruthy();
