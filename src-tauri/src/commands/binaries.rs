@@ -600,6 +600,8 @@ pub async fn open_repl(
         "/K",
         "start",
         &bin_ext("goalc"),
+        "--game",
+        &game_name,
         "--proj-path",
         &data_folder.to_string_lossy(),
       ])
