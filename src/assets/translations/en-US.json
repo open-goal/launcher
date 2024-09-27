@@ -104,6 +104,7 @@
   "requirements_windows_cantCheckIfVccRuntimeInstalled": "Unable to check if Microsoft Visual C++ Runtime is installed",
   "requirements_windows_vccRuntimeNotInstalled": "Microsoft Visual C++ Runtime is not installed or is out of date",
   "requirements_windows_vccRuntimeExplanation": "A recent version of the Microsoft Visual C++ Runtime is required to run the game",
+  "gameUpdate_windows_vccRuntimeExplanation": "A recent version of the Microsoft Visual C++ Runtime is required to update the game",
   "requirements_windows_vccRuntimeExplanation_downloadLink": "Download the latest Microsoft Visual C++ Runtime here",
   "requirements_notMet_header": "Unfortunately, your system does not meet all the minimum requirements or we were unable to check them",
   "settings_folders_installationDir_prompt": "Pick an Installation Folder",
