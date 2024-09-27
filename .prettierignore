@@ -4,3 +4,4 @@ dist/
 bundle-test/
 out/
 .yarn/
+src/assets/translations/
