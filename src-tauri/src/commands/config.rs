@@ -1,6 +1,7 @@
 use std::path::Path;
 
 use crate::{config::LauncherConfig, util::file::delete_dir};
+use crate::util::os::get_installed_vcc_runtime;
 use semver::Version;
 use sysinfo::Disks;
 use tauri::Manager;
@@ -118,48 +119,13 @@ pub async fn is_diskspace_requirement_met(
 pub async fn is_minimum_vcc_runtime_installed(
   _config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<bool, CommandError> {
-  use log::info;
-  use winreg::{
-    enums::{HKEY_LOCAL_MACHINE, KEY_READ},
-    RegKey,
-  };
-  let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
-  let path = r"SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64";
-
-  if let Ok(key) = hklm.open_subkey_with_flags(path, KEY_READ) {
-    let installed_value: u32 = key.get_value("Installed").map_err(|err| {
-      log::error!("Couldn't locate VCC runtime registry entry: {}", err);
-      CommandError::Configuration("Unable to check if VCC runtime is installed".to_owned())
-    })?;
-    let is_installed = installed_value == 1;
-    if !is_installed {
-      return Ok(false);
-    }
-    let minimum_version = semver::Version::new(14, 40, 33810);
-    let patch_version: u32 = key.get_value("Bld").map_err(|err| {
-      log::error!("Couldn't locate VCC runtime registry entry: {}", err);
-      CommandError::Configuration("Unable to check if VCC runtime is installed".to_owned())
-    })?;
-    let minor_version: u32 = key.get_value("Minor").map_err(|err| {
-      log::error!("Couldn't locate VCC runtime registry entry: {}", err);
-      CommandError::Configuration("Unable to check if VCC runtime is installed".to_owned())
-    })?;
-    let major_version: u32 = key.get_value("Major").map_err(|err| {
-      log::error!("Couldn't locate VCC runtime registry entry: {}", err);
-      CommandError::Configuration("Unable to check if VCC runtime is installed".to_owned())
-    })?;
-    let installed_version = semver::Version::new(
-      major_version.into(),
-      minor_version.into(),
-      patch_version.into(),
-    );
-    info!("Detected VCC Runtime: {major_version}.{minor_version}.{patch_version}");
-    return Ok(installed_version >= minimum_version);
+  let minimum_version = semver::Version::new(14, 40, 33810);
+  let installed_vcc_runtime_version = get_installed_vcc_runtime();
+  if installed_vcc_runtime_version.is_none() {
+    Err(CommandError::Configuration("Unable to check if VCC runtime is installed".to_owned()))
+  } else {
+    Ok(installed_vcc_runtime_version.unwrap() >= minimum_version)
   }
-
-  return Err(CommandError::Configuration(
-    "Unable to check if minimum VCC runtime is installed".to_owned(),
-  ));
 }
 
 #[cfg(target_os = "linux")]
