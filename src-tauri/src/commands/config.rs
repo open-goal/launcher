@@ -1,7 +1,7 @@
 use std::path::Path;
 
-use crate::{config::LauncherConfig, util::file::delete_dir};
 use crate::util::os::get_installed_vcc_runtime;
+use crate::{config::LauncherConfig, util::file::delete_dir};
 use semver::Version;
 use sysinfo::Disks;
 use tauri::Manager;
@@ -122,7 +122,9 @@ pub async fn is_minimum_vcc_runtime_installed(
   let minimum_version = semver::Version::new(14, 40, 33810);
   let installed_vcc_runtime_version = get_installed_vcc_runtime();
   if installed_vcc_runtime_version.is_none() {
-    Err(CommandError::Configuration("Unable to check if VCC runtime is installed".to_owned()))
+    Err(CommandError::Configuration(
+      "Unable to check if VCC runtime is installed".to_owned(),
+    ))
   } else {
     Ok(installed_vcc_runtime_version.unwrap() >= minimum_version)
   }

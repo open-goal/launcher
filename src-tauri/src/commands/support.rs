@@ -14,9 +14,10 @@ use tauri::api::path::config_dir;
 
 use crate::{
   config::LauncherConfig,
-  util::{os::get_installed_vcc_runtime, zip::{
-    append_dir_contents_to_zip, append_file_to_zip, check_if_zip_contains_top_level_file,
-  }},
+  util::{
+    os::get_installed_vcc_runtime,
+    zip::{append_dir_contents_to_zip, append_file_to_zip, check_if_zip_contains_top_level_file},
+  },
 };
 
 use super::CommandError;
