@@ -44,7 +44,7 @@ pub async fn uninstall_game(
         log::error!("Failed to delete directory: {:?}", e);
         Err(e)
       }
-    }
+    },
   }?;
 
   match std::fs::remove_dir_all(data_folder.join("iso_data")) {
@@ -55,7 +55,7 @@ pub async fn uninstall_game(
         log::error!("Failed to delete directory: {:?}", e);
         Err(e)
       }
-    }
+    },
   }?;
 
   match std::fs::remove_dir_all(data_folder.join("out")) {
@@ -66,7 +66,7 @@ pub async fn uninstall_game(
         log::error!("Failed to delete directory: {:?}", e);
         Err(e)
       }
-    }
+    },
   }?;
 
   config_lock
