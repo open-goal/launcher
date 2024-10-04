@@ -36,21 +36,38 @@ pub async fn uninstall_game(
     .join(&game_name)
     .join("data");
 
-  std::fs::remove_dir_all(data_folder.join("decompiler_out")).unwrap_or_else(|e| {
-    if e.kind() != std::io::ErrorKind::NotFound {
-        return Err(CommandError::GameManagement("Failed to remove decompiler_out directory: {}", e));
+  match std::fs::remove_dir_all(data_folder.join("decompiler_out")) {
+    Ok(_) => Ok(()),
+    Err(e) => match e.kind() {
+      std::io::ErrorKind::NotFound => Ok(()),
+      _ => {
+        log::error!("Failed to delete directory: {:?}", e);
+        Err(e)
+      }
     }
-  });
-  std::fs::remove_dir_all(data_folder.join("iso_data")).unwrap_or_else(|e| {
-    if e.kind() != std::io::ErrorKind::NotFound {
-        return Err(CommandError::GameManagement("Failed to remove iso_data directory: {}", e));
+  }?;
+
+  match std::fs::remove_dir_all(data_folder.join("iso_data")) {
+    Ok(_) => Ok(()),
+    Err(e) => match e.kind() {
+      std::io::ErrorKind::NotFound => Ok(()),
+      _ => {
+        log::error!("Failed to delete directory: {:?}", e);
+        Err(e)
+      }
     }
-  });
-  std::fs::remove_dir_all(data_folder.join("out")).unwrap_or_else(|e| {
-    if e.kind() != std::io::ErrorKind::NotFound {
-        return Err(CommandError::GameManagement("Failed to remove out directory: {}", e));
+  }?;
+
+  match std::fs::remove_dir_all(data_folder.join("out")) {
+    Ok(_) => Ok(()),
+    Err(e) => match e.kind() {
+      std::io::ErrorKind::NotFound => Ok(()),
+      _ => {
+        log::error!("Failed to delete directory: {:?}", e);
+        Err(e)
+      }
     }
-  });
+  }?;
 
   config_lock
     .update_installed_game_version(&game_name, false)
