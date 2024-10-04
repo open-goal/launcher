@@ -45,9 +45,9 @@
   const dispatch = createEventDispatcher();
   let installationError: string | undefined | null = undefined;
 
-   $: if ($progressTracker.overallStatus === "success") {
-      dispatch("jobFinished");
-    }
+  $: if ($progressTracker.overallStatus === "success") {
+    dispatch("jobFinished");
+  }
 
   async function setupDecompileJob() {
     installationError = undefined;
