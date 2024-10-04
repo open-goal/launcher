@@ -45,6 +45,10 @@
   const dispatch = createEventDispatcher();
   let installationError: string | undefined | null = undefined;
 
+   $: if ($progressTracker.overallStatus === "success") {
+      dispatch("jobFinished");
+    }
+
   async function setupDecompileJob() {
     installationError = undefined;
     progressTracker.init([
@@ -470,27 +474,13 @@
       await setupCompileModJob();
     }
   });
-
-  function dispatchCompleteJob() {
-    dispatch("jobFinished");
-  }
 </script>
 
 <div class="flex flex-col justify-content">
   <Progress />
   <LogViewer />
 </div>
-{#if $progressTracker.overallStatus === "success"}
-  <div class="flex flex-col justify-end items-end mt-auto">
-    <div class="flex flex-row gap-2">
-      <Button
-        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-        on:click={async () => dispatchCompleteJob()}
-        >{$_("setup_button_continue")}</Button
-      >
-    </div>
-  </div>
-{:else if $progressTracker.overallStatus === "failed"}
+{#if $progressTracker.overallStatus === "failed"}
   <div class="flex flex-col mt-auto">
     <div class="flex flex-row gap-2">
       <Alert color="red" class="dark:bg-slate-900 flex-grow">
