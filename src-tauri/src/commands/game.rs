@@ -36,9 +36,38 @@ pub async fn uninstall_game(
     .join(&game_name)
     .join("data");
 
-  std::fs::remove_dir_all(data_folder.join("decompiler_out"))?;
-  std::fs::remove_dir_all(data_folder.join("iso_data"))?;
-  std::fs::remove_dir_all(data_folder.join("out"))?;
+  match std::fs::remove_dir_all(data_folder.join("decompiler_out")) {
+    Ok(_) => Ok(()),
+    Err(e) => match e.kind() {
+      std::io::ErrorKind::NotFound => Ok(()),
+      _ => {
+        log::error!("Failed to delete directory: {:?}", e);
+        Err(e)
+      }
+    },
+  }?;
+
+  match std::fs::remove_dir_all(data_folder.join("iso_data")) {
+    Ok(_) => Ok(()),
+    Err(e) => match e.kind() {
+      std::io::ErrorKind::NotFound => Ok(()),
+      _ => {
+        log::error!("Failed to delete directory: {:?}", e);
+        Err(e)
+      }
+    },
+  }?;
+
+  match std::fs::remove_dir_all(data_folder.join("out")) {
+    Ok(_) => Ok(()),
+    Err(e) => match e.kind() {
+      std::io::ErrorKind::NotFound => Ok(()),
+      _ => {
+        log::error!("Failed to delete directory: {:?}", e);
+        Err(e)
+      }
+    },
+  }?;
 
   config_lock
     .update_installed_game_version(&game_name, false)
