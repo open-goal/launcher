@@ -118,7 +118,7 @@
   }
 
   $: if ($progressTracker.overallStatus === "success") {
-    dispatch("change")
+    dispatch("change");
   }
 </script>
 
