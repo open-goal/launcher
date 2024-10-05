@@ -86,6 +86,12 @@
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text",
     "core:app:allow-app-show",
-    "core:app:allow-app-hide"
+    "core:app:allow-app-hide",
+    "fs:default",
+    "shell:default",
+    "dialog:default",
+    "http:default",
+    "clipboard-manager:default",
+    "os:default"
   ]
 }
