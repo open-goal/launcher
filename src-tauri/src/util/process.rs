@@ -85,6 +85,9 @@ pub async fn watch_process(
         },
         // Wait for the child process to finish
         status = child.wait() => {
+          let mut buf = buffer_clone.lock().await;
+          let _ = app_handle.emit_all("log_update", LogPayload { logs: buf.clone() });
+          buf.clear();
           process_status = Some(status?);
           break;
         }
