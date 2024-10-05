@@ -1,6 +1,6 @@
 <script>
-  import { installUpdate } from "@tauri-apps/api/updater";
-  import { relaunch } from "@tauri-apps/api/process";
+  import { installUpdate } from "@tauri-apps/plugin-updater";
+  import { relaunch } from "@tauri-apps/plugin-process";
   import {
     Button,
     Spinner,

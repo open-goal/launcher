@@ -11,7 +11,7 @@
 // This also eliminates the need to ask a user to open their debug console to
 // get decent logs (hopefully)
 
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/core";
 
 async function genericLog(level: string, log: String): Promise<void> {
   try {

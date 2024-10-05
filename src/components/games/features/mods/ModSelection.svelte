@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { platform } from "@tauri-apps/api/os";
+  import { platform } from "@tauri-apps/plugin-os";
   import { getInternalName, SupportedGame } from "$lib/constants";
   import { createEventDispatcher, onMount } from "svelte";
   import { navigate } from "svelte-navigator";

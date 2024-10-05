@@ -1,5 +1,5 @@
 import { toastStore } from "$lib/stores/ToastStore";
-import { invoke, type InvokeArgs } from "@tauri-apps/api/tauri";
+import { invoke, type InvokeArgs } from "@tauri-apps/api/core";
 import { errorLog, exceptionLog } from "./logging";
 
 /**

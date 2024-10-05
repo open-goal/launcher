@@ -9,9 +9,9 @@
     setBypassRequirements,
   } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
-  import { confirm } from "@tauri-apps/api/dialog";
+  import { confirm } from "@tauri-apps/plugin-dialog";
   import { getInternalName, type SupportedGame } from "$lib/constants";
-  import { type } from "@tauri-apps/api/os";
+  import { type } from "@tauri-apps/plugin-os";
 
   export let activeGame: SupportedGame;
 
