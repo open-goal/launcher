@@ -5,8 +5,8 @@
   import IconCog from "~icons/mdi/cog";
   import { join } from "@tauri-apps/api/path";
   import { createEventDispatcher, onMount } from "svelte";
-  import { writeText } from "@tauri-apps/api/clipboard";
-  import { confirm } from "@tauri-apps/api/dialog";
+  import { writeText } from "@tauri-apps/plugin-clipboard-manager";
+  import { confirm } from "@tauri-apps/plugin-dialog";
   import {
     Button,
     Checkbox,
@@ -17,7 +17,7 @@
     Indicator,
     Tooltip,
   } from "flowbite-svelte";
-  import { platform } from "@tauri-apps/api/os";
+  import { platform } from "@tauri-apps/plugin-os";
   import {
     getInstallationDirectory,
     setCheckForLatestModVersion,

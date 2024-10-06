@@ -14,7 +14,7 @@ use log::{info, warn};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 
 use crate::{
   config::LauncherConfig,
@@ -633,7 +633,7 @@ pub async fn open_repl(
     Ok(_) => Ok(()),
     Err(e) => {
       if let ErrorKind::NotFound = e.kind() {
-        let _ = app_handle.emit_all(
+        let _ = app_handle.emit(
           "toast_msg",
           ToastPayload {
             toast: format!("'{:?}' not found in PATH!", command.get_program()),
@@ -663,13 +663,17 @@ pub async fn run_game_gpu_test(
   let config_info = common_prelude(config_lock)?;
 
   let exec_info = get_exec_location(&config_info, "gk")?;
-  let gpu_test_result_path = &match app_handle.path_resolver().app_data_dir() {
-    None => {
+  let gpu_test_result_path = &match app_handle.path().app_data_dir() {
+    Ok(path) => path,
+    Err(err) => {
+      log::error!(
+        "Error encountered when determined path for binary for GPU test: {:?}",
+        err
+      );
       return Err(CommandError::BinaryExecution(
         "Could not determine path to save GPU test results".to_owned(),
-      ))
+      ));
     }
-    Some(path) => path,
   };
   create_dir(gpu_test_result_path)?;
   let gpu_test_result_path = &gpu_test_result_path.join("gpu-test-result.json");
@@ -860,7 +864,7 @@ pub async fn launch_game(
     match child.wait() {
       Ok(status_code) => {
         if !status_code.code().is_some() || status_code.code().unwrap() != 0 {
-          let _ = app_handle.emit_all(
+          let _ = app_handle.emit(
             "toast_msg",
             ToastPayload {
               toast: "Game crashed unexpectedly!".to_string(),
@@ -905,7 +909,7 @@ async fn track_playtime(
     .map_err(|_| CommandError::Configuration("Unable to persist time played".to_owned()))?;
 
   // send an event to the front end so that it can refresh the playtime on screen
-  if let Err(err) = app_handle.emit_all("playtimeUpdated", ()) {
+  if let Err(err) = app_handle.emit("playtimeUpdated", ()) {
     log::error!("Failed to emit playtimeUpdated event: {}", err);
     return Err(CommandError::BinaryExecution(format!(
       "Failed to emit playtimeUpdated event: {}",

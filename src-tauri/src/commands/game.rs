@@ -4,7 +4,7 @@ use std::{
 };
 
 use log::info;
-use tauri::{api::path::config_dir, Manager};
+use tauri::{Emitter, Manager};
 use walkdir::WalkDir;
 
 use crate::{
@@ -74,19 +74,22 @@ pub async fn uninstall_game(
     .map_err(|_| {
       CommandError::GameManagement("Unable to persist game installation status".to_owned())
     })?;
-  app_handle.emit_all("gameUninstalled", {})?;
+  app_handle.emit("gameUninstalled", {})?;
   Ok(())
 }
 
 #[tauri::command]
-pub async fn reset_game_settings(game_name: String) -> Result<(), CommandError> {
-  let config_dir = match config_dir() {
-    None => {
+pub async fn reset_game_settings(
+  app_handle: tauri::AppHandle,
+  game_name: String,
+) -> Result<(), CommandError> {
+  let config_dir = match app_handle.path().config_dir() {
+    Ok(path) => path,
+    Err(_) => {
       return Err(CommandError::GameManagement(
         "Could not determine game config directory".to_owned(),
       ))
     }
-    Some(path) => path,
   };
 
   let path_to_settings = config_dir
@@ -169,7 +172,10 @@ fn get_saves_highest_milestone(
 //
 // Otherwise, it will default to a default picture (geyser)
 #[tauri::command]
-pub async fn get_furthest_game_milestone(game_name: String) -> Result<String, CommandError> {
+pub async fn get_furthest_game_milestone(
+  app_handle: tauri::AppHandle,
+  game_name: String,
+) -> Result<String, CommandError> {
   // TODO - currently only checking Jak 1
   // TODO - It would be cool if the launcher had save-game editing features and the like
   // Scan each save file, we inspect the `game-save`'s tag list.
@@ -189,19 +195,22 @@ pub async fn get_furthest_game_milestone(game_name: String) -> Result<String, Co
   // (need-resolution 7)
   // - byte 11 corresponds with it's task id
   // there is also a task status field but we don't really care about it, the task-status entry is sufficient
-  let game_save_dir = if let Some(config_dir) = config_dir() {
-    let expected_dir = config_dir.join("OpenGOAL").join(game_name).join("saves");
-    if !expected_dir.exists() {
-      info!(
-        "Expected save directory {} does not exist",
-        expected_dir.display()
-      );
+  let game_save_dir = match app_handle.path().config_dir() {
+    Ok(config_dir) => {
+      let expected_dir = config_dir.join("OpenGOAL").join(game_name).join("saves");
+      if !expected_dir.exists() {
+        info!(
+          "Expected save directory {} does not exist",
+          expected_dir.display()
+        );
+        return Ok("geyser".to_owned());
+      }
+      expected_dir
+    }
+    Err(_) => {
+      info!("Couldn't determine game save directory");
       return Ok("geyser".to_owned());
     }
-    expected_dir
-  } else {
-    info!("Couldn't determine game save directory");
-    return Ok("geyser".to_owned());
   };
 
   let milestones = get_jak1_milestones();

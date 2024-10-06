@@ -24,7 +24,7 @@
   import GameNotSupportedByTooling from "../components/games/GameNotSupportedByTooling.svelte";
   import { VersionStore } from "$lib/stores/VersionStore";
   import type { Job } from "$lib/utils/jobs";
-  import { type } from "@tauri-apps/api/os";
+  import { type } from "@tauri-apps/plugin-os";
   import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import GameControlsMod from "../components/games/GameControlsMod.svelte";

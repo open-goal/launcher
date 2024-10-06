@@ -28,10 +28,10 @@ pub async fn open_main_window(handle: tauri::AppHandle) -> Result<(), CommandErr
   //   "decorations": false
   // },
   log::info!("Creating main window");
-  tauri::WindowBuilder::new(
+  tauri::WebviewWindowBuilder::new(
     &handle,
     "main", /* the unique window label */
-    tauri::WindowUrl::App("index.html".parse().unwrap()),
+    tauri::WebviewUrl::App("index.html".parse().unwrap()),
   )
   .title("OpenGOAL Launcher")
   .resizable(false)
@@ -47,7 +47,7 @@ pub async fn open_main_window(handle: tauri::AppHandle) -> Result<(), CommandErr
   })?;
   log::info!("Closing splash window");
   // Close splashscreen
-  if let Some(splashscreen) = handle.app_handle().get_window("splashscreen") {
+  if let Some(splashscreen) = handle.app_handle().get_webview_window("splashscreen") {
     splashscreen
       .close()
       .map_err(|_| CommandError::WindowManagement("Unable to close splash window".to_owned()))?;

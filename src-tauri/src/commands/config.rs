@@ -4,23 +4,23 @@ use crate::util::os::get_installed_vcc_runtime;
 use crate::{config::LauncherConfig, util::file::delete_dir};
 use semver::Version;
 use sysinfo::Disks;
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 
 use super::CommandError;
 
 #[tauri::command]
 pub async fn has_old_data_directory(app_handle: tauri::AppHandle) -> Result<bool, CommandError> {
-  match &app_handle.path_resolver().app_config_dir() {
-    None => Ok(false),
-    Some(dir) => Ok(dir.join("data").join("iso_data").exists()),
+  match &app_handle.path().app_config_dir() {
+    Ok(dir) => Ok(dir.join("data").join("iso_data").exists()),
+    Err(_) => Ok(false),
   }
 }
 
 #[tauri::command]
 pub async fn delete_old_data_directory(app_handle: tauri::AppHandle) -> Result<(), CommandError> {
-  match &app_handle.path_resolver().app_config_dir() {
-    None => Ok(()),
-    Some(dir) => Ok(delete_dir(&dir.join("data"))?),
+  match &app_handle.path().app_config_dir() {
+    Ok(dir) => Ok(delete_dir(&dir.join("data"))?),
+    Err(_) => Ok(()),
   }
 }
 
@@ -254,7 +254,7 @@ pub async fn finalize_installation(
     .map_err(|_| {
       CommandError::Configuration("Unable to persist game installation status".to_owned())
     })?;
-  app_handle.emit_all("gameInstalled", {})?;
+  app_handle.emit("gameInstalled", {})?;
   Ok(())
 }
 

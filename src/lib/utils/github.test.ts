@@ -8,7 +8,7 @@ import {
   vi,
   type Mock,
 } from "vitest";
-import { arch, platform } from "@tauri-apps/api/os";
+import { arch, platform } from "@tauri-apps/plugin-os";
 import { listOfficialReleases } from "./github";
 import { init } from "svelte-i18n";
 import { initLocales } from "$lib/i18n/i18n";
