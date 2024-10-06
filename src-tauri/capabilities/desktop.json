@@ -6,6 +6,8 @@
     "linux"
   ],
   "permissions": [
-    "global-shortcut:default"
+    "global-shortcut:default",
+    "updater:default",
+    "updater:default"
   ]
 }

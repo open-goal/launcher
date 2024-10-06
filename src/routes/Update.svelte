@@ -1,5 +1,4 @@
 <script>
-  import { installUpdate } from "@tauri-apps/plugin-updater";
   import { relaunch } from "@tauri-apps/plugin-process";
   import {
     Button,
@@ -26,7 +25,8 @@
 
   async function updateHandler() {
     updating = true;
-    await installUpdate();
+    // TODO - migrate!
+    // await installUpdate();
     await relaunch();
   }
 </script>
