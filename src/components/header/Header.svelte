@@ -18,7 +18,7 @@
   import { exceptionLog, infoLog } from "$lib/rpc/logging";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
-const appWindow = getCurrentWebviewWindow()
+  const appWindow = getCurrentWebviewWindow();
 
   let launcherVerison = null;
 
