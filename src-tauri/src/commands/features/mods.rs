@@ -2,11 +2,13 @@
 use std::os::windows::process::CommandExt;
 use std::{
   collections::HashMap,
+  io::ErrorKind,
   path::{Path, PathBuf},
   process::Stdio,
 };
 
 use serde::{Deserialize, Serialize};
+use tauri::Manager;
 use tokio::{io::AsyncWriteExt, process::Command};
 
 use crate::{
@@ -873,17 +875,20 @@ pub async fn get_launch_mod_string(
   ))
 }
 
+#[derive(Clone, serde::Serialize)]
+struct ToastPayload {
+  toast: String,
+  level: String,
+}
+
 #[tauri::command]
 pub async fn open_repl_for_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  app_handle: tauri::AppHandle,
   game_name: String,
   mod_name: String,
   source_name: String,
 ) -> Result<(), CommandError> {
-  // TODO - explore a linux option though this is very annoying because without doing a ton of research
-  // we seem to have to handle various terminals.  Which honestly we should probably do on windows too
-  //
-  // So maybe we can make a menu where the user will specify what terminal to use / what launch-options to use
   let config_lock = config.lock().await;
   let install_path = match &config_lock.installation_dir {
     None => {
@@ -893,6 +898,13 @@ pub async fn open_repl_for_mod(
     }
     Some(path) => Path::new(path),
   };
+  let iso_dir = install_path
+    .join("active")
+    .join(&game_name)
+    .join("data")
+    .join("iso_data")
+    .join(&game_name)
+    .to_path_buf();
   let exec_info = get_mod_exec_location(
     install_path.to_path_buf(),
     "goalc",
@@ -900,14 +912,59 @@ pub async fn open_repl_for_mod(
     &mod_name,
     &source_name,
   )?;
-  let mut command = Command::new("cmd");
-  command
-    .args(["/K", "start", &bin_ext("goalc"), "--game", &game_name])
-    .current_dir(exec_info.executable_dir);
+  let mut command;
   #[cfg(windows)]
   {
-    command.creation_flags(0x08000000);
+    command = std::process::Command::new("cmd");
+    command
+      .args([
+        "/K",
+        "start",
+        &bin_ext("goalc"),
+        "--game",
+        &game_name,
+        "--iso-path",
+        &iso_dir.to_string_lossy(),
+      ])
+      .current_dir(exec_info.executable_dir)
+      .creation_flags(0x08000000);
   }
-  command.spawn()?;
-  Ok(())
+  #[cfg(target_os = "linux")]
+  {
+    command = std::process::Command::new("xdg-terminal-exec");
+    command
+      .args(["./goalc", "--iso-path", &iso_dir.to_string_lossy()])
+      .current_dir(exec_info.executable_dir);
+  }
+  #[cfg(target_os = "macos")]
+  {
+    command = std::process::Command::new("osascript");
+    command
+      .args([
+        "-e",
+        "'tell app \"Terminal\" to do script",
+        format!("\"cd {:?}\" &&", exec_info.executable_dir).as_str(),
+        "./goalc",
+        "--iso-path",
+        &iso_dir.to_string_lossy(),
+      ])
+      .current_dir(exec_info.executable_dir);
+  }
+  match command.spawn() {
+    Ok(_) => Ok(()),
+    Err(e) => {
+      if let ErrorKind::NotFound = e.kind() {
+        let _ = app_handle.emit_all(
+          "toast_msg",
+          ToastPayload {
+            toast: format!("'{:?}' not found in PATH!", command.get_program()),
+            level: "error".to_string(),
+          },
+        );
+      }
+      return Err(CommandError::BinaryExecution(
+        "Unable to launch REPL".to_owned(),
+      ));
+    }
+  }
 }
