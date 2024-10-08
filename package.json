@@ -25,14 +25,14 @@
     "@iconify-json/ic": "^1.2.0",
     "@iconify-json/mdi": "^1.2.0",
     "@octokit/plugin-retry": "^7.1.2",
-    "@octokit/plugin-throttling": "^9.3.1",
+    "@octokit/plugin-throttling": "^9.3.2",
     "@octokit/rest": "^21.0.2",
     "@popperjs/core": "^2.11.7",
     "@sveltejs/vite-plugin-svelte": "^3.1.2",
     "@tauri-apps/cli": "^1.6.2",
-    "@testing-library/svelte": "^5.2.1",
+    "@testing-library/svelte": "^5.2.3",
     "@tsconfig/svelte": "^5.0.4",
-    "@vitest/coverage-v8": "^2.1.1",
+    "@vitest/coverage-v8": "^2.1.2",
     "ansi-to-span": "^0.0.1",
     "autoprefixer": "^10.4.20",
     "classnames": "^2.5.1",
@@ -52,7 +52,7 @@
     "typescript": "^5.6.2",
     "unplugin-icons": "^0.19.3",
     "vite": "^5.4.8",
-    "vitest": "^2.1.1"
+    "vitest": "^2.1.2"
   },
   "dependencies": {
     "@tauri-apps/api": "^1.6.0",
