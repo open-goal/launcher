@@ -92,7 +92,7 @@ async function parseGithubRelease(githubRelease: any): Promise<ReleaseInfo> {
 }
 
 export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
-  const nextUrlPattern = /(?<=<)([\S]*)(?=>; rel="Next")/i;
+  const nextUrlPattern = /<([\S]+)>; rel="Next"/i;
   let releases = [];
   let urlToHit =
     "https://api.github.com/repos/open-goal/jak-project/releases?per_page=100";
@@ -117,7 +117,7 @@ export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
       resp.headers.get("link").includes(`rel=\"next\"`)
     ) {
       // we must paginate!
-      urlToHit = resp.headers.get("link").match(nextUrlPattern)[0];
+      urlToHit = resp.headers.get("link").match(nextUrlPattern)[1];
     } else {
       urlToHit = undefined;
     }
