@@ -62,7 +62,7 @@
       },
     ]);
     progressTracker.start();
-    let resp = await runDecompiler("", getInternalName(activeGame), true);
+    let resp = await runDecompiler("", getInternalName(activeGame), true, true);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -123,7 +123,7 @@
       return;
     }
     progressTracker.proceed();
-    resp = await runDecompiler("", getInternalName(activeGame), true);
+    resp = await runDecompiler("", getInternalName(activeGame), true, false);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -195,7 +195,7 @@
       return;
     }
     progressTracker.proceed();
-    resp = await runDecompiler("", getInternalName(activeGame), true);
+    resp = await runDecompiler("", getInternalName(activeGame), true, false);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
