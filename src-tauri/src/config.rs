@@ -198,6 +198,7 @@ pub struct LauncherConfig {
   pub mod_sources: Option<Vec<String>>,
   pub decompiler_settings: Option<DecompilerSettings>,
   pub check_for_latest_mod_version: Option<bool>,
+  pub proceed_after_successful_operation: Option<bool>,
 }
 
 fn default_version() -> Option<String> {
@@ -224,6 +225,7 @@ impl LauncherConfig {
       mod_sources: None,
       decompiler_settings: Some(DecompilerSettings::default()),
       check_for_latest_mod_version: Some(true),
+      proceed_after_successful_operation: Some(true),
     }
   }
 
