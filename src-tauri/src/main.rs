@@ -166,6 +166,7 @@ fn main() {
       commands::config::does_active_tooling_version_meet_minimum,
       commands::config::does_active_tooling_version_support_game,
       commands::config::finalize_installation,
+      commands::config::get_proceed_after_successful_operation,
       commands::config::get_active_tooling_version_folder,
       commands::config::get_active_tooling_version,
       commands::config::get_bypass_requirements,
