@@ -97,7 +97,12 @@
         return;
       }
       progressTracker.proceed();
-      resp = await runDecompiler(sourcePath, getInternalName(activeGame));
+      resp = await runDecompiler(
+        sourcePath,
+        getInternalName(activeGame),
+        false,
+        false,
+      );
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
