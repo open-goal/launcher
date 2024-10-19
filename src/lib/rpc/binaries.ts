@@ -33,10 +33,11 @@ export async function runDecompiler(
   pathToIso: string,
   gameName: string,
   truncateLogs: boolean = false,
+  useDecompSettings: boolean = false,
 ): Promise<InstallationOutput> {
   return await invoke_rpc(
     "run_decompiler",
-    { pathToIso, gameName, truncateLogs },
+    { pathToIso, gameName, truncateLogs, useDecompSettings },
     () => failed("Failed to run decompiler"),
   );
 }
