@@ -228,18 +228,13 @@ pub async fn is_opengl_requirement_met(
   }
   // Do it the new way!
   log::info!("Checking for OpenGL support via `gk`");
-  let test_result = super::binaries::run_game_gpu_test(&config_lock, app_handle).await?;
-  match test_result {
-    Some(result) => {
-      config_lock
-        .set_opengl_requirement_met(Some(result))
-        .map_err(|_| {
-          CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
-        })?;
-      Ok(Some(result))
-    }
-    None => Ok(None),
-  }
+  let test_result = crate::util::game_tests::run_game_gpu_test(&config_lock, &app_handle).await?;
+  config_lock
+    .set_opengl_requirement_met(Some(test_result.success))
+    .map_err(|_| {
+      CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
+    })?;
+  Ok(Some(test_result.success))
 }
 
 #[tauri::command]

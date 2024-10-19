@@ -38,7 +38,6 @@ thiserror = "1.0.64"
 tokio = { version = "1", features = ["full"] }
 ts-rs = "10.0"
 walkdir = "2.5.0"
-wgpu = "22.1.0"
 zip = { version = "2.2.0", features = ["deflate-zlib-ng"] }
 zip-extract = "0.2.1"
 tempfile = "3.13.0"
