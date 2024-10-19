@@ -620,3 +620,15 @@ pub async fn set_rip_streamed_audio_enabled(
     })?;
   Ok(())
 }
+
+#[tauri::command]
+pub async fn get_proceed_after_successful_operation(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  let config_lock = config.lock().await;
+  Ok(
+    config_lock
+      .proceed_after_successful_operation
+      .unwrap_or(true),
+  )
+}

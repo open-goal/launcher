@@ -17,6 +17,7 @@
     isDiskSpaceRequirementMet,
     isOpenGLRequirementMet,
     isMinimumVCCRuntimeInstalled,
+    getProceedAfterSuccessfulOperation,
   } from "$lib/rpc/config";
   import { progressTracker } from "$lib/stores/ProgressStore";
   import { generateSupportPackage } from "$lib/rpc/support";
@@ -30,10 +31,13 @@
   let requirementsMet = true;
   let installing = false;
   let installationError = undefined;
+  let proceedAfterSuccessfulOperation = true;
 
   onMount(async () => {
     // Check requirements
     await checkRequirements();
+    proceedAfterSuccessfulOperation =
+      await getProceedAfterSuccessfulOperation();
   });
 
   async function checkRequirements() {
@@ -122,7 +126,10 @@
     }
   }
 
-  $: if ($progressTracker.overallStatus === "success") {
+  $: if (
+    $progressTracker.overallStatus === "success" &&
+    proceedAfterSuccessfulOperation
+  ) {
     dispatch("change");
   }
 </script>
@@ -134,7 +141,17 @@
     <Progress />
     <LogViewer />
   </div>
-  {#if $progressTracker.overallStatus === "failed"}
+  {#if $progressTracker.overallStatus === "success" && !proceedAfterSuccessfulOperation}
+    <div class="flex flex-col justify-end items-end mt-auto">
+      <div class="flex flex-row gap-2">
+        <Button
+          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+          on:click={async () => dispatch("change")}
+          >{$_("setup_button_continue")}</Button
+        >
+      </div>
+    </div>
+  {:else if $progressTracker.overallStatus === "failed"}
     <div class="flex flex-col mt-auto">
       <div class="flex flex-row gap-2">
         <Alert

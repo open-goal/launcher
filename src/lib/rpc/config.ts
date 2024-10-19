@@ -339,6 +339,14 @@ export async function isRipStreamedAudioEnabled(): Promise<boolean> {
   return await invoke_rpc("is_rip_streamed_audio_enabled", {}, () => false);
 }
 
+export async function getProceedAfterSuccessfulOperation(): Promise<boolean> {
+  return await invoke_rpc(
+    "get_proceed_after_successful_operation",
+    {},
+    () => true,
+  );
+}
+
 export async function setRipStreamedAudioEnabled(
   enabled: boolean,
 ): Promise<void> {
