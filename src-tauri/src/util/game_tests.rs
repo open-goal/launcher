@@ -5,6 +5,7 @@ use std::{
   process::Command,
 };
 
+use log::info;
 use semver::Version;
 use serde::{Deserialize, Serialize};
 
@@ -129,7 +130,9 @@ pub async fn run_game_gpu_test(
     gpu_test_result_path
   );
 
-  let mut command = Command::new(exec_info.executable_path);
+  let commandStr = format!(r"\\?\{}", exec_info.executable_path.display());
+  info!("{}", commandStr);
+  let mut command = Command::new(commandStr);
   command
     .args([
       "-v".to_string(),

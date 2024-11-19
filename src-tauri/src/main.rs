@@ -5,13 +5,14 @@
 
 use directories::UserDirs;
 use fern::colors::{Color, ColoredLevelConfig};
+use log::info;
 use tauri::{Manager, RunEvent};
 use tokio::sync::OnceCell;
 use util::file::create_dir;
 
 use backtrace::Backtrace;
 use native_dialog::{MessageDialog, MessageType};
-use std::io::Write;
+use std::{io::{self, Write}, path::Path, process::Command};
 
 mod cache;
 mod commands;
@@ -132,6 +133,21 @@ fn main() {
               std::fs::remove_file(path.path())?;
             }
           }
+          let testPath = Path::new(r"\\?\C:\Users\xtvas\OneDrive\Documents\ogtest\thispathisaroundahundredcharacterslong\thispathisaroundahundredcharacterslong\thispathisaroundahundredcharacterslong\thispathisaroundahundredcharacterslong\thispathisaroundahundredcharacterslong\thispathisa\v0.2.18\gk.exe");
+          let mut command = Command::new(testPath);
+          command
+            .args([
+              "-v".to_string(),
+              "--gpu-test".to_string(),
+              "opengl".to_string(),
+              "--gpu-test-out-path".to_string(),
+              r"C:\Users\xtvas\OneDrive\Desktop\gpu-test.log".to_owned(),
+            ])
+            .current_dir(r"C:\Users\xtvas\OneDrive\Documents\ogtest\thispathisaroundahundredcharacterslong\thispathisaroundahundredcharacterslong\thispathisaroundahundredcharacterslong\thispathisaroundahundredcharacterslong\thispathisaroundahundredcharacterslong\thispathisa\v0.2.18");
+          let output = command.output().expect("ye!");
+          println!("status: {}", output.status);
+          io::stdout().write_all(&output.stdout).unwrap();
+          io::stderr().write_all(&output.stderr).unwrap();
         }
         Err(err) => log::error!("Could not initialize logging {:?}", err),
       };
