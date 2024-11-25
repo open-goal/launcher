@@ -50,12 +50,7 @@
               },
               "supportedGames": {
                 "items": {
-                  "enum": [
-                    "jak1",
-                    "jak2",
-                    "jak3",
-                    "jakx"
-                  ],
+                  "enum": ["jak1", "jak2", "jak3", "jakx"],
                   "type": "string"
                 },
                 "type": "array"
@@ -75,10 +70,7 @@
                   "properties": {
                     "assets": {
                       "additionalProperties": {
-                        "type": [
-                          "string",
-                          "null"
-                        ]
+                        "type": ["string", "null"]
                       },
                       "type": "object"
                     },
@@ -87,12 +79,7 @@
                     },
                     "supportedGames": {
                       "items": {
-                        "enum": [
-                          "jak1",
-                          "jak2",
-                          "jak3",
-                          "jakx"
-                        ],
+                        "enum": ["jak1", "jak2", "jak3", "jakx"],
                         "type": "string"
                       },
                       "type": "array"
@@ -101,11 +88,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "version",
-                    "publishedDate",
-                    "assets"
-                  ],
+                  "required": ["version", "publishedDate", "assets"],
                   "type": "object"
                 },
                 "type": "array"
@@ -176,12 +159,7 @@
               },
               "supportedGames": {
                 "items": {
-                  "enum": [
-                    "jak1",
-                    "jak2",
-                    "jak3",
-                    "jakx"
-                  ],
+                  "enum": ["jak1", "jak2", "jak3", "jakx"],
                   "type": "string"
                 },
                 "type": "array"
@@ -201,10 +179,7 @@
                   "properties": {
                     "assets": {
                       "additionalProperties": {
-                        "type": [
-                          "string",
-                          "null"
-                        ]
+                        "type": ["string", "null"]
                       },
                       "type": "object"
                     },
@@ -213,12 +188,7 @@
                     },
                     "supportedGames": {
                       "items": {
-                        "enum": [
-                          "jak1",
-                          "jak2",
-                          "jak3",
-                          "jakx"
-                        ],
+                        "enum": ["jak1", "jak2", "jak3", "jakx"],
                         "type": "string"
                       },
                       "type": "array"
@@ -227,11 +197,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "version",
-                    "publishedDate",
-                    "assets"
-                  ],
+                  "required": ["version", "publishedDate", "assets"],
                   "type": "object"
                 },
                 "type": "array"
