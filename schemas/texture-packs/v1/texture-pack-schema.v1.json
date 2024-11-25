@@ -24,12 +24,7 @@
         },
         "supportedGames": {
           "items": {
-            "enum": [
-              "jak1",
-              "jak2",
-              "jak3",
-              "jakx"
-            ],
+            "enum": ["jak1", "jak2", "jak3", "jakx"],
             "type": "string"
           },
           "type": "array"

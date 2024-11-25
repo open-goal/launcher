@@ -37,6 +37,6 @@ export interface ModSourceData {
   schemaVersion: Semver;
   sourceName: string;
   lastUpdated: string;
-  mods: Record<string, ModInfo>
-  texturePacks: Record<string, ModInfo>
+  mods: Record<string, ModInfo>;
+  texturePacks: Record<string, ModInfo>;
 }
