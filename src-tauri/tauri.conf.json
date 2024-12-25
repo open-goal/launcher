@@ -1,62 +1,48 @@
 {
-  "package": {
-    "productName": "OpenGOAL-Launcher",
-    "version": "2.5.4"
+  "bundle": {
+    "active": true,
+    "targets": [
+      "msi",
+      "appimage",
+      "app",
+      "dmg"
+    ],
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "copyright": "",
+    "category": "DeveloperTool",
+    "shortDescription": "",
+    "longDescription": "",
+    "createUpdaterArtifacts": "v1Compatible"
   },
   "build": {
-    "distDir": "../dist",
-    "devPath": "http://localhost:3000/",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist",
     "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "devUrl": "http://localhost:3000/"
   },
-  "tauri": {
-    "bundle": {
-      "active": true,
-      "targets": [
-        "msi",
-        "appimage",
-        "app",
-        "dmg",
-        "updater"
-      ],
-      "identifier": "OpenGOAL-Launcher",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "copyright": "",
-      "category": "DeveloperTool",
-      "shortDescription": "",
-      "longDescription": "",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
-      }
-    },
-    "allowlist": {
-      "all": true,
-      "clipboard": {
-        "writeText": true
-      },
-      "fs": {
+  "productName": "OpenGOAL-Launcher",
+  "mainBinaryName": "OpenGOAL-Launcher",
+  "version": "2.5.4",
+  "identifier": "OpenGOAL-Launcher",
+  "plugins": {},
+  "app": {
+    "security": {
+      "assetProtocol": {
         "scope": [
-          "$APP/",
-          "$APP/iso/*",
-          "$APP/*",
-          "$APP/**/*",
-          "$RESOURCE/**/*"
-        ]
-      },
-      "protocol": {
-        "asset": true,
-        "assetScope": ["**"]
-      },
-      "os": {
-        "all": true
+          "**"
+        ],
+        "enable": true
       }
     },
     "windows": [
@@ -72,7 +58,8 @@
         "fullscreen": false,
         "url": "./src/splash/index.html",
         "visible": true,
-        "focus": true
+        "focus": true,
+        "useHttpsScheme": true
       }
     ]
   }

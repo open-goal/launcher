@@ -14,12 +14,12 @@ use log::{info, warn};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 
 use crate::{
   config::LauncherConfig,
   util::{
-    file::{create_dir, overwrite_dir},
+    file::{overwrite_dir},
     process::{create_log_file, create_std_log_file, watch_process},
   },
   TAURI_APP,
@@ -636,7 +636,7 @@ pub async fn open_repl(
     Ok(_) => Ok(()),
     Err(e) => {
       if let ErrorKind::NotFound = e.kind() {
-        let _ = app_handle.emit_all(
+        let _ = app_handle.emit(
           "toast_msg",
           ToastPayload {
             toast: format!("'{:?}' not found in PATH!", command.get_program()),
@@ -783,7 +783,7 @@ pub async fn launch_game(
     match child.wait() {
       Ok(status_code) => {
         if !status_code.code().is_some() || status_code.code().unwrap() != 0 {
-          let _ = app_handle.emit_all(
+          let _ = app_handle.emit(
             "toast_msg",
             ToastPayload {
               toast: "Game crashed unexpectedly!".to_string(),
@@ -828,7 +828,7 @@ async fn track_playtime(
     .map_err(|_| CommandError::Configuration("Unable to persist time played".to_owned()))?;
 
   // send an event to the front end so that it can refresh the playtime on screen
-  if let Err(err) = app_handle.emit_all("playtimeUpdated", ()) {
+  if let Err(err) = app_handle.emit("playtimeUpdated", ()) {
     log::error!("Failed to emit playtimeUpdated event: {}", err);
     return Err(CommandError::BinaryExecution(format!(
       "Failed to emit playtimeUpdated event: {}",

@@ -8,7 +8,7 @@ use std::{
 };
 
 use serde::{Deserialize, Serialize};
-use tauri::Manager;
+use tauri::Emitter;
 use tokio::{io::AsyncWriteExt, process::Command};
 
 use crate::{
@@ -711,7 +711,7 @@ pub async fn launch_mod(
     command.creation_flags(0x08000000);
   }
   // Start the process here so if there is an error, we can return immediately
-  let mut child = command.spawn()?;
+  command.spawn()?;
   Ok(())
 }
 
@@ -954,7 +954,7 @@ pub async fn open_repl_for_mod(
     Ok(_) => Ok(()),
     Err(e) => {
       if let ErrorKind::NotFound = e.kind() {
-        let _ = app_handle.emit_all(
+        let _ = app_handle.emit(
           "toast_msg",
           ToastPayload {
             toast: format!("'{:?}' not found in PATH!", command.get_program()),

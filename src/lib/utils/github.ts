@@ -1,5 +1,5 @@
 import { toastStore } from "$lib/stores/ToastStore";
-import { arch, platform } from "@tauri-apps/api/os";
+import { arch, platform } from "@tauri-apps/plugin-os";
 import { unwrapFunctionStore, format } from "svelte-i18n";
 
 const $format = unwrapFunctionStore(format);

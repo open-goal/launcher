@@ -274,9 +274,9 @@ impl LauncherConfig {
     }
   }
 
-  pub fn load_config(config_dir: Option<std::path::PathBuf>) -> LauncherConfig {
+  pub fn load_config(config_dir: Result<std::path::PathBuf, tauri::Error>) -> LauncherConfig {
     match config_dir {
-      Some(config_dir) => {
+      Ok(config_dir) => {
         let settings_path = &config_dir.join("settings.json");
         log::info!("Loading configuration at path: {}", settings_path.display());
         if !settings_path.exists() {
@@ -339,7 +339,7 @@ impl LauncherConfig {
           }
         }
       }
-      None => {
+      Err(_) => {
         log::warn!("Not loading configuration, no path provided. Using defaults");
         LauncherConfig::default(None)
       }

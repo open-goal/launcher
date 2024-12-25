@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { appWindow } from "@tauri-apps/api/window";
+  import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
   import logo from "$assets/images/icon.webp";
   import { onMount } from "svelte";
   import { getVersion } from "@tauri-apps/api/app";
@@ -7,7 +7,7 @@
   import IconWindowMinimize from "~icons/mdi/window-minimize";
   import IconWindowClose from "~icons/mdi/window-close";
   import { UpdateStore } from "$lib/stores/AppStore";
-  import { checkUpdate } from "@tauri-apps/api/updater";
+  import { checkUpdate } from "@tauri-apps/plugin-updater";
   import { isInDebugMode } from "$lib/utils/common";
   import {
     getActiveVersion,
@@ -19,6 +19,7 @@
   import { exceptionLog, infoLog } from "$lib/rpc/logging";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
+const appWindow = getCurrentWebviewWindow()
 
   let launcherVerison = null;
 

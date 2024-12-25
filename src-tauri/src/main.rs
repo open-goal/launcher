@@ -18,7 +18,7 @@ mod commands;
 mod config;
 mod util;
 
-fn log_crash(panic_info: Option<&std::panic::PanicInfo>, error: Option<tauri::Error>) {
+fn log_crash(panic_info: Option<&std::panic::PanicHookInfo>, error: Option<tauri::Error>) {
   let backtrace = Backtrace::new();
   let log_contents;
   if let Some(panic_info) = panic_info {
@@ -56,7 +56,7 @@ fn log_crash(panic_info: Option<&std::panic::PanicInfo>, error: Option<tauri::Er
     .unwrap();
 }
 
-fn panic_hook(info: &std::panic::PanicInfo) {
+fn panic_hook(info: &std::panic::PanicHookInfo) {
   log_crash(Some(info), None);
 }
 
@@ -68,12 +68,22 @@ fn main() {
   std::panic::set_hook(Box::new(panic_hook));
 
   let tauri_setup = tauri::Builder::default()
+    .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+    .plugin(tauri_plugin_updater::Builder::new().build())
+    .plugin(tauri_plugin_process::init())
+    .plugin(tauri_plugin_http::init())
+    .plugin(tauri_plugin_fs::init())
+    .plugin(tauri_plugin_dialog::init())
+    .plugin(tauri_plugin_shell::init())
+    .plugin(tauri_plugin_os::init())
+    .plugin(tauri_plugin_notification::init())
+    .plugin(tauri_plugin_clipboard_manager::init())
     .setup(|app| {
-      let _ = TAURI_APP.set(app.app_handle());
+      let _ = TAURI_APP.set(app.app_handle().clone());
 
       // Setup Logging
       let log_path = app
-        .path_resolver()
+        .path()
         .app_log_dir()
         .expect("Could not determine log path")
         .join("app");
@@ -144,7 +154,7 @@ fn main() {
       // This allows us to avoid hacky globals, and pass around information (in this case, the config)
       // to the relevant places
       let config = tokio::sync::Mutex::new(config::LauncherConfig::load_config(
-        app.path_resolver().app_config_dir(),
+        app.path().app_config_dir(),
       ));
       app.manage(config);
       let cache = tokio::sync::Mutex::new(cache::LauncherCache::default());

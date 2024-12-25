@@ -8,20 +8,20 @@ use tokio::{
 use crate::commands::CommandError;
 
 use super::file::create_dir;
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 
 pub async fn create_log_file(
   app_handle: &tauri::AppHandle,
   name: String,
   append: bool,
 ) -> Result<tokio::fs::File, CommandError> {
-  let log_path = &match app_handle.path_resolver().app_log_dir() {
-    None => {
+  let log_path = &match app_handle.path().app_log_dir() {
+    Ok(path) => path,
+    Err(_) => {
       return Err(CommandError::Installation(
         "Could not determine path to save installation logs".to_owned(),
       ))
     }
-    Some(path) => path,
   };
   create_dir(log_path)?;
   let mut file_options = tokio::fs::OpenOptions::new();
@@ -79,21 +79,21 @@ pub async fn watch_process(
           log_file.flush().await?;
           {
             let mut buf = buffer_clone.lock().await;
-            let _ = app_handle.emit_all("log_update", LogPayload { logs: buf.clone() });
+            let _ = app_handle.emit("log_update", LogPayload { logs: buf.clone() });
             buf.clear();
           }
         },
         // Wait for the child process to finish
         status = child.wait() => {
           let mut buf = buffer_clone.lock().await;
-          let _ = app_handle.emit_all("log_update", LogPayload { logs: buf.clone() });
+          let _ = app_handle.emit("log_update", LogPayload { logs: buf.clone() });
           buf.clear();
           process_status = Some(status?);
           break;
         }
     }
   }
-  return Ok(process_status);
+  Ok(process_status)
 }
 
 pub fn create_std_log_file(
@@ -101,13 +101,13 @@ pub fn create_std_log_file(
   name: String,
   append: bool,
 ) -> Result<std::fs::File, CommandError> {
-  let log_path = &match app_handle.path_resolver().app_log_dir() {
-    None => {
+  let log_path = &match app_handle.path().app_log_dir() {
+    Ok(path) => path,
+    Err(_) => {
       return Err(CommandError::Installation(
         "Could not determine path to save installation logs".to_owned(),
       ))
     }
-    Some(path) => path,
   };
   create_dir(log_path)?;
   let mut file_options = std::fs::OpenOptions::new();
