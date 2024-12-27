@@ -17,34 +17,40 @@
   });
 </script>
 
-<select
-  data-testId="locale-select"
-  name="locales"
-  id="locales"
-  title={$_("splash_selectLocale")}
-  class="emoji-font pointer-events-auto !p-0 !pl-1 !pr-1 !pt-1 text-sm bg-gray-700 mb-1 absolute top-0 border-transparent focus:border-transparent focus:ring-0"
-  on:change={(evt) => {
-    let newLocale = evt.target.value;
-    dispatch("change", {
-      newLocale: newLocale,
-    });
-  }}
->
-  {#each AVAILABLE_LOCALES as locale}
-    {#if locale.id === currentLocale}
-      <option value={locale.id} selected
-        ><span class="emoji-font">{locale.flag}</span></option
-      >
-    {:else}
-      <option value={locale.id}
-        ><span class="emoji-font">{locale.flag}</span></option
-      >
-    {/if}
-  {/each}
-</select>
+<div>
+  <select
+    data-testId="locale-select"
+    name="locales"
+    id="locales"
+    title={$_("splash_selectLocale")}
+    class="emoji-font pointer-events-auto !p-0 !pl-1 !pr-1 !pt-1 text-sm bg-gray-700 mb-1 absolute top-0 border-transparent focus:border-transparent focus:ring-0"
+    bind:value={currentLocale}
+    on:change={() => {
+      dispatch("change", {
+        newLocale: currentLocale,
+      });
+    }}
+  >
+    {#each AVAILABLE_LOCALES as locale}
+      {#if locale.id === currentLocale}
+        <option value={locale.id} selected>
+          <!-- TODO: Fix FLags
+        <span class="emoji-font">{locale.flag}</span>
+        -->
+        </option>
+      {:else}
+        <option value={locale.id}>
+          <!-- TODO: Fix Flags
+        <span class="emoji-font">{locale.flag}</span>
+        -->
+        </option>
+      {/if}
+    {/each}
+  </select>
+</div>
 
 <style>
   .emoji-font {
-    font-family: "Twemoji Country Flags", "Roboto Mono";
+    font-family: "Twemoji Country Flags", "Roboto Mono", serif;
   }
 </style>

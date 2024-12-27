@@ -7,7 +7,7 @@
   import IconWindowMinimize from "~icons/mdi/window-minimize";
   import IconWindowClose from "~icons/mdi/window-close";
   import { UpdateStore } from "$lib/stores/AppStore";
-  import { checkUpdate } from "@tauri-apps/plugin-updater";
+  import { check } from "@tauri-apps/plugin-updater";
   import { isInDebugMode } from "$lib/utils/common";
   import {
     getActiveVersion,
@@ -19,7 +19,7 @@
   import { exceptionLog, infoLog } from "$lib/rpc/logging";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
-const appWindow = getCurrentWebviewWindow()
+  const appWindow = getCurrentWebviewWindow();
 
   let launcherVerison = null;
 
@@ -31,12 +31,12 @@ const appWindow = getCurrentWebviewWindow()
     $VersionStore.activeVersionName = await getActiveVersion();
 
     // Check for a launcher update
-    // NOTE - the following code (checkUpdate) won't work unless you have `update` configuration
+    // NOTE - the following code (check for Update) won't work unless you have `update` configuration
     // added to the tauri.conf.json
+
     if (!isInDebugMode()) {
-      const updateResult = await checkUpdate();
+      const updateResult = await check();
       if (updateResult.shouldUpdate) {
-        // TODO - store methods to clean this up
         let changeLog = [];
         try {
           changeLog = JSON.parse(updateResult.manifest.body);
@@ -80,7 +80,7 @@ const appWindow = getCurrentWebviewWindow()
         latestToolingVersion !== undefined &&
         $VersionStore.activeVersionName !== latestToolingVersion.version
       ) {
-        // Check that we havn't already downloaded it
+        // Check that we haven't already downloaded it
         let alreadyHaveRelease = false;
         const downloadedOfficialVersions =
           await listDownloadedVersions("official");
@@ -166,3 +166,6 @@ const appWindow = getCurrentWebviewWindow()
     </button>
   </div>
 </header>
+
+<style>
+</style>

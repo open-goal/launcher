@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import Icons from "unplugin-icons/vite";
 import { fileURLToPath, URL } from "url";
+import { sveltePreprocess } from "svelte-preprocess";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,6 +12,9 @@ export default defineConfig({
   plugins: [
     svelte({
       hot: !process.env.VITEST,
+      preprocess: sveltePreprocess({
+        postcss: true, // Enable PostCSS for styles
+      }),
     }),
     Icons({
       compiler: "svelte",
