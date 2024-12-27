@@ -1,6 +1,6 @@
-use std::path::Path;
 use crate::{config::LauncherConfig, util::file::delete_dir};
 use semver::Version;
+use std::path::Path;
 use sysinfo::Disks;
 use tauri::{Emitter, Manager};
 

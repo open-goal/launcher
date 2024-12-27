@@ -5,10 +5,10 @@ use std::{
   process::Command,
 };
 
+use crate::{commands::CommandError, config::LauncherConfig, util::file::create_dir};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
-use crate::{commands::CommandError, config::LauncherConfig, util::file::create_dir};
 
 // TODO - duplicate code, cleanup later
 
@@ -181,10 +181,8 @@ pub async fn run_game_gpu_test(
         ))
       }
     }
-    None => {
-      Err(CommandError::BinaryExecution(
-        "GPU test failed, no exit-code returned".to_owned(),
-      ))
-    }
+    None => Err(CommandError::BinaryExecution(
+      "GPU test failed, no exit-code returned".to_owned(),
+    )),
   }
 }

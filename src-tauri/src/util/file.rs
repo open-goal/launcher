@@ -6,7 +6,7 @@ use rustc_serialize::base64::{ToBase64, MIME};
 use rustc_serialize::hex::ToHex;
 use std::{
   fs::File,
-  io::{Read},
+  io::Read,
   path::{Path, PathBuf},
 };
 

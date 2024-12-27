@@ -80,7 +80,10 @@ pub async fn uninstall_game(
 }
 
 #[tauri::command]
-pub async fn reset_game_settings(app_handle: tauri::AppHandle, game_name: String) -> Result<(), CommandError> {
+pub async fn reset_game_settings(
+  app_handle: tauri::AppHandle,
+  game_name: String,
+) -> Result<(), CommandError> {
   let config_dir = match app_handle.path().config_dir() {
     Ok(path) => path,
     Err(_) => {
@@ -170,7 +173,10 @@ fn get_saves_highest_milestone(
 //
 // Otherwise, it will default to a default picture (geyser)
 #[tauri::command]
-pub async fn get_furthest_game_milestone(app_handle: tauri:: AppHandle, game_name: String) -> Result<String, CommandError> {
+pub async fn get_furthest_game_milestone(
+  app_handle: tauri::AppHandle,
+  game_name: String,
+) -> Result<String, CommandError> {
   // TODO - currently only checking Jak 1
   // TODO - It would be cool if the launcher had save-game editing features and the like
   // Scan each save file, we inspect the `game-save`'s tag list.

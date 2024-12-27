@@ -19,7 +19,7 @@ use tauri::{Emitter, Manager};
 use crate::{
   config::LauncherConfig,
   util::{
-    file::{overwrite_dir},
+    file::overwrite_dir,
     process::{create_log_file, create_std_log_file, watch_process},
   },
   TAURI_APP,

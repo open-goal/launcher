@@ -6,10 +6,10 @@ use std::{
   path::Path,
 };
 use sysinfo::{Disks, System};
+use tauri::Manager;
 use tempfile::NamedTempFile;
 use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
-use tauri::Manager;
 
 use crate::{
   config::LauncherConfig,
