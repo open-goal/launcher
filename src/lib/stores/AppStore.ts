@@ -3,12 +3,12 @@ import { writable } from "svelte/store";
 export const UpdateStore = writable({
   launcher: {
     updateAvailable: false,
-    versionNumber: undefined,
+    versionNumber: "",
     changeLog: [],
-    date: undefined,
+    date: "",
   },
   selectedTooling: {
     updateAvailable: false,
-    versionNumber: undefined,
+    versionNumber: "",
   },
 });

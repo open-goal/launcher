@@ -62,12 +62,8 @@
         on:click={() => (showChanges = !showChanges)}
         >{$_("update_button_viewChangelog")}</Button
       >
-      <Toggle
-        checked={showDependencyChanges}
-        color="orange"
-        on:change={(evt) => {
-          showDependencyChanges = evt.target.checked;
-        }}>{$_("update_button_hideDependencyChanges")}</Toggle
+      <Toggle color="orange" bind:checked={showDependencyChanges}
+        >{$_("update_button_hideDependencyChanges")}</Toggle
       >
     </div>
     {#if showChanges}

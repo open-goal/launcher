@@ -1,7 +1,6 @@
 import {
   afterEach,
   beforeAll,
-  beforeEach,
   describe,
   expect,
   it,
@@ -13,7 +12,8 @@ import { listOfficialReleases } from "./github";
 import { init } from "svelte-i18n";
 import { initLocales } from "$lib/i18n/i18n";
 
-vi.mock("@tauri-apps/api/os");
+vi.mock("@tauri-apps/plugin-os");
+
 global.fetch = vi.fn();
 
 function createFetchResponse(data: any) {
@@ -25,7 +25,7 @@ function createFetchResponse(data: any) {
   };
 }
 
-function createFakeGithubReleaseAsset(assetName) {
+function createFakeGithubReleaseAsset(assetName: string) {
   return {
     url: "https://api.github.com/repos/open-goal/jak-project/releases/assets/115111791",
     id: 115111791,
@@ -148,8 +148,8 @@ describe("listOfficialReleases", () => {
   });
 
   it("should retrieve intel macOS releases properly", async () => {
-    vi.mocked(platform).mockResolvedValue("darwin");
-    vi.mocked(arch).mockResolvedValue("x86_64");
+    vi.mocked(platform).mockImplementation(() => "macos");
+    vi.mocked(arch).mockImplementation(() => "x86_64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
         createFakeGithubRelease([
@@ -162,13 +162,13 @@ describe("listOfficialReleases", () => {
     const releases = await listOfficialReleases();
     expect(releases.length).toBe(1);
     expect(
-      releases[0].downloadUrl.endsWith("opengoal-macos-intel-v0.0.1.tar.gz"),
+      releases[0].downloadUrl?.endsWith("opengoal-macos-intel-v0.0.1.tar.gz"),
     ).toBeTruthy();
   });
 
   it("should not retrieve macOS ARM releases", async () => {
-    vi.mocked(platform).mockResolvedValue("darwin");
-    vi.mocked(arch).mockResolvedValue("arm");
+    vi.mocked(platform).mockImplementation(() => "macos");
+    vi.mocked(arch).mockImplementation(() => "arm");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
         createFakeGithubRelease([
@@ -184,8 +184,8 @@ describe("listOfficialReleases", () => {
   });
 
   it("should retrieve windows releases properly", async () => {
-    vi.mocked(platform).mockResolvedValue("win32");
-    vi.mocked(arch).mockResolvedValue("x86_64");
+    vi.mocked(platform).mockImplementation(() => "windows");
+    vi.mocked(arch).mockImplementation(() => "x86_64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
         createFakeGithubRelease([
@@ -198,13 +198,13 @@ describe("listOfficialReleases", () => {
     const releases = await listOfficialReleases();
     expect(releases.length).toBe(1);
     expect(
-      releases[0].downloadUrl.endsWith("opengoal-windows-v0.0.1.zip"),
+      releases[0].downloadUrl?.endsWith("opengoal-windows-v0.0.1.zip"),
     ).toBeTruthy();
   });
 
   it("should retrieve linux releases properly", async () => {
-    vi.mocked(platform).mockResolvedValue("linux");
-    vi.mocked(arch).mockResolvedValue("x86_64");
+    vi.mocked(platform).mockImplementation(() => "linux");
+    vi.mocked(arch).mockImplementation(() => "x86_64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
         createFakeGithubRelease([
@@ -217,7 +217,7 @@ describe("listOfficialReleases", () => {
     const releases = await listOfficialReleases();
     expect(releases.length).toBe(1);
     expect(
-      releases[0].downloadUrl.endsWith("opengoal-linux-v0.0.1.tar.gz"),
+      releases[0].downloadUrl?.endsWith("opengoal-linux-v0.0.1.tar.gz"),
     ).toBeTruthy();
   });
 });
@@ -229,8 +229,8 @@ describe("getLatestOfficialRelease", () => {
   });
 
   it("should retrieve intel macOS releases properly", async () => {
-    vi.mocked(platform).mockResolvedValue("darwin");
-    vi.mocked(arch).mockResolvedValue("x86_64");
+    vi.mocked(platform).mockImplementation(() => "macos");
+    vi.mocked(arch).mockImplementation(() => "x86_64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
         createFakeGithubRelease([
@@ -243,13 +243,13 @@ describe("getLatestOfficialRelease", () => {
     const releases = await listOfficialReleases();
     expect(releases.length).toBe(1);
     expect(
-      releases[0].downloadUrl.endsWith("opengoal-macos-intel-v0.0.1.tar.gz"),
+      releases[0].downloadUrl?.endsWith("opengoal-macos-intel-v0.0.1.tar.gz"),
     ).toBeTruthy();
   });
 
   it("should not retrieve macOS ARM releases", async () => {
-    vi.mocked(platform).mockResolvedValue("darwin");
-    vi.mocked(arch).mockResolvedValue("arm");
+    vi.mocked(platform).mockImplementation(() => "macos");
+    vi.mocked(arch).mockImplementation(() => "arm");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
         createFakeGithubRelease([
@@ -265,8 +265,8 @@ describe("getLatestOfficialRelease", () => {
   });
 
   it("should retrieve windows releases properly", async () => {
-    vi.mocked(platform).mockResolvedValue("win32");
-    vi.mocked(arch).mockResolvedValue("x86_64");
+    vi.mocked(platform).mockImplementation(() => "windows");
+    vi.mocked(arch).mockImplementation(() => "x86_64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
         createFakeGithubRelease([
@@ -279,13 +279,13 @@ describe("getLatestOfficialRelease", () => {
     const releases = await listOfficialReleases();
     expect(releases.length).toBe(1);
     expect(
-      releases[0].downloadUrl.endsWith("opengoal-windows-v0.0.1.zip"),
+      releases[0].downloadUrl?.endsWith("opengoal-windows-v0.0.1.zip"),
     ).toBeTruthy();
   });
 
   it("should retrieve linux releases properly", async () => {
-    vi.mocked(platform).mockResolvedValue("linux");
-    vi.mocked(arch).mockResolvedValue("x86_64");
+    vi.mocked(platform).mockImplementation(() => "linux");
+    vi.mocked(arch).mockImplementation(() => "x86_64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
         createFakeGithubRelease([
@@ -298,7 +298,7 @@ describe("getLatestOfficialRelease", () => {
     const releases = await listOfficialReleases();
     expect(releases.length).toBe(1);
     expect(
-      releases[0].downloadUrl.endsWith("opengoal-linux-v0.0.1.tar.gz"),
+      releases[0].downloadUrl?.endsWith("opengoal-linux-v0.0.1.tar.gz"),
     ).toBeTruthy();
   });
 });

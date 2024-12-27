@@ -21,8 +21,9 @@ function isIntelMacOsRelease(
   architecture: string,
   assetName: string,
 ): boolean {
+  console.log(platform, architecture, assetName);
   return (
-    platform === "darwin" &&
+    platform === "macos" &&
     architecture === "x86_64" &&
     assetName.startsWith("opengoal-macos-intel-v")
   );
@@ -33,7 +34,11 @@ function isWindowsRelease(
   architecture: string,
   assetName: string,
 ): boolean {
-  return platform === "win32" && assetName.startsWith("opengoal-windows-v");
+  return (
+    platform === "windows" &&
+    architecture === "x86_64" &&
+    assetName.startsWith("opengoal-windows-v")
+  );
 }
 
 function isLinuxRelease(
@@ -41,14 +46,20 @@ function isLinuxRelease(
   architecture: string,
   assetName: string,
 ): boolean {
-  return platform === "linux" && assetName.startsWith("opengoal-linux-v");
+  //TODO: Why testing like this?
+  // Why not assetName.startsWith('opengoal-{platform}-{arch}-...')
+  return (
+    platform === "linux" &&
+    architecture === "x86_64" &&
+    assetName.startsWith("opengoal-linux-v")
+  );
 }
 
 async function getDownloadLinkForCurrentPlatform(
   release: any,
 ): Promise<string | undefined> {
-  const platformName = await platform();
-  const archName = await arch();
+  const platformName = platform();
+  const archName = arch();
   for (const asset of release.assets) {
     if (isIntelMacOsRelease(platformName, archName, asset.name)) {
       return asset.browser_download_url;
@@ -87,14 +98,13 @@ async function parseGithubRelease(githubRelease: any): Promise<ReleaseInfo> {
       releaseInfo.invalidationReasons = ["Release invalid for unknown reasons"];
     }
   }
-
   return releaseInfo;
 }
 
 export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
   const nextUrlPattern = /<([\S]+)>; rel="Next"/i;
   let releases = [];
-  let urlToHit =
+  let urlToHit: string | undefined =
     "https://api.github.com/repos/open-goal/jak-project/releases?per_page=100";
 
   while (urlToHit !== undefined) {
@@ -112,18 +122,17 @@ export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
       releases.push(await parseGithubRelease(release));
     }
 
-    if (
-      resp.headers.has("link") &&
-      resp.headers.get("link").includes(`rel=\"next\"`)
-    ) {
-      // we must paginate!
-      urlToHit = resp.headers.get("link").match(nextUrlPattern)[1];
-    } else {
-      urlToHit = undefined;
-    }
+    urlToHit = resp.headers.get("link")?.includes(`rel="next"`)
+      ? resp.headers.get("link")!.match(nextUrlPattern)?.[1]
+      : undefined;
   }
 
-  return releases.sort((a, b) => b.date.localeCompare(a.date));
+  return releases.sort((a, b) => {
+    if (!a.date && !b.date) return 0;
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return b.date.localeCompare(a.date);
+  });
 }
 
 export async function getLatestOfficialRelease(): Promise<

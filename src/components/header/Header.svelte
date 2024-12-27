@@ -21,11 +21,11 @@
   import { toastStore } from "$lib/stores/ToastStore";
   const appWindow = getCurrentWebviewWindow();
 
-  let launcherVerison = null;
+  let launcherVersion: string | null = null;
 
   onMount(async () => {
     // Get current versions
-    launcherVerison = `v${await getVersion()}`;
+    launcherVersion = `v${await getVersion()}`;
 
     $VersionStore.activeVersionType = await getActiveVersionFolder();
     $VersionStore.activeVersionName = await getActiveVersion();
@@ -36,12 +36,12 @@
 
     if (!isInDebugMode()) {
       const updateResult = await check();
-      if (updateResult.shouldUpdate) {
+      if (updateResult) {
         let changeLog = [];
         try {
-          changeLog = JSON.parse(updateResult.manifest.body);
+          changeLog = JSON.parse(updateResult.body ?? "");
         } catch (e) {
-          exceptionLog(
+          await exceptionLog(
             `Could not parse changelog JSON from release metadata - ${JSON.stringify(
               updateResult,
             )}`,
@@ -50,19 +50,21 @@
         }
         $UpdateStore.launcher = {
           updateAvailable: true,
-          versionNumber: updateResult.manifest.version,
-          date: updateResult.manifest.date,
+          versionNumber: updateResult.version,
+          date: updateResult.date ?? "",
           changeLog: changeLog,
         };
-        infoLog(`Launcher Update Available`);
+        await infoLog(`Launcher Update Available`);
       } else {
         $UpdateStore.launcher = {
           updateAvailable: false,
-          versionNumber: null,
-          date: null,
+          versionNumber: "",
+          date: "",
           changeLog: [],
         };
-        infoLog(`Launcher is up to date - ${JSON.stringify(updateResult)}`);
+        await infoLog(
+          `Launcher is up to date - ${JSON.stringify(updateResult)}`,
+        );
       }
     }
 
@@ -125,7 +127,7 @@
     class="flex flex-col text-neutral-300 mr-2 pointer-events-none max-w-[250px]"
   >
     <p class="font-mono text-sm truncate-text">
-      {launcherVerison === null ? "not set!" : launcherVerison}
+      {launcherVersion === null ? "not set!" : launcherVersion}
     </p>
     <p class="font-mono text-sm truncate-text">
       {$VersionStore.activeVersionName === null
