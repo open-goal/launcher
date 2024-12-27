@@ -3,7 +3,7 @@ use semver::Version;
 use std::path::Path;
 use sysinfo::Disks;
 use tauri::{Emitter, Manager};
-
+use crate::util::os::get_installed_vcc_runtime;
 use super::CommandError;
 
 #[tauri::command]
@@ -132,9 +132,7 @@ pub async fn is_minimum_vcc_runtime_installed(
 #[tauri::command]
 pub async fn is_minimum_vcc_runtime_installed(
   _config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<bool, CommandError> {
-  return Ok(false);
-}
+) -> Result<bool, CommandError> { Ok(false) }
 
 #[cfg(target_os = "macos")]
 #[tauri::command]
