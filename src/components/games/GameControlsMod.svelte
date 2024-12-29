@@ -40,6 +40,7 @@
     getModAssetUrl,
     isVersionSupportedOnPlatform,
   } from "$lib/features/mods";
+  import { VersionStore } from "$lib/stores/VersionStore";
 
   export let activeGame: SupportedGame;
   export let modName: string = "";
@@ -167,6 +168,9 @@
       Object.keys(installedMods[modSource]).includes(modName)
     ) {
       currentlyInstalledVersion = installedMods[modSource][modName];
+      $VersionStore.activeVersionName = currentlyInstalledVersion;
+    } else {
+      $VersionStore.activeVersionName = "not set!";
     }
 
     for (const version of modVersionListSorted) {
