@@ -918,7 +918,7 @@ pub async fn open_repl_for_mod(
     command = std::process::Command::new("cmd");
     command
       .args([
-        "/K",
+        "/C",
         "start",
         &bin_ext("goalc"),
         "--game",

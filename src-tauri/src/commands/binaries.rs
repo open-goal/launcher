@@ -600,7 +600,7 @@ pub async fn open_repl(
     command = std::process::Command::new("cmd");
     command
       .args([
-        "/K",
+        "/C",
         "start",
         &bin_ext("goalc"),
         "--game",
