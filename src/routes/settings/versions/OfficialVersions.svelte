@@ -84,6 +84,9 @@
       ];
     }
 
+    // filter incompatible releases
+    releases = releases.filter((r) => r.downloadUrl !== undefined);
+
     // Sort releases by published date
     releases = releases.sort((a, b) => {
       if (a.date === undefined) {
