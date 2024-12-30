@@ -106,9 +106,7 @@
               <Button
                 class="py-0 dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
                 disabled={release.pendingAction ||
-                  (!release.isDownloaded &&
-                    release.downloadUrl !== undefined &&
-                    release.invalid)}
+                  (!release.isDownloaded && release.invalid)}
                 on:click={async () => {
                   if (release.isDownloaded) {
                     dispatch("removeVersion", { version: release.version });
@@ -128,11 +126,9 @@
                       "settings_versions_icon_removeVersion_altText",
                     )}
                   />
-                {:else if release.downloadUrl === undefined}
-                  <span>{$_("settings_versions_incompatibleVersion")}</span>
                 {:else if release.pendingAction}
                   <Spinner color="yellow" size={"6"} />
-                {:else if release.releaseType === "official" && release.downloadUrl !== undefined}
+                {:else if release.releaseType === "official"}
                   <IconDownload
                     class="text-xl"
                     color="#00d500"
