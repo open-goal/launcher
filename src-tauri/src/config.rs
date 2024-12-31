@@ -199,6 +199,7 @@ pub struct LauncherConfig {
   pub decompiler_settings: Option<DecompilerSettings>,
   pub check_for_latest_mod_version: Option<bool>,
   pub proceed_after_successful_operation: Option<bool>,
+  pub auto_update_games: bool,
 }
 
 fn default_version() -> Option<String> {
@@ -226,6 +227,7 @@ impl LauncherConfig {
       decompiler_settings: Some(DecompilerSettings::default()),
       check_for_latest_mod_version: Some(true),
       proceed_after_successful_operation: Some(true),
+      auto_update_games: false,
     }
   }
 
@@ -456,6 +458,12 @@ impl LauncherConfig {
 
   pub fn set_bypass_requirements(&mut self, bypass: bool) -> Result<(), ConfigError> {
     self.requirements.bypass_requirements = Some(bypass);
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_auto_update_games(&mut self, value: bool) -> Result<(), ConfigError> {
+    self.auto_update_games = value;
     self.save_config()?;
     Ok(())
   }

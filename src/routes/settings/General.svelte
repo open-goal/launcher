@@ -6,6 +6,8 @@
     getLocale,
     localeSpecificFontAvailableForDownload,
     resetLauncherSettingsToDefaults,
+    setAutoUpdateGames,
+    getAutoUpdateGames,
     setBypassRequirements,
     setInstallationDirectory,
     setLocale,
@@ -27,15 +29,19 @@
   import { downloadFile } from "$lib/rpc/download";
   import { appDataDir, join } from "@tauri-apps/api/path";
   import { folderPrompt } from "$lib/utils/file-dialogs";
+  import { writable } from "svelte/store";
 
   let currentInstallationDirectory = "";
   let currentLocale;
   let availableLocales = [];
   let currentBypassRequirementsVal = false;
+  let keepGamesUpdated = writable(false);
   let localeFontForDownload: Locale | undefined = undefined;
   let localeFontDownloading = false;
 
   onMount(async () => {
+    let autoUpdateGames = await getAutoUpdateGames();
+    keepGamesUpdated.set(autoUpdateGames);
     currentInstallationDirectory = await getInstallationDirectory();
     for (const locale of AVAILABLE_LOCALES) {
       availableLocales = [
@@ -143,6 +149,15 @@
     >
   </div>
   <div>
+    <Toggle
+      color="orange"
+      checked={$keepGamesUpdated}
+      on:change={async () => {
+        $keepGamesUpdated = !$keepGamesUpdated;
+        await setAutoUpdateGames($keepGamesUpdated);
+      }}
+      class="mb-2">Automatically keep games updated (experimental)</Toggle
+    >
     <Toggle
       checked={currentBypassRequirementsVal}
       color="orange"

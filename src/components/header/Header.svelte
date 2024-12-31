@@ -10,6 +10,7 @@
   import { checkUpdate } from "@tauri-apps/api/updater";
   import { isInDebugMode } from "$lib/utils/common";
   import {
+    downloadOfficialVersion,
     getActiveVersion,
     getActiveVersionFolder,
     listDownloadedVersions,
@@ -19,8 +20,28 @@
   import { exceptionLog, infoLog } from "$lib/rpc/logging";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
+  import { getAutoUpdateGames, saveActiveVersionChange } from "$lib/rpc/config";
 
   let launcherVerison = null;
+
+  async function downloadLatestVersion(version: string, url: String) {
+    await downloadOfficialVersion(version, url);
+    $UpdateStore.selectedTooling.updateAvailable = false;
+    $VersionStore.selectedVersions.official = version;
+    await saveOfficialVersionChange();
+  }
+
+  async function saveOfficialVersionChange() {
+    const success = await saveActiveVersionChange(
+      "official",
+      $VersionStore.selectedVersions.official,
+    );
+    if (success) {
+      $VersionStore.activeVersionType = "official";
+      $VersionStore.activeVersionName = $VersionStore.selectedVersions.official;
+      toastStore.makeToast($_("toasts_savedToolingVersion"), "info");
+    }
+  }
 
   onMount(async () => {
     // Get current versions
@@ -90,6 +111,15 @@
           }
         }
         if (!alreadyHaveRelease) {
+          let shouldAutoUpdate = await getAutoUpdateGames();
+          if (shouldAutoUpdate) {
+            await downloadLatestVersion(
+              latestToolingVersion.version,
+              latestToolingVersion.downloadUrl,
+            );
+            location.reload(); // TODO! this is hacky, when i refactor this will be done automatically
+          }
+
           $UpdateStore.selectedTooling = {
             updateAvailable: true,
             versionNumber: latestToolingVersion.version,

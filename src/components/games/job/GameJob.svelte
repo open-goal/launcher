@@ -150,6 +150,7 @@
     progressTracker.proceed();
     await finalizeInstallation(getInternalName(activeGame));
     progressTracker.proceed();
+    location.reload();
   }
 
   async function setupTexturePacks() {
