@@ -391,6 +391,26 @@ pub async fn set_bypass_requirements(
 }
 
 #[tauri::command]
+pub async fn get_auto_update_games(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<bool, CommandError> {
+  let config_lock = config.lock().await;
+  Ok(config_lock.auto_update_games)
+}
+
+#[tauri::command]
+pub async fn set_auto_update_games(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  value: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_auto_update_games(value).map_err(|_| {
+    CommandError::Configuration("Unable to persist bypass requirements change".to_owned())
+  })?;
+  Ok(())
+}
+
+#[tauri::command]
 pub async fn get_check_for_latest_mod_version(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<bool, CommandError> {

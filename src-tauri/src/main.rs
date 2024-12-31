@@ -191,6 +191,8 @@ fn main() {
       commands::config::reset_to_defaults,
       commands::config::save_active_version_change,
       commands::config::set_bypass_requirements,
+      commands::config::set_auto_update_games,
+      commands::config::get_auto_update_games,
       commands::config::set_enabled_texture_packs,
       commands::config::set_install_directory,
       commands::config::set_locale,

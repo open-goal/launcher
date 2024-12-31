@@ -1,6 +1,9 @@
 <script lang="ts">
   import type { SupportedGame } from "$lib/constants";
-  import { isMinimumVCCRuntimeInstalled } from "$lib/rpc/config";
+  import {
+    getAutoUpdateGames,
+    isMinimumVCCRuntimeInstalled,
+  } from "$lib/rpc/config";
   import { VersionStore } from "$lib/stores/VersionStore";
   import { type } from "@tauri-apps/api/os";
   import { Button, Card } from "flowbite-svelte";
@@ -21,6 +24,12 @@
     if (osType == "Windows_NT") {
       const isVCCInstalled = await isMinimumVCCRuntimeInstalled();
       displayVCCWarning = !isVCCInstalled;
+    }
+    let shouldAutoUpdate = await getAutoUpdateGames();
+    if (shouldAutoUpdate) {
+      dispatch("job", {
+        type: "updateGame",
+      });
     }
   });
 </script>

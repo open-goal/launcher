@@ -205,6 +205,14 @@ export async function setLocale(localeId: string): Promise<void> {
   );
 }
 
+export async function setAutoUpdateGames(value: boolean): Promise<void> {
+  return await invoke_rpc("set_auto_update_games", { value }, () => {});
+}
+
+export async function getAutoUpdateGames(): Promise<boolean> {
+  return await invoke_rpc("get_auto_update_games", {}, () => false);
+}
+
 export async function setBypassRequirements(bypass: boolean): Promise<void> {
   return await invoke_rpc("set_bypass_requirements", { bypass }, () => {});
 }
