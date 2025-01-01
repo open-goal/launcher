@@ -36,12 +36,15 @@
   let availableLocales = [];
   let currentBypassRequirementsVal = false;
   let keepGamesUpdated = writable(false);
+  let uninstallOldVersions = writable(false);
   let localeFontForDownload: Locale | undefined = undefined;
   let localeFontDownloading = false;
 
   onMount(async () => {
     let autoUpdateGames = await getAutoUpdateGames();
     keepGamesUpdated.set(autoUpdateGames);
+    // let shouldUninstallOldVersions = await getShouldUninstallOldVersions(); // TODO!
+    // uninstallOldVersions.set(shouldUninstallOldVersions); // dependent on getter function
     currentInstallationDirectory = await getInstallationDirectory();
     for (const locale of AVAILABLE_LOCALES) {
       availableLocales = [
@@ -155,9 +158,18 @@
       on:change={async () => {
         $keepGamesUpdated = !$keepGamesUpdated;
         await setAutoUpdateGames($keepGamesUpdated);
+        $uninstallOldVersions = false;
       }}
       class="mb-2">Automatically keep games updated (experimental)</Toggle
     >
+    {#if $keepGamesUpdated}
+      <Toggle
+        color="orange"
+        checked={$uninstallOldVersions}
+        class="ml-14 mb-2"
+        hidden={$keepGamesUpdated}>Automatically uninstall old versions</Toggle
+      >
+    {/if}
     <Toggle
       checked={currentBypassRequirementsVal}
       color="orange"
