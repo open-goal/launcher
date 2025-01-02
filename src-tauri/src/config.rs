@@ -16,6 +16,7 @@ use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde_json::Value;
 
 use crate::util::file::touch_file;
 
@@ -136,18 +137,18 @@ impl GameConfig {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Requirements {
-  pub bypass_requirements: Option<bool>,
-  pub avx: Option<bool>,
+  pub bypass_requirements: bool,
+  pub avx: bool,
   #[serde(rename = "openGL")]
-  pub opengl: Option<bool>,
+  pub opengl: bool,
 }
 
 impl Requirements {
   fn default() -> Self {
     Self {
-      bypass_requirements: Some(false),
-      avx: None,
-      opengl: None,
+      bypass_requirements: false,
+      avx: false,
+      opengl: false,
     }
   }
 }
@@ -155,29 +156,21 @@ impl Requirements {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DecompilerSettings {
-  #[serde(default = "default_as_false")]
-  pub rip_levels_enabled: Option<bool>,
-  #[serde(default = "default_as_false")]
-  pub rip_collision_enabled: Option<bool>,
-  #[serde(default = "default_as_false")]
-  pub rip_textures_enabled: Option<bool>,
-  #[serde(default = "default_as_false")]
-  pub rip_streamed_audio_enabled: Option<bool>,
+  pub rip_levels_enabled: bool,
+  pub rip_collision_enabled: bool,
+  pub rip_textures_enabled: bool,
+  pub rip_streamed_audio_enabled: bool,
 }
 
 impl DecompilerSettings {
   fn default() -> Self {
     Self {
-      rip_levels_enabled: Some(false),
-      rip_collision_enabled: Some(false),
-      rip_textures_enabled: Some(false),
-      rip_streamed_audio_enabled: Some(false),
+      rip_levels_enabled: false,
+      rip_collision_enabled: false,
+      rip_textures_enabled: false,
+      rip_streamed_audio_enabled: false,
     }
   }
-}
-
-fn default_as_false() -> Option<bool> {
-  Some(false)
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -196,10 +189,11 @@ pub struct LauncherConfig {
   pub active_version_folder: Option<String>,
   pub locale: Option<String>,
   pub mod_sources: Option<Vec<String>>,
-  pub decompiler_settings: Option<DecompilerSettings>,
-  pub check_for_latest_mod_version: Option<bool>,
-  pub proceed_after_successful_operation: Option<bool>,
+  pub decompiler_settings: DecompilerSettings,
+  pub check_for_latest_mod_version: bool,
+  pub proceed_after_successful_operation: bool,
   pub auto_update_games: bool,
+  pub delete_previous_versions: bool,
 }
 
 fn default_version() -> Option<String> {
@@ -224,10 +218,11 @@ impl LauncherConfig {
       active_version_folder: Some("official".to_string()),
       locale: None,
       mod_sources: None,
-      decompiler_settings: Some(DecompilerSettings::default()),
-      check_for_latest_mod_version: Some(true),
-      proceed_after_successful_operation: Some(true),
+      decompiler_settings: DecompilerSettings::default(),
+      check_for_latest_mod_version: true,
+      proceed_after_successful_operation: true,
       auto_update_games: false,
+      delete_previous_versions: false,
     }
   }
 
@@ -373,15 +368,19 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn set_install_directory(&mut self, new_dir: String) -> Result<Option<String>, ConfigError> {
+  pub fn set_install_directory(&mut self, new_dir: String) -> Result<(), ConfigError> {
     // Do some tests on this folder, if they fail, return a decent error
     let path = Path::new(&new_dir);
     if !path.exists() {
-      return Ok(Some("Provided folder does not exist".to_owned()));
+      return Err(ConfigError::Configuration(
+        "Provided folder does not exist".to_owned(),
+      ));
     }
 
     if !path.is_dir() {
-      return Ok(Some("Provided folder is not a folder".to_owned()));
+      return Err(ConfigError::Configuration(
+        "Provided folder is not a folder".to_owned(),
+      ));
     }
 
     // Check our permissions on the folder by touching a file (and deleting it)
@@ -391,7 +390,9 @@ impl LauncherConfig {
         "Provided installation folder could not be written to: {}",
         e
       );
-      return Ok(Some("Provided folder cannot be written to".to_owned()));
+      return Err(ConfigError::Configuration(
+        "Provided folder cannot be written to".to_owned(),
+      ));
     }
 
     // If the directory changes (it's not a no-op), we need to:
@@ -414,67 +415,86 @@ impl LauncherConfig {
 
     self.installation_dir = Some(new_dir);
     self.save_config()?;
-    Ok(None)
+    Ok(())
   }
 
-  pub fn set_opengl_requirement_met(&mut self, new_val: Option<bool>) -> Result<(), ConfigError> {
-    match new_val {
-      Some(val) => {
-        self.requirements.opengl = Some(val);
+  pub fn update_setting_value(&mut self, key: &str, val: Value) -> Result<(), ConfigError> {
+    match key {
+      "opengl_requirements_met" => self.requirements.opengl = val.as_bool().unwrap_or(false),
+      "bypass_requirements" => {
+        self.requirements.bypass_requirements = val.as_bool().unwrap_or(false)
       }
-      None => self.requirements.opengl = None,
+      "active_version" => self.active_version = val.as_str().map(|s| s.to_string()),
+      "active_version_folder" => self.active_version_folder = val.as_str().map(|s| s.to_string()),
+      "locale" => self.locale = val.as_str().map(|s| s.to_string()),
+      "check_for_latest_mod_version" => {
+        self.check_for_latest_mod_version = val.as_bool().unwrap_or(true)
+      }
+      "auto_update_games" => self.auto_update_games = val.as_bool().unwrap_or(false),
+      "delete_previous_versions" => self.delete_previous_versions = val.as_bool().unwrap_or(false),
+      "rip_levels" => self.decompiler_settings.rip_levels_enabled = val.as_bool().unwrap_or(false),
+      "rip_collision" => {
+        self.decompiler_settings.rip_collision_enabled = val.as_bool().unwrap_or(false)
+      }
+      "rip_textures" => {
+        self.decompiler_settings.rip_textures_enabled = val.as_bool().unwrap_or(false)
+      }
+      "rip_streamed_audio" => {
+        self.decompiler_settings.rip_streamed_audio_enabled = val.as_bool().unwrap_or(false)
+      }
+      _ => {
+        log::error!("Key '{}' not recognized", key);
+      }
     }
     self.save_config()?;
     Ok(())
   }
 
-  pub fn set_active_version(&mut self, new_version: String) -> Result<(), ConfigError> {
-    self.active_version = Some(new_version);
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_active_version_folder(
-    &mut self,
-    new_version_folder: String,
-  ) -> Result<(), ConfigError> {
-    self.active_version_folder = Some(new_version_folder);
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn clear_active_version(&mut self) -> Result<(), ConfigError> {
-    self.active_version = None;
-    self.active_version_folder = None;
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_locale(&mut self, new_locale: String) -> Result<(), ConfigError> {
-    self.locale = Some(new_locale);
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_bypass_requirements(&mut self, bypass: bool) -> Result<(), ConfigError> {
-    self.requirements.bypass_requirements = Some(bypass);
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_auto_update_games(&mut self, value: bool) -> Result<(), ConfigError> {
-    self.auto_update_games = value;
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_check_for_latest_mod_version(
-    &mut self,
-    check_for_latest_mod_version: bool,
-  ) -> Result<(), ConfigError> {
-    self.check_for_latest_mod_version = Some(check_for_latest_mod_version);
-    self.save_config()?;
-    Ok(())
+  pub fn get_setting_value(&self, key: &str) -> Result<Value, ConfigError> {
+    match key {
+      "opengl_requirements_met" => Ok(Value::Bool(self.requirements.opengl)),
+      "bypass_requirements" => Ok(Value::Bool(self.requirements.bypass_requirements)),
+      "install_directory" => Ok(
+        self
+          .installation_dir
+          .as_ref()
+          .map_or(Value::Null, |v| Value::String(v.clone())),
+      ),
+      "active_version" => Ok(
+        self
+          .active_version
+          .as_ref()
+          .map_or(Value::Null, |v| Value::String(v.clone())),
+      ),
+      "active_version_folder" => Ok(
+        self
+          .active_version_folder
+          .as_ref()
+          .map_or(Value::Null, |v| Value::String(v.clone())),
+      ),
+      "locale" => Ok(
+        self
+          .locale
+          .as_ref()
+          .map_or(Value::Null, |v| Value::String(v.clone())),
+      ),
+      "check_for_latest_mod_version" => Ok(Value::Bool(self.check_for_latest_mod_version)),
+      "proceed_after_successful_operation" => {
+        Ok(Value::Bool(self.proceed_after_successful_operation))
+      }
+      "auto_update_games" => Ok(Value::Bool(self.auto_update_games)),
+      "delete_previous_versions" => Ok(Value::Bool(self.delete_previous_versions)),
+      "rip_levels" => Ok(Value::Bool(self.decompiler_settings.rip_levels_enabled)),
+      "rip_collision" => Ok(Value::Bool(self.decompiler_settings.rip_collision_enabled)),
+      "rip_textures" => Ok(Value::Bool(self.decompiler_settings.rip_textures_enabled)),
+      "rip_streamed_audio" => Ok(Value::Bool(
+        self.decompiler_settings.rip_streamed_audio_enabled,
+      )),
+      _ => {
+        log::error!("Key '{}' not recognized", key);
+        Err(ConfigError::Configuration("Invalid key".to_owned()))
+      }
+    }
   }
 
   pub fn update_installed_game_version(
@@ -770,54 +790,5 @@ impl LauncherConfig {
       Some(installed_mods) => Ok(installed_mods.clone()),
       None => Ok(HashMap::new()),
     }
-  }
-
-  pub fn set_rip_levels_enabled(&mut self, enabled: bool) -> Result<(), ConfigError> {
-    if let Some(ref mut settings) = self.decompiler_settings {
-      settings.rip_levels_enabled = Some(enabled);
-    } else {
-      let mut new_settings = DecompilerSettings::default();
-      new_settings.rip_levels_enabled = Some(enabled);
-      self.decompiler_settings = Some(new_settings);
-    }
-
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_rip_collision_enabled(&mut self, enabled: bool) -> Result<(), ConfigError> {
-    if let Some(ref mut settings) = self.decompiler_settings {
-      settings.rip_collision_enabled = Some(enabled);
-    } else {
-      let mut new_settings = DecompilerSettings::default();
-      new_settings.rip_collision_enabled = Some(enabled);
-      self.decompiler_settings = Some(new_settings);
-    }
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_rip_textures_enabled(&mut self, enabled: bool) -> Result<(), ConfigError> {
-    if let Some(ref mut settings) = self.decompiler_settings {
-      settings.rip_textures_enabled = Some(enabled);
-    } else {
-      let mut new_settings = DecompilerSettings::default();
-      new_settings.rip_textures_enabled = Some(enabled);
-      self.decompiler_settings = Some(new_settings);
-    }
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_rip_streamed_audio_enabled(&mut self, enabled: bool) -> Result<(), ConfigError> {
-    if let Some(ref mut settings) = self.decompiler_settings {
-      settings.rip_streamed_audio_enabled = Some(enabled);
-    } else {
-      let mut new_settings = DecompilerSettings::default();
-      new_settings.rip_streamed_audio_enabled = Some(enabled);
-      self.decompiler_settings = Some(new_settings);
-    }
-    self.save_config()?;
-    Ok(())
   }
 }

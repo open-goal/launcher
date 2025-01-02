@@ -18,7 +18,7 @@ mod commands;
 mod config;
 mod util;
 
-fn log_crash(panic_info: Option<&std::panic::PanicInfo>, error: Option<tauri::Error>) {
+fn log_crash(panic_info: Option<&std::panic::PanicHookInfo>, error: Option<tauri::Error>) {
   let backtrace = Backtrace::new();
   let log_contents;
   if let Some(panic_info) = panic_info {
@@ -56,7 +56,7 @@ fn log_crash(panic_info: Option<&std::panic::PanicInfo>, error: Option<tauri::Er
     .unwrap();
 }
 
-fn panic_hook(info: &std::panic::PanicInfo) {
+fn panic_hook(info: &std::panic::PanicHookInfo) {
   log_crash(Some(info), None);
 }
 
@@ -166,17 +166,9 @@ fn main() {
       commands::config::does_active_tooling_version_meet_minimum,
       commands::config::does_active_tooling_version_support_game,
       commands::config::finalize_installation,
-      commands::config::get_proceed_after_successful_operation,
-      commands::config::get_active_tooling_version_folder,
-      commands::config::get_active_tooling_version,
-      commands::config::get_bypass_requirements,
       commands::config::get_enabled_texture_packs,
-      commands::config::set_check_for_latest_mod_version,
-      commands::config::get_check_for_latest_mod_version,
-      commands::config::get_install_directory,
       commands::config::get_installed_version_folder,
       commands::config::get_installed_version,
-      commands::config::get_locale,
       commands::config::get_playtime,
       commands::config::has_old_data_directory,
       commands::config::is_avx_requirement_met,
@@ -184,22 +176,12 @@ fn main() {
       commands::config::is_game_installed,
       commands::config::is_minimum_vcc_runtime_installed,
       commands::config::is_opengl_requirement_met,
-      commands::config::is_rip_collision_enabled,
-      commands::config::is_rip_levels_enabled,
-      commands::config::is_rip_streamed_audio_enabled,
-      commands::config::is_rip_textures_enabled,
       commands::config::reset_to_defaults,
       commands::config::save_active_version_change,
-      commands::config::set_bypass_requirements,
-      commands::config::set_auto_update_games,
-      commands::config::get_auto_update_games,
       commands::config::set_enabled_texture_packs,
       commands::config::set_install_directory,
-      commands::config::set_locale,
-      commands::config::set_rip_collision_enabled,
-      commands::config::set_rip_levels_enabled,
-      commands::config::set_rip_streamed_audio_enabled,
-      commands::config::set_rip_textures_enabled,
+      commands::config::get_setting_value,
+      commands::config::update_setting_value,
       commands::download::download_file,
       commands::features::mods::add_mod_source,
       commands::features::mods::base_game_iso_exists,

@@ -48,11 +48,19 @@ export async function openVersionFolder(versionFolder: VersionFolders) {
 }
 
 export async function getActiveVersion(): Promise<string | null> {
-  return await invoke_rpc("get_active_tooling_version", {}, () => null);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "active_version" },
+    () => null,
+  );
 }
 
 export async function getActiveVersionFolder(): Promise<VersionFolders> {
-  return await invoke_rpc("get_active_tooling_version_folder", {}, () => null);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "active_version_folder" },
+    () => null,
+  );
 }
 
 export async function ensureActiveVersionStillExists(): Promise<boolean> {

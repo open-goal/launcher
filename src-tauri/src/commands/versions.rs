@@ -1,6 +1,7 @@
 use std::path::Path;
 
 use log::info;
+use serde_json::Value;
 
 use crate::{
   config::LauncherConfig,
@@ -211,11 +212,13 @@ pub async fn remove_version(
     &config_lock.active_version,
   ) {
     if (version_folder == *config_version_folder) && (version == *config_version) {
-      config_lock.clear_active_version().map_err(|_| {
-        CommandError::VersionManagement(
-          "Unable to clear active version after it was removed".to_owned(),
-        )
-      })?;
+      config_lock
+        .update_setting_value("active_version", Value::Null)
+        .map_err(|_| {
+          CommandError::VersionManagement(
+            "Unable to clear active version after it was removed".to_owned(),
+          )
+        })?;
     }
   }
 
@@ -282,11 +285,13 @@ pub async fn ensure_active_version_still_exists(
         .join(config_version);
       if !version_dir.exists() {
         // Clear active version if it's no longer available
-        config_lock.clear_active_version().map_err(|_| {
-          CommandError::VersionManagement(
-            "Unable to clear active version after it was found to be missing".to_owned(),
-          )
-        })?;
+        config_lock
+          .update_setting_value("active_version", Value::Null)
+          .map_err(|_| {
+            CommandError::VersionManagement(
+              "Unable to clear active version after it was found to be missing".to_owned(),
+            )
+          })?;
       }
       Ok(version_dir.exists())
     }

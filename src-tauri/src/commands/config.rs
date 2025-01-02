@@ -3,6 +3,7 @@ use std::path::Path;
 use crate::util::os::get_installed_vcc_runtime;
 use crate::{config::LauncherConfig, util::file::delete_dir};
 use semver::Version;
+use serde_json::{json, Value};
 use sysinfo::Disks;
 use tauri::Manager;
 
@@ -36,13 +37,37 @@ pub async fn reset_to_defaults(
 }
 
 #[tauri::command]
-pub async fn get_install_directory(
+pub async fn update_setting_value(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<Option<String>, CommandError> {
+  key: String,
+  val: Value,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  match &config_lock.update_setting_value(&key, val) {
+    Ok(()) => Ok(()),
+    Err(e) => {
+      log::error!("Unable to get setting directory: {:?}", e);
+      Err(CommandError::Configuration(
+        "Unable to update setting".to_owned(),
+      ))
+    }
+  }
+}
+
+#[tauri::command]
+pub async fn get_setting_value(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  key: String,
+) -> Result<Value, CommandError> {
   let config_lock = config.lock().await;
-  match &config_lock.installation_dir {
-    None => Ok(None),
-    Some(dir) => Ok(Some(dir.to_string())),
+  match &config_lock.get_setting_value(&key) {
+    Ok(value) => Ok(json!(value)),
+    Err(e) => {
+      log::error!("Unable to get setting directory: {:?}", e);
+      Err(CommandError::Configuration(
+        "Unable to get setting".to_owned(),
+      ))
+    }
   }
 }
 
@@ -50,7 +75,7 @@ pub async fn get_install_directory(
 pub async fn set_install_directory(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   new_dir: String,
-) -> Result<Option<String>, CommandError> {
+) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   config_lock.set_install_directory(new_dir).map_err(|err| {
     log::error!("Unable to persist installation directory: {:?}", err);
@@ -78,11 +103,9 @@ pub async fn is_diskspace_requirement_met(
   if is_game_installed_impl(&mut config_lock, game_name.to_owned())? {
     return Ok(true);
   }
-  if let Some(bypass) = config_lock.requirements.bypass_requirements {
-    if bypass {
-      log::warn!("Bypassing the Disk Space requirements check!");
-      return Ok(true);
-    }
+  if config_lock.requirements.bypass_requirements {
+    log::warn!("Bypassing the Disk Space requirements check!");
+    return Ok(true);
   }
 
   let install_dir = match &config_lock.installation_dir {
@@ -146,6 +169,17 @@ pub async fn is_minimum_vcc_runtime_installed(
   return Ok(false);
 }
 
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+pub async fn is_avx_supported() -> bool {
+  return is_x86_feature_detected!("avx") || is_x86_feature_detected!("avx2");
+}
+
+#[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+pub async fn is_avx_supported() -> bool {
+  // TODO - macOS check if on atleast sequoia and rosetta 2 is installed
+  return false;
+}
+
 #[tauri::command]
 pub async fn is_avx_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -153,36 +187,14 @@ pub async fn is_avx_requirement_met(
 ) -> Result<bool, CommandError> {
   let mut config_lock = config.lock().await;
   if force {
-    config_lock.requirements.avx = None;
+    config_lock.requirements.avx = false;
   }
-  if let Some(bypass) = config_lock.requirements.bypass_requirements {
-    if bypass {
-      log::warn!("Bypassing the AVX requirements check!");
-      return Ok(true);
-    }
-  }
-  match config_lock.requirements.avx {
-    None => {
-      #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-      {
-        if is_x86_feature_detected!("avx") || is_x86_feature_detected!("avx2") {
-          config_lock.requirements.avx = Some(true);
-        } else {
-          config_lock.requirements.avx = Some(false);
-        }
-      }
-      #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
-      {
-        // TODO - macOS check if on atleast sequoia and rosetta 2 is installed
-        config_lock.requirements.avx = Some(false);
-      }
-      config_lock.save_config().map_err(|err| {
-        log::error!("Unable to persist avx requirement change {}", err);
-        CommandError::Configuration("Unable to persist avx requirement change".to_owned())
-      })?;
-      Ok(config_lock.requirements.avx.unwrap_or(false))
-    }
-    Some(val) => Ok(val),
+  if config_lock.requirements.bypass_requirements {
+    log::warn!("Bypassing the AVX requirements check!");
+    return Ok(true);
+  } else {
+    config_lock.requirements.avx = is_avx_supported().await;
+    return Ok(config_lock.requirements.avx);
   }
 }
 
@@ -191,20 +203,18 @@ pub async fn is_opengl_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
   force: bool,
-) -> Result<Option<bool>, CommandError> {
+) -> Result<bool, CommandError> {
   let mut config_lock = config.lock().await;
   if force {
-    config_lock.requirements.opengl = None;
+    config_lock.requirements.opengl = false;
   }
-  if let Some(bypass) = config_lock.requirements.bypass_requirements {
-    if bypass {
-      log::warn!("Bypassing the OpenGL requirements check!");
-      return Ok(Some(true));
-    }
+  if config_lock.requirements.bypass_requirements {
+    log::warn!("Bypassing the OpenGL requirements check!");
+    return Ok(true);
   }
   // If the value is already set, just return it
-  if let Some(val) = config_lock.requirements.opengl {
-    return Ok(Some(val));
+  if config_lock.requirements.opengl {
+    return Ok(config_lock.requirements.opengl);
   }
 
   // Check the active tooling version, if it's above 0.1.38 we can use the new
@@ -224,17 +234,17 @@ pub async fn is_opengl_requirement_met(
     log::warn!(
       "We no longer check for OpenGL support via heuristics, assuming they meet the requirement"
     );
-    return Ok(Some(true));
+    return Ok(true);
   }
   // Do it the new way!
   log::info!("Checking for OpenGL support via `gk`");
   let test_result = crate::util::game_tests::run_game_gpu_test(&config_lock, &app_handle).await?;
   config_lock
-    .set_opengl_requirement_met(Some(test_result.success))
+    .update_setting_value("opengl_requirements_met", Value::Bool(test_result.success))
     .map_err(|_| {
       CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
     })?;
-  Ok(Some(test_result.success))
+  Ok(test_result.success)
 }
 
 #[tauri::command]
@@ -319,118 +329,14 @@ pub async fn save_active_version_change(
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   config_lock
-    .set_active_version_folder(version_folder)
+    .update_setting_value("active_version_folder", json!(version_folder))
     .map_err(|_| {
       CommandError::Configuration("Unable to persist active version folder change".to_owned())
     })?;
   config_lock
-    .set_active_version(new_active_version)
+    .update_setting_value("active_version", json!(new_active_version))
     .map_err(|_| {
       CommandError::Configuration("Unable to persist active version change".to_owned())
-    })?;
-  Ok(())
-}
-
-#[tauri::command]
-pub async fn get_active_tooling_version(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<Option<String>, CommandError> {
-  let config_lock = config.lock().await;
-  Ok(config_lock.active_version.clone())
-}
-
-#[tauri::command]
-pub async fn get_active_tooling_version_folder(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<Option<String>, CommandError> {
-  let config_lock = config.lock().await;
-  Ok(config_lock.active_version_folder.clone())
-}
-
-#[tauri::command]
-pub async fn get_locale(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<Option<String>, CommandError> {
-  let config_lock = config.lock().await;
-  Ok(config_lock.locale.clone())
-}
-
-#[tauri::command]
-pub async fn set_locale(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  locale: String,
-) -> Result<(), CommandError> {
-  let mut config_lock = config.lock().await;
-  config_lock
-    .set_locale(locale)
-    .map_err(|_| CommandError::Configuration("Unable to persist locale change".to_owned()))?;
-  Ok(())
-}
-
-#[tauri::command]
-pub async fn get_bypass_requirements(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<bool, CommandError> {
-  let config_lock = config.lock().await;
-  match config_lock.requirements.bypass_requirements {
-    Some(val) => Ok(val),
-    None => Ok(false),
-  }
-}
-
-#[tauri::command]
-pub async fn set_bypass_requirements(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  bypass: bool,
-) -> Result<(), CommandError> {
-  let mut config_lock = config.lock().await;
-  config_lock.set_bypass_requirements(bypass).map_err(|_| {
-    CommandError::Configuration("Unable to persist bypass requirements change".to_owned())
-  })?;
-  Ok(())
-}
-
-#[tauri::command]
-pub async fn get_auto_update_games(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<bool, CommandError> {
-  let config_lock = config.lock().await;
-  Ok(config_lock.auto_update_games)
-}
-
-#[tauri::command]
-pub async fn set_auto_update_games(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  value: bool,
-) -> Result<(), CommandError> {
-  let mut config_lock = config.lock().await;
-  config_lock.set_auto_update_games(value).map_err(|_| {
-    CommandError::Configuration("Unable to persist bypass requirements change".to_owned())
-  })?;
-  Ok(())
-}
-
-#[tauri::command]
-pub async fn get_check_for_latest_mod_version(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<bool, CommandError> {
-  let config_lock = config.lock().await;
-  match config_lock.check_for_latest_mod_version {
-    Some(val) => Ok(val),
-    None => Ok(true), // default true
-  }
-}
-
-#[tauri::command]
-pub async fn set_check_for_latest_mod_version(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  check_for_latest_mod_version: bool,
-) -> Result<(), CommandError> {
-  let mut config_lock = config.lock().await;
-  config_lock
-    .set_check_for_latest_mod_version(check_for_latest_mod_version)
-    .map_err(|_| {
-      CommandError::Configuration("Unable to set check_for_latest_mod_version flag".to_owned())
     })?;
   Ok(())
 }
@@ -538,112 +444,4 @@ pub async fn does_active_tooling_version_meet_minimum(
       Ok(false)
     }
   }
-}
-
-#[tauri::command]
-pub async fn is_rip_levels_enabled(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<bool, CommandError> {
-  let config_lock = config.lock().await;
-  match &config_lock.decompiler_settings {
-    Some(settings) => Ok(settings.rip_levels_enabled.unwrap_or(false)),
-    _ => Ok(false),
-  }
-}
-
-#[tauri::command]
-pub async fn set_rip_levels_enabled(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  enabled: bool,
-) -> Result<(), CommandError> {
-  let mut config_lock = config.lock().await;
-  config_lock.set_rip_levels_enabled(enabled).map_err(|_| {
-    CommandError::Configuration("Unable to persist change to rip_levels_enabled".to_owned())
-  })?;
-  Ok(())
-}
-
-#[tauri::command]
-pub async fn is_rip_collision_enabled(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<bool, CommandError> {
-  let config_lock = config.lock().await;
-  match &config_lock.decompiler_settings {
-    Some(settings) => Ok(settings.rip_collision_enabled.unwrap_or(false)),
-    _ => Ok(false),
-  }
-}
-
-#[tauri::command]
-pub async fn set_rip_collision_enabled(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  enabled: bool,
-) -> Result<(), CommandError> {
-  let mut config_lock = config.lock().await;
-  config_lock
-    .set_rip_collision_enabled(enabled)
-    .map_err(|_| {
-      CommandError::Configuration("Unable to persist change to rip_levels_enabled".to_owned())
-    })?;
-  Ok(())
-}
-
-#[tauri::command]
-pub async fn is_rip_textures_enabled(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<bool, CommandError> {
-  let config_lock = config.lock().await;
-  match &config_lock.decompiler_settings {
-    Some(settings) => Ok(settings.rip_textures_enabled.unwrap_or(false)),
-    _ => Ok(false),
-  }
-}
-
-#[tauri::command]
-pub async fn set_rip_textures_enabled(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  enabled: bool,
-) -> Result<(), CommandError> {
-  let mut config_lock = config.lock().await;
-  config_lock.set_rip_textures_enabled(enabled).map_err(|_| {
-    CommandError::Configuration("Unable to persist change to rip_levels_enabled".to_owned())
-  })?;
-  Ok(())
-}
-
-#[tauri::command]
-pub async fn is_rip_streamed_audio_enabled(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<bool, CommandError> {
-  let config_lock = config.lock().await;
-  match &config_lock.decompiler_settings {
-    Some(settings) => Ok(settings.rip_streamed_audio_enabled.unwrap_or(false)),
-    _ => Ok(false),
-  }
-}
-
-#[tauri::command]
-pub async fn set_rip_streamed_audio_enabled(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  enabled: bool,
-) -> Result<(), CommandError> {
-  let mut config_lock = config.lock().await;
-  config_lock
-    .set_rip_streamed_audio_enabled(enabled)
-    .map_err(|_| {
-      CommandError::Configuration("Unable to persist change to rip_levels_enabled".to_owned())
-    })?;
-  Ok(())
-}
-
-#[tauri::command]
-pub async fn get_proceed_after_successful_operation(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<bool, CommandError> {
-  let config_lock = config.lock().await;
-  Ok(
-    config_lock
-      .proceed_after_successful_operation
-      .unwrap_or(true),
-  )
 }

@@ -27,7 +27,11 @@ export async function resetLauncherSettingsToDefaults(): Promise<boolean> {
 }
 
 export async function getInstallationDirectory(): Promise<string | null> {
-  return await invoke_rpc("get_install_directory", {}, () => null);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "install_directory" },
+    () => null,
+  );
 }
 
 export async function setInstallationDirectory(
@@ -37,7 +41,7 @@ export async function setInstallationDirectory(
   // consider changing it
   const errMsg = await invoke_rpc(
     "set_install_directory",
-    { newDir },
+    { key: "install_directory", val: newDir },
     () => "Unexpected error occurred",
     "Invalid installation directory",
   );
@@ -126,7 +130,11 @@ export async function saveActiveVersionChange(
 }
 
 export async function getLocale(): Promise<string | null> {
-  return await invoke_rpc("get_locale", {}, () => "en-US");
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "locale" },
+    () => "en-US",
+  );
 }
 
 export async function localeSpecificFontAvailableForDownload(
@@ -154,8 +162,8 @@ export async function localeSpecificFontAvailableForDownload(
 
 export async function setLocale(localeId: string): Promise<void> {
   return await invoke_rpc(
-    "set_locale",
-    { locale: localeId },
+    "update_setting_value",
+    { key: "locale", val: localeId },
     () => {},
     undefined, // no toast
     async () => {
@@ -206,33 +214,53 @@ export async function setLocale(localeId: string): Promise<void> {
 }
 
 export async function setAutoUpdateGames(value: boolean): Promise<void> {
-  return await invoke_rpc("set_auto_update_games", { value }, () => {});
+  return await invoke_rpc(
+    "update_setting_value",
+    { key: "auto_update_games", val: value },
+    () => {},
+  );
 }
 
 export async function getAutoUpdateGames(): Promise<boolean> {
-  return await invoke_rpc("get_auto_update_games", {}, () => false);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "auto_update_games" },
+    () => false,
+  );
 }
 
 export async function setBypassRequirements(bypass: boolean): Promise<void> {
-  return await invoke_rpc("set_bypass_requirements", { bypass }, () => {});
+  return await invoke_rpc(
+    "update_setting_value",
+    { key: "bypass_requirements", val: bypass },
+    () => {},
+  );
 }
 
 export async function getBypassRequirements(): Promise<boolean> {
-  return await invoke_rpc("get_bypass_requirements", {}, () => false);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "bypass_requirements" },
+    () => false,
+  );
 }
 
 export async function setCheckForLatestModVersion(
   check_for_latest_mod_version: boolean,
 ): Promise<void> {
   return await invoke_rpc(
-    "set_check_for_latest_mod_version",
-    { checkForLatestModVersion: check_for_latest_mod_version },
+    "update_setting_value",
+    { key: "check_for_latest_mod_version", val: check_for_latest_mod_version },
     () => {},
   );
 }
 
 export async function getCheckForLatestModVersion(): Promise<boolean> {
-  return await invoke_rpc("get_check_for_latest_mod_version", {}, () => false);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "check_for_latest_mod_version" },
+    () => false,
+  );
 }
 
 export async function getEnabledTexturePacks(
@@ -320,37 +348,65 @@ export async function doesActiveToolingVersionMeetMinimum(
 }
 
 export async function isRipLevelsEnabled(): Promise<boolean> {
-  return await invoke_rpc("is_rip_levels_enabled", {}, () => false);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "rip_levels" },
+    () => false,
+  );
 }
 
 export async function setRipLevelsEnabled(enabled: boolean): Promise<void> {
-  return await invoke_rpc("set_rip_levels_enabled", { enabled }, () => {});
+  return await invoke_rpc(
+    "update_setting_value",
+    { key: "rip_levels", val: enabled },
+    () => {},
+  );
 }
 
 export async function isRipCollisionEnabled(): Promise<boolean> {
-  return await invoke_rpc("is_rip_collision_enabled", {}, () => false);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "rip_collision" },
+    () => false,
+  );
 }
 
 export async function setRipCollisionEnabled(enabled: boolean): Promise<void> {
-  return await invoke_rpc("set_rip_collision_enabled", { enabled }, () => {});
+  return await invoke_rpc(
+    "update_setting_value",
+    { key: "rip_collision", val: enabled },
+    () => {},
+  );
 }
 
 export async function isRipTexturesEnabled(): Promise<boolean> {
-  return await invoke_rpc("is_rip_textures_enabled", {}, () => false);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "rip_textures" },
+    () => false,
+  );
 }
 
 export async function setRipTexturesEnabled(enabled: boolean): Promise<void> {
-  return await invoke_rpc("set_rip_textures_enabled", { enabled }, () => {});
+  return await invoke_rpc(
+    "update_setting_value",
+    { key: "rip_textures", val: enabled },
+    () => {},
+  );
 }
 
 export async function isRipStreamedAudioEnabled(): Promise<boolean> {
-  return await invoke_rpc("is_rip_streamed_audio_enabled", {}, () => false);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "rip_streamed_audio" },
+    () => false,
+  );
 }
 
 export async function getProceedAfterSuccessfulOperation(): Promise<boolean> {
   return await invoke_rpc(
-    "get_proceed_after_successful_operation",
-    {},
+    "get_setting_value",
+    { key: "proceed_after_successful_operation" },
     () => true,
   );
 }
@@ -359,8 +415,8 @@ export async function setRipStreamedAudioEnabled(
   enabled: boolean,
 ): Promise<void> {
   return await invoke_rpc(
-    "set_rip_streamed_audio_enabled",
-    { enabled },
+    "update_setting_value",
+    { key: "rip_streamed_audio", val: enabled },
     () => {},
   );
 }

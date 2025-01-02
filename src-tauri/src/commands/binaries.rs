@@ -19,7 +19,7 @@ use tauri::Manager;
 use crate::{
   config::LauncherConfig,
   util::{
-    file::{create_dir, overwrite_dir},
+    file::overwrite_dir,
     process::{create_log_file, create_std_log_file, watch_process},
   },
   TAURI_APP,
@@ -379,27 +379,30 @@ pub async fn run_decompiler(
 
   let mut decomp_config_overrides = vec![];
   if use_decomp_settings {
-    if let Some(decomp_settings) = &config_lock.decompiler_settings {
-      if let Some(rip_levels) = decomp_settings.rip_levels_enabled {
-        if rip_levels {
-          decomp_config_overrides.push(format!("\"rip_levels\": {rip_levels}"));
-        }
-      }
-      if let Some(rip_collision) = decomp_settings.rip_collision_enabled {
-        if rip_collision {
-          decomp_config_overrides.push(format!("\"rip_collision\": {rip_collision}"));
-        }
-      }
-      if let Some(rip_textures) = decomp_settings.rip_textures_enabled {
-        if rip_textures {
-          decomp_config_overrides.push(format!("\"save_texture_pngs\": {rip_textures}"));
-        }
-      }
-      if let Some(rip_streamed_audio) = decomp_settings.rip_streamed_audio_enabled {
-        if rip_streamed_audio {
-          decomp_config_overrides.push(format!("\"rip_streamed_audio\": {rip_streamed_audio}"));
-        }
-      }
+    let decomp_settings = &config_lock.decompiler_settings;
+    if decomp_settings.rip_levels_enabled {
+      decomp_config_overrides.push(format!(
+        "\"rip_levels\": {}",
+        decomp_settings.rip_levels_enabled
+      ));
+    }
+    if decomp_settings.rip_collision_enabled {
+      decomp_config_overrides.push(format!(
+        "\"rip_collision\": {}",
+        decomp_settings.rip_collision_enabled
+      ));
+    }
+    if decomp_settings.rip_textures_enabled {
+      decomp_config_overrides.push(format!(
+        "\"save_texture_pngs\": {}",
+        decomp_settings.rip_textures_enabled
+      ));
+    }
+    if decomp_settings.rip_streamed_audio_enabled {
+      decomp_config_overrides.push(format!(
+        "\"rip_streamed_audio\": {}",
+        decomp_settings.rip_streamed_audio_enabled
+      ));
     }
   }
 
