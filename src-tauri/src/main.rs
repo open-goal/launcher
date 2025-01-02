@@ -174,6 +174,7 @@ fn main() {
       commands::config::set_install_directory,
       commands::config::get_setting_value,
       commands::config::update_setting_value,
+      commands::config::update_mods_setting_value,
       commands::download::download_file,
       commands::features::mods::base_game_iso_exists,
       commands::features::mods::compile_for_mod_install,

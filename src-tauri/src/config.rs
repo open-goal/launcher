@@ -535,21 +535,33 @@ impl LauncherConfig {
   pub fn update_mods_setting_value(
     &mut self,
     key: &str,
-    val: Value,
     game_name: String,
+    source_name: Option<String>,
+    version_name: Option<String>,
+    mod_name: Option<String>,
   ) -> Result<(), ConfigError> {
     let game_config = self.get_supported_game_config_mut(&game_name)?;
+    let source = source_name.unwrap_or("".to_owned());
+    let version = version_name.unwrap_or("".to_owned());
+    let mod_name = mod_name.unwrap_or("".to_owned());
 
-    // match key {
-    //   "add_texture_packs" => game_config.features.texture_packs,
-    //   "add_mod" => game_config.mods_installed_version,
-    //   "uninstall_mod" => {
-    //     game_config
-    //       .mods_installed_version
-    //       .get_mut(&source_name)
-    //       .map(|mods| mods.remove(&mod_name));
-    //   }
-    // }
+    match key {
+      // "add_texture_packs" => game_config.features.texture_packs,
+      "add_mod" => {
+        game_config
+          .mods_installed_version
+          .entry(source)
+          .or_insert_with(HashMap::new)
+          .insert(mod_name, version);
+      }
+      "uninstall_mod" => {
+        game_config
+          .mods_installed_version
+          .get_mut(&source)
+          .map(|mods| mods.remove(&mod_name));
+      }
+      _ => todo!(),
+    }
 
     self.save_config()?;
     Ok(())
@@ -580,48 +592,6 @@ impl LauncherConfig {
     let game_config = self.get_supported_game_config_mut(game_name)?;
     game_config.features.texture_packs = packs;
     self.save_config()?;
-    Ok(())
-  }
-
-  pub fn save_mod_install_info(
-    &mut self,
-    game_name: String,
-    mod_name: String,
-    source_name: String,
-    version_name: String,
-  ) -> Result<(), ConfigError> {
-    let game_config = self.get_supported_game_config_mut(&game_name)?;
-
-    // Directly use `entry` to handle the outer HashMap
-    game_config
-      .mods_installed_version
-      .entry(source_name)
-      .or_insert_with(HashMap::new)
-      .insert(mod_name, version_name);
-
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn uninstall_mod(
-    &mut self,
-    game_name: String,
-    mod_name: String,
-    source_name: String,
-  ) -> Result<(), ConfigError> {
-    log::info!(
-      "Uninstalling mod {}:{} from {}",
-      game_name,
-      mod_name,
-      source_name
-    );
-    let game_config = self.get_supported_game_config_mut(&game_name)?;
-    game_config
-      .mods_installed_version
-      .get_mut(&source_name)
-      .map(|mods| mods.remove(&mod_name));
-
-    self.save_config()?; // Save the updated configuration
     Ok(())
   }
 }

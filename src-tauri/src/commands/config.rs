@@ -73,6 +73,28 @@ pub async fn get_setting_value(
 }
 
 #[tauri::command]
+pub async fn update_mods_setting_value(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  key: String,
+  game_name: String,
+  source_name: Option<String>,
+  version_name: Option<String>,
+  mod_name: Option<String>,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  match &config_lock.update_mods_setting_value(&key, game_name, source_name, version_name, mod_name)
+  {
+    Ok(()) => Ok(()),
+    Err(e) => {
+      log::error!("Unable to get setting directory: {:?}", e);
+      Err(CommandError::Configuration(
+        "Unable to update setting".to_owned(),
+      ))
+    }
+  }
+}
+
+#[tauri::command]
 pub async fn set_install_directory(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   new_dir: String,
