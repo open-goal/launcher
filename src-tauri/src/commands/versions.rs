@@ -213,7 +213,7 @@ pub async fn remove_version(
   ) {
     if (version_folder == *config_version_folder) && (version == *config_version) {
       config_lock
-        .update_setting_value("active_version", Value::Null)
+        .update_setting_value("active_version", Value::Null, None)
         .map_err(|_| {
           CommandError::VersionManagement(
             "Unable to clear active version after it was removed".to_owned(),
@@ -286,7 +286,7 @@ pub async fn ensure_active_version_still_exists(
       if !version_dir.exists() {
         // Clear active version if it's no longer available
         config_lock
-          .update_setting_value("active_version", Value::Null)
+          .update_setting_value("active_version", Value::Null, None)
           .map_err(|_| {
             CommandError::VersionManagement(
               "Unable to clear active version after it was found to be missing".to_owned(),

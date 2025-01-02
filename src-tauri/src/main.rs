@@ -126,7 +126,6 @@ fn main() {
           let mut i = 0;
           for path in paths {
             i += 1;
-            log::info!("{}", path.path().display());
             if i > 5 {
               log::info!("deleting - {}", path.path().display());
               std::fs::remove_file(path.path())?;
@@ -165,14 +164,12 @@ fn main() {
       commands::config::delete_old_data_directory,
       commands::config::does_active_tooling_version_meet_minimum,
       commands::config::does_active_tooling_version_support_game,
-      commands::config::finalize_installation,
       commands::config::has_old_data_directory,
       commands::config::is_avx_requirement_met,
       commands::config::is_diskspace_requirement_met,
       commands::config::is_minimum_vcc_runtime_installed,
       commands::config::is_opengl_requirement_met,
       commands::config::reset_to_defaults,
-      commands::config::save_active_version_change,
       commands::config::set_enabled_texture_packs,
       commands::config::set_install_directory,
       commands::config::get_setting_value,

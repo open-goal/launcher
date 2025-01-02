@@ -12,7 +12,7 @@
   import VersionList from "./VersionList.svelte";
   import { VersionStore } from "$lib/stores/VersionStore";
   import { UpdateStore } from "$lib/stores/AppStore";
-  import { saveActiveVersionChange } from "$lib/rpc/config";
+  import { saveActiveVersionChanges } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
 
@@ -106,7 +106,7 @@
   }
 
   async function saveOfficialVersionChange() {
-    const success = await saveActiveVersionChange(
+    const success = await saveActiveVersionChanges(
       "official",
       $VersionStore.selectedVersions.official,
     );

@@ -20,7 +20,10 @@
   import { exceptionLog, infoLog } from "$lib/rpc/logging";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
-  import { getAutoUpdateGames, saveActiveVersionChange } from "$lib/rpc/config";
+  import {
+    getAutoUpdateGames,
+    saveActiveVersionChanges,
+  } from "$lib/rpc/config";
 
   let launcherVerison = null;
 
@@ -32,7 +35,7 @@
   }
 
   async function saveOfficialVersionChange() {
-    const success = await saveActiveVersionChange(
+    const success = await saveActiveVersionChanges(
       "official",
       $VersionStore.selectedVersions.official,
     );

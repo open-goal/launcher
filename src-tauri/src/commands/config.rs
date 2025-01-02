@@ -5,7 +5,6 @@ use crate::{config::LauncherConfig, util::file::delete_dir};
 use semver::Version;
 use serde_json::{json, Value};
 use sysinfo::Disks;
-use tauri::Manager;
 
 use super::CommandError;
 
@@ -41,9 +40,10 @@ pub async fn update_setting_value(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   key: String,
   val: Value,
+  game_name: Option<String>,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
-  match &config_lock.update_setting_value(&key, val) {
+  match &config_lock.update_setting_value(&key, val, game_name) {
     Ok(()) => Ok(()),
     Err(e) => {
       log::error!("Unable to get setting directory: {:?}", e);
@@ -193,7 +193,7 @@ pub async fn is_avx_requirement_met(
     log::warn!("Bypassing the AVX requirements check!");
     return Ok(true);
   } else {
-    let _ = config_lock.update_setting_value("avx", Value::Bool(is_avx_supported().await));
+    let _ = config_lock.update_setting_value("avx", is_avx_supported().await.into(), None);
     return Ok(config_lock.requirements.avx);
   }
 }
@@ -240,50 +240,11 @@ pub async fn is_opengl_requirement_met(
   log::info!("Checking for OpenGL support via `gk`");
   let test_result = crate::util::game_tests::run_game_gpu_test(&config_lock, &app_handle).await?;
   config_lock
-    .update_setting_value("opengl_requirements_met", Value::Bool(test_result.success))
+    .update_setting_value("opengl_requirements_met", test_result.success.into(), None)
     .map_err(|_| {
       CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
     })?;
   Ok(test_result.success)
-}
-
-#[tauri::command]
-pub async fn finalize_installation(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  app_handle: tauri::AppHandle,
-  game_name: String,
-) -> Result<(), CommandError> {
-  let mut config_lock = config.lock().await;
-  config_lock
-    .update_installed_game_version(&game_name, true)
-    .map_err(|_| {
-      CommandError::Configuration("Unable to persist game installation status".to_owned())
-    })?;
-  app_handle.emit_all("gameInstalled", {})?;
-  Ok(())
-}
-
-// let version = config_lock.get_setting_value("install_version", Some(game_name));
-// let version_folder = config_lock.get_setting_value("install_version_folder", Some(game_name));
-
-#[tauri::command]
-pub async fn save_active_version_change(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  version_folder: String,
-  new_active_version: String,
-) -> Result<(), CommandError> {
-  let mut config_lock = config.lock().await;
-  config_lock
-    .update_setting_value("active_version_folder", json!(version_folder))
-    .map_err(|_| {
-      CommandError::Configuration("Unable to persist active version folder change".to_owned())
-    })?;
-  config_lock
-    .update_setting_value("active_version", json!(new_active_version))
-    .map_err(|_| {
-      CommandError::Configuration("Unable to persist active version change".to_owned())
-    })?;
-  Ok(())
 }
 
 #[tauri::command]

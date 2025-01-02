@@ -96,8 +96,15 @@ export async function isMinimumVCCRuntimeInstalled(): Promise<
   );
 }
 
-export async function finalizeInstallation(gameName: string): Promise<void> {
-  return await invoke_rpc("finalize_installation", { gameName }, () => {});
+export async function finalizeInstallation(
+  gameName: string,
+  installed = true,
+): Promise<void> {
+  return await invoke_rpc(
+    "update_setting_value",
+    { key: "installed", val: installed, gameName },
+    () => {},
+  );
 }
 
 export async function isGameInstalled(gameName: string): Promise<boolean> {
@@ -126,13 +133,33 @@ export async function getInstalledVersionFolder(
   );
 }
 
-export async function saveActiveVersionChange(
+export async function saveActiveVersionChanges(
   versionFolder: VersionFolders,
   newActiveVersion: String,
 ): Promise<boolean> {
+  let res1 = await saveActiveVersionChange(newActiveVersion);
+  let res2 = await saveActiveVersionFolderChange(versionFolder);
+  return res1 && res2;
+}
+
+export async function saveActiveVersionChange(
+  newActiveVersion: String,
+): Promise<boolean> {
   return invoke_rpc(
-    "save_active_version_change",
-    { versionFolder, newActiveVersion },
+    "update_setting_value",
+    { key: "active_version", val: newActiveVersion },
+    () => false,
+    "Couldn't save active version change",
+    () => true,
+  );
+}
+
+export async function saveActiveVersionFolderChange(
+  versionFolder: VersionFolders,
+): Promise<boolean> {
+  return invoke_rpc(
+    "update_setting_value",
+    { key: "active_version_folder", val: versionFolder },
     () => false,
     "Couldn't save active version change",
     () => true,

@@ -823,11 +823,11 @@ async fn track_playtime(
   let mut config_lock = config.lock().await;
 
   // get the playtime of the session
-  let elapsed_time = start_time.elapsed().as_secs();
+  let elapsed_time = start_time.elapsed().as_secs().into();
   log::info!("elapsed time: {}", elapsed_time);
 
   config_lock
-    .update_game_seconds_played(&game_name, elapsed_time)
+    .update_setting_value("seconds_played", elapsed_time, Some(game_name))
     .map_err(|_| CommandError::Configuration("Unable to persist time played".to_owned()))?;
 
   // send an event to the front end so that it can refresh the playtime on screen

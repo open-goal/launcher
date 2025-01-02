@@ -38,17 +38,6 @@ pub enum SupportedGame {
   JakX,
 }
 
-impl SupportedGame {
-  fn internal_str(&self) -> &'static str {
-    match self {
-      SupportedGame::Jak1 => "jak1",
-      SupportedGame::Jak2 => "jak2",
-      SupportedGame::Jak3 => "jak3",
-      SupportedGame::JakX => "jakx",
-    }
-  }
-}
-
 impl FromStr for SupportedGame {
   type Err = String;
 
@@ -378,14 +367,10 @@ impl LauncherConfig {
       if *old_dir != new_dir {
         self.active_version = None;
         self.active_version_folder = None;
-        self
-          .update_installed_game_version(&SupportedGame::Jak1.internal_str().to_string(), false)?;
-        self
-          .update_installed_game_version(&SupportedGame::Jak2.internal_str().to_string(), false)?;
-        self
-          .update_installed_game_version(&SupportedGame::Jak3.internal_str().to_string(), false)?;
-        self
-          .update_installed_game_version(&SupportedGame::JakX.internal_str().to_string(), false)?;
+        self.update_setting_value("installed", false.into(), Some("jak1".to_owned()))?;
+        self.update_setting_value("installed", false.into(), Some("jak2".to_owned()))?;
+        self.update_setting_value("installed", false.into(), Some("jak3".to_owned()))?;
+        self.update_setting_value("installed", false.into(), Some("jakx".to_owned()))?;
       }
     }
 
@@ -394,33 +379,72 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn update_setting_value(&mut self, key: &str, val: Value) -> Result<(), ConfigError> {
-    match key {
-      "opengl_requirements_met" => self.requirements.opengl = val.as_bool().unwrap_or(false),
-      "avx" => self.requirements.avx = val.as_bool().unwrap_or(false),
-      "bypass_requirements" => {
-        self.requirements.bypass_requirements = val.as_bool().unwrap_or(false)
+  pub fn update_setting_value(
+    &mut self,
+    key: &str,
+    val: Value,
+    game_name: Option<String>,
+  ) -> Result<(), ConfigError> {
+    if let Some(game_config) = game_name
+      .as_deref()
+      .and_then(|name| SupportedGame::from_str(name).ok())
+      .and_then(|game| self.games.get_mut(&game))
+    {
+      match key {
+        "installed" => {
+          let installed = val.as_bool().unwrap_or(false);
+          game_config.is_installed = installed;
+          if installed {
+            game_config.version = self.active_version.clone();
+            game_config.version_folder = self.active_version_folder.clone();
+          } else {
+            game_config.version = None;
+            game_config.version_folder = None;
+          }
+        }
+        "installed_version" => game_config.version = val.as_str().map(|s| s.to_string()),
+        "install_version_folder" => {
+          game_config.version_folder = val.as_str().map(|s| s.to_string())
+        }
+        "seconds_played" => game_config.seconds_played += val.as_u64().unwrap_or(0),
+        _ => {
+          log::error!("Key '{}' not recognized", key);
+          return Err(ConfigError::Configuration("Invalid key".to_owned()));
+        }
       }
-      "active_version" => self.active_version = val.as_str().map(|s| s.to_string()),
-      "active_version_folder" => self.active_version_folder = val.as_str().map(|s| s.to_string()),
-      "locale" => self.locale = val.as_str().map(|s| s.to_string()),
-      "check_for_latest_mod_version" => {
-        self.check_for_latest_mod_version = val.as_bool().unwrap_or(true)
-      }
-      "auto_update_games" => self.auto_update_games = val.as_bool().unwrap_or(false),
-      "delete_previous_versions" => self.delete_previous_versions = val.as_bool().unwrap_or(false),
-      "rip_levels" => self.decompiler_settings.rip_levels_enabled = val.as_bool().unwrap_or(false),
-      "rip_collision" => {
-        self.decompiler_settings.rip_collision_enabled = val.as_bool().unwrap_or(false)
-      }
-      "rip_textures" => {
-        self.decompiler_settings.rip_textures_enabled = val.as_bool().unwrap_or(false)
-      }
-      "rip_streamed_audio" => {
-        self.decompiler_settings.rip_streamed_audio_enabled = val.as_bool().unwrap_or(false)
-      }
-      _ => {
-        log::error!("Key '{}' not recognized", key);
+    } else {
+      match key {
+        "opengl_requirements_met" => self.requirements.opengl = val.as_bool().unwrap_or(false),
+        "avx" => self.requirements.avx = val.as_bool().unwrap_or(false),
+        "bypass_requirements" => {
+          self.requirements.bypass_requirements = val.as_bool().unwrap_or(false)
+        }
+        "active_version" => self.active_version = val.as_str().map(|s| s.to_string()),
+        "active_version_folder" => self.active_version_folder = val.as_str().map(|s| s.to_string()),
+        "locale" => self.locale = val.as_str().map(|s| s.to_string()),
+        "check_for_latest_mod_version" => {
+          self.check_for_latest_mod_version = val.as_bool().unwrap_or(true)
+        }
+        "auto_update_games" => self.auto_update_games = val.as_bool().unwrap_or(false),
+        "delete_previous_versions" => {
+          self.delete_previous_versions = val.as_bool().unwrap_or(false)
+        }
+        "rip_levels" => {
+          self.decompiler_settings.rip_levels_enabled = val.as_bool().unwrap_or(false)
+        }
+        "rip_collision" => {
+          self.decompiler_settings.rip_collision_enabled = val.as_bool().unwrap_or(false)
+        }
+        "rip_textures" => {
+          self.decompiler_settings.rip_textures_enabled = val.as_bool().unwrap_or(false)
+        }
+        "rip_streamed_audio" => {
+          self.decompiler_settings.rip_streamed_audio_enabled = val.as_bool().unwrap_or(false)
+        }
+        _ => {
+          log::error!("Key '{}' not recognized", key);
+          return Err(ConfigError::Configuration("Invalid key".to_owned()));
+        }
       }
     }
     self.save_config()?;
@@ -449,77 +473,52 @@ impl LauncherConfig {
           return Err(ConfigError::Configuration("Invalid key".to_owned()));
         }
       }
-    }
-
-    match key {
-      "opengl_requirements_met" => Ok(Value::Bool(self.requirements.opengl)),
-      "bypass_requirements" => Ok(Value::Bool(self.requirements.bypass_requirements)),
-      "install_directory" => Ok(
-        self
-          .installation_dir
-          .as_ref()
-          .map_or(Value::Null, |v| Value::String(v.clone())),
-      ),
-      "active_version" => Ok(
-        self
-          .active_version
-          .as_ref()
-          .map_or(Value::Null, |v| Value::String(v.clone())),
-      ),
-      "active_version_folder" => Ok(
-        self
-          .active_version_folder
-          .as_ref()
-          .map_or(Value::Null, |v| Value::String(v.clone())),
-      ),
-      "locale" => Ok(
-        self
-          .locale
-          .as_ref()
-          .map_or(Value::Null, |v| Value::String(v.clone())),
-      ),
-      "check_for_latest_mod_version" => Ok(Value::Bool(self.check_for_latest_mod_version)),
-      "proceed_after_successful_operation" => {
-        Ok(Value::Bool(self.proceed_after_successful_operation))
-      }
-      "auto_update_games" => Ok(Value::Bool(self.auto_update_games)),
-      "delete_previous_versions" => Ok(Value::Bool(self.delete_previous_versions)),
-      "rip_levels" => Ok(Value::Bool(self.decompiler_settings.rip_levels_enabled)),
-      "rip_collision" => Ok(Value::Bool(self.decompiler_settings.rip_collision_enabled)),
-      "rip_textures" => Ok(Value::Bool(self.decompiler_settings.rip_textures_enabled)),
-      "rip_streamed_audio" => Ok(Value::Bool(
-        self.decompiler_settings.rip_streamed_audio_enabled,
-      )),
-      _ => {
-        log::error!("Key '{}' not recognized", key);
-        Err(ConfigError::Configuration("Invalid key".to_owned()))
-      }
-    }
-  }
-
-  pub fn update_installed_game_version(
-    &mut self,
-    game_name: &String,
-    installed: bool,
-  ) -> Result<(), ConfigError> {
-    log::info!(
-      "Updating game installation status: {} - {}",
-      game_name,
-      installed
-    );
-    let active_version = self.active_version.clone();
-    let active_version_folder = self.active_version_folder.clone();
-    let game_config = self.get_supported_game_config_mut(game_name)?;
-    game_config.is_installed = installed;
-    if installed {
-      game_config.version = active_version;
-      game_config.version_folder = active_version_folder;
     } else {
-      game_config.version = None;
-      game_config.version_folder = None;
+      match key {
+        "opengl_requirements_met" => Ok(Value::Bool(self.requirements.opengl)),
+        "bypass_requirements" => Ok(Value::Bool(self.requirements.bypass_requirements)),
+        "install_directory" => Ok(
+          self
+            .installation_dir
+            .as_ref()
+            .map_or(Value::Null, |v| Value::String(v.clone())),
+        ),
+        "active_version" => Ok(
+          self
+            .active_version
+            .as_ref()
+            .map_or(Value::Null, |v| Value::String(v.clone())),
+        ),
+        "active_version_folder" => Ok(
+          self
+            .active_version_folder
+            .as_ref()
+            .map_or(Value::Null, |v| Value::String(v.clone())),
+        ),
+        "locale" => Ok(
+          self
+            .locale
+            .as_ref()
+            .map_or(Value::Null, |v| Value::String(v.clone())),
+        ),
+        "check_for_latest_mod_version" => Ok(Value::Bool(self.check_for_latest_mod_version)),
+        "proceed_after_successful_operation" => {
+          Ok(Value::Bool(self.proceed_after_successful_operation))
+        }
+        "auto_update_games" => Ok(Value::Bool(self.auto_update_games)),
+        "delete_previous_versions" => Ok(Value::Bool(self.delete_previous_versions)),
+        "rip_levels" => Ok(Value::Bool(self.decompiler_settings.rip_levels_enabled)),
+        "rip_collision" => Ok(Value::Bool(self.decompiler_settings.rip_collision_enabled)),
+        "rip_textures" => Ok(Value::Bool(self.decompiler_settings.rip_textures_enabled)),
+        "rip_streamed_audio" => Ok(Value::Bool(
+          self.decompiler_settings.rip_streamed_audio_enabled,
+        )),
+        _ => {
+          log::error!("Key '{}' not recognized", key);
+          Err(ConfigError::Configuration("Invalid key".to_owned()))
+        }
+      }
     }
-    self.save_config()?;
-    Ok(())
   }
 
   pub fn cleanup_game_enabled_texture_packs(
@@ -546,17 +545,6 @@ impl LauncherConfig {
   ) -> Result<(), ConfigError> {
     let game_config = self.get_supported_game_config_mut(game_name)?;
     game_config.features.texture_packs = packs;
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn update_game_seconds_played(
-    &mut self,
-    game_name: &String,
-    additional_seconds: u64,
-  ) -> Result<(), ConfigError> {
-    let game_config = self.get_supported_game_config_mut(game_name)?;
-    game_config.seconds_played += additional_seconds;
     self.save_config()?;
     Ok(())
   }
@@ -638,3 +626,16 @@ impl LauncherConfig {
     Ok(())
   }
 }
+
+//TODO MODS & TEXTURES
+// match val{
+//   "add_texture_packs" => game_config.features.texture_packs,
+//   "add_mod" => game_config.mods_installed_version,
+//   "uninstall_mod" => {
+//     game_config
+//       .mods_installed_version
+//       .get_mut(&source_name)
+//       .map(|mods| mods.remove(&mod_name));
+//   }
+//   "remove_mod_source" => ,
+// }
