@@ -185,7 +185,7 @@ pub struct LauncherConfig {
   pub active_version: Option<String>,
   pub active_version_folder: Option<String>,
   pub locale: Option<String>,
-  pub mod_sources: Option<Vec<String>>,
+  pub mod_sources: Vec<String>,
   pub decompiler_settings: DecompilerSettings,
   pub check_for_latest_mod_version: bool,
   pub proceed_after_successful_operation: bool,
@@ -214,7 +214,7 @@ impl LauncherConfig {
       active_version: None,
       active_version_folder: Some("official".to_string()),
       locale: None,
-      mod_sources: None,
+      mod_sources: Vec::new(),
       decompiler_settings: DecompilerSettings::default(),
       check_for_latest_mod_version: true,
       proceed_after_successful_operation: true,
@@ -441,6 +441,16 @@ impl LauncherConfig {
         "rip_streamed_audio" => {
           self.decompiler_settings.rip_streamed_audio_enabled = val.as_bool().unwrap_or(false)
         }
+        "add_mod_source" => {
+          let mod_source = val.as_str().map(|s| s.to_string()).unwrap_or("".to_owned());
+          if !self.mod_sources.contains(&mod_source) {
+            self.mod_sources.push(mod_source);
+          }
+        }
+        "remove_mod_source" => {
+          let mod_source = val.as_str().map(|s| s.to_string()).unwrap_or("".to_owned());
+          self.mod_sources.retain(|source| source != &mod_source);
+        }
         _ => {
           log::error!("Key '{}' not recognized", key);
           return Err(ConfigError::Configuration("Invalid key".to_owned()));
@@ -501,6 +511,7 @@ impl LauncherConfig {
             .as_ref()
             .map_or(Value::Null, |v| Value::String(v.clone())),
         ),
+        "mod_sources" => Ok(json!(self.mod_sources)),
         "check_for_latest_mod_version" => Ok(Value::Bool(self.check_for_latest_mod_version)),
         "proceed_after_successful_operation" => {
           Ok(Value::Bool(self.proceed_after_successful_operation))
@@ -519,6 +530,29 @@ impl LauncherConfig {
         }
       }
     }
+  }
+
+  pub fn update_mods_setting_value(
+    &mut self,
+    key: &str,
+    val: Value,
+    game_name: String,
+  ) -> Result<(), ConfigError> {
+    let game_config = self.get_supported_game_config_mut(&game_name)?;
+
+    // match key {
+    //   "add_texture_packs" => game_config.features.texture_packs,
+    //   "add_mod" => game_config.mods_installed_version,
+    //   "uninstall_mod" => {
+    //     game_config
+    //       .mods_installed_version
+    //       .get_mut(&source_name)
+    //       .map(|mods| mods.remove(&mod_name));
+    //   }
+    // }
+
+    self.save_config()?;
+    Ok(())
   }
 
   pub fn cleanup_game_enabled_texture_packs(
@@ -547,41 +581,6 @@ impl LauncherConfig {
     game_config.features.texture_packs = packs;
     self.save_config()?;
     Ok(())
-  }
-
-  pub fn add_new_mod_source(&mut self, url: &String) -> Result<(), ConfigError> {
-    self.mod_sources = match &mut self.mod_sources {
-      Some(sources) => {
-        if sources.iter().any(|s| *s == *url) {
-          return Err(ConfigError::Configuration(
-            "Duplicate mod source!".to_owned(),
-          ));
-        }
-        sources.push(url.to_string());
-        Some(sources.to_vec())
-      }
-      None => Some(vec![url.to_string()]),
-    };
-    self.save_config()?;
-    Ok(())
-  }
-
-  //TODO! delete the mod source by string
-  pub fn remove_mod_source(&mut self, mod_source_index: usize) -> Result<(), ConfigError> {
-    if let Some(sources) = &mut self.mod_sources {
-      if (mod_source_index as usize) < sources.len() {
-        sources.remove(mod_source_index);
-      }
-    }
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn get_mod_sources(&self) -> Vec<String> {
-    match &self.mod_sources {
-      Some(sources) => sources.to_vec(),
-      None => Vec::new(),
-    }
   }
 
   pub fn save_mod_install_info(
@@ -626,16 +625,3 @@ impl LauncherConfig {
     Ok(())
   }
 }
-
-//TODO MODS & TEXTURES
-// match val{
-//   "add_texture_packs" => game_config.features.texture_packs,
-//   "add_mod" => game_config.mods_installed_version,
-//   "uninstall_mod" => {
-//     game_config
-//       .mods_installed_version
-//       .get_mut(&source_name)
-//       .map(|mods| mods.remove(&mod_name));
-//   }
-//   "remove_mod_source" => ,
-// }
