@@ -711,7 +711,7 @@ pub async fn launch_mod(
     command.creation_flags(0x08000000);
   }
   // Start the process here so if there is an error, we can return immediately
-  let mut child = command.spawn()?;
+  let _child = command.spawn()?;
   Ok(())
 }
 

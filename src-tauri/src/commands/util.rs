@@ -1,5 +1,4 @@
 use std::path::Path;
-use tauri::Manager;
 
 use super::CommandError;
 
