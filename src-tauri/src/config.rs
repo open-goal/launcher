@@ -117,8 +117,8 @@ pub struct GameConfig {
   pub version: Option<String>,
   pub version_folder: Option<String>,
   pub features: GameFeatureConfig,
-  pub seconds_played: Option<u64>,
-  pub mods_installed_version: Option<HashMap<String, HashMap<String, String>>>,
+  pub seconds_played: u64,
+  pub mods_installed_version: HashMap<String, HashMap<String, String>>,
 }
 
 impl GameConfig {
@@ -128,8 +128,8 @@ impl GameConfig {
       version: None,
       version_folder: None,
       features: GameFeatureConfig::default(),
-      seconds_played: Some(0),
-      mods_installed_version: None,
+      seconds_played: 0,
+      mods_installed_version: HashMap::new(),
     }
   }
 
@@ -241,16 +241,6 @@ impl LauncherConfig {
     SupportedGame::from_str(game_name)
       .ok()
       .and_then(|game| self.games.get_mut(&game))
-      .ok_or_else(|| {
-        log::error!("Game not found or unsupported: {}", game_name);
-        ConfigError::Configuration(format!("Game not found or unsupported: {game_name}"))
-      })
-  }
-
-  fn get_supported_game_config(&self, game_name: &String) -> Result<&GameConfig, ConfigError> {
-    SupportedGame::from_str(game_name)
-      .ok()
-      .and_then(|game| self.games.get(&game))
       .ok_or_else(|| {
         log::error!("Game not found or unsupported: {}", game_name);
         ConfigError::Configuration(format!("Game not found or unsupported: {game_name}"))
@@ -453,7 +443,11 @@ impl LauncherConfig {
         "install_version_folder" => return Ok(json!(game_config.version_folder)),
         "active_texture_packs" => return Ok(json!(game_config.active_texture_packs())),
         "seconds_played" => return Ok(json!(game_config.seconds_played)),
-        _ => (),
+        "installed_mods" => return Ok(json!(game_config.mods_installed_version)),
+        _ => {
+          log::error!("Key '{}' not recognized", key);
+          return Err(ConfigError::Configuration("Invalid key".to_owned()));
+        }
       }
     }
 
@@ -562,14 +556,7 @@ impl LauncherConfig {
     additional_seconds: u64,
   ) -> Result<(), ConfigError> {
     let game_config = self.get_supported_game_config_mut(game_name)?;
-    match game_config.seconds_played {
-      Some(seconds) => {
-        game_config.seconds_played = Some(seconds + additional_seconds);
-      }
-      None => {
-        game_config.seconds_played = Some(additional_seconds);
-      }
-    }
+    game_config.seconds_played += additional_seconds;
     self.save_config()?;
     Ok(())
   }
@@ -591,6 +578,7 @@ impl LauncherConfig {
     Ok(())
   }
 
+  //TODO! delete the mod source by string
   pub fn remove_mod_source(&mut self, mod_source_index: usize) -> Result<(), ConfigError> {
     if let Some(sources) = &mut self.mod_sources {
       if (mod_source_index as usize) < sources.len() {
@@ -617,25 +605,13 @@ impl LauncherConfig {
   ) -> Result<(), ConfigError> {
     let game_config = self.get_supported_game_config_mut(&game_name)?;
 
-    let installed_mods_option = game_config.mods_installed_version.as_mut();
-    if installed_mods_option.is_some() {
-      let installed_mods = installed_mods_option.unwrap();
-      if !installed_mods.contains_key(&source_name) {
-        installed_mods.insert(source_name.clone(), HashMap::new());
-      }
-      installed_mods
-        .get_mut(&source_name)
-        .unwrap()
-        .insert(mod_name.clone(), version_name);
-    } else {
-      let mut installed_mods: HashMap<String, HashMap<String, String>> = HashMap::new();
-      installed_mods.insert(source_name.clone(), HashMap::new());
-      installed_mods
-        .get_mut(&source_name)
-        .unwrap()
-        .insert(mod_name.clone(), version_name);
-      game_config.mods_installed_version = Some(installed_mods);
-    }
+    // Directly use `entry` to handle the outer HashMap
+    game_config
+      .mods_installed_version
+      .entry(source_name)
+      .or_insert_with(HashMap::new)
+      .insert(mod_name, version_name);
+
     self.save_config()?;
     Ok(())
   }
@@ -653,29 +629,12 @@ impl LauncherConfig {
       source_name
     );
     let game_config = self.get_supported_game_config_mut(&game_name)?;
+    game_config
+      .mods_installed_version
+      .get_mut(&source_name)
+      .map(|mods| mods.remove(&mod_name));
 
-    let installed_mods_option = game_config.mods_installed_version.as_mut();
-    if installed_mods_option.is_some() {
-      let installed_mods = installed_mods_option.unwrap();
-      if installed_mods.contains_key(&source_name) {
-        installed_mods
-          .get_mut(&source_name)
-          .unwrap()
-          .remove(&mod_name);
-      }
-    }
-    self.save_config()?;
+    self.save_config()?; // Save the updated configuration
     Ok(())
-  }
-
-  pub fn get_installed_mods(
-    &self,
-    game_name: String,
-  ) -> Result<HashMap<String, HashMap<String, String>>, ConfigError> {
-    let game_config = self.get_supported_game_config(&game_name)?;
-    match &game_config.mods_installed_version {
-      Some(installed_mods) => Ok(installed_mods.clone()),
-      None => Ok(HashMap::new()),
-    }
   }
 }

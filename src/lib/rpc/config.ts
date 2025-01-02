@@ -41,7 +41,7 @@ export async function setInstallationDirectory(
   // consider changing it
   const errMsg = await invoke_rpc(
     "set_install_directory",
-    { key: "install_directory", val: newDir },
+    { newDir: newDir },
     () => "Unexpected error occurred",
     "Invalid installation directory",
   );

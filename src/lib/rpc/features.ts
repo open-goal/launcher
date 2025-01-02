@@ -119,6 +119,7 @@ export async function addModSource(
   );
 }
 
+// TODO! delete the mod source by string
 export async function removeModSource(modSourceIndex: number): Promise<void> {
   await invoke_rpc(
     "remove_mod_source",
@@ -229,10 +230,14 @@ export async function saveModInstallInfo(
 export async function getInstalledMods(
   gameName: string,
 ): Promise<Record<string, Record<string, string>>> {
-  return await invoke_rpc("get_installed_mods", { gameName }, () => {
-    let ret: Record<string, Record<string, string>> = {};
-    return ret;
-  });
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "installed_mods", gameName },
+    () => {
+      let ret: Record<string, Record<string, string>> = {};
+      return ret;
+    },
+  );
 }
 
 export async function launchMod(

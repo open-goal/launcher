@@ -185,7 +185,6 @@ fn main() {
       commands::features::mods::download_and_extract_new_mod,
       commands::features::mods::extract_iso_for_mod_install,
       commands::features::mods::extract_new_mod,
-      commands::features::mods::get_installed_mods,
       commands::features::mods::get_launch_mod_string,
       commands::features::mods::get_local_mod_cover_base64,
       commands::features::mods::get_local_mod_thumbnail_base64,

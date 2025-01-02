@@ -611,23 +611,6 @@ pub async fn save_mod_install_info(
   })
 }
 
-#[tauri::command]
-pub async fn get_installed_mods(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
-) -> Result<HashMap<String, HashMap<String, String>>, CommandError> {
-  let config_lock = config.lock().await;
-  match config_lock.get_installed_mods(game_name) {
-    Ok(result) => Ok(result),
-    Err(err) => {
-      log::error!("Unable to retrieve installed mods: {:?}", err);
-      Err(CommandError::Configuration(
-        "Unable to retrieve installed mods".to_owned(),
-      ))
-    }
-  }
-}
-
 fn generate_launch_mod_args(
   game_name: String,
   in_debug: bool,
