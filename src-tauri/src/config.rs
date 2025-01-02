@@ -16,7 +16,7 @@ use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use serde_json::Value;
+use serde_json::{json, Value};
 
 use crate::util::file::touch_file;
 
@@ -136,6 +136,10 @@ impl GameConfig {
   pub fn active_texture_packs(&self) -> Vec<String> {
     self.features.texture_packs.clone()
   }
+
+  pub fn version(&self) -> Option<String> {
+    self.version.clone()
+  }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -234,45 +238,23 @@ impl LauncherConfig {
     &mut self,
     game_name: &String,
   ) -> Result<&mut GameConfig, ConfigError> {
-    let game = match SupportedGame::from_str(game_name) {
-      Err(_) => {
-        log::warn!("Game is not supported: {}", game_name);
-        return Err(ConfigError::Configuration(
-          "Game is not supported".to_owned(),
-        ));
-      }
-      Ok(game) => game,
-    };
-    match self.games.get_mut(&game) {
-      None => {
-        log::error!("Supported game missing from games map: {}", game_name);
-        return Err(ConfigError::Configuration(format!(
-          "Supported game missing from games map: {game_name}"
-        )));
-      }
-      Some(cfg) => Ok(cfg),
-    }
+    SupportedGame::from_str(game_name)
+      .ok()
+      .and_then(|game| self.games.get_mut(&game))
+      .ok_or_else(|| {
+        log::error!("Game not found or unsupported: {}", game_name);
+        ConfigError::Configuration(format!("Game not found or unsupported: {game_name}"))
+      })
   }
 
   fn get_supported_game_config(&self, game_name: &String) -> Result<&GameConfig, ConfigError> {
-    let game = match SupportedGame::from_str(game_name) {
-      Err(_) => {
-        log::warn!("Game is not supported: {}", game_name);
-        return Err(ConfigError::Configuration(
-          "Game is not supported".to_owned(),
-        ));
-      }
-      Ok(game) => game,
-    };
-    match self.games.get(&game) {
-      None => {
-        log::error!("Supported game missing from games map: {}", game_name);
-        return Err(ConfigError::Configuration(format!(
-          "Supported game missing from games map: {game_name}"
-        )));
-      }
-      Some(cfg) => Ok(cfg),
-    }
+    SupportedGame::from_str(game_name)
+      .ok()
+      .and_then(|game| self.games.get(&game))
+      .ok_or_else(|| {
+        log::error!("Game not found or unsupported: {}", game_name);
+        ConfigError::Configuration(format!("Game not found or unsupported: {game_name}"))
+      })
   }
 
   pub fn load_config(config_dir: Option<std::path::PathBuf>) -> LauncherConfig {
@@ -455,7 +437,26 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn get_setting_value(&self, key: &str) -> Result<Value, ConfigError> {
+  pub fn get_setting_value(
+    &self,
+    key: &str,
+    game_name: Option<String>,
+  ) -> Result<Value, ConfigError> {
+    if let Some(game_config) = game_name
+      .as_deref()
+      .and_then(|name| SupportedGame::from_str(name).ok())
+      .and_then(|game| self.games.get(&game))
+    {
+      match key {
+        "installed" => return Ok(Value::Bool(game_config.is_installed)),
+        "installed_version" => return Ok(json!(game_config.version())),
+        "install_version_folder" => return Ok(json!(game_config.version_folder)),
+        "active_texture_packs" => return Ok(json!(game_config.active_texture_packs())),
+        "seconds_played" => return Ok(json!(game_config.seconds_played)),
+        _ => (),
+      }
+    }
+
     match key {
       "opengl_requirements_met" => Ok(Value::Bool(self.requirements.opengl)),
       "bypass_requirements" => Ok(Value::Bool(self.requirements.bypass_requirements)),
@@ -527,89 +528,6 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn is_game_installed(&self, game_name: &String) -> bool {
-    match SupportedGame::from_str(game_name) {
-      Ok(game) => {
-        // Retrieve relevant game from config
-        match self.games.get(&game) {
-          Some(game) => game.is_installed,
-          None => {
-            log::warn!(
-              "Could not find game to check if it's installed: {}",
-              game_name
-            );
-            false
-          }
-        }
-      }
-      Err(_) => {
-        log::warn!(
-          "Could not find game to check if it's installed: {}",
-          game_name
-        );
-        false
-      }
-    }
-  }
-
-  pub fn game_install_version(&self, game_name: &String) -> String {
-    match SupportedGame::from_str(game_name) {
-      Ok(game) => {
-        // Retrieve relevant game from config
-        match self.games.get(&game) {
-          Some(game) => game.version.clone().unwrap_or("".to_owned()),
-          None => {
-            log::warn!(
-              "Could not find game to check what version is installed: {}",
-              game_name
-            );
-            "".to_owned()
-          }
-        }
-      }
-      Err(_) => {
-        log::warn!(
-          "Could not find game to check what version is installed: {}",
-          game_name
-        );
-        "".to_owned()
-      }
-    }
-  }
-
-  pub fn game_install_version_folder(&self, game_name: &String) -> String {
-    match SupportedGame::from_str(game_name) {
-      Ok(game) => {
-        // Retrieve relevant game from config
-        match self.games.get(&game) {
-          Some(game) => game.version_folder.clone().unwrap_or("".to_string()),
-          None => {
-            log::warn!(
-              "Could not find game to check what version type is installed: {}",
-              game_name
-            );
-            "".to_owned()
-          }
-        }
-      }
-      Err(_) => {
-        log::warn!(
-          "Could not find game to check what version is installed: {}",
-          game_name
-        );
-        "".to_owned()
-      }
-    }
-  }
-
-  pub fn get_active_texture_packs(&self, game_name: &str) -> Vec<String> {
-    SupportedGame::from_str(game_name)
-      .ok()
-      .and_then(|game| self.games.get(&game))
-      .map(|config| config.active_texture_packs())
-      .unwrap_or_else(Vec::new)
-  }
-
   pub fn cleanup_game_enabled_texture_packs(
     &mut self,
     game_name: &String,
@@ -654,11 +572,6 @@ impl LauncherConfig {
     }
     self.save_config()?;
     Ok(())
-  }
-
-  pub fn get_game_seconds_played(&mut self, game_name: &String) -> Result<u64, ConfigError> {
-    let game_config = self.get_supported_game_config_mut(&game_name)?;
-    Ok(game_config.seconds_played.unwrap_or(0))
   }
 
   pub fn add_new_mod_source(&mut self, url: &String) -> Result<(), ConfigError> {

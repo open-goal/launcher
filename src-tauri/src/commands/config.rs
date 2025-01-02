@@ -58,9 +58,10 @@ pub async fn update_setting_value(
 pub async fn get_setting_value(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   key: String,
+  game_name: Option<String>,
 ) -> Result<Value, CommandError> {
   let config_lock = config.lock().await;
-  match &config_lock.get_setting_value(&key) {
+  match &config_lock.get_setting_value(&key, game_name) {
     Ok(value) => Ok(json!(value)),
     Err(e) => {
       log::error!("Unable to get setting directory: {:?}", e);
@@ -99,8 +100,11 @@ pub async fn is_diskspace_requirement_met(
   game_name: String,
 ) -> Result<bool, CommandError> {
   // If the game is already installed, we assume they have enough drive space
-  let mut config_lock = config.lock().await;
-  if is_game_installed_impl(&mut config_lock, game_name.to_owned())? {
+  let config_lock = config.lock().await;
+  if matches!(
+    config_lock.get_setting_value("installed", Some(game_name.clone())),
+    Ok(Value::Bool(true))
+  ) {
     return Ok(true);
   }
   if config_lock.requirements.bypass_requirements {
@@ -259,63 +263,8 @@ pub async fn finalize_installation(
   Ok(())
 }
 
-fn is_game_installed_impl(
-  config_lock: &mut tokio::sync::MutexGuard<LauncherConfig>,
-  game_name: String,
-) -> Result<bool, CommandError> {
-  // Check that the version and version folder config field is set properly as well
-  let version = config_lock.game_install_version(&game_name);
-  let version_folder = config_lock.game_install_version_folder(&game_name);
-
-  if version.is_empty() || version_folder.is_empty() {
-    config_lock
-      .update_installed_game_version(&game_name, false)
-      .map_err(|err| {
-        log::error!(
-          "Unable to mark partially installed game as uninstalled {}",
-          err
-        );
-        CommandError::Configuration(
-          "Unable to mark partially installed game as uninstalled".to_owned(),
-        )
-      })?;
-    return Ok(false);
-  }
-
-  Ok(true)
-}
-
-#[tauri::command]
-pub async fn is_game_installed(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
-) -> Result<bool, CommandError> {
-  let mut config_lock = config.lock().await;
-
-  if !config_lock.is_game_installed(&game_name) {
-    return Ok(false);
-  }
-
-  return is_game_installed_impl(&mut config_lock, game_name);
-}
-
-#[tauri::command]
-pub async fn get_installed_version(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
-) -> Result<String, CommandError> {
-  let config_lock = config.lock().await;
-  Ok(config_lock.game_install_version(&game_name))
-}
-
-#[tauri::command]
-pub async fn get_installed_version_folder(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
-) -> Result<String, CommandError> {
-  let config_lock = config.lock().await;
-  Ok(config_lock.game_install_version_folder(&game_name))
-}
+// let version = config_lock.get_setting_value("install_version", Some(game_name));
+// let version_folder = config_lock.get_setting_value("install_version_folder", Some(game_name));
 
 #[tauri::command]
 pub async fn save_active_version_change(
@@ -335,15 +284,6 @@ pub async fn save_active_version_change(
       CommandError::Configuration("Unable to persist active version change".to_owned())
     })?;
   Ok(())
-}
-
-#[tauri::command]
-pub async fn get_enabled_texture_packs(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
-) -> Result<Vec<String>, CommandError> {
-  let config_lock = config.lock().await;
-  Ok(config_lock.get_active_texture_packs(&game_name))
 }
 
 #[tauri::command]
@@ -397,21 +337,6 @@ pub async fn does_active_tooling_version_support_game(
       log::warn!("No active tooling version set, can't check the game supports it!");
       Ok(false)
     }
-  }
-}
-
-#[tauri::command]
-pub async fn get_playtime(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
-) -> Result<u64, CommandError> {
-  let mut config_lock = config.lock().await;
-  match config_lock.get_game_seconds_played(&game_name) {
-    Ok(playtime) => Ok(playtime),
-    Err(err) => Err(CommandError::Configuration(format!(
-      "Error occurred when getting game playtime: {}",
-      err
-    ))),
   }
 }
 

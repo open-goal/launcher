@@ -101,17 +101,29 @@ export async function finalizeInstallation(gameName: string): Promise<void> {
 }
 
 export async function isGameInstalled(gameName: string): Promise<boolean> {
-  return await invoke_rpc("is_game_installed", { gameName }, () => false);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "installed", gameName },
+    () => false,
+  );
 }
 
 export async function getInstalledVersion(gameName: string): Promise<String> {
-  return invoke_rpc("get_installed_version", { gameName }, () => null);
+  return invoke_rpc(
+    "get_setting_value",
+    { key: "installed_version", gameName: gameName },
+    () => null,
+  );
 }
 
 export async function getInstalledVersionFolder(
   gameName: string,
 ): Promise<String> {
-  return invoke_rpc("get_installed_version_folder", { gameName }, () => null);
+  return invoke_rpc(
+    "get_setting_value",
+    { key: "install_version_folder", gameName },
+    () => null,
+  );
 }
 
 export async function saveActiveVersionChange(
@@ -265,8 +277,8 @@ export async function getEnabledTexturePacks(
   gameName: string,
 ): Promise<string[]> {
   return await invoke_rpc(
-    "get_enabled_texture_packs",
-    { gameName: gameName },
+    "get_setting_value",
+    { key: "active_texture_packs", gameName: gameName },
     () => [],
   );
 }
@@ -326,7 +338,11 @@ export async function doesActiveToolingVersionSupportGame(
 }
 
 export async function getPlaytime(gameName: string): Promise<number> {
-  return await invoke_rpc("get_playtime", { gameName: gameName }, () => 0);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "seconds_played", gameName: gameName },
+    () => 0,
+  );
 }
 
 export async function doesActiveToolingVersionMeetMinimum(

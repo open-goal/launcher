@@ -4,6 +4,7 @@ use std::{
 };
 
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 use crate::{
   commands::CommandError,
@@ -258,23 +259,23 @@ pub async fn update_texture_pack_data(
   // Reset texture replacement directory
   delete_dir(&game_texture_pack_dir)?;
   create_dir(&game_texture_pack_dir)?;
-  for pack in config_lock
-    .get_active_texture_packs(&game_name)
-    .iter()
-    .rev()
+
+  if let Ok(Value::Array(texture_packs)) =
+    config_lock.get_setting_value("active_texture_packs", Some(game_name.clone()))
   {
-    let texture_pack_dir = install_path
-      .join("features")
-      .join(&game_name)
-      .join("texture-packs")
-      .join(&pack)
-      .join("custom_assets")
-      .join(&game_name)
-      .join("texture_replacements");
-    log::info!("Appending textures from: {}", texture_pack_dir.display());
-    match overwrite_dir(&texture_pack_dir, &game_texture_pack_dir) {
-      Ok(_) => (),
-      Err(err) => {
+    for pack in texture_packs.iter().filter_map(|pack| pack.as_str()).rev() {
+      let texture_pack_dir = install_path
+        .join("features")
+        .join(&game_name)
+        .join("texture-packs")
+        .join(&pack)
+        .join("custom_assets")
+        .join(&game_name)
+        .join("texture_replacements");
+
+      log::info!("Appending textures from: {}", texture_pack_dir.display());
+
+      if let Err(err) = overwrite_dir(&texture_pack_dir, &game_texture_pack_dir) {
         log::error!("Unable to update texture replacements: {}", err);
         return Ok(GameJobStepOutput {
           success: false,
@@ -282,10 +283,14 @@ pub async fn update_texture_pack_data(
         });
       }
     }
-  }
 
+    return Ok(GameJobStepOutput {
+      success: true,
+      msg: None,
+    });
+  }
   Ok(GameJobStepOutput {
-    success: true,
+    success: false,
     msg: None,
   })
 }
