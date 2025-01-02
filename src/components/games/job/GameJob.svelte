@@ -50,7 +50,6 @@
   onMount(async () => {
     proceedAfterSuccessfulOperation =
       await getProceedAfterSuccessfulOperation();
-    console.log(proceedAfterSuccessfulOperation);
   });
 
   $: if (
