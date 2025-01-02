@@ -116,7 +116,7 @@ pub struct GameConfig {
   pub is_installed: bool,
   pub version: Option<String>,
   pub version_folder: Option<String>,
-  pub features: Option<GameFeatureConfig>,
+  pub features: GameFeatureConfig,
   pub seconds_played: Option<u64>,
   pub mods_installed_version: Option<HashMap<String, HashMap<String, String>>>,
 }
@@ -127,10 +127,14 @@ impl GameConfig {
       is_installed: false,
       version: None,
       version_folder: None,
-      features: Some(GameFeatureConfig::default()),
+      features: GameFeatureConfig::default(),
       seconds_played: Some(0),
       mods_installed_version: None,
     }
+  }
+
+  pub fn active_texture_packs(&self) -> Vec<String> {
+    self.features.texture_packs.clone()
   }
 }
 
@@ -421,6 +425,7 @@ impl LauncherConfig {
   pub fn update_setting_value(&mut self, key: &str, val: Value) -> Result<(), ConfigError> {
     match key {
       "opengl_requirements_met" => self.requirements.opengl = val.as_bool().unwrap_or(false),
+      "avx" => self.requirements.avx = val.as_bool().unwrap_or(false),
       "bypass_requirements" => {
         self.requirements.bypass_requirements = val.as_bool().unwrap_or(false)
       }
@@ -597,33 +602,12 @@ impl LauncherConfig {
     }
   }
 
-  pub fn game_enabled_textured_packs(&self, game_name: &String) -> Vec<String> {
-    // TODO - refactor out duplication
-    match SupportedGame::from_str(game_name) {
-      Ok(game) => {
-        // Retrieve relevant game from config
-        match self.games.get(&game) {
-          Some(game) => match &game.features {
-            Some(features) => features.texture_packs.to_owned(),
-            None => Vec::new(),
-          },
-          None => {
-            log::warn!(
-              "Could not find game to check which texture packs are enabled: {}",
-              game_name
-            );
-            Vec::new()
-          }
-        }
-      }
-      Err(_) => {
-        log::warn!(
-          "Could not find game to check which texture packs are enabled: {}",
-          game_name
-        );
-        Vec::new()
-      }
-    }
+  pub fn get_active_texture_packs(&self, game_name: &str) -> Vec<String> {
+    SupportedGame::from_str(game_name)
+      .ok()
+      .and_then(|game| self.games.get(&game))
+      .map(|config| config.active_texture_packs())
+      .unwrap_or_else(Vec::new)
   }
 
   pub fn cleanup_game_enabled_texture_packs(
@@ -635,12 +619,11 @@ impl LauncherConfig {
       return Ok(());
     }
     let game_config = self.get_supported_game_config_mut(game_name)?;
-    if let Some(features) = &mut game_config.features {
-      features
-        .texture_packs
-        .retain(|pack| !cleanup_list.contains(pack));
-      self.save_config()?;
-    }
+    game_config
+      .features
+      .texture_packs
+      .retain(|pack| !cleanup_list.contains(pack));
+    self.save_config()?;
     Ok(())
   }
 
@@ -650,16 +633,7 @@ impl LauncherConfig {
     packs: Vec<String>,
   ) -> Result<(), ConfigError> {
     let game_config = self.get_supported_game_config_mut(game_name)?;
-    match &mut game_config.features {
-      Some(features) => {
-        features.texture_packs = packs;
-      }
-      None => {
-        game_config.features = Some(GameFeatureConfig {
-          texture_packs: packs,
-        });
-      }
-    }
+    game_config.features.texture_packs = packs;
     self.save_config()?;
     Ok(())
   }

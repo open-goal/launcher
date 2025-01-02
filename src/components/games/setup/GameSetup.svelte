@@ -42,7 +42,7 @@
 
   async function checkRequirements() {
     // Check requirements
-    const isAvxMet = await isAVXRequirementMet(false);
+    const isAvxMet = await isAVXRequirementMet();
     const isOpenGLMet = await isOpenGLRequirementMet(false);
     const isDiskSpaceMet = await isDiskSpaceRequirementMet(
       getInternalName(activeGame),

@@ -259,7 +259,7 @@ pub async fn update_texture_pack_data(
   delete_dir(&game_texture_pack_dir)?;
   create_dir(&game_texture_pack_dir)?;
   for pack in config_lock
-    .game_enabled_textured_packs(&game_name)
+    .get_active_texture_packs(&game_name)
     .iter()
     .rev()
   {

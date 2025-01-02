@@ -56,10 +56,8 @@ export async function setInstallationDirectory(
   return errMsg;
 }
 
-export async function isAVXRequirementMet(
-  force: boolean,
-): Promise<boolean | undefined> {
-  return await invoke_rpc("is_avx_requirement_met", { force }, () => undefined);
+export async function isAVXRequirementMet(): Promise<boolean | undefined> {
+  return await invoke_rpc("is_avx_requirement_met", {}, () => undefined);
 }
 
 export async function isOpenGLRequirementMet(

@@ -183,17 +183,13 @@ pub async fn is_avx_supported() -> bool {
 #[tauri::command]
 pub async fn is_avx_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  force: bool,
 ) -> Result<bool, CommandError> {
   let mut config_lock = config.lock().await;
-  if force {
-    config_lock.requirements.avx = false;
-  }
   if config_lock.requirements.bypass_requirements {
     log::warn!("Bypassing the AVX requirements check!");
     return Ok(true);
   } else {
-    config_lock.requirements.avx = is_avx_supported().await;
+    let _ = config_lock.update_setting_value("avx", Value::Bool(is_avx_supported().await));
     return Ok(config_lock.requirements.avx);
   }
 }
@@ -347,7 +343,7 @@ pub async fn get_enabled_texture_packs(
   game_name: String,
 ) -> Result<Vec<String>, CommandError> {
   let config_lock = config.lock().await;
-  Ok(config_lock.game_enabled_textured_packs(&game_name))
+  Ok(config_lock.get_active_texture_packs(&game_name))
 }
 
 #[tauri::command]
