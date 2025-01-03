@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { VersionFolders } from "$lib/rpc/versions";
   import { VersionStore } from "$lib/stores/VersionStore";
   import type { ReleaseInfo } from "$lib/utils/github";
   import IconRefresh from "~icons/mdi/refresh";
@@ -26,7 +25,7 @@
   export let description: string;
   export let releaseList: ReleaseInfo[];
   export let loaded: boolean;
-  export let releaseType: VersionFolders;
+  export let releaseType = "official";
 
   const dispatch = createEventDispatcher();
 </script>
@@ -91,7 +90,7 @@
               {#if release.isDownloaded}
                 <Radio
                   class="disabled:cursor-not-allowed p-0"
-                  bind:group={$VersionStore.selectedVersions[releaseType]}
+                  bind:group={releaseType}
                   on:change={() => dispatch("versionChange")}
                   value={release.version}
                   disabled={!release.isDownloaded}

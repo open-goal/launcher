@@ -185,7 +185,6 @@ pub async fn download_version(
 pub async fn remove_version(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   version: String,
-  version_folder: String,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   let install_path = match &config_lock.installation_dir {
@@ -197,21 +196,18 @@ pub async fn remove_version(
     Some(path) => Path::new(path),
   };
 
-  info!("Deleting Version {}:{}", version_folder, version);
+  info!("Deleting Version: {}", version);
 
   let version_dir = install_path
     .join("versions")
-    .join(&version_folder)
+    .join("official")
     .join(&version);
 
   delete_dir(&version_dir)?;
 
   // If it's the active version, we should clean that up in the settings file
-  if let (Some(config_version_folder), Some(config_version)) = (
-    &config_lock.active_version_folder,
-    &config_lock.active_version,
-  ) {
-    if (version_folder == *config_version_folder) && (version == *config_version) {
+  if let Some(config_version) = &config_lock.active_version {
+    if version == *config_version {
       config_lock
         .update_setting_value("active_version", Value::Null, None)
         .map_err(|_| {
@@ -270,18 +266,15 @@ pub async fn ensure_active_version_still_exists(
   };
 
   info!(
-    "Checking if active version still exists {:?}:{:?}",
-    config_lock.active_version_folder, config_lock.active_version
+    "Checking if active version still exists: {:?}",
+    config_lock.active_version
   );
 
-  match (
-    &config_lock.active_version_folder,
-    &config_lock.active_version,
-  ) {
-    (Some(config_version_folder), Some(config_version)) => {
+  match &config_lock.active_version {
+    Some(config_version) => {
       let version_dir = install_path
         .join("versions")
-        .join(config_version_folder)
+        .join("official")
         .join(config_version);
       if !version_dir.exists() {
         // Clear active version if it's no longer available
@@ -295,6 +288,6 @@ pub async fn ensure_active_version_still_exists(
       }
       Ok(version_dir.exists())
     }
-    (_, _) => Ok(false),
+    _ => Ok(false),
   }
 }

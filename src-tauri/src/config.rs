@@ -30,7 +30,7 @@ pub enum ConfigError {
   Configuration(String),
 }
 
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Eq, PartialEq, Hash, Clone)]
 pub enum SupportedGame {
   Jak1,
   Jak2,
@@ -42,11 +42,11 @@ impl FromStr for SupportedGame {
   type Err = String;
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "jak1" => Ok(Self::Jak1),
-      "jak2" => Ok(Self::Jak2),
-      "jak3" => Ok(Self::Jak3),
-      "jakx" => Ok(Self::JakX),
+    match s.trim().to_lowercase().as_str() {
+      "jak 1" | "jak1" => Ok(Self::Jak1),
+      "jak 2" | "jak2" => Ok(Self::Jak2),
+      "jak 3" | "jak3" => Ok(Self::Jak3),
+      "jak x" | "jakx" => Ok(Self::JakX),
       _ => Err(format!("Invalid variant: {s}")),
     }
   }
@@ -85,7 +85,7 @@ impl Serialize for SupportedGame {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct GameFeatureConfig {
   pub texture_packs: Vec<String>,
@@ -99,12 +99,11 @@ impl GameFeatureConfig {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct GameConfig {
   pub is_installed: bool,
   pub version: Option<String>,
-  pub version_folder: Option<String>,
   pub features: GameFeatureConfig,
   pub seconds_played: u64,
   pub mods_installed_version: HashMap<String, HashMap<String, String>>,
@@ -115,7 +114,6 @@ impl GameConfig {
     Self {
       is_installed: false,
       version: None,
-      version_folder: None,
       features: GameFeatureConfig::default(),
       seconds_played: 0,
       mods_installed_version: HashMap::new(),
@@ -177,13 +175,11 @@ pub struct LauncherConfig {
   #[serde(skip_deserializing)]
   settings_path: Option<PathBuf>,
   #[serde(default = "default_version")]
-  pub version: Option<String>,
+  pub version: String,
   pub requirements: Requirements,
   pub games: HashMap<SupportedGame, GameConfig>,
-  pub last_active_game: Option<SupportedGame>,
   pub installation_dir: Option<String>,
   pub active_version: Option<String>,
-  pub active_version_folder: Option<String>,
   pub locale: Option<String>,
   pub mod_sources: Vec<String>,
   pub decompiler_settings: DecompilerSettings,
@@ -193,8 +189,111 @@ pub struct LauncherConfig {
   pub delete_previous_versions: bool,
 }
 
-fn default_version() -> Option<String> {
-  Some("1.0".to_string())
+fn default_version() -> String {
+  return "2.0".to_owned();
+}
+
+fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> LauncherConfig {
+  log::warn!("Outdated config detected. Migrating to the latest version.");
+  let mut new_config = LauncherConfig::default(Some(settings_path));
+
+  // Migrate requirements
+  if let Some(requirements) = json_value.get("requirements") {
+    new_config.requirements.bypass_requirements = requirements
+      .get("bypassRequirements")
+      .and_then(|v| v.as_bool())
+      .unwrap_or(new_config.requirements.bypass_requirements);
+
+    new_config.requirements.avx = requirements
+      .get("avx")
+      .and_then(|v| v.as_bool())
+      .unwrap_or(new_config.requirements.avx);
+
+    new_config.requirements.opengl = requirements
+      .get("openGL")
+      .and_then(|v| v.as_bool())
+      .unwrap_or(new_config.requirements.opengl);
+  }
+
+  // Migrate games
+  if let Some(games) = json_value.get("games").and_then(|v| v.as_object()) {
+    for (key, value) in games {
+      if let Ok(supported_game) = SupportedGame::from_str(key) {
+        // Start with default values
+        let mut game_config = GameConfig::default();
+
+        // Deserialize fields manually
+        if let Some(is_installed) = value.get("isInstalled").and_then(|v| v.as_bool()) {
+          game_config.is_installed = is_installed;
+        }
+        if let Some(version) = value.get("version").and_then(|v| v.as_str()) {
+          game_config.version = Some(version.to_string());
+        }
+        if let Some(features) = value.get("features") {
+          game_config.features = serde_json::from_value(features.clone())
+            .unwrap_or_else(|_| GameFeatureConfig::default());
+        }
+        if let Some(seconds_played) = value.get("secondsPlayed").and_then(|v| v.as_u64()) {
+          game_config.seconds_played = seconds_played;
+        }
+        if let Some(mods) = value.get("modsInstalledVersion") {
+          game_config.mods_installed_version =
+            serde_json::from_value(mods.clone()).unwrap_or_default();
+        }
+
+        new_config.games.insert(supported_game, game_config);
+      } else {
+        log::warn!("Unsupported game key: '{}'. Skipping.", key);
+      }
+    }
+  }
+
+  // Migrate other fields
+  new_config.installation_dir = json_value
+    .get("installationDir")
+    .and_then(|v| v.as_str())
+    .map(String::from);
+
+  new_config.active_version = json_value
+    .get("activeVersion")
+    .and_then(|v| v.as_str())
+    .map(String::from);
+
+  new_config.locale = json_value
+    .get("locale")
+    .and_then(|v| v.as_str())
+    .map(String::from);
+
+  if let Some(mod_sources) = json_value.get("modSources").and_then(|v| v.as_array()) {
+    new_config.mod_sources = mod_sources
+      .iter()
+      .filter_map(|v| v.as_str().map(String::from))
+      .collect();
+  }
+
+  // Default values for fields not in old config
+  new_config.check_for_latest_mod_version = json_value
+    .get("checkForLatestModVersion")
+    .and_then(|v| v.as_bool())
+    .unwrap_or(true);
+
+  new_config.proceed_after_successful_operation = json_value
+    .get("proceedAfterSuccessfulOperation")
+    .and_then(|v| v.as_bool())
+    .unwrap_or(true);
+
+  new_config.auto_update_games = json_value
+    .get("autoUpdateGames")
+    .and_then(|v| v.as_bool())
+    .unwrap_or(false);
+
+  new_config.delete_previous_versions = json_value
+    .get("deletePreviousVersions")
+    .and_then(|v| v.as_bool())
+    .unwrap_or(false);
+
+  log::info!("Migration complete. New configuration ready.");
+  new_config
 }
 
 impl LauncherConfig {
@@ -209,10 +308,8 @@ impl LauncherConfig {
       version: default_version(),
       requirements: Requirements::default(),
       games: default_games,
-      last_active_game: None,
       installation_dir: None,
       active_version: None,
-      active_version_folder: Some("official".to_string()),
       locale: None,
       mod_sources: Vec::new(),
       decompiler_settings: DecompilerSettings::default(),
@@ -237,75 +334,29 @@ impl LauncherConfig {
   }
 
   pub fn load_config(config_dir: Option<std::path::PathBuf>) -> LauncherConfig {
-    match config_dir {
-      Some(config_dir) => {
-        let settings_path = &config_dir.join("settings.json");
-        log::info!("Loading configuration at path: {}", settings_path.display());
-        if !settings_path.exists() {
-          log::error!("Could not locate settings file, using defaults");
-          return LauncherConfig::default(Some(settings_path.to_path_buf()));
-        }
-        // Read the file
-        let content = match fs::read_to_string(settings_path) {
-          Ok(content) => content,
-          Err(err) => {
-            log::error!("Could not read settings.json file: {}, using defaults", err);
-            return LauncherConfig::default(Some(settings_path.to_path_buf()));
-          }
-        };
+    let settings_path = config_dir.map(|dir| dir.join("settings.json"));
 
-        // Serialize from json
-        match serde_json::from_str::<LauncherConfig>(&content) {
-          Ok(mut config) => {
-            log::info!(
-              "Successfully loaded settings file, version {}, app starting up",
-              config.version.as_ref().unwrap()
-            );
-            config.settings_path = Some(settings_path.to_path_buf());
-            // Remove usages of non-official versions
-            let mut found_violations = false;
-            if config
-              .active_version_folder
-              .as_ref()
-              .is_some_and(|x| x != "official")
-            {
-              log::warn!("non-official versions is a deprecated feature, erasing!");
-              config.active_version = None;
-              config.active_version_folder = None;
-              found_violations = true;
-            }
-            // check the games as well
-            for (_, game_info) in config.games.iter_mut() {
-              if game_info
-                .version_folder
-                .as_ref()
-                .is_some_and(|x| x != "official")
-              {
-                log::warn!("non-official versions is a deprecated feature, erasing!");
-                game_info.version = None;
-                game_info.version_folder = None;
-                found_violations = true;
-              }
-            }
-            if found_violations {
-              config.save_config().expect("TODO NOW");
-            }
-            config
-          }
-          Err(err) => {
-            log::error!(
-              "Could not parse settings.json file: {}, using defaults",
-              err
-            );
-            LauncherConfig::default(Some(settings_path.to_path_buf()))
-          }
+    if let Some(path) = &settings_path {
+      log::info!("Loading configuration at path: {}", path.display());
+
+      match fs::read_to_string(path)
+        .ok()
+        .and_then(|content| serde_json::from_str::<serde_json::Value>(&content).ok())
+      {
+        Some(json_value) => {
+          // Try to deserialize into LauncherConfig, or migrate if necessary
+          let mut config: LauncherConfig = serde_json::from_value(json_value.clone())
+            .unwrap_or_else(|_| migrate_old_config(json_value, path.to_path_buf()));
+
+          config.settings_path = Some(path.to_path_buf());
+          return config;
         }
+        None => log::error!("Failed to load or parse settings file, using defaults"),
       }
-      None => {
-        log::warn!("Not loading configuration, no path provided. Using defaults");
-        LauncherConfig::default(None)
-      }
+    } else {
+      log::warn!("No configuration directory provided, using defaults");
     }
+    LauncherConfig::default(settings_path)
   }
 
   pub fn save_config(&self) -> Result<(), ConfigError> {
@@ -366,7 +417,6 @@ impl LauncherConfig {
     if let Some(old_dir) = &self.installation_dir {
       if *old_dir != new_dir {
         self.active_version = None;
-        self.active_version_folder = None;
         self.update_setting_value("installed", false.into(), Some("jak1".to_owned()))?;
         self.update_setting_value("installed", false.into(), Some("jak2".to_owned()))?;
         self.update_setting_value("installed", false.into(), Some("jak3".to_owned()))?;
@@ -396,16 +446,11 @@ impl LauncherConfig {
           game_config.is_installed = installed;
           if installed {
             game_config.version = self.active_version.clone();
-            game_config.version_folder = self.active_version_folder.clone();
           } else {
             game_config.version = None;
-            game_config.version_folder = None;
           }
         }
         "installed_version" => game_config.version = val.as_str().map(|s| s.to_string()),
-        "install_version_folder" => {
-          game_config.version_folder = val.as_str().map(|s| s.to_string())
-        }
         "seconds_played" => game_config.seconds_played += val.as_u64().unwrap_or(0),
         _ => {
           log::error!("Key '{}' not recognized", key);
@@ -420,7 +465,6 @@ impl LauncherConfig {
           self.requirements.bypass_requirements = val.as_bool().unwrap_or(false)
         }
         "active_version" => self.active_version = val.as_str().map(|s| s.to_string()),
-        "active_version_folder" => self.active_version_folder = val.as_str().map(|s| s.to_string()),
         "locale" => self.locale = val.as_str().map(|s| s.to_string()),
         "check_for_latest_mod_version" => {
           self.check_for_latest_mod_version = val.as_bool().unwrap_or(true)
@@ -474,7 +518,6 @@ impl LauncherConfig {
       match key {
         "installed" => return Ok(Value::Bool(game_config.is_installed)),
         "installed_version" => return Ok(json!(game_config.version())),
-        "install_version_folder" => return Ok(json!(game_config.version_folder)),
         "active_texture_packs" => return Ok(json!(game_config.active_texture_packs())),
         "seconds_played" => return Ok(json!(game_config.seconds_played)),
         "installed_mods" => return Ok(json!(game_config.mods_installed_version)),
@@ -496,12 +539,6 @@ impl LauncherConfig {
         "active_version" => Ok(
           self
             .active_version
-            .as_ref()
-            .map_or(Value::Null, |v| Value::String(v.clone())),
-        ),
-        "active_version_folder" => Ok(
-          self
-            .active_version_folder
             .as_ref()
             .map_or(Value::Null, |v| Value::String(v.clone())),
         ),

@@ -3,7 +3,6 @@
   import {
     downloadOfficialVersion,
     getActiveVersion,
-    getActiveVersionFolder,
     listDownloadedVersions,
     openVersionFolder,
     removeVersion,
@@ -12,7 +11,7 @@
   import VersionList from "./VersionList.svelte";
   import { VersionStore } from "$lib/stores/VersionStore";
   import { UpdateStore } from "$lib/stores/AppStore";
-  import { saveActiveVersionChanges } from "$lib/rpc/config";
+  import { saveActiveVersionChange } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
 
@@ -26,13 +25,9 @@
   async function refreshVersionList() {
     versionsLoaded = false;
     // Reset store to defaults (TODO, move this to a store method)
-    $VersionStore.activeVersionType = await getActiveVersionFolder();
     $VersionStore.activeVersionName = await getActiveVersion();
-    if ($VersionStore.activeVersionType === "official") {
-      $VersionStore.selectedVersions.official = $VersionStore.activeVersionName;
-    }
     // Check the backend to see if the folder has any versions
-    const installedVersions = await listDownloadedVersions("official");
+    const installedVersions = await listDownloadedVersions();
     releases = [];
     for (const version of installedVersions) {
       releases = [
@@ -106,19 +101,16 @@
   }
 
   async function saveOfficialVersionChange() {
-    const success = await saveActiveVersionChanges(
-      "official",
+    const success = await saveActiveVersionChange(
       $VersionStore.selectedVersions.official,
     );
     if (success) {
-      $VersionStore.activeVersionType = "official";
-      $VersionStore.activeVersionName = $VersionStore.selectedVersions.official;
       toastStore.makeToast($_("toasts_savedToolingVersion"), "info");
     }
   }
 
   async function openOfficialVersionFolder() {
-    openVersionFolder("official");
+    openVersionFolder();
   }
 
   async function onDownloadVersion(event: any) {
@@ -159,16 +151,11 @@
       }
     }
     releases = releases;
-    const ok = await removeVersion(event.detail.version, "official");
+    const ok = await removeVersion(event.detail.version);
     if (ok) {
       // Update the store, if we removed the active version
-      if (
-        $VersionStore.activeVersionName === event.detail.version &&
-        $VersionStore.activeVersionType === "official"
-      ) {
+      if ($VersionStore.activeVersionName === event.detail.version) {
         $VersionStore.activeVersionName = null;
-        $VersionStore.activeVersionType = null;
-        $VersionStore.selectedVersions.official = null;
       }
 
       // Then mark it as not downloaded

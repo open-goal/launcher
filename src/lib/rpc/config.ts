@@ -2,7 +2,6 @@ import { toastStore } from "$lib/stores/ToastStore";
 import { locale as svelteLocale } from "svelte-i18n";
 import { errorLog } from "./logging";
 import { invoke_rpc } from "./rpc";
-import type { VersionFolders } from "./versions";
 import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
 import { exists } from "@tauri-apps/api/fs";
 import { appDataDir, join } from "@tauri-apps/api/path";
@@ -123,43 +122,12 @@ export async function getInstalledVersion(gameName: string): Promise<String> {
   );
 }
 
-export async function getInstalledVersionFolder(
-  gameName: string,
-): Promise<String> {
-  return invoke_rpc(
-    "get_setting_value",
-    { key: "install_version_folder", gameName },
-    () => null,
-  );
-}
-
-export async function saveActiveVersionChanges(
-  versionFolder: VersionFolders,
-  newActiveVersion: String,
-): Promise<boolean> {
-  let res1 = await saveActiveVersionChange(newActiveVersion);
-  let res2 = await saveActiveVersionFolderChange(versionFolder);
-  return res1 && res2;
-}
-
 export async function saveActiveVersionChange(
   newActiveVersion: String,
 ): Promise<boolean> {
   return invoke_rpc(
     "update_setting_value",
     { key: "active_version", val: newActiveVersion },
-    () => false,
-    "Couldn't save active version change",
-    () => true,
-  );
-}
-
-export async function saveActiveVersionFolderChange(
-  versionFolder: VersionFolders,
-): Promise<boolean> {
-  return invoke_rpc(
-    "update_setting_value",
-    { key: "active_version_folder", val: versionFolder },
     () => false,
     "Couldn't save active version change",
     () => true,

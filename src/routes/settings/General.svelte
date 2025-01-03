@@ -12,7 +12,7 @@
     setInstallationDirectory,
     setLocale,
   } from "$lib/rpc/config";
-  import { getActiveVersion, getActiveVersionFolder } from "$lib/rpc/versions";
+  import { getActiveVersion } from "$lib/rpc/versions";
   import { VersionStore } from "$lib/stores/VersionStore";
   import {
     Button,
@@ -192,7 +192,6 @@
           const result = resetLauncherSettingsToDefaults();
           if (result) {
             // TODO - move these to a store method
-            $VersionStore.activeVersionType = await getActiveVersionFolder();
             $VersionStore.activeVersionName = await getActiveVersion();
           }
         }

@@ -161,11 +161,11 @@ fn dump_per_game_info(
     CommandError::Support("Unable to append iso metadata to support package".to_owned())
   })?;
 
-  if config_lock.active_version_folder.is_some() && config_lock.active_version_folder.is_some() {
+  if config_lock.active_version.is_some() {
     let data_dir = active_version_dir.join(&game_name).join("data");
     let version_data_dir = install_path
       .join("versions")
-      .join(config_lock.active_version_folder.as_ref().unwrap())
+      .join("official")
       .join(config_lock.active_version.as_ref().unwrap())
       .join("data");
     package
