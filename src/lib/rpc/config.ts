@@ -339,10 +339,11 @@ export async function setEnabledTexturePacks(
   packs: string[],
 ): Promise<FeatureJobOutput> {
   return await invoke_rpc(
-    "set_enabled_texture_packs",
+    "update_mods_setting_value",
     {
+      key: "add_texture_packs",
       gameName: gameName,
-      packs: packs,
+      texturePacks: packs,
     },
     () => failed("Failed to update texture pack list"),
     undefined,

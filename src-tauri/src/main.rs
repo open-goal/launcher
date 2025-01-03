@@ -166,7 +166,6 @@ fn main() {
       commands::config::is_avx_requirement_met,
       commands::config::is_opengl_requirement_met,
       commands::config::reset_to_defaults,
-      commands::config::set_enabled_texture_packs,
       commands::config::set_install_directory,
       commands::config::get_setting_value,
       commands::config::update_setting_value,

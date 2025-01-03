@@ -539,14 +539,18 @@ impl LauncherConfig {
     source_name: Option<String>,
     version_name: Option<String>,
     mod_name: Option<String>,
+    texture_packs: Option<Vec<String>>,
   ) -> Result<(), ConfigError> {
     let game_config = self.get_supported_game_config_mut(&game_name)?;
     let source = source_name.unwrap_or("".to_owned());
     let version = version_name.unwrap_or("".to_owned());
     let mod_name = mod_name.unwrap_or("".to_owned());
+    let texture_packs = texture_packs.unwrap_or(Vec::new());
 
     match key {
-      // "add_texture_packs" => game_config.features.texture_packs,
+      "add_texture_packs" => {
+        game_config.features.texture_packs = texture_packs;
+      }
       "add_mod" => {
         game_config
           .mods_installed_version

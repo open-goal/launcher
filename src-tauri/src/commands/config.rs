@@ -59,10 +59,17 @@ pub async fn update_mods_setting_value(
   source_name: Option<String>,
   version_name: Option<String>,
   mod_name: Option<String>,
+  texture_packs: Option<Vec<String>>,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
-  match &config_lock.update_mods_setting_value(&key, game_name, source_name, version_name, mod_name)
-  {
+  match &config_lock.update_mods_setting_value(
+    &key,
+    game_name,
+    source_name,
+    version_name,
+    mod_name,
+    texture_packs,
+  ) {
     Ok(()) => Ok(()),
     Err(e) => {
       log::error!("Unable to get setting directory: {:?}", e);
@@ -159,21 +166,6 @@ pub async fn cleanup_enabled_texture_packs(
     .cleanup_game_enabled_texture_packs(&game_name, cleanup_list)
     .map_err(|_| {
       CommandError::Configuration("Unable to cleanup enabled texture packs".to_owned())
-    })?;
-  Ok(())
-}
-
-#[tauri::command]
-pub async fn set_enabled_texture_packs(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
-  packs: Vec<String>,
-) -> Result<(), CommandError> {
-  let mut config_lock = config.lock().await;
-  config_lock
-    .set_game_enabled_texture_packs(&game_name, packs)
-    .map_err(|_| {
-      CommandError::Configuration("Unable to persist change to enabled texture packs".to_owned())
     })?;
   Ok(())
 }
