@@ -566,6 +566,7 @@ pub async fn save_mod_install_info(
       Some(source_name),
       Some(version_name),
       Some(mod_name),
+      None,
     )
     .map_err(|err| {
       log::error!("Unable to remove mod source: {:?}", err);
@@ -746,6 +747,7 @@ pub async fn uninstall_mod(
       Some(source_name),
       None,
       Some(mod_name),
+      None,
     )
     .map_err(|_| CommandError::GameFeatures("Unable to uninstall mod".to_owned()))?;
   Ok(())

@@ -59,10 +59,17 @@ pub async fn update_mods_setting_value(
   source_name: Option<String>,
   version_name: Option<String>,
   mod_name: Option<String>,
+  texture_packs: Option<Vec<String>>,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
-  match &config_lock.update_mods_setting_value(&key, game_name, source_name, version_name, mod_name)
-  {
+  match &config_lock.update_mods_setting_value(
+    &key,
+    game_name,
+    source_name,
+    version_name,
+    mod_name,
+    texture_packs,
+  ) {
     Ok(()) => Ok(()),
     Err(e) => {
       log::error!("Unable to get setting directory: {:?}", e);
@@ -164,21 +171,6 @@ pub async fn cleanup_enabled_texture_packs(
 }
 
 #[tauri::command]
-pub async fn set_enabled_texture_packs(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
-  packs: Vec<String>,
-) -> Result<(), CommandError> {
-  let mut config_lock = config.lock().await;
-  config_lock
-    .set_game_enabled_texture_packs(&game_name, packs)
-    .map_err(|_| {
-      CommandError::Configuration("Unable to persist change to enabled texture packs".to_owned())
-    })?;
-  Ok(())
-}
-
-#[tauri::command]
 pub async fn does_active_tooling_version_support_game(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: String,
@@ -210,21 +202,13 @@ pub async fn does_active_tooling_version_meet_minimum(
   minimum_major: u64,
 ) -> Result<bool, CommandError> {
   let config_lock = config.lock().await;
-  match &config_lock.active_version {
-    Some(version) => {
-      // If we can't determine the version, assume 0,0,0
-      let tooling_version = Version::parse(version.strip_prefix('v').unwrap_or(&version))
-        .unwrap_or(Version::new(0, 0, 0));
-      let compare_version = Version::new(minimum_major, minimum_minor, minimum_patch);
-      if tooling_version >= compare_version {
-        Ok(true)
-      } else {
-        Ok(false)
-      }
-    }
-    None => {
-      log::warn!("No active tooling version set, can't check if the minimum!");
-      Ok(false)
-    }
+  if let Some(version) = &config_lock.active_version {
+    let tooling_version = Version::parse(version.strip_prefix('v').unwrap_or(version))
+      .unwrap_or_else(|_| Version::new(0, 0, 0));
+    let compare_version = Version::new(minimum_major, minimum_minor, minimum_patch);
+    Ok(tooling_version >= compare_version)
+  } else {
+    log::warn!("No active tooling version set, can't check if the minimum!");
+    Ok(false)
   }
 }
