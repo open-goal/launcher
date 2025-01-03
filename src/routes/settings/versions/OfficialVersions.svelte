@@ -33,7 +33,6 @@
       releases = [
         ...releases,
         {
-          releaseType: "official",
           version: version,
           date: undefined,
           githubLink: undefined,
@@ -66,7 +65,6 @@
       releases = [
         ...releases,
         {
-          releaseType: "official",
           version: release.version,
           date: release.date,
           githubLink: release.githubLink,
@@ -81,6 +79,7 @@
 
     // filter incompatible releases
     releases = releases.filter((r) => r.downloadUrl !== undefined);
+    releases = releases.filter((r) => !r.invalid);
 
     // Sort releases by published date
     releases = releases.sort((a, b) => {
@@ -100,10 +99,8 @@
     versionsLoaded = true;
   }
 
-  async function saveOfficialVersionChange() {
-    const success = await saveActiveVersionChange(
-      $VersionStore.selectedVersions.official,
-    );
+  async function saveOfficialVersionChange({ detail }) {
+    const success = await saveActiveVersionChange(detail.version);
     if (success) {
       toastStore.makeToast($_("toasts_savedToolingVersion"), "info");
     }
@@ -139,28 +136,27 @@
       }
     }
     releases = releases;
-    $VersionStore.selectedVersions.official = event.detail.version;
-    await saveOfficialVersionChange();
+    await saveActiveVersionChange(event.detail.version);
   }
 
-  async function onRemoveVersion(event: any) {
+  async function onRemoveVersion({ detail }) {
     // Mark that release as being downloaded
     for (const release of releases) {
-      if (release.version === event.detail.version) {
+      if (release.version === detail.version) {
         release.pendingAction = true;
       }
     }
     releases = releases;
-    const ok = await removeVersion(event.detail.version);
+    const ok = await removeVersion(detail.version);
     if (ok) {
       // Update the store, if we removed the active version
-      if ($VersionStore.activeVersionName === event.detail.version) {
+      if ($VersionStore.activeVersionName === detail.version) {
         $VersionStore.activeVersionName = null;
       }
 
       // Then mark it as not downloaded
       for (const release of releases) {
-        if (release.version === event.detail.version) {
+        if (release.version === detail.version) {
           release.pendingAction = false;
           release.isDownloaded = false;
         }
@@ -171,9 +167,6 @@
 
   async function onRedownloadVersion(event: any) {
     // If we are redownloading the version that is currently selected (but not active, get rid of the selection)
-    if ($VersionStore.activeVersionType === "official") {
-      $VersionStore.selectedVersions.official = $VersionStore.activeVersionName;
-    }
     await onRemoveVersion(event);
     await onDownloadVersion(event);
   }
@@ -183,7 +176,6 @@
   description={$_("settings_versions_official_description")}
   releaseList={releases}
   loaded={versionsLoaded}
-  releaseType="official"
   on:openVersionFolder={openOfficialVersionFolder}
   on:refreshVersions={refreshVersionList}
   on:versionChange={saveOfficialVersionChange}

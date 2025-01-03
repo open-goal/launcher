@@ -139,6 +139,9 @@
     class="flex flex-col text-neutral-300 mr-2 pointer-events-none max-w-[250px]"
   >
     <p class="font-mono text-sm truncate-text">
+      {launcherVerison === null ? "not set!" : launcherVerison}
+    </p>
+    <p class="font-mono text-sm truncate-text">
       {$VersionStore.activeVersionName === null
         ? "not set!"
         : $VersionStore.activeVersionName}
