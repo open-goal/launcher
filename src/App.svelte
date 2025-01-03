@@ -1,5 +1,4 @@
 <script lang="ts">
-  // Other Imports
   import { onDestroy, onMount } from "svelte";
   import { Router, Route } from "svelte-navigator";
   import Game from "./routes/Game.svelte";
@@ -23,13 +22,6 @@
 
   // Events
   onMount(async () => {
-    // Temporary fix related to https://github.com/open-goal/launcher/issues/110
-    // NOTE - this doesn't feel required anymore after i fixed the window switching
-    // but let's keep it for now because im paranoid about the issue cropping up again...
-    if (window.sessionStorage.getItem("refreshHack") !== "true") {
-      location.reload();
-      window.sessionStorage.setItem("refreshHack", "true");
-    }
     // Set locale from settings
     const locale = await getLocale();
     if (locale !== null) {

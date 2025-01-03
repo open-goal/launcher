@@ -24,7 +24,7 @@
   const dispatch = createEventDispatcher();
 
   onMount(async () => {
-    isAVXMet = await isAVXRequirementMet(false);
+    isAVXMet = await isAVXRequirementMet();
     isOpenGLMet = await isOpenGLRequirementMet(false);
     isDiskSpaceMet = await isDiskSpaceRequirementMet(
       getInternalName(activeGame),
@@ -168,7 +168,7 @@
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       on:click={async () => {
-        isAVXMet = await isAVXRequirementMet(true);
+        isAVXMet = await isAVXRequirementMet();
         isOpenGLMet = await isOpenGLRequirementMet(true);
         dispatch("recheckRequirements");
       }}>{$_("requirements_button_recheck")}</Button

@@ -15,7 +15,6 @@
   const dispatch = createEventDispatcher();
 
   export let installedVersion: String | undefined;
-  export let installedVersionFolder: String | undefined;
 
   let displayVCCWarning = false;
 
@@ -49,10 +48,6 @@
         {$_("gameUpdate_versionMismatch_version")}:
         <strong>{installedVersion}</strong>
       </li>
-      <li>
-        {$_("gameUpdate_versionMismatch_type")}:
-        <strong>{installedVersionFolder}</strong>
-      </li>
     </ul>
     <p class="text-base text-gray-500 dark:text-gray-400 mb-1">
       ...{$_("gameUpdate_versionMismatch_currentlySelected")}
@@ -61,10 +56,6 @@
       <li>
         {$_("gameUpdate_versionMismatch_version")}:
         <strong>{$VersionStore.activeVersionName}</strong>
-      </li>
-      <li>
-        {$_("gameUpdate_versionMismatch_type")}:
-        <strong>{$VersionStore.activeVersionType}</strong>
       </li>
     </ul>
     {#if displayVCCWarning}

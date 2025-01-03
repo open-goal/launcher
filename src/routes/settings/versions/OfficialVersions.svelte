@@ -3,7 +3,6 @@
   import {
     downloadOfficialVersion,
     getActiveVersion,
-    getActiveVersionFolder,
     listDownloadedVersions,
     openVersionFolder,
     removeVersion,
@@ -26,19 +25,14 @@
   async function refreshVersionList() {
     versionsLoaded = false;
     // Reset store to defaults (TODO, move this to a store method)
-    $VersionStore.activeVersionType = await getActiveVersionFolder();
     $VersionStore.activeVersionName = await getActiveVersion();
-    if ($VersionStore.activeVersionType === "official") {
-      $VersionStore.selectedVersions.official = $VersionStore.activeVersionName;
-    }
     // Check the backend to see if the folder has any versions
-    const installedVersions = await listDownloadedVersions("official");
+    const installedVersions = await listDownloadedVersions();
     releases = [];
     for (const version of installedVersions) {
       releases = [
         ...releases,
         {
-          releaseType: "official",
           version: version,
           date: undefined,
           githubLink: undefined,
@@ -71,7 +65,6 @@
       releases = [
         ...releases,
         {
-          releaseType: "official",
           version: release.version,
           date: release.date,
           githubLink: release.githubLink,
@@ -86,6 +79,7 @@
 
     // filter incompatible releases
     releases = releases.filter((r) => r.downloadUrl !== undefined);
+    releases = releases.filter((r) => !r.invalid);
 
     // Sort releases by published date
     releases = releases.sort((a, b) => {
@@ -105,20 +99,15 @@
     versionsLoaded = true;
   }
 
-  async function saveOfficialVersionChange() {
-    const success = await saveActiveVersionChange(
-      "official",
-      $VersionStore.selectedVersions.official,
-    );
+  async function saveOfficialVersionChange({ detail }) {
+    const success = await saveActiveVersionChange(detail.version);
     if (success) {
-      $VersionStore.activeVersionType = "official";
-      $VersionStore.activeVersionName = $VersionStore.selectedVersions.official;
       toastStore.makeToast($_("toasts_savedToolingVersion"), "info");
     }
   }
 
   async function openOfficialVersionFolder() {
-    openVersionFolder("official");
+    openVersionFolder();
   }
 
   async function onDownloadVersion(event: any) {
@@ -147,33 +136,27 @@
       }
     }
     releases = releases;
-    $VersionStore.selectedVersions.official = event.detail.version;
-    await saveOfficialVersionChange();
+    await saveActiveVersionChange(event.detail.version);
   }
 
-  async function onRemoveVersion(event: any) {
+  async function onRemoveVersion({ detail }) {
     // Mark that release as being downloaded
     for (const release of releases) {
-      if (release.version === event.detail.version) {
+      if (release.version === detail.version) {
         release.pendingAction = true;
       }
     }
     releases = releases;
-    const ok = await removeVersion(event.detail.version, "official");
+    const ok = await removeVersion(detail.version);
     if (ok) {
       // Update the store, if we removed the active version
-      if (
-        $VersionStore.activeVersionName === event.detail.version &&
-        $VersionStore.activeVersionType === "official"
-      ) {
+      if ($VersionStore.activeVersionName === detail.version) {
         $VersionStore.activeVersionName = null;
-        $VersionStore.activeVersionType = null;
-        $VersionStore.selectedVersions.official = null;
       }
 
       // Then mark it as not downloaded
       for (const release of releases) {
-        if (release.version === event.detail.version) {
+        if (release.version === detail.version) {
           release.pendingAction = false;
           release.isDownloaded = false;
         }
@@ -184,9 +167,6 @@
 
   async function onRedownloadVersion(event: any) {
     // If we are redownloading the version that is currently selected (but not active, get rid of the selection)
-    if ($VersionStore.activeVersionType === "official") {
-      $VersionStore.selectedVersions.official = $VersionStore.activeVersionName;
-    }
     await onRemoveVersion(event);
     await onDownloadVersion(event);
   }
@@ -196,7 +176,6 @@
   description={$_("settings_versions_official_description")}
   releaseList={releases}
   loaded={versionsLoaded}
-  releaseType="official"
   on:openVersionFolder={openOfficialVersionFolder}
   on:refreshVersions={refreshVersionList}
   on:versionChange={saveOfficialVersionChange}

@@ -14,12 +14,11 @@ pub async fn refresh_mod_sources(
 ) -> Result<(), CommandError> {
   let mut cache_lock = cache.lock().await;
   let config_lock = config.lock().await;
-  if let Some(mod_sources) = &config_lock.mod_sources {
-    cache_lock
-      .refresh_mod_sources(mod_sources.to_vec())
-      .await
-      .map_err(|_| CommandError::Cache("Unable to refresh mod source cache".to_owned()))?;
-  }
+  let mod_sources = config_lock.mod_sources.clone();
+  cache_lock
+    .refresh_mod_sources(mod_sources)
+    .await
+    .map_err(|_| CommandError::Cache("Unable to refresh mod source cache".to_owned()))?;
   Ok(())
 }
 

@@ -109,9 +109,10 @@ export async function addModSource(
   }
 
   return await invoke_rpc(
-    "add_mod_source",
+    "update_setting_value",
     {
-      url: url,
+      key: "add_mod_source",
+      val: url,
     },
     () => false,
     "Unable to add mod source",
@@ -119,11 +120,12 @@ export async function addModSource(
   );
 }
 
-export async function removeModSource(modSourceIndex: number): Promise<void> {
+export async function removeModSource(modSource: string): Promise<void> {
   await invoke_rpc(
-    "remove_mod_source",
+    "update_setting_value",
     {
-      modSourceIndex: modSourceIndex,
+      key: "remove_mod_source",
+      val: modSource,
     },
     () => {
       toastStore.makeToast(
@@ -139,7 +141,11 @@ export interface ModSource {
 }
 
 export async function getModSources(): Promise<ModSource[]> {
-  return await invoke_rpc("get_mod_sources", {}, () => []);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "mod_sources" },
+    () => [],
+  );
 }
 
 export async function extractNewMod(
@@ -229,10 +235,14 @@ export async function saveModInstallInfo(
 export async function getInstalledMods(
   gameName: string,
 ): Promise<Record<string, Record<string, string>>> {
-  return await invoke_rpc("get_installed_mods", { gameName }, () => {
-    let ret: Record<string, Record<string, string>> = {};
-    return ret;
-  });
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "installed_mods", gameName },
+    () => {
+      let ret: Record<string, Record<string, string>> = {};
+      return ret;
+    },
+  );
 }
 
 export async function launchMod(

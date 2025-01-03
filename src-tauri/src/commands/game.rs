@@ -70,7 +70,7 @@ pub async fn uninstall_game(
   }?;
 
   config_lock
-    .update_installed_game_version(&game_name, false)
+    .update_setting_value("installed", false.into(), Some(game_name))
     .map_err(|_| {
       CommandError::GameManagement("Unable to persist game installation status".to_owned())
     })?;

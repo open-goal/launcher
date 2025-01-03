@@ -2,11 +2,11 @@
 #![allow(dead_code)]
 extern crate rustc_serialize;
 
-use rustc_serialize::base64::{FromBase64, ToBase64, MIME};
+use rustc_serialize::base64::{ToBase64, MIME};
 use rustc_serialize::hex::ToHex;
 use std::{
   fs::File,
-  io::{BufRead, Read},
+  io::Read,
   path::{Path, PathBuf},
 };
 
