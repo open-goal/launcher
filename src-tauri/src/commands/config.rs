@@ -173,8 +173,6 @@ pub async fn is_avx_requirement_met(
       }
       #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
       {
-        // TODO - macOS check if on atleast sequoia and rosetta 2 is installed
-        // TODO - before merge
         config_lock.requirements.avx = Some(false);
       }
       config_lock.save_config().map_err(|err| {
