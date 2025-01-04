@@ -199,20 +199,8 @@ fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> 
 
   // Migrate requirements
   if let Some(requirements) = json_value.get("requirements") {
-    new_config.requirements.bypass_requirements = requirements
-      .get("bypassRequirements")
-      .and_then(|v| v.as_bool())
-      .unwrap_or(new_config.requirements.bypass_requirements);
-
-    new_config.requirements.avx = requirements
-      .get("avx")
-      .and_then(|v| v.as_bool())
-      .unwrap_or(new_config.requirements.avx);
-
-    new_config.requirements.opengl = requirements
-      .get("openGL")
-      .and_then(|v| v.as_bool())
-      .unwrap_or(new_config.requirements.opengl);
+    new_config.requirements =
+      serde_json::from_value(requirements.clone()).unwrap_or_else(|_| Requirements::default());
   }
 
   // Migrate games
@@ -269,6 +257,12 @@ fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> 
       .iter()
       .filter_map(|v| v.as_str().map(String::from))
       .collect();
+  }
+
+  // Migrate decompiler settings
+  if let Some(decompiler_settings) = json_value.get("decompilerSettings") {
+    new_config.decompiler_settings = serde_json::from_value(decompiler_settings.clone())
+      .unwrap_or_else(|_| DecompilerSettings::default());
   }
 
   // Default values for fields not in old config
