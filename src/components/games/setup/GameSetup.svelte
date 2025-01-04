@@ -22,13 +22,14 @@
   import { progressTracker } from "$lib/stores/ProgressStore";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { _ } from "svelte-i18n";
-  import { type } from "@tauri-apps/api/os";
+  import { arch, type } from "@tauri-apps/api/os";
+  import { isMacOSVersion15OrAbove } from "$lib/rpc/util";
 
   export let activeGame: SupportedGame;
 
   const dispatch = createEventDispatcher();
 
-  let requirementsMet = true;
+  let requirementsMet: boolean | undefined = true;
   let installing = false;
   let installationError = undefined;
   let proceedAfterSuccessfulOperation = true;
@@ -41,19 +42,31 @@
   });
 
   async function checkRequirements() {
-    // Check requirements
-    const isAvxMet = await isAVXRequirementMet(false);
+    const architecture = await arch();
+    const osType = await type();
     const isOpenGLMet = await isOpenGLRequirementMet(false);
     const isDiskSpaceMet = await isDiskSpaceRequirementMet(
       getInternalName(activeGame),
     );
-    const osType = await type();
-    if (osType == "Windows_NT") {
-      const isVCCInstalled = await isMinimumVCCRuntimeInstalled();
-      requirementsMet =
-        isAvxMet && isOpenGLMet && isDiskSpaceMet && isVCCInstalled;
+    if (architecture === "aarch64") {
+      // arm, we don't bother checking for simd
+      // - if macOS (the only supported ARM platform), we check they are on atleast macOS 15
+      // there is no easy way to check to see if they have rosetta 2, if you know of one, contribute it
+      if (osType !== "Darwin") {
+        requirementsMet = false;
+        return;
+      }
+      const macOSVersionSufficient = await isMacOSVersion15OrAbove();
+      requirementsMet = macOSVersionSufficient && isOpenGLMet && isDiskSpaceMet;
     } else {
-      requirementsMet = isAvxMet && isOpenGLMet && isDiskSpaceMet;
+      const isAvxMet = await isAVXRequirementMet(false);
+      if (osType == "Windows_NT") {
+        const isVCCInstalled = await isMinimumVCCRuntimeInstalled();
+        requirementsMet =
+          isAvxMet && isOpenGLMet && isDiskSpaceMet && isVCCInstalled;
+      } else {
+        requirementsMet = isAvxMet && isOpenGLMet && isDiskSpaceMet;
+      }
     }
   }
 
