@@ -102,7 +102,9 @@
       rounded={false}
       color={alertColor(!isTryingToUseARMOutsideOfMacOS)}
     >
-      <span class="font-bold">{$_("requirements_armNotSupportedOutsideMacOS")}</span>
+      <span class="font-bold"
+        >{$_("requirements_armNotSupportedOutsideMacOS")}</span
+      >
     </Alert>
   {:else}
     <Alert
@@ -111,11 +113,16 @@
       color={alertColor(isMacOSVersionSufficient)}
     >
       {#if isMacOSVersionSufficient}
-        <span class="font-bold">{$_("requirements_macos_atleastVersion15")}</span>
+        <span class="font-bold"
+          >{$_("requirements_macos_atleastVersion15")}</span
+        >
       {:else if isMacOSVersionSufficient === undefined}
-        <span class="font-bold">{$_("requirements_macos_unableToCheckVersion")}</span>
+        <span class="font-bold"
+          >{$_("requirements_macos_unableToCheckVersion")}</span
+        >
       {:else}
-        <span class="font-bold">{$_("requirements_macos_notAtleastVersion15")}</span
+        <span class="font-bold"
+          >{$_("requirements_macos_notAtleastVersion15")}</span
         >
       {/if}
     </Alert>
