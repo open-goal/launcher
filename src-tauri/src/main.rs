@@ -229,6 +229,7 @@ fn main() {
       commands::logging::frontend_log,
       commands::support::generate_support_package,
       commands::util::path_exists,
+      commands::util::is_macos_version_15_or_above,
       commands::versions::download_version,
       commands::versions::ensure_active_version_still_exists,
       commands::versions::go_to_version_folder,

@@ -43,6 +43,7 @@ zip-extract = "0.2.1"
 tempfile = "3.13.0"
 native-dialog = "0.7.0"
 tokio-util = "0.7.12"
+sysctl = "0.6.0"
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.52.0"
