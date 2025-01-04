@@ -122,7 +122,7 @@
             >
               <Button
                 class="py-0 dark:bg-transparent focus:ring-0 disabled:opacity-50"
-                disabled={release.pendingAction || !release.isDownloaded}
+                disabled={release.pendingAction}
                 on:click={async () => handleAction(release)}
               >
                 {#if release.isDownloaded}
