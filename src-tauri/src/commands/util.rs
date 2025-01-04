@@ -1,4 +1,5 @@
 use std::path::Path;
+#[cfg(target_os = "macos")]
 use sysctl::Sysctl;
 use tauri::Manager;
 
