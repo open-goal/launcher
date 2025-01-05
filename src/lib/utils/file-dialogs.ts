@@ -60,7 +60,7 @@ export async function isoPrompt(
   fileExplanation: string,
   title: string,
 ): Promise<string | undefined> {
-  const path = await filePrompt(["ISO, zip", "iso"], fileExplanation, title);
+  const path = await filePrompt(["ISO", "iso"], fileExplanation, title);
   if (path === null) {
     return undefined;
   }
