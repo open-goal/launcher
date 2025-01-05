@@ -11,6 +11,8 @@
     setBypassRequirements,
     setInstallationDirectory,
     setLocale,
+    setAutoUninstallOldVersions,
+    getAutoUninstallOldVersions,
   } from "$lib/rpc/config";
   import { getActiveVersion } from "$lib/rpc/versions";
   import { VersionStore } from "$lib/stores/VersionStore";
@@ -39,12 +41,11 @@
   let uninstallOldVersions = writable(false);
   let localeFontForDownload: Locale | undefined = undefined;
   let localeFontDownloading = false;
+  let initialized = false;
 
   onMount(async () => {
-    let autoUpdateGames = await getAutoUpdateGames();
-    keepGamesUpdated.set(autoUpdateGames);
-    // let shouldUninstallOldVersions = await getShouldUninstallOldVersions(); // TODO!
-    // uninstallOldVersions.set(shouldUninstallOldVersions); // dependent on getter function
+    keepGamesUpdated.set(await getAutoUpdateGames());
+    uninstallOldVersions.set(await getAutoUninstallOldVersions());
     currentInstallationDirectory = await getInstallationDirectory();
     for (const locale of AVAILABLE_LOCALES) {
       availableLocales = [
@@ -61,7 +62,16 @@
       localeFontForDownload =
         await localeSpecificFontAvailableForDownload($currentLocale);
     }
+    initialized = true;
   });
+
+  $: if (initialized) {
+    setAutoUpdateGames($keepGamesUpdated);
+  }
+
+  $: if (initialized) {
+    setAutoUninstallOldVersions($uninstallOldVersions);
+  }
 </script>
 
 <div class="flex flex-col gap-5 mt-2">
@@ -153,10 +163,8 @@
   <div>
     <Toggle
       color="orange"
-      checked={$keepGamesUpdated}
+      bind:checked={$keepGamesUpdated}
       on:change={async () => {
-        $keepGamesUpdated = !$keepGamesUpdated;
-        await setAutoUpdateGames($keepGamesUpdated);
         $uninstallOldVersions = false;
       }}
       class="mb-2">Automatically keep games updated (experimental)</Toggle
@@ -164,9 +172,8 @@
     {#if $keepGamesUpdated}
       <Toggle
         color="orange"
-        checked={$uninstallOldVersions}
-        class="ml-14 mb-2"
-        hidden={$keepGamesUpdated}>Automatically uninstall old versions</Toggle
+        bind:checked={$uninstallOldVersions}
+        class="ml-14 mb-2">Automatically uninstall old versions</Toggle
       >
     {/if}
     <Toggle
