@@ -234,6 +234,24 @@ export async function getAutoUpdateGames(): Promise<boolean> {
   );
 }
 
+export async function setAutoUninstallOldVersions(
+  value: boolean,
+): Promise<void> {
+  return await invoke_rpc(
+    "update_setting_value",
+    { key: "delete_previous_versions", val: value },
+    () => {},
+  );
+}
+
+export async function getAutoUninstallOldVersions(): Promise<boolean> {
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "delete_previous_versions" },
+    () => false,
+  );
+}
+
 export async function setBypassRequirements(bypass: boolean): Promise<void> {
   return await invoke_rpc(
     "update_setting_value",

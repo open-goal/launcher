@@ -11,6 +11,8 @@
     setBypassRequirements,
     setInstallationDirectory,
     setLocale,
+    setAutoUninstallOldVersions,
+    getAutoUninstallOldVersions,
   } from "$lib/rpc/config";
   import { getActiveVersion } from "$lib/rpc/versions";
   import { VersionStore } from "$lib/stores/VersionStore";
@@ -36,12 +38,14 @@
   let availableLocales = [];
   let currentBypassRequirementsVal = false;
   let keepGamesUpdated = writable(false);
+  let uninstallOldVersions = writable(false);
   let localeFontForDownload: Locale | undefined = undefined;
   let localeFontDownloading = false;
+  let initialized = false;
 
   onMount(async () => {
-    let autoUpdateGames = await getAutoUpdateGames();
-    keepGamesUpdated.set(autoUpdateGames);
+    keepGamesUpdated.set(await getAutoUpdateGames());
+    uninstallOldVersions.set(await getAutoUninstallOldVersions());
     currentInstallationDirectory = await getInstallationDirectory();
     for (const locale of AVAILABLE_LOCALES) {
       availableLocales = [
@@ -58,7 +62,16 @@
       localeFontForDownload =
         await localeSpecificFontAvailableForDownload($currentLocale);
     }
+    initialized = true;
   });
+
+  $: if (initialized) {
+    setAutoUpdateGames($keepGamesUpdated);
+  }
+
+  $: if (initialized) {
+    setAutoUninstallOldVersions($uninstallOldVersions);
+  }
 </script>
 
 <div class="flex flex-col gap-5 mt-2">
@@ -150,13 +163,19 @@
   <div>
     <Toggle
       color="orange"
-      checked={$keepGamesUpdated}
+      bind:checked={$keepGamesUpdated}
       on:change={async () => {
-        $keepGamesUpdated = !$keepGamesUpdated;
-        await setAutoUpdateGames($keepGamesUpdated);
+        $uninstallOldVersions = false;
       }}
-      class="mb-2">Automatically keep games updated (experimental)</Toggle
+      class="mb-2">{$_("settings_general_keep_updated")}</Toggle
     >
+    {#if $keepGamesUpdated}
+      <Toggle
+        color="orange"
+        bind:checked={$uninstallOldVersions}
+        class="ml-14 mb-2">{$_("settings_general_uninstall_old")}</Toggle
+      >
+    {/if}
     <Toggle
       checked={currentBypassRequirementsVal}
       color="orange"

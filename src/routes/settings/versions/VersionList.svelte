@@ -21,6 +21,7 @@
   import { _ } from "svelte-i18n";
   import { getActiveVersion } from "$lib/rpc/versions";
   import { writable } from "svelte/store";
+  import { VersionStore } from "$lib/stores/VersionStore";
 
   export let description: string;
   export let releaseList: ReleaseInfo[];
@@ -107,7 +108,7 @@
             <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
               {#if release.isDownloaded}
                 <Radio
-                  bind:group={$activeVersion}
+                  bind:group={$VersionStore.activeVersionName}
                   value={release.version}
                   on:change={() =>
                     dispatch("versionChange", { version: release.version })}
