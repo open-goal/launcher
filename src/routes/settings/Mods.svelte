@@ -89,7 +89,7 @@
                 ><Button
                   class="p-0 m-3 hover:text-red-500"
                   on:click={async () => {
-                    await removeModSource(i);
+                    await removeModSource(source);
                     await refreshModSourceData();
                   }}
                   ><IconDeleteForever

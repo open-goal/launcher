@@ -45,7 +45,7 @@
         isMacOSVersionSufficient = await isMacOSVersion15OrAbove();
       }
     } else {
-      isAVXMet = await isAVXRequirementMet(false);
+      isAVXMet = await isAVXRequirementMet();
       if (osType == "Windows_NT") {
         isVCCInstalled = await isMinimumVCCRuntimeInstalled();
       }
@@ -221,7 +221,7 @@
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       on:click={async () => {
-        isAVXMet = await isAVXRequirementMet(true);
+        isAVXMet = await isAVXRequirementMet();
         isOpenGLMet = await isOpenGLRequirementMet(true);
         isMacOSVersionSufficient = await isMacOSVersion15OrAbove();
         dispatch("recheckRequirements");
