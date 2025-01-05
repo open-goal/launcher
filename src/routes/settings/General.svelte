@@ -167,13 +167,13 @@
       on:change={async () => {
         $uninstallOldVersions = false;
       }}
-      class="mb-2">Automatically keep games updated (experimental)</Toggle
+      class="mb-2">{$_("settings_keep_updated")}</Toggle
     >
     {#if $keepGamesUpdated}
       <Toggle
         color="orange"
         bind:checked={$uninstallOldVersions}
-        class="ml-14 mb-2">Automatically uninstall old versions</Toggle
+        class="ml-14 mb-2">{$_("settings_uninstall_old")}</Toggle
       >
     {/if}
     <Toggle

@@ -53,7 +53,7 @@ export async function openVersionFolder() {
   return await invoke_rpc(
     "go_to_version_folder",
     { versionFolder: "official" },
-    () => { },
+    () => {},
     "Unable to open version folder",
   );
 }
