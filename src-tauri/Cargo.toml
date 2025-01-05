@@ -1,6 +1,6 @@
 [package]
 name = "opengoal-launcher"
-version = "2.5.4" # APP_VERSION
+version = "2.6.0" # APP_VERSION
 description = "A frontend for the OpenGOAL project"
 authors = ["OpenGOAL"]
 license = "ISC"
