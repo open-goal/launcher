@@ -2,7 +2,10 @@ use crate::config::LauncherConfig;
 use crate::util::file::delete_dir;
 use serde_json::Value;
 use std::path::Path;
+#[cfg(target_os = "macos")]
+use sysctl::Sysctl;
 use sysinfo::Disks;
+use tauri::Manager;
 
 use super::CommandError;
 
@@ -121,4 +124,24 @@ pub async fn is_avx_supported() -> bool {
 pub async fn is_avx_supported() -> bool {
   // TODO - macOS check if on atleast sequoia and rosetta 2 is installed
   return false;
+}
+
+#[cfg(not(target_os = "macos"))]
+#[tauri::command]
+pub async fn is_macos_version_15_or_above() -> Result<bool, CommandError> {
+  return Ok(false);
+}
+
+#[cfg(target_os = "macos")]
+#[tauri::command]
+pub async fn is_macos_version_15_or_above() -> Result<bool, CommandError> {
+  if let Ok(ctl) = sysctl::Ctl::new("kern.osproductversion") {
+    if let Ok(ctl_val) = ctl.value_string() {
+      let version = ctl_val.parse::<f32>();
+      if version.is_ok() {
+        return Ok(version.unwrap() >= 15.0);
+      }
+    }
+  }
+  Ok(false)
 }

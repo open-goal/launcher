@@ -81,21 +81,26 @@
     releases = releases.filter((r) => r.downloadUrl !== undefined);
     releases = releases.filter((r) => !r.invalid);
 
-    // Sort releases by published date
-    releases = releases.sort((a, b) => {
-      if (a.date === undefined) {
-        return 1;
-      }
-      if (b.date === undefined) {
-        return -1;
-      }
-      return b.date.localeCompare(a.date);
-    });
+    // if no releases are found, early out
+    if (releases.length > 0) {
+      // Sort releases by published date
+      releases = releases.sort((a, b) => {
+        if (a.date === undefined) {
+          return 1;
+        }
+        if (b.date === undefined) {
+          return -1;
+        }
+        return b.date.localeCompare(a.date);
+      });
 
-    // If we find the latest when refreshing, get rid of the notification
-    if ($UpdateStore.selectedTooling.updateAvailable) {
-      $UpdateStore.selectedTooling.updateAvailable = !releases[0].isDownloaded;
+      // If we find the latest when refreshing, get rid of the notification
+      if ($UpdateStore.selectedTooling.updateAvailable) {
+        $UpdateStore.selectedTooling.updateAvailable =
+          !releases[0].isDownloaded;
+      }
     }
+
     versionsLoaded = true;
   }
 

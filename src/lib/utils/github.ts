@@ -27,6 +27,18 @@ function isIntelMacOsRelease(
   );
 }
 
+function isArmMacOsRelease(
+  platform: string,
+  architecture: string,
+  assetName: string,
+): boolean {
+  return (
+    platform === "darwin" &&
+    architecture === "aarch64" &&
+    assetName.startsWith("opengoal-macos-arm-v")
+  );
+}
+
 function isWindowsRelease(
   platform: string,
   architecture: string,
@@ -50,6 +62,8 @@ async function getDownloadLinkForCurrentPlatform(
   const archName = await arch();
   for (const asset of release.assets) {
     if (isIntelMacOsRelease(platformName, archName, asset.name)) {
+      return asset.browser_download_url;
+    } else if (isArmMacOsRelease(platformName, archName, asset.name)) {
       return asset.browser_download_url;
     } else if (isWindowsRelease(platformName, archName, asset.name)) {
       return asset.browser_download_url;
