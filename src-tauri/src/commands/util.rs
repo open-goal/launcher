@@ -2,9 +2,9 @@ use crate::config::LauncherConfig;
 use crate::util::file::delete_dir;
 use serde_json::Value;
 use std::path::Path;
-use sysinfo::Disks;
 #[cfg(target_os = "macos")]
 use sysctl::Sysctl;
+use sysinfo::Disks;
 use tauri::Manager;
 
 use super::CommandError;
