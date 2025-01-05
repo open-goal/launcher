@@ -23,6 +23,7 @@
   import { generateSupportPackage } from "$lib/rpc/support";
   import { _ } from "svelte-i18n";
   import { type } from "@tauri-apps/api/os";
+  import { emit } from "@tauri-apps/api/event";
 
   export let activeGame: SupportedGame;
 
@@ -42,7 +43,7 @@
 
   async function checkRequirements() {
     // Check requirements
-    const isAvxMet = await isAVXRequirementMet(false);
+    const isAvxMet = await isAVXRequirementMet();
     const isOpenGLMet = await isOpenGLRequirementMet(false);
     const isDiskSpaceMet = await isDiskSpaceRequirementMet(
       getInternalName(activeGame),
@@ -122,6 +123,7 @@
       progressTracker.proceed();
       // TODO - technically should handle the error here too
       await finalizeInstallation(getInternalName(activeGame));
+      await emit("gameInstalled");
       progressTracker.proceed();
     }
   }

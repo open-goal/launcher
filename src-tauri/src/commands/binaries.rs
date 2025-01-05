@@ -19,7 +19,7 @@ use tauri::Manager;
 use crate::{
   config::LauncherConfig,
   util::{
-    file::{create_dir, overwrite_dir},
+    file::overwrite_dir,
     process::{create_log_file, create_std_log_file, watch_process},
   },
   TAURI_APP,
@@ -37,7 +37,6 @@ fn bin_ext(filename: &str) -> String {
 struct CommonConfigData {
   install_path: std::path::PathBuf,
   active_version: String,
-  active_version_folder: String,
   tooling_version: Version,
 }
 
@@ -66,21 +65,12 @@ fn common_prelude(
       "No active version set, can't perform operation".to_owned(),
     ))?;
 
-  let active_version_folder =
-    config
-      .active_version_folder
-      .as_ref()
-      .ok_or(CommandError::BinaryExecution(
-        "No active version folder set, can't perform operation".to_owned(),
-      ))?;
-
   let tooling_version = Version::parse(active_version.strip_prefix('v').unwrap_or(&active_version))
     .unwrap_or(Version::new(0, 1, 35)); // assume new format if none can be found
 
   Ok(CommonConfigData {
     install_path: install_path.to_path_buf(),
     active_version: active_version.clone(),
-    active_version_folder: active_version_folder.clone(),
     tooling_version: tooling_version,
   })
 }
@@ -146,7 +136,6 @@ fn copy_data_dir(config_info: &CommonConfigData, game_name: &String) -> Result<(
   let src_dir = config_info
     .install_path
     .join("versions")
-    .join(&config_info.active_version_folder)
     .join(&config_info.active_version)
     .join("data");
 
@@ -197,7 +186,7 @@ fn get_exec_location(
   let exec_dir = config_info
     .install_path
     .join("versions")
-    .join(&config_info.active_version_folder)
+    .join("official")
     .join(&config_info.active_version);
   let exec_path = exec_dir.join(bin_ext(executable_name));
   if !exec_path.exists() {
@@ -379,27 +368,30 @@ pub async fn run_decompiler(
 
   let mut decomp_config_overrides = vec![];
   if use_decomp_settings {
-    if let Some(decomp_settings) = &config_lock.decompiler_settings {
-      if let Some(rip_levels) = decomp_settings.rip_levels_enabled {
-        if rip_levels {
-          decomp_config_overrides.push(format!("\"rip_levels\": {rip_levels}"));
-        }
-      }
-      if let Some(rip_collision) = decomp_settings.rip_collision_enabled {
-        if rip_collision {
-          decomp_config_overrides.push(format!("\"rip_collision\": {rip_collision}"));
-        }
-      }
-      if let Some(rip_textures) = decomp_settings.rip_textures_enabled {
-        if rip_textures {
-          decomp_config_overrides.push(format!("\"save_texture_pngs\": {rip_textures}"));
-        }
-      }
-      if let Some(rip_streamed_audio) = decomp_settings.rip_streamed_audio_enabled {
-        if rip_streamed_audio {
-          decomp_config_overrides.push(format!("\"rip_streamed_audio\": {rip_streamed_audio}"));
-        }
-      }
+    let decomp_settings = &config_lock.decompiler_settings;
+    if decomp_settings.rip_levels_enabled {
+      decomp_config_overrides.push(format!(
+        "\"rip_levels\": {}",
+        decomp_settings.rip_levels_enabled
+      ));
+    }
+    if decomp_settings.rip_collision_enabled {
+      decomp_config_overrides.push(format!(
+        "\"rip_collision\": {}",
+        decomp_settings.rip_collision_enabled
+      ));
+    }
+    if decomp_settings.rip_textures_enabled {
+      decomp_config_overrides.push(format!(
+        "\"save_texture_pngs\": {}",
+        decomp_settings.rip_textures_enabled
+      ));
+    }
+    if decomp_settings.rip_streamed_audio_enabled {
+      decomp_config_overrides.push(format!(
+        "\"rip_streamed_audio\": {}",
+        decomp_settings.rip_streamed_audio_enabled
+      ));
     }
   }
 
@@ -820,11 +812,11 @@ async fn track_playtime(
   let mut config_lock = config.lock().await;
 
   // get the playtime of the session
-  let elapsed_time = start_time.elapsed().as_secs();
+  let elapsed_time = start_time.elapsed().as_secs().into();
   log::info!("elapsed time: {}", elapsed_time);
 
   config_lock
-    .update_game_seconds_played(&game_name, elapsed_time)
+    .update_setting_value("seconds_played", elapsed_time, Some(game_name))
     .map_err(|_| CommandError::Configuration("Unable to persist time played".to_owned()))?;
 
   // send an event to the front end so that it can refresh the playtime on screen
