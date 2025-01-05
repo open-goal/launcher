@@ -122,6 +122,7 @@
       event.detail.version,
       event.detail.downloadUrl,
     );
+    $VersionStore.activeVersionName = event.detail.version;
     // Then mark it as downloaded
     for (const release of releases) {
       if (release.version === event.detail.version) {

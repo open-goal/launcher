@@ -1,3 +1,5 @@
+import { getLatestOfficialRelease } from "$lib/utils/github";
+import { getAutoUninstallOldVersions } from "./config";
 import { invoke_rpc } from "./rpc";
 
 export async function listDownloadedVersions(): Promise<string[]> {
@@ -29,6 +31,28 @@ export async function removeVersion(version: String): Promise<boolean> {
     "Unable to remove version",
     () => true,
   );
+}
+
+export async function removeOldVersions(): Promise<boolean> {
+  let shouldRemove = await getAutoUninstallOldVersions();
+  if (shouldRemove) {
+    let downloadedVersions = await listDownloadedVersions();
+    let latestRelease = await getLatestOfficialRelease();
+    downloadedVersions = downloadedVersions.filter(
+      (v) => v !== latestRelease?.version,
+    );
+    downloadedVersions.forEach((v) => {
+      invoke_rpc(
+        "remove_version",
+        { version: v },
+        () => false,
+        "Unable to remove version",
+        () => true,
+      );
+    });
+    return false;
+  }
+  return false;
 }
 
 export async function openVersionFolder() {
