@@ -13,6 +13,7 @@
     downloadOfficialVersion,
     getActiveVersion,
     listDownloadedVersions,
+    removeOldVersions,
   } from "$lib/rpc/versions";
   import { getLatestOfficialRelease } from "$lib/utils/github";
   import { VersionStore } from "$lib/stores/VersionStore";
@@ -103,6 +104,8 @@
             latestToolingVersion.version,
             latestToolingVersion.downloadUrl,
           );
+          await removeOldVersions();
+
           location.reload(); // TODO! this is hacky, when i refactor this will be done automatically
         }
 
