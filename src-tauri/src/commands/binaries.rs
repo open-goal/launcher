@@ -234,6 +234,7 @@ pub async fn extract_and_validate_iso(
   app_handle: tauri::AppHandle,
   path_to_iso: String,
   game_name: String,
+  via_folder: bool,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
@@ -261,7 +262,7 @@ pub async fn extract_and_validate_iso(
     "--proj-path".to_string(),
     data_folder.to_string_lossy().into_owned(),
   ];
-  if Path::new(&path_to_iso.clone()).is_dir() {
+  if via_folder {
     args.push("--folder".to_string());
   }
   // Add new --game argument
@@ -335,6 +336,7 @@ pub async fn run_decompiler(
   game_name: String,
   truncate_logs: bool,
   use_decomp_settings: bool,
+  via_folder: bool,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
@@ -406,6 +408,10 @@ pub async fn run_decompiler(
   if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
     args.push("--game".to_string());
     args.push(game_name.clone());
+  }
+
+  if via_folder {
+    args.push("--folder".to_string());
   }
 
   // TODO NOW - minimum
@@ -483,6 +489,7 @@ pub async fn run_compiler(
   path_to_iso: String,
   game_name: String,
   truncate_logs: bool,
+  via_folder: bool,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
@@ -521,6 +528,10 @@ pub async fn run_compiler(
   if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
     args.push("--game".to_string());
     args.push(game_name.clone());
+  }
+
+  if via_folder {
+    args.push("--folder".to_string());
   }
 
   log::info!("Running compiler with args: {:?}", args);

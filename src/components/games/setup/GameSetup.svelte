@@ -108,6 +108,7 @@
       let resp = await extractAndValidateISO(
         sourcePath,
         getInternalName(activeGame),
+        viaFolder,
       );
       if (!resp.success) {
         progressTracker.halt();
@@ -120,6 +121,7 @@
         getInternalName(activeGame),
         false,
         false,
+        viaFolder,
       );
       if (!resp.success) {
         progressTracker.halt();
@@ -127,7 +129,12 @@
         return;
       }
       progressTracker.proceed();
-      resp = await runCompiler(sourcePath, getInternalName(activeGame));
+      resp = await runCompiler(
+        sourcePath,
+        getInternalName(activeGame),
+        false,
+        viaFolder,
+      );
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
@@ -201,11 +208,10 @@
         >{$_("setup_button_installViaISO")}</Button
       >
       <!-- TODO - disabled for now, needs fixes in the extractor -->
-      <!-- <Button
+      <Button
         class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-        on:click={async () => await install(true)}
-        >Install via Folder</Button
-      > -->
+        on:click={async () => await install(true)}>Install via Folder</Button
+      >
     </div>
   </div>
 {/if}

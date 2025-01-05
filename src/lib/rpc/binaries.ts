@@ -21,10 +21,11 @@ export async function updateDataDirectory(
 export async function extractAndValidateISO(
   pathToIso: string,
   gameName: string,
+  viaFolder: boolean = false,
 ): Promise<InstallationOutput> {
   return await invoke_rpc(
     "extract_and_validate_iso",
-    { pathToIso, gameName },
+    { pathToIso, gameName, viaFolder },
     () => failed("Failed to extract and validate ISO"),
   );
 }
@@ -34,10 +35,11 @@ export async function runDecompiler(
   gameName: string,
   truncateLogs: boolean = false,
   useDecompSettings: boolean = false,
+  viaFolder: boolean = false,
 ): Promise<InstallationOutput> {
   return await invoke_rpc(
     "run_decompiler",
-    { pathToIso, gameName, truncateLogs, useDecompSettings },
+    { pathToIso, gameName, truncateLogs, useDecompSettings, viaFolder },
     () => failed("Failed to run decompiler"),
   );
 }
@@ -46,10 +48,11 @@ export async function runCompiler(
   pathToIso: string,
   gameName: string,
   truncateLogs: boolean = false,
+  viaFolder: boolean = false,
 ): Promise<InstallationOutput> {
   return await invoke_rpc(
     "run_compiler",
-    { pathToIso, gameName, truncateLogs },
+    { pathToIso, gameName, truncateLogs, viaFolder },
     () => failed("Failed to run compiler"),
   );
 }
