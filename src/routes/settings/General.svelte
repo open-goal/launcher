@@ -12,7 +12,7 @@
     setInstallationDirectory,
     setLocale,
   } from "$lib/rpc/config";
-  import { getActiveVersion, getActiveVersionFolder } from "$lib/rpc/versions";
+  import { getActiveVersion } from "$lib/rpc/versions";
   import { VersionStore } from "$lib/stores/VersionStore";
   import {
     Button,
@@ -32,7 +32,7 @@
   import { writable } from "svelte/store";
 
   let currentInstallationDirectory = "";
-  let currentLocale;
+  let currentLocale = writable();
   let availableLocales = [];
   let currentBypassRequirementsVal = false;
   let keepGamesUpdated = writable(false);
@@ -55,11 +55,11 @@
         },
       ];
     }
-    currentLocale = await getLocale();
+    $currentLocale = await getLocale();
     currentBypassRequirementsVal = await getBypassRequirements();
-    if (currentLocale !== null) {
+    if ($currentLocale !== null) {
       localeFontForDownload =
-        await localeSpecificFontAvailableForDownload(currentLocale);
+        await localeSpecificFontAvailableForDownload($currentLocale);
     }
   });
 </script>
@@ -71,12 +71,11 @@
       <Select
         class="mt-2"
         items={availableLocales}
-        bind:value={currentLocale}
-        on:change={async (evt) => {
-          await setLocale(evt.target.value);
-          localeFontForDownload = await localeSpecificFontAvailableForDownload(
-            evt.target.value,
-          );
+        bind:value={$currentLocale}
+        on:change={async () => {
+          await setLocale($currentLocale);
+          localeFontForDownload =
+            await localeSpecificFontAvailableForDownload($currentLocale);
         }}
       />
     </Label>
@@ -107,9 +106,9 @@
               localeFontForDownload.fontFileName,
             );
             await downloadFile(localeFontForDownload.fontDownloadUrl, fontPath);
-            await setLocale(currentLocale);
+            await setLocale($currentLocale);
             localeFontForDownload =
-              await localeSpecificFontAvailableForDownload(currentLocale);
+              await localeSpecificFontAvailableForDownload($currentLocale);
             localeFontDownloading = false;
           }
         }}
@@ -205,7 +204,6 @@
           const result = resetLauncherSettingsToDefaults();
           if (result) {
             // TODO - move these to a store method
-            $VersionStore.activeVersionType = await getActiveVersionFolder();
             $VersionStore.activeVersionName = await getActiveVersion();
           }
         }

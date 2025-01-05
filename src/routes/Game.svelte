@@ -9,7 +9,6 @@
   import {
     doesActiveToolingVersionSupportGame,
     getInstalledVersion,
-    getInstalledVersionFolder,
     isGameInstalled,
     isMinimumVCCRuntimeInstalled,
   } from "$lib/rpc/config";
@@ -18,7 +17,6 @@
   import {
     ensureActiveVersionStillExists,
     getActiveVersion,
-    getActiveVersionFolder,
   } from "$lib/rpc/versions";
   import GameToolsNotSet from "../components/games/GameToolsNotSet.svelte";
   import GameNotSupportedByTooling from "../components/games/GameNotSupportedByTooling.svelte";
@@ -48,7 +46,6 @@
   let gameJobToRun: Job | undefined = undefined;
 
   let installedVersion: String | undefined;
-  let installedVersionFolder: String | undefined;
 
   let versionMismatchDetected = false;
 
@@ -119,7 +116,6 @@
 
     // First off, check that they've downloaded and have a jak-project release set
     const activeVersionExists = await ensureActiveVersionStillExists();
-    $VersionStore.activeVersionType = await getActiveVersionFolder();
     $VersionStore.activeVersionName = await getActiveVersion();
 
     if (activeVersionExists) {
@@ -136,12 +132,8 @@
         installedVersion = await getInstalledVersion(
           getInternalName(activeGame),
         );
-        installedVersionFolder = await getInstalledVersionFolder(
-          getInternalName(activeGame),
-        );
         versionMismatchDetected =
-          installedVersion !== $VersionStore.activeVersionName ||
-          installedVersionFolder !== $VersionStore.activeVersionType;
+          installedVersion !== $VersionStore.activeVersionName;
       }
     }
 
@@ -188,12 +180,7 @@
       on:jobFinished={gameJobFinished}
     />
   {:else if versionMismatchDetected}
-    <GameUpdate
-      {activeGame}
-      {installedVersion}
-      {installedVersionFolder}
-      on:job={runGameJob}
-    />
+    <GameUpdate {activeGame} {installedVersion} on:job={runGameJob} />
   {:else}
     {#if showVccWarning}
       <Alert color="red" rounded={false} class="border-t-4">

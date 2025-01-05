@@ -12,7 +12,6 @@
   import {
     downloadOfficialVersion,
     getActiveVersion,
-    getActiveVersionFolder,
     listDownloadedVersions,
   } from "$lib/rpc/versions";
   import { getLatestOfficialRelease } from "$lib/utils/github";
@@ -27,18 +26,13 @@
   async function downloadLatestVersion(version: string, url: String) {
     await downloadOfficialVersion(version, url);
     $UpdateStore.selectedTooling.updateAvailable = false;
-    $VersionStore.selectedVersions.official = version;
-    await saveOfficialVersionChange();
+    await saveOfficialVersionChange(version);
   }
 
-  async function saveOfficialVersionChange() {
-    const success = await saveActiveVersionChange(
-      "official",
-      $VersionStore.selectedVersions.official,
-    );
+  async function saveOfficialVersionChange(version) {
+    const success = await saveActiveVersionChange(version);
     if (success) {
-      $VersionStore.activeVersionType = "official";
-      $VersionStore.activeVersionName = $VersionStore.selectedVersions.official;
+      $VersionStore.activeVersionName = version;
       toastStore.makeToast($_("toasts_savedToolingVersion"), "info");
     }
   }
@@ -46,8 +40,6 @@
   onMount(async () => {
     // Get current versions
     launcherVerison = `v${await getVersion()}`;
-
-    $VersionStore.activeVersionType = await getActiveVersionFolder();
     $VersionStore.activeVersionName = await getActiveVersion();
 
     // Check for a launcher update
@@ -90,41 +82,34 @@
   });
 
   async function checkIfLatestVersionInstalled() {
-    // Check for an update to the tooling (right now, only if it's official)
+    const latestToolingVersion = await getLatestOfficialRelease();
     if (
-      $VersionStore.activeVersionType === null ||
-      $VersionStore.activeVersionType === "official"
+      latestToolingVersion !== undefined &&
+      $VersionStore.activeVersionName !== latestToolingVersion.version
     ) {
-      const latestToolingVersion = await getLatestOfficialRelease();
-      if (
-        latestToolingVersion !== undefined &&
-        $VersionStore.activeVersionName !== latestToolingVersion.version
-      ) {
-        // Check that we havn't already downloaded it
-        let alreadyHaveRelease = false;
-        const downloadedOfficialVersions =
-          await listDownloadedVersions("official");
-        for (const releaseVersion of downloadedOfficialVersions) {
-          if (releaseVersion === latestToolingVersion.version) {
-            alreadyHaveRelease = true;
-            break;
-          }
+      // Check that we havn't already downloaded it
+      let alreadyHaveRelease = false;
+      const downloadedOfficialVersions = await listDownloadedVersions();
+      for (const releaseVersion of downloadedOfficialVersions) {
+        if (releaseVersion === latestToolingVersion.version) {
+          alreadyHaveRelease = true;
+          break;
         }
-        if (!alreadyHaveRelease) {
-          let shouldAutoUpdate = await getAutoUpdateGames();
-          if (shouldAutoUpdate) {
-            await downloadLatestVersion(
-              latestToolingVersion.version,
-              latestToolingVersion.downloadUrl,
-            );
-            location.reload(); // TODO! this is hacky, when i refactor this will be done automatically
-          }
+      }
+      if (!alreadyHaveRelease) {
+        let shouldAutoUpdate = await getAutoUpdateGames();
+        if (shouldAutoUpdate) {
+          await downloadLatestVersion(
+            latestToolingVersion.version,
+            latestToolingVersion.downloadUrl,
+          );
+          location.reload(); // TODO! this is hacky, when i refactor this will be done automatically
+        }
 
-          $UpdateStore.selectedTooling = {
-            updateAvailable: true,
-            versionNumber: latestToolingVersion.version,
-          };
-        }
+        $UpdateStore.selectedTooling = {
+          updateAvailable: true,
+          versionNumber: latestToolingVersion.version,
+        };
       }
     }
   }

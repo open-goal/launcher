@@ -15,7 +15,6 @@ use crate::{commands::CommandError, config::LauncherConfig, util::file::create_d
 struct CommonConfigData {
   install_path: std::path::PathBuf,
   active_version: String,
-  active_version_folder: String,
   tooling_version: Version,
 }
 
@@ -38,21 +37,12 @@ fn common_prelude(
       "No active version set, can't perform operation".to_owned(),
     ))?;
 
-  let active_version_folder =
-    config
-      .active_version_folder
-      .as_ref()
-      .ok_or(CommandError::BinaryExecution(
-        "No active version folder set, can't perform operation".to_owned(),
-      ))?;
-
   let tooling_version = Version::parse(active_version.strip_prefix('v').unwrap_or(&active_version))
     .unwrap_or(Version::new(0, 1, 35)); // assume new format if none can be found
 
   Ok(CommonConfigData {
     install_path: install_path.to_path_buf(),
     active_version: active_version.clone(),
-    active_version_folder: active_version_folder.clone(),
     tooling_version: tooling_version,
   })
 }
@@ -76,7 +66,7 @@ fn get_exec_location(
   let exec_dir = config_info
     .install_path
     .join("versions")
-    .join(&config_info.active_version_folder)
+    .join("official")
     .join(&config_info.active_version);
   let exec_path = exec_dir.join(bin_ext(executable_name));
   if !exec_path.exists() {

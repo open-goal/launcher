@@ -29,6 +29,7 @@
     updateTexturePackData,
   } from "$lib/rpc/features";
   import { isoPrompt } from "$lib/utils/file-dialogs";
+  import { emit } from "@tauri-apps/api/event";
 
   export let activeGame: SupportedGame;
   export let jobType: Job;
@@ -50,7 +51,6 @@
   onMount(async () => {
     proceedAfterSuccessfulOperation =
       await getProceedAfterSuccessfulOperation();
-    console.log(proceedAfterSuccessfulOperation);
   });
 
   $: if (
@@ -149,6 +149,7 @@
     }
     progressTracker.proceed();
     await finalizeInstallation(getInternalName(activeGame));
+    await emit("gameInstalled");
     progressTracker.proceed();
     location.reload();
   }

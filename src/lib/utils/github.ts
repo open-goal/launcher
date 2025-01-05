@@ -5,7 +5,6 @@ import { unwrapFunctionStore, format } from "svelte-i18n";
 const $format = unwrapFunctionStore(format);
 
 export interface ReleaseInfo {
-  releaseType: "official";
   version: string;
   date: string | undefined;
   githubLink: string | undefined;
