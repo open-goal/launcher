@@ -136,6 +136,7 @@ fn copy_data_dir(config_info: &CommonConfigData, game_name: &String) -> Result<(
   let src_dir = config_info
     .install_path
     .join("versions")
+    .join("official")
     .join(&config_info.active_version)
     .join("data");
 
