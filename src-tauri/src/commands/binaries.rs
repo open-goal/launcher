@@ -291,14 +291,7 @@ pub async fn extract_and_validate_iso(
 
   let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   log_file.flush().await?;
-  if process_status.is_none() {
-    log::error!("extraction and validation was not successful. No status code");
-    return Ok(InstallStepOutput {
-      success: false,
-      msg: Some("Unexpected error occurred".to_owned()),
-    });
-  }
-  match process_status.unwrap().code() {
+  match process_status.code() {
     Some(code) => {
       if code == 0 {
         log::info!("extraction and validation was successful");
@@ -440,14 +433,7 @@ pub async fn run_decompiler(
 
   // Ensure all remaining data is flushed to the file
   log_file.flush().await?;
-  if process_status.is_none() {
-    log::error!("decompilation was not successful. No status code");
-    return Ok(InstallStepOutput {
-      success: false,
-      msg: Some("Unexpected error occurred".to_owned()),
-    });
-  }
-  match process_status.unwrap().code() {
+  match process_status.code() {
     Some(code) => {
       if code == 0 {
         log::info!("decompilation was successful");
@@ -547,7 +533,7 @@ pub async fn run_compiler(
 
   let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   log_file.flush().await?;
-  match process_status.unwrap().code() {
+  match process_status.code() {
     Some(code) => {
       if code == 0 {
         log::info!("compilation was successful");
