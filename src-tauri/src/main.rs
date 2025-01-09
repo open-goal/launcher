@@ -202,6 +202,7 @@ fn main() {
       commands::config::set_bypass_requirements,
       commands::config::set_enabled_texture_packs,
       commands::config::set_install_directory,
+      commands::config::set_flatpak_install_directory,
       commands::config::set_locale,
       commands::config::set_rip_collision_enabled,
       commands::config::set_rip_levels_enabled,

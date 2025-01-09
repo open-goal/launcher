@@ -3,7 +3,6 @@
     "active": true,
     "targets": [
       "msi",
-      "appimage",
       "app",
       "dmg"
     ],
@@ -65,7 +64,8 @@
         "fullscreen": false,
         "url": "./src/splash/index.html",
         "visible": true,
-        "focus": true
+        "focus": true,
+        "useHttpsScheme": true
       }
     ]
   }

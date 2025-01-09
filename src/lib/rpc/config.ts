@@ -52,6 +52,12 @@ export async function setInstallationDirectory(
   return errMsg;
 }
 
+export async function setFlatpakInstallationDirectory(): Promise<
+  string | null
+> {
+  return await invoke_rpc("set_flatpak_install_directory", {}, () => null);
+}
+
 export async function isAVXRequirementMet(
   force: boolean,
 ): Promise<boolean | undefined> {

@@ -3,7 +3,7 @@
   "description": "permissions that were migrated from v1",
   "local": true,
   "windows": [
-    "main"
+    "main", "splashscreen"
   ],
   "permissions": [
     "core:default",
