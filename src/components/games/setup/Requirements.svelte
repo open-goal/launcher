@@ -47,6 +47,7 @@
     } else {
       isAVXMet = await isAVXRequirementMet();
       if (osType == "Windows_NT") {
+        isVCCRelevant = true;
         isVCCInstalled = await isMinimumVCCRuntimeInstalled();
       }
     }
