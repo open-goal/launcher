@@ -11,11 +11,11 @@
 
 use crate::util::file::create_dir;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
-use serde_json::{json, Value};
 
 use crate::util::file::touch_file;
 
