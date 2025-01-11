@@ -3,15 +3,14 @@
   import jak19am from "$assets/images/jak1/9am.webp";
   import jak29am from "$assets/images/jak2/9am.webp";
   import textLogo from "$assets/images/text-logo.webp";
-  import IconClose from "~icons/mdi/window-close";
   import { getCurrentWindow } from "@tauri-apps/api/window";
   import { type Locale } from "$lib/i18n/i18n";
   import { setLocale } from "$lib/rpc/config";
   import { getVersion } from "@tauri-apps/api/app";
   import LanguageSelect from "/src/splash/components/LanguageSelect.svelte";
   import ProgressStepper from "/src/splash/components/ProgressStepper.svelte";
-  import { arch,family, type } from '@tauri-apps/plugin-os';
-  import { getAllWebviewWindows } from "@tauri-apps/api/webviewWindow";
+  import { type } from "@tauri-apps/plugin-os";
+  import { _ } from "svelte-i18n"; 
 
   let loaded = false;
   let clientVersion: string;
@@ -19,51 +18,40 @@
 
   onMount(async () => {
     clientVersion = await getVersion();
-    isWindowControlsLeft = await type() === "macos";
+    isWindowControlsLeft = (await type()) === "macos";
     const a = getCurrentWindow();
     console.log(a);
-    
+
     loaded = true;
   });
 
   async function selectLocale(locale: Locale) {
     await setLocale(locale.id);
   }
-
 </script>
 
 <div class="header" data-tauri-drag-region>
-  {#if isWindowControlsLeft}
-    <div class="w-16"></div>
-  {/if}
-
-  <img class="h-full" src={textLogo}>
-  <span class="flex justify-center items-center ml-3">v{clientVersion}</span>
-
-  <!-- growing space -->
-  <div class="flex-grow"></div>
-
-  <div class="window-controls">
-  </div>
-
+  <img class="h-full" src={textLogo} />
 </div>
 
-
 <div class="splash-container">
-
   <!-- Background With two images -->
   <div class="images pointer-events-none">
     <div class="gradient-overlay"></div>
-    <img id="jak1" src={jak19am}>
-    <img id="jak2" src={jak29am}>
+    <img id="jak1" src={jak19am} />
+    <img id="jak2" src={jak29am} />
   </div>
 
   {#if loaded}
     <div class="splash-content">
       <div class="splash-content__centered">
-        <ProgressStepper/>
+        <ProgressStepper />
 
-        <LanguageSelect on:change={(locale) => selectLocale(locale.detail.locale)}/>
+        <LanguageSelect
+          on:change={(locale) => selectLocale(locale.detail.locale)}
+        />
+
+        <div class="self-start text-background font-default-shadow">{$_("header_launcherVersionLabel")} v{clientVersion}</div>
       </div>
     </div>
   {/if}
@@ -73,7 +61,7 @@
   @import "./splash.css";
 
   .header {
-    @apply h-16 p-4 flex flex-row bg-background text-background;
+    @apply h-16 p-4 flex flex-row justify-center items-center bg-background text-background;
   }
 
   .header > :not(:last-child) {
@@ -88,7 +76,6 @@
     @apply hover:text-background-hover;
   }
 
-
   .splash-content {
     @apply absolute inset-0 z-20;
   }
@@ -98,7 +85,7 @@
   }
 
   .splash-container .images {
-    @apply relative flex w-full h-full grayscale;
+    @apply relative flex w-full h-full ;
   }
 
   .splash-container .images img#jak1 {
@@ -115,7 +102,12 @@
 
   .splash-container .images .gradient-overlay {
     @apply absolute left-0 top-0 w-full h-full z-10;
-    background-image: radial-gradient(circle at center, rgb(27, 27, 29, 1) 0%, rgb(27, 27, 29, 0.75) 30%, rgba(27, 27, 29, 0.15) 60%);
+    background-image: radial-gradient(
+      circle at center,
+      rgb(27, 27, 29, 1) 0%,
+      rgb(27, 27, 29, 0.75) 30%,
+      rgba(27, 27, 29, 0.15) 60%
+    );
   }
 
   .splash-container .images img {
@@ -126,7 +118,6 @@
 
   .splash-content__centered {
     @apply flex flex-col justify-center items-center;
-    @apply h-full py-16 gap-5;
+    @apply h-full p-2 px-4 pt-16 gap-5;
   }
-
 </style>

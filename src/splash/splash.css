@@ -3,6 +3,14 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --line-height: 1.75em;
+}
+
+.font-default-shadow {
+  text-shadow: 1px 1px 2px black;
+}
+
 .default-font {
   font-family:
 
@@ -12,17 +20,21 @@
       * This should be tested for jumping font sizes in the splash screen.
       * We don't want languages like arabic, japanese, chinese, taiwanese or hebrew to make fonts grow to different sizes when selecting them.
       */
-      "Twemoji Country Flags", /* EMOJI FLAGS */
-      "Noto Sans Mono", /* LATIN SCRIPT */
-      "Segoe UI Semibold", /* ARABIC SCRIPT */
-      "Yu Gothic", /* JAPANESE/TAIWANESE/SIMPLIFIED CHINESE SCRIPT */
-      "微軟正黑體", /* TRADITIONAL CHINESE SCRIPT */
-      "Courier New", /* FALLBACK FOR MISSING FONTS */
-      sans-serif; /* FALLBACK FOR MISSING FONTS */
+    "Twemoji Country Flags",
+    /* EMOJI FLAGS */ "Noto Sans Mono",
+    /* LATIN SCRIPT */ "Segoe UI Semibold",
+    /* ARABIC SCRIPT */ "Yu Gothic",
+    /* JAPANESE/TAIWANESE/SIMPLIFIED CHINESE SCRIPT */ "微軟正黑體",
+    /* TRADITIONAL CHINESE SCRIPT */ "Courier New",
+    /* FALLBACK FOR MISSING FONTS */ sans-serif; /* FALLBACK FOR MISSING FONTS */
 
   font-size: 1em;
   font-weight: 600;
-  line-height: 1.75;
+  line-height: var(--line-height);
+}
+
+.h-2l {
+  height: calc(var(--line-height) * 2);
 }
 
 #app {
