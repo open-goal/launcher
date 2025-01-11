@@ -56,7 +56,7 @@ pub async fn watch_process(
 
   tokio::spawn(async move {
     while let Some(log) = log_receiver.recv().await {
-      let _ = app_handle_clone.emit_all("log_update", LogPayload { logs: log });
+      let _ = app_handle_clone.emit("log_update", LogPayload { logs: log });
     }
   });
 

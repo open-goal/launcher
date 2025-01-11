@@ -7,6 +7,7 @@ use std::{
 
 use semver::Version;
 use serde::{Deserialize, Serialize};
+use tauri::Manager;
 
 use crate::{commands::CommandError, config::LauncherConfig, util::file::create_dir};
 
@@ -102,13 +103,17 @@ pub async fn run_game_gpu_test(
   let config_info = common_prelude(config_lock)?;
 
   let exec_info = get_exec_location(&config_info, "gk")?;
-  let gpu_test_result_path = &match app_handle.path_resolver().app_data_dir() {
-    None => {
+  let gpu_test_result_path = &match app_handle.path().app_data_dir() {
+    Ok(path) => path,
+    Err(err) => {
+      log::error!(
+        "Error encountered when determined path for binary for GPU test: {:?}",
+        err
+      );
       return Err(CommandError::BinaryExecution(
         "Could not determine path to save GPU test results".to_owned(),
-      ))
+      ));
     }
-    Some(path) => path,
   };
   create_dir(gpu_test_result_path)?;
   let gpu_test_result_path = &gpu_test_result_path.join("gpu-test-result.json");

@@ -11,7 +11,7 @@
   import { _ } from "svelte-i18n";
   import { confirm } from "@tauri-apps/plugin-dialog";
   import { getInternalName, type SupportedGame } from "$lib/constants";
-  import { arch, type } from "@tauri-apps/api/os";
+  import { arch, type } from "@tauri-apps/plugin-os";
   import { isMacOSVersion15OrAbove } from "$lib/rpc/util";
 
   export let activeGame: SupportedGame;
@@ -39,14 +39,14 @@
       // arm, we don't bother checking for simd
       // - if macOS (the only supported ARM platform), we check they are on atleast macOS 15
       // there is no easy way to check to see if they have rosetta 2, if you know of one, contribute it
-      if (osType !== "Darwin") {
+      if (osType !== "macos") {
         isTryingToUseARMOutsideOfMacOS = true;
       } else {
         isMacOSVersionSufficient = await isMacOSVersion15OrAbove();
       }
     } else {
       isAVXMet = await isAVXRequirementMet();
-      if (osType == "Windows_NT") {
+      if (osType == "windows") {
         isVCCRelevant = true;
         isVCCInstalled = await isMinimumVCCRuntimeInstalled();
       }
@@ -235,7 +235,7 @@
           `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
             "requirements_button_bypass_warning_2",
           )}`,
-          { title: "OpenGOAL Launcher", type: "warning" },
+          { title: "OpenGOAL Launcher", kind: "warning" },
         );
         if (confirmed) {
           await setBypassRequirements(true);

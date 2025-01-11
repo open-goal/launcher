@@ -22,6 +22,7 @@
   import { getAutoUpdateGames, saveActiveVersionChange } from "$lib/rpc/config";
 
   let launcherVerison = null;
+  const appWindow = getCurrentWebviewWindow();
 
   async function downloadLatestVersion(version: string, url: String) {
     await downloadOfficialVersion(version, url);
