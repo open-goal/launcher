@@ -10,12 +10,11 @@
 // serde does not support defaultLiterals yet - https://github.com/serde-rs/serde/issues/368
 
 use crate::util::file::create_dir;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
-
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::util::file::touch_file;
 

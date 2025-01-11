@@ -459,10 +459,18 @@ pub async fn generate_support_package(
     ));
   }
   // Seems good, move it to the user's intended destination
-  fs::rename(&save_file.path(), save_path).map_err(|_| {
-    CommandError::Support(
-      "Support package was unable to be moved from it's temporary file location".to_owned(),
-    )
+  fs::copy(&save_file.path(), save_path).map_err(|e| {
+    CommandError::Support(format!(
+      "Support package was unable to be moved from its temporary file location: {:?}",
+      e
+    ))
+  })?;
+
+  fs::remove_file(&save_file.path()).map_err(|e| {
+    CommandError::Support(format!(
+      "Support package was copied but the original file could not be removed: {:?}",
+      e
+    ))
   })?;
   Ok(())
 }

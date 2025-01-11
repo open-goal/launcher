@@ -1,4 +1,5 @@
-use std::path::Path;
+use std::env;
+use std::path::{Path, PathBuf};
 
 use crate::util::os::get_installed_vcc_runtime;
 use crate::{config::LauncherConfig, util::file::delete_dir};
@@ -51,6 +52,21 @@ pub async fn set_install_directory(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   new_dir: String,
 ) -> Result<Option<String>, CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_install_directory(new_dir).map_err(|err| {
+    log::error!("Unable to persist installation directory: {:?}", err);
+    CommandError::Configuration("Unable to persist installation directory".to_owned())
+  })
+}
+
+#[tauri::command]
+pub async fn set_flatpak_install_directory(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<Option<String>, CommandError> {
+  let new_dir = env::var("XDG_DATA_HOME")
+    .map(PathBuf::from)
+    .map(|path| path.to_string_lossy().into_owned())
+    .unwrap();
   let mut config_lock = config.lock().await;
   config_lock.set_install_directory(new_dir).map_err(|err| {
     log::error!("Unable to persist installation directory: {:?}", err);

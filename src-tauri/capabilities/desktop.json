@@ -5,9 +5,11 @@
     "windows",
     "linux"
   ],
+  "windows": [
+    "main"
+  ],
   "permissions": [
-    "global-shortcut:default",
     "updater:default",
-    "updater:default"
+    "global-shortcut:default"
   ]
 }
