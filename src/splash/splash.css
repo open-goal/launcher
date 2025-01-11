@@ -1,0 +1,37 @@
+/* Write your global styles here, in PostCSS syntax */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.default-font {
+  font-family:
+
+      /*
+      * These fonts have been tested for Windows 10 with German Language Pack installed.
+      * Test for other language packs and operating systems has not been done yet.
+      * This should be tested for jumping font sizes in the splash screen.
+      * We don't want languages like arabic, japanese, chinese, taiwanese or hebrew to make fonts grow to different sizes when selecting them.
+      */
+      "Twemoji Country Flags", /* EMOJI FLAGS */
+      "Noto Sans Mono", /* LATIN SCRIPT */
+      "Segoe UI Semibold", /* ARABIC SCRIPT */
+      "Yu Gothic", /* JAPANESE/TAIWANESE/SIMPLIFIED CHINESE SCRIPT */
+      "微軟正黑體", /* TRADITIONAL CHINESE SCRIPT */
+      "Courier New", /* FALLBACK FOR MISSING FONTS */
+      sans-serif; /* FALLBACK FOR MISSING FONTS */
+
+  font-size: 1em;
+  font-weight: 600;
+  line-height: 1.75;
+}
+
+#app {
+  @apply flex flex-col;
+}
+
+*,
+#app,
+#app button {
+  @apply default-font;
+  @apply focus-within:ring-0;
+}

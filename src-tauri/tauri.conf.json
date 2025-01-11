@@ -58,8 +58,8 @@
       {
         "title": "OpenGOAL Launcher - Splash",
         "label": "splashscreen",
-        "width": 200,
-        "height": 300,
+        "width": 1200,
+        "height": 780,
         "center": true,
         "decorations": false,
         "transparent": true,

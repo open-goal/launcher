@@ -1,4 +1,3 @@
-import { toastStore } from "$lib/stores/ToastStore";
 import { invoke, type InvokeArgs } from "@tauri-apps/api/core";
 import { errorLog, exceptionLog } from "./logging";
 
@@ -30,13 +29,6 @@ export async function invoke_rpc<T>(
       errorLog(`Error calling '${cmd}': ${e}`);
     } else {
       exceptionLog(`Error calling '${cmd}'`, e);
-    }
-    // TODO - this is a dumb hack but whatever for now
-    if (toastOnError === "_mirror_") {
-      toastStore.makeToast(e, "error");
-    } else {
-      const toastMessage = toastOnError ?? "An unexpected error occurred";
-      toastStore.makeToast(toastMessage, "error");
     }
     return handleError(e);
   }
