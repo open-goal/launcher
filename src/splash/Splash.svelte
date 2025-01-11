@@ -10,18 +10,21 @@
   import { getVersion } from "@tauri-apps/api/app";
   import LanguageSelect from "/src/splash/components/LanguageSelect.svelte";
   import ProgressStepper from "/src/splash/components/ProgressStepper.svelte";
+  import { arch,family, type } from '@tauri-apps/plugin-os';
+  import { getAllWebviewWindows } from "@tauri-apps/api/webviewWindow";
 
   let loaded = false;
   let clientVersion: string;
+  let isWindowControlsLeft = false;
 
   onMount(async () => {
     clientVersion = await getVersion();
+    isWindowControlsLeft = await type() === "macos";
+    const a = getCurrentWindow();
+    console.log(a);
+    
     loaded = true;
   });
-
-  function closeWindow() {
-    getCurrentWindow().close();
-  }
 
   async function selectLocale(locale: Locale) {
     await setLocale(locale.id);
@@ -30,6 +33,9 @@
 </script>
 
 <div class="header" data-tauri-drag-region>
+  {#if isWindowControlsLeft}
+    <div class="w-16"></div>
+  {/if}
 
   <img class="h-full" src={textLogo}>
   <span class="flex justify-center items-center ml-3">v{clientVersion}</span>
@@ -38,9 +44,6 @@
   <div class="flex-grow"></div>
 
   <div class="window-controls">
-    <span class="control-icon" on:click={closeWindow}>
-      <IconClose />
-    </span>
   </div>
 
 </div>
