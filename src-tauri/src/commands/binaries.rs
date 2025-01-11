@@ -19,7 +19,7 @@ use tauri::{Emitter, Manager};
 use crate::{
   config::LauncherConfig,
   util::{
-    file::{create_dir, overwrite_dir},
+    file::overwrite_dir,
     process::{create_log_file, create_std_log_file, watch_process},
   },
   TAURI_APP,
@@ -37,7 +37,6 @@ fn bin_ext(filename: &str) -> String {
 struct CommonConfigData {
   install_path: std::path::PathBuf,
   active_version: String,
-  active_version_folder: String,
   tooling_version: Version,
 }
 
@@ -66,21 +65,12 @@ fn common_prelude(
       "No active version set, can't perform operation".to_owned(),
     ))?;
 
-  let active_version_folder =
-    config
-      .active_version_folder
-      .as_ref()
-      .ok_or(CommandError::BinaryExecution(
-        "No active version folder set, can't perform operation".to_owned(),
-      ))?;
-
   let tooling_version = Version::parse(active_version.strip_prefix('v').unwrap_or(&active_version))
     .unwrap_or(Version::new(0, 1, 35)); // assume new format if none can be found
 
   Ok(CommonConfigData {
     install_path: install_path.to_path_buf(),
     active_version: active_version.clone(),
-    active_version_folder: active_version_folder.clone(),
     tooling_version: tooling_version,
   })
 }
@@ -146,7 +136,7 @@ fn copy_data_dir(config_info: &CommonConfigData, game_name: &String) -> Result<(
   let src_dir = config_info
     .install_path
     .join("versions")
-    .join(&config_info.active_version_folder)
+    .join("official")
     .join(&config_info.active_version)
     .join("data");
 
@@ -197,7 +187,7 @@ fn get_exec_location(
   let exec_dir = config_info
     .install_path
     .join("versions")
-    .join(&config_info.active_version_folder)
+    .join("official")
     .join(&config_info.active_version);
   let exec_path = exec_dir.join(bin_ext(executable_name));
   if !exec_path.exists() {
@@ -301,14 +291,7 @@ pub async fn extract_and_validate_iso(
 
   let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   log_file.flush().await?;
-  if process_status.is_none() {
-    log::error!("extraction and validation was not successful. No status code");
-    return Ok(InstallStepOutput {
-      success: false,
-      msg: Some("Unexpected error occurred".to_owned()),
-    });
-  }
-  match process_status.unwrap().code() {
+  match process_status.code() {
     Some(code) => {
       if code == 0 {
         log::info!("extraction and validation was successful");
@@ -345,6 +328,7 @@ pub async fn run_decompiler(
   path_to_iso: String,
   game_name: String,
   truncate_logs: bool,
+  use_decomp_settings: bool,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
@@ -377,26 +361,31 @@ pub async fn run_decompiler(
   let mut command = Command::new(exec_info.executable_path);
 
   let mut decomp_config_overrides = vec![];
-  if let Some(decomp_settings) = &config_lock.decompiler_settings {
-    if let Some(rip_levels) = decomp_settings.rip_levels_enabled {
-      if rip_levels {
-        decomp_config_overrides.push(format!("\"rip_levels\": {rip_levels}"));
-      }
+  if use_decomp_settings {
+    let decomp_settings = &config_lock.decompiler_settings;
+    if decomp_settings.rip_levels_enabled {
+      decomp_config_overrides.push(format!(
+        "\"rip_levels\": {}",
+        decomp_settings.rip_levels_enabled
+      ));
     }
-    if let Some(rip_collision) = decomp_settings.rip_collision_enabled {
-      if rip_collision {
-        decomp_config_overrides.push(format!("\"rip_collision\": {rip_collision}"));
-      }
+    if decomp_settings.rip_collision_enabled {
+      decomp_config_overrides.push(format!(
+        "\"rip_collision\": {}",
+        decomp_settings.rip_collision_enabled
+      ));
     }
-    if let Some(rip_textures) = decomp_settings.rip_textures_enabled {
-      if rip_textures {
-        decomp_config_overrides.push(format!("\"save_texture_pngs\": {rip_textures}"));
-      }
+    if decomp_settings.rip_textures_enabled {
+      decomp_config_overrides.push(format!(
+        "\"save_texture_pngs\": {}",
+        decomp_settings.rip_textures_enabled
+      ));
     }
-    if let Some(rip_streamed_audio) = decomp_settings.rip_streamed_audio_enabled {
-      if rip_streamed_audio {
-        decomp_config_overrides.push(format!("\"rip_streamed_audio\": {rip_streamed_audio}"));
-      }
+    if decomp_settings.rip_streamed_audio_enabled {
+      decomp_config_overrides.push(format!(
+        "\"rip_streamed_audio\": {}",
+        decomp_settings.rip_streamed_audio_enabled
+      ));
     }
   }
 
@@ -444,14 +433,7 @@ pub async fn run_decompiler(
 
   // Ensure all remaining data is flushed to the file
   log_file.flush().await?;
-  if process_status.is_none() {
-    log::error!("decompilation was not successful. No status code");
-    return Ok(InstallStepOutput {
-      success: false,
-      msg: Some("Unexpected error occurred".to_owned()),
-    });
-  }
-  match process_status.unwrap().code() {
+  match process_status.code() {
     Some(code) => {
       if code == 0 {
         log::info!("decompilation was successful");
@@ -551,7 +533,7 @@ pub async fn run_compiler(
 
   let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   log_file.flush().await?;
-  match process_status.unwrap().code() {
+  match process_status.code() {
     Some(code) => {
       if code == 0 {
         log::info!("compilation was successful");
@@ -597,7 +579,7 @@ pub async fn open_repl(
     command = std::process::Command::new("cmd");
     command
       .args([
-        "/K",
+        "/C",
         "start",
         &bin_ext("goalc"),
         "--game",
@@ -644,90 +626,6 @@ pub async fn open_repl(
       return Err(CommandError::BinaryExecution(
         "Unable to launch REPL".to_owned(),
       ));
-    }
-  }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct GPUTestOutput {
-  error: String,
-  error_cause: String,
-  success: bool,
-}
-
-pub async fn run_game_gpu_test(
-  config_lock: &tokio::sync::MutexGuard<'_, LauncherConfig>,
-  app_handle: tauri::AppHandle,
-) -> Result<Option<bool>, CommandError> {
-  let config_info = common_prelude(config_lock)?;
-
-  let exec_info = get_exec_location(&config_info, "gk")?;
-  let gpu_test_result_path = &match app_handle.path().app_data_dir() {
-    Ok(path) => path,
-    Err(err) => {
-      log::error!(
-        "Error encountered when determined path for binary for GPU test: {:?}",
-        err
-      );
-      return Err(CommandError::BinaryExecution(
-        "Could not determine path to save GPU test results".to_owned(),
-      ));
-    }
-  };
-  create_dir(gpu_test_result_path)?;
-  let gpu_test_result_path = &gpu_test_result_path.join("gpu-test-result.json");
-
-  log::info!(
-    "Running GPU test on game version {:?} and storing in folder: {:?}",
-    &config_info.active_version,
-    gpu_test_result_path
-  );
-
-  let mut command = Command::new(exec_info.executable_path);
-  command
-    .args([
-      "-v".to_string(),
-      "--gpu-test".to_string(),
-      "opengl".to_string(),
-      "--gpu-test-out-path".to_string(),
-      gpu_test_result_path.to_string_lossy().into_owned(),
-    ])
-    .current_dir(exec_info.executable_dir);
-  #[cfg(windows)]
-  {
-    command.creation_flags(0x08000000);
-  }
-  let output = command.output().await?;
-  match output.status.code() {
-    Some(code) => {
-      if code == 0 {
-        // Parse the JSON file
-        // Read the file
-        let content = match std::fs::read_to_string(gpu_test_result_path) {
-          Ok(content) => content,
-          Err(err) => {
-            log::error!("Unable to read {}: {}", gpu_test_result_path.display(), err);
-            return Ok(None);
-          }
-        };
-
-        // Serialize from json
-        match serde_json::from_str::<GPUTestOutput>(&content) {
-          Ok(test_results) => {
-            return Ok(Some(test_results.success));
-          }
-          Err(err) => {
-            log::error!("Unable to parse {}: {}", &content, err);
-            return Ok(None);
-          }
-        }
-      } else {
-        return Ok(None);
-      }
-    }
-    None => {
-      return Ok(None);
     }
   }
 }
@@ -901,11 +799,11 @@ async fn track_playtime(
   let mut config_lock = config.lock().await;
 
   // get the playtime of the session
-  let elapsed_time = start_time.elapsed().as_secs();
+  let elapsed_time = start_time.elapsed().as_secs().into();
   log::info!("elapsed time: {}", elapsed_time);
 
   config_lock
-    .update_game_seconds_played(&game_name, elapsed_time)
+    .update_setting_value("seconds_played", elapsed_time, Some(game_name))
     .map_err(|_| CommandError::Configuration("Unable to persist time played".to_owned()))?;
 
   // send an event to the front end so that it can refresh the playtime on screen

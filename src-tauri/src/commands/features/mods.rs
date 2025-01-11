@@ -1,12 +1,13 @@
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 use std::{
-  collections::HashMap,
+  io::ErrorKind,
   path::{Path, PathBuf},
   process::Stdio,
 };
 
 use serde::{Deserialize, Serialize};
+use tauri::Manager;
 use tokio::{io::AsyncWriteExt, process::Command};
 
 use crate::{
@@ -20,45 +21,6 @@ use crate::{
     zip::{extract_and_delete_zip_file, extract_zip_file},
   },
 };
-
-#[tauri::command]
-pub async fn add_mod_source(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  url: String,
-) -> Result<(), CommandError> {
-  log::info!("Adding mod source {}", url);
-  let mut config_lock = config.lock().await;
-  config_lock.add_new_mod_source(&url).map_err(|err| {
-    log::error!("Unable to persist new mod source: {:?}", err);
-    CommandError::Configuration("Unable to persist new mod source".to_owned())
-  })?;
-  Ok(())
-}
-
-#[tauri::command]
-pub async fn remove_mod_source(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  mod_source_index: i32,
-) -> Result<(), CommandError> {
-  let mut config_lock = config.lock().await;
-
-  log::info!("Removing mod source at index {}", mod_source_index);
-  config_lock
-    .remove_mod_source(mod_source_index as usize)
-    .map_err(|err| {
-      log::error!("Unable to remove mod source: {:?}", err);
-      CommandError::Configuration("Unable to remove mod source".to_owned())
-    })?;
-  Ok(())
-}
-
-#[tauri::command]
-pub async fn get_mod_sources(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<Vec<String>, CommandError> {
-  let config_lock = config.lock().await;
-  Ok(config_lock.get_mod_sources())
-}
 
 #[tauri::command]
 pub async fn extract_new_mod(
@@ -336,14 +298,7 @@ pub async fn extract_iso_for_mod_install(
   .await?;
 
   let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
-  if process_status.is_none() {
-    log::error!("extraction and validation was not successful. No status code");
-    return Ok(InstallStepOutput {
-      success: false,
-      msg: Some("Unexpected error occurred".to_owned()),
-    });
-  }
-  match process_status.unwrap().code() {
+  match process_status.code() {
     Some(code) => {
       if code == 0 {
         log::info!("extraction and validation was successful");
@@ -442,14 +397,7 @@ pub async fn decompile_for_mod_install(
 
   // Ensure all remaining data is flushed to the file
   log_file.flush().await?;
-  if process_status.is_none() {
-    log::error!("decompilation was not successful. No status code");
-    return Ok(InstallStepOutput {
-      success: false,
-      msg: Some("Unexpected error occurred".to_owned()),
-    });
-  }
-  match process_status.unwrap().code() {
+  match process_status.code() {
     Some(code) => {
       if code == 0 {
         log::info!("decompilation was successful");
@@ -546,14 +494,7 @@ pub async fn compile_for_mod_install(
 
   let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   log_file.flush().await?;
-  if process_status.is_none() {
-    log::error!("compilation was not successful. No status code");
-    return Ok(InstallStepOutput {
-      success: false,
-      msg: Some("Unexpected error occurred".to_owned()),
-    });
-  }
-  match process_status.unwrap().code() {
+  match process_status.code() {
     Some(code) => {
       if code == 0 {
         log::info!("compilation was successful");
@@ -598,7 +539,14 @@ pub async fn save_mod_install_info(
     version_name
   );
   config_lock
-    .save_mod_install_info(game_name, mod_name, source_name, version_name)
+    .update_mods_setting_value(
+      "add_mod",
+      game_name,
+      Some(source_name),
+      Some(version_name),
+      Some(mod_name),
+      None,
+    )
     .map_err(|err| {
       log::error!("Unable to remove mod source: {:?}", err);
       CommandError::Configuration("Unable to remove mod source".to_owned())
@@ -607,23 +555,6 @@ pub async fn save_mod_install_info(
     success: true,
     msg: None,
   })
-}
-
-#[tauri::command]
-pub async fn get_installed_mods(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
-) -> Result<HashMap<String, HashMap<String, String>>, CommandError> {
-  let config_lock = config.lock().await;
-  match config_lock.get_installed_mods(game_name) {
-    Ok(result) => Ok(result),
-    Err(err) => {
-      log::error!("Unable to retrieve installed mods: {:?}", err);
-      Err(CommandError::Configuration(
-        "Unable to retrieve installed mods".to_owned(),
-      ))
-    }
-  }
 }
 
 fn generate_launch_mod_args(
@@ -709,7 +640,7 @@ pub async fn launch_mod(
     command.creation_flags(0x08000000);
   }
   // Start the process here so if there is an error, we can return immediately
-  let mut child = command.spawn()?;
+  let _child = command.spawn()?;
   Ok(())
 }
 
@@ -789,7 +720,14 @@ pub async fn uninstall_mod(
     std::fs::remove_dir_all(mod_dir)?;
   }
   config_lock
-    .uninstall_mod(game_name, mod_name, source_name)
+    .update_mods_setting_value(
+      "uninstall_mod",
+      game_name,
+      Some(source_name),
+      None,
+      Some(mod_name),
+      None,
+    )
     .map_err(|_| CommandError::GameFeatures("Unable to uninstall mod".to_owned()))?;
   Ok(())
 }
@@ -873,17 +811,20 @@ pub async fn get_launch_mod_string(
   ))
 }
 
+#[derive(Clone, serde::Serialize)]
+struct ToastPayload {
+  toast: String,
+  level: String,
+}
+
 #[tauri::command]
 pub async fn open_repl_for_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  app_handle: tauri::AppHandle,
   game_name: String,
   mod_name: String,
   source_name: String,
 ) -> Result<(), CommandError> {
-  // TODO - explore a linux option though this is very annoying because without doing a ton of research
-  // we seem to have to handle various terminals.  Which honestly we should probably do on windows too
-  //
-  // So maybe we can make a menu where the user will specify what terminal to use / what launch-options to use
   let config_lock = config.lock().await;
   let install_path = match &config_lock.installation_dir {
     None => {
@@ -893,6 +834,13 @@ pub async fn open_repl_for_mod(
     }
     Some(path) => Path::new(path),
   };
+  let iso_dir = install_path
+    .join("active")
+    .join(&game_name)
+    .join("data")
+    .join("iso_data")
+    .join(&game_name)
+    .to_path_buf();
   let exec_info = get_mod_exec_location(
     install_path.to_path_buf(),
     "goalc",
@@ -900,14 +848,59 @@ pub async fn open_repl_for_mod(
     &mod_name,
     &source_name,
   )?;
-  let mut command = Command::new("cmd");
-  command
-    .args(["/K", "start", &bin_ext("goalc"), "--game", &game_name])
-    .current_dir(exec_info.executable_dir);
+  let mut command;
   #[cfg(windows)]
   {
-    command.creation_flags(0x08000000);
+    command = std::process::Command::new("cmd");
+    command
+      .args([
+        "/C",
+        "start",
+        &bin_ext("goalc"),
+        "--game",
+        &game_name,
+        "--iso-path",
+        &iso_dir.to_string_lossy(),
+      ])
+      .current_dir(exec_info.executable_dir)
+      .creation_flags(0x08000000);
   }
-  command.spawn()?;
-  Ok(())
+  #[cfg(target_os = "linux")]
+  {
+    command = std::process::Command::new("xdg-terminal-exec");
+    command
+      .args(["./goalc", "--iso-path", &iso_dir.to_string_lossy()])
+      .current_dir(exec_info.executable_dir);
+  }
+  #[cfg(target_os = "macos")]
+  {
+    command = std::process::Command::new("osascript");
+    command
+      .args([
+        "-e",
+        "'tell app \"Terminal\" to do script",
+        format!("\"cd {:?}\" &&", exec_info.executable_dir).as_str(),
+        "./goalc",
+        "--iso-path",
+        &iso_dir.to_string_lossy(),
+      ])
+      .current_dir(exec_info.executable_dir);
+  }
+  match command.spawn() {
+    Ok(_) => Ok(()),
+    Err(e) => {
+      if let ErrorKind::NotFound = e.kind() {
+        let _ = app_handle.emit_all(
+          "toast_msg",
+          ToastPayload {
+            toast: format!("'{:?}' not found in PATH!", command.get_program()),
+            level: "error".to_string(),
+          },
+        );
+      }
+      return Err(CommandError::BinaryExecution(
+        "Unable to launch REPL".to_owned(),
+      ));
+    }
+  }
 }

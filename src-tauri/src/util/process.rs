@@ -1,8 +1,8 @@
-use std::{process::ExitStatus, sync::Arc, time::Duration};
+use std::process::ExitStatus;
 
 use tokio::{
   io::{AsyncBufReadExt, AsyncWriteExt},
-  sync::Mutex,
+  sync::mpsc,
 };
 
 use crate::commands::CommandError;
@@ -45,55 +45,49 @@ pub async fn watch_process(
   log_file: &mut tokio::fs::File,
   child: &mut tokio::process::Child,
   app_handle: &tauri::AppHandle,
-) -> Result<Option<ExitStatus>, CommandError> {
+) -> Result<ExitStatus, CommandError> {
   let stdout = child.stdout.take().unwrap();
   let stderr = child.stderr.take().unwrap();
 
   let mut stdout_reader = tokio::io::BufReader::new(stdout).lines();
   let mut stderr_reader = tokio::io::BufReader::new(stderr).lines();
-  let combined_buffer = Arc::new(Mutex::new(String::new()));
+  let (log_sender, mut log_receiver) = mpsc::channel::<String>(200);
+  let app_handle_clone = app_handle.clone();
 
-  let mut interval = tokio::time::interval(Duration::from_millis(25));
+  tokio::spawn(async move {
+    while let Some(log) = log_receiver.recv().await {
+      let _ = app_handle_clone.emit_all("log_update", LogPayload { logs: log });
+    }
+  });
 
-  let mut process_status = None;
+  let mut process_status: ExitStatus;
+
   loop {
-    let buffer_clone = Arc::clone(&combined_buffer);
     tokio::select! {
         Ok(Some(line)) = stdout_reader.next_line() => {
-          let formatted_line = format!("{line}\n");
-          log_file.write_all(formatted_line.as_bytes()).await?;
+          let formatted_line = format!("{line}\n").trim().to_string();
           if formatted_line != "\n" {
-            let mut buf = buffer_clone.lock().await;
-            buf.push_str(&formatted_line);
+            log_sender.try_send(formatted_line.clone()).ok();
+            log_file.write_all(formatted_line.as_bytes()).await?;
+            log_file.flush().await?;
           }
         },
         Ok(Some(line)) = stderr_reader.next_line() => {
-          let formatted_line = format!("{line}\n");
-          log_file.write_all(formatted_line.as_bytes()).await?;
+          let formatted_line = format!("{line}\n").trim().to_string();
           if formatted_line != "\n" {
-            let mut buf = buffer_clone.lock().await;
-            buf.push_str(&formatted_line);
+            log_sender.try_send(formatted_line.clone()).ok();
+            log_file.write_all(formatted_line.as_bytes()).await?;
+            log_file.flush().await?;
           }
         },
-        _ = interval.tick() => {
-          log_file.flush().await?;
-          {
-            let mut buf = buffer_clone.lock().await;
-            let _ = app_handle.emit("log_update", LogPayload { logs: buf.clone() });
-            buf.clear();
-          }
-        },
-        // Wait for the child process to finish
         status = child.wait() => {
-          let mut buf = buffer_clone.lock().await;
-          let _ = app_handle.emit("log_update", LogPayload { logs: buf.clone() });
-          buf.clear();
-          process_status = Some(status?);
+          process_status = status?;
+          drop(log_sender);
           break;
         }
     }
   }
-  return Ok(process_status);
+  Ok(process_status)
 }
 
 pub fn create_std_log_file(

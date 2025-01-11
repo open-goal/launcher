@@ -6,11 +6,15 @@
     getLocale,
     localeSpecificFontAvailableForDownload,
     resetLauncherSettingsToDefaults,
+    setAutoUpdateGames,
+    getAutoUpdateGames,
     setBypassRequirements,
     setInstallationDirectory,
     setLocale,
+    setAutoUninstallOldVersions,
+    getAutoUninstallOldVersions,
   } from "$lib/rpc/config";
-  import { getActiveVersion, getActiveVersionFolder } from "$lib/rpc/versions";
+  import { getActiveVersion } from "$lib/rpc/versions";
   import { VersionStore } from "$lib/stores/VersionStore";
   import {
     Button,
@@ -28,16 +32,22 @@
   import { downloadFile } from "$lib/rpc/download";
   import { appDataDir, join } from "@tauri-apps/api/path";
   import { folderPrompt } from "$lib/utils/file-dialogs";
+  import { writable } from "svelte/store";
 
   let currentInstallationDirectory = "";
-  let currentLocale;
+  let currentLocale = writable();
   let availableLocales = [];
   let currentBypassRequirementsVal = false;
+  let keepGamesUpdated = writable(false);
+  let uninstallOldVersions = writable(false);
   let localeFontForDownload: Locale | undefined = undefined;
   let localeFontDownloading = false;
   let isLinux = false;
+  let initialized = false;
 
   onMount(async () => {
+    keepGamesUpdated.set(await getAutoUpdateGames());
+    uninstallOldVersions.set(await getAutoUninstallOldVersions());
     isLinux = (await platform()) === "linux";
     currentInstallationDirectory = await getInstallationDirectory();
     for (const locale of AVAILABLE_LOCALES) {
@@ -49,13 +59,22 @@
         },
       ];
     }
-    currentLocale = await getLocale();
+    $currentLocale = await getLocale();
     currentBypassRequirementsVal = await getBypassRequirements();
-    if (currentLocale !== null) {
+    if ($currentLocale !== null) {
       localeFontForDownload =
-        await localeSpecificFontAvailableForDownload(currentLocale);
+        await localeSpecificFontAvailableForDownload($currentLocale);
     }
+    initialized = true;
   });
+
+  $: if (initialized) {
+    setAutoUpdateGames($keepGamesUpdated);
+  }
+
+  $: if (initialized) {
+    setAutoUninstallOldVersions($uninstallOldVersions);
+  }
 </script>
 
 <div class="flex flex-col gap-5 mt-2">
@@ -65,12 +84,11 @@
       <Select
         class="mt-2"
         items={availableLocales}
-        bind:value={currentLocale}
-        on:change={async (evt) => {
-          await setLocale(evt.target.value);
-          localeFontForDownload = await localeSpecificFontAvailableForDownload(
-            evt.target.value,
-          );
+        bind:value={$currentLocale}
+        on:change={async () => {
+          await setLocale($currentLocale);
+          localeFontForDownload =
+            await localeSpecificFontAvailableForDownload($currentLocale);
         }}
       />
     </Label>
@@ -101,9 +119,9 @@
               localeFontForDownload.fontFileName,
             );
             await downloadFile(localeFontForDownload.fontDownloadUrl, fontPath);
-            await setLocale(currentLocale);
+            await setLocale($currentLocale);
             localeFontForDownload =
-              await localeSpecificFontAvailableForDownload(currentLocale);
+              await localeSpecificFontAvailableForDownload($currentLocale);
             localeFontDownloading = false;
           }
         }}
@@ -149,6 +167,21 @@
   {/if}
   <div>
     <Toggle
+      color="orange"
+      bind:checked={$keepGamesUpdated}
+      on:change={async () => {
+        $uninstallOldVersions = false;
+      }}
+      class="mb-2">{$_("settings_general_keep_updated")}</Toggle
+    >
+    {#if $keepGamesUpdated}
+      <Toggle
+        color="orange"
+        bind:checked={$uninstallOldVersions}
+        class="ml-14 mb-2">{$_("settings_general_uninstall_old")}</Toggle
+      >
+    {/if}
+    <Toggle
       checked={currentBypassRequirementsVal}
       color="orange"
       on:change={async (evt) => {
@@ -183,7 +216,6 @@
           const result = resetLauncherSettingsToDefaults();
           if (result) {
             // TODO - move these to a store method
-            $VersionStore.activeVersionType = await getActiveVersionFolder();
             $VersionStore.activeVersionName = await getActiveVersion();
           }
         }

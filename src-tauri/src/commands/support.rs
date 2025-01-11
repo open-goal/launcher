@@ -24,9 +24,8 @@ use super::CommandError;
 #[derive(Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GPUInfo {
-  pub name: String,
-  pub driver_info: String,
-  pub driver_name: String,
+  pub opengl_test_passed: bool,
+  pub renderer_name: String,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -78,7 +77,7 @@ pub struct SupportPackage {
   pub os_name_long: String,
   pub os_kernel_ver: String,
   pub disk_info: Vec<String>,
-  pub gpu_info: Vec<GPUInfo>,
+  pub gpu_info: Option<GPUInfo>,
   pub game_info: PerGameInfo,
   pub launcher_version: String,
   pub extractor_binary_exists: bool,
@@ -162,11 +161,11 @@ fn dump_per_game_info(
     CommandError::Support("Unable to append iso metadata to support package".to_owned())
   })?;
 
-  if config_lock.active_version_folder.is_some() && config_lock.active_version_folder.is_some() {
+  if config_lock.active_version.is_some() {
     let data_dir = active_version_dir.join(&game_name).join("data");
     let version_data_dir = install_path
       .join("versions")
-      .join(config_lock.active_version_folder.as_ref().unwrap())
+      .join("official")
       .join(config_lock.active_version.as_ref().unwrap())
       .join("data");
     package
@@ -339,16 +338,27 @@ pub async fn generate_support_package(
     ))
   }
 
-  let gpu_info_instance = wgpu::Instance::default();
-  for a in gpu_info_instance.enumerate_adapters(wgpu::Backends::all()) {
-    let info = a.get_info();
-    let gpu_info = GPUInfo {
-      name: info.name,
-      driver_name: info.driver,
-      driver_info: info.driver_info,
-    };
-    package.gpu_info.push(gpu_info);
-  }
+  let test_result = crate::util::game_tests::run_game_gpu_test(&config_lock, &app_handle).await;
+  match test_result {
+    Ok(result) => {
+      let gpu_info = GPUInfo {
+        opengl_test_passed: result.success,
+        renderer_name: format!(
+          "{}:{}",
+          result
+            .gpu_renderer_string
+            .unwrap_or("unknown renderer".to_string()),
+          result
+            .gpu_vendor_string
+            .unwrap_or("unknown vendor".to_string())
+        ),
+      };
+      package.gpu_info = Some(gpu_info);
+    }
+    Err(_) => {
+      package.gpu_info = None;
+    }
+  };
 
   // Create zip file
   let save_path = Path::new(&user_path);

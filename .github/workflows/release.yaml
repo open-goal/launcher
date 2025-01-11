@@ -112,7 +112,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-20.04, windows-latest, macos-12]
+        platform: [ubuntu-20.04, windows-latest, macos-13, macos-15]
     runs-on: ${{ matrix.platform }}
     steps:
       # NOTE - there is technically a race condition here if multiple releases go out
@@ -185,7 +185,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_ID: ${{needs.create-release.outputs.release_id}}
-          EXPECTED_ASSET_NAME_REGEXES: '[".*AppImage", ".*AppImage.tar.gz", ".*AppImage.tar.gz.sig", ".*msi", ".*msi.zip", ".*msi.zip.sig", ".*dmg", ".*app", ".*app.tar.gz", ".*app.tar.gz.sig", "latest.json"]'
+          EXPECTED_ASSET_NAME_REGEXES: '[".*AppImage", ".*AppImage.tar.gz", ".*AppImage.tar.gz.sig", ".*msi", ".*msi.zip", ".*msi.zip.sig", ".*_aarch64.dmg", ".*_x64.dmg", ".*app", ".*app.tar.gz", ".*app.tar.gz.sig", "latest.json"]'
         run: yarn verify-release-assets
 
   publish-release:

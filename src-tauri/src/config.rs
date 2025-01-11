@@ -16,6 +16,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde_json::{json, Value};
+
 use crate::util::file::touch_file;
 
 #[derive(Debug, thiserror::Error)]
@@ -28,7 +31,7 @@ pub enum ConfigError {
   Configuration(String),
 }
 
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Eq, PartialEq, Hash, Clone)]
 pub enum SupportedGame {
   Jak1,
   Jak2,
@@ -36,26 +39,15 @@ pub enum SupportedGame {
   JakX,
 }
 
-impl SupportedGame {
-  fn internal_str(&self) -> &'static str {
-    match self {
-      SupportedGame::Jak1 => "jak1",
-      SupportedGame::Jak2 => "jak2",
-      SupportedGame::Jak3 => "jak3",
-      SupportedGame::JakX => "jakx",
-    }
-  }
-}
-
 impl FromStr for SupportedGame {
   type Err = String;
 
   fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s {
-      "jak1" => Ok(Self::Jak1),
-      "jak2" => Ok(Self::Jak2),
-      "jak3" => Ok(Self::Jak3),
-      "jakx" => Ok(Self::JakX),
+    match s.trim().to_lowercase().as_str() {
+      "jak 1" | "jak1" => Ok(Self::Jak1),
+      "jak 2" | "jak2" => Ok(Self::Jak2),
+      "jak 3" | "jak3" => Ok(Self::Jak3),
+      "jak x" | "jakx" => Ok(Self::JakX),
       _ => Err(format!("Invalid variant: {s}")),
     }
   }
@@ -94,7 +86,7 @@ impl Serialize for SupportedGame {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct GameFeatureConfig {
   pub texture_packs: Vec<String>,
@@ -108,15 +100,14 @@ impl GameFeatureConfig {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct GameConfig {
   pub is_installed: bool,
   pub version: Option<String>,
-  pub version_folder: Option<String>,
-  pub features: Option<GameFeatureConfig>,
-  pub seconds_played: Option<u64>,
-  pub mods_installed_version: Option<HashMap<String, HashMap<String, String>>>,
+  pub features: GameFeatureConfig,
+  pub seconds_played: u64,
+  pub mods_installed_version: HashMap<String, HashMap<String, String>>,
 }
 
 impl GameConfig {
@@ -124,29 +115,36 @@ impl GameConfig {
     Self {
       is_installed: false,
       version: None,
-      version_folder: None,
-      features: Some(GameFeatureConfig::default()),
-      seconds_played: Some(0),
-      mods_installed_version: None,
+      features: GameFeatureConfig::default(),
+      seconds_played: 0,
+      mods_installed_version: HashMap::new(),
     }
+  }
+
+  pub fn active_texture_packs(&self) -> Vec<String> {
+    self.features.texture_packs.clone()
+  }
+
+  pub fn version(&self) -> Option<String> {
+    self.version.clone()
   }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Requirements {
-  pub bypass_requirements: Option<bool>,
-  pub avx: Option<bool>,
+  pub bypass_requirements: bool,
+  pub avx: bool,
   #[serde(rename = "openGL")]
-  pub opengl: Option<bool>,
+  pub opengl: bool,
 }
 
 impl Requirements {
   fn default() -> Self {
     Self {
-      bypass_requirements: Some(false),
-      avx: None,
-      opengl: None,
+      bypass_requirements: false,
+      avx: false,
+      opengl: false,
     }
   }
 }
@@ -154,29 +152,21 @@ impl Requirements {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DecompilerSettings {
-  #[serde(default = "default_as_false")]
-  pub rip_levels_enabled: Option<bool>,
-  #[serde(default = "default_as_false")]
-  pub rip_collision_enabled: Option<bool>,
-  #[serde(default = "default_as_false")]
-  pub rip_textures_enabled: Option<bool>,
-  #[serde(default = "default_as_false")]
-  pub rip_streamed_audio_enabled: Option<bool>,
+  pub rip_levels_enabled: bool,
+  pub rip_collision_enabled: bool,
+  pub rip_textures_enabled: bool,
+  pub rip_streamed_audio_enabled: bool,
 }
 
 impl DecompilerSettings {
   fn default() -> Self {
     Self {
-      rip_levels_enabled: Some(false),
-      rip_collision_enabled: Some(false),
-      rip_textures_enabled: Some(false),
-      rip_streamed_audio_enabled: Some(false),
+      rip_levels_enabled: false,
+      rip_collision_enabled: false,
+      rip_textures_enabled: false,
+      rip_streamed_audio_enabled: false,
     }
   }
-}
-
-fn default_as_false() -> Option<bool> {
-  Some(false)
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -186,21 +176,119 @@ pub struct LauncherConfig {
   #[serde(skip_deserializing)]
   settings_path: Option<PathBuf>,
   #[serde(default = "default_version")]
-  pub version: Option<String>,
+  pub version: String,
   pub requirements: Requirements,
   pub games: HashMap<SupportedGame, GameConfig>,
-  pub last_active_game: Option<SupportedGame>,
   pub installation_dir: Option<String>,
   pub active_version: Option<String>,
-  pub active_version_folder: Option<String>,
   pub locale: Option<String>,
-  pub mod_sources: Option<Vec<String>>,
-  pub decompiler_settings: Option<DecompilerSettings>,
-  pub check_for_latest_mod_version: Option<bool>,
+  pub mod_sources: Vec<String>,
+  pub decompiler_settings: DecompilerSettings,
+  pub check_for_latest_mod_version: bool,
+  pub proceed_after_successful_operation: bool,
+  pub auto_update_games: bool,
+  pub delete_previous_versions: bool,
 }
 
-fn default_version() -> Option<String> {
-  Some("1.0".to_string())
+fn default_version() -> String {
+  return "2.0".to_owned();
+}
+
+fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> LauncherConfig {
+  log::warn!("Outdated config detected. Migrating to the latest version.");
+  let mut new_config = LauncherConfig::default(Some(settings_path));
+
+  // Migrate requirements
+  if let Some(requirements) = json_value.get("requirements") {
+    new_config.requirements =
+      serde_json::from_value(requirements.clone()).unwrap_or_else(|_| Requirements::default());
+  }
+
+  // Migrate games
+  if let Some(games) = json_value.get("games").and_then(|v| v.as_object()) {
+    for (key, value) in games {
+      if let Ok(supported_game) = SupportedGame::from_str(key) {
+        // Start with default values
+        let mut game_config = GameConfig::default();
+
+        // Deserialize fields manually
+        if let Some(is_installed) = value.get("isInstalled").and_then(|v| v.as_bool()) {
+          game_config.is_installed = is_installed;
+        }
+        if let Some(version) = value.get("version").and_then(|v| v.as_str()) {
+          game_config.version = Some(version.to_string());
+        }
+        if let Some(features) = value.get("features") {
+          game_config.features = serde_json::from_value(features.clone())
+            .unwrap_or_else(|_| GameFeatureConfig::default());
+        }
+        if let Some(seconds_played) = value.get("secondsPlayed").and_then(|v| v.as_u64()) {
+          game_config.seconds_played = seconds_played;
+        }
+        if let Some(mods) = value.get("modsInstalledVersion") {
+          game_config.mods_installed_version =
+            serde_json::from_value(mods.clone()).unwrap_or_default();
+        }
+
+        new_config.games.insert(supported_game, game_config);
+      } else {
+        log::warn!("Unsupported game key: '{}'. Skipping.", key);
+      }
+    }
+  }
+
+  // Migrate other fields
+  new_config.installation_dir = json_value
+    .get("installationDir")
+    .and_then(|v| v.as_str())
+    .map(String::from);
+
+  new_config.active_version = json_value
+    .get("activeVersion")
+    .and_then(|v| v.as_str())
+    .map(String::from);
+
+  new_config.locale = json_value
+    .get("locale")
+    .and_then(|v| v.as_str())
+    .map(String::from);
+
+  if let Some(mod_sources) = json_value.get("modSources").and_then(|v| v.as_array()) {
+    new_config.mod_sources = mod_sources
+      .iter()
+      .filter_map(|v| v.as_str().map(String::from))
+      .collect();
+  }
+
+  // Migrate decompiler settings
+  if let Some(decompiler_settings) = json_value.get("decompilerSettings") {
+    new_config.decompiler_settings = serde_json::from_value(decompiler_settings.clone())
+      .unwrap_or_else(|_| DecompilerSettings::default());
+  }
+
+  // Default values for fields not in old config
+  new_config.check_for_latest_mod_version = json_value
+    .get("checkForLatestModVersion")
+    .and_then(|v| v.as_bool())
+    .unwrap_or(true);
+
+  new_config.proceed_after_successful_operation = json_value
+    .get("proceedAfterSuccessfulOperation")
+    .and_then(|v| v.as_bool())
+    .unwrap_or(true);
+
+  new_config.auto_update_games = json_value
+    .get("autoUpdateGames")
+    .and_then(|v| v.as_bool())
+    .unwrap_or(false);
+
+  new_config.delete_previous_versions = json_value
+    .get("deletePreviousVersions")
+    .and_then(|v| v.as_bool())
+    .unwrap_or(false);
+
+  log::info!("Migration complete. New configuration ready.");
+  new_config
 }
 
 impl LauncherConfig {
@@ -215,14 +303,15 @@ impl LauncherConfig {
       version: default_version(),
       requirements: Requirements::default(),
       games: default_games,
-      last_active_game: None,
       installation_dir: None,
       active_version: None,
-      active_version_folder: Some("official".to_string()),
       locale: None,
-      mod_sources: None,
-      decompiler_settings: Some(DecompilerSettings::default()),
-      check_for_latest_mod_version: Some(true),
+      mod_sources: Vec::new(),
+      decompiler_settings: DecompilerSettings::default(),
+      check_for_latest_mod_version: true,
+      proceed_after_successful_operation: true,
+      auto_update_games: false,
+      delete_previous_versions: false,
     }
   }
 
@@ -230,117 +319,39 @@ impl LauncherConfig {
     &mut self,
     game_name: &String,
   ) -> Result<&mut GameConfig, ConfigError> {
-    let game = match SupportedGame::from_str(game_name) {
-      Err(_) => {
-        log::warn!("Game is not supported: {}", game_name);
-        return Err(ConfigError::Configuration(
-          "Game is not supported".to_owned(),
-        ));
-      }
-      Ok(game) => game,
-    };
-    match self.games.get_mut(&game) {
-      None => {
-        log::error!("Supported game missing from games map: {}", game_name);
-        return Err(ConfigError::Configuration(format!(
-          "Supported game missing from games map: {game_name}"
-        )));
-      }
-      Some(cfg) => Ok(cfg),
-    }
+    SupportedGame::from_str(game_name)
+      .ok()
+      .and_then(|game| self.games.get_mut(&game))
+      .ok_or_else(|| {
+        log::error!("Game not found or unsupported: {}", game_name);
+        ConfigError::Configuration(format!("Game not found or unsupported: {game_name}"))
+      })
   }
 
-  fn get_supported_game_config(&self, game_name: &String) -> Result<&GameConfig, ConfigError> {
-    let game = match SupportedGame::from_str(game_name) {
-      Err(_) => {
-        log::warn!("Game is not supported: {}", game_name);
-        return Err(ConfigError::Configuration(
-          "Game is not supported".to_owned(),
-        ));
-      }
-      Ok(game) => game,
-    };
-    match self.games.get(&game) {
-      None => {
-        log::error!("Supported game missing from games map: {}", game_name);
-        return Err(ConfigError::Configuration(format!(
-          "Supported game missing from games map: {game_name}"
-        )));
-      }
-      Some(cfg) => Ok(cfg),
-    }
-  }
+  pub fn load_config(config_dir: Option<std::path::PathBuf>) -> LauncherConfig {
+    let settings_path = config_dir.map(|dir| dir.join("settings.json"));
 
-  pub fn load_config(config_dir: Result<PathBuf, tauri::Error>) -> LauncherConfig {
-    match config_dir {
-      Ok(config_dir) => {
-        let settings_path = &config_dir.join("settings.json");
-        log::info!("Loading configuration at path: {}", settings_path.display());
-        if !settings_path.exists() {
-          log::error!("Could not locate settings file, using defaults");
-          return LauncherConfig::default(Some(settings_path.to_path_buf()));
-        }
-        // Read the file
-        let content = match fs::read_to_string(settings_path) {
-          Ok(content) => content,
-          Err(err) => {
-            log::error!("Could not read settings.json file: {}, using defaults", err);
-            return LauncherConfig::default(Some(settings_path.to_path_buf()));
-          }
-        };
+    if let Some(path) = &settings_path {
+      log::info!("Loading configuration at path: {}", path.display());
 
-        // Serialize from json
-        match serde_json::from_str::<LauncherConfig>(&content) {
-          Ok(mut config) => {
-            log::info!(
-              "Successfully loaded settings file, version {}, app starting up",
-              config.version.as_ref().unwrap()
-            );
-            config.settings_path = Some(settings_path.to_path_buf());
-            // Remove usages of non-official versions
-            let mut found_violations = false;
-            if config
-              .active_version_folder
-              .as_ref()
-              .is_some_and(|x| x != "official")
-            {
-              log::warn!("non-official versions is a deprecated feature, erasing!");
-              config.active_version = None;
-              config.active_version_folder = None;
-              found_violations = true;
-            }
-            // check the games as well
-            for (_, game_info) in config.games.iter_mut() {
-              if game_info
-                .version_folder
-                .as_ref()
-                .is_some_and(|x| x != "official")
-              {
-                log::warn!("non-official versions is a deprecated feature, erasing!");
-                game_info.version = None;
-                game_info.version_folder = None;
-                found_violations = true;
-              }
-            }
-            if found_violations {
-              config.save_config().expect("TODO NOW");
-            }
-            config
-          }
-          Err(err) => {
-            log::error!(
-              "Could not parse settings.json file: {}, using defaults",
-              err
-            );
-            LauncherConfig::default(Some(settings_path.to_path_buf()))
-          }
+      match fs::read_to_string(path)
+        .ok()
+        .and_then(|content| serde_json::from_str::<serde_json::Value>(&content).ok())
+      {
+        Some(json_value) => {
+          // Try to deserialize into LauncherConfig, or migrate if necessary
+          let mut config: LauncherConfig = serde_json::from_value(json_value.clone())
+            .unwrap_or_else(|_| migrate_old_config(json_value, path.to_path_buf()));
+
+          config.settings_path = Some(path.to_path_buf());
+          return config;
         }
+        None => log::error!("Failed to load or parse settings file, using defaults"),
       }
-      Err(_) => {
-        log::warn!("Not loading configuration, no path provided. Using defaults");
-        LauncherConfig::default(None)
-      }
+    } else {
+      log::warn!("No configuration directory provided, using defaults");
     }
+    LauncherConfig::default(settings_path)
   }
 
   pub fn save_config(&self) -> Result<(), ConfigError> {
@@ -368,15 +379,19 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn set_install_directory(&mut self, new_dir: String) -> Result<Option<String>, ConfigError> {
+  pub fn set_install_directory(&mut self, new_dir: String) -> Result<(), ConfigError> {
     // Do some tests on this folder, if they fail, return a decent error
     let path = Path::new(&new_dir);
     if !path.exists() {
-      return Ok(Some("Provided folder does not exist".to_owned()));
+      return Err(ConfigError::Configuration(
+        "Provided folder does not exist".to_owned(),
+      ));
     }
 
     if !path.is_dir() {
-      return Ok(Some("Provided folder is not a folder".to_owned()));
+      return Err(ConfigError::Configuration(
+        "Provided folder is not a folder".to_owned(),
+      ));
     }
 
     // Check our permissions on the folder by touching a file (and deleting it)
@@ -386,7 +401,9 @@ impl LauncherConfig {
         "Provided installation folder could not be written to: {}",
         e
       );
-      return Ok(Some("Provided folder cannot be written to".to_owned()));
+      return Err(ConfigError::Configuration(
+        "Provided folder cannot be written to".to_owned(),
+      ));
     }
 
     // If the directory changes (it's not a no-op), we need to:
@@ -395,204 +412,195 @@ impl LauncherConfig {
     if let Some(old_dir) = &self.installation_dir {
       if *old_dir != new_dir {
         self.active_version = None;
-        self.active_version_folder = None;
-        self
-          .update_installed_game_version(&SupportedGame::Jak1.internal_str().to_string(), false)?;
-        self
-          .update_installed_game_version(&SupportedGame::Jak2.internal_str().to_string(), false)?;
-        self
-          .update_installed_game_version(&SupportedGame::Jak3.internal_str().to_string(), false)?;
-        self
-          .update_installed_game_version(&SupportedGame::JakX.internal_str().to_string(), false)?;
+        self.update_setting_value("installed", false.into(), Some("jak1".to_owned()))?;
+        self.update_setting_value("installed", false.into(), Some("jak2".to_owned()))?;
+        self.update_setting_value("installed", false.into(), Some("jak3".to_owned()))?;
+        self.update_setting_value("installed", false.into(), Some("jakx".to_owned()))?;
       }
     }
 
     self.installation_dir = Some(new_dir);
     self.save_config()?;
-    Ok(None)
+    Ok(())
   }
 
-  pub fn set_opengl_requirement_met(&mut self, new_val: Option<bool>) -> Result<(), ConfigError> {
-    match new_val {
-      Some(val) => {
-        self.requirements.opengl = Some(val);
+  pub fn update_setting_value(
+    &mut self,
+    key: &str,
+    val: Value,
+    game_name: Option<String>,
+  ) -> Result<(), ConfigError> {
+    if let Some(game_config) = game_name
+      .as_deref()
+      .and_then(|name| SupportedGame::from_str(name).ok())
+      .and_then(|game| self.games.get_mut(&game))
+    {
+      match key {
+        "installed" => {
+          let installed = val.as_bool().unwrap_or(false);
+          game_config.is_installed = installed;
+          if installed {
+            game_config.version = self.active_version.clone();
+          } else {
+            game_config.version = None;
+          }
+        }
+        "installed_version" => game_config.version = val.as_str().map(|s| s.to_string()),
+        "seconds_played" => game_config.seconds_played += val.as_u64().unwrap_or(0),
+        _ => {
+          log::error!("Key '{}' not recognized", key);
+          return Err(ConfigError::Configuration("Invalid key".to_owned()));
+        }
       }
-      None => self.requirements.opengl = None,
-    }
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_active_version(&mut self, new_version: String) -> Result<(), ConfigError> {
-    self.active_version = Some(new_version);
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_active_version_folder(
-    &mut self,
-    new_version_folder: String,
-  ) -> Result<(), ConfigError> {
-    self.active_version_folder = Some(new_version_folder);
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn clear_active_version(&mut self) -> Result<(), ConfigError> {
-    self.active_version = None;
-    self.active_version_folder = None;
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_locale(&mut self, new_locale: String) -> Result<(), ConfigError> {
-    self.locale = Some(new_locale);
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_bypass_requirements(&mut self, bypass: bool) -> Result<(), ConfigError> {
-    self.requirements.bypass_requirements = Some(bypass);
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_check_for_latest_mod_version(
-    &mut self,
-    check_for_latest_mod_version: bool,
-  ) -> Result<(), ConfigError> {
-    self.check_for_latest_mod_version = Some(check_for_latest_mod_version);
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn update_installed_game_version(
-    &mut self,
-    game_name: &String,
-    installed: bool,
-  ) -> Result<(), ConfigError> {
-    log::info!(
-      "Updating game installation status: {} - {}",
-      game_name,
-      installed
-    );
-    let active_version = self.active_version.clone();
-    let active_version_folder = self.active_version_folder.clone();
-    let game_config = self.get_supported_game_config_mut(game_name)?;
-    game_config.is_installed = installed;
-    if installed {
-      game_config.version = active_version;
-      game_config.version_folder = active_version_folder;
     } else {
-      game_config.version = None;
-      game_config.version_folder = None;
+      match key {
+        "opengl_requirements_met" => self.requirements.opengl = val.as_bool().unwrap_or(false),
+        "avx" => self.requirements.avx = val.as_bool().unwrap_or(false),
+        "bypass_requirements" => {
+          self.requirements.bypass_requirements = val.as_bool().unwrap_or(false)
+        }
+        "active_version" => self.active_version = val.as_str().map(|s| s.to_string()),
+        "locale" => self.locale = val.as_str().map(|s| s.to_string()),
+        "check_for_latest_mod_version" => {
+          self.check_for_latest_mod_version = val.as_bool().unwrap_or(true)
+        }
+        "auto_update_games" => self.auto_update_games = val.as_bool().unwrap_or(false),
+        "delete_previous_versions" => {
+          self.delete_previous_versions = val.as_bool().unwrap_or(false)
+        }
+        "rip_levels" => {
+          self.decompiler_settings.rip_levels_enabled = val.as_bool().unwrap_or(false)
+        }
+        "rip_collision" => {
+          self.decompiler_settings.rip_collision_enabled = val.as_bool().unwrap_or(false)
+        }
+        "rip_textures" => {
+          self.decompiler_settings.rip_textures_enabled = val.as_bool().unwrap_or(false)
+        }
+        "rip_streamed_audio" => {
+          self.decompiler_settings.rip_streamed_audio_enabled = val.as_bool().unwrap_or(false)
+        }
+        "add_mod_source" => {
+          let mod_source = val.as_str().map(|s| s.to_string()).unwrap_or("".to_owned());
+          if !self.mod_sources.contains(&mod_source) {
+            self.mod_sources.push(mod_source);
+          }
+        }
+        "remove_mod_source" => {
+          let mod_source = val.as_str().map(|s| s.to_string()).unwrap_or("".to_owned());
+          self.mod_sources.retain(|source| source != &mod_source);
+        }
+        _ => {
+          log::error!("Key '{}' not recognized", key);
+          return Err(ConfigError::Configuration("Invalid key".to_owned()));
+        }
+      }
     }
     self.save_config()?;
     Ok(())
   }
 
-  pub fn is_game_installed(&self, game_name: &String) -> bool {
-    match SupportedGame::from_str(game_name) {
-      Ok(game) => {
-        // Retrieve relevant game from config
-        match self.games.get(&game) {
-          Some(game) => game.is_installed,
-          None => {
-            log::warn!(
-              "Could not find game to check if it's installed: {}",
-              game_name
-            );
-            false
-          }
+  pub fn get_setting_value(
+    &self,
+    key: &str,
+    game_name: Option<String>,
+  ) -> Result<Value, ConfigError> {
+    if let Some(game_config) = game_name
+      .as_deref()
+      .and_then(|name| SupportedGame::from_str(name).ok())
+      .and_then(|game| self.games.get(&game))
+    {
+      match key {
+        "installed" => return Ok(Value::Bool(game_config.is_installed)),
+        "installed_version" => return Ok(json!(game_config.version())),
+        "active_texture_packs" => return Ok(json!(game_config.active_texture_packs())),
+        "seconds_played" => return Ok(json!(game_config.seconds_played)),
+        "installed_mods" => return Ok(json!(game_config.mods_installed_version)),
+        _ => {
+          log::error!("Key '{}' not recognized", key);
+          return Err(ConfigError::Configuration("Invalid key".to_owned()));
         }
       }
-      Err(_) => {
-        log::warn!(
-          "Could not find game to check if it's installed: {}",
-          game_name
-        );
-        false
+    } else {
+      match key {
+        "opengl_requirements_met" => Ok(Value::Bool(self.requirements.opengl)),
+        "bypass_requirements" => Ok(Value::Bool(self.requirements.bypass_requirements)),
+        "install_directory" => Ok(
+          self
+            .installation_dir
+            .as_ref()
+            .map_or(Value::Null, |v| Value::String(v.clone())),
+        ),
+        "active_version" => Ok(
+          self
+            .active_version
+            .as_ref()
+            .map_or(Value::Null, |v| Value::String(v.clone())),
+        ),
+        "locale" => Ok(
+          self
+            .locale
+            .as_ref()
+            .map_or(Value::Null, |v| Value::String(v.clone())),
+        ),
+        "mod_sources" => Ok(json!(self.mod_sources)),
+        "check_for_latest_mod_version" => Ok(Value::Bool(self.check_for_latest_mod_version)),
+        "proceed_after_successful_operation" => {
+          Ok(Value::Bool(self.proceed_after_successful_operation))
+        }
+        "auto_update_games" => Ok(Value::Bool(self.auto_update_games)),
+        "delete_previous_versions" => Ok(Value::Bool(self.delete_previous_versions)),
+        "rip_levels" => Ok(Value::Bool(self.decompiler_settings.rip_levels_enabled)),
+        "rip_collision" => Ok(Value::Bool(self.decompiler_settings.rip_collision_enabled)),
+        "rip_textures" => Ok(Value::Bool(self.decompiler_settings.rip_textures_enabled)),
+        "rip_streamed_audio" => Ok(Value::Bool(
+          self.decompiler_settings.rip_streamed_audio_enabled,
+        )),
+        _ => {
+          log::error!("Key '{}' not recognized", key);
+          Err(ConfigError::Configuration("Invalid key".to_owned()))
+        }
       }
     }
   }
 
-  pub fn game_install_version(&self, game_name: &String) -> String {
-    match SupportedGame::from_str(game_name) {
-      Ok(game) => {
-        // Retrieve relevant game from config
-        match self.games.get(&game) {
-          Some(game) => game.version.clone().unwrap_or("".to_owned()),
-          None => {
-            log::warn!(
-              "Could not find game to check what version is installed: {}",
-              game_name
-            );
-            "".to_owned()
-          }
-        }
-      }
-      Err(_) => {
-        log::warn!(
-          "Could not find game to check what version is installed: {}",
-          game_name
-        );
-        "".to_owned()
-      }
-    }
-  }
+  pub fn update_mods_setting_value(
+    &mut self,
+    key: &str,
+    game_name: String,
+    source_name: Option<String>,
+    version_name: Option<String>,
+    mod_name: Option<String>,
+    texture_packs: Option<Vec<String>>,
+  ) -> Result<(), ConfigError> {
+    let game_config = self.get_supported_game_config_mut(&game_name)?;
+    let source = source_name.unwrap_or("".to_owned());
+    let version = version_name.unwrap_or("".to_owned());
+    let mod_name = mod_name.unwrap_or("".to_owned());
+    let texture_packs = texture_packs.unwrap_or(Vec::new());
 
-  pub fn game_install_version_folder(&self, game_name: &String) -> String {
-    match SupportedGame::from_str(game_name) {
-      Ok(game) => {
-        // Retrieve relevant game from config
-        match self.games.get(&game) {
-          Some(game) => game.version_folder.clone().unwrap_or("".to_string()),
-          None => {
-            log::warn!(
-              "Could not find game to check what version type is installed: {}",
-              game_name
-            );
-            "".to_owned()
-          }
-        }
+    match key {
+      "add_texture_packs" => {
+        game_config.features.texture_packs = texture_packs;
       }
-      Err(_) => {
-        log::warn!(
-          "Could not find game to check what version is installed: {}",
-          game_name
-        );
-        "".to_owned()
+      "add_mod" => {
+        game_config
+          .mods_installed_version
+          .entry(source)
+          .or_insert_with(HashMap::new)
+          .insert(mod_name, version);
       }
+      "uninstall_mod" => {
+        game_config
+          .mods_installed_version
+          .get_mut(&source)
+          .map(|mods| mods.remove(&mod_name));
+      }
+      _ => todo!(),
     }
-  }
 
-  pub fn game_enabled_textured_packs(&self, game_name: &String) -> Vec<String> {
-    // TODO - refactor out duplication
-    match SupportedGame::from_str(game_name) {
-      Ok(game) => {
-        // Retrieve relevant game from config
-        match self.games.get(&game) {
-          Some(game) => match &game.features {
-            Some(features) => features.texture_packs.to_owned(),
-            None => Vec::new(),
-          },
-          None => {
-            log::warn!(
-              "Could not find game to check which texture packs are enabled: {}",
-              game_name
-            );
-            Vec::new()
-          }
-        }
-      }
-      Err(_) => {
-        log::warn!(
-          "Could not find game to check which texture packs are enabled: {}",
-          game_name
-        );
-        Vec::new()
-      }
-    }
+    self.save_config()?;
+    Ok(())
   }
 
   pub fn cleanup_game_enabled_texture_packs(
@@ -604,208 +612,10 @@ impl LauncherConfig {
       return Ok(());
     }
     let game_config = self.get_supported_game_config_mut(game_name)?;
-    if let Some(features) = &mut game_config.features {
-      features
-        .texture_packs
-        .retain(|pack| !cleanup_list.contains(pack));
-      self.save_config()?;
-    }
-    Ok(())
-  }
-
-  pub fn set_game_enabled_texture_packs(
-    &mut self,
-    game_name: &String,
-    packs: Vec<String>,
-  ) -> Result<(), ConfigError> {
-    let game_config = self.get_supported_game_config_mut(game_name)?;
-    match &mut game_config.features {
-      Some(features) => {
-        features.texture_packs = packs;
-      }
-      None => {
-        game_config.features = Some(GameFeatureConfig {
-          texture_packs: packs,
-        });
-      }
-    }
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn update_game_seconds_played(
-    &mut self,
-    game_name: &String,
-    additional_seconds: u64,
-  ) -> Result<(), ConfigError> {
-    let game_config = self.get_supported_game_config_mut(game_name)?;
-    match game_config.seconds_played {
-      Some(seconds) => {
-        game_config.seconds_played = Some(seconds + additional_seconds);
-      }
-      None => {
-        game_config.seconds_played = Some(additional_seconds);
-      }
-    }
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn get_game_seconds_played(&mut self, game_name: &String) -> Result<u64, ConfigError> {
-    let game_config = self.get_supported_game_config_mut(&game_name)?;
-    Ok(game_config.seconds_played.unwrap_or(0))
-  }
-
-  pub fn add_new_mod_source(&mut self, url: &String) -> Result<(), ConfigError> {
-    self.mod_sources = match &mut self.mod_sources {
-      Some(sources) => {
-        if sources.iter().any(|s| *s == *url) {
-          return Err(ConfigError::Configuration(
-            "Duplicate mod source!".to_owned(),
-          ));
-        }
-        sources.push(url.to_string());
-        Some(sources.to_vec())
-      }
-      None => Some(vec![url.to_string()]),
-    };
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn remove_mod_source(&mut self, mod_source_index: usize) -> Result<(), ConfigError> {
-    if let Some(sources) = &mut self.mod_sources {
-      if (mod_source_index as usize) < sources.len() {
-        sources.remove(mod_source_index);
-      }
-    }
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn get_mod_sources(&self) -> Vec<String> {
-    match &self.mod_sources {
-      Some(sources) => sources.to_vec(),
-      None => Vec::new(),
-    }
-  }
-
-  pub fn save_mod_install_info(
-    &mut self,
-    game_name: String,
-    mod_name: String,
-    source_name: String,
-    version_name: String,
-  ) -> Result<(), ConfigError> {
-    let game_config = self.get_supported_game_config_mut(&game_name)?;
-
-    let installed_mods_option = game_config.mods_installed_version.as_mut();
-    if installed_mods_option.is_some() {
-      let installed_mods = installed_mods_option.unwrap();
-      if !installed_mods.contains_key(&source_name) {
-        installed_mods.insert(source_name.clone(), HashMap::new());
-      }
-      installed_mods
-        .get_mut(&source_name)
-        .unwrap()
-        .insert(mod_name.clone(), version_name);
-    } else {
-      let mut installed_mods: HashMap<String, HashMap<String, String>> = HashMap::new();
-      installed_mods.insert(source_name.clone(), HashMap::new());
-      installed_mods
-        .get_mut(&source_name)
-        .unwrap()
-        .insert(mod_name.clone(), version_name);
-      game_config.mods_installed_version = Some(installed_mods);
-    }
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn uninstall_mod(
-    &mut self,
-    game_name: String,
-    mod_name: String,
-    source_name: String,
-  ) -> Result<(), ConfigError> {
-    log::info!(
-      "Uninstalling mod {}:{} from {}",
-      game_name,
-      mod_name,
-      source_name
-    );
-    let game_config = self.get_supported_game_config_mut(&game_name)?;
-
-    let installed_mods_option = game_config.mods_installed_version.as_mut();
-    if installed_mods_option.is_some() {
-      let installed_mods = installed_mods_option.unwrap();
-      if installed_mods.contains_key(&source_name) {
-        installed_mods
-          .get_mut(&source_name)
-          .unwrap()
-          .remove(&mod_name);
-      }
-    }
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn get_installed_mods(
-    &self,
-    game_name: String,
-  ) -> Result<HashMap<String, HashMap<String, String>>, ConfigError> {
-    let game_config = self.get_supported_game_config(&game_name)?;
-    match &game_config.mods_installed_version {
-      Some(installed_mods) => Ok(installed_mods.clone()),
-      None => Ok(HashMap::new()),
-    }
-  }
-
-  pub fn set_rip_levels_enabled(&mut self, enabled: bool) -> Result<(), ConfigError> {
-    if let Some(ref mut settings) = self.decompiler_settings {
-      settings.rip_levels_enabled = Some(enabled);
-    } else {
-      let mut new_settings = DecompilerSettings::default();
-      new_settings.rip_levels_enabled = Some(enabled);
-      self.decompiler_settings = Some(new_settings);
-    }
-
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_rip_collision_enabled(&mut self, enabled: bool) -> Result<(), ConfigError> {
-    if let Some(ref mut settings) = self.decompiler_settings {
-      settings.rip_collision_enabled = Some(enabled);
-    } else {
-      let mut new_settings = DecompilerSettings::default();
-      new_settings.rip_collision_enabled = Some(enabled);
-      self.decompiler_settings = Some(new_settings);
-    }
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_rip_textures_enabled(&mut self, enabled: bool) -> Result<(), ConfigError> {
-    if let Some(ref mut settings) = self.decompiler_settings {
-      settings.rip_textures_enabled = Some(enabled);
-    } else {
-      let mut new_settings = DecompilerSettings::default();
-      new_settings.rip_textures_enabled = Some(enabled);
-      self.decompiler_settings = Some(new_settings);
-    }
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_rip_streamed_audio_enabled(&mut self, enabled: bool) -> Result<(), ConfigError> {
-    if let Some(ref mut settings) = self.decompiler_settings {
-      settings.rip_streamed_audio_enabled = Some(enabled);
-    } else {
-      let mut new_settings = DecompilerSettings::default();
-      new_settings.rip_streamed_audio_enabled = Some(enabled);
-      self.decompiler_settings = Some(new_settings);
-    }
+    game_config
+      .features
+      .texture_packs
+      .retain(|pack| !cleanup_list.contains(pack));
     self.save_config()?;
     Ok(())
   }

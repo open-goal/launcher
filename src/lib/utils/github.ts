@@ -5,7 +5,6 @@ import { unwrapFunctionStore, format } from "svelte-i18n";
 const $format = unwrapFunctionStore(format);
 
 export interface ReleaseInfo {
-  releaseType: "official";
   version: string;
   date: string | undefined;
   githubLink: string | undefined;
@@ -25,6 +24,18 @@ function isIntelMacOsRelease(
     platform === "darwin" &&
     architecture === "x86_64" &&
     assetName.startsWith("opengoal-macos-intel-v")
+  );
+}
+
+function isArmMacOsRelease(
+  platform: string,
+  architecture: string,
+  assetName: string,
+): boolean {
+  return (
+    platform === "darwin" &&
+    architecture === "aarch64" &&
+    assetName.startsWith("opengoal-macos-arm-v")
   );
 }
 
@@ -51,6 +62,8 @@ async function getDownloadLinkForCurrentPlatform(
   const archName = await arch();
   for (const asset of release.assets) {
     if (isIntelMacOsRelease(platformName, archName, asset.name)) {
+      return asset.browser_download_url;
+    } else if (isArmMacOsRelease(platformName, archName, asset.name)) {
       return asset.browser_download_url;
     } else if (isWindowsRelease(platformName, archName, asset.name)) {
       return asset.browser_download_url;
@@ -92,7 +105,7 @@ async function parseGithubRelease(githubRelease: any): Promise<ReleaseInfo> {
 }
 
 export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
-  const nextUrlPattern = /(?<=<)([\S]*)(?=>; rel="Next")/i;
+  const nextUrlPattern = /<([\S]+)>; rel="Next"/i;
   let releases = [];
   let urlToHit =
     "https://api.github.com/repos/open-goal/jak-project/releases?per_page=100";
@@ -117,7 +130,7 @@ export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
       resp.headers.get("link").includes(`rel=\"next\"`)
     ) {
       // we must paginate!
-      urlToHit = resp.headers.get("link").match(nextUrlPattern)[0];
+      urlToHit = resp.headers.get("link").match(nextUrlPattern)[1];
     } else {
       urlToHit = undefined;
     }

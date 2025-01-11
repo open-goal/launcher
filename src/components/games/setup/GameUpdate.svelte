@@ -1,6 +1,9 @@
 <script lang="ts">
   import type { SupportedGame } from "$lib/constants";
-  import { isMinimumVCCRuntimeInstalled } from "$lib/rpc/config";
+  import {
+    getAutoUpdateGames,
+    isMinimumVCCRuntimeInstalled,
+  } from "$lib/rpc/config";
   import { VersionStore } from "$lib/stores/VersionStore";
   import { type } from "@tauri-apps/plugin-os";
   import { Button, Card } from "flowbite-svelte";
@@ -12,7 +15,6 @@
   const dispatch = createEventDispatcher();
 
   export let installedVersion: String | undefined;
-  export let installedVersionFolder: String | undefined;
 
   let displayVCCWarning = false;
 
@@ -21,6 +23,12 @@
     if (osType == "Windows_NT") {
       const isVCCInstalled = await isMinimumVCCRuntimeInstalled();
       displayVCCWarning = !isVCCInstalled;
+    }
+    let shouldAutoUpdate = await getAutoUpdateGames();
+    if (shouldAutoUpdate) {
+      dispatch("job", {
+        type: "updateGame",
+      });
     }
   });
 </script>
@@ -40,10 +48,6 @@
         {$_("gameUpdate_versionMismatch_version")}:
         <strong>{installedVersion}</strong>
       </li>
-      <li>
-        {$_("gameUpdate_versionMismatch_type")}:
-        <strong>{installedVersionFolder}</strong>
-      </li>
     </ul>
     <p class="text-base text-gray-500 dark:text-gray-400 mb-1">
       ...{$_("gameUpdate_versionMismatch_currentlySelected")}
@@ -52,10 +56,6 @@
       <li>
         {$_("gameUpdate_versionMismatch_version")}:
         <strong>{$VersionStore.activeVersionName}</strong>
-      </li>
-      <li>
-        {$_("gameUpdate_versionMismatch_type")}:
-        <strong>{$VersionStore.activeVersionType}</strong>
       </li>
     </ul>
     {#if displayVCCWarning}

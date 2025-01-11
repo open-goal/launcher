@@ -1,0 +1,57 @@
+{
+  "$ref": "#/definitions/TexturePackMetadata",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "TexturePackMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "authors": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "publishedDate": {
+          "type": "string"
+        },
+        "schemaVersion": {
+          "description": "Semantic Version",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+          "type": "string"
+        },
+        "supportedGames": {
+          "items": {
+            "enum": ["jak1", "jak2", "jak3", "jakx"],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "version": {
+          "description": "Semantic Version",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "version",
+        "name",
+        "description",
+        "authors",
+        "publishedDate",
+        "tags",
+        "supportedGames"
+      ],
+      "type": "object"
+    }
+  }
+}

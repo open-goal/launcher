@@ -6,35 +6,25 @@
   import { onDestroy, onMount } from "svelte";
   import { _ } from "svelte-i18n";
 
-  let logListener: any = undefined;
-  let logElement;
-
-  const scrollToBottom = async (node) => {
-    node.scroll({ top: node.scrollHeight, behavior: "instant" });
-  };
+  let unlisten;
 
   onMount(async () => {
-    logListener = await listen("log_update", (event) => {
-      progressTracker.appendLogs(event.payload.logs);
-      if (logElement) {
-        scrollToBottom(logElement);
-      }
+    unlisten = await listen("log_update", (event) => {
+      const newLogs = event.payload.logs
+        .split("\n")
+        .map((log) => ansiSpan(escapeHtml(log)).replaceAll("\n", "<br/>"))
+        .filter((log) => log.length > 0);
+      progressTracker.appendLogs(newLogs);
     });
   });
 
-  onDestroy(() => {
-    if (logListener !== undefined) {
-      logListener();
-    }
-  });
-
-  function convertLogColors(text) {
-    return ansiSpan(escapeHtml(text)).replaceAll("\n", "<br/>");
-  }
+  onDestroy(() => unlisten());
 </script>
 
-{#if $progressTracker.logs}
+{#if $progressTracker.logs.length > 0}
   <pre
-    class="rounded p-2 bg-[#141414] text-[11px] max-h-[300px] overflow-auto text-pretty font-mono"
-    bind:this={logElement}>{@html convertLogColors($progressTracker.logs)}</pre>
+    class="rounded bg-[#141414] text-[11px] max-h-[300px] overflow-auto font-mono">{#each $progressTracker.logs as log}
+      {@html log}
+    {/each}
+</pre>
 {/if}

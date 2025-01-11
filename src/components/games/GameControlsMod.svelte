@@ -40,6 +40,7 @@
     getModAssetUrl,
     isVersionSupportedOnPlatform,
   } from "$lib/features/mods";
+  import { VersionStore } from "$lib/stores/VersionStore";
 
   export let activeGame: SupportedGame;
   export let modName: string = "";
@@ -167,6 +168,9 @@
       Object.keys(installedMods[modSource]).includes(modName)
     ) {
       currentlyInstalledVersion = installedMods[modSource][modName];
+      $VersionStore.activeVersionName = currentlyInstalledVersion;
+    } else {
+      $VersionStore.activeVersionName = "not set!";
     }
 
     for (const version of modVersionListSorted) {
@@ -272,6 +276,7 @@
         {/if}
       </Button>
       <Dropdown
+        trigger="hover"
         placement="top-end"
         class="!bg-slate-900 overflow-y-auto px-2 py-2 max-h-[300px]"
       >
@@ -324,7 +329,7 @@
       >
         {$_("gameControls_button_advanced")}
       </Button>
-      <Dropdown placement="top-end" class="!bg-slate-900">
+      <Dropdown trigger="hover" placement="top-end" class="!bg-slate-900">
         <DropdownItem
           on:click={async () => {
             launchMod(getInternalName(activeGame), true, modName, modSource);
@@ -384,7 +389,7 @@
       >
         <IconCog />
       </Button>
-      <Dropdown placement="top-end" class="!bg-slate-900">
+      <Dropdown trigger="hover" placement="top-end" class="!bg-slate-900">
         <!-- TODO - screenshot folder? how do we even configure where those go? -->
         {#if settingsDir}
           <DropdownItem

@@ -2,7 +2,6 @@ import { toastStore } from "$lib/stores/ToastStore";
 import { locale as svelteLocale } from "svelte-i18n";
 import { errorLog } from "./logging";
 import { invoke_rpc } from "./rpc";
-import type { VersionFolders } from "./versions";
 import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
 import { exists } from "@tauri-apps/plugin-fs";
 import { appDataDir, join } from "@tauri-apps/api/path";
@@ -27,7 +26,11 @@ export async function resetLauncherSettingsToDefaults(): Promise<boolean> {
 }
 
 export async function getInstallationDirectory(): Promise<string | null> {
-  return await invoke_rpc("get_install_directory", {}, () => null);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "install_directory" },
+    () => null,
+  );
 }
 
 export async function setInstallationDirectory(
@@ -37,7 +40,7 @@ export async function setInstallationDirectory(
   // consider changing it
   const errMsg = await invoke_rpc(
     "set_install_directory",
-    { newDir },
+    { newDir: newDir },
     () => "Unexpected error occurred",
     "Invalid installation directory",
   );
@@ -58,10 +61,8 @@ export async function setFlatpakInstallationDirectory(): Promise<
   return await invoke_rpc("set_flatpak_install_directory", {}, () => null);
 }
 
-export async function isAVXRequirementMet(
-  force: boolean,
-): Promise<boolean | undefined> {
-  return await invoke_rpc("is_avx_requirement_met", { force }, () => undefined);
+export async function isAVXRequirementMet(): Promise<boolean | undefined> {
+  return await invoke_rpc("is_avx_requirement_met", {}, () => undefined);
 }
 
 export async function isOpenGLRequirementMet(
@@ -100,31 +101,39 @@ export async function isMinimumVCCRuntimeInstalled(): Promise<
   );
 }
 
-export async function finalizeInstallation(gameName: string): Promise<void> {
-  return await invoke_rpc("finalize_installation", { gameName }, () => {});
+export async function finalizeInstallation(
+  gameName: string,
+  installed = true,
+): Promise<void> {
+  return await invoke_rpc(
+    "update_setting_value",
+    { key: "installed", val: installed, gameName },
+    () => {},
+  );
 }
 
 export async function isGameInstalled(gameName: string): Promise<boolean> {
-  return await invoke_rpc("is_game_installed", { gameName }, () => false);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "installed", gameName },
+    () => false,
+  );
 }
 
 export async function getInstalledVersion(gameName: string): Promise<String> {
-  return invoke_rpc("get_installed_version", { gameName }, () => null);
-}
-
-export async function getInstalledVersionFolder(
-  gameName: string,
-): Promise<String> {
-  return invoke_rpc("get_installed_version_folder", { gameName }, () => null);
+  return invoke_rpc(
+    "get_setting_value",
+    { key: "installed_version", gameName: gameName },
+    () => null,
+  );
 }
 
 export async function saveActiveVersionChange(
-  versionFolder: VersionFolders,
   newActiveVersion: String,
 ): Promise<boolean> {
   return invoke_rpc(
-    "save_active_version_change",
-    { versionFolder, newActiveVersion },
+    "update_setting_value",
+    { key: "active_version", val: newActiveVersion },
     () => false,
     "Couldn't save active version change",
     () => true,
@@ -132,7 +141,11 @@ export async function saveActiveVersionChange(
 }
 
 export async function getLocale(): Promise<string | null> {
-  return await invoke_rpc("get_locale", {}, () => "en-US");
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "locale" },
+    () => "en-US",
+  );
 }
 
 export async function localeSpecificFontAvailableForDownload(
@@ -160,8 +173,8 @@ export async function localeSpecificFontAvailableForDownload(
 
 export async function setLocale(localeId: string): Promise<void> {
   return await invoke_rpc(
-    "set_locale",
-    { locale: localeId },
+    "update_setting_value",
+    { key: "locale", val: localeId },
     () => {},
     undefined, // no toast
     async () => {
@@ -211,34 +224,80 @@ export async function setLocale(localeId: string): Promise<void> {
   );
 }
 
+export async function setAutoUpdateGames(value: boolean): Promise<void> {
+  return await invoke_rpc(
+    "update_setting_value",
+    { key: "auto_update_games", val: value },
+    () => {},
+  );
+}
+
+export async function getAutoUpdateGames(): Promise<boolean> {
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "auto_update_games" },
+    () => false,
+  );
+}
+
+export async function setAutoUninstallOldVersions(
+  value: boolean,
+): Promise<void> {
+  return await invoke_rpc(
+    "update_setting_value",
+    { key: "delete_previous_versions", val: value },
+    () => {},
+  );
+}
+
+export async function getAutoUninstallOldVersions(): Promise<boolean> {
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "delete_previous_versions" },
+    () => false,
+  );
+}
+
 export async function setBypassRequirements(bypass: boolean): Promise<void> {
-  return await invoke_rpc("set_bypass_requirements", { bypass }, () => {});
+  return await invoke_rpc(
+    "update_setting_value",
+    { key: "bypass_requirements", val: bypass },
+    () => {},
+  );
 }
 
 export async function getBypassRequirements(): Promise<boolean> {
-  return await invoke_rpc("get_bypass_requirements", {}, () => false);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "bypass_requirements" },
+    () => false,
+  );
 }
 
 export async function setCheckForLatestModVersion(
   check_for_latest_mod_version: boolean,
 ): Promise<void> {
   return await invoke_rpc(
-    "set_check_for_latest_mod_version",
-    { checkForLatestModVersion: check_for_latest_mod_version },
+    "update_setting_value",
+    { key: "check_for_latest_mod_version", val: check_for_latest_mod_version },
     () => {},
   );
 }
 
 export async function getCheckForLatestModVersion(): Promise<boolean> {
-  return await invoke_rpc("get_check_for_latest_mod_version", {}, () => false);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "check_for_latest_mod_version" },
+    () => false,
+  );
 }
 
 export async function getEnabledTexturePacks(
   gameName: string,
 ): Promise<string[]> {
   return await invoke_rpc(
-    "get_enabled_texture_packs",
-    { gameName: gameName },
+    "get_setting_value",
+    { key: "active_texture_packs", gameName: gameName },
     () => [],
   );
 }
@@ -272,10 +331,11 @@ export async function setEnabledTexturePacks(
   packs: string[],
 ): Promise<FeatureJobOutput> {
   return await invoke_rpc(
-    "set_enabled_texture_packs",
+    "update_mods_setting_value",
     {
+      key: "add_texture_packs",
       gameName: gameName,
-      packs: packs,
+      texturePacks: packs,
     },
     () => failed("Failed to update texture pack list"),
     undefined,
@@ -298,7 +358,11 @@ export async function doesActiveToolingVersionSupportGame(
 }
 
 export async function getPlaytime(gameName: string): Promise<number> {
-  return await invoke_rpc("get_playtime", { gameName: gameName }, () => 0);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "seconds_played", gameName: gameName },
+    () => 0,
+  );
 }
 
 export async function doesActiveToolingVersionMeetMinimum(
@@ -318,39 +382,75 @@ export async function doesActiveToolingVersionMeetMinimum(
 }
 
 export async function isRipLevelsEnabled(): Promise<boolean> {
-  return await invoke_rpc("is_rip_levels_enabled", {}, () => false);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "rip_levels" },
+    () => false,
+  );
 }
 
 export async function setRipLevelsEnabled(enabled: boolean): Promise<void> {
-  return await invoke_rpc("set_rip_levels_enabled", { enabled }, () => {});
+  return await invoke_rpc(
+    "update_setting_value",
+    { key: "rip_levels", val: enabled },
+    () => {},
+  );
 }
 
 export async function isRipCollisionEnabled(): Promise<boolean> {
-  return await invoke_rpc("is_rip_collision_enabled", {}, () => false);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "rip_collision" },
+    () => false,
+  );
 }
 
 export async function setRipCollisionEnabled(enabled: boolean): Promise<void> {
-  return await invoke_rpc("set_rip_collision_enabled", { enabled }, () => {});
+  return await invoke_rpc(
+    "update_setting_value",
+    { key: "rip_collision", val: enabled },
+    () => {},
+  );
 }
 
 export async function isRipTexturesEnabled(): Promise<boolean> {
-  return await invoke_rpc("is_rip_textures_enabled", {}, () => false);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "rip_textures" },
+    () => false,
+  );
 }
 
 export async function setRipTexturesEnabled(enabled: boolean): Promise<void> {
-  return await invoke_rpc("set_rip_textures_enabled", { enabled }, () => {});
+  return await invoke_rpc(
+    "update_setting_value",
+    { key: "rip_textures", val: enabled },
+    () => {},
+  );
 }
 
 export async function isRipStreamedAudioEnabled(): Promise<boolean> {
-  return await invoke_rpc("is_rip_streamed_audio_enabled", {}, () => false);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "rip_streamed_audio" },
+    () => false,
+  );
+}
+
+export async function getProceedAfterSuccessfulOperation(): Promise<boolean> {
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "proceed_after_successful_operation" },
+    () => true,
+  );
 }
 
 export async function setRipStreamedAudioEnabled(
   enabled: boolean,
 ): Promise<void> {
   return await invoke_rpc(
-    "set_rip_streamed_audio_enabled",
-    { enabled },
+    "update_setting_value",
+    { key: "rip_streamed_audio", val: enabled },
     () => {},
   );
 }

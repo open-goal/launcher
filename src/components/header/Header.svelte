@@ -9,24 +9,37 @@
   import { UpdateStore } from "$lib/stores/AppStore";
   import { isInDebugMode } from "$lib/utils/common";
   import {
+    downloadOfficialVersion,
     getActiveVersion,
-    getActiveVersionFolder,
     listDownloadedVersions,
+    removeOldVersions,
   } from "$lib/rpc/versions";
   import { getLatestOfficialRelease } from "$lib/utils/github";
   import { VersionStore } from "$lib/stores/VersionStore";
   import { exceptionLog, infoLog } from "$lib/rpc/logging";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
-  const appWindow = getCurrentWebviewWindow();
+  import { getAutoUpdateGames, saveActiveVersionChange } from "$lib/rpc/config";
 
   let launcherVerison = null;
+
+  async function downloadLatestVersion(version: string, url: String) {
+    await downloadOfficialVersion(version, url);
+    $UpdateStore.selectedTooling.updateAvailable = false;
+    await saveOfficialVersionChange(version);
+  }
+
+  async function saveOfficialVersionChange(version) {
+    const success = await saveActiveVersionChange(version);
+    if (success) {
+      $VersionStore.activeVersionName = version;
+      toastStore.makeToast($_("toasts_savedToolingVersion"), "info");
+    }
+  }
 
   onMount(async () => {
     // Get current versions
     launcherVerison = `v${await getVersion()}`;
-
-    $VersionStore.activeVersionType = await getActiveVersionFolder();
     $VersionStore.activeVersionName = await getActiveVersion();
 
     // Check for a launcher update
@@ -70,32 +83,36 @@
   });
 
   async function checkIfLatestVersionInstalled() {
-    // Check for an update to the tooling (right now, only if it's official)
+    const latestToolingVersion = await getLatestOfficialRelease();
     if (
-      $VersionStore.activeVersionType === null ||
-      $VersionStore.activeVersionType === "official"
+      latestToolingVersion !== undefined &&
+      $VersionStore.activeVersionName !== latestToolingVersion.version
     ) {
-      const latestToolingVersion = await getLatestOfficialRelease();
-      if (
-        latestToolingVersion !== undefined &&
-        $VersionStore.activeVersionName !== latestToolingVersion.version
-      ) {
-        // Check that we havn't already downloaded it
-        let alreadyHaveRelease = false;
-        const downloadedOfficialVersions =
-          await listDownloadedVersions("official");
-        for (const releaseVersion of downloadedOfficialVersions) {
-          if (releaseVersion === latestToolingVersion.version) {
-            alreadyHaveRelease = true;
-            break;
-          }
+      // Check that we havn't already downloaded it
+      let alreadyHaveRelease = false;
+      const downloadedOfficialVersions = await listDownloadedVersions();
+      for (const releaseVersion of downloadedOfficialVersions) {
+        if (releaseVersion === latestToolingVersion.version) {
+          alreadyHaveRelease = true;
+          break;
         }
-        if (!alreadyHaveRelease) {
-          $UpdateStore.selectedTooling = {
-            updateAvailable: true,
-            versionNumber: latestToolingVersion.version,
-          };
+      }
+      if (!alreadyHaveRelease) {
+        let shouldAutoUpdate = await getAutoUpdateGames();
+        if (shouldAutoUpdate) {
+          await downloadLatestVersion(
+            latestToolingVersion.version,
+            latestToolingVersion.downloadUrl,
+          );
+          await removeOldVersions();
+
+          location.reload(); // TODO! this is hacky, when i refactor this will be done automatically
         }
+
+        $UpdateStore.selectedTooling = {
+          updateAvailable: true,
+          versionNumber: latestToolingVersion.version,
+        };
       }
     }
   }

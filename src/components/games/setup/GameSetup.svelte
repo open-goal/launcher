@@ -17,39 +17,57 @@
     isDiskSpaceRequirementMet,
     isOpenGLRequirementMet,
     isMinimumVCCRuntimeInstalled,
+    getProceedAfterSuccessfulOperation,
   } from "$lib/rpc/config";
   import { progressTracker } from "$lib/stores/ProgressStore";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { _ } from "svelte-i18n";
-  import { type } from "@tauri-apps/plugin-os";
+  import { emit } from "@tauri-apps/api/event";
+  import { arch, type } from "@tauri-apps/api/os";
+  import { isMacOSVersion15OrAbove } from "$lib/rpc/util";
 
   export let activeGame: SupportedGame;
 
   const dispatch = createEventDispatcher();
 
-  let requirementsMet = true;
+  let requirementsMet: boolean | undefined = true;
   let installing = false;
   let installationError = undefined;
+  let proceedAfterSuccessfulOperation = true;
 
   onMount(async () => {
     // Check requirements
     await checkRequirements();
+    proceedAfterSuccessfulOperation =
+      await getProceedAfterSuccessfulOperation();
   });
 
   async function checkRequirements() {
-    // Check requirements
-    const isAvxMet = await isAVXRequirementMet(false);
+    const architecture = await arch();
+    const osType = await type();
     const isOpenGLMet = await isOpenGLRequirementMet(false);
     const isDiskSpaceMet = await isDiskSpaceRequirementMet(
       getInternalName(activeGame),
     );
-    const osType = await type();
-    if (osType == "Windows_NT") {
-      const isVCCInstalled = await isMinimumVCCRuntimeInstalled();
-      requirementsMet =
-        isAvxMet && isOpenGLMet && isDiskSpaceMet && isVCCInstalled;
+    if (architecture === "aarch64") {
+      // arm, we don't bother checking for simd
+      // - if macOS (the only supported ARM platform), we check they are on atleast macOS 15
+      // there is no easy way to check to see if they have rosetta 2, if you know of one, contribute it
+      if (osType !== "Darwin") {
+        requirementsMet = false;
+        return;
+      }
+      const macOSVersionSufficient = await isMacOSVersion15OrAbove();
+      requirementsMet = macOSVersionSufficient && isOpenGLMet && isDiskSpaceMet;
     } else {
-      requirementsMet = isAvxMet && isOpenGLMet && isDiskSpaceMet;
+      const isAvxMet = await isAVXRequirementMet();
+      if (osType == "Windows_NT") {
+        const isVCCInstalled = await isMinimumVCCRuntimeInstalled();
+        requirementsMet =
+          isAvxMet && isOpenGLMet && isDiskSpaceMet && isVCCInstalled;
+      } else {
+        requirementsMet = isAvxMet && isOpenGLMet && isDiskSpaceMet;
+      }
     }
   }
 
@@ -97,7 +115,12 @@
         return;
       }
       progressTracker.proceed();
-      resp = await runDecompiler(sourcePath, getInternalName(activeGame));
+      resp = await runDecompiler(
+        sourcePath,
+        getInternalName(activeGame),
+        false,
+        false,
+      );
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
@@ -113,11 +136,15 @@
       progressTracker.proceed();
       // TODO - technically should handle the error here too
       await finalizeInstallation(getInternalName(activeGame));
+      await emit("gameInstalled");
       progressTracker.proceed();
     }
   }
 
-  $: if ($progressTracker.overallStatus === "success") {
+  $: if (
+    $progressTracker.overallStatus === "success" &&
+    proceedAfterSuccessfulOperation
+  ) {
     dispatch("change");
   }
 </script>
@@ -129,7 +156,17 @@
     <Progress />
     <LogViewer />
   </div>
-  {#if $progressTracker.overallStatus === "failed"}
+  {#if $progressTracker.overallStatus === "success" && !proceedAfterSuccessfulOperation}
+    <div class="flex flex-col justify-end items-end mt-auto">
+      <div class="flex flex-row gap-2">
+        <Button
+          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+          on:click={async () => dispatch("change")}
+          >{$_("setup_button_continue")}</Button
+        >
+      </div>
+    </div>
+  {:else if $progressTracker.overallStatus === "failed"}
     <div class="flex flex-col mt-auto">
       <div class="flex flex-row gap-2">
         <Alert

@@ -1,6 +1,4 @@
 <script lang="ts">
-  import type { VersionFolders } from "$lib/rpc/versions";
-  import { VersionStore } from "$lib/stores/VersionStore";
   import type { ReleaseInfo } from "$lib/utils/github";
   import IconRefresh from "~icons/mdi/refresh";
   import IconFolderOpen from "~icons/mdi/folder-open";
@@ -18,22 +16,45 @@
     TableBodyRow,
     TableHead,
     TableHeadCell,
-    Tooltip,
   } from "flowbite-svelte";
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
   import { _ } from "svelte-i18n";
+  import { getActiveVersion } from "$lib/rpc/versions";
+  import { writable } from "svelte/store";
+  import { VersionStore } from "$lib/stores/VersionStore";
 
   export let description: string;
   export let releaseList: ReleaseInfo[];
   export let loaded: boolean;
-  export let releaseType: VersionFolders;
-
+  let activeVersion = writable();
   const dispatch = createEventDispatcher();
+
+  onMount(async () => {
+    $activeVersion = await getActiveVersion();
+  });
+
+  const handleAction = async (release: ReleaseInfo) => {
+    if (release.isDownloaded) {
+      dispatch("removeVersion", { version: release.version });
+    } else {
+      dispatch("downloadVersion", {
+        version: release.version,
+        downloadUrl: release.downloadUrl,
+      });
+    }
+  };
+
+  const handleRedownload = (release: ReleaseInfo) => {
+    dispatch("redownloadVersion", {
+      version: release.version,
+      downloadUrl: release.downloadUrl,
+    });
+  };
 </script>
 
 {#if !loaded}
   <div class="flex flex-col justify-center items-center">
-    <Spinner color="yellow" size={"12"} />
+    <Spinner color="yellow" size="12" />
   </div>
 {:else}
   <div class="flex items-center mb-2">
@@ -52,7 +73,7 @@
         />
       </Button>
       <Button
-        class="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600  text-slate-900"
+        class="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
         on:click={() => dispatch("openVersionFolder")}
       >
         <IconFolderOpen
@@ -61,19 +82,16 @@
       </Button>
     </div>
   </div>
-  {#if releaseList === undefined || releaseList.length <= 0}
+
+  {#if releaseList.length === 0}
     <Alert color="red" class="dark:bg-slate-900 flex-grow">
       {$_("settings_versions_noReleasesFound")}
     </Alert>
   {:else}
     <Table>
       <TableHead>
-        <TableHeadCell>
-          <span class="sr-only"></span>
-        </TableHeadCell>
-        <TableHeadCell>
-          <span class="sr-only"></span>
-        </TableHeadCell>
+        <TableHeadCell></TableHeadCell>
+        <TableHeadCell></TableHeadCell>
         <TableHeadCell
           >{$_("settings_versions_table_header_version")}</TableHeadCell
         >
@@ -90,12 +108,12 @@
             <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
               {#if release.isDownloaded}
                 <Radio
-                  class="disabled:cursor-not-allowed p-0"
-                  bind:group={$VersionStore.selectedVersions[releaseType]}
-                  on:change={() => dispatch("versionChange")}
+                  bind:group={$VersionStore.activeVersionName}
                   value={release.version}
+                  on:change={() =>
+                    dispatch("versionChange", { version: release.version })}
                   disabled={!release.isDownloaded}
-                  name={`${releaseType}-release`}
+                  class="disabled:cursor-not-allowed p-0"
                 />
               {/if}
             </TableBodyCell>
@@ -104,21 +122,9 @@
               style="line-height: 0;"
             >
               <Button
-                class="py-0 dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
-                disabled={release.pendingAction ||
-                  (!release.isDownloaded &&
-                    release.downloadUrl !== undefined &&
-                    release.invalid)}
-                on:click={async () => {
-                  if (release.isDownloaded) {
-                    dispatch("removeVersion", { version: release.version });
-                  } else {
-                    dispatch("downloadVersion", {
-                      version: release.version,
-                      downloadUrl: release.downloadUrl,
-                    });
-                  }
-                }}
+                class="py-0 dark:bg-transparent focus:ring-0 disabled:opacity-50"
+                disabled={release.pendingAction}
+                on:click={async () => handleAction(release)}
               >
                 {#if release.isDownloaded}
                   <IconDeleteForever
@@ -128,11 +134,9 @@
                       "settings_versions_icon_removeVersion_altText",
                     )}
                   />
-                {:else if release.downloadUrl === undefined}
-                  <span>{$_("settings_versions_incompatibleVersion")}</span>
                 {:else if release.pendingAction}
-                  <Spinner color="yellow" size={"6"} />
-                {:else if release.releaseType === "official" && release.downloadUrl !== undefined}
+                  <Spinner color="yellow" size="6" />
+                {:else}
                   <IconDownload
                     class="text-xl"
                     color="#00d500"
@@ -142,32 +146,14 @@
                   />
                 {/if}
               </Button>
-              {#if release.invalid}
-                <Tooltip color="red">
-                  {#if release.invalidationReasons.length > 0}
-                    {$_("settings_versions_invalidReleaseGeneric")}
-                    {#each release.invalidationReasons as reason}
-                      <br />
-                      - {reason}
-                    {/each}
-                  {:else}
-                    {$_("settings_versions_invalidReleaseGeneric")}
-                  {/if}
-                </Tooltip>
-              {/if}
-              {#if release.isDownloaded && release.releaseType == "official"}
+              {#if release.isDownloaded}
                 <Button
-                  class="py-0 dark:bg-transparent hover:dark:bg-transparent focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
+                  class="py-0 dark:bg-transparent focus:ring-0 disabled:opacity-50"
                   disabled={release.pendingAction}
-                  on:click={async () => {
-                    dispatch("redownloadVersion", {
-                      version: release.version,
-                      downloadUrl: release.downloadUrl,
-                    });
-                  }}
+                  on:click={() => handleRedownload(release)}
                 >
                   {#if release.pendingAction}
-                    <Spinner color="yellow" size={"6"} />
+                    <Spinner color="yellow" size="6" />
                   {:else}
                     <IconRefresh
                       class="text-xl"
@@ -179,9 +165,9 @@
                 </Button>
               {/if}
             </TableBodyCell>
-            <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium"
-              >{release.version}</TableBodyCell
-            >
+            <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
+              {release.version}
+            </TableBodyCell>
             <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
               {#if release.date}
                 {new Date(release.date).toLocaleDateString()}
@@ -189,12 +175,7 @@
             </TableBodyCell>
             <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
               {#if release.githubLink}
-                <a
-                  class="inline-block"
-                  href={release.githubLink}
-                  target="_blank"
-                  rel="noreferrer"
-                >
+                <a href={release.githubLink} target="_blank" rel="noreferrer">
                   <IconGitHub
                     class="text-xl"
                     aria-label={$_(

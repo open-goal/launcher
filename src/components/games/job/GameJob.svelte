@@ -13,6 +13,7 @@
   } from "$lib/rpc/binaries";
   import {
     finalizeInstallation,
+    getProceedAfterSuccessfulOperation,
     setEnabledTexturePacks,
   } from "$lib/rpc/config";
   import { generateSupportPackage } from "$lib/rpc/support";
@@ -28,6 +29,7 @@
     updateTexturePackData,
   } from "$lib/rpc/features";
   import { isoPrompt } from "$lib/utils/file-dialogs";
+  import { emit } from "@tauri-apps/api/event";
 
   export let activeGame: SupportedGame;
   export let jobType: Job;
@@ -44,8 +46,17 @@
 
   const dispatch = createEventDispatcher();
   let installationError: string | undefined | null = undefined;
+  let proceedAfterSuccessfulOperation = true;
 
-  $: if ($progressTracker.overallStatus === "success") {
+  onMount(async () => {
+    proceedAfterSuccessfulOperation =
+      await getProceedAfterSuccessfulOperation();
+  });
+
+  $: if (
+    $progressTracker.overallStatus === "success" &&
+    proceedAfterSuccessfulOperation
+  ) {
     dispatch("jobFinished");
   }
 
@@ -62,7 +73,7 @@
       },
     ]);
     progressTracker.start();
-    let resp = await runDecompiler("", getInternalName(activeGame), true);
+    let resp = await runDecompiler("", getInternalName(activeGame), true, true);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -123,7 +134,7 @@
       return;
     }
     progressTracker.proceed();
-    resp = await runDecompiler("", getInternalName(activeGame), true);
+    resp = await runDecompiler("", getInternalName(activeGame), true, false);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -138,7 +149,9 @@
     }
     progressTracker.proceed();
     await finalizeInstallation(getInternalName(activeGame));
+    await emit("gameInstalled");
     progressTracker.proceed();
+    location.reload();
   }
 
   async function setupTexturePacks() {
@@ -195,7 +208,7 @@
       return;
     }
     progressTracker.proceed();
-    resp = await runDecompiler("", getInternalName(activeGame), true);
+    resp = await runDecompiler("", getInternalName(activeGame), true, false);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -480,7 +493,17 @@
   <Progress />
   <LogViewer />
 </div>
-{#if $progressTracker.overallStatus === "failed"}
+{#if $progressTracker.overallStatus === "success" && !proceedAfterSuccessfulOperation}
+  <div class="flex flex-col justify-end items-end mt-auto">
+    <div class="flex flex-row gap-2">
+      <Button
+        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+        on:click={async () => dispatch("jobFinished")}
+        >{$_("setup_button_continue")}</Button
+      >
+    </div>
+  </div>
+{:else if $progressTracker.overallStatus === "failed"}
   <div class="flex flex-col mt-auto">
     <div class="flex flex-row gap-2">
       <Alert color="red" class="dark:bg-slate-900 flex-grow">

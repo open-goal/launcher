@@ -18,7 +18,7 @@ mod commands;
 mod config;
 mod util;
 
-fn log_crash(panic_info: Option<&std::panic::PanicInfo>, error: Option<tauri::Error>) {
+fn log_crash(panic_info: Option<&std::panic::PanicHookInfo>, error: Option<tauri::Error>) {
   let backtrace = Backtrace::new();
   let log_contents;
   if let Some(panic_info) = panic_info {
@@ -56,7 +56,7 @@ fn log_crash(panic_info: Option<&std::panic::PanicInfo>, error: Option<tauri::Er
     .unwrap();
 }
 
-fn panic_hook(info: &std::panic::PanicInfo) {
+fn panic_hook(info: &std::panic::PanicHookInfo) {
   log_crash(Some(info), None);
 }
 
@@ -136,7 +136,6 @@ fn main() {
           let mut i = 0;
           for path in paths {
             i += 1;
-            log::info!("{}", path.path().display());
             if i > 5 {
               log::info!("deleting - {}", path.path().display());
               std::fs::remove_file(path.path())?;
@@ -172,58 +171,27 @@ fn main() {
       commands::cache::get_mod_sources_data,
       commands::cache::refresh_mod_sources,
       commands::config::cleanup_enabled_texture_packs,
-      commands::config::delete_old_data_directory,
       commands::config::does_active_tooling_version_meet_minimum,
       commands::config::does_active_tooling_version_support_game,
-      commands::config::finalize_installation,
-      commands::config::get_active_tooling_version_folder,
-      commands::config::get_active_tooling_version,
-      commands::config::get_bypass_requirements,
-      commands::config::get_enabled_texture_packs,
-      commands::config::set_check_for_latest_mod_version,
-      commands::config::get_check_for_latest_mod_version,
-      commands::config::get_install_directory,
-      commands::config::get_installed_version_folder,
-      commands::config::get_installed_version,
-      commands::config::get_locale,
-      commands::config::get_playtime,
-      commands::config::has_old_data_directory,
+      commands::config::get_setting_value,
       commands::config::is_avx_requirement_met,
-      commands::config::is_diskspace_requirement_met,
-      commands::config::is_game_installed,
-      commands::config::is_minimum_vcc_runtime_installed,
       commands::config::is_opengl_requirement_met,
-      commands::config::is_rip_collision_enabled,
-      commands::config::is_rip_levels_enabled,
-      commands::config::is_rip_streamed_audio_enabled,
-      commands::config::is_rip_textures_enabled,
       commands::config::reset_to_defaults,
-      commands::config::save_active_version_change,
-      commands::config::set_bypass_requirements,
-      commands::config::set_enabled_texture_packs,
       commands::config::set_install_directory,
-      commands::config::set_flatpak_install_directory,
-      commands::config::set_locale,
-      commands::config::set_rip_collision_enabled,
-      commands::config::set_rip_levels_enabled,
-      commands::config::set_rip_streamed_audio_enabled,
-      commands::config::set_rip_textures_enabled,
+      commands::config::update_mods_setting_value,
+      commands::config::update_setting_value,
       commands::download::download_file,
-      commands::features::mods::add_mod_source,
       commands::features::mods::base_game_iso_exists,
       commands::features::mods::compile_for_mod_install,
       commands::features::mods::decompile_for_mod_install,
       commands::features::mods::download_and_extract_new_mod,
       commands::features::mods::extract_iso_for_mod_install,
       commands::features::mods::extract_new_mod,
-      commands::features::mods::get_installed_mods,
       commands::features::mods::get_launch_mod_string,
       commands::features::mods::get_local_mod_cover_base64,
       commands::features::mods::get_local_mod_thumbnail_base64,
-      commands::features::mods::get_mod_sources,
       commands::features::mods::launch_mod,
       commands::features::mods::open_repl_for_mod,
-      commands::features::mods::remove_mod_source,
       commands::features::mods::reset_mod_settings,
       commands::features::mods::save_mod_install_info,
       commands::features::mods::uninstall_mod,
@@ -236,6 +204,11 @@ fn main() {
       commands::game::uninstall_game,
       commands::logging::frontend_log,
       commands::support::generate_support_package,
+      commands::util::delete_old_data_directory,
+      commands::util::has_old_data_directory,
+      commands::util::is_diskspace_requirement_met,
+      commands::util::is_macos_version_15_or_above,
+      commands::util::is_minimum_vcc_runtime_installed,
       commands::util::path_exists,
       commands::versions::download_version,
       commands::versions::ensure_active_version_still_exists,

@@ -33,7 +33,7 @@ describe("Splash.svelte", () => {
   it("should display the locale dropdown", async () => {
     // TODO - generalize into function
     mockIPC((cmd, args) => {
-      if (cmd === "get_locale") {
+      if (cmd === "get_setting_value" && args.key === "locale") {
         return null;
       } else {
         console.log(`Unhandled Tauri IPC: ${cmd}`);
@@ -47,10 +47,10 @@ describe("Splash.svelte", () => {
   it("should set the locale when selected", async () => {
     // TODO - generalize into function
     mockIPC((cmd, args) => {
-      if (cmd === "get_locale") {
+      if (cmd === "get_setting_value" && args.key === "locale") {
         return null;
       }
-      if (cmd === "set_locale") {
+      if (cmd === "update_setting_value" && args.key === "locale") {
         return;
       } else {
         console.log(`Unhandled Tauri IPC: ${cmd}`);
@@ -69,9 +69,12 @@ describe("Splash.svelte", () => {
     // TODO - generalize into function
     // return an object that tracks mock calls / args
     mockIPC((cmd, args) => {
-      if (cmd === "get_locale") {
+      if (cmd === "get_setting_value" && args.key === "locale") {
         return "en-US";
-      } else if (cmd === "get_install_directory") {
+      } else if (
+        cmd === "get_setting_value" &&
+        args.key === "install_directory"
+      ) {
         return null;
       } else if (cmd === "has_old_data_directory") {
         return false;
@@ -99,9 +102,12 @@ describe("Splash.svelte", () => {
     let setInstallDirectorySet = false;
     let mainWindowOpened = false;
     mockIPC((cmd, args) => {
-      if (cmd === "get_locale") {
+      if (cmd === "get_setting_value" && args.key === "locale") {
         return "en-US";
-      } else if (cmd === "get_install_directory") {
+      } else if (
+        cmd === "get_setting_value" &&
+        args.key === "install_directory"
+      ) {
         return null;
       } else if (cmd === "has_old_data_directory") {
         return false;
@@ -140,9 +146,12 @@ describe("Splash.svelte", () => {
     // return an object that tracks mock calls / args
     let mainWindowOpened = false;
     mockIPC((cmd, args) => {
-      if (cmd === "get_locale") {
+      if (cmd === "get_setting_value" && args.key === "locale") {
         return "en-US";
-      } else if (cmd === "get_install_directory") {
+      } else if (
+        cmd === "get_setting_value" &&
+        args.key === "install_directory"
+      ) {
         return null;
       } else if (cmd === "has_old_data_directory") {
         return false;

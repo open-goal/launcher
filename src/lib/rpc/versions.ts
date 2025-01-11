@@ -1,13 +1,11 @@
+import { getLatestOfficialRelease } from "$lib/utils/github";
+import { getAutoUninstallOldVersions } from "./config";
 import { invoke_rpc } from "./rpc";
 
-export type VersionFolders = null | "official";
-
-export async function listDownloadedVersions(
-  versionFolder: VersionFolders,
-): Promise<string[]> {
+export async function listDownloadedVersions(): Promise<string[]> {
   return await invoke_rpc(
     "list_downloaded_versions",
-    { versionFolder },
+    { versionFolder: "official" },
     () => [],
   );
 }
@@ -25,34 +23,47 @@ export async function downloadOfficialVersion(
   );
 }
 
-export async function removeVersion(
-  version: String,
-  versionFolder: String,
-): Promise<boolean> {
+export async function removeVersion(version: String): Promise<boolean> {
   return await invoke_rpc(
     "remove_version",
-    { version, versionFolder },
+    { version },
     () => false,
     "Unable to remove version",
     () => true,
   );
 }
 
-export async function openVersionFolder(versionFolder: VersionFolders) {
+export async function removeOldVersions(): Promise<boolean> {
+  let shouldRemove = await getAutoUninstallOldVersions();
+  if (shouldRemove) {
+    let downloadedVersions = await listDownloadedVersions();
+    let latestRelease = await getLatestOfficialRelease();
+    downloadedVersions = downloadedVersions.filter(
+      (v) => v !== latestRelease?.version,
+    );
+    downloadedVersions.forEach((v) => {
+      removeVersion(v);
+    });
+    return false;
+  }
+  return false;
+}
+
+export async function openVersionFolder() {
   return await invoke_rpc(
     "go_to_version_folder",
-    { versionFolder },
+    { versionFolder: "official" },
     () => {},
     "Unable to open version folder",
   );
 }
 
 export async function getActiveVersion(): Promise<string | null> {
-  return await invoke_rpc("get_active_tooling_version", {}, () => null);
-}
-
-export async function getActiveVersionFolder(): Promise<VersionFolders> {
-  return await invoke_rpc("get_active_tooling_version_folder", {}, () => null);
+  return await invoke_rpc(
+    "get_setting_value",
+    { key: "active_version" },
+    () => null,
+  );
 }
 
 export async function ensureActiveVersionStillExists(): Promise<boolean> {
