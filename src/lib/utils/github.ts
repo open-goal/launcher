@@ -20,15 +20,17 @@ function getDownloadLinkForCurrentPlatform(release) {
   let matchingAsset;
   if (plat == "macos") {
     const userArch = arch() === "aarch64" ? "arm" : "intel";
-    matchingAsset = release.assets.find(asset =>
-      asset.name.toLowerCase().includes(plat) &&
-      !asset.name.toLowerCase().includes('.bin') &&
-      asset.name.toLowerCase().includes(userArch)
+    matchingAsset = release.assets.find(
+      (asset) =>
+        asset.name.toLowerCase().includes(plat) &&
+        !asset.name.toLowerCase().includes(".bin") &&
+        asset.name.toLowerCase().includes(userArch),
     );
   } else {
-    matchingAsset = release.assets.find(asset =>
-      asset.name.toLowerCase().includes(plat) &&
-      !asset.name.toLowerCase().includes('.bin')
+    matchingAsset = release.assets.find(
+      (asset) =>
+        asset.name.toLowerCase().includes(plat) &&
+        !asset.name.toLowerCase().includes(".bin"),
     );
   }
   if (matchingAsset) {
