@@ -128,7 +128,7 @@
     }
     // Get a list of available versions, this is how we see if we're on the latest!
     let sourceData = await getModSourcesData();
-    userPlatform = await platform();
+    userPlatform = platform();
 
     let relevantSourceData = undefined;
     for (const [sourceUrl, sourceDataEntry] of Object.entries(sourceData)) {
