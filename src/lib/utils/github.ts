@@ -24,13 +24,15 @@ function getDownloadLinkForCurrentPlatform(release) {
       (asset) =>
         asset.name.toLowerCase().includes(plat) &&
         !asset.name.toLowerCase().includes(".bin") &&
+        !asset.name.toLowerCase().includes("lsp") &&
         asset.name.toLowerCase().includes(userArch),
     );
   } else {
     matchingAsset = release.assets.find(
       (asset) =>
         asset.name.toLowerCase().includes(plat) &&
-        !asset.name.toLowerCase().includes(".bin"),
+        !asset.name.toLowerCase().includes(".bin") &&
+        !asset.name.toLowerCase().includes("lsp"),
     );
   }
   if (matchingAsset) {
