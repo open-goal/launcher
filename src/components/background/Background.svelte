@@ -18,11 +18,10 @@
 
   let style = "absolute object-fill h-screen brightness-75 pt-[60px] w-full";
   let jak1Image = "";
-  let onWindows = false;
+  let onWindows = platform() === "windows";
   let modBackground = "";
 
   onMount(async () => {
-    onWindows = (await platform()) === "win32";
     const unlistenInstalled = await listen("gameInstalled", (event) => {
       updateStyle();
     });

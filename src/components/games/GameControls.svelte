@@ -38,12 +38,10 @@
   let gameDataDir: string | undefined = undefined;
   let settingsDir: string | undefined = undefined;
   let savesDir: string | undefined = undefined;
-  let isLinux = false;
   let playtime = "";
   let textureSupportEnabled = true;
 
   onMount(async () => {
-    isLinux = (await platform()) === "linux";
     let installationDir = await getInstallationDirectory();
     if (installationDir !== null) {
       gameDataDir = await join(
