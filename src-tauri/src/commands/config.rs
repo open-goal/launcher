@@ -99,10 +99,10 @@ pub async fn is_avx_requirement_met(
   let mut config_lock = config.lock().await;
   if config_lock.requirements.bypass_requirements {
     log::warn!("Bypassing the AVX requirements check!");
-    return Ok(true);
+    Ok(true)
   } else {
     let _ = config_lock.update_setting_value("avx", is_avx_supported().await.into(), None);
-    return Ok(config_lock.requirements.avx);
+    Ok(config_lock.requirements.avx)
   }
 }
 
@@ -135,7 +135,7 @@ pub async fn is_opengl_requirement_met(
       "No active version set, can't perform operation".to_owned(),
     ))?;
   // If we can't determine the version, assume it's too old
-  let tooling_version = Version::parse(active_version.strip_prefix('v').unwrap_or(&active_version))
+  let tooling_version = Version::parse(active_version.strip_prefix('v').unwrap_or(active_version))
     .unwrap_or(Version::new(0, 1, 37));
   if tooling_version.major == 0 && tooling_version.minor <= 1 && tooling_version.patch < 38 {
     // Assume it's fine
@@ -179,7 +179,7 @@ pub async fn does_active_tooling_version_support_game(
   match &config_lock.active_version {
     Some(version) => {
       // If we can't determine the version, assume its our first release
-      let tooling_version = Version::parse(version.strip_prefix('v').unwrap_or(&version))
+      let tooling_version = Version::parse(version.strip_prefix('v').unwrap_or(version))
         .unwrap_or(Version::new(0, 0, 1));
       match game_name.as_str() {
         "jak1" => Ok(true),

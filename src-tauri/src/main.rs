@@ -42,7 +42,7 @@ fn log_crash(panic_info: Option<&std::panic::PanicHookInfo>, error: Option<tauri
     }
   }
 
-  let mut dialog_text = format!("Unrecoverable crash occurred!");
+  let mut dialog_text = "Unrecoverable crash occurred!".to_string();
   if cfg!(windows) {
     dialog_text = format!("{dialog_text} Ensure you have not uninstalled WebView2: https://developer.microsoft.com/en-us/microsoft-edge/webview2/?form=MA13LH#download");
   }

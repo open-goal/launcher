@@ -14,7 +14,7 @@ pub fn open_dir_in_os(dir: String) -> Result<(), std::io::Error> {
 
 #[cfg(not(target_os = "windows"))]
 pub fn get_installed_vcc_runtime() -> Option<semver::Version> {
-  return None;
+  None
 }
 
 #[cfg(target_os = "windows")]

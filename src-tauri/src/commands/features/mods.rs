@@ -7,7 +7,7 @@ use std::{
 };
 
 use serde::{Deserialize, Serialize};
-use tauri::{Emitter, Manager};
+use tauri::Emitter;
 use tokio::{io::AsyncWriteExt, process::Command};
 
 use crate::{
@@ -61,12 +61,12 @@ pub async fn extract_new_mod(
     CommandError::GameFeatures(format!("Unable to create directory for mod: {}", err))
   })?;
   if cfg!(windows) {
-    extract_zip_file(&bundle_path_buf, &destination_dir, false).map_err(|err| {
+    extract_zip_file(&bundle_path_buf, destination_dir, false).map_err(|err| {
       log::error!("Unable to extract mod: {}", err);
       CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
     })?;
   } else if cfg!(unix) {
-    extract_tar_ball(&bundle_path_buf, &destination_dir).map_err(|err| {
+    extract_tar_ball(&bundle_path_buf, destination_dir).map_err(|err| {
       log::error!("Unable to extract mod: {}", err);
       CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
     })?;
@@ -113,7 +113,7 @@ pub async fn download_and_extract_new_mod(
     log::error!("Unable to create directory for mod: {}", err);
     CommandError::GameFeatures(format!("Unable to create directory for mod: {}", err))
   })?;
-  download_file(&download_url, &download_path)
+  download_file(&download_url, download_path)
     .await
     .map_err(|err| {
       CommandError::GameFeatures(
@@ -128,12 +128,12 @@ pub async fn download_and_extract_new_mod(
     })?;
 
   if cfg!(windows) {
-    extract_and_delete_zip_file(&download_path, &parent_path, false).map_err(|err| {
+    extract_and_delete_zip_file(download_path, parent_path, false).map_err(|err| {
       log::error!("Unable to extract mod: {}", err);
       CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
     })?;
   } else if cfg!(unix) {
-    extract_and_delete_tar_ball(&download_path, &parent_path).map_err(|err| {
+    extract_and_delete_tar_ball(download_path, parent_path).map_err(|err| {
       log::error!("Unable to extract mod: {}", err);
       CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
     })?;
@@ -143,10 +143,10 @@ pub async fn download_and_extract_new_mod(
     ))?;
   }
 
-  return Ok(InstallStepOutput {
+  Ok(InstallStepOutput {
     success: true,
     msg: None,
-  });
+  })
 }
 
 #[tauri::command]
@@ -664,7 +664,7 @@ pub async fn get_local_mod_thumbnail_base64(
     .join(mod_name)
     .join("thumbnail.png");
   if cover_path.exists() {
-    return Ok(to_image_base64(&cover_path.to_string_lossy().to_string()));
+    return Ok(to_image_base64(cover_path.to_string_lossy().as_ref()));
   }
   Ok("".to_string())
 }
@@ -689,7 +689,7 @@ pub async fn get_local_mod_cover_base64(
     .join(mod_name)
     .join("cover.png");
   if cover_path.exists() {
-    return Ok(to_image_base64(&cover_path.to_string_lossy().to_string()));
+    return Ok(to_image_base64(cover_path.to_string_lossy().as_ref()));
   }
   Ok("".to_string())
 }
@@ -898,9 +898,9 @@ pub async fn open_repl_for_mod(
           },
         );
       }
-      return Err(CommandError::BinaryExecution(
+      Err(CommandError::BinaryExecution(
         "Unable to launch REPL".to_owned(),
-      ));
+      ))
     }
   }
 }

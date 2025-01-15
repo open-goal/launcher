@@ -16,6 +16,7 @@ use crate::{commands::CommandError, config::LauncherConfig, util::file::create_d
 struct CommonConfigData {
   install_path: std::path::PathBuf,
   active_version: String,
+  #[allow(dead_code)]
   tooling_version: Version,
 }
 
@@ -38,13 +39,13 @@ fn common_prelude(
       "No active version set, can't perform operation".to_owned(),
     ))?;
 
-  let tooling_version = Version::parse(active_version.strip_prefix('v').unwrap_or(&active_version))
+  let tooling_version = Version::parse(active_version.strip_prefix('v').unwrap_or(active_version))
     .unwrap_or(Version::new(0, 1, 35)); // assume new format if none can be found
 
   Ok(CommonConfigData {
     install_path: install_path.to_path_buf(),
     active_version: active_version.clone(),
-    tooling_version: tooling_version,
+    tooling_version,
   })
 }
 
@@ -156,26 +157,22 @@ pub async fn run_game_gpu_test(
 
         // Serialize from json
         match serde_json::from_str::<GPUTestOutput>(&content) {
-          Ok(test_results) => {
-            return Ok(test_results);
-          }
+          Ok(test_results) => Ok(test_results),
           Err(err) => {
             log::error!("Unable to parse {}: {}", &content, err);
-            return Err(CommandError::BinaryExecution(
+            Err(CommandError::BinaryExecution(
               "Unable to parse GPU test result".to_owned(),
-            ));
+            ))
           }
         }
       } else {
-        return Err(CommandError::BinaryExecution(
+        Err(CommandError::BinaryExecution(
           "GPU Test failed with a non-zero exit code".to_owned(),
-        ));
+        ))
       }
     }
-    None => {
-      return Err(CommandError::BinaryExecution(
-        "GPU test failed, no exit-code returned".to_owned(),
-      ))
-    }
+    None => Err(CommandError::BinaryExecution(
+      "GPU test failed, no exit-code returned".to_owned(),
+    )),
   }
 }

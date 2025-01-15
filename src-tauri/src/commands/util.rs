@@ -25,7 +25,7 @@ pub async fn has_old_data_directory(app_handle: tauri::AppHandle) -> Result<bool
 #[tauri::command]
 pub async fn delete_old_data_directory(app_handle: tauri::AppHandle) -> Result<(), CommandError> {
   match &app_handle.path().app_config_dir() {
-    Ok(dir) => Ok(delete_dir(&dir.join("data"))?),
+    Ok(dir) => Ok(delete_dir(dir.join("data"))?),
     Err(_) => Ok(()),
   }
 }
@@ -82,9 +82,9 @@ pub async fn is_diskspace_requirement_met(
   }
 
   log::error!("Unable to find relevant drive to check for space");
-  return Err(CommandError::Configuration(
+  Err(CommandError::Configuration(
     "Unable to find relevant drive to check for space".to_owned(),
-  ));
+  ))
 }
 
 #[cfg(target_os = "windows")]
@@ -112,7 +112,7 @@ pub async fn is_minimum_vcc_runtime_installed() -> Result<bool, CommandError> {
 #[cfg(target_os = "macos")]
 #[tauri::command]
 pub async fn is_minimum_vcc_runtime_installed() -> Result<bool, CommandError> {
-  return Ok(false);
+  Ok(false)
 }
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -123,7 +123,7 @@ pub async fn is_avx_supported() -> bool {
 #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
 pub async fn is_avx_supported() -> bool {
   // TODO - macOS check if on atleast sequoia and rosetta 2 is installed
-  return false;
+  false
 }
 
 #[cfg(not(target_os = "macos"))]
@@ -138,8 +138,8 @@ pub async fn is_macos_version_15_or_above() -> Result<bool, CommandError> {
   if let Ok(ctl) = sysctl::Ctl::new("kern.osproductversion") {
     if let Ok(ctl_val) = ctl.value_string() {
       let version = ctl_val.parse::<f32>();
-      if version.is_ok() {
-        return Ok(version.unwrap() >= 15.0);
+      if let Ok(os_version) = version {
+        return Ok(os_version >= 15.0);
       }
     }
   }

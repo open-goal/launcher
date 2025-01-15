@@ -92,7 +92,7 @@ pub async fn list_extracted_texture_pack_info(
           Ok(path) => {
             let relative_path = path
               .strip_prefix(
-                &entry_path
+                entry_path
                   .join("custom_assets")
                   .join(&game_name)
                   .join("texture_replacements"),
@@ -218,7 +218,7 @@ pub async fn extract_new_texture_pack(
       err
     ))
   })?;
-  extract_zip_file(&zip_path_buf, &destination_dir, false).map_err(|err| {
+  extract_zip_file(&zip_path_buf, destination_dir, false).map_err(|err| {
     log::error!("Unable to extract replacement pack: {}", err);
     CommandError::GameFeatures(format!("Unable to extract texture pack: {}", err))
   })?;
@@ -268,7 +268,7 @@ pub async fn update_texture_pack_data(
         .join("features")
         .join(&game_name)
         .join("texture-packs")
-        .join(&pack)
+        .join(pack)
         .join("custom_assets")
         .join(&game_name)
         .join("texture_replacements");
@@ -319,7 +319,7 @@ pub async fn delete_texture_packs(
 
   for pack in packs {
     log::info!("Deleting texture pack: {}", pack);
-    match delete_dir(&texture_pack_dir.join(&pack)) {
+    match delete_dir(texture_pack_dir.join(&pack)) {
       Ok(_) => (),
       Err(err) => {
         log::error!("Unable to delete texture pack: {}", err);
