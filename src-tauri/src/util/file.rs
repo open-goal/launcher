@@ -50,6 +50,7 @@ pub fn read_lines_in_file(path: &PathBuf) -> Result<String, Box<dyn std::error::
 pub fn touch_file(path: &PathBuf) -> std::io::Result<()> {
   match std::fs::OpenOptions::new()
     .create(true)
+    .truncate(true)
     .write(true)
     .open(path)
   {

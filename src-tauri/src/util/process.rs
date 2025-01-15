@@ -1,6 +1,5 @@
 use std::process::ExitStatus;
 
-use log::warn;
 use tokio::{
   io::{AsyncBufReadExt, AsyncWriteExt},
   sync::mpsc,
@@ -61,7 +60,7 @@ pub async fn watch_process(
     }
   });
 
-  let mut process_status: ExitStatus;
+  let process_status: ExitStatus;
 
   loop {
     tokio::select! {
