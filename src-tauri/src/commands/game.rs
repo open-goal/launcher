@@ -111,7 +111,7 @@ pub async fn reset_game_settings(
 
 fn get_saves_highest_milestone(
   path: &PathBuf,
-  milestones: &Vec<MilestoneCriteria>,
+  milestones: &[MilestoneCriteria],
 ) -> Option<(String, i32)> {
   // Read the file's bytes and generate a list of all completed tasks
   let mut tasks: HashMap<u8, GameTaskStatus> = HashMap::new();
@@ -152,18 +152,18 @@ fn get_saves_highest_milestone(
   // Iterate through the milestones backwards
   for (index, milestone) in milestones.iter().rev().enumerate() {
     for task_id in &milestone.introduced {
-      if tasks.contains_key(&task_id) && tasks[&task_id].introduced {
+      if tasks.contains_key(task_id) && tasks[task_id].introduced {
         return Some((milestone.name.to_owned(), (milestones.len() - index) as i32));
       }
     }
     for task_id in &milestone.completed {
-      if tasks.contains_key(&task_id) && tasks[&task_id].completed {
+      if tasks.contains_key(task_id) && tasks[task_id].completed {
         return Some((milestone.name.to_owned(), (milestones.len() - index) as i32));
       }
     }
   }
 
-  return None;
+  None
 }
 
 // Returns the most significant milestone in the game the user has achieved
@@ -227,19 +227,16 @@ pub async fn get_furthest_game_milestone(
     if let Some(ext) = entry.path().extension() {
       if ext == "bin" {
         info!("Scanning save {}", entry.path().display());
-        match get_saves_highest_milestone(&entry.into_path(), &milestones) {
-          Some((name, idx)) => {
-            info!("Furthest milestone {} at index {}", name, idx);
-            if idx > highest_milestone_idx {
-              highest_milestone_idx = idx;
-              furthest_milestone_name = name.to_owned();
-            }
+        if let Some((name, idx)) = get_saves_highest_milestone(&entry.into_path(), &milestones) {
+          info!("Furthest milestone {} at index {}", name, idx);
+          if idx > highest_milestone_idx {
+            highest_milestone_idx = idx;
+            furthest_milestone_name = name.to_owned();
           }
-          None => {}
         }
       }
     }
   }
 
-  return Ok(furthest_milestone_name);
+  Ok(furthest_milestone_name)
 }

@@ -42,13 +42,12 @@
   let uninstallOldVersions = writable(false);
   let localeFontForDownload: Locale | undefined = undefined;
   let localeFontDownloading = false;
-  let isLinux = false;
+  let isLinux = platform() === "linux";
   let initialized = false;
 
   onMount(async () => {
     keepGamesUpdated.set(await getAutoUpdateGames());
     uninstallOldVersions.set(await getAutoUninstallOldVersions());
-    isLinux = (await platform()) === "linux";
     currentInstallationDirectory = await getInstallationDirectory();
     for (const locale of AVAILABLE_LOCALES) {
       availableLocales = [

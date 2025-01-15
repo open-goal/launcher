@@ -54,12 +54,11 @@
   let gameDataDir: string | undefined = undefined;
   let settingsDir: string | undefined = undefined;
   let savesDir: string | undefined = undefined;
-  let isLinux = false;
   let modVersionListSorted: string[] = [];
   let modAssetUrlsSorted: string[] = [];
   let currentlyInstalledVersion: string = "";
   let numberOfVersionsOutOfDate = 0;
-  let userPlatform: string = "";
+  let userPlatform: string = platform();
   let checkForLatestModVersionChecked = false;
 
   async function addModFromUrl(
@@ -83,7 +82,6 @@
 
   onMount(async () => {
     checkForLatestModVersionChecked = await getCheckForLatestModVersion();
-    isLinux = (await platform()) === "linux";
     let installationDir = await getInstallationDirectory();
     if (installationDir !== null) {
       gameDataDir = await join(
@@ -128,7 +126,6 @@
     }
     // Get a list of available versions, this is how we see if we're on the latest!
     let sourceData = await getModSourcesData();
-    userPlatform = await platform();
 
     let relevantSourceData = undefined;
     for (const [sourceUrl, sourceDataEntry] of Object.entries(sourceData)) {

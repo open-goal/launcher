@@ -15,68 +15,34 @@ export interface ReleaseInfo {
   invalidationReasons: string[];
 }
 
-function isIntelMacOsRelease(
-  platform: string,
-  architecture: string,
-  assetName: string,
-): boolean {
-  return (
-    platform === "darwin" &&
-    architecture === "x86_64" &&
-    assetName.startsWith("opengoal-macos-intel-v")
-  );
-}
-
-function isArmMacOsRelease(
-  platform: string,
-  architecture: string,
-  assetName: string,
-): boolean {
-  return (
-    platform === "darwin" &&
-    architecture === "aarch64" &&
-    assetName.startsWith("opengoal-macos-arm-v")
-  );
-}
-
-function isWindowsRelease(
-  platform: string,
-  architecture: string,
-  assetName: string,
-): boolean {
-  return platform === "win32" && assetName.startsWith("opengoal-windows-v");
-}
-
-function isLinuxRelease(
-  platform: string,
-  architecture: string,
-  assetName: string,
-): boolean {
-  return platform === "linux" && assetName.startsWith("opengoal-linux-v");
-}
-
-async function getDownloadLinkForCurrentPlatform(
-  release: any,
-): Promise<string | undefined> {
-  const platformName = await platform();
-  const archName = await arch();
-  for (const asset of release.assets) {
-    if (isIntelMacOsRelease(platformName, archName, asset.name)) {
-      return asset.browser_download_url;
-    } else if (isArmMacOsRelease(platformName, archName, asset.name)) {
-      return asset.browser_download_url;
-    } else if (isWindowsRelease(platformName, archName, asset.name)) {
-      return asset.browser_download_url;
-    } else if (isLinuxRelease(platformName, archName, asset.name)) {
-      return asset.browser_download_url;
-    }
+function getDownloadLinkForCurrentPlatform(release) {
+  let plat = platform();
+  let matchingAsset;
+  if (plat == "macos") {
+    const userArch = arch() === "aarch64" ? "arm" : "intel";
+    matchingAsset = release.assets.find(
+      (asset) =>
+        asset.name.toLowerCase().includes(plat) &&
+        !asset.name.toLowerCase().includes(".bin") &&
+        !asset.name.toLowerCase().includes("lsp") &&
+        asset.name.toLowerCase().includes(userArch),
+    );
+  } else {
+    matchingAsset = release.assets.find(
+      (asset) =>
+        asset.name.toLowerCase().includes(plat) &&
+        !asset.name.toLowerCase().includes(".bin") &&
+        !asset.name.toLowerCase().includes("lsp"),
+    );
+  }
+  if (matchingAsset) {
+    return matchingAsset.browser_download_url;
   }
   return undefined;
 }
 
 async function parseGithubRelease(githubRelease: any): Promise<ReleaseInfo> {
   const releaseInfo: ReleaseInfo = {
-    releaseType: "official",
     version: githubRelease.tag_name,
     date: githubRelease.published_at,
     githubLink: githubRelease.html_url,
@@ -135,7 +101,6 @@ export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
       urlToHit = undefined;
     }
   }
-
   return releases.sort((a, b) => b.date.localeCompare(a.date));
 }
 

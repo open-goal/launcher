@@ -4,7 +4,7 @@
     setFlatpakInstallationDirectory,
   } from "$lib/rpc/config";
   import { folderPrompt } from "$lib/utils/file-dialogs";
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher } from "svelte";
   import { platform } from "@tauri-apps/plugin-os";
   import { _ } from "svelte-i18n";
 
@@ -12,12 +12,7 @@
 
   let stepError = "";
 
-  let isLinux = false;
-
-  // Events
-  onMount(async () => {
-    isLinux = (await platform()) === "linux";
-  });
+  let isLinux = platform() === "linux";
 </script>
 
 {#if !isLinux}

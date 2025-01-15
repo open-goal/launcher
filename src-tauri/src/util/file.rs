@@ -50,6 +50,7 @@ pub fn read_lines_in_file(path: &PathBuf) -> Result<String, Box<dyn std::error::
 pub fn touch_file(path: &PathBuf) -> std::io::Result<()> {
   match std::fs::OpenOptions::new()
     .create(true)
+    .truncate(true)
     .write(true)
     .open(path)
   {
@@ -75,9 +76,9 @@ pub fn to_image_base64(path: &str) -> String {
   let _ = file.read_to_end(&mut vec);
   let base64 = vec.to_base64(MIME);
   let hex = vec.to_hex();
-  return format!(
+  format!(
     "data:image/{};base64,{}",
     get_image_file_type(&hex),
     base64.replace("\r\n", "")
-  );
+  )
 }

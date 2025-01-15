@@ -16,7 +16,7 @@ pub struct GameTaskStatus {
 }
 
 pub fn get_jak1_milestones() -> Vec<MilestoneCriteria> {
-  return vec![
+  vec![
     MilestoneCriteria {
       name: "geyser".to_string(),
       completed: vec![],
@@ -225,5 +225,5 @@ pub fn get_jak1_milestones() -> Vec<MilestoneCriteria> {
       completed: vec![],
       introduced: vec![112],
     },
-  ];
+  ]
 }

@@ -103,7 +103,7 @@ fn dump_per_game_info(
   };
   append_dir_contents_to_zip(
     zip_file,
-    &game_config_dir.join(&game_name).join("settings"),
+    &game_config_dir.join(game_name).join("settings"),
     format!("Game Settings and Saves/{game_name}/settings").as_str(),
     vec!["gc", "json"],
   )
@@ -112,7 +112,7 @@ fn dump_per_game_info(
   })?;
   append_dir_contents_to_zip(
     zip_file,
-    &game_config_dir.join(&game_name).join("misc"),
+    &game_config_dir.join(game_name).join("misc"),
     format!("Game Settings and Saves/{game_name}/misc").as_str(),
     vec!["gc", "json"],
   )
@@ -121,7 +121,7 @@ fn dump_per_game_info(
   })?;
   append_dir_contents_to_zip(
     zip_file,
-    &game_config_dir.join(&game_name).join("saves"),
+    &game_config_dir.join(game_name).join("saves"),
     format!("Game Settings and Saves/{game_name}/saves").as_str(),
     vec!["bin"],
   )
@@ -131,7 +131,7 @@ fn dump_per_game_info(
 
   // Save Logs
   let active_version_dir = install_path.join("active");
-  let jak1_log_dir = active_version_dir.join(&game_name).join("data").join("log");
+  let jak1_log_dir = active_version_dir.join(game_name).join("data").join("log");
   append_dir_contents_to_zip(
     zip_file,
     &jak1_log_dir,
@@ -141,16 +141,16 @@ fn dump_per_game_info(
   .map_err(|_| CommandError::Support("Unable to append game logs to support package".to_owned()))?;
 
   let texture_repl_dir = active_version_dir
-    .join(&game_name)
+    .join(game_name)
     .join("data")
     .join("texture_replacements");
   package.game_info.get_game_info(game_name).has_texture_packs =
     texture_repl_dir.exists() && texture_repl_dir.read_dir().unwrap().next().is_some();
   let build_info_path = active_version_dir
-    .join(&game_name)
+    .join(game_name)
     .join("data")
     .join("iso_data")
-    .join(&game_name)
+    .join(game_name)
     .join("buildinfo.json");
   append_file_to_zip(
     zip_file,
@@ -162,7 +162,7 @@ fn dump_per_game_info(
   })?;
 
   if config_lock.active_version.is_some() {
-    let data_dir = active_version_dir.join(&game_name).join("data");
+    let data_dir = active_version_dir.join(game_name).join("data");
     let version_data_dir = install_path
       .join("versions")
       .join("official")
@@ -193,7 +193,7 @@ fn dump_per_game_info(
   }
 
   // Append mod settings and logs
-  let mod_directory = install_path.join("features").join(&game_name).join("mods");
+  let mod_directory = install_path.join("features").join(game_name).join("mods");
   info!("Scanning mod directory {mod_directory:?}");
   if mod_directory.exists() {
     let mod_source_iter = WalkDir::new(mod_directory)
@@ -216,7 +216,7 @@ fn dump_per_game_info(
               if mod_path.exists() {
                 append_dir_contents_to_zip(
                   zip_file,
-                  &mod_path,
+                  mod_path,
                   format!("Game Settings and Saves/{game_name}/mods/{mod_source_name}/settings")
                     .as_str(),
                   vec!["gc", "json"],
@@ -228,7 +228,7 @@ fn dump_per_game_info(
                 })?;
                 append_dir_contents_to_zip(
                   zip_file,
-                  &mod_path,
+                  mod_path,
                   format!("Game Settings and Saves/{game_name}/mods/{mod_source_name}/saves")
                     .as_str(),
                   vec!["bin"],
@@ -469,14 +469,14 @@ pub async fn generate_support_package(
     ));
   }
   // Seems good, move it to the user's intended destination
-  fs::copy(&save_file.path(), save_path).map_err(|e| {
+  fs::copy(save_file.path(), save_path).map_err(|e| {
     CommandError::Support(format!(
       "Support package was unable to be moved from its temporary file location: {:?}",
       e
     ))
   })?;
 
-  fs::remove_file(&save_file.path()).map_err(|e| {
+  fs::remove_file(save_file.path()).map_err(|e| {
     CommandError::Support(format!(
       "Support package was copied but the original file could not be removed: {:?}",
       e

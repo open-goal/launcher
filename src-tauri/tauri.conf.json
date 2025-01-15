@@ -52,7 +52,10 @@
           "**"
         ],
         "enable": true
-      }
+      },
+      "capabilities": [
+        "desktop-capability"
+      ]
     },
     "windows": [
       {

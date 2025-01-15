@@ -65,13 +65,13 @@ fn common_prelude(
       "No active version set, can't perform operation".to_owned(),
     ))?;
 
-  let tooling_version = Version::parse(active_version.strip_prefix('v').unwrap_or(&active_version))
+  let tooling_version = Version::parse(active_version.strip_prefix('v').unwrap_or(active_version))
     .unwrap_or(Version::new(0, 1, 35)); // assume new format if none can be found
 
   Ok(CommonConfigData {
     install_path: install_path.to_path_buf(),
     active_version: active_version.clone(),
-    tooling_version: tooling_version,
+    tooling_version,
   })
 }
 
@@ -623,9 +623,9 @@ pub async fn open_repl(
           },
         );
       }
-      return Err(CommandError::BinaryExecution(
+      Err(CommandError::BinaryExecution(
         "Unable to launch REPL".to_owned(),
-      ));
+      ))
     }
   }
 }
@@ -636,7 +636,7 @@ fn generate_launch_game_string(
   in_debug: bool,
   quote_project_path: bool,
 ) -> Result<Vec<String>, CommandError> {
-  let data_folder = get_data_dir(&config_info, &game_name, false)?;
+  let data_folder = get_data_dir(config_info, &game_name, false)?;
 
   let proj_path = if quote_project_path {
     format!("\"{}\"", data_folder.to_string_lossy().into_owned())
@@ -712,9 +712,9 @@ pub async fn launch_game(
       Ok(exec_path) => {
         let path_copy = exec_path.clone();
         if path_copy.parent().is_none() {
-          return Err(CommandError::BinaryExecution(format!(
-            "Failed to resolve custom binary parent directory"
-          )));
+          return Err(CommandError::BinaryExecution(
+            "Failed to resolve custom binary parent directory".to_string(),
+          ));
         }
         exec_info = ExecutableLocation {
           executable_dir: exec_path.clone().parent().unwrap().to_path_buf(),
@@ -761,7 +761,7 @@ pub async fn launch_game(
                                      // start waiting for the game to exit
     match child.wait() {
       Ok(status_code) => {
-        if !status_code.code().is_some() || status_code.code().unwrap() != 0 {
+        if status_code.code().is_none() || status_code.code().unwrap() != 0 {
           let _ = app_handle.emit(
             "toast_msg",
             ToastPayload {
@@ -779,7 +779,6 @@ pub async fn launch_game(
     // once the game exits pass the time the game started to the track_playtine function
     if let Err(err) = track_playtime(start_time, game_name).await {
       log::error!("Error occured when tracking playtime: {}", err);
-      return;
     }
   });
   Ok(())

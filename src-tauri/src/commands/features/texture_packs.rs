@@ -92,7 +92,7 @@ pub async fn list_extracted_texture_pack_info(
           Ok(path) => {
             let relative_path = path
               .strip_prefix(
-                &entry_path
+                entry_path
                   .join("custom_assets")
                   .join(&game_name)
                   .join("texture_replacements"),
@@ -125,35 +125,32 @@ pub async fn list_extracted_texture_pack_info(
         tags: vec![],
       };
       // Read metadata if it's available
-      match entry_path.join("metadata.json").exists() {
-        true => {
-          match std::fs::read_to_string(entry_path.join("metadata.json")) {
-            Ok(content) => {
-              // Serialize from json
-              match serde_json::from_str::<TexturePackInfo>(&content) {
-                Ok(pack_metadata) => {
-                  pack_info.name = pack_metadata.name;
-                  pack_info.version = pack_metadata.version;
-                  pack_info.author = pack_metadata.author;
-                  pack_info.release_date = pack_metadata.release_date;
-                  pack_info.description = pack_metadata.description;
-                  pack_info.tags = pack_metadata.tags;
-                }
-                Err(err) => {
-                  log::error!("Unable to parse {}: {}", &content, err);
-                }
+      if entry_path.join("metadata.json").exists() {
+        match std::fs::read_to_string(entry_path.join("metadata.json")) {
+          Ok(content) => {
+            // Serialize from json
+            match serde_json::from_str::<TexturePackInfo>(&content) {
+              Ok(pack_metadata) => {
+                pack_info.name = pack_metadata.name;
+                pack_info.version = pack_metadata.version;
+                pack_info.author = pack_metadata.author;
+                pack_info.release_date = pack_metadata.release_date;
+                pack_info.description = pack_metadata.description;
+                pack_info.tags = pack_metadata.tags;
+              }
+              Err(err) => {
+                log::error!("Unable to parse {}: {}", &content, err);
               }
             }
-            Err(err) => {
-              log::error!(
-                "Unable to read {}: {}",
-                entry_path.join("metadata.json").display(),
-                err
-              );
-            }
-          };
-        }
-        false => {}
+          }
+          Err(err) => {
+            log::error!(
+              "Unable to read {}: {}",
+              entry_path.join("metadata.json").display(),
+              err
+            );
+          }
+        };
       }
       package_map.insert(directory_name, pack_info);
     }
@@ -218,7 +215,7 @@ pub async fn extract_new_texture_pack(
       err
     ))
   })?;
-  extract_zip_file(&zip_path_buf, &destination_dir, false).map_err(|err| {
+  extract_zip_file(&zip_path_buf, destination_dir, false).map_err(|err| {
     log::error!("Unable to extract replacement pack: {}", err);
     CommandError::GameFeatures(format!("Unable to extract texture pack: {}", err))
   })?;
@@ -268,7 +265,7 @@ pub async fn update_texture_pack_data(
         .join("features")
         .join(&game_name)
         .join("texture-packs")
-        .join(&pack)
+        .join(pack)
         .join("custom_assets")
         .join(&game_name)
         .join("texture_replacements");
@@ -319,7 +316,7 @@ pub async fn delete_texture_packs(
 
   for pack in packs {
     log::info!("Deleting texture pack: {}", pack);
-    match delete_dir(&texture_pack_dir.join(&pack)) {
+    match delete_dir(texture_pack_dir.join(&pack)) {
       Ok(_) => (),
       Err(err) => {
         log::error!("Unable to delete texture pack: {}", err);

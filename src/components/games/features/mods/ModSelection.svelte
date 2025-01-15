@@ -27,7 +27,7 @@
   const dispatch = createEventDispatcher();
   export let activeGame: SupportedGame;
 
-  let userPlatform = "";
+  let userPlatform = platform();
   let loaded = false;
   let modFilter = "";
   let installedMods: Record<string, Record<string, string>> = {};
@@ -40,7 +40,6 @@
     // TODO - move this to a central store!
     await refreshModSources();
     sourceData = await getModSourcesData();
-    userPlatform = await platform();
     loaded = true;
   });
 

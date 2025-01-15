@@ -148,7 +148,7 @@ describe("listOfficialReleases", () => {
   });
 
   it("should retrieve intel macOS releases properly", async () => {
-    vi.mocked(platform).mockResolvedValue("darwin");
+    vi.mocked(platform).mockResolvedValue("macos");
     vi.mocked(arch).mockResolvedValue("x86_64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
@@ -167,7 +167,7 @@ describe("listOfficialReleases", () => {
   });
 
   it("should not retrieve macOS ARM releases", async () => {
-    vi.mocked(platform).mockResolvedValue("darwin");
+    vi.mocked(platform).mockResolvedValue("macos");
     vi.mocked(arch).mockResolvedValue("arm");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
@@ -184,7 +184,7 @@ describe("listOfficialReleases", () => {
   });
 
   it("should retrieve windows releases properly", async () => {
-    vi.mocked(platform).mockResolvedValue("win32");
+    vi.mocked(platform).mockResolvedValue("windows");
     vi.mocked(arch).mockResolvedValue("x86_64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
@@ -229,7 +229,7 @@ describe("getLatestOfficialRelease", () => {
   });
 
   it("should retrieve intel macOS releases properly", async () => {
-    vi.mocked(platform).mockResolvedValue("darwin");
+    vi.mocked(platform).mockResolvedValue("macos");
     vi.mocked(arch).mockResolvedValue("x86_64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
@@ -248,7 +248,7 @@ describe("getLatestOfficialRelease", () => {
   });
 
   it("should not retrieve macOS ARM releases", async () => {
-    vi.mocked(platform).mockResolvedValue("darwin");
+    vi.mocked(platform).mockResolvedValue("macos");
     vi.mocked(arch).mockResolvedValue("arm");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
@@ -265,7 +265,7 @@ describe("getLatestOfficialRelease", () => {
   });
 
   it("should retrieve windows releases properly", async () => {
-    vi.mocked(platform).mockResolvedValue("win32");
+    vi.mocked(platform).mockResolvedValue("windows");
     vi.mocked(arch).mockResolvedValue("x86_64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
