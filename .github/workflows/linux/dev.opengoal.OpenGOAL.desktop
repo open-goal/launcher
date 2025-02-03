@@ -1,0 +1,7 @@
+[Desktop Entry]
+Categories=Development;
+Exec=OpenGOAL-Launcher
+Icon=dev.opengoal.OpenGOAL
+Name=OpenGOAL-Launcher
+Terminal=false
+Type=Application

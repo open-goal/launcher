@@ -1,0 +1,52 @@
+id: dev.opengoal.OpenGOAL
+
+runtime: org.gnome.Platform
+runtime-version: '47'
+sdk: org.gnome.Sdk
+
+command: OpenGOAL-Launcher
+
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.node20
+  - org.freedesktop.Sdk.Extension.rust-stable
+
+finish-args:
+  - --socket=x11
+  - --device=all
+  - --socket=pulseaudio
+  - --share=network
+  - --share=ipc
+
+modules:
+  - modules/libappindicator/libappindicator-gtk3-12.10.json
+  - name: open-goal-launcher
+    sources:
+      - type: dir
+        path: ../../..
+      - generated-sources.json
+      - cargo-sources.json
+      - type: file
+        path: ../../../resources/metadata/dev.opengoal.OpenGOAL.appdata.xml
+      - type: file
+        path: ../../../resources/dev.opengoal.OpenGOAL.desktop
+      - type: dir
+        path: ../../../resources/icons
+        dest: resources/icons
+    buildsystem: simple
+    build-options:
+      append-path: /usr/lib/sdk/node20/bin:/usr/lib/sdk/rust-stable/bin
+      env:
+        CARGO_HOME: /run/build/open-goal-launcher/cargo
+        XDG_CACHE_HOME: /run/build/open-goal-launcher/flatpak-node/cache
+        npm_config_nodedir: /usr/lib/sdk/node20
+    build-commands:
+      - HOME=$PWD yarn config --offline set yarn-offline-mirror $FLATPAK_BUILDER_BUILDDIR/flatpak-node/yarn-mirror
+      - yarn --offline
+      - cargo --offline fetch --manifest-path src-tauri/Cargo.toml
+      - yarn tauri build
+      - install -Dm755 -t /app/bin/ src-tauri/target/release/OpenGOAL-Launcher
+      - install -Dm644 -t /app/share/metainfo/ dev.opengoal.OpenGOAL.appdata.xml
+      - install -Dm644 resources/icons/32.png /app/share/icons/hicolor/32x32/apps/dev.opengoal.OpenGOAL.png
+      - install -Dm644 resources/icons/128.png /app/share/icons/hicolor/128x128/apps/dev.opengoal.OpenGOAL.png
+      - install -Dm644 resources/icons/256.png /app/share/icons/hicolor/256x256/apps/dev.opengoal.OpenGOAL.png
+      - install -Dm644 dev.opengoal.OpenGOAL.desktop /app/share/applications/dev.opengoal.OpenGOAL.desktop

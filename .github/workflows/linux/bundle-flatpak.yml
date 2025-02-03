@@ -1,0 +1,53 @@
+name: 'Publish'
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  FLATPAK_ID: dev.opengoal.OpenGOAL
+
+jobs:
+  bundle-flatpak:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Flatpak and Dependencies
+        run: |
+          flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak --user install flathub -y org.flatpak.Builder \
+            org.gnome.Platform//47 org.gnome.Sdk//47 \
+            runtime/org.freedesktop.Sdk.Extension.rust-stable/x86_64/24.08 \
+            runtime/org.freedesktop.Sdk.Extension.node22/x86_64/24.08
+
+      - name: Install flatpak-node-generator and requirements
+        run: |
+          python3 -m pip install pipx pipreqs
+          pipreqs flatpak-builder-tools
+          python3 -m pip install -r flatpak-builder-tools/requirements.txt
+          cd flatpak-builder-tools/node && pipx install .
+          ls
+
+      - name: Generate Sources
+        run: |
+          flatpak-builder-tools/cargo/flatpak-cargo-generator.py -o cargo-sources.json launcher/src-tauri/Cargo.lock
+          flatpak-node-generator yarn launcher/yarn.lock
+          ls
+
+      - name: Build Flatpak
+        run: |
+          flatpak-builder --repo=repo --force-clean build-dir .github/workflows/linux/manifest.yml
+
+      - name: Create Flatpak bundle
+        run: |
+          flatpak build-bundle repo ${{ env.FLATPAK_ID }}.flatpak ${{ env.FLATPAK_ID }}
+
+      - name: Upload Flatpak archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: opengoal_flatpak
+          path: ${{ env.FLATPAK_ID }}.flatpak
