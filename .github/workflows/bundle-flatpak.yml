@@ -19,15 +19,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Flatpak and Dependencies
-        run: |
-          sudo apt update && \
-          sudo apt install -yqq flatpak flatpak-builder appstream-compose
-          flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          flatpak --user install flathub -y org.flatpak.Builder \
-            org.gnome.Platform//47 org.gnome.Sdk//47 \
-            runtime/org.freedesktop.Sdk.Extension.rust-stable/x86_64/24.08 \
-            runtime/org.freedesktop.Sdk.Extension.node20/x86_64/24.08
+      # - name: Install Flatpak and Dependencies
+      #   run: |
+      #     sudo apt update && \
+      #     sudo apt install -yqq flatpak flatpak-builder appstream-compose
+      #     flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+      #     flatpak --user install flathub -y org.flatpak.Builder \
+      #       org.gnome.Platform//47 org.gnome.Sdk//47 \
+      #       runtime/org.freedesktop.Sdk.Extension.rust-stable/x86_64/24.08 \
+      #       runtime/org.freedesktop.Sdk.Extension.node20/x86_64/24.08
 
       - name: Clone Flatpak Builder Tools
         run: |
