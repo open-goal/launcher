@@ -26,6 +26,11 @@ jobs:
             runtime/org.freedesktop.Sdk.Extension.rust-stable/x86_64/24.08 \
             runtime/org.freedesktop.Sdk.Extension.node22/x86_64/24.08
 
+      - name: Clone Flatpak Builder Tools
+        run: |
+          git clone --depth=1 https://github.com/flatpak/flatpak-builder-tools.git
+          ls
+
       - uses: actions/setup-python@v5
         with:
           python-version: 3.9
@@ -46,7 +51,7 @@ jobs:
 
       - name: Build Flatpak
         run: |
-          flatpak-builder --repo=repo --force-clean build-dir .github/workflows/linux/manifest.yml
+          flatpak-builder --repo=repo --force-clean build-dir .github/workflows/linux/${{ env.FLATPAK_ID }}.yml
 
       - name: Create Flatpak bundle
         run: |
