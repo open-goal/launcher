@@ -44,7 +44,7 @@ jobs:
           pipreqs flatpak-builder-tools
           python3 -m pip install -r flatpak-builder-tools/requirements.txt
           cd flatpak-builder-tools/node && pipx install .
-          ls
+          pipx ensurepath
 
       - name: Generate Sources
         run: |
