@@ -22,10 +22,8 @@ modules:
     sources:
       - type: dir
         path: ../../..
-      - type: file
-        path: ../../../generated-sources.json
-      - type: file
-        path: ../../../cargo-sources.json
+      - yarn-sources.json
+      - cargo-sources.json
       - type: file
         path: ../../../resources/metadata/dev.opengoal.OpenGOAL.appdata.xml
       - type: file
