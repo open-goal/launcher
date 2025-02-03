@@ -7,7 +7,7 @@ sdk: org.gnome.Sdk
 command: OpenGOAL-Launcher
 
 sdk-extensions:
-  - org.freedesktop.Sdk.Extension.node20
+  - org.freedesktop.Sdk.Extension.node22
   - org.freedesktop.Sdk.Extension.rust-stable
 
 finish-args:
@@ -23,10 +23,8 @@ modules:
     sources:
       - type: dir
         path: ../../..
-      - type: file  
-        path: ../../..generated-sources.json
-      - type: file  
-      - path: ../../..cargo-sources.json
+      - generated-sources.json
+      - cargo-sources.json
       - type: file
         path: ../../../resources/metadata/dev.opengoal.OpenGOAL.appdata.xml
       - type: file
