@@ -18,7 +18,7 @@ finish-args:
   - --share=ipc
 
 modules:
-  - modules/libappindicator-gtk3-12.10.json
+  - modules/libappindicator/libappindicator-gtk3-12.10.json
   - name: open-goal-launcher
     sources:
       - type: dir
