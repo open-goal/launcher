@@ -57,7 +57,7 @@ jobs:
         with:
           bundle: ${{ env.FLATPAK_ID }}.flatpak
           upload-artifact: true
-          manifest-path: .github/workflows/linux/flatpak/dev.opengoal.OpenGOAL.yaml
+          manifest-path: .github/workflows/linux/dev.opengoal.OpenGOAL.yaml
           arch: x86_64
           build-bundle: true
           verbose: true
