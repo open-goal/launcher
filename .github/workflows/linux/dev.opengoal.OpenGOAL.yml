@@ -7,7 +7,7 @@ sdk: org.gnome.Sdk
 command: OpenGOAL-Launcher
 
 sdk-extensions:
-  - org.freedesktop.Sdk.Extension.node22
+  - org.freedesktop.Sdk.Extension.node20
   - org.freedesktop.Sdk.Extension.rust-stable
 
 finish-args:
