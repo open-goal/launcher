@@ -39,6 +39,7 @@ modules:
         XDG_CACHE_HOME: /run/build/open-goal-launcher/flatpak-node/cache
         npm_config_nodedir: /usr/lib/sdk/node20
     build-commands:
+      - yarn --cwd $PWD
       - HOME=$PWD yarn config --offline set yarn-offline-mirror $FLATPAK_BUILDER_BUILDDIR/flatpak-node/yarn-mirror
       - yarn config list --verbose
       - yarn --offline
