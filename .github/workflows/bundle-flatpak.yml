@@ -45,7 +45,6 @@ jobs:
           python3 -m pip install -r flatpak-builder-tools/requirements.txt
           cd flatpak-builder-tools/node && pipx install .
           pipx ensurepath
-          yarn config list --verbose
 
       - name: Generate Sources
         run: |
