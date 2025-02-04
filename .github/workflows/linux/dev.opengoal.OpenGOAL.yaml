@@ -35,13 +35,10 @@ modules:
     build-options:
       append-path: /usr/lib/sdk/node20/bin:/usr/lib/sdk/rust-stable/bin
       env:
-        CARGO_HOME: /run/build/open-goal-launcher/cargo
-        XDG_CACHE_HOME: /run/build/open-goal-launcher/flatpak-node/cache
         npm_config_nodedir: /usr/lib/sdk/node20
         YARN_DISABLE_SELF_UPDATE_CHECK: true
-        YARN_CACHE_FOLDER: /run/build/open-goal-launcher/flatpak-node/cache/yarn
     build-commands:
-      - HOME=$PWD yarn config --offline set yarn-offline-mirror $FLATPAK_BUILDER_BUILDDIR/flatpak-node/yarn-mirror
+      - HOME=/ yarn config --offline set yarn-offline-mirror /yarn-mirror
       - yarn --offline
       - cargo --offline fetch --manifest-path src-tauri/Cargo.toml
       - yarn tauri build
