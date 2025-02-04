@@ -12,7 +12,8 @@ jobs:
   bundle-flatpak:
     runs-on: ubuntu-22.04
     container:
-      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-47
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-24.08
+      options: --privileged
 
     steps:
       - name: Checkout repository
@@ -44,6 +45,7 @@ jobs:
           python3 -m pip install -r flatpak-builder-tools/requirements.txt
           cd flatpak-builder-tools/node && pipx install .
           pipx ensurepath
+          npm install -g yarn
 
       - name: Generate Sources
         run: |
