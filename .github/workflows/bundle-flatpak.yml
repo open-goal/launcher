@@ -64,7 +64,7 @@ jobs:
 
       - name: Build Flatpak
         run: |
-          flatpak-builder --repo=repo --force-clean build-dir .github/workflows/linux/${{ env.FLATPAK_ID }}.yml
+          flatpak-builder --repo=repo --force-clean build-dir .github/workflows/linux/${{ env.FLATPAK_ID }}.yaml
 
       - name: Create Flatpak bundle
         run: |
