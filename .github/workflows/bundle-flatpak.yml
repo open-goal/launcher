@@ -11,28 +11,27 @@ env:
 jobs:
   bundle-flatpak:
     runs-on: ubuntu-22.04
-    container:
-      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-24.08
-      options: --privileged
+    # container:
+    #   image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-24.08
+    #   options: --privileged
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # - name: Install Flatpak and Dependencies
-      #   run: |
-      #     sudo apt update && \
-      #     sudo apt install -yqq flatpak flatpak-builder appstream-compose
-      #     flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-      #     flatpak --user install flathub -y org.flatpak.Builder \
-      #       org.gnome.Platform//47 org.gnome.Sdk//47 \
-      #       runtime/org.freedesktop.Sdk.Extension.rust-stable/x86_64/24.08 \
-      #       runtime/org.freedesktop.Sdk.Extension.node20/x86_64/24.08
+      - name: Install Flatpak and Dependencies
+        run: |
+          sudo apt update && \
+          sudo apt install -yqq flatpak flatpak-builder appstream-compose
+          flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak --user install flathub -y org.flatpak.Builder \
+            org.gnome.Platform//47 org.gnome.Sdk//47 \
+            runtime/org.freedesktop.Sdk.Extension.rust-stable/x86_64/24.08 \
+            runtime/org.freedesktop.Sdk.Extension.node20/x86_64/24.08
 
       - name: Clone Flatpak Builder Tools
         run: |
           git clone --depth=1 https://github.com/flatpak/flatpak-builder-tools.git
-          ls
 
       - uses: actions/setup-python@v5
         with:
@@ -52,27 +51,27 @@ jobs:
           flatpak-builder-tools/cargo/flatpak-cargo-generator.py -o .github/workflows/linux/cargo-sources.json src-tauri/Cargo.lock
           flatpak-node-generator --no-requests-cache -r -o .github/workflows/linux/yarn-sources.json yarn yarn.lock
 
-      - name: Build Flatpak
-        uses: flathub-infra/flatpak-github-actions/flatpak-builder@23796715b3dfa4c86ddf50cf29c3cc8b3c82dca8
-        with:
-          bundle: ${{ env.FLATPAK_ID }}.flatpak
-          upload-artifact: true
-          manifest-path: .github/workflows/linux/dev.opengoal.OpenGOAL.yaml
-          arch: x86_64
-          build-bundle: true
-          verbose: true
-          branch: stable
-
       # - name: Build Flatpak
-      #   run: |
-      #     flatpak-builder --repo=repo --force-clean build-dir .github/workflows/linux/${{ env.FLATPAK_ID }}.yml
-
-      # - name: Create Flatpak bundle
-      #   run: |
-      #     flatpak build-bundle repo ${{ env.FLATPAK_ID }}.flatpak ${{ env.FLATPAK_ID }}
-
-      # - name: Upload Flatpak archive
-      #   uses: actions/upload-artifact@v4
+      #   uses: flathub-infra/flatpak-github-actions/flatpak-builder@23796715b3dfa4c86ddf50cf29c3cc8b3c82dca8
       #   with:
-      #     name: opengoal_flatpak
-      #     path: ${{ env.FLATPAK_ID }}.flatpak
+      #     bundle: ${{ env.FLATPAK_ID }}.flatpak
+      #     upload-artifact: true
+      #     manifest-path: .github/workflows/linux/dev.opengoal.OpenGOAL.yaml
+      #     arch: x86_64
+      #     build-bundle: true
+      #     verbose: true
+      #     branch: stable
+
+      - name: Build Flatpak
+        run: |
+          flatpak-builder --repo=repo --force-clean build-dir .github/workflows/linux/${{ env.FLATPAK_ID }}.yml
+
+      - name: Create Flatpak bundle
+        run: |
+          flatpak build-bundle repo ${{ env.FLATPAK_ID }}.flatpak ${{ env.FLATPAK_ID }}
+
+      - name: Upload Flatpak archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: opengoal_flatpak
+          path: ${{ env.FLATPAK_ID }}.flatpak

@@ -41,7 +41,6 @@ modules:
         YARN_DISABLE_SELF_UPDATE_CHECK: true
         YARN_CACHE_FOLDER: /run/build/open-goal-launcher/flatpak-node/cache/yarn
     build-commands:
-      - mkdir -p $FLATPAK_BUILDER_BUILDDIR/flatpak-node/yarn-mirror
       - HOME=$PWD yarn config --offline set yarn-offline-mirror $FLATPAK_BUILDER_BUILDDIR/flatpak-node/yarn-mirror
       - yarn --offline
       - cargo --offline fetch --manifest-path src-tauri/Cargo.toml
