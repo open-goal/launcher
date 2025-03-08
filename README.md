@@ -29,8 +29,9 @@ If you cannot do this (for example, the bug relates to making the package / the 
 
 - Windows `C://Users/<YOUR_USER_NAME>/AppData/Roaming/OpenGOAL-Launcher/logs`
 - Linux `/home/<YOUR_USER_NAME>/.config/OpenGOAL-Launcher/logs`
+- macOS `/Users/<YOUR_USER_NAME>/Library/Logs/OpenGOAL-Launcher/app/logs`
 
-Note that both `AppData` and `.config` are hidden folders.
+Note that both `AppData` and `.config` are hidden folders, and `Library` is hidden by default.
 
 ## Development
 
