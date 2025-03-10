@@ -18,7 +18,7 @@ tauri-build = { version = "1.5.5", features = [] }
 backtrace = "0.3.74"
 chrono = "0.4.39"
 dir-diff = "0.3.3"
-directories = "5.0.1"
+directories = "6.0.0"
 rustc-serialize = "0.3"
 fern = { version = "0.7.1", features = ["date-based", "colored"] }
 flate2 = "1.0.35"
@@ -48,7 +48,7 @@ tokio-util = "0.7.13"
 sysctl = "0.6.0"
 
 [target.'cfg(windows)'.dependencies]
-winreg = "0.52.0"
+winreg = "0.55.0"
 
 [features]
 # by default Tauri runs in production mode
