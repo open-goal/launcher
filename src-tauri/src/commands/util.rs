@@ -137,9 +137,20 @@ pub async fn is_macos_version_15_or_above() -> Result<bool, CommandError> {
 pub async fn is_macos_version_15_or_above() -> Result<bool, CommandError> {
   if let Ok(ctl) = sysctl::Ctl::new("kern.osproductversion") {
     if let Ok(ctl_val) = ctl.value_string() {
-      let version = ctl_val.parse::<f32>();
-      if let Ok(os_version) = version {
-        return Ok(os_version >= 15.0);
+      info!("MacOS Version Number: {}", ctl_val);
+      let mut stripped_ctl_val = ctl_val.as_str();
+      if stripped_ctl_val.contains(".") {
+        let first_value = stripped_ctl_val.split(".").next();
+        if first_value.is_none() {
+          error!("Unable to parse MacOS major version number");
+          return Ok(false);
+        }
+        stripped_ctl_val = first_value.unwrap();
+      }
+      info!("Checking MacOS Version Number: {}", stripped_ctl_val);
+      let version = stripped_ctl_val.parse::<f32>();
+      if version.is_ok() {
+        return Ok(version.unwrap() >= 15.0);
       }
     }
   }
