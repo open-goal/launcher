@@ -112,7 +112,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-20.04, windows-latest, macos-13, macos-15]
+        platform: [ubuntu-22.04, windows-latest, macos-13, macos-15]
     runs-on: ${{ matrix.platform }}
     steps:
       # NOTE - there is technically a race condition here if multiple releases go out
@@ -140,7 +140,7 @@ jobs:
           workspaces: src-tauri
 
       - name: Install Linux Dependencies
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
@@ -156,7 +156,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           args: "--verbose --config ./.tauri/release-config.json"
           releaseId: ${{needs.create-release.outputs.release_id}}

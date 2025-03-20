@@ -1,5 +1,9 @@
 use crate::config::LauncherConfig;
 use crate::util::file::delete_dir;
+#[cfg(target_os = "macos")]
+use log::error;
+#[cfg(target_os = "macos")]
+use log::info;
 use serde_json::Value;
 use std::path::Path;
 #[cfg(target_os = "macos")]
