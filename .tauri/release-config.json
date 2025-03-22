@@ -1,4 +1,7 @@
 {
+  "bundle": {
+    "createUpdaterArtifacts": "v1Compatible"
+  },
   "plugins": {
     "updater": {
       "active": true,
