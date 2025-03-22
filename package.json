@@ -38,8 +38,11 @@
     "flowbite": "^3.1.2",
     "flowbite-svelte": "0.48.4",
     "flowbite-svelte-icons": "2.0.2",
+    "jsdom": "^26.0.0",
     "postcss": "^8.5.3",
     "postcss-load-config": "^6.0.1",
+    "prettier": "^3.5.3",
+    "prettier-plugin-svelte": "^3.3.3",
     "svelte": "^5.22.6",
     "svelte-i18n": "^4.0.1",
     "svelte-navigator": "^3.2.2",
@@ -48,9 +51,6 @@
     "typescript": "^5.8.2",
     "unplugin-icons": "^22.1.0",
     "vite": "^6.2.1",
-    "jsdom": "^26.0.0",
-    "prettier": "^3.5.3",
-    "prettier-plugin-svelte": "^3.3.3",
     "vitest": "^3.0.8"
   },
   "dependencies": {
