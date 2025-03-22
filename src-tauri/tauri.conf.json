@@ -4,7 +4,9 @@
     "targets": [
       "msi",
       "app",
-      "dmg"
+      "dmg",
+      "deb",
+      "appimage"
     ],
     "windows": {
       "certificateThumbprint": null,
