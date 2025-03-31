@@ -1,7 +1,5 @@
 <script lang="ts">
-  import {
-    setInstallationDirectory,
-  } from "$lib/rpc/config";
+  import { setInstallationDirectory } from "$lib/rpc/config";
   import { folderPrompt } from "$lib/utils/file-dialogs";
   import { createEventDispatcher } from "svelte";
   import { _ } from "svelte-i18n";
@@ -11,7 +9,11 @@
   let stepError = "";
 </script>
 
-<p class="text-wrap text-pretty">{$_("splash_noInstallDirSet")}</p>
+{#if stepError !== ""}
+  <p class="text-wrap text-pretty">{stepError}</p>
+{:else}
+  <p class="text-wrap text-pretty">{$_("splash_noInstallDirSet")}</p>
+{/if}
 <button
   data-testId="pick-install-folder-button"
   class="splash-button pointer-events-auto bg-orange-500 p-1 mt-1 text-black font-bold rounded hover:bg-orange-700"
