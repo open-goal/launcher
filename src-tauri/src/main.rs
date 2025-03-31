@@ -42,7 +42,7 @@ fn log_crash(panic_info: Option<&std::panic::PanicHookInfo>, error: Option<tauri
     }
   }
 
-  let mut dialog_text = format!("Unrecoverable crash occurred!");
+  let mut dialog_text = "Unrecoverable crash occurred!".to_string();
   if cfg!(windows) {
     dialog_text = format!("{dialog_text} Ensure you have not uninstalled WebView2: https://developer.microsoft.com/en-us/microsoft-edge/webview2/?form=MA13LH#download");
   }
@@ -63,17 +63,28 @@ fn panic_hook(info: &std::panic::PanicHookInfo) {
 static TAURI_APP: OnceCell<tauri::AppHandle> = OnceCell::const_new();
 
 fn main() {
+  std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
   // In the event that some catastrophic happens, atleast log it out
   // the panic_hook will log to a file in the folder of the executable
   std::panic::set_hook(Box::new(panic_hook));
 
   let tauri_setup = tauri::Builder::default()
+    .plugin(tauri_plugin_updater::Builder::new().build())
+    .plugin(tauri_plugin_process::init())
+    .plugin(tauri_plugin_notification::init())
+    .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+    .plugin(tauri_plugin_os::init())
+    .plugin(tauri_plugin_clipboard_manager::init())
+    .plugin(tauri_plugin_http::init())
+    .plugin(tauri_plugin_dialog::init())
+    .plugin(tauri_plugin_shell::init())
+    .plugin(tauri_plugin_fs::init())
     .setup(|app| {
-      let _ = TAURI_APP.set(app.app_handle());
+      let _ = TAURI_APP.set(app.app_handle().clone());
 
       // Setup Logging
       let log_path = app
-        .path_resolver()
+        .path()
         .app_log_dir()
         .expect("Could not determine log path")
         .join("app");
@@ -143,7 +154,7 @@ fn main() {
       // This allows us to avoid hacky globals, and pass around information (in this case, the config)
       // to the relevant places
       let config = tokio::sync::Mutex::new(config::LauncherConfig::load_config(
-        app.path_resolver().app_config_dir(),
+        app.path().app_config_dir().ok(),
       ));
       app.manage(config);
       let cache = tokio::sync::Mutex::new(cache::LauncherCache::default());

@@ -3,7 +3,6 @@ const config = {
     "./src/**/*.{html,js,svelte,ts}",
     "./node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}",
   ],
-
   theme: {
     extend: {
       dropShadow: {
@@ -11,9 +10,7 @@ const config = {
       },
     },
   },
-
-  plugins: [require("flowbite/plugin")],
   darkMode: "class",
 };
 
-module.exports = config;
+export default config;

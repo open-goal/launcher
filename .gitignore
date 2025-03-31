@@ -7,6 +7,8 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+.flatpak-builder/
+build-dir/
 node_modules
 dist
 dist-ssr

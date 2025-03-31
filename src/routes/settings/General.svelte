@@ -27,7 +27,8 @@
   } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
-  import { confirm } from "@tauri-apps/api/dialog";
+  import { confirm } from "@tauri-apps/plugin-dialog";
+  import { platform } from "@tauri-apps/plugin-os";
   import { downloadFile } from "$lib/rpc/download";
   import { appDataDir, join } from "@tauri-apps/api/path";
   import { folderPrompt } from "$lib/utils/file-dialogs";
@@ -41,6 +42,7 @@
   let uninstallOldVersions = writable(false);
   let localeFontForDownload: Locale | undefined = undefined;
   let localeFontDownloading = false;
+  let isLinux = platform() === "linux";
   let initialized = false;
 
   onMount(async () => {
@@ -130,36 +132,38 @@
       </Button>
     {/if}
   </div>
-  <div>
-    <Label for="default-input" class="block mb-2"
-      >{$_("settings_folders_installationDir")}</Label
-    >
-    <Input
-      id="default-input"
-      placeholder={currentInstallationDirectory}
-      on:click={async () => {
-        const newInstallDir = await folderPrompt(
-          $_("settings_folders_installationDir_prompt"),
-        );
-        if (
-          newInstallDir !== undefined &&
-          newInstallDir !== currentInstallationDirectory
-        ) {
-          const errMsg = await setInstallationDirectory(newInstallDir);
-          if (errMsg === null) {
-            if (currentInstallationDirectory !== newInstallDir) {
-              $VersionStore.activeVersionType = null;
-              $VersionStore.activeVersionName = null;
+  {#if !isLinux}
+    <div>
+      <Label for="default-input" class="block mb-2"
+        >{$_("settings_folders_installationDir")}</Label
+      >
+      <Input
+        id="default-input"
+        placeholder={currentInstallationDirectory}
+        on:click={async () => {
+          const newInstallDir = await folderPrompt(
+            $_("settings_folders_installationDir_prompt"),
+          );
+          if (
+            newInstallDir !== undefined &&
+            newInstallDir !== currentInstallationDirectory
+          ) {
+            const errMsg = await setInstallationDirectory(newInstallDir);
+            if (errMsg === null) {
+              if (currentInstallationDirectory !== newInstallDir) {
+                $VersionStore.activeVersionType = null;
+                $VersionStore.activeVersionName = null;
+              }
+              currentInstallationDirectory = newInstallDir;
             }
-            currentInstallationDirectory = newInstallDir;
           }
-        }
-      }}
-    />
-    <Helper class="text-xs mt-2 italic"
-      >{$_("settings_general_installationDir_helper")}</Helper
-    >
-  </div>
+        }}
+      />
+      <Helper class="text-xs mt-2 italic"
+        >{$_("settings_general_installationDir_helper")}</Helper
+      >
+    </div>
+  {/if}
   <div>
     <Toggle
       color="orange"

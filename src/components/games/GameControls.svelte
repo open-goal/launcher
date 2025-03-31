@@ -4,8 +4,8 @@
   import IconCog from "~icons/mdi/cog";
   import { configDir, join } from "@tauri-apps/api/path";
   import { createEventDispatcher, onMount } from "svelte";
-  import { writeText } from "@tauri-apps/api/clipboard";
-  import { confirm } from "@tauri-apps/api/dialog";
+  import { writeText } from "@tauri-apps/plugin-clipboard-manager";
+  import { confirm } from "@tauri-apps/plugin-dialog";
   import {
     Button,
     Dropdown,
@@ -15,7 +15,7 @@
     Tooltip,
   } from "flowbite-svelte";
   import { resetGameSettings, uninstallGame } from "$lib/rpc/game";
-  import { platform } from "@tauri-apps/api/os";
+  import { platform } from "@tauri-apps/plugin-os";
   import {
     getLaunchGameString,
     launchGame,
@@ -38,12 +38,10 @@
   let gameDataDir: string | undefined = undefined;
   let settingsDir: string | undefined = undefined;
   let savesDir: string | undefined = undefined;
-  let isLinux = false;
   let playtime = "";
   let textureSupportEnabled = true;
 
   onMount(async () => {
-    isLinux = (await platform()) === "linux";
     let installationDir = await getInstallationDirectory();
     if (installationDir !== null) {
       gameDataDir = await join(

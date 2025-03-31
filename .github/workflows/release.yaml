@@ -37,7 +37,7 @@ jobs:
           cache: yarn
 
       - name: Install Rust Stable
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
 
@@ -50,14 +50,14 @@ jobs:
           yarn version --${{ github.event.inputs.bump }} --no-git-tag-version
           NEW_VERSION=$(awk '/version/{gsub(/("|",)/,"",$2);print $2}' package.json)
           sed -i "/APP_VERSION/c\version = \""$NEW_VERSION"\" # APP_VERSION" ./src-tauri/Cargo.toml
-          sed -i "/\"version\":/c\    \"version\": \""$NEW_VERSION"\"" ./src-tauri/tauri.conf.json
+          sed -i "/\"version\":/c\  \"version\": \""$NEW_VERSION"\"", ./src-tauri/tauri.conf.json
           cd ./src-tauri
           cargo generate-lockfile
           cd ..
           echo "new_tag=v${NEW_VERSION}" >> $GITHUB_OUTPUT
-          echo -e "---\nVersion: $NEW_VERSION\nDate: $(date +'%Y-%m-%d')\n---" > metadata/news.yaml
-          appstreamcli news-to-metainfo metadata/news.yaml metadata/dev.opengoal.OpenGOAL.appdata.xml
-          rm metadata/news.yaml
+          echo -e "---\nVersion: $NEW_VERSION\nDate: $(date +'%Y-%m-%d')\n---" > resources/metadata/news.yaml
+          appstreamcli news-to-metainfo resources/metadata/news.yaml resources/metadata/dev.opengoal.OpenGOAL.appdata.xml
+          rm resources/metadata/news.yaml || true
 
       - name: Commit Version Bump
         uses: EndBug/add-and-commit@v9
@@ -102,6 +102,8 @@ jobs:
         id: get_release_id
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: open-goal
+          REPO: launcher
         run: |
           RELEASE_ID=$(TAG_NAME="${{needs.create-tag.outputs.new_tag}}" yarn --silent release-id)
           echo "release_id=${RELEASE_ID}" >> $GITHUB_OUTPUT
@@ -112,7 +114,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-20.04, windows-latest, macos-13, macos-15]
+        platform: [ubuntu-22.04, windows-latest, macos-13, macos-15]
     runs-on: ${{ matrix.platform }}
     steps:
       # NOTE - there is technically a race condition here if multiple releases go out
@@ -129,7 +131,7 @@ jobs:
           cache: yarn
 
       - name: Install Rust Stable
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
 
@@ -140,10 +142,10 @@ jobs:
           workspaces: src-tauri
 
       - name: Install Linux Dependencies
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
 
       - name: Install NPM Dependencies
         run: |
@@ -155,42 +157,15 @@ jobs:
         timeout-minutes: 30
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
-          args: "--verbose --config ./.tauri/release-config.json"
+          args: "--verbose --config ./src-tauri/tauri.conf.release.json"
           releaseId: ${{needs.create-release.outputs.release_id}}
-
-  verify-release:
-    if: github.repository == 'open-goal/launcher'
-    needs: [create-release, build-app]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: "main"
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: yarn
-
-      - name: Install NPM Dependencies
-        run: |
-          yarn install --frozen-lockfile
-
-      # Get the internal ID of the release so that Tauri's action can use it to upload assets
-      - name: Verify Release Assets
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_ID: ${{needs.create-release.outputs.release_id}}
-          EXPECTED_ASSET_NAME_REGEXES: '[".*AppImage", ".*AppImage.tar.gz", ".*AppImage.tar.gz.sig", ".*msi", ".*msi.zip", ".*msi.zip.sig", ".*_aarch64.dmg", ".*_x64.dmg", ".*app", ".*app.tar.gz", ".*app.tar.gz.sig", "latest.json"]'
-        run: yarn verify-release-assets
 
   publish-release:
     if: github.repository == 'open-goal/launcher'
-    needs: [create-release, build-app, verify-release]
+    needs: [build-app, create-release]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -210,6 +185,8 @@ jobs:
         env:
           RELEASE_ID: ${{needs.create-release.outputs.release_id}}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: open-goal
+          REPO: launcher
         run: |
           yarn install --frozen-lockfile
           yarn update-release-meta

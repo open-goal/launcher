@@ -1,6 +1,8 @@
 use crate::config::LauncherConfig;
 use crate::util::file::delete_dir;
+#[cfg(target_os = "macos")]
 use log::error;
+#[cfg(target_os = "macos")]
 use log::info;
 use serde_json::Value;
 use std::path::Path;
@@ -18,17 +20,17 @@ pub async fn path_exists(directory: String) -> Result<bool, CommandError> {
 
 #[tauri::command]
 pub async fn has_old_data_directory(app_handle: tauri::AppHandle) -> Result<bool, CommandError> {
-  match &app_handle.path_resolver().app_config_dir() {
-    None => Ok(false),
-    Some(dir) => Ok(dir.join("data").join("iso_data").exists()),
+  match &app_handle.path().app_config_dir() {
+    Ok(dir) => Ok(dir.join("data").join("iso_data").exists()),
+    Err(_) => Ok(false),
   }
 }
 
 #[tauri::command]
 pub async fn delete_old_data_directory(app_handle: tauri::AppHandle) -> Result<(), CommandError> {
-  match &app_handle.path_resolver().app_config_dir() {
-    None => Ok(()),
-    Some(dir) => Ok(delete_dir(&dir.join("data"))?),
+  match &app_handle.path().app_config_dir() {
+    Ok(dir) => Ok(delete_dir(dir.join("data"))?),
+    Err(_) => Ok(()),
   }
 }
 
@@ -84,9 +86,9 @@ pub async fn is_diskspace_requirement_met(
   }
 
   log::error!("Unable to find relevant drive to check for space");
-  return Err(CommandError::Configuration(
+  Err(CommandError::Configuration(
     "Unable to find relevant drive to check for space".to_owned(),
-  ));
+  ))
 }
 
 #[cfg(target_os = "windows")]
@@ -114,7 +116,7 @@ pub async fn is_minimum_vcc_runtime_installed() -> Result<bool, CommandError> {
 #[cfg(target_os = "macos")]
 #[tauri::command]
 pub async fn is_minimum_vcc_runtime_installed() -> Result<bool, CommandError> {
-  return Ok(false);
+  Ok(false)
 }
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -125,7 +127,7 @@ pub async fn is_avx_supported() -> bool {
 #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
 pub async fn is_avx_supported() -> bool {
   // TODO - macOS check if on atleast sequoia and rosetta 2 is installed
-  return false;
+  false
 }
 
 #[cfg(not(target_os = "macos"))]

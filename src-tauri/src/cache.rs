@@ -9,6 +9,7 @@ use crate::util::network::download_json;
 #[derive(Debug, thiserror::Error)]
 pub enum CacheError {
   #[error("{0}")]
+  #[allow(dead_code)]
   ModSource(String),
 }
 

@@ -7,11 +7,14 @@ import { Octokit } from "@octokit/rest";
 import { throttling } from "@octokit/plugin-throttling";
 import { retry } from "@octokit/plugin-retry";
 
+const owner = process.env.OWNER;
+const repo = process.env.REPO;
+
 Octokit.plugin(throttling);
 Octokit.plugin(retry);
 const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
-  userAgent: "open-goal/launcher",
+  userAgent: `${owner}/${repo}`,
   log: {
     debug: () => {},
     info: () => {},
@@ -49,8 +52,8 @@ if (releaseTag === undefined || releaseTag === "") {
 
 // Pull down the `launcher` release metadata
 const releases = await octokit.rest.repos.listReleases({
-  owner: "open-goal",
-  repo: "launcher",
+  owner: owner,
+  repo: repo,
   per_page: 100,
 });
 

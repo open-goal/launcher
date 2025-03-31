@@ -3,11 +3,14 @@ import { throttling } from "@octokit/plugin-throttling";
 import { retry } from "@octokit/plugin-retry";
 import * as fs from "fs";
 
+const owner = process.env.OWNER;
+const repo = process.env.REPO;
+
 Octokit.plugin(throttling);
 Octokit.plugin(retry);
 const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
-  userAgent: "open-goal/launcher",
+  userAgent: `${owner}/${repo}`,
   log: {
     debug: () => {},
     info: () => {},
@@ -115,8 +118,8 @@ if (releaseId === undefined || releaseId === "") {
 
 // Pull down the `launcher` release metadata
 const { data: launcherRelease } = await octokit.rest.repos.getRelease({
-  owner: "open-goal",
-  repo: "launcher",
+  owner: owner,
+  repo: repo,
   release_id: releaseId,
 });
 
@@ -131,92 +134,47 @@ const launcherChanges = changesFromBody(launcherRelease.body);
 
 // Retrieve application bundle signatures
 const { data: releaseAssets } = await octokit.rest.repos.listReleaseAssets({
-  owner: "open-goal",
-  repo: "launcher",
+  owner: owner,
+  repo: repo,
   release_id: releaseId,
   per_page: 100,
 });
 
-let linuxSignature = "";
-let windowsSignature = "";
-let macosSignature = "";
+let jsonOutput = undefined;
+
 for (var i = 0; i < releaseAssets.length; i++) {
   const asset = releaseAssets[i];
-  if (asset.name.toLowerCase().endsWith("appimage.tar.gz.sig")) {
+  if (asset.name.toLowerCase() === "latest.json") {
     const assetDownload = await octokit.rest.repos.getReleaseAsset({
-      owner: "open-goal",
+      owner: "xTVaser",
       repo: "launcher",
       asset_id: asset.id,
       headers: {
         Accept: "application/octet-stream",
       },
     });
-    linuxSignature = Buffer.from(assetDownload.data).toString();
-  }
-  if (asset.name.toLowerCase().endsWith("msi.zip.sig")) {
-    const assetDownload = await octokit.rest.repos.getReleaseAsset({
-      owner: "open-goal",
-      repo: "launcher",
-      asset_id: asset.id,
-      headers: {
-        Accept: "application/octet-stream",
-      },
-    });
-    windowsSignature = Buffer.from(assetDownload.data).toString();
-  }
-  if (asset.name.toLowerCase().endsWith("app.tar.gz.sig")) {
-    const assetDownload = await octokit.rest.repos.getReleaseAsset({
-      owner: "open-goal",
-      repo: "launcher",
-      asset_id: asset.id,
-      headers: {
-        Accept: "application/octet-stream",
-      },
-    });
-    macosSignature = Buffer.from(assetDownload.data).toString();
+    jsonOutput = JSON.parse(Buffer.from(assetDownload.data).toString());
   }
 }
 
-const releaseMeta = {
-  name: launcherRelease.tag_name,
-  notes: JSON.stringify({
-    changes: launcherChanges,
-  }),
-  pub_date: launcherRelease.created_at,
-  platforms: {
-    "linux-x86_64": {
-      signature: linuxSignature,
-      url: `https://github.com/open-goal/launcher/releases/download/${
-        launcherRelease.tag_name
-      }/open-goal-launcher_${launcherRelease.tag_name.replace(
-        "v",
-        "",
-      )}_amd64.AppImage.tar.gz`,
-    },
-    "windows-x86_64": {
-      signature: windowsSignature,
-      url: `https://github.com/open-goal/launcher/releases/download/${
-        launcherRelease.tag_name
-      }/OpenGOAL-Launcher_${launcherRelease.tag_name.replace(
-        "v",
-        "",
-      )}_x64_en-US.msi.zip`,
-    },
-    "darwin-x86_64": {
-      signature: macosSignature,
-      url: `https://github.com/open-goal/launcher/releases/download/${launcherRelease.tag_name}/OpenGOAL-Launcher_x64.app.tar.gz`,
-    },
-  },
-};
+if (jsonOutput === undefined) {
+  console.log(`Didn't find 'latest.json' asset in release`);
+  process.exit(1);
+}
+
+jsonOutput.notes = JSON.stringify({
+  changes: launcherChanges,
+});
+
 fs.writeFileSync(
   "./.tauri/latest-release-v2.json",
-  JSON.stringify(releaseMeta, null, 2) + "\n",
+  JSON.stringify(jsonOutput, null, 2) + "\n",
 );
 
 // Publish the release
 await octokit.rest.repos.updateRelease({
-  owner: "open-goal",
-  repo: "launcher",
+  owner: owner,
+  repo: repo,
   release_id: launcherRelease.id,
   draft: false,
 });

@@ -8,20 +8,20 @@ use tokio::{
 use crate::commands::CommandError;
 
 use super::file::create_dir;
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 
 pub async fn create_log_file(
   app_handle: &tauri::AppHandle,
   name: String,
   append: bool,
 ) -> Result<tokio::fs::File, CommandError> {
-  let log_path = &match app_handle.path_resolver().app_log_dir() {
-    None => {
+  let log_path = &match app_handle.path().app_log_dir() {
+    Ok(path) => path,
+    Err(_) => {
       return Err(CommandError::Installation(
         "Could not determine path to save installation logs".to_owned(),
       ))
     }
-    Some(path) => path,
   };
   create_dir(log_path)?;
   let mut file_options = tokio::fs::OpenOptions::new();
@@ -56,11 +56,11 @@ pub async fn watch_process(
 
   tokio::spawn(async move {
     while let Some(log) = log_receiver.recv().await {
-      let _ = app_handle_clone.emit_all("log_update", LogPayload { logs: log });
+      let _ = app_handle_clone.emit("log_update", LogPayload { logs: log });
     }
   });
 
-  let mut process_status: ExitStatus;
+  let process_status: ExitStatus;
 
   loop {
     tokio::select! {
@@ -95,13 +95,13 @@ pub fn create_std_log_file(
   name: String,
   append: bool,
 ) -> Result<std::fs::File, CommandError> {
-  let log_path = &match app_handle.path_resolver().app_log_dir() {
-    None => {
+  let log_path = &match app_handle.path().app_log_dir() {
+    Ok(path) => path,
+    Err(_) => {
       return Err(CommandError::Installation(
         "Could not determine path to save installation logs".to_owned(),
       ))
     }
-    Some(path) => path,
   };
   create_dir(log_path)?;
   let mut file_options = std::fs::OpenOptions::new();

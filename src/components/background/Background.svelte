@@ -7,7 +7,7 @@
   import jak2Background from "$assets/images/background-jak2.webp";
   import jak3InProgressVid from "$assets/videos/jak3-dev.mp4";
   import jak3InProgressPoster from "$assets/videos/jak3-poster.png";
-  import { platform } from "@tauri-apps/api/os";
+  import { platform } from "@tauri-apps/plugin-os";
   import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
   import coverArtPlaceholder from "$assets/images/mod-coverart-placeholder.webp";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
@@ -18,11 +18,10 @@
 
   let style = "absolute object-fill h-screen brightness-75 pt-[60px] w-full";
   let jak1Image = "";
-  let onWindows = false;
+  let onWindows = platform() === "windows";
   let modBackground = "";
 
   onMount(async () => {
-    onWindows = (await platform()) === "win32";
     const unlistenInstalled = await listen("gameInstalled", (event) => {
       updateStyle();
     });

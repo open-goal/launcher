@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { platform } from "@tauri-apps/api/os";
+  import { platform } from "@tauri-apps/plugin-os";
   import { getInternalName, SupportedGame } from "$lib/constants";
   import { createEventDispatcher, onMount } from "svelte";
   import { navigate } from "svelte-navigator";
@@ -27,7 +27,7 @@
   const dispatch = createEventDispatcher();
   export let activeGame: SupportedGame;
 
-  let userPlatform = "";
+  let userPlatform = platform();
   let loaded = false;
   let modFilter = "";
   let installedMods: Record<string, Record<string, string>> = {};
@@ -40,7 +40,6 @@
     // TODO - move this to a central store!
     await refreshModSources();
     sourceData = await getModSourcesData();
-    userPlatform = await platform();
     loaded = true;
   });
 

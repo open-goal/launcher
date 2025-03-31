@@ -10,13 +10,12 @@
 // serde does not support defaultLiterals yet - https://github.com/serde-rs/serde/issues/368
 
 use crate::util::file::create_dir;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
-
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use serde_json::{json, Value};
 
 use crate::util::file::touch_file;
 
@@ -190,7 +189,7 @@ pub struct LauncherConfig {
 }
 
 fn default_version() -> String {
-  return "2.0".to_owned();
+  "2.0".to_owned()
 }
 
 fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> LauncherConfig {
@@ -510,14 +509,14 @@ impl LauncherConfig {
       .and_then(|game| self.games.get(&game))
     {
       match key {
-        "installed" => return Ok(Value::Bool(game_config.is_installed)),
-        "installed_version" => return Ok(json!(game_config.version())),
-        "active_texture_packs" => return Ok(json!(game_config.active_texture_packs())),
-        "seconds_played" => return Ok(json!(game_config.seconds_played)),
-        "installed_mods" => return Ok(json!(game_config.mods_installed_version)),
+        "installed" => Ok(Value::Bool(game_config.is_installed)),
+        "installed_version" => Ok(json!(game_config.version())),
+        "active_texture_packs" => Ok(json!(game_config.active_texture_packs())),
+        "seconds_played" => Ok(json!(game_config.seconds_played)),
+        "installed_mods" => Ok(json!(game_config.mods_installed_version)),
         _ => {
           log::error!("Key '{}' not recognized", key);
-          return Err(ConfigError::Configuration("Invalid key".to_owned()));
+          Err(ConfigError::Configuration("Invalid key".to_owned()))
         }
       }
     } else {
@@ -576,7 +575,7 @@ impl LauncherConfig {
     let source = source_name.unwrap_or("".to_owned());
     let version = version_name.unwrap_or("".to_owned());
     let mod_name = mod_name.unwrap_or("".to_owned());
-    let texture_packs = texture_packs.unwrap_or(Vec::new());
+    let texture_packs = texture_packs.unwrap_or_default();
 
     match key {
       "add_texture_packs" => {

@@ -3,9 +3,9 @@ import { locale as svelteLocale } from "svelte-i18n";
 import { errorLog } from "./logging";
 import { invoke_rpc } from "./rpc";
 import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
-import { exists } from "@tauri-apps/api/fs";
+import { exists } from "@tauri-apps/plugin-fs";
 import { appDataDir, join } from "@tauri-apps/api/path";
-import { convertFileSrc } from "@tauri-apps/api/tauri";
+import { convertFileSrc } from "@tauri-apps/api/core";
 
 export async function oldDataDirectoryExists(): Promise<boolean> {
   return await invoke_rpc("has_old_data_directory", {}, () => false);

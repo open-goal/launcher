@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { appWindow } from "@tauri-apps/api/window";
+  import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
   import logo from "$assets/images/icon.webp";
   import { onMount } from "svelte";
   import { getVersion } from "@tauri-apps/api/app";
@@ -7,7 +7,6 @@
   import IconWindowMinimize from "~icons/mdi/window-minimize";
   import IconWindowClose from "~icons/mdi/window-close";
   import { UpdateStore } from "$lib/stores/AppStore";
-  import { checkUpdate } from "@tauri-apps/api/updater";
   import { isInDebugMode } from "$lib/utils/common";
   import {
     downloadOfficialVersion,
@@ -23,6 +22,7 @@
   import { getAutoUpdateGames, saveActiveVersionChange } from "$lib/rpc/config";
 
   let launcherVerison = null;
+  const appWindow = getCurrentWebviewWindow();
 
   async function downloadLatestVersion(version: string, url: String) {
     await downloadOfficialVersion(version, url);
@@ -47,36 +47,37 @@
     // NOTE - the following code (checkUpdate) won't work unless you have `update` configuration
     // added to the tauri.conf.json
     if (!isInDebugMode()) {
-      const updateResult = await checkUpdate();
-      if (updateResult.shouldUpdate) {
-        // TODO - store methods to clean this up
-        let changeLog = [];
-        try {
-          changeLog = JSON.parse(updateResult.manifest.body);
-        } catch (e) {
-          exceptionLog(
-            `Could not parse changelog JSON from release metadata - ${JSON.stringify(
-              updateResult,
-            )}`,
-            e,
-          );
-        }
-        $UpdateStore.launcher = {
-          updateAvailable: true,
-          versionNumber: updateResult.manifest.version,
-          date: updateResult.manifest.date,
-          changeLog: changeLog,
-        };
-        infoLog(`Launcher Update Available`);
-      } else {
-        $UpdateStore.launcher = {
-          updateAvailable: false,
-          versionNumber: null,
-          date: null,
-          changeLog: [],
-        };
-        infoLog(`Launcher is up to date - ${JSON.stringify(updateResult)}`);
-      }
+      // TODO - migrate!
+      // const updateResult = await checkUpdate();
+      // if (updateResult.shouldUpdate) {
+      //   // TODO - store methods to clean this up
+      //   let changeLog = [];
+      //   try {
+      //     changeLog = JSON.parse(updateResult.manifest.body);
+      //   } catch (e) {
+      //     exceptionLog(
+      //       `Could not parse changelog JSON from release metadata - ${JSON.stringify(
+      //         updateResult,
+      //       )}`,
+      //       e,
+      //     );
+      //   }
+      //   $UpdateStore.launcher = {
+      //     updateAvailable: true,
+      //     versionNumber: updateResult.manifest.version,
+      //     date: updateResult.manifest.date,
+      //     changeLog: changeLog,
+      //   };
+      //   infoLog(`Launcher Update Available`);
+      // } else {
+      //   $UpdateStore.launcher = {
+      //     updateAvailable: false,
+      //     versionNumber: null,
+      //     date: null,
+      //     changeLog: [],
+      //   };
+      //   infoLog(`Launcher is up to date - ${JSON.stringify(updateResult)}`);
+      // }
     }
 
     await checkIfLatestVersionInstalled();

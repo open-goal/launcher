@@ -5,8 +5,8 @@
   import IconCog from "~icons/mdi/cog";
   import { join } from "@tauri-apps/api/path";
   import { createEventDispatcher, onMount } from "svelte";
-  import { writeText } from "@tauri-apps/api/clipboard";
-  import { confirm } from "@tauri-apps/api/dialog";
+  import { writeText } from "@tauri-apps/plugin-clipboard-manager";
+  import { confirm } from "@tauri-apps/plugin-dialog";
   import {
     Button,
     Checkbox,
@@ -17,7 +17,7 @@
     Indicator,
     Tooltip,
   } from "flowbite-svelte";
-  import { platform } from "@tauri-apps/api/os";
+  import { platform } from "@tauri-apps/plugin-os";
   import {
     getInstallationDirectory,
     setCheckForLatestModVersion,
@@ -54,12 +54,11 @@
   let gameDataDir: string | undefined = undefined;
   let settingsDir: string | undefined = undefined;
   let savesDir: string | undefined = undefined;
-  let isLinux = false;
   let modVersionListSorted: string[] = [];
   let modAssetUrlsSorted: string[] = [];
   let currentlyInstalledVersion: string = "";
   let numberOfVersionsOutOfDate = 0;
-  let userPlatform: string = "";
+  let userPlatform: string = platform();
   let checkForLatestModVersionChecked = false;
 
   async function addModFromUrl(
@@ -83,7 +82,6 @@
 
   onMount(async () => {
     checkForLatestModVersionChecked = await getCheckForLatestModVersion();
-    isLinux = (await platform()) === "linux";
     let installationDir = await getInstallationDirectory();
     if (installationDir !== null) {
       gameDataDir = await join(
@@ -128,7 +126,6 @@
     }
     // Get a list of available versions, this is how we see if we're on the latest!
     let sourceData = await getModSourcesData();
-    userPlatform = await platform();
 
     let relevantSourceData = undefined;
     for (const [sourceUrl, sourceDataEntry] of Object.entries(sourceData)) {

@@ -1,15 +1,12 @@
 <script lang="ts">
   import { setInstallationDirectory } from "$lib/rpc/config";
   import { folderPrompt } from "$lib/utils/file-dialogs";
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher } from "svelte";
   import { _ } from "svelte-i18n";
 
   const dispatch = createEventDispatcher();
 
   let stepError = "";
-
-  // Events
-  onMount(async () => {});
 </script>
 
 {#if stepError !== ""}

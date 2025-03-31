@@ -23,9 +23,8 @@
 >
   <option disabled selected value hidden />
   {#each AVAILABLE_LOCALES as locale}
-    <option value={locale.id}
-      ><span class="emoji-font">{locale.flag}</span
-      >&nbsp;{locale.localizedName}</option
+    <option value={locale.id} class="emoji-font"
+      >{locale.flag}&nbsp;{locale.localizedName}</option
     >
   {/each}
 </select>

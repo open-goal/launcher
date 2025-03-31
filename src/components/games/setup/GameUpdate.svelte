@@ -5,7 +5,7 @@
     isMinimumVCCRuntimeInstalled,
   } from "$lib/rpc/config";
   import { VersionStore } from "$lib/stores/VersionStore";
-  import { type } from "@tauri-apps/api/os";
+  import { type } from "@tauri-apps/plugin-os";
   import { Button, Card } from "flowbite-svelte";
   import { createEventDispatcher, onMount } from "svelte";
   import { _ } from "svelte-i18n";

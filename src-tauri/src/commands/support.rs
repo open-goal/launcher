@@ -6,11 +6,10 @@ use std::{
   path::Path,
 };
 use sysinfo::{Disks, System};
+use tauri::Manager;
 use tempfile::NamedTempFile;
 use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
-
-use tauri::api::path::config_dir;
 
 use crate::{
   config::LauncherConfig,
@@ -87,23 +86,24 @@ pub struct SupportPackage {
 
 fn dump_per_game_info(
   config_lock: &tokio::sync::MutexGuard<'_, LauncherConfig>,
+  app_handle: &tauri::AppHandle,
   package: &mut SupportPackage,
   zip_file: &mut zip::ZipWriter<&std::fs::File>,
   install_path: &Path,
   game_name: &str,
 ) -> Result<(), CommandError> {
   // Save OpenGOAL config folder (this includes saves and settings)
-  let game_config_dir = match config_dir() {
-    None => {
+  let game_config_dir = match app_handle.path().config_dir() {
+    Ok(path) => path.join("OpenGOAL"),
+    Err(_) => {
       return Err(CommandError::Support(
         "Couldn't determine application config directory".to_owned(),
       ))
     }
-    Some(path) => path.join("OpenGOAL"),
   };
   append_dir_contents_to_zip(
     zip_file,
-    &game_config_dir.join(&game_name).join("settings"),
+    &game_config_dir.join(game_name).join("settings"),
     format!("Game Settings and Saves/{game_name}/settings").as_str(),
     vec!["gc", "json"],
   )
@@ -112,7 +112,7 @@ fn dump_per_game_info(
   })?;
   append_dir_contents_to_zip(
     zip_file,
-    &game_config_dir.join(&game_name).join("misc"),
+    &game_config_dir.join(game_name).join("misc"),
     format!("Game Settings and Saves/{game_name}/misc").as_str(),
     vec!["gc", "json"],
   )
@@ -121,7 +121,7 @@ fn dump_per_game_info(
   })?;
   append_dir_contents_to_zip(
     zip_file,
-    &game_config_dir.join(&game_name).join("saves"),
+    &game_config_dir.join(game_name).join("saves"),
     format!("Game Settings and Saves/{game_name}/saves").as_str(),
     vec!["bin"],
   )
@@ -131,7 +131,7 @@ fn dump_per_game_info(
 
   // Save Logs
   let active_version_dir = install_path.join("active");
-  let jak1_log_dir = active_version_dir.join(&game_name).join("data").join("log");
+  let jak1_log_dir = active_version_dir.join(game_name).join("data").join("log");
   append_dir_contents_to_zip(
     zip_file,
     &jak1_log_dir,
@@ -141,16 +141,16 @@ fn dump_per_game_info(
   .map_err(|_| CommandError::Support("Unable to append game logs to support package".to_owned()))?;
 
   let texture_repl_dir = active_version_dir
-    .join(&game_name)
+    .join(game_name)
     .join("data")
     .join("texture_replacements");
   package.game_info.get_game_info(game_name).has_texture_packs =
     texture_repl_dir.exists() && texture_repl_dir.read_dir().unwrap().next().is_some();
   let build_info_path = active_version_dir
-    .join(&game_name)
+    .join(game_name)
     .join("data")
     .join("iso_data")
-    .join(&game_name)
+    .join(game_name)
     .join("buildinfo.json");
   append_file_to_zip(
     zip_file,
@@ -162,7 +162,7 @@ fn dump_per_game_info(
   })?;
 
   if config_lock.active_version.is_some() {
-    let data_dir = active_version_dir.join(&game_name).join("data");
+    let data_dir = active_version_dir.join(game_name).join("data");
     let version_data_dir = install_path
       .join("versions")
       .join("official")
@@ -193,7 +193,7 @@ fn dump_per_game_info(
   }
 
   // Append mod settings and logs
-  let mod_directory = install_path.join("features").join(&game_name).join("mods");
+  let mod_directory = install_path.join("features").join(game_name).join("mods");
   info!("Scanning mod directory {mod_directory:?}");
   if mod_directory.exists() {
     let mod_source_iter = WalkDir::new(mod_directory)
@@ -216,7 +216,7 @@ fn dump_per_game_info(
               if mod_path.exists() {
                 append_dir_contents_to_zip(
                   zip_file,
-                  &mod_path,
+                  mod_path,
                   format!("Game Settings and Saves/{game_name}/mods/{mod_source_name}/settings")
                     .as_str(),
                   vec!["gc", "json"],
@@ -228,7 +228,7 @@ fn dump_per_game_info(
                 })?;
                 append_dir_contents_to_zip(
                   zip_file,
-                  &mod_path,
+                  mod_path,
                   format!("Game Settings and Saves/{game_name}/mods/{mod_source_name}/saves")
                     .as_str(),
                   vec!["bin"],
@@ -367,21 +367,21 @@ pub async fn generate_support_package(
   let mut zip_file = zip::ZipWriter::new(save_file.as_file());
 
   // Save Launcher config folder
-  let launcher_config_dir = match app_handle.path_resolver().app_config_dir() {
-    None => {
+  let launcher_config_dir = match app_handle.path().app_config_dir() {
+    Ok(path) => path,
+    Err(_) => {
       return Err(CommandError::Support(
         "Couldn't determine launcher config directory".to_owned(),
       ))
     }
-    Some(path) => path,
   };
-  let launcher_log_dir = match app_handle.path_resolver().app_log_dir() {
-    None => {
+  let launcher_log_dir = match app_handle.path().app_log_dir() {
+    Ok(path) => path,
+    Err(_) => {
       return Err(CommandError::Support(
         "Couldn't determine launcher log directory".to_owned(),
       ))
     }
-    Some(path) => path,
   };
   append_dir_contents_to_zip(
     &mut zip_file,
@@ -404,6 +404,7 @@ pub async fn generate_support_package(
   // Per Game Info
   dump_per_game_info(
     &config_lock,
+    &app_handle,
     &mut package,
     &mut zip_file,
     install_path,
@@ -416,6 +417,7 @@ pub async fn generate_support_package(
   })?;
   dump_per_game_info(
     &config_lock,
+    &app_handle,
     &mut package,
     &mut zip_file,
     install_path,
@@ -467,10 +469,18 @@ pub async fn generate_support_package(
     ));
   }
   // Seems good, move it to the user's intended destination
-  fs::rename(&save_file.path(), save_path).map_err(|_| {
-    CommandError::Support(
-      "Support package was unable to be moved from it's temporary file location".to_owned(),
-    )
+  fs::copy(save_file.path(), save_path).map_err(|e| {
+    CommandError::Support(format!(
+      "Support package was unable to be moved from its temporary file location: {:?}",
+      e
+    ))
+  })?;
+
+  fs::remove_file(save_file.path()).map_err(|e| {
+    CommandError::Support(format!(
+      "Support package was copied but the original file could not be removed: {:?}",
+      e
+    ))
   })?;
   Ok(())
 }

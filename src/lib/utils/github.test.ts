@@ -8,12 +8,12 @@ import {
   vi,
   type Mock,
 } from "vitest";
-import { arch, platform } from "@tauri-apps/api/os";
+import { arch, platform } from "@tauri-apps/plugin-os";
 import { listOfficialReleases } from "./github";
 import { init } from "svelte-i18n";
 import { initLocales } from "$lib/i18n/i18n";
 
-vi.mock("@tauri-apps/api/os");
+vi.mock("@tauri-apps/plugin-os");
 global.fetch = vi.fn();
 
 function createFetchResponse(data: any) {
@@ -148,12 +148,31 @@ describe("listOfficialReleases", () => {
   });
 
   it("should retrieve intel macOS releases properly", async () => {
-    vi.mocked(platform).mockResolvedValue("darwin");
-    vi.mocked(arch).mockResolvedValue("x86_64");
+    vi.mocked(platform).mockReturnValue("macos");
+    vi.mocked(arch).mockReturnValue("x86_64");
+    const fakeRelease = createFetchResponse([
+      createFakeGithubRelease([
+        "opengoal-macos-intel-v0.0.1.tar.gz",
+        "opengoal-windows-v0.0.1.zip",
+        "opengoal-linux-v0.0.1.tar.gz",
+      ]),
+    ]);
+    (fetch as Mock).mockResolvedValue(fakeRelease);
+    const releases = await listOfficialReleases();
+    expect(releases.length).toBe(1);
+    expect(
+      releases[0].downloadUrl.endsWith("opengoal-macos-intel-v0.0.1.tar.gz"),
+    ).toBeTruthy();
+  });
+
+  it("should retrieve macOS ARM releases", async () => {
+    vi.mocked(platform).mockReturnValue("macos");
+    vi.mocked(arch).mockReturnValue("aarch64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
         createFakeGithubRelease([
           "opengoal-macos-intel-v0.0.1.tar.gz",
+          "opengoal-macos-arm-v0.0.1.tar.gz",
           "opengoal-windows-v0.0.1.zip",
           "opengoal-linux-v0.0.1.tar.gz",
         ]),
@@ -162,30 +181,13 @@ describe("listOfficialReleases", () => {
     const releases = await listOfficialReleases();
     expect(releases.length).toBe(1);
     expect(
-      releases[0].downloadUrl.endsWith("opengoal-macos-intel-v0.0.1.tar.gz"),
+      releases[0].downloadUrl.endsWith("opengoal-macos-arm-v0.0.1.tar.gz"),
     ).toBeTruthy();
   });
 
-  it("should not retrieve macOS ARM releases", async () => {
-    vi.mocked(platform).mockResolvedValue("darwin");
-    vi.mocked(arch).mockResolvedValue("arm");
-    (fetch as Mock).mockResolvedValue(
-      createFetchResponse([
-        createFakeGithubRelease([
-          "opengoal-macos-intel-v0.0.1.tar.gz",
-          "opengoal-windows-v0.0.1.zip",
-          "opengoal-linux-v0.0.1.tar.gz",
-        ]),
-      ]),
-    );
-    const releases = await listOfficialReleases();
-    expect(releases.length).toBe(1);
-    expect(releases[0].downloadUrl).toBeUndefined();
-  });
-
   it("should retrieve windows releases properly", async () => {
-    vi.mocked(platform).mockResolvedValue("win32");
-    vi.mocked(arch).mockResolvedValue("x86_64");
+    vi.mocked(platform).mockReturnValue("windows");
+    vi.mocked(arch).mockReturnValue("x86_64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
         createFakeGithubRelease([
@@ -203,8 +205,8 @@ describe("listOfficialReleases", () => {
   });
 
   it("should retrieve linux releases properly", async () => {
-    vi.mocked(platform).mockResolvedValue("linux");
-    vi.mocked(arch).mockResolvedValue("x86_64");
+    vi.mocked(platform).mockReturnValue("linux");
+    vi.mocked(arch).mockReturnValue("x86_64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
         createFakeGithubRelease([
@@ -229,8 +231,8 @@ describe("getLatestOfficialRelease", () => {
   });
 
   it("should retrieve intel macOS releases properly", async () => {
-    vi.mocked(platform).mockResolvedValue("darwin");
-    vi.mocked(arch).mockResolvedValue("x86_64");
+    vi.mocked(platform).mockReturnValue("macos");
+    vi.mocked(arch).mockReturnValue("x86_64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
         createFakeGithubRelease([
@@ -247,13 +249,14 @@ describe("getLatestOfficialRelease", () => {
     ).toBeTruthy();
   });
 
-  it("should not retrieve macOS ARM releases", async () => {
-    vi.mocked(platform).mockResolvedValue("darwin");
-    vi.mocked(arch).mockResolvedValue("arm");
+  it("should retrieve macOS ARM releases", async () => {
+    vi.mocked(platform).mockReturnValue("macos");
+    vi.mocked(arch).mockReturnValue("aarch64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
         createFakeGithubRelease([
           "opengoal-macos-intel-v0.0.1.tar.gz",
+          "opengoal-macos-arm-v0.0.1.tar.gz",
           "opengoal-windows-v0.0.1.zip",
           "opengoal-linux-v0.0.1.tar.gz",
         ]),
@@ -261,12 +264,14 @@ describe("getLatestOfficialRelease", () => {
     );
     const releases = await listOfficialReleases();
     expect(releases.length).toBe(1);
-    expect(releases[0].downloadUrl).toBeUndefined();
+    expect(
+      releases[0].downloadUrl.endsWith("opengoal-macos-arm-v0.0.1.tar.gz"),
+    ).toBeTruthy();
   });
 
   it("should retrieve windows releases properly", async () => {
-    vi.mocked(platform).mockResolvedValue("win32");
-    vi.mocked(arch).mockResolvedValue("x86_64");
+    vi.mocked(platform).mockReturnValue("windows");
+    vi.mocked(arch).mockReturnValue("x86_64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
         createFakeGithubRelease([
@@ -284,8 +289,8 @@ describe("getLatestOfficialRelease", () => {
   });
 
   it("should retrieve linux releases properly", async () => {
-    vi.mocked(platform).mockResolvedValue("linux");
-    vi.mocked(arch).mockResolvedValue("x86_64");
+    vi.mocked(platform).mockReturnValue("linux");
+    vi.mocked(arch).mockReturnValue("x86_64");
     (fetch as Mock).mockResolvedValue(
       createFetchResponse([
         createFakeGithubRelease([

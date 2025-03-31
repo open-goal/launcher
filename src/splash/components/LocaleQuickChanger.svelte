@@ -32,13 +32,9 @@
 >
   {#each AVAILABLE_LOCALES as locale}
     {#if locale.id === currentLocale}
-      <option value={locale.id} selected
-        ><span class="emoji-font">{locale.flag}</span></option
-      >
+      <option value={locale.id} selected>{locale.flag}</option>
     {:else}
-      <option value={locale.id}
-        ><span class="emoji-font">{locale.flag}</span></option
-      >
+      <option value={locale.id}>{locale.flag}</option>
     {/if}
   {/each}
 </select>

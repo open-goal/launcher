@@ -10,7 +10,9 @@ export default defineConfig({
   },
   plugins: [
     svelte({
-      hot: !process.env.VITEST,
+      compilerOptions: {
+        hmr: !process.env.VITEST,
+      },
     }),
     Icons({
       compiler: "svelte",

@@ -1,4 +1,4 @@
-import { open, save } from "@tauri-apps/api/dialog";
+import { open, save } from "@tauri-apps/plugin-dialog";
 
 export async function filePromptNoFilters(
   title: string,
