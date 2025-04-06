@@ -8,6 +8,4 @@ export const VersionStore = writable<VersionStoreIFace>({
   activeVersionName: null,
 });
 
-export const isMinVCCRuntime = writable(
-  JSON.parse(localStorage.getItem("isMinVCCRuntime")),
-);
+export const isMinVCCRuntime = writable<Boolean>();

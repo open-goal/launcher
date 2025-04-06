@@ -12,10 +12,15 @@
   import Toast from "./components/toast/Toast.svelte";
   import Help from "./routes/Help.svelte";
   import { isLoading } from "svelte-i18n";
-  import { getLocale, setLocale } from "$lib/rpc/config";
+  import {
+    getLocale,
+    isMinimumVCCRuntimeInstalled,
+    setLocale,
+  } from "$lib/rpc/config";
   import GameFeature from "./routes/GameFeature.svelte";
   import { listen } from "@tauri-apps/api/event";
   import { toastStore } from "$lib/stores/ToastStore";
+  import { isMinVCCRuntime } from "$lib/stores/VersionStore";
 
   let revokeSpecificActions = false;
   let toastListener: any = undefined;
@@ -27,6 +32,8 @@
     if (locale !== null) {
       setLocale(locale);
     }
+
+    isMinVCCRuntime.set(await isMinimumVCCRuntimeInstalled());
 
     toastListener = await listen("toast_msg", (event) => {
       toastStore.makeToast(event.payload.toast, event.payload.level);
