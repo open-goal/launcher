@@ -5,7 +5,9 @@
   <summary>Launcher for the OpenGOAL Project to simplify usage and installation</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>ISC License</project_license>
-  <developer_name>OpenGOAL Contributors</developer_name>
+  <developer>
+    <name>OpenGOAL Contributors</name>
+  </developer>
   <supports>
     <control>pointing</control>
     <control>keyboard</control>
@@ -27,7 +29,7 @@
     </screenshot>
   </screenshots>
   <releases>
-    <release type="stable" version="2.5.1" date="2024-10-03T00:00:00Z"/>
+    <release type="stable" version="2.7.0" date="2025-04-06T00:00:00Z"/>
   </releases>
   <content_rating type="oars-1.1"/>
 </component>
