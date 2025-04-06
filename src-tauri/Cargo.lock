@@ -2591,9 +2591,9 @@ checksum = "c41e0c4fef86961ac6d6f8a82609f55f31b05e4fce149ac5710e439df7619ba4"
 
 [[package]]
 name = "mac-notification-sys"
-version = "0.6.2"
+version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dce8f34f3717aa37177e723df6c1fc5fb02b2a1087374ea3fe0ea42316dc8f91"
+checksum = "5e98c592c1efb30dc069c2286bd8f1de28e041a040b7342be8ea91607d7a015d"
 dependencies = [
  "cc",
  "dirs-next",
@@ -3152,7 +3152,7 @@ dependencies = [
 
 [[package]]
 name = "opengoal-launcher"
-version = "2.7.0"
+version = "2.8.0"
 dependencies = [
  "backtrace",
  "chrono",
