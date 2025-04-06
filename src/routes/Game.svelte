@@ -25,6 +25,7 @@
   import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import GameControlsMod from "../components/games/GameControlsMod.svelte";
+  // import { derived } from "svelte/store";
 
   const params = useParams();
   $: $params, loadGameInfo();
@@ -50,7 +51,8 @@
 
   let gameInBeta = false;
   let gameSupportedByTooling = false;
-  let showVccWarning = type() == "windows" && !$isMinVCCRuntime;
+  let showVccWarning;
+  $: showVccWarning = type() == "windows" && !$isMinVCCRuntime;
 
   onMount(async () => {
     loadGameInfo();
