@@ -160,8 +160,8 @@
         data-tauri-drag-region
         class="splash-status-bar fg"
         style="width: {((currentStepIndex + 1) / stepsToDo.length) * 100}%"
-      />
-      <div data-tauri-drag-region class="splash-status-bar bg" />
+      ></div>
+      <div data-tauri-drag-region class="splash-status-bar bg"></div>
     </div>
     {#if stepsToDo[currentStepIndex].statusText === "splash_noInstallDirSet"}
       <LocaleQuickChanger on:change={(evt) => handleLocaleChange(evt, false)} />

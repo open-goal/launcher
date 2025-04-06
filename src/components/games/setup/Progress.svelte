@@ -41,7 +41,9 @@
               style="width: calc(100% - 2.5rem - 1rem); top: 50%; transform: translate(-50%, -50%)"
             >
               <div class={progressBarContainerStyle}>
-                <div class={progressBarStyle(progress.steps[i - 1].status)} />
+                <div
+                  class={progressBarStyle(progress.steps[i - 1].status)}
+                ></div>
               </div>
             </div>
           {/if}
