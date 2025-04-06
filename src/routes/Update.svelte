@@ -73,7 +73,7 @@
       <Table hoverable={true}>
         <caption
           class="p-2 font-semibold text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800"
-        />
+        ></caption>
         <TableHead>
           <TableHeadCell
             >{$_("update_changelog_header_contributor")}</TableHeadCell

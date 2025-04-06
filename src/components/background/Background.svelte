@@ -135,7 +135,7 @@
       autoplay
       muted
       loop
-    />
+    ></video>
   {:else}
     <!-- svelte-ignore a11y-missing-attribute -->
     <img class={style} src={jak3InProgressPoster} />

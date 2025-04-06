@@ -291,7 +291,7 @@
               <div class="flex flex-row mt-auto">
                 <h2 class="text-xl font-bold tracking-tight text-white">
                   {extractedPackInfo[pack.name]["name"]}
-                  <span class="text-xs text-gray-500" />
+                  <span class="text-xs text-gray-500"></span>
                 </h2>
               </div>
               <p class="font-bold text-xs text-gray-500">
@@ -381,8 +381,8 @@
                       <IconInfo aria-hidden="true" />
                       <span> {$_("features_textures_conflictsDetected")}</span>
                     </span>
-                    <div slot="arrowup" />
-                    <div slot="arrowdown" />
+                    <div slot="arrowup"></div>
+                    <div slot="arrowdown"></div>
                     <pre
                       class="mb-2 text-gray-500 dark:text-gray-400 text-xs">{[
                         ...find_pack_conflicts(pack.name),

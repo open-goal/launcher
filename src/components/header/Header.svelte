@@ -134,7 +134,7 @@
     />
     <p class="font-black text-white tracking-tight text-lg">OpenGOAL</p>
   </div>
-  <div class="border-l shrink-0 border-[#9f9f9f] h-8 m-2" />
+  <div class="border-l shrink-0 border-[#9f9f9f] h-8 m-2"></div>
   <div class="flex flex-col shrink-0 text-neutral-500 mr-2 pointer-events-none">
     <p class="font-mono text-sm">{$_("header_launcherVersionLabel")}</p>
     <p class="font-mono text-sm">{$_("header_toolingVersionLabel")}</p>
