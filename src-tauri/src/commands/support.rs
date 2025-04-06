@@ -284,12 +284,7 @@ pub async fn generate_support_package(
   // System Information
   let mut system_info = System::new_all();
   system_info.refresh_all();
-  let installed_vcc_runtime_version = get_installed_vcc_runtime();
-  if installed_vcc_runtime_version.is_none() {
-    package.installed_vcc_runtime = None;
-  } else {
-    package.installed_vcc_runtime = Some(installed_vcc_runtime_version.unwrap().to_string());
-  }
+  package.installed_vcc_runtime = get_installed_vcc_runtime().map(|v| v.to_string());
   package.total_memory_megabytes = system_info.total_memory() / 1024 / 1024;
   package.cpu_name = system_info.cpus()[0].name().to_string();
   package.cpu_vendor = system_info.cpus()[0].vendor_id().to_string();

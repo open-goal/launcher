@@ -1,11 +1,10 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
-  import { Alert, Button } from "flowbite-svelte";
+  import { Alert, Button, P } from "flowbite-svelte";
   import {
     isAVXRequirementMet,
     isDiskSpaceRequirementMet,
     isOpenGLRequirementMet,
-    isMinimumVCCRuntimeInstalled,
     setBypassRequirements,
   } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
@@ -13,43 +12,35 @@
   import { getInternalName, type SupportedGame } from "$lib/constants";
   import { arch, type } from "@tauri-apps/plugin-os";
   import { isMacOSVersion15OrAbove } from "$lib/rpc/util";
+  import { isMinVCCRuntime } from "$lib/stores/VersionStore";
 
   export let activeGame: SupportedGame;
 
-  let isAVXRelevant = true;
-  let isTryingToUseARMOutsideOfMacOS: boolean | undefined = false;
+  let isAVXRelevant = type() !== "macos";
+  let isTryingToUseARMOutsideOfMacOS: boolean | undefined =
+    arch() == "aarch64" && type() !== "macos";
   let isMacOSVersionSufficient: boolean | undefined = false;
   let isAVXMet: boolean | undefined = false;
   let isOpenGLMet: boolean | undefined = false;
   let isDiskSpaceMet: boolean | undefined = false;
-  let isVCCRelevant = false;
-  let isVCCInstalled: boolean | undefined = false;
+  let isVCCRelevant: boolean | undefined = type() == "windows";
 
   const dispatch = createEventDispatcher();
 
   onMount(async () => {
-    const architecture = await arch();
-    const osType = await type();
+    const architecture = arch();
     isOpenGLMet = await isOpenGLRequirementMet(false);
     isDiskSpaceMet = await isDiskSpaceRequirementMet(
       getInternalName(activeGame),
     );
-    if (architecture === "aarch64") {
-      isAVXRelevant = false;
+    if (isAVXRelevant) {
+      isAVXMet = await isAVXRequirementMet();
+    }
+    if (arch() === "aarch64" && type() === "macos") {
       // arm, we don't bother checking for simd
       // - if macOS (the only supported ARM platform), we check they are on atleast macOS 15
       // there is no easy way to check to see if they have rosetta 2, if you know of one, contribute it
-      if (osType !== "macos") {
-        isTryingToUseARMOutsideOfMacOS = true;
-      } else {
-        isMacOSVersionSufficient = await isMacOSVersion15OrAbove();
-      }
-    } else {
-      isAVXMet = await isAVXRequirementMet();
-      if (osType == "windows") {
-        isVCCRelevant = true;
-        isVCCInstalled = await isMinimumVCCRuntimeInstalled();
-      }
+      isMacOSVersionSufficient = await isMacOSVersion15OrAbove();
     }
   });
 
@@ -187,13 +178,13 @@
     <Alert
       class="w-full text-start"
       rounded={false}
-      color={alertColor(isVCCInstalled)}
+      color={alertColor($isMinVCCRuntime)}
     >
-      {#if isVCCInstalled}
+      {#if $isMinVCCRuntime}
         <span class="font-bold"
           >{$_("requirements_windows_vccRuntimeInstalled")}</span
         >
-      {:else if isVCCInstalled === undefined}
+      {:else if $isMinVCCRuntime === undefined}
         <span class="font-bold"
           >{$_("requirements_windows_cantCheckIfVccRuntimeInstalled")}</span
         >

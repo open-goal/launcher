@@ -85,9 +85,7 @@ export async function isDiskSpaceRequirementMet(
   );
 }
 
-export async function isMinimumVCCRuntimeInstalled(): Promise<
-  boolean | undefined
-> {
+export async function isMinimumVCCRuntimeInstalled(): Promise<boolean> {
   return await invoke_rpc(
     "is_minimum_vcc_runtime_installed",
     {},

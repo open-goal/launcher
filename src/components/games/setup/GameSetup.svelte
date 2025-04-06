@@ -16,7 +16,6 @@
     isAVXRequirementMet,
     isDiskSpaceRequirementMet,
     isOpenGLRequirementMet,
-    isMinimumVCCRuntimeInstalled,
     getProceedAfterSuccessfulOperation,
   } from "$lib/rpc/config";
   import { progressTracker } from "$lib/stores/ProgressStore";
@@ -25,6 +24,7 @@
   import { emit } from "@tauri-apps/api/event";
   import { arch, type } from "@tauri-apps/plugin-os";
   import { isMacOSVersion15OrAbove } from "$lib/rpc/util";
+  import { isMinVCCRuntime } from "$lib/stores/VersionStore";
 
   export let activeGame: SupportedGame;
 
@@ -62,9 +62,8 @@
     } else {
       const isAvxMet = await isAVXRequirementMet();
       if (osType == "windows") {
-        const isVCCInstalled = await isMinimumVCCRuntimeInstalled();
         requirementsMet =
-          isAvxMet && isOpenGLMet && isDiskSpaceMet && isVCCInstalled;
+          isAvxMet && isOpenGLMet && isDiskSpaceMet && $isMinVCCRuntime;
       } else {
         requirementsMet = isAvxMet && isOpenGLMet && isDiskSpaceMet;
       }

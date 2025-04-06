@@ -107,16 +107,10 @@ pub async fn is_minimum_vcc_runtime_installed() -> Result<bool, CommandError> {
   }
 }
 
-#[cfg(target_os = "linux")]
+#[cfg(not(target_os = "windows"))]
 #[tauri::command]
 pub async fn is_minimum_vcc_runtime_installed() -> Result<bool, CommandError> {
   return Ok(false);
-}
-
-#[cfg(target_os = "macos")]
-#[tauri::command]
-pub async fn is_minimum_vcc_runtime_installed() -> Result<bool, CommandError> {
-  Ok(false)
 }
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
