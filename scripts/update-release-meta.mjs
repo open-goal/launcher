@@ -146,8 +146,8 @@ for (var i = 0; i < releaseAssets.length; i++) {
   const asset = releaseAssets[i];
   if (asset.name.toLowerCase() === "latest.json") {
     const assetDownload = await octokit.rest.repos.getReleaseAsset({
-      owner: "xTVaser",
-      repo: "launcher",
+      owner: owner,
+      repo: repo,
       asset_id: asset.id,
       headers: {
         Accept: "application/octet-stream",
