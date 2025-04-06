@@ -10,7 +10,6 @@
     doesActiveToolingVersionSupportGame,
     getInstalledVersion,
     isGameInstalled,
-    isMinimumVCCRuntimeInstalled,
   } from "$lib/rpc/config";
   import GameJob from "../components/games/job/GameJob.svelte";
   import GameUpdate from "../components/games/setup/GameUpdate.svelte";
@@ -20,7 +19,7 @@
   } from "$lib/rpc/versions";
   import GameToolsNotSet from "../components/games/GameToolsNotSet.svelte";
   import GameNotSupportedByTooling from "../components/games/GameNotSupportedByTooling.svelte";
-  import { VersionStore } from "$lib/stores/VersionStore";
+  import { isMinVCCRuntime, VersionStore } from "$lib/stores/VersionStore";
   import type { Job } from "$lib/utils/jobs";
   import { type } from "@tauri-apps/plugin-os";
   import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
@@ -51,14 +50,10 @@
 
   let gameInBeta = false;
   let gameSupportedByTooling = false;
-  let showVccWarning = false;
+  let showVccWarning = type() == "windows" && !$isMinVCCRuntime;
 
   onMount(async () => {
     loadGameInfo();
-    const osType = await type();
-    if (osType == "Windows_NT") {
-      showVccWarning = !(await isMinimumVCCRuntimeInstalled());
-    }
   });
 
   async function loadGameInfo() {

@@ -4,6 +4,7 @@
   import {
     getInstallationDirectory,
     getLocale,
+    isMinimumVCCRuntimeInstalled,
     setLocale,
   } from "$lib/rpc/config";
   import { locale as svelteLocale, _ } from "svelte-i18n";
@@ -55,6 +56,10 @@
       },
       waitingForInteraction: false,
     });
+    localStorage.setItem(
+      "isMinVCCRuntime",
+      JSON.stringify(await isMinimumVCCRuntimeInstalled()),
+    );
     loaded = true;
     await proceedInSteps(false, false);
   });

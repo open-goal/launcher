@@ -1,10 +1,7 @@
 <script lang="ts">
   import type { SupportedGame } from "$lib/constants";
-  import {
-    getAutoUpdateGames,
-    isMinimumVCCRuntimeInstalled,
-  } from "$lib/rpc/config";
-  import { VersionStore } from "$lib/stores/VersionStore";
+  import { getAutoUpdateGames } from "$lib/rpc/config";
+  import { isMinVCCRuntime, VersionStore } from "$lib/stores/VersionStore";
   import { type } from "@tauri-apps/plugin-os";
   import { Button, Card } from "flowbite-svelte";
   import { createEventDispatcher, onMount } from "svelte";
@@ -16,14 +13,9 @@
 
   export let installedVersion: String | undefined;
 
-  let displayVCCWarning = false;
+  let displayVCCWarning = type() == "windows" && !$isMinVCCRuntime;
 
   onMount(async () => {
-    const osType = await type();
-    if (osType == "Windows_NT") {
-      const isVCCInstalled = await isMinimumVCCRuntimeInstalled();
-      displayVCCWarning = !isVCCInstalled;
-    }
     let shouldAutoUpdate = await getAutoUpdateGames();
     if (shouldAutoUpdate) {
       dispatch("job", {

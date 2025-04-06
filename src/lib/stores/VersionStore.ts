@@ -7,3 +7,7 @@ export interface VersionStoreIFace {
 export const VersionStore = writable<VersionStoreIFace>({
   activeVersionName: null,
 });
+
+export const isMinVCCRuntime = writable(
+  JSON.parse(localStorage.getItem("isMinVCCRuntime")),
+);
