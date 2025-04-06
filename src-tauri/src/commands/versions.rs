@@ -265,11 +265,6 @@ pub async fn ensure_active_version_still_exists(
     Some(path) => Path::new(path),
   };
 
-  info!(
-    "Checking if active version still exists: {:?}",
-    config_lock.active_version
-  );
-
   match &config_lock.active_version {
     Some(config_version) => {
       let version_dir = install_path
