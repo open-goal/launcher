@@ -25,7 +25,6 @@
   import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import GameControlsMod from "../components/games/GameControlsMod.svelte";
-  // import { derived } from "svelte/store";
 
   const params = useParams();
   $: $params, loadGameInfo();
