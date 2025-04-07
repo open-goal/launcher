@@ -8,4 +8,4 @@ export const VersionStore = writable<VersionStoreIFace>({
   activeVersionName: null,
 });
 
-export const isMinVCCRuntime = writable<Boolean>();
+export const isMinVCCRuntime = writable<Boolean>(false);

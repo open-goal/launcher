@@ -50,7 +50,8 @@
 
   let gameInBeta = false;
   let gameSupportedByTooling = false;
-  let showVccWarning = type() == "windows" && !$isMinVCCRuntime;
+  let showVccWarning;
+  $: showVccWarning = type() == "windows" && !$isMinVCCRuntime;
 
   onMount(async () => {
     loadGameInfo();
