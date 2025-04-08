@@ -25,6 +25,7 @@
   import { getModSourcesData } from "$lib/rpc/cache";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import GameControlsMod from "../components/games/GameControlsMod.svelte";
+  import GameInProgress from "../components/games/GameInProgress.svelte";
 
   const params = useParams();
   $: $params, loadGameInfo();
@@ -124,6 +125,8 @@
 <div class="flex flex-col h-full p-5">
   {#if $VersionStore.activeVersionName === null || $VersionStore.activeVersionType === null}
     <GameToolsNotSet />
+  {:else if activeGame == SupportedGame.Jak3}
+    <GameInProgress />
   {:else if !gameSupportedByTooling}
     <GameNotSupportedByTooling />
   {:else if !gameInstalled}

@@ -18,7 +18,7 @@
 
   let style = "absolute object-fill h-screen brightness-75 pt-[60px] w-full";
   let jak1Image = "";
-  let onWindows = platform() === "windows";
+  let onWindows = platform() !== "linux";
   let modBackground = "";
 
   onMount(async () => {
