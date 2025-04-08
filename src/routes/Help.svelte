@@ -5,15 +5,14 @@
   import { generateSupportPackage } from "$lib/rpc/support";
   import { openDir } from "$lib/rpc/window";
   import { onMount } from "svelte";
-  import { appConfigDir } from "@tauri-apps/api/path";
+  import { appLogDir } from "@tauri-apps/api/path";
   import { _ } from "svelte-i18n";
-  import { navigate } from "svelte-navigator";
 
-  let appDir: string | undefined = undefined;
+  let appLogDirPath: string;
   let downloadingPackage = false;
 
   onMount(async () => {
-    appDir = await appConfigDir();
+    appLogDirPath = await appLogDir();
   });
 </script>
 
@@ -37,13 +36,11 @@
       {/if}
       {$_("help_button_downloadPackage")}</Button
     >
-    {#if appDir !== undefined}
+    {#if appLogDirPath}
       <Button
         class="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
         on:click={() => {
-          if (appDir) {
-            openDir(appDir);
-          }
+          openDir(appLogDirPath);
         }}>{$_("help_button_openLogFolder")}</Button
       >
     {/if}
