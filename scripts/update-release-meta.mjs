@@ -164,7 +164,10 @@ for (var i = 0; i < releaseAssets.length; i++) {
 const currentVersion = jsonOutput.version;
 const replacementDownloadSubstring = `/releases/download/v${currentVersion}/`;
 for (const [key, value] of Object.entries(jsonOutput.platforms)) {
-  jsonOutput.platforms[key].url = value.url.replace("/releases/latest/download/", replacementDownloadSubstring)
+  jsonOutput.platforms[key].url = value.url.replace(
+    "/releases/latest/download/",
+    replacementDownloadSubstring,
+  );
 }
 
 if (jsonOutput === undefined) {
