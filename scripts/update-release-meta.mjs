@@ -157,6 +157,16 @@ for (var i = 0; i < releaseAssets.length; i++) {
   }
 }
 
+// Make the download links idempotent instead of using 'latest' which is a moving target
+// if the asset doesn't contain the version number (the macOS ones don't)
+//
+// - /releases/latest/download/ replace with /releases/download/v${version}/
+const currentVersion = jsonOutput.version;
+const replacementDownloadSubstring = `/releases/download/v${currentVersion}/`;
+for (const [key, value] of Object.entries(jsonOutput.platforms)) {
+  jsonOutput.platforms[key].url = value.url.replace("/releases/latest/download/", replacementDownloadSubstring)
+}
+
 if (jsonOutput === undefined) {
   console.log(`Didn't find 'latest.json' asset in release`);
   process.exit(1);
