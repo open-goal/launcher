@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { useLocation, useParams } from "svelte-navigator";
+  import { useLocation } from "svelte-navigator";
   import { isGameInstalled } from "$lib/rpc/config";
   import { onMount } from "svelte";
   import { listen } from "@tauri-apps/api/event";
@@ -8,7 +8,7 @@
   import jak3InProgressVid from "$assets/videos/jak3-dev.mp4";
   import jak3InProgressPoster from "$assets/videos/jak3-poster.png";
   import { platform } from "@tauri-apps/plugin-os";
-  import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
+  import { getModSourcesData } from "$lib/rpc/cache";
   import coverArtPlaceholder from "$assets/images/mod-coverart-placeholder.webp";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import { getLocalModThumbnailBase64 } from "$lib/rpc/features";
@@ -53,23 +53,17 @@
       .split("/")
       .filter((s) => s !== "");
     if (pathComponents.length === 5) {
-      const modSourceName = decodeURI(pathComponents[3]);
+      const modSource = decodeURI(pathComponents[3]);
       const modName = decodeURI(pathComponents[4]);
       // TODO now - centralize this in a store so we don't unnecessarily fetch the info
-      await refreshModSources();
       const modSourceData = await getModSourcesData();
       // Find the source
-      let foundMod: ModInfo | undefined = undefined;
-      for (const [sourceUrl, sourceInfo] of Object.entries(modSourceData)) {
-        if (
-          sourceInfo.sourceName === modSourceName &&
-          sourceInfo.mods.hasOwnProperty(modName)
-        ) {
-          foundMod = sourceInfo.mods[modName];
-          break;
-        }
-      }
-      if (modSourceName === "_local") {
+      const foundMod: ModInfo | undefined = Object.values(modSourceData).find(
+        (source) =>
+          source.sourceName === modSource &&
+          source.mods.hasOwnProperty(modName),
+      )?.mods[modName];
+      if (modSource === "_local") {
         const coverResult = await getLocalModThumbnailBase64(
           activeGame,
           modName,
@@ -81,21 +75,18 @@
         }
       }
       // Prefer pre-game-config if available
-      else if (foundMod !== undefined) {
+      else if (foundMod) {
         if (
-          foundMod.perGameConfig !== null &&
           foundMod.perGameConfig.hasOwnProperty(activeGame) &&
-          foundMod.perGameConfig[activeGame].coverArtUrl !== null
+          foundMod.perGameConfig[activeGame].coverArtUrl
         ) {
           modBackground = foundMod.perGameConfig[activeGame].coverArtUrl;
-        } else if (foundMod.coverArtUrl !== null) {
+        } else if (foundMod.coverArtUrl) {
           modBackground = foundMod.coverArtUrl;
         }
       } else {
         modBackground = coverArtPlaceholder;
       }
-    } else {
-      modBackground = "";
     }
     let newStyle =
       "absolute object-fill h-screen brightness-75 pt-[60px] w-full";

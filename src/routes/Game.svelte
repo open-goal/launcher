@@ -4,7 +4,7 @@
   import GameControls from "../components/games/GameControls.svelte";
   import GameSetup from "../components/games/setup/GameSetup.svelte";
   import { onMount } from "svelte";
-  import { Alert, Spinner } from "flowbite-svelte";
+  import { Alert } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import {
     doesActiveToolingVersionSupportGame,
@@ -22,7 +22,7 @@
   import { isMinVCCRuntime, VersionStore } from "$lib/stores/VersionStore";
   import type { Job } from "$lib/utils/jobs";
   import { type } from "@tauri-apps/plugin-os";
-  import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
+  import { getModSourcesData } from "$lib/rpc/cache";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import GameControlsMod from "../components/games/GameControlsMod.svelte";
 
@@ -34,12 +34,13 @@
   let modVersionToInstall: string = "";
   let modDownloadUrlToInstall: string = "";
 
-  let activeGame = SupportedGame.Jak1;
+  $: activeGame = fromRoute($params["game_name"]) || SupportedGame.Jak1;
+  $: modName = $params["mod_name"];
+  $: modSource = $params["source_url"];
   let modDisplayName: string | undefined = undefined;
   let modDescription: string | undefined = undefined;
   let modTags: string | undefined = undefined;
   let modAuthors: string | undefined = undefined;
-  let componentLoaded = false;
 
   let gameInstalled = false;
   let gameJobToRun: Job | undefined = undefined;
@@ -48,68 +49,17 @@
 
   let versionMismatchDetected = false;
 
-  let gameInBeta = false;
+  $: gameInBeta = activeGame === SupportedGame.Jak2;
   let gameSupportedByTooling = false;
   let showVccWarning;
   $: showVccWarning = type() == "windows" && !$isMinVCCRuntime;
 
   onMount(async () => {
     loadGameInfo();
+    loadModInfo();
   });
 
   async function loadGameInfo() {
-    componentLoaded = false;
-    // Figure out what game we are displaying
-    if (
-      $params["game_name"] !== undefined &&
-      $params["game_name"] !== null &&
-      $params["game_name"] !== ""
-    ) {
-      activeGame = fromRoute($params["game_name"]);
-    } else {
-      activeGame = SupportedGame.Jak1;
-    }
-    if (
-      $params["mod_name"] !== undefined &&
-      $params["mod_name"] !== null &&
-      $params["mod_name"] !== ""
-    ) {
-      modName = $params["mod_name"];
-      // Go get the mod's display name
-      // TODO now - centralize this in a store so we don't unnecessarily fetch the info
-      await refreshModSources();
-      const modSourceData = await getModSourcesData();
-      // Find the source
-      let foundMod: ModInfo | undefined = undefined;
-      for (const [sourceUrl, sourceInfo] of Object.entries(modSourceData)) {
-        if (
-          sourceInfo.sourceName === modSource &&
-          sourceInfo.mods.hasOwnProperty(modName)
-        ) {
-          foundMod = sourceInfo.mods[modName];
-          break;
-        }
-      }
-      // Prefer pre-game-config if available
-      if (foundMod !== undefined) {
-        modDisplayName = foundMod.displayName;
-        modDescription = foundMod.description;
-        modTags = foundMod.tags.join(", ");
-        modAuthors = foundMod.authors.join(", ");
-      } else {
-        modDisplayName = modName;
-      }
-    }
-    if (
-      $params["source_url"] !== undefined &&
-      $params["source_url"] !== null &&
-      $params["source_url"] !== ""
-    ) {
-      modSource = $params["source_url"];
-    }
-
-    gameInBeta = activeGame === SupportedGame.Jak2;
-
     // First off, check that they've downloaded and have a jak-project release set
     const activeVersionExists = await ensureActiveVersionStillExists();
     $VersionStore.activeVersionName = await getActiveVersion();
@@ -118,11 +68,10 @@
       gameSupportedByTooling = await doesActiveToolingVersionSupportGame(
         getInternalName(activeGame),
       );
-      // First obvious thing to check -- is the game installed at all
+      // verify the game is installed
       gameInstalled = await isGameInstalled(getInternalName(activeGame));
 
-      // Next step, check if there is a version mismatch
-      // - they installed the game before with a different version than what they currently have selected
+      // verify selected version is installed tooling version
       // - prompt them to either reinstall OR go and select their previous version
       if (gameInstalled) {
         installedVersion = await getInstalledVersion(
@@ -132,8 +81,26 @@
           installedVersion !== $VersionStore.activeVersionName;
       }
     }
+  }
 
-    componentLoaded = true;
+  async function loadModInfo() {
+    if (!modName) return;
+
+    const modSourceData = await getModSourcesData();
+
+    const foundMod: ModInfo | undefined = Object.values(modSourceData).find(
+      (source) =>
+        source.sourceName === modSource && source.mods.hasOwnProperty(modName),
+    )?.mods[modName];
+
+    if (foundMod) {
+      modDisplayName = foundMod.displayName;
+      modDescription = foundMod.description;
+      modTags = foundMod.tags.join(", ");
+      modAuthors = foundMod.authors.join(", ");
+    } else {
+      modDisplayName = modName;
+    }
   }
 
   async function updateGameState(event: any) {
@@ -155,11 +122,7 @@
 </script>
 
 <div class="flex flex-col h-full p-5">
-  {#if !componentLoaded}
-    <div class="flex flex-col h-full justify-center items-center">
-      <Spinner color="yellow" size={"12"} />
-    </div>
-  {:else if $VersionStore.activeVersionName === null || $VersionStore.activeVersionType === null}
+  {#if $VersionStore.activeVersionName === null || $VersionStore.activeVersionType === null}
     <GameToolsNotSet />
   {:else if !gameSupportedByTooling}
     <GameNotSupportedByTooling />
