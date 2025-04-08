@@ -38,6 +38,7 @@
     // figure out the game
     let pathname = $location.pathname;
     let activeGame = "";
+    modBackground = "";
     if (pathname.startsWith("/jak1") || pathname === "/") {
       activeGame = "jak1";
     } else if (pathname.startsWith("/jak2")) {
