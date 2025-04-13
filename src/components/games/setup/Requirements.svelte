@@ -11,7 +11,7 @@
   import { confirm } from "@tauri-apps/plugin-dialog";
   import { SupportedGame } from "$lib/constants";
   import { arch, type } from "@tauri-apps/plugin-os";
-  import { isMacOSVersion15OrAbove } from "$lib/rpc/util";
+  import { isMinMacOSVersion } from "$lib/stores/VersionStore";
   import { isMinVCCRuntime } from "$lib/stores/VersionStore";
 
   export let activeGame: SupportedGame;
@@ -19,7 +19,6 @@
   let isAVXRelevant = type() !== "macos";
   let isTryingToUseARMOutsideOfMacOS: boolean | undefined =
     arch() == "aarch64" && type() !== "macos";
-  let isMacOSVersionSufficient: boolean | undefined = false;
   let isAVXMet: boolean | undefined = false;
   let isOpenGLMet: boolean | undefined = false;
   let isDiskSpaceMet: boolean | undefined = false;
@@ -33,12 +32,6 @@
     isDiskSpaceMet = await isDiskSpaceRequirementMet(activeGame);
     if (isAVXRelevant) {
       isAVXMet = await isAVXRequirementMet();
-    }
-    if (arch() === "aarch64" && type() === "macos") {
-      // arm, we don't bother checking for simd
-      // - if macOS (the only supported ARM platform), we check they are on atleast macOS 15
-      // there is no easy way to check to see if they have rosetta 2, if you know of one, contribute it
-      isMacOSVersionSufficient = await isMacOSVersion15OrAbove();
     }
   });
 
@@ -100,13 +93,13 @@
     <Alert
       class="w-full text-start"
       rounded={false}
-      color={alertColor(isMacOSVersionSufficient)}
+      color={alertColor($isMinMacOSVersion)}
     >
-      {#if isMacOSVersionSufficient}
+      {#if $isMinMacOSVersion}
         <span class="font-bold"
           >{$_("requirements_macos_atleastVersion15")}</span
         >
-      {:else if isMacOSVersionSufficient === undefined}
+      {:else if $isMinMacOSVersion === undefined}
         <span class="font-bold"
           >{$_("requirements_macos_unableToCheckVersion")}</span
         >
@@ -209,7 +202,6 @@
       on:click={async () => {
         isAVXMet = await isAVXRequirementMet();
         isOpenGLMet = await isOpenGLRequirementMet(true);
-        isMacOSVersionSufficient = await isMacOSVersion15OrAbove();
         dispatch("recheckRequirements");
       }}>{$_("requirements_button_recheck")}</Button
     >

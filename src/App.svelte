@@ -19,7 +19,8 @@
   import GameFeature from "./routes/GameFeature.svelte";
   import { listen } from "@tauri-apps/api/event";
   import { toastStore } from "$lib/stores/ToastStore";
-  import { isMinVCCRuntime } from "$lib/stores/VersionStore";
+  import { isMinMacOSVersion, isMinVCCRuntime } from "$lib/stores/VersionStore";
+  import { isMacOSVersion15OrAbove } from "$lib/rpc/util";
 
   let revokeSpecificActions = false;
   let toastListener: any = undefined;
@@ -33,6 +34,7 @@
     }
 
     isMinVCCRuntime.set(await isMinimumVCCRuntimeInstalled());
+    isMinMacOSVersion.set(await isMacOSVersion15OrAbove());
 
     toastListener = await listen("toast_msg", (event) => {
       toastStore.makeToast(event.payload.toast, event.payload.level);
