@@ -57,6 +57,7 @@
     $progressTracker.overallStatus === "success" &&
     proceedAfterSuccessfulOperation
   ) {
+    progressTracker.clear();
     dispatch("jobFinished");
   }
 

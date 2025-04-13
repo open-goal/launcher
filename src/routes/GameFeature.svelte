@@ -47,7 +47,7 @@
     modVersion = event.detail.modVersion;
   }
 
-  async function gameJobFinished() {
+  function gameJobFinished() {
     gameJobToRun = undefined;
   }
 </script>

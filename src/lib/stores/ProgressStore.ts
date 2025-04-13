@@ -71,6 +71,14 @@ function createProgressTracker() {
         val.logs = [...val.logs, ...logs];
         return val;
       }),
+    clear: () => {
+      set({
+        currentStep: 0,
+        overallStatus: "inactive",
+        steps: [],
+        logs: [],
+      });
+    },
   };
 }
 
