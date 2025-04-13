@@ -20,6 +20,7 @@
   let jak1Image = "";
   let onWindows = platform() !== "linux";
   let modBackground = "";
+  let grayscale = false;
 
   onMount(async () => {
     const unlistenInstalled = await listen("gameInstalled", (event) => {
@@ -35,19 +36,9 @@
   });
 
   async function updateStyle(): Promise<void> {
-    // figure out the game
-    let pathname = $location.pathname;
-    let activeGame = "";
+    let activeGame = $location.pathname.split("/")[1] || "jak1"; // TODO: when i move to kit this quick hack will be removed
+    grayscale = !(await isGameInstalled(activeGame));
     modBackground = "";
-    if (pathname.startsWith("/jak1") || pathname === "/") {
-      activeGame = "jak1";
-    } else if (pathname.startsWith("/jak2")) {
-      activeGame = "jak2";
-    } else if (pathname.startsWith("/jak3")) {
-      activeGame = "jak3";
-    } else if (pathname.startsWith("/jakx")) {
-      activeGame = "jakx";
-    }
 
     // Handle mod backgrounds
     const pathComponents = $location.pathname
@@ -89,50 +80,32 @@
         modBackground = coverArtPlaceholder;
       }
     }
-    let newStyle =
-      "absolute object-fill h-screen brightness-75 pt-[60px] w-full";
-    if (activeGame === "jak1") {
-      if (!(await isGameInstalled("jak1"))) {
-        newStyle += " grayscale";
-      }
-    } else if (activeGame === "jak2") {
-      if (!(await isGameInstalled("jak2"))) {
-        newStyle += " grayscale";
-      }
-    } else if (activeGame === "jak3") {
-      if (!(await isGameInstalled("jak3"))) {
-        newStyle += " grayscale";
-      }
-    } else if (activeGame === "jakx") {
-      if (!(await isGameInstalled("jakx"))) {
-        newStyle += " grayscale";
-      }
-    }
-    style = newStyle;
   }
 </script>
 
-{#if $location.pathname == "/jak1" || $location.pathname == "/"}
-  <!-- svelte-ignore a11y-missing-attribute -->
-  <img class={style} src={jak1Image} />
-{:else if $location.pathname == "/jak2"}
-  <!-- svelte-ignore a11y-missing-attribute -->
-  <img class={style} src={jak2Background} />
-{:else if $location.pathname == "/jak3"}
-  {#if onWindows}
-    <video
-      class={style}
-      poster={jak3InProgressPoster}
-      src={jak3InProgressVid}
-      autoplay
-      muted
-      loop
-    ></video>
-  {:else}
-    <!-- svelte-ignore a11y-missing-attribute -->
-    <img class={style} src={jak3InProgressPoster} />
+<div class:grayscale>
+  {#if $location.pathname == "/jak1" || $location.pathname == "/"}
+    <!-- svelte-ignore a11y_missing_attribute -->
+    <img class={style} src={jak1Image} />
+  {:else if $location.pathname == "/jak2"}
+    <!-- svelte-ignore a11y_missing_attribute -->
+    <img class={style} src={jak2Background} />
+  {:else if $location.pathname == "/jak3"}
+    {#if onWindows}
+      <video
+        class={style}
+        poster={jak3InProgressPoster}
+        src={jak3InProgressVid}
+        autoplay
+        muted
+        loop
+      ></video>
+    {:else}
+      <!-- svelte-ignore a11y_missing_attribute -->
+      <img class={style} src={jak3InProgressPoster} />
+    {/if}
+  {:else if modBackground !== ""}
+    <!-- svelte-ignore a11y_missing_attribute -->
+    <img class={style} src={modBackground} />
   {/if}
-{:else if modBackground !== ""}
-  <!-- svelte-ignore a11y-missing-attribute -->
-  <img class={style} src={modBackground} />
-{/if}
+</div>
