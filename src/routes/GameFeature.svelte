@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { fromRoute, SupportedGame } from "$lib/constants";
+  import { SupportedGame } from "$lib/constants";
   import { useParams } from "svelte-navigator";
   import GameJob from "../components/games/job/GameJob.svelte";
   import TexturePacks from "../components/games/features/texture-packs/TexturePacks.svelte";
   import ModSelection from "../components/games/features/mods/ModSelection.svelte";
 
   const params = useParams();
-  $: activeGame = fromRoute($params["game_name"]) || SupportedGame.Jak1;
+  $: activeGame = $params["game_name"] || SupportedGame.Jak1;
   $: selectedFeature = $params["feature"] || "texture_packs";
 
   let gameJobToRun: undefined = undefined;

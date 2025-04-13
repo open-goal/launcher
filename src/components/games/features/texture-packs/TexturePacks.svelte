@@ -9,7 +9,7 @@
 <!-- TODO - check supported games, not bothering right now cause there's only 1! -->
 
 <script lang="ts">
-  import { getInternalName, SupportedGame } from "$lib/constants";
+  import { SupportedGame } from "$lib/constants";
   import {
     cleanupEnabledTexturePacks,
     getEnabledTexturePacks,
@@ -60,12 +60,8 @@
   async function update_pack_list() {
     availablePacks = [];
     availablePacksOriginal = [];
-    let currentlyEnabledPacks = await getEnabledTexturePacks(
-      getInternalName(activeGame),
-    );
-    extractedPackInfo = await listExtractedTexturePackInfo(
-      getInternalName(activeGame),
-    );
+    let currentlyEnabledPacks = await getEnabledTexturePacks(activeGame);
+    extractedPackInfo = await listExtractedTexturePackInfo(activeGame);
     // Finalize `availablePacks` list
     // - First, cleanup any packs that were enabled but can no longer be found
     let cleanupPackList = [];
@@ -77,10 +73,7 @@
         filteredCurrentlyEnabledPacks.push(packName);
       }
     }
-    await cleanupEnabledTexturePacks(
-      getInternalName(activeGame),
-      cleanupPackList,
-    );
+    await cleanupEnabledTexturePacks(activeGame, cleanupPackList);
     // - secondly, add the ones that are enabled so they are at the top of the list
     for (const pack of currentlyEnabledPacks) {
       availablePacks.push({
@@ -164,10 +157,7 @@
       "Select a texture pack",
     );
     if (texturePackPath !== null) {
-      const success = await extractNewTexturePack(
-        getInternalName(activeGame),
-        texturePackPath,
-      );
+      const success = await extractNewTexturePack(activeGame, texturePackPath);
       if (success) {
         // if the user made any changes, attempt to restore them after
         let preexistingChanges = undefined;
@@ -229,8 +219,7 @@
         <Button
           outline
           class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
-          on:click={async () =>
-            navigate(`/${getInternalName(activeGame)}`, { replace: true })}
+          on:click={async () => navigate(`/${activeGame}`, { replace: true })}
           aria-label={$_("features_backToGamePage_buttonAlt")}
         >
           <IconArrowLeft />

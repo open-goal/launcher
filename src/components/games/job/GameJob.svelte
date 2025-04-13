@@ -5,7 +5,7 @@
   import { Alert, Button } from "flowbite-svelte";
   import { progressTracker } from "$lib/stores/ProgressStore";
   import type { Job } from "$lib/utils/jobs";
-  import { getInternalName, type SupportedGame } from "$lib/constants";
+  import { SupportedGame } from "$lib/constants";
   import {
     runCompiler,
     runDecompiler,
@@ -73,7 +73,7 @@
       },
     ]);
     progressTracker.start();
-    let resp = await runDecompiler("", getInternalName(activeGame), true, true);
+    let resp = await runDecompiler("", activeGame, true, true);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -96,7 +96,7 @@
       },
     ]);
     progressTracker.start();
-    let resp = await runCompiler("", getInternalName(activeGame), true);
+    let resp = await runCompiler("", activeGame, true);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -127,28 +127,28 @@
       },
     ]);
     progressTracker.start();
-    let resp = await updateDataDirectory(getInternalName(activeGame));
+    let resp = await updateDataDirectory(activeGame);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
       return;
     }
     progressTracker.proceed();
-    resp = await runDecompiler("", getInternalName(activeGame), true, false);
+    resp = await runDecompiler("", activeGame, true, false);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
       return;
     }
     progressTracker.proceed();
-    resp = await runCompiler("", getInternalName(activeGame));
+    resp = await runCompiler("", activeGame);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
       return;
     }
     progressTracker.proceed();
-    await finalizeInstallation(getInternalName(activeGame));
+    await finalizeInstallation(activeGame);
     await emit("gameInstalled");
     progressTracker.proceed();
     location.reload();
@@ -180,10 +180,7 @@
     progressTracker.init(jobs);
     progressTracker.start();
     if (texturePacksToDelete.length > 0) {
-      let resp = await deleteTexturePacks(
-        getInternalName(activeGame),
-        texturePacksToDelete,
-      );
+      let resp = await deleteTexturePacks(activeGame, texturePacksToDelete);
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
@@ -191,24 +188,21 @@
       }
       progressTracker.proceed();
     }
-    let resp = await setEnabledTexturePacks(
-      getInternalName(activeGame),
-      texturePacksToEnable,
-    );
+    let resp = await setEnabledTexturePacks(activeGame, texturePacksToEnable);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
       return;
     }
     progressTracker.proceed();
-    resp = await updateTexturePackData(getInternalName(activeGame));
+    resp = await updateTexturePackData(activeGame);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
       return;
     }
     progressTracker.proceed();
-    resp = await runDecompiler("", getInternalName(activeGame), true, false);
+    resp = await runDecompiler("", activeGame, true, false);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -221,9 +215,7 @@
     // Check to see if we need to prompt for the ISO or not
     installationError = undefined;
     let jobs = [];
-    const isoAlreadyExtracted = await baseGameIsoExists(
-      getInternalName(activeGame),
-    );
+    const isoAlreadyExtracted = await baseGameIsoExists(activeGame);
     if (!isoAlreadyExtracted) {
       jobs.push({
         status: "queued",
@@ -253,7 +245,7 @@
       );
       if (sourcePath !== undefined) {
         let resp = await extractIsoForModInstall(
-          getInternalName(activeGame),
+          activeGame,
           modName,
           modSourceName,
           sourcePath,
@@ -270,22 +262,14 @@
       }
       progressTracker.proceed();
     }
-    let resp = await decompileForModInstall(
-      getInternalName(activeGame),
-      modName,
-      modSourceName,
-    );
+    let resp = await decompileForModInstall(activeGame, modName, modSourceName);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
       return;
     }
     progressTracker.proceed();
-    resp = await compileForModInstall(
-      getInternalName(activeGame),
-      modName,
-      modSourceName,
-    );
+    resp = await compileForModInstall(activeGame, modName, modSourceName);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -293,7 +277,7 @@
     }
     progressTracker.proceed();
     resp = await saveModInstallInfo(
-      getInternalName(activeGame),
+      activeGame,
       modName,
       modSourceName,
       modVersion,
@@ -310,9 +294,7 @@
     // Check to see if we need to prompt for the ISO or not
     installationError = undefined;
     let jobs = [];
-    const isoAlreadyExtracted = await baseGameIsoExists(
-      getInternalName(activeGame),
-    );
+    const isoAlreadyExtracted = await baseGameIsoExists(activeGame);
     jobs.push(
       {
         status: "queued",
@@ -340,7 +322,7 @@
       );
       if (sourcePath !== undefined) {
         let resp = await extractIsoForModInstall(
-          getInternalName(activeGame),
+          activeGame,
           modName,
           modSourceName,
           sourcePath,
@@ -358,7 +340,7 @@
     }
     // extract the file into install_dir/features/<game>/<sourceName>/<modName>
     let resp = await downloadAndExtractNewMod(
-      getInternalName(activeGame),
+      activeGame,
       modDownloadUrl,
       modName,
       modSourceName,
@@ -369,22 +351,14 @@
       return;
     }
     progressTracker.proceed();
-    resp = await decompileForModInstall(
-      getInternalName(activeGame),
-      modName,
-      modSourceName,
-    );
+    resp = await decompileForModInstall(activeGame, modName, modSourceName);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
       return;
     }
     progressTracker.proceed();
-    resp = await compileForModInstall(
-      getInternalName(activeGame),
-      modName,
-      modSourceName,
-    );
+    resp = await compileForModInstall(activeGame, modName, modSourceName);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -392,7 +366,7 @@
     }
     progressTracker.proceed();
     resp = await saveModInstallInfo(
-      getInternalName(activeGame),
+      activeGame,
       modName,
       modSourceName,
       modVersion,
@@ -419,11 +393,7 @@
       },
     ]);
     progressTracker.start();
-    let resp = await decompileForModInstall(
-      getInternalName(activeGame),
-      modName,
-      modSourceName,
-    );
+    let resp = await decompileForModInstall(activeGame, modName, modSourceName);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -447,11 +417,7 @@
       },
     ]);
     progressTracker.start();
-    let resp = await compileForModInstall(
-      getInternalName(activeGame),
-      modName,
-      modSourceName,
-    );
+    let resp = await compileForModInstall(activeGame, modName, modSourceName);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;

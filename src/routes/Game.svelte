@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fromRoute, getInternalName, SupportedGame } from "$lib/constants";
+  import { SupportedGame } from "$lib/constants";
   import { useParams } from "svelte-navigator";
   import GameControls from "../components/games/GameControls.svelte";
   import GameSetup from "../components/games/setup/GameSetup.svelte";
@@ -35,7 +35,7 @@
   let modVersionToInstall: string = "";
   let modDownloadUrlToInstall: string = "";
 
-  $: activeGame = fromRoute($params["game_name"]) || SupportedGame.Jak1;
+  $: activeGame = $params["game_name"] || SupportedGame.Jak1;
   $: modName = $params["mod_name"];
   $: modSource = $params["source_url"];
   let modDisplayName: string | undefined = undefined;
@@ -66,18 +66,15 @@
     $VersionStore.activeVersionName = await getActiveVersion();
 
     if (activeVersionExists) {
-      gameSupportedByTooling = await doesActiveToolingVersionSupportGame(
-        getInternalName(activeGame),
-      );
+      gameSupportedByTooling =
+        await doesActiveToolingVersionSupportGame(activeGame);
       // verify the game is installed
-      gameInstalled = await isGameInstalled(getInternalName(activeGame));
+      gameInstalled = await isGameInstalled(activeGame);
 
       // verify selected version is installed tooling version
       // - prompt them to either reinstall OR go and select their previous version
       if (gameInstalled) {
-        installedVersion = await getInstalledVersion(
-          getInternalName(activeGame),
-        );
+        installedVersion = await getInstalledVersion(activeGame);
         versionMismatchDetected =
           installedVersion !== $VersionStore.activeVersionName;
       }
@@ -105,7 +102,7 @@
   }
 
   async function updateGameState(event: any) {
-    gameInstalled = await isGameInstalled(getInternalName(activeGame));
+    gameInstalled = await isGameInstalled(activeGame);
   }
 
   async function runGameJob(event: any) {

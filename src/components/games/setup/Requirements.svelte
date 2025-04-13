@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
-  import { Alert, Button, P } from "flowbite-svelte";
+  import { Alert, Button } from "flowbite-svelte";
   import {
     isAVXRequirementMet,
     isDiskSpaceRequirementMet,
@@ -9,7 +9,7 @@
   } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { confirm } from "@tauri-apps/plugin-dialog";
-  import { getInternalName, type SupportedGame } from "$lib/constants";
+  import { SupportedGame } from "$lib/constants";
   import { arch, type } from "@tauri-apps/plugin-os";
   import { isMacOSVersion15OrAbove } from "$lib/rpc/util";
   import { isMinVCCRuntime } from "$lib/stores/VersionStore";
@@ -30,9 +30,7 @@
   onMount(async () => {
     const architecture = arch();
     isOpenGLMet = await isOpenGLRequirementMet(false);
-    isDiskSpaceMet = await isDiskSpaceRequirementMet(
-      getInternalName(activeGame),
-    );
+    isDiskSpaceMet = await isDiskSpaceRequirementMet(activeGame);
     if (isAVXRelevant) {
       isAVXMet = await isAVXRequirementMet();
     }
@@ -159,18 +157,14 @@
   >
     {#if isDiskSpaceMet}
       <span class="font-bold"
-        >{$_(
-          `requirements_disk_enoughSpace_${getInternalName(activeGame)}`,
-        )}</span
+        >{$_(`requirements_disk_enoughSpace_${activeGame}`)}</span
       >
     {:else if isDiskSpaceMet === undefined}
       <span class="font-bold">{$_(`requirements_disk_unableToCheckSpace`)}</span
       >
     {:else}
       <span class="font-bold"
-        >{$_(
-          `requirements_disk_notEnoughSpace_${getInternalName(activeGame)}`,
-        )}</span
+        >{$_(`requirements_disk_notEnoughSpace_${activeGame}`)}</span
       >
     {/if}
   </Alert>

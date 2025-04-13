@@ -6,7 +6,7 @@
   import IconChatQuestion from "~icons/mdi/chat-question";
   import { link, useLocation } from "svelte-navigator";
   import { Tooltip } from "flowbite-svelte";
-  import { SupportedGame, getInternalName } from "$lib/constants";
+  import { SupportedGame } from "$lib/constants";
   import { _ } from "svelte-i18n";
 
   const location = useLocation();
@@ -32,16 +32,6 @@
       (itemName === "jak1" && pathName === "/");
     return isActive ? baseStyle : `${baseStyle} grayscale`;
   }
-
-  function modifyGameTitleName(gameName: string): string {
-    // I figured out how to modify the tooltip size, the problem is that we want the tooltip to adjust based on the size
-    // new solution:
-    // - insert non-breaking-spaces to any space in the translated name
-    // - don't insert a nbsp after a `:`
-    return gameName.replace(/(?:[^:])\s/g, (match) =>
-      match.replace(/\s/g, "\u00a0"),
-    );
-  }
 </script>
 
 <div class={getNavStyle($location.pathname)}>
@@ -57,14 +47,7 @@
           alt="Jak - The Precursor Legacy"
           aria-label="Jak - The Precursor Legacy"
         />
-        <Tooltip
-          placement="right"
-          type="dark"
-          class="text-center py-2 px-3 text-sm font-medium"
-          >{modifyGameTitleName(
-            $_(`gameName_${getInternalName(SupportedGame.Jak1)}`),
-          )}</Tooltip
-        >
+        <Tooltip placement="right" type="dark">{$_("gameName_jak1")}</Tooltip>
       </a>
     </li>
     <li>
@@ -74,11 +57,7 @@
         use:link
       >
         <img src={logoJak2} alt="Jak 2" aria-label="Jak 2" />
-        <Tooltip placement="right" type="dark"
-          >{modifyGameTitleName(
-            $_(`gameName_${getInternalName(SupportedGame.Jak2)}`),
-          )}</Tooltip
-        >
+        <Tooltip placement="right" type="dark">{$_("gameName_jak2")}</Tooltip>
       </a>
     </li>
     <li>
@@ -88,11 +67,7 @@
         use:link
       >
         <img src={logoJak3} alt="Jak 3" aria-label="Jak 3" />
-        <Tooltip placement="right" type="dark"
-          >{modifyGameTitleName(
-            $_(`gameName_${getInternalName(SupportedGame.Jak3)}`),
-          )}</Tooltip
-        >
+        <Tooltip placement="right" type="dark">{$_("gameName_jak3")}</Tooltip>
       </a>
     </li>
     <li class="!mt-auto">

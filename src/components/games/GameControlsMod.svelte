@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getInternalName, SupportedGame } from "$lib/constants";
+  import { SupportedGame } from "$lib/constants";
   import { openDir } from "$lib/rpc/window";
   import IconArrowLeft from "~icons/mdi/arrow-left";
   import IconCog from "~icons/mdi/cog";
@@ -87,7 +87,7 @@
       gameDataDir = await join(
         installationDir,
         "features",
-        getInternalName(activeGame),
+        activeGame,
         "mods",
         modSource,
         modName,
@@ -96,13 +96,13 @@
       settingsDir = await join(
         installationDir,
         "features",
-        getInternalName(activeGame),
+        activeGame,
         "mods",
         modSource,
         "_settings",
         modName,
         "OpenGOAL",
-        getInternalName(activeGame),
+        activeGame,
         "settings",
       );
       if (!(await pathExists(settingsDir))) {
@@ -111,13 +111,13 @@
       savesDir = await join(
         installationDir,
         "features",
-        getInternalName(activeGame),
+        activeGame,
         "mods",
         modSource,
         "_settings",
         modName,
         "OpenGOAL",
-        getInternalName(activeGame),
+        activeGame,
         "saves",
       );
       if (!(await pathExists(savesDir))) {
@@ -147,7 +147,7 @@
         if (
           isVersionSupportedOnPlatform(userPlatform, version) &&
           version.supportedGames !== null &&
-          version.supportedGames.includes(getInternalName(activeGame))
+          version.supportedGames.includes(activeGame)
         ) {
           modVersionListSorted = [...modVersionListSorted, version.version];
           const assetUrl = getModAssetUrl(userPlatform, version);
@@ -159,7 +159,7 @@
     }
 
     // get current installed version
-    let installedMods = await getInstalledMods(getInternalName(activeGame));
+    let installedMods = await getInstalledMods(activeGame);
     if (
       Object.keys(installedMods).includes(modSource) &&
       Object.keys(installedMods[modSource]).includes(modName)
@@ -209,7 +209,7 @@
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       on:click={async () => {
-        navigate(`/${getInternalName(activeGame)}/features/mods`, {
+        navigate(`/${activeGame}/features/mods`, {
           replace: true,
         });
       }}><IconArrowLeft />&nbsp;{$_("features_mods_go_back")}</Button
@@ -238,7 +238,7 @@
       <Button
         class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         on:click={async () => {
-          launchMod(getInternalName(activeGame), false, modName, modSource);
+          launchMod(activeGame, false, modName, modSource);
         }}>{$_("gameControls_button_play")}</Button
       >
     {:else}
@@ -329,12 +329,12 @@
       <Dropdown trigger="hover" placement="top-end" class="!bg-slate-900">
         <DropdownItem
           on:click={async () => {
-            launchMod(getInternalName(activeGame), true, modName, modSource);
+            launchMod(activeGame, true, modName, modSource);
           }}>{$_("gameControls_button_playInDebug")}</DropdownItem
         >
         <DropdownItem
           on:click={async () => {
-            openREPLForMod(getInternalName(activeGame), modName, modSource);
+            openREPLForMod(activeGame, modName, modSource);
           }}>{$_("gameControls_button_openREPL")}</DropdownItem
         >
         <DropdownDivider />
@@ -412,7 +412,7 @@
         <DropdownItem
           on:click={async () => {
             const launchString = await getLaunchModString(
-              getInternalName(activeGame),
+              activeGame,
               modName,
               modSource,
             );
@@ -430,11 +430,7 @@
         <DropdownDivider />
         <DropdownItem
           on:click={async () => {
-            await resetModSettings(
-              getInternalName(activeGame),
-              modName,
-              modSource,
-            );
+            await resetModSettings(activeGame, modName, modSource);
           }}>{$_("gameControls_button_resetSettings")}</DropdownItem
         >
         <DropdownItem
@@ -446,12 +442,8 @@
               { title: "OpenGOAL Launcher", type: "warning" },
             );
             if (confirmed) {
-              await uninstallMod(
-                getInternalName(activeGame),
-                modName,
-                modSource,
-              );
-              navigate(`/${getInternalName(activeGame)}/features/mods`, {
+              await uninstallMod(activeGame, modName, modSource);
+              navigate(`/${activeGame}/features/mods`, {
                 replace: true,
               });
             }
