@@ -3,13 +3,11 @@
   import { listen } from "@tauri-apps/api/event";
   import { ansiSpan } from "ansi-to-span";
   import escapeHtml from "escape-html";
-  import { onDestroy, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
 
-  let unlisten;
-
   onMount(async () => {
-    unlisten = await listen("log_update", (event) => {
+    await listen("log_update", (event) => {
       const newLogs = event.payload.logs
         .split("\n")
         .map((log) => ansiSpan(escapeHtml(log)).replaceAll("\n", "<br/>"))
@@ -17,8 +15,6 @@
       progressTracker.appendLogs(newLogs);
     });
   });
-
-  onDestroy(() => unlisten());
 </script>
 
 {#if $progressTracker.logs.length > 0}

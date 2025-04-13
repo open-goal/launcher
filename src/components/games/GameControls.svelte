@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getInternalName, SupportedGame } from "$lib/constants";
+  import { SupportedGame } from "$lib/constants";
   import { openDir } from "$lib/rpc/window";
   import IconCog from "~icons/mdi/cog";
   import { configDir, join } from "@tauri-apps/api/path";
@@ -15,7 +15,6 @@
     Tooltip,
   } from "flowbite-svelte";
   import { resetGameSettings, uninstallGame } from "$lib/rpc/game";
-  import { platform } from "@tauri-apps/plugin-os";
   import {
     getLaunchGameString,
     launchGame,
@@ -44,25 +43,15 @@
   onMount(async () => {
     let installationDir = await getInstallationDirectory();
     if (installationDir !== null) {
-      gameDataDir = await join(
-        installationDir,
-        "active",
-        getInternalName(activeGame),
-        "data",
-      );
+      gameDataDir = await join(installationDir, "active", activeGame, "data");
     }
     settingsDir = await join(
       await configDir(),
       "OpenGOAL",
-      getInternalName(activeGame),
+      activeGame,
       "settings",
     );
-    savesDir = await join(
-      await configDir(),
-      "OpenGOAL",
-      getInternalName(activeGame),
-      "saves",
-    );
+    savesDir = await join(await configDir(), "OpenGOAL", activeGame, "saves");
 
     textureSupportEnabled = await doesActiveToolingVersionMeetMinimum(0, 2, 13);
   });
@@ -108,7 +97,7 @@
 
   // listen for the custom playtiemUpdated event from the backend and then refresh the playtime on screen
   listen<string>("playtimeUpdated", (event) => {
-    getPlaytime(getInternalName(activeGame)).then((result) => {
+    getPlaytime(activeGame).then((result) => {
       playtime = formatPlaytime(result);
     });
   });
@@ -118,7 +107,7 @@
   <h1
     class="tracking-tighter text-2xl font-bold pb-3 text-orange-500 text-outline pointer-events-none"
   >
-    {$_(`gameName_${getInternalName(activeGame)}`)}
+    {$_(`gameName_${activeGame}`)}
   </h1>
   {#if playtime}
     <h1 class="pb-4 text-xl text-outline tracking-tighter font-extrabold">
@@ -129,7 +118,7 @@
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       on:click={async () => {
-        launchGame(getInternalName(activeGame), false);
+        launchGame(activeGame, false);
       }}>{$_("gameControls_button_play")}</Button
     >
     <Button
@@ -140,7 +129,7 @@
       <DropdownItem
         disabled={!textureSupportEnabled}
         on:click={async () => {
-          navigate(`/${getInternalName(activeGame)}/features/texture_packs`);
+          navigate(`/${activeGame}/features/texture_packs`);
         }}
       >
         {$_("gameControls_button_features_textures")}
@@ -151,7 +140,7 @@
       {/if}
       <DropdownItem
         on:click={async () => {
-          navigate(`/${getInternalName(activeGame)}/features/mods`);
+          navigate(`/${activeGame}/features/mods`);
         }}
       >
         {$_("gameControls_button_features_mods")}
@@ -165,17 +154,17 @@
     <Dropdown trigger="hover" placement="top-end" class="!bg-slate-900">
       <DropdownItem
         on:click={async () => {
-          launchGame(getInternalName(activeGame), true);
+          launchGame(activeGame, true);
         }}>{$_("gameControls_button_playInDebug")}</DropdownItem
       >
       <DropdownItem
         on:click={async () => {
-          launchGameWithCustomExecutable(getInternalName(activeGame));
+          launchGameWithCustomExecutable(activeGame);
         }}>Launch with Custom Executable</DropdownItem
       >
       <DropdownItem
         on:click={async () => {
-          openREPL(getInternalName(activeGame));
+          openREPL(activeGame);
         }}>{$_("gameControls_button_openREPL")}</DropdownItem
       >
       <DropdownDivider />
@@ -236,9 +225,7 @@
       <DropdownDivider />
       <DropdownItem
         on:click={async () => {
-          const launchString = await getLaunchGameString(
-            getInternalName(activeGame),
-          );
+          const launchString = await getLaunchGameString(activeGame);
           await writeText(launchString);
           toastStore.makeToast($_("toasts_copiedToClipboard"), "info");
         }}
@@ -251,7 +238,7 @@
       <DropdownDivider />
       <DropdownItem
         on:click={async () => {
-          await resetGameSettings(getInternalName(activeGame));
+          await resetGameSettings(activeGame);
         }}>{$_("gameControls_button_resetSettings")}</DropdownItem
       >
       <DropdownItem
@@ -263,7 +250,7 @@
             { title: "OpenGOAL Launcher", type: "warning" },
           );
           if (confirmed) {
-            await uninstallGame(getInternalName(activeGame));
+            await uninstallGame(activeGame);
             dispatch("change");
           }
         }}

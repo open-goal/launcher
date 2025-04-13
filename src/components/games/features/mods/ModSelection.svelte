@@ -1,6 +1,6 @@
 <script lang="ts">
   import { platform } from "@tauri-apps/plugin-os";
-  import { getInternalName, SupportedGame } from "$lib/constants";
+  import { SupportedGame } from "$lib/constants";
   import { createEventDispatcher, onMount } from "svelte";
   import { navigate } from "svelte-navigator";
   import { _ } from "svelte-i18n";
@@ -18,11 +18,7 @@
   import { basename } from "@tauri-apps/api/path";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import thumbnailPlaceholder from "$assets/images/mod-thumbnail-placeholder.webp";
-  import {
-    getModAssetUrlFromLatestVersion,
-    isLatestVersionOfModSupportedOnCurrentPlatform,
-  } from "$lib/features/mods";
-  import { toastStore } from "$lib/stores/ToastStore";
+  import { isLatestVersionOfModSupportedOnCurrentPlatform } from "$lib/features/mods";
 
   const dispatch = createEventDispatcher();
   export let activeGame: SupportedGame;
@@ -36,17 +32,11 @@
   let addingFromFile = false;
 
   onMount(async () => {
-    installedMods = await getInstalledMods(getInternalName(activeGame));
-    // TODO - move this to a central store!
+    installedMods = await getInstalledMods(activeGame);
     await refreshModSources();
     sourceData = await getModSourcesData();
     loaded = true;
   });
-
-  async function handleFilterChange(evt: Event) {
-    const inputElement = evt.target as HTMLInputElement;
-    modFilter = inputElement.value;
-  }
 
   async function addModFromFile(evt: Event) {
     addingMod = true;
@@ -57,7 +47,7 @@
       return;
     }
     // extract the file into install_dir/features/<game>/_local/zip-name
-    await extractNewMod(getInternalName(activeGame), modArchivePath, "_local");
+    await extractNewMod(activeGame, modArchivePath, "_local");
     // install it immediately
     // - prompt user for iso if it doesn't exist
     // - decompile
@@ -97,104 +87,67 @@
     // Prefer pre-game-config if available
     if (
       modInfo.perGameConfig !== null &&
-      modInfo.perGameConfig.hasOwnProperty(getInternalName(activeGame)) &&
-      modInfo.perGameConfig[getInternalName(activeGame)].thumbnailArtUrl !==
-        null
+      modInfo.perGameConfig.hasOwnProperty(activeGame) &&
+      modInfo.perGameConfig[activeGame].thumbnailArtUrl
     ) {
-      return modInfo.perGameConfig[getInternalName(activeGame)].thumbnailArtUrl;
+      return modInfo.perGameConfig[activeGame].thumbnailArtUrl;
     } else if (modInfo.thumbnailArtUrl !== null) {
       return modInfo.thumbnailArtUrl;
     }
     return thumbnailPlaceholder;
   }
 
+  // TODO: once i refactored a few of these helper functions i realized that this is an antipattern.
+  // im going to write a single function that grabs the mod entry and from that entry we can reference all the fields.
+  // this will remove a ton of redundant/unneeded functions and be more sveltey
   async function getThumbnailImageFromSources(
     sourceName: string,
     modName: string,
   ): Promise<string> {
     // TODO - make this not a promise, do it in the initial component loading
     if (sourceName === "_local") {
-      return await getLocalModThumbnailBase64(
-        getInternalName(activeGame),
-        modName,
-      );
+      return await getLocalModThumbnailBase64(activeGame, modName);
     }
     // Find the mod by looking at the sources, if we can't find it then return the placeholder
-    for (const [sourceUrl, sourceInfo] of Object.entries(sourceData)) {
-      if (
-        sourceInfo.sourceName === sourceName &&
-        Object.keys(sourceInfo.mods).includes(modName)
-      ) {
-        return getThumbnailImage(sourceInfo.mods[modName]);
-      }
-    }
-    return thumbnailPlaceholder;
+    const source = Object.values(sourceData).find(
+      (s) => s.sourceName === sourceName && modName in s.mods,
+    );
+
+    return source
+      ? getThumbnailImage(source.mods[modName])
+      : thumbnailPlaceholder;
   }
 
   function getModDisplayName(sourceName: string, modName: string): string {
     // Find the mod by looking at the sources, if we can't find it then return the placeholder
-    for (const [sourceUrl, sourceInfo] of Object.entries(sourceData)) {
-      if (
-        sourceInfo.sourceName === sourceName &&
-        Object.keys(sourceInfo.mods).includes(modName)
-      ) {
-        return sourceInfo.mods[modName].displayName;
-      }
-    }
-    return modName;
+    const source = Object.values(sourceData).find(
+      (s) => s.sourceName === sourceName && modName in s.mods,
+    );
+    return source?.mods[modName]?.displayName ?? modName;
   }
 
   function getModTags(sourceName: string, modName: string): Array<string> {
     // Find the mod by looking at the sources, if we can't find it then return the placeholder
-    for (const [sourceUrl, sourceInfo] of Object.entries(sourceData)) {
-      if (
-        sourceInfo.sourceName === sourceName &&
-        Object.keys(sourceInfo.mods).includes(modName)
-      ) {
-        return sourceInfo.mods[modName].tags;
-      }
-    }
-    return [];
+    const source = Object.values(sourceData).find(
+      (s) => s.sourceName === sourceName && modName in s.mods,
+    );
+    return source?.mods[modName]?.tags ?? [];
   }
 
   function isModAlreadyInstalled(sourceName: string, modName: string): boolean {
-    if (
-      Object.keys(installedMods).includes(sourceName) &&
-      Object.keys(installedMods[sourceName]).includes(modName)
-    ) {
-      return true;
-    }
-    return false;
+    return installedMods[sourceName]?.hasOwnProperty(modName) ?? false;
   }
 
   function isModSupportedByCurrentGame(modInfo: ModInfo): boolean {
-    if (
-      modInfo.versions.length > 0 &&
-      modInfo.versions[0].supportedGames !== null
-    ) {
-      return modInfo.versions[0].supportedGames.includes(
-        getInternalName(activeGame),
-      );
-    }
-    return modInfo.supportedGames.includes(getInternalName(activeGame));
+    return modInfo.versions[0]?.supportedGames?.includes(activeGame) ?? false;
   }
 
   function ageOfModInDays(modInfo: ModInfo): number | undefined {
-    if (
-      modInfo.perGameConfig !== null &&
-      Object.keys(modInfo.perGameConfig).includes(
-        getInternalName(activeGame),
-      ) &&
-      modInfo.perGameConfig[getInternalName(activeGame)].releaseDate !== null
-    ) {
-      const difference =
-        new Date().getTime() -
-        Date.parse(
-          modInfo.perGameConfig[getInternalName(activeGame)].releaseDate,
-        );
-      return Math.round(difference / (1000 * 3600 * 24));
-    }
-    return undefined;
+    const config = modInfo.perGameConfig?.[activeGame];
+    if (!config?.releaseDate) return undefined;
+    const releaseTime = Date.parse(config.releaseDate);
+    const now = Date.now();
+    return Math.round((now - releaseTime) / (1000 * 3600 * 24));
   }
 </script>
 
@@ -209,8 +162,7 @@
         <Button
           outline
           class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
-          on:click={async () =>
-            navigate(`/${getInternalName(activeGame)}`, { replace: true })}
+          on:click={async () => navigate(`/${activeGame}`, { replace: true })}
           aria-label={$_("features_backToGamePage_buttonAlt")}
         >
           <IconArrowLeft />
@@ -230,7 +182,7 @@
       <div class="mt-4">
         <Input
           placeholder={$_("features_mods_filter_placeholder")}
-          on:input={handleFilterChange}
+          bind:value={modFilter}
         />
       </div>
       <h2 class="font-bold mt-2">{$_("features_mods_installed_header")}</h2>
@@ -257,7 +209,7 @@
                       style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{thumbnailSrc}'); background-size: cover;"
                       on:click={async () => {
                         navigate(
-                          `/${getInternalName(activeGame)}/features/mods/${encodeURI(sourceName)}/${encodeURI(modName)}`,
+                          `/${activeGame}/features/mods/${encodeURI(sourceName)}/${encodeURI(modName)}`,
                         );
                       }}
                     >
@@ -339,7 +291,7 @@
                       )}'); background-size: cover;"
                       on:click={async () => {
                         navigate(
-                          `/${getInternalName(activeGame)}/features/mods/${encodeURI(sourceInfo.sourceName)}/${encodeURI(modName)}`,
+                          `/${activeGame}/features/mods/${encodeURI(sourceInfo.sourceName)}/${encodeURI(modName)}`,
                         );
                       }}
                     >
@@ -352,7 +304,7 @@
                           >{sourceInfo.sourceName}</Tooltip
                         >
                       </div>
-                      {#if modAge !== undefined && modAge < 30}
+                      {#if modAge && modAge < 30}
                         <Indicator
                           color="green"
                           border

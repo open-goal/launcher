@@ -6,7 +6,6 @@
   import IconChatQuestion from "~icons/mdi/chat-question";
   import { link, useLocation } from "svelte-navigator";
   import { Tooltip } from "flowbite-svelte";
-  import { SupportedGame, getInternalName } from "$lib/constants";
   import { _ } from "svelte-i18n";
 
   const location = useLocation();
@@ -32,22 +31,13 @@
       (itemName === "jak1" && pathName === "/");
     return isActive ? baseStyle : `${baseStyle} grayscale`;
   }
-
-  function modifyGameTitleName(gameName: string): string {
-    // I figured out how to modify the tooltip size, the problem is that we want the tooltip to adjust based on the size
-    // new solution:
-    // - insert non-breaking-spaces to any space in the translated name
-    // - don't insert a nbsp after a `:`
-    return gameName.replace(/(?:[^:])\s/g, (match) =>
-      match.replace(/\s/g, "\u00a0"),
-    );
-  }
 </script>
 
 <div class={getNavStyle($location.pathname)}>
   <ul class="flex flex-col h-full space-y-10 px-1 py-5 items-center">
     <li>
       <a
+        id="jak1"
         class={getNavItemStyle("jak1", $location.pathname)}
         href="/jak1"
         use:link
@@ -57,65 +47,63 @@
           alt="Jak - The Precursor Legacy"
           aria-label="Jak - The Precursor Legacy"
         />
-        <Tooltip
-          placement="right"
-          type="dark"
-          class="text-center py-2 px-3 text-sm font-medium"
-          >{modifyGameTitleName(
-            $_(`gameName_${getInternalName(SupportedGame.Jak1)}`),
-          )}</Tooltip
-        >
       </a>
+      <Tooltip triggeredBy="#jak1" placement="right" type="dark"
+        >{$_("gameName_jak1")}</Tooltip
+      >
     </li>
     <li>
       <a
+        id="jak2"
         class={getNavItemStyle("jak2", $location.pathname)}
         href="/jak2"
         use:link
       >
         <img src={logoJak2} alt="Jak 2" aria-label="Jak 2" />
-        <Tooltip placement="right" type="dark"
-          >{modifyGameTitleName(
-            $_(`gameName_${getInternalName(SupportedGame.Jak2)}`),
-          )}</Tooltip
-        >
       </a>
+      <Tooltip triggeredBy="#jak2" placement="right" type="dark"
+        >{$_("gameName_jak2")}</Tooltip
+      >
     </li>
     <li>
       <a
+        id="jak3"
         class={getNavItemStyle("jak3", $location.pathname)}
         href="/jak3"
         use:link
       >
         <img src={logoJak3} alt="Jak 3" aria-label="Jak 3" />
-        <Tooltip placement="right" type="dark"
-          >{modifyGameTitleName(
-            $_(`gameName_${getInternalName(SupportedGame.Jak3)}`),
-          )}</Tooltip
-        >
       </a>
+      <Tooltip triggeredBy="#jak3" placement="right" type="dark"
+        >{$_("gameName_jak3")}</Tooltip
+      >
     </li>
     <li class="!mt-auto">
       <a
+        id="settings"
         class={getNavItemStyle("settings", $location.pathname)}
         href="/settings/general"
         use:link
       >
         <IconCog style="font-size: 36px" />
-        <Tooltip placement="right" type="dark">{$_("sidebar_settings")}</Tooltip
-        >
       </a>
+      <Tooltip triggeredBy="#settings" placement="right" type="dark"
+        >{$_("sidebar_settings")}</Tooltip
+      >
     </li>
 
     <li>
       <a
+        id="faq"
         class={getNavItemStyle("faq", $location.pathname)}
         href="/faq"
         use:link
       >
         <IconChatQuestion style="font-size: 36px" />
-        <Tooltip placement="right" type="dark">{$_("sidebar_help")}</Tooltip>
       </a>
+      <Tooltip triggeredBy="#faq" placement="right" type="dark"
+        >{$_("sidebar_help")}</Tooltip
+      >
     </li>
   </ul>
 </div>

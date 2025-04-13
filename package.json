@@ -21,7 +21,6 @@
     "update-rust-bindings": "cd src-tauri && cargo test"
   },
   "devDependencies": {
-    "@iconify-json/ic": "^1.2.2",
     "@iconify-json/mdi": "^1.2.3",
     "@octokit/plugin-retry": "^7.1.4",
     "@octokit/plugin-throttling": "^9.4.0",
@@ -37,7 +36,6 @@
     "escape-html": "^1.0.3",
     "flowbite": "^3.1.2",
     "flowbite-svelte": "0.48.4",
-    "flowbite-svelte-icons": "2.0.2",
     "jsdom": "^26.0.0",
     "postcss": "^8.5.3",
     "postcss-load-config": "^6.0.1",
