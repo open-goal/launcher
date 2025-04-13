@@ -38,11 +38,6 @@
     loaded = true;
   });
 
-  async function handleFilterChange(evt: Event) {
-    const inputElement = evt.target as HTMLInputElement;
-    modFilter = inputElement.value;
-  }
-
   async function addModFromFile(evt: Event) {
     addingMod = true;
     addingFromFile = true;
@@ -187,7 +182,7 @@
       <div class="mt-4">
         <Input
           placeholder={$_("features_mods_filter_placeholder")}
-          on:input={handleFilterChange}
+          bind:value={modFilter}
         />
       </div>
       <h2 class="font-bold mt-2">{$_("features_mods_installed_header")}</h2>
@@ -309,7 +304,7 @@
                           >{sourceInfo.sourceName}</Tooltip
                         >
                       </div>
-                      {#if modAge !== undefined && modAge < 30}
+                      {#if modAge && modAge < 30}
                         <Indicator
                           color="green"
                           border
