@@ -36,7 +36,9 @@
   });
 
   async function updateStyle(): Promise<void> {
-    let activeGame = $location.pathname.split("/")[1] || "jak1"; // TODO: when i move to kit this quick hack will be removed
+    let pathname = $location.pathname.split("/")[1];
+    if (pathname == "faq" || pathname == "settings") return;
+    let activeGame = pathname || "jak1"; // TODO: when i migrate this project to kit ill remove this hack
     grayscale = !(await isGameInstalled(activeGame));
     modBackground = "";
 
