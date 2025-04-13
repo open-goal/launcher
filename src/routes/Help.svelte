@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button, Spinner } from "flowbite-svelte";
-  import IconDiscord from "~icons/ic/baseline-discord";
+  import IconDiscord from "~icons/mdi/discord";
   import IconGitHub from "~icons/mdi/github";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { openDir } from "$lib/rpc/window";
