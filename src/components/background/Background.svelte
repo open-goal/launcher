@@ -8,16 +8,15 @@
   import jak3InProgressVid from "$assets/videos/jak3-dev.mp4";
   import jak3InProgressPoster from "$assets/videos/jak3-poster.png";
   import { platform } from "@tauri-apps/plugin-os";
-  import { getModSourcesData } from "$lib/rpc/cache";
   import coverArtPlaceholder from "$assets/images/mod-coverart-placeholder.webp";
-  import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
-  import { getLocalModThumbnailBase64 } from "$lib/rpc/features";
-  import { activeGame } from "$lib/stores/AppStore";
+  import { activeGame, modInfoStore } from "$lib/stores/AppStore";
   import { SupportedGame } from "$lib/constants";
+  import { getLocalModThumbnailBase64 } from "$lib/rpc/features";
 
   const location = useLocation();
   $: $location.pathname, updateStyle();
   $: $activeGame, updateStyle();
+  $: $modInfoStore, updateStyle();
 
   let style = "absolute object-fill h-screen brightness-75 pt-[60px] w-full";
   let jak1Image = "";
@@ -43,7 +42,12 @@
     grayscale = !(await isGameInstalled($activeGame));
     modBackground = "";
 
-    // Handle mod backgrounds
+    if ($modInfoStore) {
+      modBackground = $modInfoStore.coverArtUrl || coverArtPlaceholder;
+      return;
+    }
+
+    // Handle local mod backgrounds
     const pathComponents = $location.pathname
       .split("/")
       .filter((s) => s !== "");
@@ -59,19 +63,6 @@
         modBackground = coverResult || coverArtPlaceholder;
         return;
       }
-
-      // TODO now - centralize this in a store so we don't unnecessarily fetch the info
-      const modSourceData = await getModSourcesData();
-      const foundMod: ModInfo | undefined = Object.values(modSourceData).find(
-        (source) =>
-          source.sourceName === modSource &&
-          source.mods.hasOwnProperty(modName),
-      )?.mods[modName];
-
-      modBackground =
-        foundMod?.perGameConfig?.[$activeGame]?.coverArtUrl ||
-        foundMod?.coverArtUrl ||
-        coverArtPlaceholder;
     }
   }
 </script>

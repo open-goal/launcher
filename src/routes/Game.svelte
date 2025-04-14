@@ -26,7 +26,7 @@
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import GameControlsMod from "../components/games/GameControlsMod.svelte";
   import GameInProgress from "../components/games/GameInProgress.svelte";
-  import { activeGame } from "$lib/stores/AppStore";
+  import { activeGame, modInfoStore } from "$lib/stores/AppStore";
 
   const params = useParams();
   $: $params, loadGameInfo();
@@ -38,10 +38,6 @@
 
   $: modName = $params["mod_name"];
   $: modSource = $params["source_url"];
-  let modDisplayName: string | undefined = undefined;
-  let modDescription: string | undefined = undefined;
-  let modTags: string | undefined = undefined;
-  let modAuthors: string | undefined = undefined;
 
   let gameInstalled = false;
   let gameJobToRun: Job | undefined = undefined;
@@ -84,7 +80,10 @@
   }
 
   async function loadModInfo() {
-    if (!modName) return;
+    if (!modName || !modSource) {
+      modInfoStore.set(undefined);
+      return;
+    }
 
     const modSourceData = await getModSourcesData();
 
@@ -93,14 +92,9 @@
         source.sourceName === modSource && source.mods.hasOwnProperty(modName),
     )?.mods[modName];
 
-    if (foundMod) {
-      modDisplayName = foundMod.displayName;
-      modDescription = foundMod.description;
-      modTags = foundMod.tags.join(", ");
-      modAuthors = foundMod.authors.join(", ");
-    } else {
-      modDisplayName = modName;
-    }
+    if (!foundMod) return;
+
+    modInfoStore.set({ ...foundMod, name: modName, source: modSource });
   }
 
   async function updateGameState(event: any) {
@@ -194,16 +188,7 @@
       </Alert>
     {/if}
     {#if modName !== undefined}
-      <GameControlsMod
-        {modName}
-        {modDisplayName}
-        {modDescription}
-        {modTags}
-        {modAuthors}
-        {modSource}
-        on:change={updateGameState}
-        on:job={runGameJob}
-      />
+      <GameControlsMod on:change={updateGameState} on:job={runGameJob} />
     {:else}
       <GameControls on:change={updateGameState} on:job={runGameJob} />
     {/if}
