@@ -28,14 +28,14 @@
   onMount(async () => {
     const unlistenInstalled = await listen("gameInstalled", (event) => {
       updateStyle();
-    });
+    }); // TODO - refactor this out
     const unlistenUninstalled = await listen("gameUninstalled", (event) => {
       updateStyle();
-    });
-    // TODO - call this if the game is closed as well
-    const jak1_milestone = await getFurthestGameMilestone("jak1");
-    jak1Image = `/images/jak1/${jak1_milestone}.jpg`;
-    // TODO - do jak 2 milestones once the game is considered out of beta
+    }); // TODO - refactor this out
+    // TODO - call this when the game is closed
+    const milestoneImage = await getFurthestGameMilestone($activeGame);
+    jak1Image = `/images/${$activeGame}/${milestoneImage}.jpg`;
+    // TODO - do jak 2 milestones
   });
 
   async function updateStyle(): Promise<void> {
@@ -48,46 +48,40 @@
       .split("/")
       .filter((s) => s !== "");
     if (pathComponents.length === 5) {
-      const modSource = decodeURI(pathComponents[3]);
+      const modSource = decodeURI(pathComponents[3]); // TODO: i dislike this pattern, but im keeping it for now
       const modName = decodeURI(pathComponents[4]);
-      // TODO now - centralize this in a store so we don't unnecessarily fetch the info
-      const modSourceData = await getModSourcesData();
-      // Find the source
-      const foundMod: ModInfo | undefined = Object.values(modSourceData).find(
-        (source) =>
-          source.sourceName === modSource &&
-          source.mods.hasOwnProperty(modName),
-      )?.mods[modName];
+
       if (modSource === "_local") {
         const coverResult = await getLocalModThumbnailBase64(
           $activeGame,
           modName,
         );
-        if (coverResult === "") {
-          modBackground = coverArtPlaceholder;
-        } else {
-          modBackground = coverResult;
-        }
+        modBackground = coverResult || coverArtPlaceholder;
+        return;
       }
-      // Prefer pre-game-config if available
-      else if (foundMod) {
-        if (
-          foundMod.perGameConfig.hasOwnProperty($activeGame) &&
-          foundMod.perGameConfig[$activeGame].coverArtUrl
-        ) {
-          modBackground = foundMod.perGameConfig[$activeGame].coverArtUrl;
-        } else if (foundMod.coverArtUrl) {
-          modBackground = foundMod.coverArtUrl;
-        }
-      } else {
-        modBackground = coverArtPlaceholder;
-      }
+
+      // TODO now - centralize this in a store so we don't unnecessarily fetch the info
+      const modSourceData = await getModSourcesData();
+      const foundMod: ModInfo | undefined = Object.values(modSourceData).find(
+        (source) =>
+          source.sourceName === modSource &&
+          source.mods.hasOwnProperty(modName),
+      )?.mods[modName];
+
+      modBackground =
+        foundMod?.perGameConfig?.[$activeGame]?.coverArtUrl ||
+        foundMod?.coverArtUrl ||
+        coverArtPlaceholder;
     }
   }
 </script>
 
+<!-- TODO: the three else if statements can go away once 1. the milestone code is finished and 2. jak3 is released -->
 <div class:grayscale>
-  {#if $activeGame == SupportedGame.Jak1}
+  {#if modBackground}
+    <!-- svelte-ignore a11y_missing_attribute -->
+    <img class={style} src={modBackground} />
+  {:else if $activeGame == SupportedGame.Jak1}
     <!-- svelte-ignore a11y_missing_attribute -->
     <img class={style} src={jak1Image} />
   {:else if $activeGame == SupportedGame.Jak2}
@@ -107,8 +101,5 @@
       <!-- svelte-ignore a11y_missing_attribute -->
       <img class={style} src={jak3InProgressPoster} />
     {/if}
-  {:else if modBackground !== ""}
-    <!-- svelte-ignore a11y_missing_attribute -->
-    <img class={style} src={modBackground} />
   {/if}
 </div>
