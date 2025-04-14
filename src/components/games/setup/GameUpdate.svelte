@@ -1,13 +1,10 @@
 <script lang="ts">
-  import type { SupportedGame } from "$lib/constants";
   import { getAutoUpdateGames } from "$lib/rpc/config";
   import { isMinVCCRuntime, VersionStore } from "$lib/stores/VersionStore";
   import { type } from "@tauri-apps/plugin-os";
   import { Button, Card } from "flowbite-svelte";
   import { createEventDispatcher, onMount } from "svelte";
   import { _ } from "svelte-i18n";
-
-  export let activeGame: SupportedGame;
 
   const dispatch = createEventDispatcher();
 

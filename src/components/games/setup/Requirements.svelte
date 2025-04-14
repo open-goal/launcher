@@ -9,12 +9,10 @@
   } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { confirm } from "@tauri-apps/plugin-dialog";
-  import { SupportedGame } from "$lib/constants";
   import { arch, type } from "@tauri-apps/plugin-os";
   import { isMinMacOSVersion } from "$lib/stores/VersionStore";
   import { isMinVCCRuntime } from "$lib/stores/VersionStore";
-
-  export let activeGame: SupportedGame;
+  import { activeGame } from "$lib/stores/AppStore";
 
   let isAVXRelevant = type() !== "macos";
   let isTryingToUseARMOutsideOfMacOS: boolean | undefined =
@@ -27,9 +25,8 @@
   const dispatch = createEventDispatcher();
 
   onMount(async () => {
-    const architecture = arch();
     isOpenGLMet = await isOpenGLRequirementMet(false);
-    isDiskSpaceMet = await isDiskSpaceRequirementMet(activeGame);
+    isDiskSpaceMet = await isDiskSpaceRequirementMet($activeGame);
     if (isAVXRelevant) {
       isAVXMet = await isAVXRequirementMet();
     }
@@ -150,14 +147,14 @@
   >
     {#if isDiskSpaceMet}
       <span class="font-bold"
-        >{$_(`requirements_disk_enoughSpace_${activeGame}`)}</span
+        >{$_(`requirements_disk_enoughSpace_${$activeGame}`)}</span
       >
     {:else if isDiskSpaceMet === undefined}
       <span class="font-bold">{$_(`requirements_disk_unableToCheckSpace`)}</span
       >
     {:else}
       <span class="font-bold"
-        >{$_(`requirements_disk_notEnoughSpace_${activeGame}`)}</span
+        >{$_(`requirements_disk_notEnoughSpace_${$activeGame}`)}</span
       >
     {/if}
   </Alert>

@@ -26,6 +26,7 @@
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import GameControlsMod from "../components/games/GameControlsMod.svelte";
   import GameInProgress from "../components/games/GameInProgress.svelte";
+  import { activeGame } from "$lib/stores/AppStore";
 
   const params = useParams();
   $: $params, loadGameInfo();
@@ -35,7 +36,6 @@
   let modVersionToInstall: string = "";
   let modDownloadUrlToInstall: string = "";
 
-  $: activeGame = $params["game_name"] || SupportedGame.Jak1;
   $: modName = $params["mod_name"];
   $: modSource = $params["source_url"];
   let modDisplayName: string | undefined = undefined;
@@ -49,8 +49,10 @@
   let installedVersion: String | undefined;
 
   let versionMismatchDetected = false;
+  export let game_name;
+  $: activeGame.set(game_name);
 
-  $: gameInBeta = activeGame === SupportedGame.Jak2;
+  $: gameInBeta = $activeGame === SupportedGame.Jak2;
   let gameSupportedByTooling = false;
   let showVccWarning;
   $: showVccWarning = type() == "windows" && !$isMinVCCRuntime;
@@ -67,14 +69,14 @@
 
     if (activeVersionExists) {
       gameSupportedByTooling =
-        await doesActiveToolingVersionSupportGame(activeGame);
+        await doesActiveToolingVersionSupportGame($activeGame);
       // verify the game is installed
-      gameInstalled = await isGameInstalled(activeGame);
+      gameInstalled = await isGameInstalled($activeGame);
 
       // verify selected version is installed tooling version
       // - prompt them to either reinstall OR go and select their previous version
       if (gameInstalled) {
-        installedVersion = await getInstalledVersion(activeGame);
+        installedVersion = await getInstalledVersion($activeGame);
         versionMismatchDetected =
           installedVersion !== $VersionStore.activeVersionName;
       }
@@ -102,7 +104,7 @@
   }
 
   async function updateGameState(event: any) {
-    gameInstalled = await isGameInstalled(activeGame);
+    gameInstalled = await isGameInstalled($activeGame);
   }
 
   async function runGameJob(event: any) {
@@ -122,15 +124,14 @@
 <div class="flex flex-col h-full p-5">
   {#if $VersionStore.activeVersionName === null || $VersionStore.activeVersionType === null}
     <GameToolsNotSet />
-  {:else if activeGame == SupportedGame.Jak3}
+  {:else if $activeGame == SupportedGame.Jak3}
     <GameInProgress />
   {:else if !gameSupportedByTooling}
     <GameNotSupportedByTooling />
   {:else if !gameInstalled}
-    <GameSetup {activeGame} on:change={updateGameState} />
+    <GameSetup on:change={updateGameState} />
   {:else if gameJobToRun !== undefined}
     <GameJob
-      {activeGame}
       jobType={gameJobToRun}
       modSourceName={modSource}
       modDownloadUrl={modDownloadUrlToInstall}
@@ -139,7 +140,7 @@
       on:jobFinished={gameJobFinished}
     />
   {:else if versionMismatchDetected}
-    <GameUpdate {activeGame} {installedVersion} on:job={runGameJob} />
+    <GameUpdate {installedVersion} on:job={runGameJob} />
   {:else}
     {#if showVccWarning}
       <Alert color="red" rounded={false} class="border-t-4">
@@ -194,7 +195,6 @@
     {/if}
     {#if modName !== undefined}
       <GameControlsMod
-        {activeGame}
         {modName}
         {modDisplayName}
         {modDescription}
@@ -205,11 +205,7 @@
         on:job={runGameJob}
       />
     {:else}
-      <GameControls
-        {activeGame}
-        on:change={updateGameState}
-        on:job={runGameJob}
-      />
+      <GameControls on:change={updateGameState} on:job={runGameJob} />
     {/if}
   {/if}
 </div>

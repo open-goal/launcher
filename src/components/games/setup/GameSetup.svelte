@@ -1,6 +1,5 @@
 <script lang="ts">
   import Progress from "./Progress.svelte";
-  import { SupportedGame } from "$lib/constants";
   import LogViewer from "./LogViewer.svelte";
   import Requirements from "./Requirements.svelte";
   import { createEventDispatcher, onMount } from "svelte";
@@ -24,8 +23,7 @@
   import { emit } from "@tauri-apps/api/event";
   import { arch, type } from "@tauri-apps/plugin-os";
   import { isMinVCCRuntime, isMinMacOSVersion } from "$lib/stores/VersionStore";
-
-  export let activeGame: SupportedGame;
+  import { activeGame } from "$lib/stores/AppStore";
 
   const dispatch = createEventDispatcher();
 
@@ -45,7 +43,7 @@
     const architecture = arch();
     const osType = type();
     const isOpenGLMet = await isOpenGLRequirementMet(false);
-    const isDiskSpaceMet = await isDiskSpaceRequirementMet(activeGame);
+    const isDiskSpaceMet = await isDiskSpaceRequirementMet($activeGame);
     if (architecture === "aarch64") {
       // arm, we don't bother checking for simd
       // - if macOS (the only supported ARM platform), we check they are on atleast macOS 15
@@ -100,21 +98,21 @@
       ]);
       // TODO - make this cleaner
       progressTracker.start();
-      let resp = await extractAndValidateISO(sourcePath, activeGame);
+      let resp = await extractAndValidateISO(sourcePath, $activeGame);
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
         return;
       }
       progressTracker.proceed();
-      resp = await runDecompiler(sourcePath, activeGame, false, false);
+      resp = await runDecompiler(sourcePath, $activeGame, false, false);
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
         return;
       }
       progressTracker.proceed();
-      resp = await runCompiler(sourcePath, activeGame);
+      resp = await runCompiler(sourcePath, $activeGame);
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
@@ -122,7 +120,7 @@
       }
       progressTracker.proceed();
       // TODO - technically should handle the error here too
-      await finalizeInstallation(activeGame);
+      await finalizeInstallation($activeGame);
       await emit("gameInstalled");
       progressTracker.proceed();
     }
@@ -137,7 +135,7 @@
 </script>
 
 {#if !requirementsMet}
-  <Requirements {activeGame} on:recheckRequirements={checkRequirements} />
+  <Requirements on:recheckRequirements={checkRequirements} />
 {:else if installing}
   <div class="flex flex-col justify-content shrink">
     <Progress />
@@ -179,7 +177,7 @@
     <h1
       class="tracking-tighter text-2xl font-bold pb-3 text-orange-500 text-outline"
     >
-      {$_(`gameName_${activeGame}`)}
+      {$_(`gameName_${$activeGame}`)}
     </h1>
     <div class="flex flex-row gap-2">
       <Button

@@ -1,3 +1,4 @@
+import { SupportedGame } from "$lib/constants";
 import { writable } from "svelte/store";
 
 export const UpdateStore = writable({
@@ -12,3 +13,5 @@ export const UpdateStore = writable({
     versionNumber: undefined,
   },
 });
+
+export const activeGame = writable<SupportedGame>(undefined);
