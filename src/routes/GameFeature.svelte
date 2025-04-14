@@ -1,12 +1,10 @@
 <script lang="ts">
-  import { SupportedGame } from "$lib/constants";
   import { useParams } from "svelte-navigator";
   import GameJob from "../components/games/job/GameJob.svelte";
   import TexturePacks from "../components/games/features/texture-packs/TexturePacks.svelte";
   import ModSelection from "../components/games/features/mods/ModSelection.svelte";
 
   const params = useParams();
-  $: activeGame = $params["game_name"] || SupportedGame.Jak1;
   $: selectedFeature = $params["feature"] || "texture_packs";
 
   let gameJobToRun: undefined = undefined;
@@ -56,7 +54,6 @@
   {#if gameJobToRun}
     <div class="flex flex-col p-5 h-full">
       <GameJob
-        {activeGame}
         jobType={gameJobToRun}
         {texturePacksToEnable}
         {texturePacksToDelete}
@@ -68,8 +65,8 @@
       />
     </div>
   {:else if selectedFeature === "texture_packs"}
-    <TexturePacks {activeGame} on:job={runTexturePackGameJob} />
+    <TexturePacks on:job={runTexturePackGameJob} />
   {:else if selectedFeature === "mods"}
-    <ModSelection {activeGame} on:job={runModInstallGameJob}></ModSelection>
+    <ModSelection on:job={runModInstallGameJob}></ModSelection>
   {/if}
 </div>

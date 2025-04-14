@@ -12,9 +12,12 @@
   import coverArtPlaceholder from "$assets/images/mod-coverart-placeholder.webp";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import { getLocalModThumbnailBase64 } from "$lib/rpc/features";
+  import { activeGame } from "$lib/stores/AppStore";
+  import { SupportedGame } from "$lib/constants";
 
   const location = useLocation();
   $: $location.pathname, updateStyle();
+  $: $activeGame, updateStyle();
 
   let style = "absolute object-fill h-screen brightness-75 pt-[60px] w-full";
   let jak1Image = "";
@@ -36,10 +39,8 @@
   });
 
   async function updateStyle(): Promise<void> {
-    let pathname = $location.pathname.split("/")[1];
-    if (pathname == "faq" || pathname == "settings") return;
-    let activeGame = pathname || "jak1"; // TODO: when i migrate this project to kit ill remove this hack
-    grayscale = !(await isGameInstalled(activeGame));
+    if (!$activeGame) return;
+    grayscale = !(await isGameInstalled($activeGame));
     modBackground = "";
 
     // Handle mod backgrounds
@@ -59,7 +60,7 @@
       )?.mods[modName];
       if (modSource === "_local") {
         const coverResult = await getLocalModThumbnailBase64(
-          activeGame,
+          $activeGame,
           modName,
         );
         if (coverResult === "") {
@@ -71,10 +72,10 @@
       // Prefer pre-game-config if available
       else if (foundMod) {
         if (
-          foundMod.perGameConfig.hasOwnProperty(activeGame) &&
-          foundMod.perGameConfig[activeGame].coverArtUrl
+          foundMod.perGameConfig.hasOwnProperty($activeGame) &&
+          foundMod.perGameConfig[$activeGame].coverArtUrl
         ) {
-          modBackground = foundMod.perGameConfig[activeGame].coverArtUrl;
+          modBackground = foundMod.perGameConfig[$activeGame].coverArtUrl;
         } else if (foundMod.coverArtUrl) {
           modBackground = foundMod.coverArtUrl;
         }
@@ -86,13 +87,13 @@
 </script>
 
 <div class:grayscale>
-  {#if $location.pathname == "/jak1" || $location.pathname == "/"}
+  {#if $activeGame == SupportedGame.Jak1}
     <!-- svelte-ignore a11y_missing_attribute -->
     <img class={style} src={jak1Image} />
-  {:else if $location.pathname == "/jak2"}
+  {:else if $activeGame == SupportedGame.Jak2}
     <!-- svelte-ignore a11y_missing_attribute -->
     <img class={style} src={jak2Background} />
-  {:else if $location.pathname == "/jak3"}
+  {:else if $activeGame == SupportedGame.Jak3}
     {#if onWindows}
       <video
         class={style}

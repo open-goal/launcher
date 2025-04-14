@@ -84,7 +84,7 @@
       <div class="flex flex-row grow shrink h-[90%] z-10">
         <Sidebar />
         <div id="content" class="overflow-y-auto grow shrink">
-          <Route path="/" component={Game} primary={false} />
+          <Route path="/" game_name="jak1" component={Game} primary={false} />
           <Route path="/:game_name" component={Game} primary={false} />
           <Route
             path="/:game_name/features/:feature"

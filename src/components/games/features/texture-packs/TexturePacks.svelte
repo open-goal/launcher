@@ -9,7 +9,6 @@
 <!-- TODO - check supported games, not bothering right now cause there's only 1! -->
 
 <script lang="ts">
-  import { SupportedGame } from "$lib/constants";
   import {
     cleanupEnabledTexturePacks,
     getEnabledTexturePacks,
@@ -37,9 +36,9 @@
   import { createEventDispatcher, onMount } from "svelte";
   import { navigate } from "svelte-navigator";
   import { _ } from "svelte-i18n";
+  import { activeGame } from "$lib/stores/AppStore";
 
   const dispatch = createEventDispatcher();
-  export let activeGame: SupportedGame;
 
   let loaded = false;
   let extractedPackInfo: any = undefined;
@@ -60,8 +59,8 @@
   async function update_pack_list() {
     availablePacks = [];
     availablePacksOriginal = [];
-    let currentlyEnabledPacks = await getEnabledTexturePacks(activeGame);
-    extractedPackInfo = await listExtractedTexturePackInfo(activeGame);
+    let currentlyEnabledPacks = await getEnabledTexturePacks($activeGame);
+    extractedPackInfo = await listExtractedTexturePackInfo($activeGame);
     // Finalize `availablePacks` list
     // - First, cleanup any packs that were enabled but can no longer be found
     let cleanupPackList = [];
@@ -73,7 +72,7 @@
         filteredCurrentlyEnabledPacks.push(packName);
       }
     }
-    await cleanupEnabledTexturePacks(activeGame, cleanupPackList);
+    await cleanupEnabledTexturePacks($activeGame, cleanupPackList);
     // - secondly, add the ones that are enabled so they are at the top of the list
     for (const pack of currentlyEnabledPacks) {
       availablePacks.push({
@@ -157,7 +156,7 @@
       "Select a texture pack",
     );
     if (texturePackPath !== null) {
-      const success = await extractNewTexturePack(activeGame, texturePackPath);
+      const success = await extractNewTexturePack($activeGame, texturePackPath);
       if (success) {
         // if the user made any changes, attempt to restore them after
         let preexistingChanges = undefined;
@@ -219,7 +218,7 @@
         <Button
           outline
           class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
-          on:click={async () => navigate(`/${activeGame}`, { replace: true })}
+          on:click={async () => navigate(`/${$activeGame}`, { replace: true })}
           aria-label={$_("features_backToGamePage_buttonAlt")}
         >
           <IconArrowLeft />
