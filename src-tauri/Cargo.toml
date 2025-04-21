@@ -16,7 +16,7 @@ tauri-build = { version = "2.1.0", features = [] }
 
 [dependencies]
 plist = "1.7.1" # ensuring a bug fix for newer rustc versions
-notify-rust = "4.11.6" # ensuring a bug fix for newer rustc versions
+notify-rust = "4.11.7" # ensuring a bug fix for newer rustc versions
 backtrace = "0.3.74"
 chrono = "0.4.39"
 dir-diff = "0.3.3"
@@ -43,7 +43,7 @@ walkdir = "2.5.0"
 zip = { version = "2.2.2", features = ["deflate-zlib-ng"] }
 zip-extract = "0.2.1"
 tempfile = "3.14.0"
-native-dialog = "0.7.0"
+native-dialog = "0.8.1"
 tokio-util = "0.7.13"
 tauri-codegen = "2.1.0"
 tauri-plugin = "2.1.0"
