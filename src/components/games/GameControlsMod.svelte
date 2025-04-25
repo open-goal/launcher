@@ -40,7 +40,14 @@
     isVersionSupportedOnPlatform,
   } from "$lib/features/mods";
   import { VersionStore } from "$lib/stores/VersionStore";
-  import { activeGame, modInfoStore } from "$lib/stores/AppStore";
+  import { activeGame } from "$lib/stores/AppStore";
+
+  export let modName: string = "";
+  export let modDisplayName: string = "";
+  export let modDescription: string = "";
+  export let modTags: string = "";
+  export let modAuthors: string = "";
+  export let modSource: string = "";
 
   const dispatch = createEventDispatcher();
   let gameDataDir: string | undefined = undefined;
@@ -55,6 +62,7 @@
 
   async function addModFromUrl(
     url: string,
+    modName: string,
     sourceName: string,
     modVersion: string,
   ) {
@@ -66,7 +74,7 @@
       type: "installModExternal",
       modDownloadUrl: url,
       modSourceName: sourceName,
-      modName: $modInfoStore?.name,
+      modName: modName,
       modVersion: modVersion,
     });
   }
@@ -80,8 +88,8 @@
         "features",
         $activeGame,
         "mods",
-        $modInfoStore?.source,
-        $modInfoStore?.name,
+        modSource,
+        modName,
         "data",
       );
       settingsDir = await join(
@@ -89,9 +97,9 @@
         "features",
         $activeGame,
         "mods",
-        $modInfoStore?.source,
+        modSource,
         "_settings",
-        $modInfoStore?.name,
+        modName,
         "OpenGOAL",
         $activeGame,
         "settings",
@@ -104,9 +112,9 @@
         "features",
         $activeGame,
         "mods",
-        $modInfoStore?.source,
+        modSource,
         "_settings",
-        $modInfoStore?.name,
+        modName,
         "OpenGOAL",
         $activeGame,
         "saves",
@@ -120,16 +128,16 @@
 
     let relevantSourceData = undefined;
     for (const [sourceUrl, sourceDataEntry] of Object.entries(sourceData)) {
-      if (sourceDataEntry.sourceName === $modInfoStore?.source) {
+      if (sourceDataEntry.sourceName === modSource) {
         relevantSourceData = sourceDataEntry;
       }
     }
     if (
       relevantSourceData !== undefined &&
-      Object.keys(relevantSourceData.mods).includes($modInfoStore?.name)
+      Object.keys(relevantSourceData.mods).includes(modName)
     ) {
       // ensure versions are sorted by date desc (newest first)
-      let versions = relevantSourceData.mods[$modInfoStore?.name].versions;
+      let versions = relevantSourceData.mods[modName].versions;
       versions.sort((a, b) => {
         return Date.parse(b.publishedDate) - Date.parse(a.publishedDate);
       });
@@ -152,13 +160,10 @@
     // get current installed version
     let installedMods = await getInstalledMods($activeGame);
     if (
-      Object.keys(installedMods).includes($modInfoStore?.source) &&
-      Object.keys(installedMods[$modInfoStore?.source]).includes(
-        $modInfoStore?.name,
-      )
+      Object.keys(installedMods).includes(modSource) &&
+      Object.keys(installedMods[modSource]).includes(modName)
     ) {
-      currentlyInstalledVersion =
-        installedMods[$modInfoStore?.source][$modInfoStore?.name];
+      currentlyInstalledVersion = installedMods[modSource][modName];
       $VersionStore.activeVersionName = currentlyInstalledVersion;
     } else {
       $VersionStore.activeVersionName = "not set!";
@@ -184,18 +189,18 @@
   <h1
     class="tracking-tighter text-2xl font-bold pb-2 text-orange-500 text-outline pointer-events-none"
   >
-    {$modInfoStore?.displayName}
+    {modDisplayName}
   </h1>
   <h1
     class="tracking-tighter pb-2 font-bold text-outline text-justify [text-align-last:right]"
   >
-    {$modInfoStore?.description}
+    {modDescription}
   </h1>
   <p class="pb-2 text-outline">
-    {$_("features_mods_tags")}: {$modInfoStore?.tags}
+    {$_("features_mods_tags")}: {modTags}
   </p>
   <p class="text-outline">
-    {$_("features_mods_authors")}: {$modInfoStore?.authors}
+    {$_("features_mods_authors")}: {modAuthors}
   </p>
 </div>
 <div class="flex flex-col justify-end items-end mt-3">
@@ -221,8 +226,8 @@
         on:click={async () => {
           await addModFromUrl(
             modAssetUrlsSorted[0],
-            $modInfoStore?.name,
-            $modInfoStore?.source,
+            modName,
+            modSource,
             modVersionListSorted[0],
           );
         }}>{$_("gameControls_button_install")}</Button
@@ -232,12 +237,7 @@
       <Button
         class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         on:click={async () => {
-          launchMod(
-            $activeGame,
-            false,
-            $modInfoStore?.name,
-            $modInfoStore?.source,
-          );
+          launchMod($activeGame, false, modName, modSource);
         }}>{$_("gameControls_button_play")}</Button
       >
     {:else}
@@ -247,8 +247,8 @@
         on:click={async () => {
           await addModFromUrl(
             modAssetUrlsSorted[0],
-            $modInfoStore?.name,
-            $modInfoStore?.source,
+            modName,
+            modSource,
             modVersionListSorted[0],
           );
         }}>{$_("gameControls_update_mod")}</Button
@@ -301,8 +301,8 @@
               on:click={async () => {
                 await addModFromUrl(
                   modAssetUrlsSorted[i],
-                  $modInfoStore?.name,
-                  $modInfoStore?.source,
+                  modName,
+                  modSource,
                   version,
                 );
               }}>{version}</DropdownItem
@@ -328,21 +328,12 @@
       <Dropdown trigger="hover" placement="top-end" class="!bg-slate-900">
         <DropdownItem
           on:click={async () => {
-            launchMod(
-              $activeGame,
-              true,
-              $modInfoStore?.name,
-              $modInfoStore?.source,
-            );
+            launchMod($activeGame, true, modName, modSource);
           }}>{$_("gameControls_button_playInDebug")}</DropdownItem
         >
         <DropdownItem
           on:click={async () => {
-            openREPLForMod(
-              $activeGame,
-              $modInfoStore?.name,
-              $modInfoStore?.source,
-            );
+            openREPLForMod($activeGame, modName, modSource);
           }}>{$_("gameControls_button_openREPL")}</DropdownItem
         >
         <DropdownDivider />
@@ -421,8 +412,8 @@
           on:click={async () => {
             const launchString = await getLaunchModString(
               $activeGame,
-              $modInfoStore?.name,
-              $modInfoStore?.source,
+              modName,
+              modSource,
             );
             await writeText(launchString);
             toastStore.makeToast($_("toasts_copiedToClipboard"), "info");
@@ -438,11 +429,7 @@
         <DropdownDivider />
         <DropdownItem
           on:click={async () => {
-            await resetModSettings(
-              $activeGame,
-              $modInfoStore?.name,
-              $modInfoStore?.source,
-            );
+            await resetModSettings($activeGame, modName, modSource);
           }}>{$_("gameControls_button_resetSettings")}</DropdownItem
         >
         <DropdownItem
@@ -454,11 +441,7 @@
               { title: "OpenGOAL Launcher", type: "warning" },
             );
             if (confirmed) {
-              await uninstallMod(
-                $activeGame,
-                $modInfoStore?.name,
-                $modInfoStore?.source,
-              );
+              await uninstallMod($activeGame, modName, modSource);
               navigate(`/${$activeGame}/features/mods`, {
                 replace: true,
               });
