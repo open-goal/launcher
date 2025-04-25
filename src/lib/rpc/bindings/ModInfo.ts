@@ -14,6 +14,4 @@ export type ModInfo = {
   coverArtUrl: string | null;
   thumbnailArtUrl: string | null;
   externalLink: string | null;
-  name?: string;
-  source?: string;
 };
