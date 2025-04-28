@@ -12,7 +12,7 @@ rust-version = "1.64"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "2.1.0", features = [] }
+tauri-build = { version = "2.2.0", features = [] }
 
 [dependencies]
 plist = "1.7.1" # ensuring a bug fix for newer rustc versions
@@ -45,8 +45,8 @@ zip-extract = "0.2.1"
 tempfile = "3.14.0"
 native-dialog = "0.7.0"
 tokio-util = "0.7.13"
-tauri-codegen = "2.1.0"
-tauri-plugin = "2.1.0"
+tauri-codegen = "2.2.0"
+tauri-plugin = "2.2.0"
 tauri-plugin-fs = "2.2.0"
 tauri-plugin-shell = "2.2.0"
 tauri-plugin-dialog = "2.2.0"
@@ -64,7 +64,7 @@ winreg = "0.55.0"
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
 tauri-plugin-global-shortcut = "2.2.0"
-tauri-plugin-updater = "2.2.0"
+tauri-plugin-updater = "2.7.1"
 
 [features]
 # by default Tauri runs in production mode
