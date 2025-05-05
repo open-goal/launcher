@@ -16,9 +16,9 @@ tauri-build = { version = "2.1.0", features = [] }
 
 [dependencies]
 plist = "1.7.1" # ensuring a bug fix for newer rustc versions
-notify-rust = "4.11.6" # ensuring a bug fix for newer rustc versions
+notify-rust = "4.11.7" # ensuring a bug fix for newer rustc versions
 backtrace = "0.3.74"
-chrono = "0.4.39"
+chrono = "0.4.41"
 dir-diff = "0.3.3"
 directories = "6.0.0"
 rustc-serialize = "0.3"
@@ -33,7 +33,7 @@ rev_buf_reader = "0.3.0"
 semver = "1.0.24"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.134"
-sysinfo = "0.34.1"
+sysinfo = "0.35.0"
 tar = "0.4.43"
 tauri = { version = "2.4.0", features = [ "protocol-asset", "devtools"] }
 thiserror = "2.0.9"
@@ -41,10 +41,10 @@ tokio = { version = "1", features = ["full"] }
 ts-rs = "10.1"
 walkdir = "2.5.0"
 zip = { version = "2.2.2", features = ["deflate-zlib-ng"] }
-zip-extract = "0.2.1"
+zip-extract = "0.2.3"
 tempfile = "3.14.0"
 native-dialog = "0.7.0"
-tokio-util = "0.7.13"
+tokio-util = "0.7.15"
 tauri-codegen = "2.1.0"
 tauri-plugin = "2.1.0"
 tauri-plugin-fs = "2.2.0"
