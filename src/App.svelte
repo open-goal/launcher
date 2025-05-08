@@ -102,7 +102,7 @@
             component={Game}
             primary={false}
           />
-          <Route path="/settings/:tab" component={Settings} primary={false} />
+          <Route path="/settings" component={Settings} primary={false} />
           <Route path="/faq" component={Help} primary={false} />
           <Route path="/update" component={Update} primary={false} />
         </div>
