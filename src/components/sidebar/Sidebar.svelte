@@ -69,7 +69,7 @@
       <a
         id="settings"
         class={getNavItemStyle("settings")}
-        href="/settings/general"
+        href="/settings"
         use:link
       >
         <IconCog style="font-size: 36px" />
