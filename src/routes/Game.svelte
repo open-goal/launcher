@@ -116,7 +116,7 @@
 </script>
 
 <div class="flex flex-col h-full p-5">
-  {#if $VersionStore.activeVersionName === null || $VersionStore.activeVersionType === null}
+  {#if $VersionStore.activeVersionName === null}
     <GameToolsNotSet />
   {:else if $activeGame == SupportedGame.Jak3}
     <GameInProgress />
