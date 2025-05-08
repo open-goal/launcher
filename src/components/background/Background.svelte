@@ -43,7 +43,10 @@
     modBackground = "";
 
     if ($modInfoStore) {
-      modBackground = $modInfoStore.coverArtUrl || coverArtPlaceholder;
+      modBackground =
+        $modInfoStore.coverArtUrl ||
+        $modInfoStore.perGameConfig[$activeGame].coverArtUrl ||
+        coverArtPlaceholder;
       return;
     }
 
