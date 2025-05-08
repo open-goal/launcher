@@ -16,11 +16,12 @@
     isMinimumVCCRuntimeInstalled,
     setLocale,
   } from "$lib/rpc/config";
-  import GameFeature from "./routes/GameFeature.svelte";
   import { listen } from "@tauri-apps/api/event";
   import { toastStore } from "$lib/stores/ToastStore";
   import { isMinMacOSVersion, isMinVCCRuntime } from "$lib/stores/VersionStore";
   import { isMacOSVersion15OrAbove } from "$lib/rpc/util";
+  import ModSelection from "./components/games/features/mods/ModSelection.svelte";
+  import TexturePacks from "./components/games/features/texture-packs/TexturePacks.svelte";
 
   let revokeSpecificActions = false;
   let toastListener: any = undefined;
@@ -87,16 +88,21 @@
           <Route path="/" game_name="jak1" component={Game} primary={false} />
           <Route path="/:game_name" component={Game} primary={false} />
           <Route
-            path="/:game_name/features/:feature"
-            component={GameFeature}
+            path="/:game_name/texture_packs"
+            component={TexturePacks}
             primary={false}
           />
           <Route
-            path="/:game_name/features/mods/:source_url/:mod_name"
+            path="/:game_name/mods"
+            component={ModSelection}
+            primary={false}
+          />
+          <Route
+            path="/:game_name/mods/:source_url/:mod_name"
             component={Game}
             primary={false}
           />
-          <Route path="/settings/:tab" component={Settings} primary={false} />
+          <Route path="/settings" component={Settings} primary={false} />
           <Route path="/faq" component={Help} primary={false} />
           <Route path="/update" component={Update} primary={false} />
         </div>

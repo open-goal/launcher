@@ -11,37 +11,34 @@
   const location = useLocation();
   $: $location.pathname;
 
-  function getNavStyle(pathname: string): string {
+  function getNavStyle(): string {
     const baseStyle =
       "grow-0 shrink-0 basis-1/10 h-full bg-[#101010] px-1 z-10";
     const isOpaque =
-      pathname.startsWith("/settings") ||
-      pathname.startsWith("/faq") ||
-      pathname.startsWith("/update");
+      $location.pathname.startsWith("/settings") ||
+      $location.pathname.startsWith("/faq") ||
+      $location.pathname.startsWith("/update") ||
+      $location.pathname.endsWith("/mods") ||
+      $location.pathname.endsWith("/texture_packs");
     return isOpaque
       ? baseStyle
       : `${baseStyle} opacity-50 hover:opacity-100 duration-500`;
   }
 
-  function getNavItemStyle(itemName: string, pathName: string): string {
+  function getNavItemStyle(itemName: string): string {
     const baseStyle =
       "flex items-center hover:grayscale-0 hover:opacity-100 duration-500 text-orange-400";
     const isActive =
-      pathName.startsWith(`/${itemName}`) ||
-      (itemName === "jak1" && pathName === "/");
+      $location.pathname.startsWith(`/${itemName}`) ||
+      (itemName === "jak1" && $location.pathname === "/");
     return isActive ? baseStyle : `${baseStyle} grayscale`;
   }
 </script>
 
-<div class={getNavStyle($location.pathname)}>
+<div class={getNavStyle()}>
   <ul class="flex flex-col h-full space-y-10 px-1 py-5 items-center">
     <li>
-      <a
-        id="jak1"
-        class={getNavItemStyle("jak1", $location.pathname)}
-        href="/jak1"
-        use:link
-      >
+      <a id="jak1" class={getNavItemStyle("jak1")} href="/jak1" use:link>
         <img
           src={logoJak1}
           alt="Jak - The Precursor Legacy"
@@ -53,12 +50,7 @@
       >
     </li>
     <li>
-      <a
-        id="jak2"
-        class={getNavItemStyle("jak2", $location.pathname)}
-        href="/jak2"
-        use:link
-      >
+      <a id="jak2" class={getNavItemStyle("jak2")} href="/jak2" use:link>
         <img src={logoJak2} alt="Jak 2" aria-label="Jak 2" />
       </a>
       <Tooltip triggeredBy="#jak2" placement="right" type="dark"
@@ -66,12 +58,7 @@
       >
     </li>
     <li>
-      <a
-        id="jak3"
-        class={getNavItemStyle("jak3", $location.pathname)}
-        href="/jak3"
-        use:link
-      >
+      <a id="jak3" class={getNavItemStyle("jak3")} href="/jak3" use:link>
         <img src={logoJak3} alt="Jak 3" aria-label="Jak 3" />
       </a>
       <Tooltip triggeredBy="#jak3" placement="right" type="dark"
@@ -81,8 +68,8 @@
     <li class="!mt-auto">
       <a
         id="settings"
-        class={getNavItemStyle("settings", $location.pathname)}
-        href="/settings/general"
+        class={getNavItemStyle("settings")}
+        href="/settings"
         use:link
       >
         <IconCog style="font-size: 36px" />
@@ -93,12 +80,7 @@
     </li>
 
     <li>
-      <a
-        id="faq"
-        class={getNavItemStyle("faq", $location.pathname)}
-        href="/faq"
-        use:link
-      >
+      <a id="faq" class={getNavItemStyle("faq")} href="/faq" use:link>
         <IconChatQuestion style="font-size: 36px" />
       </a>
       <Tooltip triggeredBy="#faq" placement="right" type="dark"

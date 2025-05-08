@@ -208,7 +208,7 @@
                       style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{thumbnailSrc}'); background-size: cover;"
                       on:click={async () => {
                         navigate(
-                          `/${$activeGame}/features/mods/${encodeURI(sourceName)}/${encodeURI(modName)}`,
+                          `/${$activeGame}/mods/${encodeURI(sourceName)}/${encodeURI(modName)}`,
                         );
                       }}
                     >
@@ -236,7 +236,7 @@
           <Button
             class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
             on:click={async () => {
-              navigate(`/settings/mods`, {
+              navigate(`/settings`, {
                 replace: true,
               });
             }}>{$_("features_mods_go_to_settings")}</Button
@@ -290,7 +290,7 @@
                       )}'); background-size: cover;"
                       on:click={async () => {
                         navigate(
-                          `/${$activeGame}/features/mods/${encodeURI(sourceInfo.sourceName)}/${encodeURI(modName)}`,
+                          `/${$activeGame}/mods/${encodeURI(sourceInfo.sourceName)}/${encodeURI(modName)}`,
                         );
                       }}
                     >

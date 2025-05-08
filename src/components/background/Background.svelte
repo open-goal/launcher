@@ -8,16 +8,15 @@
   import jak3InProgressVid from "$assets/videos/jak3-dev.mp4";
   import jak3InProgressPoster from "$assets/videos/jak3-poster.png";
   import { platform } from "@tauri-apps/plugin-os";
-  import { getModSourcesData } from "$lib/rpc/cache";
   import coverArtPlaceholder from "$assets/images/mod-coverart-placeholder.webp";
-  import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
-  import { getLocalModThumbnailBase64 } from "$lib/rpc/features";
-  import { activeGame } from "$lib/stores/AppStore";
+  import { activeGame, modInfoStore } from "$lib/stores/AppStore";
   import { SupportedGame } from "$lib/constants";
+  import { getLocalModThumbnailBase64 } from "$lib/rpc/features";
 
   const location = useLocation();
   $: $location.pathname, updateStyle();
   $: $activeGame, updateStyle();
+  $: $modInfoStore, updateStyle();
 
   let style = "absolute object-fill h-screen brightness-75 pt-[60px] w-full";
   let jak1Image = "";
@@ -28,14 +27,14 @@
   onMount(async () => {
     const unlistenInstalled = await listen("gameInstalled", (event) => {
       updateStyle();
-    });
+    }); // TODO - refactor this out
     const unlistenUninstalled = await listen("gameUninstalled", (event) => {
       updateStyle();
-    });
-    // TODO - call this if the game is closed as well
-    const jak1_milestone = await getFurthestGameMilestone("jak1");
-    jak1Image = `/images/jak1/${jak1_milestone}.jpg`;
-    // TODO - do jak 2 milestones once the game is considered out of beta
+    }); // TODO - refactor this out
+    // TODO - call this when the game is closed
+    const milestoneImage = await getFurthestGameMilestone($activeGame);
+    jak1Image = `/images/${$activeGame}/${milestoneImage}.jpg`;
+    // TODO - do jak 2 milestones
   });
 
   async function updateStyle(): Promise<void> {
@@ -43,51 +42,40 @@
     grayscale = !(await isGameInstalled($activeGame));
     modBackground = "";
 
-    // Handle mod backgrounds
+    if ($modInfoStore) {
+      modBackground =
+        $modInfoStore.coverArtUrl ||
+        $modInfoStore.perGameConfig[$activeGame].coverArtUrl ||
+        coverArtPlaceholder;
+      return;
+    }
+
+    // Handle local mod backgrounds
     const pathComponents = $location.pathname
       .split("/")
       .filter((s) => s !== "");
     if (pathComponents.length === 5) {
-      const modSource = decodeURI(pathComponents[3]);
+      const modSource = decodeURI(pathComponents[3]); // TODO: i dislike this pattern, but im keeping it for now
       const modName = decodeURI(pathComponents[4]);
-      // TODO now - centralize this in a store so we don't unnecessarily fetch the info
-      const modSourceData = await getModSourcesData();
-      // Find the source
-      const foundMod: ModInfo | undefined = Object.values(modSourceData).find(
-        (source) =>
-          source.sourceName === modSource &&
-          source.mods.hasOwnProperty(modName),
-      )?.mods[modName];
+
       if (modSource === "_local") {
         const coverResult = await getLocalModThumbnailBase64(
           $activeGame,
           modName,
         );
-        if (coverResult === "") {
-          modBackground = coverArtPlaceholder;
-        } else {
-          modBackground = coverResult;
-        }
-      }
-      // Prefer pre-game-config if available
-      else if (foundMod) {
-        if (
-          foundMod.perGameConfig.hasOwnProperty($activeGame) &&
-          foundMod.perGameConfig[$activeGame].coverArtUrl
-        ) {
-          modBackground = foundMod.perGameConfig[$activeGame].coverArtUrl;
-        } else if (foundMod.coverArtUrl) {
-          modBackground = foundMod.coverArtUrl;
-        }
-      } else {
-        modBackground = coverArtPlaceholder;
+        modBackground = coverResult || coverArtPlaceholder;
+        return;
       }
     }
   }
 </script>
 
+<!-- TODO: the three else if statements can go away once 1. the milestone code is finished and 2. jak3 is released -->
 <div class:grayscale>
-  {#if $activeGame == SupportedGame.Jak1}
+  {#if modBackground}
+    <!-- svelte-ignore a11y_missing_attribute -->
+    <img class={style} src={modBackground} />
+  {:else if $activeGame == SupportedGame.Jak1}
     <!-- svelte-ignore a11y_missing_attribute -->
     <img class={style} src={jak1Image} />
   {:else if $activeGame == SupportedGame.Jak2}
@@ -107,8 +95,5 @@
       <!-- svelte-ignore a11y_missing_attribute -->
       <img class={style} src={jak3InProgressPoster} />
     {/if}
-  {:else if modBackground !== ""}
-    <!-- svelte-ignore a11y_missing_attribute -->
-    <img class={style} src={modBackground} />
   {/if}
 </div>
