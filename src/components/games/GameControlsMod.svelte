@@ -449,7 +449,7 @@
             // TODO - probably move these confirms into the actual launcher itself
             const confirmed = await confirm(
               $_("gameControls_button_uninstall_confirmation"),
-              { title: "OpenGOAL Launcher", type: "warning" },
+              { title: "OpenGOAL Launcher", kind: "warning" },
             );
             if (confirmed) {
               await uninstallMod(
