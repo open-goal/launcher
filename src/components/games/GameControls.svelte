@@ -127,7 +127,7 @@
       <DropdownItem
         disabled={!textureSupportEnabled}
         on:click={async () => {
-          navigate(`/${$activeGame}/features/texture_packs`);
+          navigate(`/${$activeGame}/texture_packs`);
         }}
       >
         {$_("gameControls_button_features_textures")}
@@ -138,7 +138,7 @@
       {/if}
       <DropdownItem
         on:click={async () => {
-          navigate(`/${$activeGame}/features/mods`);
+          navigate(`/${$activeGame}/mods`);
         }}
       >
         {$_("gameControls_button_features_mods")}
@@ -245,7 +245,7 @@
           // TODO - probably move these confirms into the actual launcher itself
           const confirmed = await confirm(
             $_("gameControls_button_uninstall_confirmation"),
-            { title: "OpenGOAL Launcher", type: "warning" },
+            { title: "OpenGOAL Launcher", kind: "warning" },
           );
           if (confirmed) {
             await uninstallGame($activeGame);

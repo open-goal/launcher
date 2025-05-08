@@ -208,7 +208,7 @@
                       style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{thumbnailSrc}'); background-size: cover;"
                       on:click={async () => {
                         navigate(
-                          `/${$activeGame}/features/mods/${encodeURI(sourceName)}/${encodeURI(modName)}`,
+                          `/${$activeGame}/mods/${encodeURI(sourceName)}/${encodeURI(modName)}`,
                         );
                       }}
                     >
@@ -290,7 +290,7 @@
                       )}'); background-size: cover;"
                       on:click={async () => {
                         navigate(
-                          `/${$activeGame}/features/mods/${encodeURI(sourceInfo.sourceName)}/${encodeURI(modName)}`,
+                          `/${$activeGame}/mods/${encodeURI(sourceInfo.sourceName)}/${encodeURI(modName)}`,
                         );
                       }}
                     >

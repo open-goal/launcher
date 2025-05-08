@@ -203,7 +203,7 @@
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       on:click={async () => {
-        navigate(`/${$activeGame}/features/mods`, {
+        navigate(`/${$activeGame}/mods`, {
           replace: true,
         });
       }}><IconArrowLeft />&nbsp;{$_("features_mods_go_back")}</Button
@@ -457,7 +457,7 @@
                 $modInfoStore?.name,
                 $modInfoStore?.source,
               );
-              navigate(`/${$activeGame}/features/mods`, {
+              navigate(`/${$activeGame}/mods`, {
                 replace: true,
               });
             }
