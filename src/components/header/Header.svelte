@@ -16,10 +16,11 @@
   } from "$lib/rpc/versions";
   import { getLatestOfficialRelease } from "$lib/utils/github";
   import { VersionStore } from "$lib/stores/VersionStore";
-  import { exceptionLog, infoLog } from "$lib/rpc/logging";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
   import { getAutoUpdateGames, saveActiveVersionChange } from "$lib/rpc/config";
+  import { check } from "@tauri-apps/plugin-updater";
+  import { relaunch } from "@tauri-apps/plugin-process";
 
   let launcherVerison = null;
   const appWindow = getCurrentWebviewWindow();
@@ -44,40 +45,36 @@
     $VersionStore.activeVersionName = await getActiveVersion();
 
     // Check for a launcher update
-    // NOTE - the following code (checkUpdate) won't work unless you have `update` configuration
-    // added to the tauri.conf.json
     if (!isInDebugMode()) {
-      // TODO - migrate!
-      // const updateResult = await checkUpdate();
-      // if (updateResult.shouldUpdate) {
-      //   // TODO - store methods to clean this up
-      //   let changeLog = [];
-      //   try {
-      //     changeLog = JSON.parse(updateResult.manifest.body);
-      //   } catch (e) {
-      //     exceptionLog(
-      //       `Could not parse changelog JSON from release metadata - ${JSON.stringify(
-      //         updateResult,
-      //       )}`,
-      //       e,
-      //     );
-      //   }
-      //   $UpdateStore.launcher = {
-      //     updateAvailable: true,
-      //     versionNumber: updateResult.manifest.version,
-      //     date: updateResult.manifest.date,
-      //     changeLog: changeLog,
-      //   };
-      //   infoLog(`Launcher Update Available`);
-      // } else {
-      //   $UpdateStore.launcher = {
-      //     updateAvailable: false,
-      //     versionNumber: null,
-      //     date: null,
-      //     changeLog: [],
-      //   };
-      //   infoLog(`Launcher is up to date - ${JSON.stringify(updateResult)}`);
-      // }
+      const update = await check();
+      if (update) {
+        console.log(
+          `found update ${update.version} from ${update.date} with notes ${update.body}`,
+        );
+        let downloaded = 0;
+        let contentLength = 0;
+        // alternatively we could also call update.download() and update.install() separately
+        await update.downloadAndInstall((event) => {
+          switch (event.event) {
+            case "Started":
+              contentLength = event.data.contentLength;
+              console.log(
+                `started downloading ${event.data.contentLength} bytes`,
+              );
+              break;
+            case "Progress":
+              downloaded += event.data.chunkLength;
+              console.log(`downloaded ${downloaded} from ${contentLength}`);
+              break;
+            case "Finished":
+              console.log("download finished");
+              break;
+          }
+        });
+
+        console.log("update installed");
+        await relaunch();
+      }
     }
 
     await checkIfLatestVersionInstalled();
