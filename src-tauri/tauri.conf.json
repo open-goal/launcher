@@ -29,16 +29,6 @@
     "longDescription": "",
     "createUpdaterArtifacts": false
   },
-  "plugins": {
-    "updater": {
-      "active": false,
-      "dialog": false,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDM5Q0RCMDMyRkYwQTQxOTIKUldTU1FRci9NckROT1FERSs0UjhTNzRsTHU0cjZGdTZzN1FTWGF4aldYdGFlTG56eWc5Uko4YzkK",
-      "endpoints": [
-        "https://raw.githubusercontent.com/open-goal/launcher/main/.tauri/latest-release-v2.json"
-      ]
-    }
-  },
   "build": {
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist",
