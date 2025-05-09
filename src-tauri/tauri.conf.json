@@ -27,7 +27,7 @@
     "category": "DeveloperTool",
     "shortDescription": "",
     "longDescription": "",
-    "createUpdaterArtifacts": "v1Compatible"
+    "createUpdaterArtifacts": false
   },
   "plugins": {
     "updater": {
@@ -36,8 +36,7 @@
       },
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDM5Q0RCMDMyRkYwQTQxOTIKUldTU1FRci9NckROT1FERSs0UjhTNzRsTHU0cjZGdTZzN1FTWGF4aldYdGFlTG56eWc5Uko4YzkK",
       "endpoints": [
-        "https://github.com/open-goal/launcher/releases/latest/download/latest.json",
-        "https://github.com/trippjoe/launcher/releases/latest/download/latest.json"
+        "https://github.com/open-goal/launcher/releases/latest/download/latest.json"
       ]
     }
   },
