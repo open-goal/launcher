@@ -299,7 +299,6 @@
               on:click={async () => {
                 await addModFromUrl(
                   modAssetUrlsSorted[i],
-                  $modInfoStore?.name,
                   $modInfoStore?.source,
                   version,
                 );
