@@ -49,7 +49,8 @@
     const appDataDirPath = await appDataDir();
     const filePath = await join(
       appDataDirPath,
-      `backgrounds/${$activeGame}.mp4`,
+      "backgrounds",
+      `${$activeGame}.mp4`,
     );
     const assetUrl = convertFileSrc(filePath);
     if (await exists(assetUrl)) {
