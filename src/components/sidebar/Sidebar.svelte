@@ -4,11 +4,12 @@
   import logoJak3 from "$assets/images/jak-3.webp";
   import IconCog from "~icons/mdi/cog";
   import IconChatQuestion from "~icons/mdi/chat-question";
-  import { link, useLocation } from "svelte-navigator";
+  import { link, useLocation, useNavigate } from "svelte-navigator";
   import { Tooltip } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
 
   const location = useLocation();
+  const navigate = useNavigate();
   $: $location.pathname;
 
   function getNavStyle(): string {
@@ -69,7 +70,7 @@
       <a
         id="settings"
         class={getNavItemStyle("settings")}
-        href="/settings"
+        href="/settings/general"
         use:link
       >
         <IconCog style="font-size: 36px" />
