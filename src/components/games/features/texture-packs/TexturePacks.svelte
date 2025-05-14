@@ -12,10 +12,13 @@
   import {
     cleanupEnabledTexturePacks,
     getEnabledTexturePacks,
+    setEnabledTexturePacks,
   } from "$lib/rpc/config";
   import {
+    deleteTexturePacks,
     extractNewTexturePack,
     listExtractedTexturePackInfo,
+    updateTexturePackData,
   } from "$lib/rpc/features";
   import { filePrompt } from "$lib/utils/file-dialogs";
   import IconArrowLeft from "~icons/mdi/arrow-left";
@@ -37,6 +40,8 @@
   import { navigate } from "svelte-navigator";
   import { _ } from "svelte-i18n";
   import { activeGame } from "$lib/stores/AppStore";
+  import { progressTracker } from "$lib/stores/ProgressStore";
+  import { runDecompiler } from "$lib/rpc/binaries";
 
   const dispatch = createEventDispatcher();
 
@@ -55,6 +60,63 @@
     await update_pack_list();
     loaded = true;
   });
+
+  async function setupTexturePacks() {
+    let installationError = undefined;
+    let jobs = [];
+    if (packsToDelete.length) {
+      jobs.push({
+        status: "queued",
+        label: $_("gameJob_deleteTexturePacks"),
+      });
+    }
+    jobs.push(
+      {
+        status: "queued",
+        label: $_("gameJob_enablingTexturePacks"),
+      },
+      {
+        status: "queued",
+        label: $_("gameJob_applyTexturePacks"),
+      },
+      {
+        status: "queued",
+        label: $_("setup_decompile"),
+      },
+    );
+    progressTracker.init(jobs);
+    progressTracker.start();
+    if (packsToDelete.length) {
+      let resp = await deleteTexturePacks($activeGame, packsToDelete);
+      if (!resp.success) {
+        progressTracker.halt();
+        installationError = resp.msg;
+        return;
+      }
+      progressTracker.proceed();
+    }
+    let resp = await setEnabledTexturePacks($activeGame, enabledPacks);
+    if (!resp.success) {
+      progressTracker.halt();
+      installationError = resp.msg;
+      return;
+    }
+    progressTracker.proceed();
+    resp = await updateTexturePackData($activeGame);
+    if (!resp.success) {
+      progressTracker.halt();
+      installationError = resp.msg;
+      return;
+    }
+    progressTracker.proceed();
+    resp = await runDecompiler("", $activeGame, true, false);
+    if (!resp.success) {
+      progressTracker.halt();
+      installationError = resp.msg;
+      return;
+    }
+    progressTracker.proceed();
+  }
 
   async function update_pack_list() {
     availablePacks = [];
@@ -183,6 +245,7 @@
   }
 
   async function applyTexturePacks() {
+    addingPack = true;
     enabledPacks = [];
     packsToDelete = [];
     for (const pack of availablePacks) {
@@ -192,11 +255,8 @@
         packsToDelete.push(pack.name);
       }
     }
-    dispatch("job", {
-      type: "updateTexturePacks",
-      enabledPacks,
-      packsToDelete,
-    });
+    let res = await setupTexturePacks();
+    addingPack = false;
   }
 
   function moveTexturePack(dst: number, src: number) {
@@ -216,6 +276,7 @@
     <div class="pb-20 overflow-y-auto p-4">
       <div class="flex flex-row gap-2">
         <Button
+          disabled={addingPack}
           outline
           class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
           on:click={async () => navigate(`/${$activeGame}`, { replace: true })}
@@ -236,6 +297,7 @@
         >
         {#if pending_changes(availablePacks, availablePacksOriginal)}
           <Button
+            disabled={addingPack}
             class="flex-shrink border-solid rounded bg-green-400 hover:bg-green-500 text-sm text-slate-900 font-semibold px-5 py-2"
             on:click={applyTexturePacks}
             aria-label={$_("features_textures_applyChanges_buttonAlt")}
