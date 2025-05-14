@@ -5,6 +5,9 @@
   import { _ } from "svelte-i18n";
   import Mods from "./settings/Mods.svelte";
   import Decompiler from "./settings/Decompiler.svelte";
+  import { useParams } from "svelte-navigator";
+
+  const params = useParams();
 
   const tabItemActiveClasses =
     "inline-block text-sm font-bold text-center disabled:cursor-not-allowed p-4 text-orange-500 border-b-2 border-orange-500 dark:text-orange-500 dark:border-orange-500";
@@ -24,13 +27,19 @@
     <TabItem open title={$_("settings_tabs_general")}>
       <General />
     </TabItem>
-    <TabItem title={$_("settings_tabs_versions")}>
+    <TabItem
+      open={$params.tab.includes("versions")}
+      title={$_("settings_tabs_versions")}
+    >
       <Versions />
     </TabItem>
     <TabItem title={$_("settings_tabs_decompiler")}>
       <Decompiler />
     </TabItem>
-    <TabItem title={$_("settings_tabs_mods")}>
+    <TabItem
+      open={$params.tab.includes("mod")}
+      title={$_("settings_tabs_mods")}
+    >
       <Mods />
     </TabItem>
   </Tabs>
