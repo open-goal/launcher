@@ -52,7 +52,7 @@
         disabled={updating}
       >
         {#if updating}
-          <Spinner class="mr-3" size="4" color="white" />
+          <Spinner class="mr-3" size="4" color="yellow" />
         {/if}
         {$_("update_button_doUpdate")}
       </Button>

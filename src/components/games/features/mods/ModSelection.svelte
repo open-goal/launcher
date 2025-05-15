@@ -173,7 +173,7 @@
           disabled={addingMod}
         >
           {#if addingFromFile}
-            <Spinner class="mr-3" size="4" color="white" />
+            <Spinner class="mr-3" size="4" color="yellow" />
           {/if}
           {$_("features_mods_addFromFile")}</Button
         >

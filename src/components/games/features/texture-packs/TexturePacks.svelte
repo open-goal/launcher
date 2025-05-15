@@ -296,7 +296,7 @@
             disabled={addingPack}
           >
             {#if addingPack}
-              <Spinner class="mr-3" size="4" color="white" />
+              <Spinner class="mr-3" size="4" color="yellow" />
             {/if}
             {$_("features_textures_addNewPack")}</Button
           >

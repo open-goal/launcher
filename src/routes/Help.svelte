@@ -32,7 +32,7 @@
       }}
     >
       {#if downloadingPackage}
-        <Spinner class="text-sm mb-0.5 mr-1" size="4" color="white" />
+        <Spinner class="text-sm mb-0.5 mr-1" size="4" color="yellow" />
       {/if}
       {$_("help_button_downloadPackage")}</Button
     >
