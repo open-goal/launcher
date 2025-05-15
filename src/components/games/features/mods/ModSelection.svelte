@@ -280,6 +280,10 @@
                     </a>
                   {:else}
                     <button
+                      hidden={!isLatestVersionOfModSupportedOnCurrentPlatform(
+                        userPlatform,
+                        modInfo,
+                      )}
                       disabled={!isLatestVersionOfModSupportedOnCurrentPlatform(
                         userPlatform,
                         modInfo,
