@@ -173,7 +173,6 @@
   });
 
   async function toggleCheckForLatestModVersion() {
-    console.log("testing");
     checkForLatestModVersionChecked = !checkForLatestModVersionChecked;
     await setCheckForLatestModVersion(checkForLatestModVersionChecked);
   }
