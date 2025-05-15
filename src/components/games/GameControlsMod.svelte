@@ -345,7 +345,7 @@
           }}
           >{$_("gameControls_button_decompile")}
           <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-          <Helper helperClass="!text-neutral-400 !text-xs"
+          <Helper class="!text-neutral-400 !text-xs"
             >{$_("gameControls_button_decompile_helpText")}</Helper
           ></DropdownItem
         >
@@ -357,7 +357,7 @@
           }}
           >{$_("gameControls_button_compile")}
           <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-          <Helper helperClass="!text-neutral-400 !text-xs"
+          <Helper class="!text-neutral-400 !text-xs"
             >{$_("gameControls_button_compile_helpText")}
           </Helper></DropdownItem
         >
@@ -419,7 +419,7 @@
             toastStore.makeToast($_("toasts_copiedToClipboard"), "info");
           }}
           >{$_("gameControls_button_copyExecutableCommand")}<Helper
-            helperClass="!text-neutral-400 !text-xs"
+            class="!text-neutral-400 !text-xs"
             >{$_("gameControls_button_copyExecutableCommand_helpText_1")}<br
             />{$_(
               "gameControls_button_copyExecutableCommand_helpText_2",
@@ -456,7 +456,7 @@
             }
           }}
           >{$_("gameControls_button_uninstall")}<Helper
-            helperClass="!text-neutral-400 !text-xs"
+            class="!text-neutral-400 !text-xs"
             >{$_("gameControls_button_uninstall_helpText")}</Helper
           ></DropdownItem
         >
