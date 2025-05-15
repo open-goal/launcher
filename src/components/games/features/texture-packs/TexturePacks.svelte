@@ -36,14 +36,14 @@
     Card,
     Spinner,
   } from "flowbite-svelte";
-  import { createEventDispatcher, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { navigate } from "svelte-navigator";
   import { _ } from "svelte-i18n";
   import { activeGame } from "$lib/stores/AppStore";
   import { progressTracker } from "$lib/stores/ProgressStore";
   import { runDecompiler } from "$lib/rpc/binaries";
-
-  const dispatch = createEventDispatcher();
+  import LogViewer from "../../setup/LogViewer.svelte";
+  import Progress from "../../setup/Progress.svelte";
 
   let loaded = false;
   let extractedPackInfo: any = undefined;
@@ -256,6 +256,7 @@
       }
     }
     let res = await setupTexturePacks();
+    await update_pack_list();
     addingPack = false;
   }
 
@@ -272,6 +273,9 @@
     <div class="flex flex-col h-full justify-center items-center">
       <Spinner color="yellow" size={"12"} />
     </div>
+  {:else if addingPack}
+    <Progress></Progress>
+    <LogViewer></LogViewer>
   {:else}
     <div class="pb-20 overflow-y-auto p-4">
       <div class="flex flex-row gap-2">
