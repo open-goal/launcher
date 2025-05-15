@@ -52,10 +52,10 @@
   "app": {
     "security": {
       "assetProtocol": {
+        "enable": true,
         "scope": [
           "**"
-        ],
-        "enable": true
+        ]
       },
       "capabilities": [
         "desktop-capability"
