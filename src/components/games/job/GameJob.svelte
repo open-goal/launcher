@@ -154,63 +154,6 @@
     location.reload();
   }
 
-  async function setupTexturePacks() {
-    installationError = undefined;
-    let jobs = [];
-    if (texturePacksToDelete.length > 0) {
-      jobs.push({
-        status: "queued",
-        label: $_("gameJob_deleteTexturePacks"),
-      });
-    }
-    jobs.push(
-      {
-        status: "queued",
-        label: $_("gameJob_enablingTexturePacks"),
-      },
-      {
-        status: "queued",
-        label: $_("gameJob_applyTexturePacks"),
-      },
-      {
-        status: "queued",
-        label: $_("setup_decompile"),
-      },
-    );
-    progressTracker.init(jobs);
-    progressTracker.start();
-    if (texturePacksToDelete.length > 0) {
-      let resp = await deleteTexturePacks($activeGame, texturePacksToDelete);
-      if (!resp.success) {
-        progressTracker.halt();
-        installationError = resp.msg;
-        return;
-      }
-      progressTracker.proceed();
-    }
-    let resp = await setEnabledTexturePacks($activeGame, texturePacksToEnable);
-    if (!resp.success) {
-      progressTracker.halt();
-      installationError = resp.msg;
-      return;
-    }
-    progressTracker.proceed();
-    resp = await updateTexturePackData($activeGame);
-    if (!resp.success) {
-      progressTracker.halt();
-      installationError = resp.msg;
-      return;
-    }
-    progressTracker.proceed();
-    resp = await runDecompiler("", $activeGame, true, false);
-    if (!resp.success) {
-      progressTracker.halt();
-      installationError = resp.msg;
-      return;
-    }
-    progressTracker.proceed();
-  }
-
   async function setupModInstallation() {
     // Check to see if we need to prompt for the ISO or not
     installationError = undefined;
@@ -449,8 +392,6 @@
       await setupCompileJob();
     } else if (jobType === "updateGame") {
       await setupUpdateGameJob();
-    } else if (jobType === "updateTexturePacks") {
-      await setupTexturePacks();
     } else if (jobType === "installMod") {
       await setupModInstallation();
     } else if (jobType === "installModExternal") {
