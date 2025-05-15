@@ -173,6 +173,7 @@
   });
 
   async function toggleCheckForLatestModVersion() {
+    console.log("testing");
     checkForLatestModVersionChecked = !checkForLatestModVersionChecked;
     await setCheckForLatestModVersion(checkForLatestModVersionChecked);
   }
@@ -258,14 +259,8 @@
       >
         {$_("features_mods_versions")}
         {#if numberOfVersionsOutOfDate > 0}
-          <Indicator
-            color="red"
-            border
-            size="xl"
-            placement="top-right"
-            class="text-xs font-bold"
-          >
-            {numberOfVersionsOutOfDate}
+          <Indicator color="red" border size="xl" placement="top-right">
+            <span class="text-xs font-bold">{numberOfVersionsOutOfDate}</span>
           </Indicator>
         {/if}
       </Button>
@@ -279,7 +274,7 @@
           <Checkbox
             color="orange"
             checked={checkForLatestModVersionChecked}
-            on:change={toggleCheckForLatestModVersion}
+            onchange={toggleCheckForLatestModVersion}
           >
             {$_("gameControls_always_use_newest")}
           </Checkbox>

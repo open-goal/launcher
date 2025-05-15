@@ -110,7 +110,7 @@
                 <Radio
                   bind:group={$VersionStore.activeVersionName}
                   value={release.version}
-                  on:change={() =>
+                  onchange={() =>
                     dispatch("versionChange", { version: release.version })}
                   disabled={!release.isDownloaded}
                   class="disabled:cursor-not-allowed p-0"

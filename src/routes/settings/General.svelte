@@ -84,7 +84,7 @@
         class="mt-2"
         items={availableLocales}
         bind:value={$currentLocale}
-        on:change={async () => {
+        onchange={async () => {
           await setLocale($currentLocale);
           localeFontForDownload =
             await localeSpecificFontAvailableForDownload($currentLocale);
@@ -168,7 +168,7 @@
     <Toggle
       color="orange"
       bind:checked={$keepGamesUpdated}
-      on:change={async () => {
+      onchange={async () => {
         $uninstallOldVersions = false;
       }}
       class="mb-2">{$_("settings_general_keep_updated")}</Toggle
@@ -183,7 +183,7 @@
     <Toggle
       checked={currentBypassRequirementsVal}
       color="orange"
-      on:change={async (evt) => {
+      onchange={async (evt) => {
         if (evt.target.checked) {
           const confirmed = await confirm(
             `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
