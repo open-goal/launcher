@@ -25,7 +25,7 @@
     <Button
       disabled={downloadingPackage}
       class="border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-4 py-2"
-      on:click={async () => {
+      onclick={async () => {
         downloadingPackage = true;
         await generateSupportPackage();
         downloadingPackage = false;
@@ -39,7 +39,7 @@
     {#if appLogDirPath}
       <Button
         class="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
-        on:click={() => {
+        onclick={() => {
           openDir(appLogDirPath);
         }}>{$_("help_button_openLogFolder")}</Button
       >

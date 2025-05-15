@@ -70,7 +70,7 @@
       >
         <Button
           class="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-          on:click={async () => {
+          onclick={async () => {
             dispatch("job", {
               type: "updateGame",
             });

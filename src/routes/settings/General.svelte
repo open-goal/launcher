@@ -105,7 +105,7 @@
       <Button
         class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
         disabled={localeFontDownloading}
-        on:click={async () => {
+        onclick={async () => {
           if (
             localeFontForDownload !== undefined &&
             localeFontForDownload.fontDownloadUrl !== undefined &&
@@ -140,7 +140,7 @@
       <Input
         id="default-input"
         placeholder={currentInstallationDirectory}
-        on:click={async () => {
+        onclick={async () => {
           const newInstallDir = await folderPrompt(
             $_("settings_folders_installationDir_prompt"),
           );
@@ -207,7 +207,7 @@
   <div>
     <Button
       class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
-      on:click={async () => {
+      onclick={async () => {
         const confirmed = await confirm(
           $_("settings_general_button_resetSettings_confirmation"),
         );

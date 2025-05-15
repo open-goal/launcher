@@ -202,7 +202,7 @@
   <div class="flex flex-row gap-2">
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-      on:click={async () => {
+      onclick={async () => {
         navigate(`/${$activeGame}/mods`, {
           replace: true,
         });
@@ -218,7 +218,7 @@
       <!-- show Install button if no version installed but we're online -->
       <Button
         class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-        on:click={async () => {
+        onclick={async () => {
           await addModFromUrl(
             modAssetUrlsSorted[0],
             $modInfoStore?.source,
@@ -230,7 +230,7 @@
       <!-- show Play button if we have no version list (offline), if we're up to date, or we dont want forced updates -->
       <Button
         class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-        on:click={async () => {
+        onclick={async () => {
           launchMod(
             $activeGame,
             false,
@@ -243,7 +243,7 @@
       <!-- otherwise show Update button -->
       <Button
         class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-        on:click={async () => {
+        onclick={async () => {
           await addModFromUrl(
             modAssetUrlsSorted[0],
             $modInfoStore?.source,
@@ -296,7 +296,7 @@
             </DropdownItem>
           {:else}
             <DropdownItem
-              on:click={async () => {
+              onclick={async () => {
                 await addModFromUrl(
                   modAssetUrlsSorted[i],
                   $modInfoStore?.source,
@@ -324,7 +324,7 @@
       </Button>
       <Dropdown trigger="hover" placement="top-end" class="!bg-slate-900">
         <DropdownItem
-          on:click={async () => {
+          onclick={async () => {
             launchMod(
               $activeGame,
               true,
@@ -334,7 +334,7 @@
           }}>{$_("gameControls_button_playInDebug")}</DropdownItem
         >
         <DropdownItem
-          on:click={async () => {
+          onclick={async () => {
             openREPLForMod(
               $activeGame,
               $modInfoStore?.name,
@@ -344,7 +344,7 @@
         >
         <DropdownDivider />
         <DropdownItem
-          on:click={async () => {
+          onclick={async () => {
             dispatch("job", {
               type: "decompileMod",
             });
@@ -356,7 +356,7 @@
           ></DropdownItem
         >
         <DropdownItem
-          on:click={async () => {
+          onclick={async () => {
             dispatch("job", {
               type: "compileMod",
             });
@@ -369,7 +369,7 @@
         >
         <DropdownDivider />
         <DropdownItem
-          on:click={async () => {
+          onclick={async () => {
             if (gameDataDir) {
               await openDir(gameDataDir);
             }
@@ -395,7 +395,7 @@
         <!-- TODO - screenshot folder? how do we even configure where those go? -->
         {#if settingsDir}
           <DropdownItem
-            on:click={async () => {
+            onclick={async () => {
               if (settingsDir) {
                 await openDir(settingsDir);
               }
@@ -404,7 +404,7 @@
         {/if}
         {#if savesDir}
           <DropdownItem
-            on:click={async () => {
+            onclick={async () => {
               if (savesDir) {
                 await openDir(savesDir);
               }
@@ -415,7 +415,7 @@
           <DropdownDivider />
         {/if}
         <DropdownItem
-          on:click={async () => {
+          onclick={async () => {
             const launchString = await getLaunchModString(
               $activeGame,
               $modInfoStore?.name,
@@ -434,7 +434,7 @@
         >
         <DropdownDivider />
         <DropdownItem
-          on:click={async () => {
+          onclick={async () => {
             await resetModSettings(
               $activeGame,
               $modInfoStore?.name,
@@ -443,7 +443,7 @@
           }}>{$_("gameControls_button_resetSettings")}</DropdownItem
         >
         <DropdownItem
-          on:click={async () => {
+          onclick={async () => {
             // Get confirmation
             // TODO - probably move these confirms into the actual launcher itself
             const confirmed = await confirm(

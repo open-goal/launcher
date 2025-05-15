@@ -413,7 +413,7 @@
     <div class="flex flex-row gap-2">
       <Button
         class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-        on:click={async () => dispatch("jobFinished")}
+        onclick={async () => dispatch("jobFinished")}
         >{$_("setup_button_continue")}</Button
       >
     </div>
@@ -429,7 +429,7 @@
       <!-- TODO - no button to go back! -->
       <Button
         class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-        on:click={async () => await generateSupportPackage()}
+        onclick={async () => await generateSupportPackage()}
         >{$_("setup_button_getSupportPackage")}</Button
       >
     </div>

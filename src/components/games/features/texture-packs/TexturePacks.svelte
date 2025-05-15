@@ -284,15 +284,14 @@
             disabled={addingPack}
             outline
             class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
-            on:click={async () =>
-              navigate(`/${$activeGame}`, { replace: true })}
+            onclick={async () => navigate(`/${$activeGame}`, { replace: true })}
             aria-label={$_("features_backToGamePage_buttonAlt")}
           >
             <IconArrowLeft />
           </Button>
           <Button
             class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
-            on:click={addNewTexturePack}
+            onclick={addNewTexturePack}
             aria-label={$_("features_textures_addNewPack_buttonAlt")}
             disabled={addingPack}
           >
@@ -305,7 +304,7 @@
             <Button
               disabled={addingPack}
               class="flex-shrink border-solid rounded bg-green-400 hover:bg-green-500 text-sm text-slate-900 font-semibold px-5 py-2"
-              on:click={applyTexturePacks}
+              onclick={applyTexturePacks}
               aria-label={$_("features_textures_applyChanges_buttonAlt")}
               >{$_("features_textures_applyChanges")}</Button
             >
@@ -378,7 +377,7 @@
                   <Button
                     size={"xs"}
                     color={pack.enabled ? "green" : "red"}
-                    on:click={() => {
+                    onclick={() => {
                       pack.enabled = !pack.enabled;
                     }}
                   >
@@ -394,7 +393,7 @@
                         outline
                         class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
                         aria-label={$_("features_textures_moveUp_buttonAlt")}
-                        on:click={() => {
+                        onclick={() => {
                           moveTexturePack(packIndex - 1, packIndex);
                         }}
                       >
@@ -406,7 +405,7 @@
                         outline
                         class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
                         aria-label={$_("features_textures_moveDown_buttonAlt")}
-                        on:click={() => {
+                        onclick={() => {
                           moveTexturePack(packIndex + 1, packIndex);
                         }}
                       >
@@ -418,7 +417,7 @@
                     outline
                     class="!p-1.5 rounded-md border-red-500 text-red-500 hover:bg-red-600"
                     aria-label={$_("features_textures_deletePack_buttonAlt")}
-                    on:click={() => {
+                    onclick={() => {
                       pack.toBeDeleted = true;
                       pack.enabled = false;
                     }}

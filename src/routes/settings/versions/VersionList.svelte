@@ -66,7 +66,7 @@
     <div class="flex">
       <Button
         class="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
-        on:click={() => dispatch("refreshVersions")}
+        onclick={() => dispatch("refreshVersions")}
       >
         <IconRefresh
           aria-label={$_("settings_versions_icon_refresh_altText")}
@@ -74,7 +74,7 @@
       </Button>
       <Button
         class="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
-        on:click={() => dispatch("openVersionFolder")}
+        onclick={() => dispatch("openVersionFolder")}
       >
         <IconFolderOpen
           aria-label={$_("settings_versions_icon_openFolder_altText")}
@@ -124,7 +124,7 @@
               <Button
                 class="py-0 dark:bg-transparent focus:ring-0 disabled:opacity-50"
                 disabled={release.pendingAction}
-                on:click={async () => handleAction(release)}
+                onclick={async () => handleAction(release)}
               >
                 {#if release.isDownloaded}
                   <IconDeleteForever
@@ -150,7 +150,7 @@
                 <Button
                   class="py-0 dark:bg-transparent focus:ring-0 disabled:opacity-50"
                   disabled={release.pendingAction}
-                  on:click={() => handleRedownload(release)}
+                  onclick={() => handleRedownload(release)}
                 >
                   {#if release.pendingAction}
                     <Spinner color="yellow" size="6" />

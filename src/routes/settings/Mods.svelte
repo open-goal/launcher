@@ -63,7 +63,7 @@
     <Button
       class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-3 py-2 ml-2"
       disabled={newSourceURL === ""}
-      on:click={async () => {
+      onclick={async () => {
         await addModSource(newSourceURL, currentSourceData);
         await refreshModSourceData();
       }}
@@ -88,7 +88,7 @@
                 tdClass="flex ml-auto justify-end px-6 whitespace-nowrap font-medium text-gray-900 dark:text-white text-red-600"
                 ><Button
                   class="p-0 m-3 hover:text-red-500"
-                  on:click={async () => {
+                  onclick={async () => {
                     await removeModSource(source);
                     await refreshModSourceData();
                   }}

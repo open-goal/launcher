@@ -48,7 +48,7 @@
     <div class="flex flex-row mt-1 gap-3">
       <Button
         class="border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
-        on:click={async () => await updateHandler()}
+        onclick={async () => await updateHandler()}
         disabled={updating}
       >
         {#if updating}
@@ -58,7 +58,7 @@
       </Button>
       <Button
         class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
-        on:click={() => (showChanges = !showChanges)}
+        onclick={() => (showChanges = !showChanges)}
         >{$_("update_button_viewChangelog")}</Button
       >
       <Toggle
