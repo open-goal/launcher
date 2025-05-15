@@ -123,7 +123,12 @@
       class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
       >{$_("gameControls_button_features")}</Button
     >
-    <Dropdown trigger="hover" placement="top-end" class="!bg-slate-900">
+    <Dropdown
+      simple
+      trigger="hover"
+      placement="top-end"
+      class="!bg-slate-900 dark:text-white"
+    >
       <DropdownItem
         disabled={!textureSupportEnabled}
         onclick={async () => {
@@ -149,7 +154,12 @@
     >
       {$_("gameControls_button_advanced")}
     </Button>
-    <Dropdown trigger="hover" placement="top-end" class="!bg-slate-900">
+    <Dropdown
+      simple
+      trigger="hover"
+      placement="top-end"
+      class="!bg-slate-900 dark:text-white"
+    >
       <DropdownItem
         onclick={async () => {
           launchGame($activeGame, true);
@@ -174,7 +184,7 @@
         }}
         >{$_("gameControls_button_decompile")}
         <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-        <Helper helperClass="!text-neutral-400 !text-xs"
+        <Helper class="!text-neutral-400 !text-xs"
           >{$_("gameControls_button_decompile_helpText")}</Helper
         ></DropdownItem
       >
@@ -186,7 +196,7 @@
         }}
         >{$_("gameControls_button_compile")}
         <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-        <Helper helperClass="!text-neutral-400 !text-xs"
+        <Helper class="!text-neutral-400 !text-xs"
           >{$_("gameControls_button_compile_helpText")}
         </Helper></DropdownItem
       >
@@ -204,7 +214,12 @@
     >
       <IconCog />
     </Button>
-    <Dropdown trigger="hover" placement="top-end" class="!bg-slate-900">
+    <Dropdown
+      simple
+      trigger="hover"
+      placement="top-end"
+      class="!bg-slate-900 dark:text-white"
+    >
       <!-- TODO - screenshot folder? how do we even configure where those go? -->
       <DropdownItem
         onclick={async () => {
@@ -228,7 +243,7 @@
           toastStore.makeToast($_("toasts_copiedToClipboard"), "info");
         }}
         >{$_("gameControls_button_copyExecutableCommand")}<Helper
-          helperClass="!text-neutral-400 !text-xs"
+          class="!text-neutral-400 !text-xs"
           >{$_("gameControls_button_copyExecutableCommand_helpText_1")}<br
           />{$_("gameControls_button_copyExecutableCommand_helpText_2")}</Helper
         ></DropdownItem
@@ -253,7 +268,7 @@
           }
         }}
         >{$_("gameControls_button_uninstall")}<Helper
-          helperClass="!text-neutral-400 !text-xs"
+          class="!text-neutral-400 !text-xs"
           >{$_("gameControls_button_uninstall_helpText")}</Helper
         ></DropdownItem
       >
