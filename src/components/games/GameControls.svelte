@@ -127,7 +127,7 @@
       simple
       trigger="hover"
       placement="top-end"
-      class="!bg-slate-900 dark:text-white"
+      class="!bg-slate-900 dark:text-white **:w-full"
     >
       <DropdownItem
         disabled={!textureSupportEnabled}
@@ -142,6 +142,7 @@
         >
       {/if}
       <DropdownItem
+        class=""
         onclick={async () => {
           navigate(`/${$activeGame}/mods`);
         }}
@@ -150,7 +151,7 @@
       </DropdownItem>
     </Dropdown>
     <Button
-      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
     >
       {$_("gameControls_button_advanced")}
     </Button>
@@ -158,7 +159,7 @@
       simple
       trigger="hover"
       placement="top-end"
-      class="!bg-slate-900 dark:text-white"
+      class="!bg-slate-900 dark:text-white **:w-full"
     >
       <DropdownItem
         onclick={async () => {
@@ -218,7 +219,7 @@
       simple
       trigger="hover"
       placement="top-end"
-      class="!bg-slate-900 dark:text-white"
+      class="!bg-slate-900 dark:text-white **:w-full"
     >
       <!-- TODO - screenshot folder? how do we even configure where those go? -->
       <DropdownItem
