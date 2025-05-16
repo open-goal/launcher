@@ -44,14 +44,14 @@
 
   const dispatch = createEventDispatcher();
   let gameDataDir: string | undefined = undefined;
-  let settingsDir: string | undefined = undefined;
-  let savesDir: string | undefined = undefined;
-  let modVersionListSorted: string[] = [];
-  let modAssetUrlsSorted: string[] = [];
-  let currentlyInstalledVersion: string = "";
-  let numberOfVersionsOutOfDate = 0;
+  let settingsDir: string | undefined = $state(undefined);
+  let savesDir: string | undefined = $state(undefined);
+  let modVersionListSorted: string[] = $state([]);
+  let modAssetUrlsSorted: string[] = $state([]);
+  let currentlyInstalledVersion: string = $state("");
+  let numberOfVersionsOutOfDate = $state(0);
   let userPlatform: string = platform();
-  let checkForLatestModVersionChecked = false;
+  let checkForLatestModVersionChecked = $state(false);
 
   async function addModFromUrl(
     url: string,
@@ -264,9 +264,10 @@
         {/if}
       </Button>
       <Dropdown
+        simple
         trigger="hover"
         placement="top-end"
-        class="!bg-slate-900 overflow-y-auto px-2 py-2 max-h-[300px]"
+        class="!bg-slate-900 overflow-y-auto p-2 max-h-[300px] rounded-none"
       >
         <!-- wrap checkbox in div so that both box and text get tooltip -->
         <div id="checkbox_always_use_newest">
@@ -284,7 +285,7 @@
         <DropdownDivider />
         {#each modVersionListSorted as version, i}
           {#if version === currentlyInstalledVersion}
-            <DropdownItem class="text-orange-400 cursor-auto">
+            <DropdownItem class="text-orange-400">
               {version}
               {$_("gameControls_active")}
             </DropdownItem>
@@ -316,7 +317,12 @@
       >
         {$_("gameControls_button_advanced")}
       </Button>
-      <Dropdown trigger="hover" placement="top-end" class="!bg-slate-900">
+      <Dropdown
+        simple
+        trigger="hover"
+        placement="top-end"
+        class="!bg-slate-900 rounded-none **:w-full"
+      >
         <DropdownItem
           onclick={async () => {
             launchMod(
@@ -385,7 +391,12 @@
       >
         <IconCog />
       </Button>
-      <Dropdown trigger="hover" placement="top-end" class="!bg-slate-900">
+      <Dropdown
+        simple
+        trigger="hover"
+        placement="top-end"
+        class="!bg-slate-900"
+      >
         <!-- TODO - screenshot folder? how do we even configure where those go? -->
         {#if settingsDir}
           <DropdownItem
