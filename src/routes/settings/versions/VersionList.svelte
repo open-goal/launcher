@@ -102,7 +102,7 @@
           >{$_("settings_versions_table_header_changes")}</TableHeadCell
         >
       </TableHead>
-      <TableBody tableBodyClass="divide-y">
+      <TableBody class="divide-y *:text-white">
         {#each releaseList as release (release.version)}
           <TableBodyRow>
             <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
