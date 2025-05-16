@@ -66,7 +66,7 @@
     <div class="flex">
       <Button
         class="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
-        on:click={() => dispatch("refreshVersions")}
+        onclick={() => dispatch("refreshVersions")}
       >
         <IconRefresh
           aria-label={$_("settings_versions_icon_refresh_altText")}
@@ -74,7 +74,7 @@
       </Button>
       <Button
         class="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
-        on:click={() => dispatch("openVersionFolder")}
+        onclick={() => dispatch("openVersionFolder")}
       >
         <IconFolderOpen
           aria-label={$_("settings_versions_icon_openFolder_altText")}
@@ -102,7 +102,7 @@
           >{$_("settings_versions_table_header_changes")}</TableHeadCell
         >
       </TableHead>
-      <TableBody tableBodyClass="divide-y">
+      <TableBody class="divide-y *:text-white">
         {#each releaseList as release (release.version)}
           <TableBodyRow>
             <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
@@ -110,7 +110,7 @@
                 <Radio
                   bind:group={$VersionStore.activeVersionName}
                   value={release.version}
-                  on:change={() =>
+                  onchange={() =>
                     dispatch("versionChange", { version: release.version })}
                   disabled={!release.isDownloaded}
                   class="disabled:cursor-not-allowed p-0"
@@ -124,7 +124,7 @@
               <Button
                 class="py-0 dark:bg-transparent focus:ring-0 disabled:opacity-50"
                 disabled={release.pendingAction}
-                on:click={async () => handleAction(release)}
+                onclick={async () => handleAction(release)}
               >
                 {#if release.isDownloaded}
                   <IconDeleteForever
@@ -150,7 +150,7 @@
                 <Button
                   class="py-0 dark:bg-transparent focus:ring-0 disabled:opacity-50"
                   disabled={release.pendingAction}
-                  on:click={() => handleRedownload(release)}
+                  onclick={() => handleRedownload(release)}
                 >
                   {#if release.pendingAction}
                     <Spinner color="yellow" size="6" />

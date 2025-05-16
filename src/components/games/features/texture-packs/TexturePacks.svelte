@@ -284,20 +284,19 @@
             disabled={addingPack}
             outline
             class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
-            on:click={async () =>
-              navigate(`/${$activeGame}`, { replace: true })}
+            onclick={async () => navigate(`/${$activeGame}`, { replace: true })}
             aria-label={$_("features_backToGamePage_buttonAlt")}
           >
             <IconArrowLeft />
           </Button>
           <Button
             class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
-            on:click={addNewTexturePack}
+            onclick={addNewTexturePack}
             aria-label={$_("features_textures_addNewPack_buttonAlt")}
             disabled={addingPack}
           >
             {#if addingPack}
-              <Spinner class="mr-3" size="4" color="white" />
+              <Spinner class="mr-3" size="4" color="yellow" />
             {/if}
             {$_("features_textures_addNewPack")}</Button
           >
@@ -305,7 +304,7 @@
             <Button
               disabled={addingPack}
               class="flex-shrink border-solid rounded bg-green-400 hover:bg-green-500 text-sm text-slate-900 font-semibold px-5 py-2"
-              on:click={applyTexturePacks}
+              onclick={applyTexturePacks}
               aria-label={$_("features_textures_applyChanges_buttonAlt")}
               >{$_("features_textures_applyChanges")}</Button
             >
@@ -337,12 +336,11 @@
             <div class="flex flex-row gap-2 mt-3">
               <!-- Placeholder image -->
               <Card
+                horizontal={true}
                 img={convertFileSrc(
                   extractedPackInfo[pack.name]["coverImagePath"],
                 )}
-                horizontal
-                class="texture-pack-card max-w-none md:max-w-none basis-full"
-                padding="md"
+                class="texture-pack-card max-w-none basis-full"
               >
                 <div class="flex flex-row mt-auto">
                   <h2 class="text-xl font-bold tracking-tight text-white">
@@ -375,10 +373,11 @@
                 {/if}
                 <!-- Buttons -->
                 <div class="mt-2 flex flex-row gap-2">
+                  <!-- TODO: this button should be a toggle tbh -->
                   <Button
                     size={"xs"}
                     color={pack.enabled ? "green" : "red"}
-                    on:click={() => {
+                    onclick={() => {
                       pack.enabled = !pack.enabled;
                     }}
                   >
@@ -394,7 +393,7 @@
                         outline
                         class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
                         aria-label={$_("features_textures_moveUp_buttonAlt")}
-                        on:click={() => {
+                        onclick={() => {
                           moveTexturePack(packIndex - 1, packIndex);
                         }}
                       >
@@ -406,7 +405,7 @@
                         outline
                         class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
                         aria-label={$_("features_textures_moveDown_buttonAlt")}
-                        on:click={() => {
+                        onclick={() => {
                           moveTexturePack(packIndex + 1, packIndex);
                         }}
                       >
@@ -418,7 +417,7 @@
                     outline
                     class="!p-1.5 rounded-md border-red-500 text-red-500 hover:bg-red-600"
                     aria-label={$_("features_textures_deletePack_buttonAlt")}
-                    on:click={() => {
+                    onclick={() => {
                       pack.toBeDeleted = true;
                       pack.enabled = false;
                     }}

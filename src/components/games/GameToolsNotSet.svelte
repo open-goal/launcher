@@ -12,7 +12,7 @@
     {$_("gameControls_noToolingSet_subheader")}
   </p>
   <Button
-    on:click={async () => {
+    onclick={async () => {
       navigate(`/settings/versions`, {
         replace: true,
       });
