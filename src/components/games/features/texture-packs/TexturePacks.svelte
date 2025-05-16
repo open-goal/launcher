@@ -336,12 +336,11 @@
             <div class="flex flex-row gap-2 mt-3">
               <!-- Placeholder image -->
               <Card
+                horizontal={true}
                 img={convertFileSrc(
                   extractedPackInfo[pack.name]["coverImagePath"],
                 )}
-                horizontal
-                class="texture-pack-card max-w-none md:max-w-none basis-full"
-                padding="md"
+                class="texture-pack-card max-w-none basis-full"
               >
                 <div class="flex flex-row mt-auto">
                   <h2 class="text-xl font-bold tracking-tight text-white">
@@ -374,6 +373,7 @@
                 {/if}
                 <!-- Buttons -->
                 <div class="mt-2 flex flex-row gap-2">
+                  <!-- TODO: this button should be a toggle tbh -->
                   <Button
                     size={"xs"}
                     color={pack.enabled ? "green" : "red"}
