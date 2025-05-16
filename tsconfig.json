@@ -3,7 +3,7 @@
   "compilerOptions": {
     "moduleResolution": "node",
     "target": "esnext",
-    "module": "esnext",
+    "module": "ESNext",
     "resolveJsonModule": true,
     "isolatedModules": true,
     /**

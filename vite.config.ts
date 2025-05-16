@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import tailwindcss from "@tailwindcss/vite";
 import Icons from "unplugin-icons/vite";
 import { fileURLToPath, URL } from "url";
 
@@ -17,6 +18,7 @@ export default defineConfig({
     Icons({
       compiler: "svelte",
     }),
+    tailwindcss(),
   ],
   resolve: {
     alias: {
