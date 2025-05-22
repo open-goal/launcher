@@ -21,6 +21,7 @@
   import { getAutoUpdateGames, saveActiveVersionChange } from "$lib/rpc/config";
   import { check } from "@tauri-apps/plugin-updater";
   import { relaunch } from "@tauri-apps/plugin-process";
+  import { ask } from "@tauri-apps/plugin-dialog";
 
   let launcherVerison = null;
   const appWindow = getCurrentWebviewWindow();
@@ -48,35 +49,19 @@
     if (!isInDebugMode()) {
       const update = await check();
       if (update) {
-        console.log(
-          `found update ${update.version} from ${update.date} with notes ${update.body}`,
+        const doUpdate = await ask(
+          `${$_("update_versionLabel")}: ${update.version}`,
+          {
+            title: $_("header_updateAvailable"),
+            kind: "info",
+          },
         );
-        let downloaded = 0;
-        let contentLength = 0;
-        // alternatively we could also call update.download() and update.install() separately
-        await update.downloadAndInstall((event) => {
-          switch (event.event) {
-            case "Started":
-              contentLength = event.data.contentLength;
-              console.log(
-                `started downloading ${event.data.contentLength} bytes`,
-              );
-              break;
-            case "Progress":
-              downloaded += event.data.chunkLength;
-              console.log(`downloaded ${downloaded} from ${contentLength}`);
-              break;
-            case "Finished":
-              console.log("download finished");
-              break;
-          }
-        });
-
-        console.log("update installed");
-        await relaunch();
+        if (doUpdate) {
+          await update.downloadAndInstall();
+          await relaunch();
+        }
       }
     }
-
     await checkIfLatestVersionInstalled();
   });
 
@@ -151,16 +136,6 @@
   <div
     class="flex flex-col text-orange-500 pointer-events-none overflow-hidden"
   >
-    <p
-      class="font-mono text-sm truncate-text hover:text-orange-300 {$UpdateStore
-        .launcher.updateAvailable
-        ? 'pointer-events-auto'
-        : 'invisible pointer-events-none'}"
-    >
-      <Link class="font-mono" to="/update"
-        >>&nbsp;{$_("header_updateAvailable")}</Link
-      >
-    </p>
     <p
       class="font-mono text-sm truncate-text hover:text-orange-300 {$UpdateStore
         .selectedTooling.updateAvailable
