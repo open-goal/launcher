@@ -44,7 +44,7 @@
     <Toggle
       checked={ripLevels}
       color="orange"
-      on:change={async (evt) => {
+      onchange={async (evt) => {
         await setRipLevelsEnabled(evt.target.checked);
         ripLevels = await isRipLevelsEnabled();
       }}>{$_("settings_decompiler_ripLevels")}</Toggle
@@ -52,7 +52,7 @@
     <Toggle
       checked={ripCollision}
       color="orange"
-      on:change={async (evt) => {
+      onchange={async (evt) => {
         await setRipCollisionEnabled(evt.target.checked);
         ripCollision = await isRipCollisionEnabled();
       }}>{$_("settings_decompiler_ripCollision")}</Toggle
@@ -60,7 +60,7 @@
     <Toggle
       checked={ripTextures}
       color="orange"
-      on:change={async (evt) => {
+      onchange={async (evt) => {
         await setRipTexturesEnabled(evt.target.checked);
         ripTextures = await isRipTexturesEnabled();
       }}>{$_("settings_decompiler_ripTextures")}</Toggle
@@ -68,7 +68,7 @@
     <Toggle
       checked={ripStreamedAudio}
       color="orange"
-      on:change={async (evt) => {
+      onchange={async (evt) => {
         await setRipStreamedAudioEnabled(evt.target.checked);
         ripStreamedAudio = await isRipStreamedAudioEnabled();
       }}>{$_("settings_decompiler_ripStreamedAudio")}</Toggle

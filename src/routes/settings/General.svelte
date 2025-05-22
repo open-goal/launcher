@@ -84,7 +84,7 @@
         class="mt-2"
         items={availableLocales}
         bind:value={$currentLocale}
-        on:change={async () => {
+        onchange={async () => {
           await setLocale($currentLocale);
           localeFontForDownload =
             await localeSpecificFontAvailableForDownload($currentLocale);
@@ -105,7 +105,7 @@
       <Button
         class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
         disabled={localeFontDownloading}
-        on:click={async () => {
+        onclick={async () => {
           if (
             localeFontForDownload !== undefined &&
             localeFontForDownload.fontDownloadUrl !== undefined &&
@@ -126,7 +126,7 @@
         }}
       >
         {#if localeFontDownloading}
-          <Spinner class="mr-3" size="4" color="white" />
+          <Spinner class="mr-3" size="4" color="yellow" />
         {/if}
         {$_("settings_general_downloadLocaleSpecificFont")}
       </Button>
@@ -140,7 +140,7 @@
       <Input
         id="default-input"
         placeholder={currentInstallationDirectory}
-        on:click={async () => {
+        onclick={async () => {
           const newInstallDir = await folderPrompt(
             $_("settings_folders_installationDir_prompt"),
           );
@@ -168,7 +168,7 @@
     <Toggle
       color="orange"
       bind:checked={$keepGamesUpdated}
-      on:change={async () => {
+      onchange={async () => {
         $uninstallOldVersions = false;
       }}
       class="mb-2">{$_("settings_general_keep_updated")}</Toggle
@@ -183,7 +183,7 @@
     <Toggle
       checked={currentBypassRequirementsVal}
       color="orange"
-      on:change={async (evt) => {
+      onchange={async (evt) => {
         if (evt.target.checked) {
           const confirmed = await confirm(
             `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
@@ -207,7 +207,7 @@
   <div>
     <Button
       class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
-      on:click={async () => {
+      onclick={async () => {
         const confirmed = await confirm(
           $_("settings_general_button_resetSettings_confirmation"),
         );

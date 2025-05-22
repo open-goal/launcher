@@ -5,8 +5,10 @@
   import { Button, Card } from "flowbite-svelte";
   import { createEventDispatcher, onMount } from "svelte";
   import { _ } from "svelte-i18n";
+  import { useNavigate } from "svelte-navigator";
 
   const dispatch = createEventDispatcher();
+  const navigate = useNavigate();
 
   export let installedVersion: String | undefined;
 
@@ -23,7 +25,7 @@
 </script>
 
 <div class="flex flex-col h-full justify-center items-center">
-  <Card size="lg" padding="xl" class="!pt-5 !pb-5 !bg-[#141414]">
+  <Card size="lg" class="!pt-5 px-8 !pb-5 !bg-[#141414]">
     <h5
       class="mb-2 text-xl font-bold text-gray-900 dark:text-white text-center"
     >
@@ -70,7 +72,7 @@
       >
         <Button
           class="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-          on:click={async () => {
+          onclick={async () => {
             dispatch("job", {
               type: "updateGame",
             });
@@ -78,8 +80,11 @@
         >
         <Button
           class="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-          href="/settings/versions"
-          >{$_("gameUpdate_versionMismatch_button_changeVersion")}</Button
+          onclick={async () => {
+            navigate(`/settings/versions`, {
+              replace: true,
+            });
+          }}>{$_("gameUpdate_versionMismatch_button_changeVersion")}</Button
         >
       </div>
     {/if}

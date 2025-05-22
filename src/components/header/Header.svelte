@@ -167,7 +167,7 @@
         ? 'pointer-events-auto'
         : 'invisible pointer-events-none'}"
     >
-      <Link class="font-mono " to="/settings"
+      <Link class="font-mono " to="/settings/versions"
         >>&nbsp;{$_("header_updateAvailable")}</Link
       >
     </p>

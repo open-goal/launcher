@@ -196,7 +196,7 @@
   <div>
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-      on:click={async () => {
+      onclick={async () => {
         isAVXMet = await isAVXRequirementMet();
         isOpenGLMet = await isOpenGLRequirementMet(true);
         dispatch("recheckRequirements");
@@ -204,7 +204,7 @@
     >
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-orange-800 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-      on:click={async () => {
+      onclick={async () => {
         const confirmed = await confirm(
           `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
             "requirements_button_bypass_warning_2",

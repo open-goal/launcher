@@ -161,19 +161,19 @@
         <Button
           outline
           class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
-          on:click={async () => navigate(`/${$activeGame}`, { replace: true })}
+          onclick={async () => navigate(`/${$activeGame}`, { replace: true })}
           aria-label={$_("features_backToGamePage_buttonAlt")}
         >
           <IconArrowLeft />
         </Button>
         <Button
           class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
-          on:click={addModFromFile}
+          onclick={addModFromFile}
           aria-label={$_("features_mods_addFromFile_buttonAlt")}
           disabled={addingMod}
         >
           {#if addingFromFile}
-            <Spinner class="mr-3" size="4" color="white" />
+            <Spinner class="mr-3" size="4" color="yellow" />
           {/if}
           {$_("features_mods_addFromFile")}</Button
         >
@@ -235,7 +235,7 @@
           </p>
           <Button
             class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
-            on:click={async () => {
+            onclick={async () => {
               navigate(`/settings/mod`, {
                 replace: true,
               });
@@ -280,6 +280,10 @@
                     </a>
                   {:else}
                     <button
+                      hidden={!isLatestVersionOfModSupportedOnCurrentPlatform(
+                        userPlatform,
+                        modInfo,
+                      )}
                       disabled={!isLatestVersionOfModSupportedOnCurrentPlatform(
                         userPlatform,
                         modInfo,
