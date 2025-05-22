@@ -25,7 +25,6 @@
   import IconArrowUp from "~icons/mdi/arrow-up";
   import IconArrowDown from "~icons/mdi/arrow-down";
   import IconDelete from "~icons/mdi/delete";
-  import IconInfo from "~icons/mdi/information";
   import { convertFileSrc } from "@tauri-apps/api/core";
   import {
     Accordion,
