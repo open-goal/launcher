@@ -33,7 +33,7 @@ rev_buf_reader = "0.3.0"
 semver = "1.0.24"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.134"
-sysinfo = "0.34.1"
+sysinfo = "0.35.1"
 tar = "0.4.43"
 tauri = { version = "2.4.0", features = [ "protocol-asset", "devtools"] }
 thiserror = "2.0.9"
@@ -41,9 +41,9 @@ tokio = { version = "1", features = ["full"] }
 ts-rs = "10.1"
 walkdir = "2.5.0"
 zip = { version = "2.2.2", features = ["deflate-zlib-ng"] }
-zip-extract = "0.2.1"
+zip-extract = "0.3.0"
 tempfile = "3.14.0"
-native-dialog = "0.7.0"
+native-dialog = "0.9.0"
 tokio-util = "0.7.13"
 tauri-codegen = "2.1.0"
 tauri-plugin = "2.1.0"
