@@ -10,7 +10,7 @@ use tokio::sync::OnceCell;
 use util::file::create_dir;
 
 use backtrace::Backtrace;
-use native_dialog::{MessageDialog, MessageType};
+use native_dialog::{DialogBuilder, MessageLevel};
 use std::io::Write;
 
 mod cache;
@@ -48,11 +48,12 @@ fn log_crash(panic_info: Option<&std::panic::PanicHookInfo>, error: Option<tauri
   }
   dialog_text = format!("{dialog_text}\n\nDetails:\n{log_contents}");
 
-  MessageDialog::new()
-    .set_type(MessageType::Error)
+  DialogBuilder::message()
+    .set_level(MessageLevel::Error)
     .set_title("OpenGOAL Launcher Crash Info")
-    .set_text(&dialog_text)
-    .show_alert()
+    .set_text(format!("{:?}", &dialog_text))
+    .alert()
+    .show()
     .unwrap();
 }
 
