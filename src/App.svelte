@@ -6,7 +6,6 @@
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
   import Header from "./components/header/Header.svelte";
-  import Update from "./routes/Update.svelte";
   import { isInDebugMode } from "$lib/utils/common";
   import Toast from "./components/toast/Toast.svelte";
   import Help from "./routes/Help.svelte";
@@ -104,7 +103,6 @@
           />
           <Route path="/settings/*tab" component={Settings} primary={false} />
           <Route path="/faq" component={Help} primary={false} />
-          <Route path="/update" component={Update} primary={false} />
         </div>
       </div>
       <Toast />
