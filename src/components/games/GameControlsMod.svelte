@@ -285,12 +285,13 @@
         <DropdownDivider />
         {#each modVersionListSorted as version, i}
           {#if version === currentlyInstalledVersion}
-            <DropdownItem class="text-orange-400">
+            <DropdownItem class="text-orange-400 w-full">
               {version}
               {$_("gameControls_active")}
             </DropdownItem>
           {:else}
             <DropdownItem
+              class="w-full"
               onclick={async () => {
                 await addModFromUrl(
                   modAssetUrlsSorted[i],
