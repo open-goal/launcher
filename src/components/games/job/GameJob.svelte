@@ -13,7 +13,6 @@
   import {
     finalizeInstallation,
     getProceedAfterSuccessfulOperation,
-    setEnabledTexturePacks,
   } from "$lib/rpc/config";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { _ } from "svelte-i18n";
@@ -21,21 +20,15 @@
     baseGameIsoExists,
     compileForModInstall,
     decompileForModInstall,
-    deleteTexturePacks,
     downloadAndExtractNewMod,
     extractIsoForModInstall,
     saveModInstallInfo,
-    updateTexturePackData,
   } from "$lib/rpc/features";
   import { isoPrompt } from "$lib/utils/file-dialogs";
   import { emit } from "@tauri-apps/api/event";
   import { activeGame } from "$lib/stores/AppStore";
 
   export let jobType: Job;
-
-  // texture packs
-  export let texturePacksToDelete: string[] | undefined = undefined;
-  export let texturePacksToEnable: string[] | undefined = undefined;
 
   // mods
   export let modDownloadUrl: string | undefined = undefined;
