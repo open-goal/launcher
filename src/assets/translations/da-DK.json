@@ -156,7 +156,7 @@
   "setup_copyFiles": "Kopier Filer",
   "setup_decompile": "Decompile",
   "setup_done": "Færdig",
-  "setup_extractAndVerify": "Extract and Verify",
+  "setup_extractAndVerify": "Extract",
   "setup_installationFailed": "Installation has Failed!",
   "setup_logs_header": "Logs",
   "setup_logs_truncation": "Sidste 250 linjer",

@@ -156,7 +156,7 @@
   "setup_copyFiles": "複製檔案",
   "setup_decompile": "反編譯",
   "setup_done": "完成",
-  "setup_extractAndVerify": "Extract and Verify",
+  "setup_extractAndVerify": "Extract",
   "setup_installationFailed": "安裝失敗！",
   "setup_logs_header": "Logs",
   "setup_logs_truncation": "Last 250 Lines",

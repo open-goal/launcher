@@ -156,7 +156,7 @@
   "setup_copyFiles": "Copy Files",
   "setup_decompile": "Decompile",
   "setup_done": "Done",
-  "setup_extractAndVerify": "Extract and Verify",
+  "setup_extractAndVerify": "Extract",
   "setup_installationFailed": "Installation has Failed!",
   "setup_logs_header": "Logs",
   "setup_logs_truncation": "Last 250 Lines",

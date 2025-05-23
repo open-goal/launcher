@@ -125,7 +125,7 @@
     class="flex flex-col text-neutral-300 mr-2 pointer-events-none max-w-[250px]"
   >
     <p class="font-mono text-sm truncate-text">
-      {launcherVerison === null ? "not set!" : launcherVerison}
+      {launcherVerison}
     </p>
     <p class="font-mono text-sm truncate-text">
       {$VersionStore.activeVersionName === null
@@ -133,20 +133,13 @@
         : $VersionStore.activeVersionName}
     </p>
   </div>
-  <div
-    class="flex flex-col text-orange-500 pointer-events-none overflow-hidden"
-  >
-    <p
-      class="font-mono text-sm truncate-text hover:text-orange-300 {$UpdateStore
-        .selectedTooling.updateAvailable
-        ? 'pointer-events-auto'
-        : 'invisible pointer-events-none'}"
-    >
-      <Link class="font-mono " to="/settings/versions"
-        >>&nbsp;{$_("header_updateAvailable")}</Link
-      >
-    </p>
-  </div>
+  {#if $UpdateStore.selectedTooling.updateAvailable}
+    <Link
+      class="font-mono text-sm mt-5 truncate-text text-orange-500 hover:text-orange-300"
+      to="/settings/versions"
+      >>&nbsp;{$_("header_updateAvailable")}
+    </Link>
+  {/if}
   <div class="flex shrink-0 space-x-4 text-xl ml-auto">
     <button class="hover:text-amber-600" on:click={() => appWindow.minimize()}>
       <IconWindowMinimize />
