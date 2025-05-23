@@ -311,13 +311,13 @@
         </div>
         {#if packAddingError !== ""}
           <div class="flex flex-row font-bold mt-3">
-            <Alert color="red" class="flex-grow">
+            <Alert class="flex-grow text-red-400">
               {packAddingError}
             </Alert>
           </div>
         {:else}
           <div class="flex flex-row font-bold mt-3">
-            <Alert color="red" class="flex-grow">
+            <Alert class="flex-grow text-red-400">
               {$_("features_textures_largePackWarning")}
             </Alert>
           </div>

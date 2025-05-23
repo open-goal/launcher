@@ -84,7 +84,7 @@
   </div>
 
   {#if releaseList.length === 0}
-    <Alert color="red" class="dark:bg-slate-900 flex-grow">
+    <Alert class="dark:bg-slate-900 flex-grow text-red-400">
       {$_("settings_versions_noReleasesFound")}
     </Alert>
   {:else}

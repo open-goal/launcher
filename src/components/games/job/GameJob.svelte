@@ -414,7 +414,7 @@
 {:else if $progressTracker.overallStatus === "failed"}
   <div class="flex flex-col mt-auto">
     <div class="flex flex-row gap-2">
-      <Alert color="red" class="dark:bg-slate-900 flex-grow">
+      <Alert class="dark:bg-slate-900 flex-grow text-red-400">
         <span class="font-medium text-red-500"
           >{$_("setup_installationFailed")}
         </span><span class="text-white"> {installationError}</span>

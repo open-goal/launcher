@@ -41,7 +41,7 @@
 </script>
 
 <div class="flex flex-col gap-2 mt-2">
-  <Alert color="red" rounded={false} class="border-t-4">
+  <Alert rounded={false} class="border-t-4 text-red-400">
     <span class="font-bold">{$_("settings_mods_warning_header")}</span>
     <br />
     <p>
