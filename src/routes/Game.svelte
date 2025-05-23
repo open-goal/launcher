@@ -48,7 +48,7 @@
   export let game_name;
   $: activeGame.set(game_name);
 
-  $: gameInBeta = $activeGame === SupportedGame.Jak2;
+  $: gameInBeta = $activeGame === SupportedGame.Jak3;
   let gameSupportedByTooling = false;
   let showVccWarning;
   $: showVccWarning = type() == "windows" && !$isMinVCCRuntime;
