@@ -7,10 +7,12 @@
   import { link, useLocation, useNavigate } from "svelte-navigator";
   import { Tooltip } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
+  import { progressTracker } from "$lib/stores/ProgressStore";
 
   const location = useLocation();
   const navigate = useNavigate();
   $: $location.pathname;
+  $: disabled = $progressTracker.overallStatus == "pending";
 
   function getNavStyle(): string {
     const baseStyle =
@@ -39,51 +41,87 @@
 <div class={getNavStyle()}>
   <ul class="flex flex-col h-full space-y-10 px-1 py-5 items-center">
     <li>
-      <a id="jak1" class={getNavItemStyle("jak1")} href="/jak1" use:link>
+      <button
+        id="jak1"
+        class={getNavItemStyle("jak1")}
+        onclick={async () => {
+          navigate(`/jak1`);
+        }}
+        use:link
+        {disabled}
+      >
         <img
           src={logoJak1}
           alt="Jak - The Precursor Legacy"
           aria-label="Jak - The Precursor Legacy"
         />
-      </a>
+      </button>
       <Tooltip triggeredBy="#jak1" placement="right" type="dark"
         >{$_("gameName_jak1")}</Tooltip
       >
     </li>
     <li>
-      <a id="jak2" class={getNavItemStyle("jak2")} href="/jak2" use:link>
+      <button
+        id="jak2"
+        class={getNavItemStyle("jak2")}
+        onclick={async () => {
+          navigate(`/jak2`);
+        }}
+        use:link
+        {disabled}
+      >
         <img src={logoJak2} alt="Jak 2" aria-label="Jak 2" />
-      </a>
+      </button>
       <Tooltip triggeredBy="#jak2" placement="right" type="dark"
         >{$_("gameName_jak2")}</Tooltip
       >
     </li>
     <li>
-      <a id="jak3" class={getNavItemStyle("jak3")} href="/jak3" use:link>
+      <button
+        id="jak3"
+        class={getNavItemStyle("jak3")}
+        onclick={async () => {
+          navigate(`/jak3`);
+        }}
+        use:link
+        {disabled}
+      >
         <img src={logoJak3} alt="Jak 3" aria-label="Jak 3" />
-      </a>
+      </button>
       <Tooltip triggeredBy="#jak3" placement="right" type="dark"
         >{$_("gameName_jak3")}</Tooltip
       >
     </li>
     <li class="!mt-auto">
-      <a
+      <button
         id="settings"
         class={getNavItemStyle("settings")}
-        href="/settings/general"
+        onclick={async () => {
+          navigate(`/settings/general`);
+        }}
         use:link
+        {disabled}
       >
         <IconCog style="font-size: 36px" />
-      </a>
+      </button>
       <Tooltip triggeredBy="#settings" placement="right" type="dark"
         >{$_("sidebar_settings")}</Tooltip
       >
     </li>
 
     <li>
-      <a id="faq" class={getNavItemStyle("faq")} href="/faq" use:link>
+      <button
+        id="faq"
+        class={getNavItemStyle("faq")}
+        use:link
+        onclick={async () => {
+          navigate(`/faq`);
+        }}
+        use:link
+        {disabled}
+      >
         <IconChatQuestion style="font-size: 36px" />
-      </a>
+      </button>
       <Tooltip triggeredBy="#faq" placement="right" type="dark"
         >{$_("sidebar_help")}</Tooltip
       >
