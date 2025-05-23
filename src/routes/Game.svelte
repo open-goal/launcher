@@ -119,6 +119,8 @@
   {#if $VersionStore.activeVersionName === null}
     <GameToolsNotSet />
   {:else if $activeGame == SupportedGame.Jak3}
+    <!-- TODO: remove this else if arm for jak3 support -->
+    <!-- Delete GameInProgress.svelte component -->
     <GameInProgress />
   {:else if !gameSupportedByTooling}
     <GameNotSupportedByTooling />
