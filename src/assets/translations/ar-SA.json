@@ -156,7 +156,7 @@
   "setup_copyFiles": "Copy Files",
   "setup_decompile": "Decompile",
   "setup_done": "Done",
-  "setup_extractAndVerify": "Extract and Verify",
+  "setup_extractAndVerify": "Extract",
   "setup_installationFailed": "فشل التنصيب!",
   "setup_logs_header": "سجلات",
   "setup_logs_truncation": "آخر 250 سطر",
