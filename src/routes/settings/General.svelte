@@ -78,7 +78,7 @@
 
 <div class="flex flex-col gap-5 mt-2">
   <div>
-    <Label
+    <Label class="text-gray-200"
       >{$_("settings_general_localeChange")}
       <Select
         class="mt-2"
@@ -134,7 +134,7 @@
   </div>
   {#if !isLinux}
     <div>
-      <Label for="default-input" class="block mb-2"
+      <Label for="default-input" class="block mb-2 text-gray-200"
         >{$_("settings_folders_installationDir")}</Label
       >
       <Input
@@ -164,7 +164,7 @@
       >
     </div>
   {/if}
-  <div>
+  <div class="*:text-gray-200">
     <Toggle
       color="orange"
       bind:checked={$keepGamesUpdated}

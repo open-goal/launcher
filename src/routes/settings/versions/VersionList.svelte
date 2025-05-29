@@ -59,13 +59,13 @@
 {:else}
   <div class="flex items-center mb-2">
     <div class="grow">
-      <p class="text-sm text-gray-400 dark:text-gray-300">
+      <p class="text-sm text-gray-400 text-gray-300">
         {description}
       </p>
     </div>
     <div class="flex">
       <Button
-        class="!p-2 mr-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
+        class="!p-2 mr-2 rounded-md bg-orange-500 hover:bg-orange-600 text-slate-900"
         onclick={() => dispatch("refreshVersions")}
       >
         <IconRefresh
@@ -73,7 +73,7 @@
         />
       </Button>
       <Button
-        class="!p-2 rounded-md dark:bg-orange-500 hover:dark:bg-orange-600 text-slate-900"
+        class="!p-2 rounded-md bg-orange-500 hover:bg-orange-600 text-slate-900"
         onclick={() => dispatch("openVersionFolder")}
       >
         <IconFolderOpen
@@ -84,12 +84,12 @@
   </div>
 
   {#if releaseList.length === 0}
-    <Alert class="dark:bg-slate-900 flex-grow text-red-400">
+    <Alert class="bg-slate-900 flex-grow text-red-400">
       {$_("settings_versions_noReleasesFound")}
     </Alert>
   {:else}
     <Table>
-      <TableHead>
+      <TableHead class="bg-slate-400">
         <TableHeadCell></TableHeadCell>
         <TableHeadCell></TableHeadCell>
         <TableHeadCell
@@ -104,7 +104,7 @@
       </TableHead>
       <TableBody class="divide-y *:text-white">
         {#each releaseList as release (release.version)}
-          <TableBodyRow>
+          <TableBodyRow class="bg-slate-700">
             <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
               {#if release.isDownloaded}
                 <Radio
@@ -122,7 +122,7 @@
               style="line-height: 0;"
             >
               <Button
-                class="py-0 dark:bg-transparent focus:ring-0 disabled:opacity-50"
+                class="py-0 bg-transparent focus:ring-0 disabled:opacity-50"
                 disabled={release.pendingAction}
                 onclick={async () => handleAction(release)}
               >
@@ -148,7 +148,7 @@
               </Button>
               {#if release.isDownloaded}
                 <Button
-                  class="py-0 dark:bg-transparent focus:ring-0 disabled:opacity-50"
+                  class="py-0 bg-transparent focus:ring-0 disabled:opacity-50"
                   disabled={release.pendingAction}
                   onclick={() => handleRedownload(release)}
                 >

@@ -37,7 +37,7 @@
 
 <!-- TODO - bug if a game is uninstalled and the directory isn't found, it fails -->
 
-<div class="flex flex-col gap-4 mt-2">
+<div class="flex flex-col gap-4 mt-2 *:text-gray-200">
   {#if !decompilerOptionsAllowed}
     <p class="text-red-500">{$_("settings_decompiler_toolingVersionTooLow")}</p>
   {:else}

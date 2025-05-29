@@ -52,7 +52,7 @@
     </p>
   </Alert>
   <div>
-    <Label for="default-input" class="block mb-2"
+    <Label for="default-input" class="block mb-2 text-slate-200"
       >{$_("settings_mods_addSource_label")}</Label
     >
   </div>
@@ -76,10 +76,10 @@
   </div>
   <div class="mt-2">
     {#if pageLoaded && currentSources.length > 0}
-      <Table striped={true}>
-        <TableBody class="divide-y">
+      <Table>
+        <TableBody class="divide-y bg-slate-700">
           {#each currentSources as source, i}
-            <TableBodyRow class="flex items-center">
+            <TableBodyRow class="flex items-center bg-slate-700">
               <TableBodyCell
                 class="px-4 whitespace-nowrap font-medium text-gray-900 dark:text-white text-wrap"
                 >{source}</TableBodyCell
@@ -87,7 +87,7 @@
               <TableBodyCell
                 class="flex ml-auto justify-end px-4 whitespace-nowrap font-medium text-gray-900 dark:text-white text-red-600"
                 ><Button
-                  class="p-0 m-3 hover:text-red-500"
+                  class="p-0 m-3 hover:text-red-500 text-slate-800 dark:text-gray-200"
                   onclick={async () => {
                     await removeModSource(source);
                     await refreshModSourceData();
