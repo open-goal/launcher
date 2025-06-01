@@ -43,7 +43,11 @@
     let installationDir = await getInstallationDirectory();
     if (installationDir !== null) {
       gameDataDir = await join(installationDir, "active", $activeGame, "data");
-      extractedAssetsDir = await join(gameDataDir, "decompiler_out", $activeGame);
+      extractedAssetsDir = await join(
+        gameDataDir,
+        "decompiler_out",
+        $activeGame,
+      );
     }
     settingsDir = await join(
       await configDir(),

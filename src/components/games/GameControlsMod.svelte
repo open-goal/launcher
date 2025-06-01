@@ -85,7 +85,11 @@
         $modInfoStore?.name,
         "data",
       );
-      extractedAssetsDir = await join(gameDataDir, "decompiler_out", $activeGame);
+      extractedAssetsDir = await join(
+        gameDataDir,
+        "decompiler_out",
+        $activeGame,
+      );
       settingsDir = await join(
         installationDir,
         "features",
