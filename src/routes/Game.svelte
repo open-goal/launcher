@@ -159,7 +159,7 @@
         </ul>
       </Alert>
     {/if}
-    
+
     <!-- Jak 2 BETA warning -->
     {#if $activeGame === SupportedGame.Jak2}
       <Alert rounded={false} class="border-t-4 text-red-400">
