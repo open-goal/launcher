@@ -44,6 +44,7 @@
 
   const dispatch = createEventDispatcher();
   let gameDataDir: string | undefined = undefined;
+  let extractedAssetsDir: string | undefined = undefined;
   let settingsDir: string | undefined = $state(undefined);
   let savesDir: string | undefined = $state(undefined);
   let modVersionListSorted: string[] = $state([]);
@@ -84,6 +85,7 @@
         $modInfoStore?.name,
         "data",
       );
+      extractedAssetsDir = await join(gameDataDir, "decompiler_out", $activeGame);
       settingsDir = await join(
         installationDir,
         "features",
@@ -375,6 +377,13 @@
               await openDir(gameDataDir);
             }
           }}>{$_("gameControls_button_openGameFolder")}</DropdownItem
+        >
+        <DropdownItem
+          onclick={async () => {
+            if (extractedAssetsDir) {
+              await openDir(extractedAssetsDir);
+            }
+          }}>{$_("gameControls_button_openExtractedAssetsFolder")}</DropdownItem
         >
       </Dropdown>
     {/if}

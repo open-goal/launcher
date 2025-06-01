@@ -10,7 +10,7 @@
     setRipStreamedAudioEnabled,
     setRipTexturesEnabled,
   } from "$lib/rpc/config";
-  import { Toggle } from "flowbite-svelte";
+  import { Toggle, Label } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
 
@@ -41,37 +41,41 @@
   {#if !decompilerOptionsAllowed}
     <p class="text-red-500">{$_("settings_decompiler_toolingVersionTooLow")}</p>
   {:else}
-    <Toggle
-      checked={ripLevels}
-      color="orange"
-      onchange={async (evt) => {
-        await setRipLevelsEnabled(evt.target.checked);
-        ripLevels = await isRipLevelsEnabled();
-      }}>{$_("settings_decompiler_ripLevels")}</Toggle
-    >
-    <Toggle
-      checked={ripCollision}
-      color="orange"
-      onchange={async (evt) => {
-        await setRipCollisionEnabled(evt.target.checked);
-        ripCollision = await isRipCollisionEnabled();
-      }}>{$_("settings_decompiler_ripCollision")}</Toggle
-    >
-    <Toggle
-      checked={ripTextures}
-      color="orange"
-      onchange={async (evt) => {
-        await setRipTexturesEnabled(evt.target.checked);
-        ripTextures = await isRipTexturesEnabled();
-      }}>{$_("settings_decompiler_ripTextures")}</Toggle
-    >
-    <Toggle
-      checked={ripStreamedAudio}
-      color="orange"
-      onchange={async (evt) => {
-        await setRipStreamedAudioEnabled(evt.target.checked);
-        ripStreamedAudio = await isRipStreamedAudioEnabled();
-      }}>{$_("settings_decompiler_ripStreamedAudio")}</Toggle
-    >
+    <Label class="text-gray-200"
+      >{$_("settings_decompiler_explanation")}
+    </Label>
+
+      <Toggle
+        checked={ripLevels}
+        color="orange"
+        onchange={async (evt) => {
+          await setRipLevelsEnabled(evt.target.checked);
+          ripLevels = await isRipLevelsEnabled();
+        }}>{$_("settings_decompiler_ripLevels")}</Toggle
+      >
+      <Toggle
+        checked={ripCollision}
+        color="orange"
+        onchange={async (evt) => {
+          await setRipCollisionEnabled(evt.target.checked);
+          ripCollision = await isRipCollisionEnabled();
+        }}>{$_("settings_decompiler_ripCollision")}</Toggle
+      >
+      <Toggle
+        checked={ripTextures}
+        color="orange"
+        onchange={async (evt) => {
+          await setRipTexturesEnabled(evt.target.checked);
+          ripTextures = await isRipTexturesEnabled();
+        }}>{$_("settings_decompiler_ripTextures")}</Toggle
+      >
+      <Toggle
+        checked={ripStreamedAudio}
+        color="orange"
+        onchange={async (evt) => {
+          await setRipStreamedAudioEnabled(evt.target.checked);
+          ripStreamedAudio = await isRipStreamedAudioEnabled();
+        }}>{$_("settings_decompiler_ripStreamedAudio")}</Toggle
+      >
   {/if}
 </div>
