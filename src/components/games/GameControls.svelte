@@ -33,6 +33,7 @@
 
   const dispatch = createEventDispatcher();
   let gameDataDir: string | undefined = undefined;
+  let extractedAssetsDir: string | undefined = undefined;
   let settingsDir: string | undefined = undefined;
   let savesDir: string | undefined = undefined;
   let playtime = "";
@@ -42,6 +43,11 @@
     let installationDir = await getInstallationDirectory();
     if (installationDir !== null) {
       gameDataDir = await join(installationDir, "active", $activeGame, "data");
+      extractedAssetsDir = await join(
+        gameDataDir,
+        "decompiler_out",
+        $activeGame,
+      );
     }
     settingsDir = await join(
       await configDir(),
@@ -208,6 +214,13 @@
             await openDir(gameDataDir);
           }
         }}>{$_("gameControls_button_openGameFolder")}</DropdownItem
+      >
+      <DropdownItem
+        onclick={async () => {
+          if (extractedAssetsDir) {
+            await openDir(extractedAssetsDir);
+          }
+        }}>{$_("gameControls_button_openExtractedAssetsFolder")}</DropdownItem
       >
     </Dropdown>
     <Button
