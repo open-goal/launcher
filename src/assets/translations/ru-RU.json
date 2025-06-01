@@ -191,6 +191,7 @@
   "gameControls_toolingTooOld_header": "Пакет инструментария не поддерживает данную игру!",
   "gameControls_toolingTooOld_subheader": "Перейдите на следующую страницу настроек, чтобы скачать последнюю версию",
   "gameControls_beta_headerA": "Jak 2 в бета-версии!",
+  "gameControls_beta_headerA_jak3": "Jak 3 is in Beta!",
   "gameControls_beta_headerB": "Вы столкнетесь с мелкими ошибками и нестабильностью.",
   "gameControls_beta_issueTracker_linkPreText": "Список всех известных проблем см.",
   "gameControls_beta_issueTracker_linkText": "здесь",

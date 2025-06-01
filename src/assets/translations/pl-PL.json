@@ -191,6 +191,7 @@
   "gameControls_toolingTooOld_header": "Wersja narzędzia nie obsługuje gry!",
   "gameControls_toolingTooOld_subheader": "Przejdź do następującej strony w ustawieniach, aby pobrać najnowszą wersję",
   "gameControls_beta_headerA": "Jak 2 jest w wersji Beta!",
+  "gameControls_beta_headerA_jak3": "Jak 3 is in Beta!",
   "gameControls_beta_headerB": "Napotkasz drobne błędy i niestabilność.",
   "gameControls_beta_issueTracker_linkPreText": "Aby zobaczyć listę wszystkich znanych problemów, sprawdź",
   "gameControls_beta_issueTracker_linkText": "tutaj",

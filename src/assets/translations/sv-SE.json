@@ -191,6 +191,7 @@
   "gameControls_toolingTooOld_header": "Verktygsversionen stödjer inte spelet!",
   "gameControls_toolingTooOld_subheader": "Gå till följande inställningssida för att ladda ner den senaste versionen",
   "gameControls_beta_headerA": "Jak 2 är i beta!",
+  "gameControls_beta_headerA_jak3": "Jak 3 is in Beta!",
   "gameControls_beta_headerB": "Du kommer att stöta på mindre buggar och instabilitet.",
   "gameControls_beta_issueTracker_linkPreText": "För en lista över alla kända problem, se",
   "gameControls_beta_issueTracker_linkText": "här",

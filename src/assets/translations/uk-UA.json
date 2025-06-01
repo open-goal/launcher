@@ -191,6 +191,7 @@
   "gameControls_toolingTooOld_header": "Версія інструментарію не підтримує гру!",
   "gameControls_toolingTooOld_subheader": "Перейдіть на наступну сторінку налаштувань, щоб завантажити останню версію",
   "gameControls_beta_headerA": "Jak 2 в бета-версії!",
+  "gameControls_beta_headerA_jak3": "Jak 3 is in Beta!",
   "gameControls_beta_headerB": "Ви можете зіткнутися з незначними помилками та нестабільністю.",
   "gameControls_beta_issueTracker_linkPreText": "Список усіх відомих проблем перейдіть",
   "gameControls_beta_issueTracker_linkText": "сюди",

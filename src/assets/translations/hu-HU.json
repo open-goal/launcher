@@ -191,6 +191,7 @@
   "gameControls_toolingTooOld_header": "Az eszközkészlet verziója nem támogatja a játékot!",
   "gameControls_toolingTooOld_subheader": "Head over to the following settings page to download the latest release",
   "gameControls_beta_headerA": "Jak II jelenleg Béta fázisban van!",
+  "gameControls_beta_headerA_jak3": "Jak 3 is in Beta!",
   "gameControls_beta_headerB": "Apróbb hibák és stabilitási problémák előfordulnak.",
   "gameControls_beta_issueTracker_linkPreText": "Minden ismert hibáért kattints",
   "gameControls_beta_issueTracker_linkText": "ide",

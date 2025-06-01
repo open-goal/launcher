@@ -191,6 +191,7 @@
   "gameControls_toolingTooOld_header": "A versão das ferramentas não é compatível com o jogo!",
   "gameControls_toolingTooOld_subheader": "Vá para a seguinte página de configurações para descarregar a última versão",
   "gameControls_beta_headerA": "O Jak 2 está em versão beta!",
+  "gameControls_beta_headerA_jak3": "Jak 3 is in Beta!",
   "gameControls_beta_headerB": "Encontrará pequenos erros e instabilidade.",
   "gameControls_beta_issueTracker_linkPreText": "Para uma lista de todos os problemas conhecidos, veja",
   "gameControls_beta_issueTracker_linkText": "aqui",
