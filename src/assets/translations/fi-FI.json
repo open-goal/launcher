@@ -193,6 +193,7 @@
   "gameControls_toolingTooOld_header": "Työkalun versio ei tue peliä!",
   "gameControls_toolingTooOld_subheader": "Mene oheiselle asetussivulle ja lataa uusin versio",
   "gameControls_beta_headerA": "Jak II on beta-versiossa!",
+  "gameControls_beta_headerA_jak3": "Jak 3 is in Beta!",
   "gameControls_beta_headerB": "Tulet kohtaamaan pieniä bugeja ja epävakautta.",
   "gameControls_beta_issueTracker_linkPreText": "Luettelo kaikista tunnetuista vioista löytyy",
   "gameControls_beta_issueTracker_linkText": "täältä",

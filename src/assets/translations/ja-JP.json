@@ -193,6 +193,7 @@
   "gameControls_toolingTooOld_header": "現在のツールバージョンはゲームをサポートしていません！",
   "gameControls_toolingTooOld_subheader": "最新のリリースをダウンロードするには、以下のページにアクセスしてください。",
   "gameControls_beta_headerA": "ジャックｘダクスター２は現在にベータ版です！",
+  "gameControls_beta_headerA_jak3": "Jak 3 is in Beta!",
   "gameControls_beta_headerB": "プレイ中に軽いバグや欠陥、または不安定な実行など遭遇する可能性があります。",
   "gameControls_beta_issueTracker_linkPreText": "すべての既知の問題のリストについてには、",
   "gameControls_beta_issueTracker_linkText": "こちら",

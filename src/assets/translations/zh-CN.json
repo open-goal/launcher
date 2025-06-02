@@ -193,6 +193,7 @@
   "gameControls_toolingTooOld_header": "工具版本不支持游戏！",
   "gameControls_toolingTooOld_subheader": "前往以下设置页面下载最新发行版",
   "gameControls_beta_headerA": "Jak 2 处于测试版！",
+  "gameControls_beta_headerA_jak3": "Jak 3 is in Beta!",
   "gameControls_beta_headerB": "你会遇到小错误与不稳定。",
   "gameControls_beta_issueTracker_linkPreText": "有关所有已知问题的列表，请参阅",
   "gameControls_beta_issueTracker_linkText": "此处",

@@ -193,6 +193,7 @@
   "gameControls_toolingTooOld_header": "Tooling Version Does Not Support Game!",
   "gameControls_toolingTooOld_subheader": "Head over to the following settings page to download the latest release",
   "gameControls_beta_headerA": "Jak 2 is in Beta!",
+  "gameControls_beta_headerA_jak3": "Jak 3 is in Beta!",
   "gameControls_beta_headerB": "You will encounter minor bugs and instability.",
   "gameControls_beta_issueTracker_linkPreText": "For a list of all known issues, see",
   "gameControls_beta_issueTracker_linkText": "here",
