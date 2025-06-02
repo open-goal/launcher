@@ -1050,30 +1050,30 @@
     "@tauri-apps/api" "^2.0.0"
 
 "@tauri-apps/plugin-dialog@~2":
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-dialog/-/plugin-dialog-2.2.1.tgz#7b4818dd2754c3a1a29a98cab5f8166e1591f2ac"
-  integrity sha512-wZmCouo4PgTosh/UoejPw9DPs6RllS5Pp3fuOV2JobCu36mR5AXU2MzU9NZiVaFi/5Zfc8RN0IhcZHnksJ1o8A==
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-dialog/-/plugin-dialog-2.2.2.tgz#dc91323bc59b2e2242581fb0154873c12c0d95a3"
+  integrity sha512-Pm9qnXQq8ZVhAMFSEPwxvh+nWb2mk7LASVlNEHYaksHvcz8P6+ElR5U5dNL9Ofrm+uwhh1/gYKWswK8JJJAh6A==
   dependencies:
     "@tauri-apps/api" "^2.0.0"
 
 "@tauri-apps/plugin-fs@~2":
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-fs/-/plugin-fs-2.2.1.tgz#ffc36787948ca1c89f27239a613b229703bf0a80"
-  integrity sha512-KdGzvvA4Eg0Dhw55MwczFbjxLxsTx0FvwwC/0StXlr6IxwPUxh5ziZQoaugkBFs8t+wfebdQrjBEzd8NmmDXNw==
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-fs/-/plugin-fs-2.3.0.tgz#f75258385b61b19bb22d7d94d01f156fc594e20e"
+  integrity sha512-G9gEyYVUaaxhdRJBgQTTLmzAe0vtHYxYyN1oTQzU3zwvb8T+tVLcAqCdFMWHq0qGeGbmynI5whvYpcXo5LvZ1w==
   dependencies:
     "@tauri-apps/api" "^2.0.0"
 
 "@tauri-apps/plugin-global-shortcut@~2":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-global-shortcut/-/plugin-global-shortcut-2.2.0.tgz#5ab12218ab2d1863ff1aa823aed72daed7cded85"
-  integrity sha512-clI9Bg/BcxWXNDK+ij601o1qC2WxMEy8ovhGgEW5Ai17oPy0KK8uwzmc59KiVnOYKpBWHCUPqBxG+KBNUFXgzw==
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-global-shortcut/-/plugin-global-shortcut-2.2.1.tgz#d7f7ce765ab720d4bbfc520ced032768e716a37a"
+  integrity sha512-b64/TI1t5LIi2JY4OWlYjZpPRq60T5GVVL/no27sUuxaNUZY8dVtwsMtDUgxUpln2yR+P2PJsYlqY5V8sLSxEw==
   dependencies:
     "@tauri-apps/api" "^2.0.0"
 
 "@tauri-apps/plugin-http@~2":
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-http/-/plugin-http-2.4.3.tgz#95c2c580929e3bc436ea5debd86980c7024fd05c"
-  integrity sha512-Us8X+FikzpaZRNr4kH4HLwyXascHbM42p6LxAqRTQnHPrrqp1usaH4vxWAZalPvTbHJ3gBEMJPHusFJgtjGJjA==
+  version "2.4.4"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-http/-/plugin-http-2.4.4.tgz#b1a56a217e6b27cb403ab7637b67ac66a2f95a22"
+  integrity sha512-IjlaaS4z8ybB10qnh6djZ2FIaHdWVs/U1D1C56udKcjX1f+jAmR8/s7qBV5cv/OmcGkOIzet3LWuH70LKf4J2A==
   dependencies:
     "@tauri-apps/api" "^2.0.0"
 
