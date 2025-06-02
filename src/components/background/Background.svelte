@@ -12,61 +12,79 @@
   import { activeGame, modInfoStore } from "$lib/stores/AppStore";
   import { SupportedGame } from "$lib/constants";
   import { getLocalModThumbnailBase64 } from "$lib/rpc/features";
+  import { appDataDir, join } from "@tauri-apps/api/path";
+  import { convertFileSrc } from "@tauri-apps/api/core";
+  import { exists } from "@tauri-apps/plugin-fs";
 
   const location = useLocation();
-  $: $location.pathname, updateStyle();
-  $: $activeGame, updateStyle();
-  $: $modInfoStore, updateStyle();
+  $: $location.pathname, updateBackground();
+  $: $activeGame, updateBackground();
+  $: $modInfoStore, updateModBackground();
 
   let style = "absolute object-fill h-screen brightness-75 pt-[60px] w-full";
-  let jak1Image = "";
+  let jak1Background = "";
   let onWindows = platform() !== "linux";
   let modBackground = "";
   let grayscale = false;
+  let bgVideo = null;
 
   onMount(async () => {
     const unlistenInstalled = await listen("gameInstalled", (event) => {
-      updateStyle();
+      updateBackground();
     }); // TODO - refactor this out
     const unlistenUninstalled = await listen("gameUninstalled", (event) => {
-      updateStyle();
+      updateBackground();
     }); // TODO - refactor this out
     // TODO - call this when the game is closed
     const milestoneImage = await getFurthestGameMilestone($activeGame);
-    jak1Image = `/images/${$activeGame}/${milestoneImage}.jpg`;
+    jak1Background = `/images/${$activeGame}/${milestoneImage}.jpg`;
     // TODO - do jak 2 milestones
   });
 
-  async function updateStyle(): Promise<void> {
+  async function updateBackground(): Promise<void> {
+    bgVideo = null;
     if (!$activeGame) return;
     grayscale = !(await isGameInstalled($activeGame));
-    modBackground = "";
 
-    if ($modInfoStore) {
-      modBackground =
-        $modInfoStore.coverArtUrl ||
-        $modInfoStore.perGameConfig[$activeGame].coverArtUrl ||
-        coverArtPlaceholder;
-      return;
+    const appDataDirPath = await appDataDir();
+    const filePath = await join(
+      appDataDirPath,
+      "backgrounds",
+      `${$activeGame}.mp4`,
+    );
+    const assetUrl = convertFileSrc(filePath);
+    if (await exists(assetUrl)) {
+      bgVideo = assetUrl;
     }
+  }
 
-    // Handle local mod backgrounds
-    const pathComponents = $location.pathname
-      .split("/")
-      .filter((s) => s !== "");
-    if (pathComponents.length === 5) {
-      const modSource = decodeURI(pathComponents[3]); // TODO: i dislike this pattern, but im keeping it for now
-      const modName = decodeURI(pathComponents[4]);
+  async function updateModBackground(): Promise<void> {
+    modBackground = "";
+    if (!$activeGame) return;
+    if (!$modInfoStore) {
+      // Handle local mod backgrounds
+      const pathComponents = $location.pathname
+        .split("/")
+        .filter((s) => s !== "");
+      if (pathComponents.length === 5) {
+        const modSource = decodeURI(pathComponents[3]); // TODO: i dislike this pattern, but im keeping it for now
+        const modName = decodeURI(pathComponents[4]);
 
-      if (modSource === "_local") {
-        const coverResult = await getLocalModThumbnailBase64(
-          $activeGame,
-          modName,
-        );
-        modBackground = coverResult || coverArtPlaceholder;
-        return;
+        if (modSource === "_local") {
+          const coverResult = await getLocalModThumbnailBase64(
+            $activeGame,
+            modName,
+          );
+          modBackground = coverResult || coverArtPlaceholder;
+          return;
+        }
       }
     }
+
+    modBackground =
+      $modInfoStore.coverArtUrl ||
+      $modInfoStore.perGameConfig[$activeGame].coverArtUrl ||
+      coverArtPlaceholder;
   }
 </script>
 
@@ -76,11 +94,23 @@
     <!-- svelte-ignore a11y_missing_attribute -->
     <img class={style} src={modBackground} />
   {:else if $activeGame == SupportedGame.Jak1}
-    <!-- svelte-ignore a11y_missing_attribute -->
-    <img class={style} src={jak1Image} />
+    <video
+      class={style}
+      poster={jak1Background}
+      src={bgVideo}
+      autoplay
+      muted
+      loop
+    ></video>
   {:else if $activeGame == SupportedGame.Jak2}
-    <!-- svelte-ignore a11y_missing_attribute -->
-    <img class={style} src={jak2Background} />
+    <video
+      class={style}
+      poster={jak2Background}
+      src={bgVideo}
+      autoplay
+      muted
+      loop
+    ></video>
   {:else if $activeGame == SupportedGame.Jak3}
     {#if onWindows}
       <video
