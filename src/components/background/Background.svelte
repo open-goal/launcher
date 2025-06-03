@@ -7,8 +7,8 @@
   import jak1BackgroundVid from "$assets/videos/jak1-bg.mp4";
   import jak2BackgroundVid from "$assets/videos/jak2-bg.mp4";
   import jak2Background from "$assets/images/background-jak2.webp";
-  import jak3InProgressVid from "$assets/videos/jak3-bg.mp4";
-  import jak3InProgressPoster from "$assets/videos/jak3-poster.png";
+  import jak3BackgroundVid from "$assets/videos/jak3-bg.mp4";
+  import jak3Background from "$assets/videos/jak3-poster.png";
   import { platform } from "@tauri-apps/plugin-os";
   import coverArtPlaceholder from "$assets/images/mod-coverart-placeholder.webp";
   import { activeGame, modInfoStore } from "$lib/stores/AppStore";
@@ -127,15 +127,15 @@
     {#if onWindows}
       <video
         class={style}
-        poster={jak3InProgressPoster}
-        src={jak3InProgressVid}
+        poster={jak3Background}
+        src={jak3BackgroundVid}
         autoplay
         muted
         loop
       ></video>
     {:else}
       <!-- svelte-ignore a11y_missing_attribute -->
-      <img class={style} src={jak3InProgressPoster} />
+      <img class={style} src={jak3Background} />
     {/if}
   {/if}
 </div>
