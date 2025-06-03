@@ -4,8 +4,10 @@
   import { onMount } from "svelte";
   import { listen } from "@tauri-apps/api/event";
   import { getFurthestGameMilestone } from "$lib/rpc/game";
+  import jak1BackgroundVid from "$assets/videos/jak1-bg.mp4";
+  import jak2BackgroundVid from "$assets/videos/jak2-bg.mp4";
   import jak2Background from "$assets/images/background-jak2.webp";
-  import jak3InProgressVid from "$assets/videos/jak3-dev.mp4";
+  import jak3InProgressVid from "$assets/videos/jak3-bg.mp4";
   import jak3InProgressPoster from "$assets/videos/jak3-poster.png";
   import { platform } from "@tauri-apps/plugin-os";
   import coverArtPlaceholder from "$assets/images/mod-coverart-placeholder.webp";
@@ -94,23 +96,33 @@
     <!-- svelte-ignore a11y_missing_attribute -->
     <img class={style} src={modBackground} />
   {:else if $activeGame == SupportedGame.Jak1}
-    <video
-      class={style}
-      poster={jak1Background}
-      src={bgVideo}
-      autoplay
-      muted
-      loop
-    ></video>
+    {#if onWindows}
+      <video
+        class={style}
+        poster={jak1Background}
+        src={jak1BackgroundVid}
+        autoplay
+        muted
+        loop
+      ></video>
+    {:else}
+      <!-- svelte-ignore a11y_missing_attribute -->
+      <img class={style} src={jak1Background} />
+    {/if}
   {:else if $activeGame == SupportedGame.Jak2}
-    <video
-      class={style}
-      poster={jak2Background}
-      src={bgVideo}
-      autoplay
-      muted
-      loop
-    ></video>
+    {#if onWindows}
+      <video
+        class={style}
+        poster={jak2Background}
+        src={jak2BackgroundVid}
+        autoplay
+        muted
+        loop
+      ></video>
+    {:else}
+      <!-- svelte-ignore a11y_missing_attribute -->
+      <img class={style} src={jak2Background} />
+    {/if}
   {:else if $activeGame == SupportedGame.Jak3}
     {#if onWindows}
       <video
