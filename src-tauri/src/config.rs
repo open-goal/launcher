@@ -10,12 +10,11 @@
 // serde does not support defaultLiterals yet - https://github.com/serde-rs/serde/issues/368
 
 use crate::util::file::create_dir;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::str::FromStr;
 
 use crate::util::file::touch_file;
 
@@ -29,59 +28,16 @@ pub enum ConfigError {
   Configuration(String),
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, Clone)]
+#[derive(Debug, Eq, PartialEq, Hash, Clone, Serialize, Deserialize)]
 pub enum SupportedGame {
+  #[serde(alias = "jak1")]
   Jak1,
+  #[serde(alias = "jak2")]
   Jak2,
+  #[serde(alias = "jak3")]
   Jak3,
+  #[serde(alias = "jakx")]
   JakX,
-}
-
-impl FromStr for SupportedGame {
-  type Err = String;
-
-  fn from_str(s: &str) -> Result<Self, Self::Err> {
-    match s.trim().to_lowercase().as_str() {
-      "jak 1" | "jak1" => Ok(Self::Jak1),
-      "jak 2" | "jak2" => Ok(Self::Jak2),
-      "jak 3" | "jak3" => Ok(Self::Jak3),
-      "jak x" | "jakx" => Ok(Self::JakX),
-      _ => Err(format!("Invalid variant: {s}")),
-    }
-  }
-}
-
-impl<'de> Deserialize<'de> for SupportedGame {
-  fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-  where
-    D: Deserializer<'de>,
-  {
-    let s = String::deserialize(deserializer)?;
-    match s.as_str() {
-      "Jak 1" => Ok(SupportedGame::Jak1),
-      "Jak 2" => Ok(SupportedGame::Jak2),
-      "Jak 3" => Ok(SupportedGame::Jak3),
-      "Jak X" => Ok(SupportedGame::JakX),
-      _ => Err(serde::de::Error::unknown_variant(
-        &s,
-        &["Jak 1", "Jak 2", "Jak 3", "Jak X"],
-      )),
-    }
-  }
-}
-
-impl Serialize for SupportedGame {
-  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-  where
-    S: Serializer,
-  {
-    serializer.serialize_str(match self {
-      SupportedGame::Jak1 => "Jak 1",
-      SupportedGame::Jak2 => "Jak 2",
-      SupportedGame::Jak3 => "Jak 3",
-      SupportedGame::JakX => "Jak X",
-    })
-  }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -193,6 +149,7 @@ fn default_version() -> String {
 }
 
 fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> LauncherConfig {
+  println!("{:?}", json_value);
   log::warn!("Outdated config detected. Migrating to the latest version.");
   let mut new_config = LauncherConfig::default(Some(settings_path));
 
@@ -205,7 +162,7 @@ fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> 
   // Migrate games
   if let Some(games) = json_value.get("games").and_then(|v| v.as_object()) {
     for (key, value) in games {
-      if let Ok(supported_game) = SupportedGame::from_str(key) {
+      if let Ok(supported_game) = serde_json::from_str::<SupportedGame>(&format!("\"{}\"", key)) {
         // Start with default values
         let mut game_config = GameConfig::default();
 
@@ -229,8 +186,6 @@ fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> 
         }
 
         new_config.games.insert(supported_game, game_config);
-      } else {
-        log::warn!("Unsupported game key: '{}'. Skipping.", key);
       }
     }
   }
@@ -313,17 +268,29 @@ impl LauncherConfig {
     }
   }
 
+  // fn get_supported_game_config_mut(
+  //   &mut self,
+  //   game_name: &String,
+  // ) -> Result<&mut GameConfig, ConfigError> {
+  //   println!("{:?}", game_name);
+  //   SupportedGame::from_str(game_name)
+  //     .ok()
+  //     .and_then(|game| self.games.get_mut(&game))
+  //     .ok_or_else(|| {
+  //       log::error!("Game not found or unsupported: {}", game_name);
+  //       ConfigError::Configuration(format!("Game not found or unsupported: {game_name}"))
+  //     })
+  // }
+
   fn get_supported_game_config_mut(
     &mut self,
-    game_name: &String,
+    game_name: SupportedGame,
   ) -> Result<&mut GameConfig, ConfigError> {
-    SupportedGame::from_str(game_name)
-      .ok()
-      .and_then(|game| self.games.get_mut(&game))
-      .ok_or_else(|| {
-        log::error!("Game not found or unsupported: {}", game_name);
-        ConfigError::Configuration(format!("Game not found or unsupported: {game_name}"))
-      })
+    println!("{:?}", game_name);
+    self.games.get_mut(&game_name).ok_or_else(|| {
+      log::error!("Game not found or unsupported: {:?}", game_name);
+      ConfigError::Configuration(format!("Game not found or unsupported: {:?}", game_name))
+    })
   }
 
   pub fn load_config(config_dir: Option<std::path::PathBuf>) -> LauncherConfig {
@@ -410,10 +377,10 @@ impl LauncherConfig {
     if let Some(old_dir) = &self.installation_dir {
       if *old_dir != new_dir {
         self.active_version = None;
-        self.update_setting_value("installed", false.into(), Some("jak1".to_owned()))?;
-        self.update_setting_value("installed", false.into(), Some("jak2".to_owned()))?;
-        self.update_setting_value("installed", false.into(), Some("jak3".to_owned()))?;
-        self.update_setting_value("installed", false.into(), Some("jakx".to_owned()))?;
+        self.update_setting_value("installed", false.into(), Some(SupportedGame::Jak1))?;
+        self.update_setting_value("installed", false.into(), Some(SupportedGame::Jak2))?;
+        self.update_setting_value("installed", false.into(), Some(SupportedGame::Jak3))?;
+        self.update_setting_value("installed", false.into(), Some(SupportedGame::JakX))?;
       }
     }
 
@@ -426,13 +393,9 @@ impl LauncherConfig {
     &mut self,
     key: &str,
     val: Value,
-    game_name: Option<String>,
+    game_name: Option<SupportedGame>,
   ) -> Result<(), ConfigError> {
-    if let Some(game_config) = game_name
-      .as_deref()
-      .and_then(|name| SupportedGame::from_str(name).ok())
-      .and_then(|game| self.games.get_mut(&game))
-    {
+    if let Some(game_config) = game_name.and_then(|game| self.games.get_mut(&game)) {
       match key {
         "installed" => {
           let installed = val.as_bool().unwrap_or(false);
@@ -501,13 +464,9 @@ impl LauncherConfig {
   pub fn get_setting_value(
     &self,
     key: &str,
-    game_name: Option<String>,
+    game_name: Option<SupportedGame>,
   ) -> Result<Value, ConfigError> {
-    if let Some(game_config) = game_name
-      .as_deref()
-      .and_then(|name| SupportedGame::from_str(name).ok())
-      .and_then(|game| self.games.get(&game))
-    {
+    if let Some(game_config) = game_name.and_then(|game| self.games.get(&game)) {
       match key {
         "installed" => Ok(Value::Bool(game_config.is_installed)),
         "installed_version" => Ok(json!(game_config.version())),
@@ -565,13 +524,13 @@ impl LauncherConfig {
   pub fn update_mods_setting_value(
     &mut self,
     key: &str,
-    game_name: String,
+    game_name: SupportedGame,
     source_name: Option<String>,
     version_name: Option<String>,
     mod_name: Option<String>,
     texture_packs: Option<Vec<String>>,
   ) -> Result<(), ConfigError> {
-    let game_config = self.get_supported_game_config_mut(&game_name)?;
+    let game_config = self.get_supported_game_config_mut(game_name)?;
     let source = source_name.unwrap_or("".to_owned());
     let version = version_name.unwrap_or("".to_owned());
     let mod_name = mod_name.unwrap_or("".to_owned());
@@ -603,7 +562,7 @@ impl LauncherConfig {
 
   pub fn cleanup_game_enabled_texture_packs(
     &mut self,
-    game_name: &String,
+    game_name: SupportedGame,
     cleanup_list: Vec<String>,
   ) -> Result<(), ConfigError> {
     if !cleanup_list.is_empty() {

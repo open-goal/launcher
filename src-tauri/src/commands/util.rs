@@ -1,4 +1,5 @@
 use crate::config::LauncherConfig;
+use crate::config::SupportedGame;
 use crate::util::file::delete_dir;
 #[cfg(target_os = "macos")]
 use log::error;
@@ -34,20 +35,21 @@ pub async fn delete_old_data_directory(app_handle: tauri::AppHandle) -> Result<(
   }
 }
 
-pub fn diskspace_threshold_for_fresh_install(game_name: &str) -> Result<u64, CommandError> {
+pub fn diskspace_threshold_for_fresh_install(
+  game_name: SupportedGame,
+) -> Result<u64, CommandError> {
   match game_name {
-    "jak1" => Ok(4 * 1024 * 1024 * 1024),  // 4gb
-    "jak2" => Ok(11 * 1024 * 1024 * 1024), // 11gb
-    "jak3" => Ok(11 * 1024 * 1024 * 1024), // TODO! gb
-    "jakx" => Ok(11 * 1024 * 1024 * 1024), // TODO! gb
-    _ => Err(CommandError::UnknownGame(game_name.to_string())),
+    SupportedGame::Jak1 => Ok(4 * 1024 * 1024 * 1024), // 4gb
+    SupportedGame::Jak2 => Ok(11 * 1024 * 1024 * 1024), // 11gb
+    SupportedGame::Jak3 => Ok(11 * 1024 * 1024 * 1024), // TODO! gb
+    SupportedGame::JakX => Ok(11 * 1024 * 1024 * 1024), // TODO! gb
   }
 }
 
 #[tauri::command]
 pub async fn is_diskspace_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<bool, CommandError> {
   // If the game is already installed, we assume they have enough drive space
   let config_lock = config.lock().await;
@@ -73,7 +75,7 @@ pub async fn is_diskspace_requirement_met(
   };
 
   // Check the drive that the installation directory is set to
-  let minimum_required_drive_space = diskspace_threshold_for_fresh_install(&game_name)?;
+  let minimum_required_drive_space = diskspace_threshold_for_fresh_install(game_name)?;
   for disk in Disks::new_with_refreshed_list().into_iter() {
     if install_dir.starts_with(disk.mount_point()) {
       if disk.available_space() < minimum_required_drive_space {

@@ -8,7 +8,7 @@ use tauri::{Emitter, Manager};
 use walkdir::WalkDir;
 
 use crate::{
-  config::LauncherConfig,
+  config::{LauncherConfig, SupportedGame},
   util::game_milestones::{get_jak1_milestones, GameTaskStatus, MilestoneCriteria},
 };
 
@@ -18,7 +18,7 @@ use super::CommandError;
 pub async fn uninstall_game(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
 
@@ -33,7 +33,7 @@ pub async fn uninstall_game(
 
   let data_folder = Path::new(install_path)
     .join("active")
-    .join(&game_name)
+    .join(game_name)
     .join("data");
 
   match std::fs::remove_dir_all(data_folder.join("decompiler_out")) {
@@ -81,7 +81,7 @@ pub async fn uninstall_game(
 #[tauri::command]
 pub async fn reset_game_settings(
   app_handle: tauri::AppHandle,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<(), CommandError> {
   let config_dir = match app_handle.path().config_dir() {
     Ok(path) => path,
@@ -174,7 +174,7 @@ fn get_saves_highest_milestone(
 #[tauri::command]
 pub async fn get_furthest_game_milestone(
   app_handle: tauri::AppHandle,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<String, CommandError> {
   // TODO - currently only checking Jak 1
   // TODO - It would be cool if the launcher had save-game editing features and the like
