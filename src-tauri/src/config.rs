@@ -139,6 +139,9 @@ fn default_version() -> String {
 
 fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> LauncherConfig {
   log::warn!("Outdated config detected. Migrating to the latest version.");
+  log::warn!("Creating a backup copy of existing settings before migrating to latest.");
+  let to = settings_path.with_file_name("settings.backup.json");
+  let _ = fs::copy(settings_path.clone(), to);
   let mut new_config = LauncherConfig::default(Some(settings_path));
 
   // Migrate requirements
