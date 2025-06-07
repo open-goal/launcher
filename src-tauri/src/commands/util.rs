@@ -36,7 +36,6 @@ pub async fn is_diskspace_requirement_met(
 ) -> Result<bool, CommandError> {
   let config_lock = config.lock().await;
   if config_lock.games[&game_name].is_installed {
-    log::warn!("{game_name} is installed, assuming the disk space requirement is met!");
     return Ok(true);
   }
   if config_lock.requirements.bypass_requirements {
