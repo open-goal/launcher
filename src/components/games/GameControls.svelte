@@ -39,26 +39,24 @@
   let playtime = "";
   let textureSupportEnabled = true;
 
+  $: $activeGame, refreshDirectories();
+
   onMount(async () => {
+    textureSupportEnabled = await doesActiveToolingVersionMeetMinimum(0, 2, 13);
+  });
+
+  async function refreshDirectories() {
     let installationDir = await getInstallationDirectory();
-    if (installationDir !== null) {
-      gameDataDir = await join(installationDir, "active", $activeGame, "data");
-      extractedAssetsDir = await join(
-        gameDataDir,
-        "decompiler_out",
-        $activeGame,
-      );
-    }
+    savesDir = await join(await configDir(), "OpenGOAL", $activeGame, "saves");
+    gameDataDir = await join(installationDir, "active", $activeGame, "data");
+    extractedAssetsDir = await join(gameDataDir, "decompiler_out", $activeGame);
     settingsDir = await join(
       await configDir(),
       "OpenGOAL",
       $activeGame,
       "settings",
     );
-    savesDir = await join(await configDir(), "OpenGOAL", $activeGame, "saves");
-
-    textureSupportEnabled = await doesActiveToolingVersionMeetMinimum(0, 2, 13);
-  });
+  }
 
   // format the time from the settings file which is stored as seconds
   function formatPlaytime(playtimeRaw: number) {

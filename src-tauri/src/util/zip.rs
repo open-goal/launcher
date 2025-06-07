@@ -113,36 +113,18 @@ pub fn extract_and_delete_zip_file(
   Ok(())
 }
 
-pub fn check_if_zip_contains_top_level_dir(
-  zip_path: &PathBuf,
-  expected_dir: String,
+pub fn check_if_zip_contains_top_level_entry<P: AsRef<Path>>(
+  path: P,
+  expected: &str,
 ) -> Result<bool, Box<dyn std::error::Error>> {
-  let file = File::open(zip_path)?;
+  let file = File::open(path)?;
   let reader = BufReader::new(file);
   let mut zip = zip::ZipArchive::new(reader)?;
-  for i in 0..zip.len() {
-    let file = zip.by_index(i)?;
-    // Check if the entry is a directory and has the desired folder name
-    info!("{}", file.name());
-    if file.name().starts_with(&expected_dir) {
-      return Ok(true);
-    }
-  }
-  Ok(false)
-}
 
-// TODO - identical to the above, consolidate
-pub fn check_if_zip_contains_top_level_file(
-  zip_path: &PathBuf,
-  expected_file: String,
-) -> Result<bool, Box<dyn std::error::Error>> {
-  let file = File::open(zip_path)?;
-  let reader = BufReader::new(file);
-  let mut zip = zip::ZipArchive::new(reader)?;
   for i in 0..zip.len() {
     let file = zip.by_index(i)?;
-    // Check if the entry is a directory and has the desired folder name
-    if file.name().starts_with(&expected_file) {
+    info!("{}", file.name());
+    if file.name().starts_with(&expected) {
       return Ok(true);
     }
   }

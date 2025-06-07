@@ -1,4 +1,4 @@
-import { SupportedGame } from "$lib/constants";
+import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
 import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
 import { writable } from "svelte/store";
 

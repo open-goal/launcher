@@ -1,21 +1,18 @@
 use crate::config::LauncherConfig;
+use crate::config::SupportedGame;
 use crate::util::file::delete_dir;
-#[cfg(target_os = "macos")]
 use log::error;
-#[cfg(target_os = "macos")]
-use log::info;
-use serde_json::Value;
 use std::path::Path;
-#[cfg(target_os = "macos")]
-use sysctl::Sysctl;
 use sysinfo::Disks;
+#[cfg(target_os = "macos")]
+use sysinfo::System;
 use tauri::Manager;
 
 use super::CommandError;
 
 #[tauri::command]
-pub async fn path_exists(directory: String) -> Result<bool, CommandError> {
-  Ok(Path::new(&directory).exists())
+pub async fn path_exists(directory: String) -> bool {
+  Path::new(&directory).exists()
 }
 
 #[tauri::command]
@@ -34,27 +31,13 @@ pub async fn delete_old_data_directory(app_handle: tauri::AppHandle) -> Result<(
   }
 }
 
-pub fn diskspace_threshold_for_fresh_install(game_name: &str) -> Result<u64, CommandError> {
-  match game_name {
-    "jak1" => Ok(4 * 1024 * 1024 * 1024),  // 4gb
-    "jak2" => Ok(11 * 1024 * 1024 * 1024), // 11gb
-    "jak3" => Ok(11 * 1024 * 1024 * 1024), // TODO! gb
-    "jakx" => Ok(11 * 1024 * 1024 * 1024), // TODO! gb
-    _ => Err(CommandError::UnknownGame(game_name.to_string())),
-  }
-}
-
 #[tauri::command]
 pub async fn is_diskspace_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<bool, CommandError> {
-  // If the game is already installed, we assume they have enough drive space
   let config_lock = config.lock().await;
-  if matches!(
-    config_lock.get_setting_value("installed", Some(game_name.clone())),
-    Ok(Value::Bool(true))
-  ) {
+  if config_lock.games[&game_name].is_installed {
     return Ok(true);
   }
   if config_lock.requirements.bypass_requirements {
@@ -64,7 +47,7 @@ pub async fn is_diskspace_requirement_met(
 
   let install_dir = match &config_lock.installation_dir {
     None => {
-      log::error!("Can't check disk space, no install directory has been choosen!");
+      error!("Can't check disk space, no install directory has been choosen!");
       return Err(CommandError::Configuration(
         "Can't check disk space, no install directory has been choosen!".to_owned(),
       ));
@@ -73,7 +56,7 @@ pub async fn is_diskspace_requirement_met(
   };
 
   // Check the drive that the installation directory is set to
-  let minimum_required_drive_space = diskspace_threshold_for_fresh_install(&game_name)?;
+  let minimum_required_drive_space = game_name.required_diskspace();
   for disk in Disks::new_with_refreshed_list().into_iter() {
     if install_dir.starts_with(disk.mount_point()) {
       if disk.available_space() < minimum_required_drive_space {
@@ -85,7 +68,7 @@ pub async fn is_diskspace_requirement_met(
     }
   }
 
-  log::error!("Unable to find relevant drive to check for space");
+  error!("Unable to find relevant drive to check for space");
   Err(CommandError::Configuration(
     "Unable to find relevant drive to check for space".to_owned(),
   ))
@@ -120,37 +103,27 @@ pub async fn is_avx_supported() -> bool {
 
 #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
 pub async fn is_avx_supported() -> bool {
-  // TODO - macOS check if on atleast sequoia and rosetta 2 is installed
   false
 }
 
 #[cfg(not(target_os = "macos"))]
 #[tauri::command]
-pub async fn is_macos_version_15_or_above() -> Result<bool, CommandError> {
-  return Ok(false);
+pub async fn is_macos_version_15_or_above() -> bool {
+  false
 }
 
 #[cfg(target_os = "macos")]
 #[tauri::command]
-pub async fn is_macos_version_15_or_above() -> Result<bool, CommandError> {
-  if let Ok(ctl) = sysctl::Ctl::new("kern.osproductversion") {
-    if let Ok(ctl_val) = ctl.value_string() {
-      info!("MacOS Version Number: {}", ctl_val);
-      let mut stripped_ctl_val = ctl_val.as_str();
-      if stripped_ctl_val.contains(".") {
-        let first_value = stripped_ctl_val.split(".").next();
-        if first_value.is_none() {
-          error!("Unable to parse MacOS major version number");
-          return Ok(false);
-        }
-        stripped_ctl_val = first_value.unwrap();
-      }
-      info!("Checking MacOS Version Number: {}", stripped_ctl_val);
-      let version = stripped_ctl_val.parse::<f32>();
-      if version.is_ok() {
-        return Ok(version.unwrap() >= 15.0);
-      }
-    }
-  }
-  Ok(false)
+pub async fn is_macos_version_15_or_above() -> bool {
+  System::os_version()
+    .and_then(|v| v.parse::<f32>().ok())
+    .map(|ver| ver >= 15.0)
+    .unwrap_or(false)
 }
+
+// TODO - macOS check if rosetta 2 is installed
+// #[cfg(target_os = "macos")]
+// #[tauri::command]
+// pub async fn is_rosetta2_installed() -> bool {
+//   todo!()
+// }
