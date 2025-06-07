@@ -242,7 +242,7 @@ pub async fn extract_iso_for_mod_install(
   let exec_info = match get_mod_exec_location(
     install_path.to_path_buf(),
     "extractor",
-    game_name.clone(),
+    game_name,
     &mod_name,
     &source_name,
   ) {
@@ -272,7 +272,7 @@ pub async fn extract_iso_for_mod_install(
     "--extract-path".to_string(),
     iso_extraction_dir.to_string_lossy().into_owned(),
     "--game".to_string(),
-    game_name.clone().to_string(),
+    game_name.to_string(),
   ];
 
   log::info!("Running extractor with args: {:?}", args);
@@ -346,7 +346,7 @@ pub async fn decompile_for_mod_install(
   let exec_info = match get_mod_exec_location(
     install_path.to_path_buf(),
     "extractor",
-    game_name.clone(),
+    game_name,
     &mod_name,
     &source_name,
   ) {
@@ -445,7 +445,7 @@ pub async fn compile_for_mod_install(
   let exec_info = match get_mod_exec_location(
     install_path.to_path_buf(),
     "extractor",
-    game_name.clone(),
+    game_name,
     &mod_name,
     &source_name,
   ) {
@@ -614,11 +614,11 @@ pub async fn launch_mod(
   let exec_info = get_mod_exec_location(
     install_path.to_path_buf(),
     "gk",
-    game_name.clone(),
+    game_name,
     &mod_name,
     &source_name,
   )?;
-  let args = generate_launch_mod_args(game_name.clone(), in_debug, config_dir, false)?;
+  let args = generate_launch_mod_args(game_name, in_debug, config_dir, false)?;
 
   log::info!("Launching gk args: {:?}", args);
 
@@ -791,7 +791,7 @@ pub async fn get_launch_mod_string(
   let exec_info = get_mod_exec_location(
     install_path.to_path_buf(),
     "gk",
-    game_name.clone(),
+    game_name,
     &mod_name,
     &source_name,
   )?;

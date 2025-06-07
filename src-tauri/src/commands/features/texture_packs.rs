@@ -28,7 +28,7 @@ pub struct TexturePackInfo {
   version: String,
   author: String,
   release_date: String,
-  supported_games: Vec<String>,
+  supported_games: Vec<SupportedGame>,
   description: String,
   tags: Vec<String>,
 }
@@ -120,7 +120,7 @@ pub async fn list_extracted_texture_pack_info(
         version: "Unknown Version".to_string(),
         author: "Unknown Author".to_string(),
         release_date: "Unknown Release Date".to_string(),
-        supported_games: vec![game_name.to_string()], // if no info, assume it's supported
+        supported_games: vec![game_name], // if no info, assume it's supported
         description: "Unknown Description".to_string(),
         tags: vec![],
       };
@@ -258,7 +258,7 @@ pub async fn update_texture_pack_data(
   create_dir(&game_texture_pack_dir)?;
 
   if let Ok(Value::Array(texture_packs)) =
-    config_lock.get_setting_value("active_texture_packs", Some(game_name.clone()))
+    config_lock.get_setting_value("active_texture_packs", Some(game_name))
   {
     for pack in texture_packs.iter().filter_map(|pack| pack.as_str()).rev() {
       let texture_pack_dir = install_path

@@ -54,7 +54,7 @@ pub async fn is_diskspace_requirement_met(
   // If the game is already installed, we assume they have enough drive space
   let config_lock = config.lock().await;
   if matches!(
-    config_lock.get_setting_value("installed", Some(game_name.clone())),
+    config_lock.get_setting_value("installed", Some(game_name)),
     Ok(Value::Bool(true))
   ) {
     return Ok(true);

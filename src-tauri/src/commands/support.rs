@@ -146,10 +146,7 @@ fn dump_per_game_info(
     .join(game_name.to_string())
     .join("data")
     .join("texture_replacements");
-  package
-    .game_info
-    .get_game_info(game_name.clone())
-    .has_texture_packs =
+  package.game_info.get_game_info(game_name).has_texture_packs =
     texture_repl_dir.exists() && texture_repl_dir.read_dir().unwrap().next().is_some();
   let build_info_path = active_version_dir
     .join(game_name.to_string())
@@ -175,7 +172,7 @@ fn dump_per_game_info(
       .join("data");
     package
       .game_info
-      .get_game_info(game_name.clone())
+      .get_game_info(game_name)
       .release_integrity
       .decompiler_folder_modified = dir_diff::is_different(
       data_dir.join("decompiler"),
@@ -184,13 +181,13 @@ fn dump_per_game_info(
     .unwrap_or(true);
     package
       .game_info
-      .get_game_info(game_name.clone())
+      .get_game_info(game_name)
       .release_integrity
       .game_folder_modified =
       dir_diff::is_different(data_dir.join("game"), version_data_dir.join("game")).unwrap_or(true);
     package
       .game_info
-      .get_game_info(game_name.clone())
+      .get_game_info(game_name)
       .release_integrity
       .goal_src_modified =
       dir_diff::is_different(data_dir.join("goal_src"), version_data_dir.join("goal_src"))
@@ -412,7 +409,7 @@ pub async fn generate_support_package(
       &mut package,
       &mut zip_file,
       install_path,
-      game.clone(),
+      game,
     )
     .map_err(|_| {
       CommandError::Support(format!(

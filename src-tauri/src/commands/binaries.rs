@@ -164,7 +164,7 @@ fn get_data_dir(
   let data_folder = config_info
     .install_path
     .join("active")
-    .join(game_name.clone().to_string())
+    .join(game_name.to_string())
     .join("data");
   if !data_folder.exists() && !copy_directory {
     return Err(CommandError::BinaryExecution(format!(
@@ -241,7 +241,7 @@ pub async fn extract_and_validate_iso(
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
-  let data_folder = get_data_dir(&config_info, game_name.clone(), true)?;
+  let data_folder = get_data_dir(&config_info, game_name, true)?;
   log::info!(
     "extracting using data folder: {}",
     data_folder.to_string_lossy()
@@ -270,7 +270,7 @@ pub async fn extract_and_validate_iso(
   // Add new --game argument
   if config_info.tooling_version >= Version::new(0, 1, 44) {
     args.push("--game".to_string());
-    args.push(game_name.clone().to_string());
+    args.push(game_name.to_string());
   }
 
   log::info!("Running extractor with args: {:?}", args);
@@ -335,7 +335,7 @@ pub async fn run_decompiler(
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
-  let data_folder = get_data_dir(&config_info, game_name.clone(), false)?;
+  let data_folder = get_data_dir(&config_info, game_name, false)?;
   log::info!(
     "decompiling using data folder: {}",
     data_folder.to_string_lossy()
@@ -401,7 +401,7 @@ pub async fn run_decompiler(
   // Add new --game argument
   if config_info.tooling_version >= Version::new(0, 1, 44) {
     args.push("--game".to_string());
-    args.push(game_name.clone().to_string());
+    args.push(game_name.to_string());
   }
 
   // TODO NOW - minimum
@@ -476,7 +476,7 @@ pub async fn run_compiler(
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
-  let data_folder = get_data_dir(&config_info, game_name.clone(), false)?;
+  let data_folder = get_data_dir(&config_info, game_name, false)?;
   log::info!(
     "compiling using data folder: {}",
     data_folder.to_string_lossy()
@@ -495,7 +495,7 @@ pub async fn run_compiler(
   if source_path.is_empty() {
     source_path = data_folder
       .join("iso_data")
-      .join(game_name.clone().to_string())
+      .join(game_name.to_string())
       .to_string_lossy()
       .to_string();
   }
@@ -509,7 +509,7 @@ pub async fn run_compiler(
   // Add new --game argument
   if config_info.tooling_version >= Version::new(0, 1, 44) {
     args.push("--game".to_string());
-    args.push(game_name.clone().to_string());
+    args.push(game_name.to_string());
   }
 
   log::info!("Running compiler with args: {:?}", args);
@@ -638,7 +638,7 @@ fn generate_launch_game_string(
   in_debug: bool,
   quote_project_path: bool,
 ) -> Result<Vec<String>, CommandError> {
-  let data_folder = get_data_dir(config_info, game_name.clone(), false)?;
+  let data_folder = get_data_dir(config_info, game_name, false)?;
 
   let proj_path = if quote_project_path {
     format!("\"{}\"", data_folder.to_string_lossy().into_owned())
@@ -663,7 +663,7 @@ fn generate_launch_game_string(
     // Add new --game argument
     if config_info.tooling_version >= Version::new(0, 1, 44) {
       args.push("--game".to_string());
-      args.push(game_name.clone().to_string());
+      args.push(game_name.to_string());
     }
     // passthru args
     args.push("--".to_string());
@@ -729,7 +729,7 @@ pub async fn launch_game(
     }
   }
 
-  let args = generate_launch_game_string(&config_info, game_name.clone(), in_debug, false)?;
+  let args = generate_launch_game_string(&config_info, game_name, in_debug, false)?;
 
   log::info!(
     "Launching game version {:?} -> {:?} with args: {:?}. Working Directory: {:?}, Path: {:?}",

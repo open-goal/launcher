@@ -30,7 +30,9 @@ pub enum ConfigError {
   Configuration(String),
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, Clone, Serialize, Deserialize, Display, EnumIter, TS)]
+#[derive(
+  Debug, Eq, PartialEq, Hash, Clone, Copy, Serialize, Deserialize, Display, EnumIter, TS,
+)]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
 pub enum SupportedGame {
