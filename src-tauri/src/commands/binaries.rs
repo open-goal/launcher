@@ -585,7 +585,7 @@ pub async fn open_repl(
         "start",
         &bin_ext("goalc"),
         "--game",
-        game_name.to_string(),
+        &game_name.to_string(),
         "--proj-path",
         &data_folder.to_string_lossy(),
       ])
