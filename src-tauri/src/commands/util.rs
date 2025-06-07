@@ -31,17 +31,6 @@ pub async fn delete_old_data_directory(app_handle: tauri::AppHandle) -> Result<(
   }
 }
 
-pub fn diskspace_threshold_for_fresh_install(
-  game_name: SupportedGame,
-) -> Result<u64, CommandError> {
-  match game_name {
-    SupportedGame::Jak1 => Ok(4 * 1024 * 1024 * 1024), // 4gb
-    SupportedGame::Jak2 => Ok(11 * 1024 * 1024 * 1024), // 11gb
-    SupportedGame::Jak3 => Ok(11 * 1024 * 1024 * 1024), // TODO! gb
-    SupportedGame::JakX => Ok(11 * 1024 * 1024 * 1024), // TODO! gb
-  }
-}
-
 #[tauri::command]
 pub async fn is_diskspace_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -71,7 +60,7 @@ pub async fn is_diskspace_requirement_met(
   };
 
   // Check the drive that the installation directory is set to
-  let minimum_required_drive_space = diskspace_threshold_for_fresh_install(game_name)?;
+  let minimum_required_drive_space = game_name.required_diskspace();
   for disk in Disks::new_with_refreshed_list().into_iter() {
     if install_dir.starts_with(disk.mount_point()) {
       if disk.available_space() < minimum_required_drive_space {

@@ -42,6 +42,17 @@ pub enum SupportedGame {
   JakX,
 }
 
+impl SupportedGame {
+  pub fn required_diskspace(&self) -> u64 {
+    match self {
+      SupportedGame::Jak1 => 4 * 1024 * 1024 * 1024,  // 4 GB
+      SupportedGame::Jak2 => 11 * 1024 * 1024 * 1024, // 11 GB
+      SupportedGame::Jak3 => 11 * 1024 * 1024 * 1024, // TODO
+      SupportedGame::JakX => 11 * 1024 * 1024 * 1024, // TODO
+    }
+  }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct GameConfig {
