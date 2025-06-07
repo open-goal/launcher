@@ -2,7 +2,6 @@ use crate::config::LauncherConfig;
 use crate::config::SupportedGame;
 use crate::util::file::delete_dir;
 use log::error;
-use serde_json::Value;
 use std::path::Path;
 use sysinfo::{Disks, System};
 use tauri::Manager;
@@ -35,12 +34,9 @@ pub async fn is_diskspace_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,
 ) -> Result<bool, CommandError> {
-  // If the game is already installed, we assume they have enough drive space
   let config_lock = config.lock().await;
-  if matches!(
-    config_lock.get_setting_value("installed", Some(game_name)),
-    Ok(Value::Bool(true))
-  ) {
+  if config_lock.games[&game_name].is_installed {
+    log::warn!("{game_name} is installed, assuming the disk space requirement is met!");
     return Ok(true);
   }
   if config_lock.requirements.bypass_requirements {
