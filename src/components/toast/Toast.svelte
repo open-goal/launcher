@@ -37,7 +37,7 @@
     transition={fly}
     params={{ y: 200 }}
   >
-    <svelte:fragment slot="icon">
+    {#snippet icon()}
       {#if currentToast.level == "info"}
         <IconCheck class="text-green-500 text-5xl" />
       {:else if currentToast.level == "warn"}
@@ -45,7 +45,7 @@
       {:else if currentToast.level == "error"}
         <IconAlert class="text-red-500 text-5xl" />
       {/if}
-    </svelte:fragment>
+    {/snippet}
     <p class="text-sm font-semibold">
       {currentToast.msg}
     </p>
