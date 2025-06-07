@@ -16,7 +16,7 @@ use crate::{
   config::{LauncherConfig, SupportedGame},
   util::{
     os::get_installed_vcc_runtime,
-    zip::{append_dir_contents_to_zip, append_file_to_zip, check_if_zip_contains_top_level_file},
+    zip::{append_dir_contents_to_zip, append_file_to_zip, check_if_zip_contains_top_level_entry},
   },
 };
 
@@ -362,8 +362,9 @@ pub async fn generate_support_package(
 
   // Create zip file
   let save_path = Path::new(&user_path);
-  let save_file = NamedTempFile::new()
-    .map_err(|_| CommandError::Support("Unable to create support file".to_owned()))?;
+  let save_file = NamedTempFile::new().map_err(|_| {
+    CommandError::Support("Failed to create temp file and unable to create support file".to_owned())
+  })?;
   let mut zip_file = zip::ZipWriter::new(save_file.as_file());
 
   // Save Launcher config folder
@@ -445,13 +446,10 @@ pub async fn generate_support_package(
     .map_err(|_| CommandError::Support("Unable to finalize zip file".to_owned()))?;
 
   // Sanity check that the zip file was actually made correctly
-  let info_found = check_if_zip_contains_top_level_file(
-    &save_file.path().to_path_buf(),
-    "support-info.json".to_string(),
-  )
-  .map_err(|_| {
-    CommandError::Support("Support package was unable to be written properly".to_owned())
-  })?;
+  let info_found =
+    check_if_zip_contains_top_level_entry(&save_file, "support-info.json").map_err(|_| {
+      CommandError::Support("Support package was unable to be written properly".to_owned())
+    })?;
   if !info_found {
     return Err(CommandError::Support(
       "Support package was unable to be written properly".to_owned(),

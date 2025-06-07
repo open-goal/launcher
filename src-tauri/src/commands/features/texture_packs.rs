@@ -11,7 +11,7 @@ use crate::{
   config::{LauncherConfig, SupportedGame},
   util::{
     file::{create_dir, delete_dir, overwrite_dir},
-    zip::{check_if_zip_contains_top_level_dir, extract_zip_file},
+    zip::{check_if_zip_contains_top_level_entry, extract_zip_file},
   },
 };
 
@@ -186,13 +186,11 @@ pub async fn extract_new_texture_pack(
     }
   };
   let expected_top_level_dir = format!("custom_assets/{game_name}/texture_replacements");
-  let valid_zip =
-    check_if_zip_contains_top_level_dir(&zip_path_buf, expected_top_level_dir.clone()).map_err(
-      |err| {
-        log::error!("Unable to read texture replacement zip file: {}", err);
-        CommandError::GameFeatures(format!("Unable to read texture replacement pack: {}", err))
-      },
-    )?;
+  let valid_zip = check_if_zip_contains_top_level_entry(&zip_path_buf, &expected_top_level_dir)
+    .map_err(|err| {
+      log::error!("Unable to read texture replacement zip file: {}", err);
+      CommandError::GameFeatures(format!("Unable to read texture replacement pack: {}", err))
+    })?;
   if !valid_zip {
     log::error!(
       "Invalid texture pack, no top-level `{}` folder in: {}",
