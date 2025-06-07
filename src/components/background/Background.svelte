@@ -10,7 +10,6 @@
   import { platform } from "@tauri-apps/plugin-os";
   import coverArtPlaceholder from "$assets/images/mod-coverart-placeholder.webp";
   import { activeGame, modInfoStore } from "$lib/stores/AppStore";
-  import { SupportedGame } from "$lib/constants";
   import { getLocalModThumbnailBase64 } from "$lib/rpc/features";
   import { appDataDir, join } from "@tauri-apps/api/path";
   import { convertFileSrc } from "@tauri-apps/api/core";
@@ -93,7 +92,7 @@
   {#if modBackground}
     <!-- svelte-ignore a11y_missing_attribute -->
     <img class={style} src={modBackground} />
-  {:else if $activeGame == SupportedGame.Jak1}
+  {:else if $activeGame === "jak1"}
     <video
       class={style}
       poster={jak1Background}
@@ -102,7 +101,7 @@
       muted
       loop
     ></video>
-  {:else if $activeGame == SupportedGame.Jak2}
+  {:else if $activeGame === "jak2"}
     <video
       class={style}
       poster={jak2Background}
@@ -111,7 +110,7 @@
       muted
       loop
     ></video>
-  {:else if $activeGame == SupportedGame.Jak3}
+  {:else if $activeGame === "jak3"}
     {#if onWindows}
       <video
         class={style}

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { SupportedGame } from "$lib/constants";
   import { useParams } from "svelte-navigator";
   import GameControls from "../components/games/GameControls.svelte";
   import GameSetup from "../components/games/setup/GameSetup.svelte";
@@ -117,7 +116,7 @@
 <div class="flex flex-col h-full p-5">
   {#if $VersionStore.activeVersionName === null}
     <GameToolsNotSet />
-  {:else if $activeGame == SupportedGame.Jak3}
+  {:else if $activeGame == "jak3"}
     <!-- TODO: remove this else if arm for jak3 support -->
     <!-- Delete GameInProgress.svelte component -->
     <GameInProgress />
@@ -161,7 +160,7 @@
     {/if}
 
     <!-- Jak 2 BETA warning -->
-    {#if $activeGame === SupportedGame.Jak2}
+    {#if $activeGame === "jak2"}
       <Alert rounded={false} class="border-t-4 text-red-400">
         <span class="font-bold">{$_("gameControls_beta_headerA")}</span>
         <em>{$_("gameControls_beta_headerB")}</em>
@@ -192,7 +191,7 @@
     {/if}
 
     <!-- Jak 3 BETA warning -->
-    {#if $activeGame === SupportedGame.Jak3}
+    {#if $activeGame === "jak3"}
       <Alert rounded={false} class="border-t-4 text-red-400">
         <span class="font-bold">{$_("gameControls_beta_headerA_jak3")}</span>
         <em>{$_("gameControls_beta_headerB")}</em>
