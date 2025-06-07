@@ -65,9 +65,8 @@ fn common_prelude(
       "No active version set, can't perform operation".to_owned(),
     ))?;
 
-  let tooling_version = Version::parse(active_version.strip_prefix('v').unwrap_or(active_version))
-    .unwrap_or(Version::new(0, 1, 35)); // assume new format if none can be found
-
+  let tooling_version =
+    Version::parse(active_version.trim_start_matches('v')).unwrap_or(Version::new(0, 1, 44)); // default to new format if none can be found
   Ok(CommonConfigData {
     install_path: install_path.to_path_buf(),
     active_version: active_version.clone(),
@@ -269,7 +268,7 @@ pub async fn extract_and_validate_iso(
     args.push("--folder".to_string());
   }
   // Add new --game argument
-  if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
+  if config_info.tooling_version >= Version::new(0, 1, 44) {
     args.push("--game".to_string());
     args.push(game_name.clone().to_string());
   }
@@ -400,7 +399,7 @@ pub async fn run_decompiler(
   ];
 
   // Add new --game argument
-  if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
+  if config_info.tooling_version >= Version::new(0, 1, 44) {
     args.push("--game".to_string());
     args.push(game_name.clone().to_string());
   }
@@ -508,7 +507,7 @@ pub async fn run_compiler(
     data_folder.to_string_lossy().into_owned(),
   ];
   // Add new --game argument
-  if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
+  if config_info.tooling_version >= Version::new(0, 1, 44) {
     args.push("--game".to_string());
     args.push(game_name.clone().to_string());
   }
@@ -647,11 +646,8 @@ fn generate_launch_game_string(
     data_folder.to_string_lossy().into_owned()
   };
   let mut args;
-  // NOTE - order unfortunately matters for gk args
-  if config_info.tooling_version.major == 0
-    && config_info.tooling_version.minor <= 1
-    && config_info.tooling_version.patch < 35
-  {
+  // NOTE - we do this check because the order of arguments matters for gk
+  if config_info.tooling_version < Version::new(0, 1, 35) {
     // old argument format
     args = vec![
       "-boot".to_string(),
@@ -665,7 +661,7 @@ fn generate_launch_game_string(
   } else {
     args = vec!["-v".to_string(), "--proj-path".to_string(), proj_path];
     // Add new --game argument
-    if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
+    if config_info.tooling_version >= Version::new(0, 1, 44) {
       args.push("--game".to_string());
       args.push(game_name.clone().to_string());
     }
