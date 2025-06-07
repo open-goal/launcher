@@ -44,25 +44,12 @@ pub enum SupportedGame {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct GameFeatureConfig {
-  pub texture_packs: Vec<String>,
-}
-
-impl GameFeatureConfig {
-  fn default() -> Self {
-    Self {
-      texture_packs: vec![],
-    }
-  }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
 pub struct GameConfig {
   pub is_installed: bool,
   pub version: Option<String>,
-  pub features: GameFeatureConfig,
+  pub texture_packs: Vec<String>,
   pub seconds_played: u64,
+  #[serde(rename = "mods")]
   pub mods_installed_version: HashMap<String, HashMap<String, String>>,
 }
 
@@ -71,14 +58,14 @@ impl GameConfig {
     Self {
       is_installed: false,
       version: None,
-      features: GameFeatureConfig::default(),
+      texture_packs: vec![],
       seconds_played: 0,
       mods_installed_version: HashMap::new(),
     }
   }
 
   pub fn active_texture_packs(&self) -> Vec<String> {
-    self.features.texture_packs.clone()
+    self.texture_packs.clone()
   }
 
   pub fn version(&self) -> Option<String> {
@@ -177,8 +164,9 @@ fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> 
           game_config.version = Some(version.to_string());
         }
         if let Some(features) = value.get("features") {
-          game_config.features = serde_json::from_value(features.clone())
-            .unwrap_or_else(|_| GameFeatureConfig::default());
+          game_config.texture_packs =
+            serde_json::from_value(features.clone()["texturePacks"].take())
+              .unwrap_or_else(|_| vec![]);
         }
         if let Some(seconds_played) = value.get("secondsPlayed").and_then(|v| v.as_u64()) {
           game_config.seconds_played = seconds_played;
@@ -526,7 +514,7 @@ impl LauncherConfig {
 
     match key {
       "add_texture_packs" => {
-        game_config.features.texture_packs = texture_packs;
+        game_config.texture_packs = texture_packs;
       }
       "add_mod" => {
         game_config
@@ -558,7 +546,6 @@ impl LauncherConfig {
     }
     let game_config = self.get_supported_game_config_mut(game_name)?;
     game_config
-      .features
       .texture_packs
       .retain(|pack| !cleanup_list.contains(pack));
     self.save_config()?;
