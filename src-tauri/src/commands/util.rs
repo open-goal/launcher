@@ -1,10 +1,9 @@
 use crate::config::LauncherConfig;
 use crate::config::SupportedGame;
 use crate::util::file::delete_dir;
-use log::{error, info};
+use log::error;
 use serde_json::Value;
 use std::path::Path;
-#[cfg(target_os = "macos")]
 use sysinfo::{Disks, System};
 use tauri::Manager;
 
@@ -121,10 +120,7 @@ pub async fn is_macos_version_15_or_above() -> bool {
 pub async fn is_macos_version_15_or_above() -> bool {
   System::os_version()
     .and_then(|v| v.parse::<f32>().ok())
-    .map(|ver| {
-      info!("MacOS Version Number: {}", ver);
-      ver >= 15.0
-    })
+    .map(|ver| ver >= 15.0)
     .unwrap_or(false)
 }
 
