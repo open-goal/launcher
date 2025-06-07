@@ -177,7 +177,6 @@ pub async fn get_furthest_game_milestone(
   game_name: SupportedGame,
 ) -> Result<String, CommandError> {
   // TODO - currently only checking Jak 1
-  // TODO - It would be cool if the launcher had save-game editing features and the like
   // Scan each save file, we inspect the `game-save`'s tag list.
   // - to find the beginning of the tags, scan 16 bytes at a time, find the group that ends with `00 01 00 64` aka 1 element type 100 (name)
   //  - the name tag always comes first
