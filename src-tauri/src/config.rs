@@ -15,6 +15,8 @@ use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
+use strum_macros::{Display, EnumIter};
+use ts_rs::TS;
 
 use crate::util::file::touch_file;
 
@@ -28,15 +30,13 @@ pub enum ConfigError {
   Configuration(String),
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, Clone, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Hash, Clone, Serialize, Deserialize, Display, EnumIter, TS)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
 pub enum SupportedGame {
-  #[serde(alias = "jak1")]
   Jak1,
-  #[serde(alias = "jak2")]
   Jak2,
-  #[serde(alias = "jak3")]
   Jak3,
-  #[serde(alias = "jakx")]
   JakX,
 }
 
@@ -145,11 +145,10 @@ pub struct LauncherConfig {
 }
 
 fn default_version() -> String {
-  "2.0".to_owned()
+  "3.0".to_owned()
 }
 
 fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> LauncherConfig {
-  println!("{:?}", json_value);
   log::warn!("Outdated config detected. Migrating to the latest version.");
   let mut new_config = LauncherConfig::default(Some(settings_path));
 
@@ -162,7 +161,9 @@ fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> 
   // Migrate games
   if let Some(games) = json_value.get("games").and_then(|v| v.as_object()) {
     for (key, value) in games {
-      if let Ok(supported_game) = serde_json::from_str::<SupportedGame>(&format!("\"{}\"", key)) {
+      if let Ok(supported_game) = serde_json::from_str::<SupportedGame>(
+        &format!("\"{}\"", key.replace(" ", "")).to_lowercase(),
+      ) {
         // Start with default values
         let mut game_config = GameConfig::default();
 
@@ -268,28 +269,13 @@ impl LauncherConfig {
     }
   }
 
-  // fn get_supported_game_config_mut(
-  //   &mut self,
-  //   game_name: &String,
-  // ) -> Result<&mut GameConfig, ConfigError> {
-  //   println!("{:?}", game_name);
-  //   SupportedGame::from_str(game_name)
-  //     .ok()
-  //     .and_then(|game| self.games.get_mut(&game))
-  //     .ok_or_else(|| {
-  //       log::error!("Game not found or unsupported: {}", game_name);
-  //       ConfigError::Configuration(format!("Game not found or unsupported: {game_name}"))
-  //     })
-  // }
-
   fn get_supported_game_config_mut(
     &mut self,
     game_name: SupportedGame,
   ) -> Result<&mut GameConfig, ConfigError> {
-    println!("{:?}", game_name);
     self.games.get_mut(&game_name).ok_or_else(|| {
-      log::error!("Game not found or unsupported: {:?}", game_name);
-      ConfigError::Configuration(format!("Game not found or unsupported: {:?}", game_name))
+      log::error!("Game not found or unsupported: {}", game_name);
+      ConfigError::Configuration(format!("Game not found or unsupported: {game_name}"))
     })
   }
 

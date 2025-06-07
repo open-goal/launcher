@@ -12,7 +12,7 @@ use tokio::{io::AsyncWriteExt, process::Command};
 
 use crate::{
   commands::{binaries::InstallStepOutput, CommandError},
-  config::LauncherConfig,
+  config::{LauncherConfig, SupportedGame},
   util::{
     file::{create_dir, delete_dir, to_image_base64},
     network::download_file,
@@ -25,7 +25,7 @@ use crate::{
 #[tauri::command]
 pub async fn extract_new_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
   bundle_path: String,
   mod_source: String,
 ) -> Result<InstallStepOutput, CommandError> {
@@ -51,7 +51,7 @@ pub async fn extract_new_mod(
   };
   let destination_dir = &install_path
     .join("features")
-    .join(game_name)
+    .join(game_name.to_string())
     .join("mods")
     .join(mod_source)
     .join(&mod_name);
@@ -84,7 +84,7 @@ pub async fn extract_new_mod(
 #[tauri::command]
 pub async fn download_and_extract_new_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
   download_url: String,
   mod_name: String,
   source_name: String,
@@ -102,7 +102,7 @@ pub async fn download_and_extract_new_mod(
   // Download the file
   let parent_path = &install_path
     .join("features")
-    .join(game_name)
+    .join(game_name.to_string())
     .join("mods")
     .join(&source_name)
     .join(&mod_name);
@@ -152,7 +152,7 @@ pub async fn download_and_extract_new_mod(
 #[tauri::command]
 pub async fn base_game_iso_exists(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<bool, CommandError> {
   let config_lock = config.lock().await;
   let install_path = match &config_lock.installation_dir {
@@ -166,10 +166,10 @@ pub async fn base_game_iso_exists(
   Ok(
     install_path
       .join("active")
-      .join(&game_name)
+      .join(game_name.to_string())
       .join("data")
       .join("iso_data")
-      .join(&game_name)
+      .join(game_name.to_string())
       .exists(),
   )
 }
@@ -189,13 +189,13 @@ struct ExecutableLocation {
 fn get_mod_exec_location(
   install_path: std::path::PathBuf,
   executable_name: &str,
-  game_name: &str,
+  game_name: SupportedGame,
   mod_name: &str,
   source_name: &str,
 ) -> Result<ExecutableLocation, CommandError> {
   let exec_dir = install_path
     .join("features")
-    .join(game_name)
+    .join(game_name.to_string())
     .join("mods")
     .join(source_name)
     .join(mod_name);
@@ -225,7 +225,7 @@ struct LauncherErrorCode {
 pub async fn extract_iso_for_mod_install(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
-  game_name: String,
+  game_name: SupportedGame,
   mod_name: String,
   source_name: String,
   path_to_iso: String,
@@ -242,7 +242,7 @@ pub async fn extract_iso_for_mod_install(
   let exec_info = match get_mod_exec_location(
     install_path.to_path_buf(),
     "extractor",
-    &game_name,
+    game_name.clone(),
     &mod_name,
     &source_name,
   ) {
@@ -258,7 +258,7 @@ pub async fn extract_iso_for_mod_install(
 
   let iso_extraction_dir = install_path
     .join("active")
-    .join(&game_name)
+    .join(game_name.to_string())
     .join("data")
     .join("iso_data")
     .to_path_buf();
@@ -272,7 +272,7 @@ pub async fn extract_iso_for_mod_install(
     "--extract-path".to_string(),
     iso_extraction_dir.to_string_lossy().into_owned(),
     "--game".to_string(),
-    game_name.clone(),
+    game_name.clone().to_string(),
   ];
 
   log::info!("Running extractor with args: {:?}", args);
@@ -330,7 +330,7 @@ pub async fn extract_iso_for_mod_install(
 pub async fn decompile_for_mod_install(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
-  game_name: String,
+  game_name: SupportedGame,
   mod_name: String,
   source_name: String,
 ) -> Result<InstallStepOutput, CommandError> {
@@ -346,7 +346,7 @@ pub async fn decompile_for_mod_install(
   let exec_info = match get_mod_exec_location(
     install_path.to_path_buf(),
     "extractor",
-    &game_name,
+    game_name.clone(),
     &mod_name,
     &source_name,
   ) {
@@ -362,10 +362,10 @@ pub async fn decompile_for_mod_install(
 
   let iso_dir = install_path
     .join("active")
-    .join(&game_name)
+    .join(game_name.to_string())
     .join("data")
     .join("iso_data")
-    .join(&game_name)
+    .join(game_name.to_string())
     .to_path_buf();
 
   let args = vec![
@@ -373,7 +373,7 @@ pub async fn decompile_for_mod_install(
     "--folder".to_string(),
     "--decompile".to_string(),
     "--game".to_string(),
-    game_name.clone(),
+    game_name.to_string(),
   ];
 
   log::info!("Running extractor with args: {:?}", args);
@@ -429,7 +429,7 @@ pub async fn decompile_for_mod_install(
 pub async fn compile_for_mod_install(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
-  game_name: String,
+  game_name: SupportedGame,
   mod_name: String,
   source_name: String,
 ) -> Result<InstallStepOutput, CommandError> {
@@ -445,7 +445,7 @@ pub async fn compile_for_mod_install(
   let exec_info = match get_mod_exec_location(
     install_path.to_path_buf(),
     "extractor",
-    &game_name,
+    game_name.clone(),
     &mod_name,
     &source_name,
   ) {
@@ -461,10 +461,10 @@ pub async fn compile_for_mod_install(
 
   let iso_dir = install_path
     .join("active")
-    .join(&game_name)
+    .join(game_name.to_string())
     .join("data")
     .join("iso_data")
-    .join(&game_name)
+    .join(game_name.to_string())
     .to_path_buf();
 
   let args = vec![
@@ -472,7 +472,7 @@ pub async fn compile_for_mod_install(
     "--folder".to_string(),
     "--compile".to_string(),
     "--game".to_string(),
-    game_name.clone(),
+    game_name.to_string(),
   ];
 
   log::info!("Running extractor with args: {:?}", args);
@@ -525,7 +525,7 @@ pub async fn compile_for_mod_install(
 #[tauri::command]
 pub async fn save_mod_install_info(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
   mod_name: String,
   source_name: String,
   version_name: String,
@@ -533,7 +533,7 @@ pub async fn save_mod_install_info(
   let mut config_lock = config.lock().await;
   log::info!(
     "Saving mod install info {}, {}, {}, {}",
-    game_name,
+    game_name.to_string(),
     mod_name,
     source_name,
     version_name
@@ -558,7 +558,7 @@ pub async fn save_mod_install_info(
 }
 
 fn generate_launch_mod_args(
-  game_name: String,
+  game_name: SupportedGame,
   in_debug: bool,
   config_dir: PathBuf,
   quote_project_path: bool,
@@ -572,7 +572,7 @@ fn generate_launch_mod_args(
   let mut args = vec![
     "-v".to_string(),
     "--game".to_string(),
-    game_name.clone(),
+    game_name.to_string(),
     "--config-path".to_string(),
     config_dir_adjusted,
     "--".to_string(),
@@ -590,7 +590,7 @@ fn generate_launch_mod_args(
 pub async fn launch_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
-  game_name: String,
+  game_name: SupportedGame,
   in_debug: bool,
   mod_name: String,
   source_name: String,
@@ -606,7 +606,7 @@ pub async fn launch_mod(
   };
   let config_dir = install_path
     .join("features")
-    .join(&game_name)
+    .join(game_name.to_string())
     .join("mods")
     .join(&source_name)
     .join("_settings")
@@ -614,7 +614,7 @@ pub async fn launch_mod(
   let exec_info = get_mod_exec_location(
     install_path.to_path_buf(),
     "gk",
-    &game_name,
+    game_name.clone(),
     &mod_name,
     &source_name,
   )?;
@@ -647,7 +647,7 @@ pub async fn launch_mod(
 #[tauri::command]
 pub async fn get_local_mod_thumbnail_base64(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
   mod_name: String,
 ) -> Result<String, CommandError> {
   let config_lock = config.lock().await;
@@ -658,7 +658,7 @@ pub async fn get_local_mod_thumbnail_base64(
 
   let cover_path = install_path
     .join("features")
-    .join(game_name)
+    .join(game_name.to_string())
     .join("mods")
     .join("_local")
     .join(mod_name)
@@ -672,7 +672,7 @@ pub async fn get_local_mod_thumbnail_base64(
 #[tauri::command]
 pub async fn get_local_mod_cover_base64(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
   mod_name: String,
 ) -> Result<String, CommandError> {
   let config_lock = config.lock().await;
@@ -683,7 +683,7 @@ pub async fn get_local_mod_cover_base64(
 
   let cover_path = install_path
     .join("features")
-    .join(game_name)
+    .join(game_name.to_string())
     .join("mods")
     .join("_local")
     .join(mod_name)
@@ -697,7 +697,7 @@ pub async fn get_local_mod_cover_base64(
 #[tauri::command]
 pub async fn uninstall_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
   mod_name: String,
   source_name: String,
 ) -> Result<(), CommandError> {
@@ -712,7 +712,7 @@ pub async fn uninstall_mod(
   };
   let mod_dir = install_path
     .join("features")
-    .join(&game_name)
+    .join(game_name.to_string())
     .join("mods")
     .join(&source_name)
     .join(&mod_name);
@@ -735,7 +735,7 @@ pub async fn uninstall_mod(
 #[tauri::command]
 pub async fn reset_mod_settings(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
   mod_name: String,
   source_name: String,
 ) -> Result<(), CommandError> {
@@ -750,13 +750,13 @@ pub async fn reset_mod_settings(
   };
   let path_to_settings = install_path
     .join("features")
-    .join(&game_name)
+    .join(game_name.to_string())
     .join("mods")
     .join(&source_name)
     .join("_settings")
     .join(&mod_name)
     .join("OpenGOAL")
-    .join(&game_name)
+    .join(game_name.to_string())
     .join("settings")
     .join("pc-settings.gc");
 
@@ -775,7 +775,7 @@ pub async fn reset_mod_settings(
 #[tauri::command]
 pub async fn get_launch_mod_string(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
   mod_name: String,
   source_name: String,
 ) -> Result<String, CommandError> {
@@ -791,13 +791,13 @@ pub async fn get_launch_mod_string(
   let exec_info = get_mod_exec_location(
     install_path.to_path_buf(),
     "gk",
-    &game_name,
+    game_name.clone(),
     &mod_name,
     &source_name,
   )?;
   let config_dir = install_path
     .join("features")
-    .join(&game_name)
+    .join(game_name.to_string())
     .join("mods")
     .join(&source_name)
     .join("_settings")
@@ -821,7 +821,7 @@ struct ToastPayload {
 pub async fn open_repl_for_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
-  game_name: String,
+  game_name: SupportedGame,
   mod_name: String,
   source_name: String,
 ) -> Result<(), CommandError> {
@@ -836,15 +836,15 @@ pub async fn open_repl_for_mod(
   };
   let iso_dir = install_path
     .join("active")
-    .join(&game_name)
+    .join(game_name.to_string())
     .join("data")
     .join("iso_data")
-    .join(&game_name)
+    .join(game_name.to_string())
     .to_path_buf();
   let exec_info = get_mod_exec_location(
     install_path.to_path_buf(),
     "goalc",
-    &game_name,
+    game_name,
     &mod_name,
     &source_name,
   )?;
@@ -858,7 +858,7 @@ pub async fn open_repl_for_mod(
         "start",
         &bin_ext("goalc"),
         "--game",
-        &game_name,
+        game_name.to_string(),
         "--iso-path",
         &iso_dir.to_string_lossy(),
       ])

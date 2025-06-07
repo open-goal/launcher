@@ -33,7 +33,7 @@ pub async fn uninstall_game(
 
   let data_folder = Path::new(install_path)
     .join("active")
-    .join(game_name)
+    .join(game_name.to_string())
     .join("data");
 
   match std::fs::remove_dir_all(data_folder.join("decompiler_out")) {
@@ -94,7 +94,7 @@ pub async fn reset_game_settings(
 
   let path_to_settings = config_dir
     .join("OpenGOAL")
-    .join(game_name)
+    .join(game_name.to_string())
     .join("settings")
     .join("pc-settings.gc");
   if path_to_settings.exists() {
@@ -197,7 +197,10 @@ pub async fn get_furthest_game_milestone(
   // there is also a task status field but we don't really care about it, the task-status entry is sufficient
   let game_save_dir = match app_handle.path().config_dir() {
     Ok(config_dir) => {
-      let expected_dir = config_dir.join("OpenGOAL").join(game_name).join("saves");
+      let expected_dir = config_dir
+        .join("OpenGOAL")
+        .join(game_name.to_string())
+        .join("saves");
       if !expected_dir.exists() {
         info!(
           "Expected save directory {} does not exist",

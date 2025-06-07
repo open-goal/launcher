@@ -1,5 +1,5 @@
 use super::{util::is_avx_supported, CommandError};
-use crate::config::LauncherConfig;
+use crate::config::{LauncherConfig, SupportedGame};
 use semver::Version;
 use serde_json::{json, Value};
 
@@ -19,7 +19,7 @@ pub async fn update_setting_value(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   key: String,
   val: Value,
-  game_name: Option<String>,
+  game_name: Option<SupportedGame>,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   match &config_lock.update_setting_value(&key, val, game_name) {
@@ -37,7 +37,7 @@ pub async fn update_setting_value(
 pub async fn get_setting_value(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   key: String,
-  game_name: Option<String>,
+  game_name: Option<SupportedGame>,
 ) -> Result<Value, CommandError> {
   let config_lock = config.lock().await;
   match &config_lock.get_setting_value(&key, game_name) {
@@ -55,7 +55,7 @@ pub async fn get_setting_value(
 pub async fn update_mods_setting_value(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   key: String,
-  game_name: String,
+  game_name: SupportedGame,
   source_name: Option<String>,
   version_name: Option<String>,
   mod_name: Option<String>,
@@ -158,12 +158,12 @@ pub async fn is_opengl_requirement_met(
 #[tauri::command]
 pub async fn cleanup_enabled_texture_packs(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
   cleanup_list: Vec<String>,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   config_lock
-    .cleanup_game_enabled_texture_packs(&game_name, cleanup_list)
+    .cleanup_game_enabled_texture_packs(game_name, cleanup_list)
     .map_err(|_| {
       CommandError::Configuration("Unable to cleanup enabled texture packs".to_owned())
     })?;
@@ -173,7 +173,7 @@ pub async fn cleanup_enabled_texture_packs(
 #[tauri::command]
 pub async fn does_active_tooling_version_support_game(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<bool, CommandError> {
   let config_lock = config.lock().await;
   let version_str = if let Some(v) = &config_lock.active_version {
@@ -184,11 +184,11 @@ pub async fn does_active_tooling_version_support_game(
   };
 
   let tooling_version = Version::parse(version_str).unwrap_or_else(|_| Version::new(0, 0, 1));
-  let supported = match game_name.as_str() {
-    "jak1" => true,
-    "jak2" => tooling_version.minor >= 2,
-    "jak3" => tooling_version.minor >= 3,
-    _ => false,
+  let supported = match game_name {
+    SupportedGame::Jak1 => true,
+    SupportedGame::Jak2 => tooling_version.minor >= 2,
+    SupportedGame::Jak3 => tooling_version.minor >= 3,
+    SupportedGame::JakX => false,
   };
 
   return Ok(supported);

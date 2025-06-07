@@ -5,6 +5,7 @@ use std::{
   io::{BufWriter, Write},
   path::Path,
 };
+use strum::IntoEnumIterator;
 use sysinfo::{Disks, System};
 use tauri::Manager;
 use tempfile::NamedTempFile;
@@ -12,7 +13,7 @@ use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
 
 use crate::{
-  config::LauncherConfig,
+  config::{LauncherConfig, SupportedGame},
   util::{
     os::get_installed_vcc_runtime,
     zip::{append_dir_contents_to_zip, append_file_to_zip, check_if_zip_contains_top_level_file},
@@ -53,14 +54,12 @@ pub struct PerGameInfo {
 }
 
 impl PerGameInfo {
-  // TODO - switch this to enums or w/e, being lazy
-  fn get_game_info(&mut self, game_name: &str) -> &mut GameInfo {
+  fn get_game_info(&mut self, game_name: SupportedGame) -> &mut GameInfo {
     match game_name {
-      "jak1" => &mut self.jak1,
-      "jak2" => &mut self.jak2,
-      "jak3" => &mut self.jak3,
-      "jakx" => &mut self.jakx,
-      _ => &mut self.jak1,
+      SupportedGame::Jak1 => &mut self.jak1,
+      SupportedGame::Jak2 => &mut self.jak2,
+      SupportedGame::Jak3 => &mut self.jak3,
+      SupportedGame::JakX => &mut self.jakx,
     }
   }
 }
@@ -90,7 +89,7 @@ fn dump_per_game_info(
   package: &mut SupportPackage,
   zip_file: &mut zip::ZipWriter<&std::fs::File>,
   install_path: &Path,
-  game_name: &str,
+  game_name: SupportedGame,
 ) -> Result<(), CommandError> {
   // Save OpenGOAL config folder (this includes saves and settings)
   let game_config_dir = match app_handle.path().config_dir() {
@@ -103,7 +102,7 @@ fn dump_per_game_info(
   };
   append_dir_contents_to_zip(
     zip_file,
-    &game_config_dir.join(game_name).join("settings"),
+    &game_config_dir.join(game_name.to_string()).join("settings"),
     format!("Game Settings and Saves/{game_name}/settings").as_str(),
     vec!["gc", "json"],
   )
@@ -112,7 +111,7 @@ fn dump_per_game_info(
   })?;
   append_dir_contents_to_zip(
     zip_file,
-    &game_config_dir.join(game_name).join("misc"),
+    &game_config_dir.join(game_name.to_string()).join("misc"),
     format!("Game Settings and Saves/{game_name}/misc").as_str(),
     vec!["gc", "json"],
   )
@@ -121,7 +120,7 @@ fn dump_per_game_info(
   })?;
   append_dir_contents_to_zip(
     zip_file,
-    &game_config_dir.join(game_name).join("saves"),
+    &game_config_dir.join(game_name.to_string()).join("saves"),
     format!("Game Settings and Saves/{game_name}/saves").as_str(),
     vec!["bin"],
   )
@@ -131,26 +130,32 @@ fn dump_per_game_info(
 
   // Save Logs
   let active_version_dir = install_path.join("active");
-  let jak1_log_dir = active_version_dir.join(game_name).join("data").join("log");
+  let game_log_dir = active_version_dir
+    .join(game_name.to_string())
+    .join("data")
+    .join("log");
   append_dir_contents_to_zip(
     zip_file,
-    &jak1_log_dir,
+    &game_log_dir,
     format!("Game Logs and ISO Info/{game_name}").as_str(),
     vec!["log", "json", "txt"],
   )
   .map_err(|_| CommandError::Support("Unable to append game logs to support package".to_owned()))?;
 
   let texture_repl_dir = active_version_dir
-    .join(game_name)
+    .join(game_name.to_string())
     .join("data")
     .join("texture_replacements");
-  package.game_info.get_game_info(game_name).has_texture_packs =
+  package
+    .game_info
+    .get_game_info(game_name.clone())
+    .has_texture_packs =
     texture_repl_dir.exists() && texture_repl_dir.read_dir().unwrap().next().is_some();
   let build_info_path = active_version_dir
-    .join(game_name)
+    .join(game_name.to_string())
     .join("data")
     .join("iso_data")
-    .join(game_name)
+    .join(game_name.to_string())
     .join("buildinfo.json");
   append_file_to_zip(
     zip_file,
@@ -162,7 +167,7 @@ fn dump_per_game_info(
   })?;
 
   if config_lock.active_version.is_some() {
-    let data_dir = active_version_dir.join(game_name).join("data");
+    let data_dir = active_version_dir.join(game_name.to_string()).join("data");
     let version_data_dir = install_path
       .join("versions")
       .join("official")
@@ -170,7 +175,7 @@ fn dump_per_game_info(
       .join("data");
     package
       .game_info
-      .get_game_info(game_name)
+      .get_game_info(game_name.clone())
       .release_integrity
       .decompiler_folder_modified = dir_diff::is_different(
       data_dir.join("decompiler"),
@@ -179,13 +184,13 @@ fn dump_per_game_info(
     .unwrap_or(true);
     package
       .game_info
-      .get_game_info(game_name)
+      .get_game_info(game_name.clone())
       .release_integrity
       .game_folder_modified =
       dir_diff::is_different(data_dir.join("game"), version_data_dir.join("game")).unwrap_or(true);
     package
       .game_info
-      .get_game_info(game_name)
+      .get_game_info(game_name.clone())
       .release_integrity
       .goal_src_modified =
       dir_diff::is_different(data_dir.join("goal_src"), version_data_dir.join("goal_src"))
@@ -193,7 +198,10 @@ fn dump_per_game_info(
   }
 
   // Append mod settings and logs
-  let mod_directory = install_path.join("features").join(game_name).join("mods");
+  let mod_directory = install_path
+    .join("features")
+    .join(game_name.to_string())
+    .join("mods");
   info!("Scanning mod directory {mod_directory:?}");
   if mod_directory.exists() {
     let mod_source_iter = WalkDir::new(mod_directory)
@@ -397,32 +405,21 @@ pub async fn generate_support_package(
   })?;
 
   // Per Game Info
-  dump_per_game_info(
-    &config_lock,
-    &app_handle,
-    &mut package,
-    &mut zip_file,
-    install_path,
-    "jak1",
-  )
-  .map_err(|_| {
-    CommandError::Support(
-      "Unable to dump per game info for jak 1 to the support package".to_owned(),
+  for game in SupportedGame::iter() {
+    dump_per_game_info(
+      &config_lock,
+      &app_handle,
+      &mut package,
+      &mut zip_file,
+      install_path,
+      game.clone(),
     )
-  })?;
-  dump_per_game_info(
-    &config_lock,
-    &app_handle,
-    &mut package,
-    &mut zip_file,
-    install_path,
-    "jak2",
-  )
-  .map_err(|_| {
-    CommandError::Support(
-      "Unable to dump per game info for jak 2 to the support package".to_owned(),
-    )
-  })?;
+    .map_err(|_| {
+      CommandError::Support(format!(
+        "Unable to dump per game info for {game} to the support package",
+      ))
+    })?;
+  }
 
   // Dump High Level Info
   let options = SimpleFileOptions::default()

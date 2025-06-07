@@ -8,7 +8,7 @@ use serde_json::Value;
 
 use crate::{
   commands::CommandError,
-  config::LauncherConfig,
+  config::{LauncherConfig, SupportedGame},
   util::{
     file::{create_dir, delete_dir, overwrite_dir},
     zip::{check_if_zip_contains_top_level_dir, extract_zip_file},
@@ -36,7 +36,7 @@ pub struct TexturePackInfo {
 #[tauri::command]
 pub async fn list_extracted_texture_pack_info(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<HashMap<String, TexturePackInfo>, CommandError> {
   let config_lock = config.lock().await;
   let install_path = match &config_lock.installation_dir {
@@ -46,7 +46,7 @@ pub async fn list_extracted_texture_pack_info(
 
   let expected_path = Path::new(install_path)
     .join("features")
-    .join(&game_name)
+    .join(game_name.to_string())
     .join("texture-packs");
   if !expected_path.exists() || !expected_path.is_dir() {
     log::info!(
@@ -82,7 +82,7 @@ pub async fn list_extracted_texture_pack_info(
       for entry in glob::glob(
         &entry_path
           .join("custom_assets")
-          .join(&game_name)
+          .join(game_name.to_string())
           .join("texture_replacements/**/*.png")
           .to_string_lossy(),
       )
@@ -94,7 +94,7 @@ pub async fn list_extracted_texture_pack_info(
               .strip_prefix(
                 entry_path
                   .join("custom_assets")
-                  .join(&game_name)
+                  .join(game_name.to_string())
                   .join("texture_replacements"),
               )
               .map_err(|_| {
@@ -120,7 +120,7 @@ pub async fn list_extracted_texture_pack_info(
         version: "Unknown Version".to_string(),
         author: "Unknown Author".to_string(),
         release_date: "Unknown Release Date".to_string(),
-        supported_games: vec![game_name.clone()], // if no info, assume it's supported
+        supported_games: vec![game_name.to_string()], // if no info, assume it's supported
         description: "Unknown Description".to_string(),
         tags: vec![],
       };
@@ -162,7 +162,7 @@ pub async fn list_extracted_texture_pack_info(
 #[tauri::command]
 pub async fn extract_new_texture_pack(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
   zip_path: String,
 ) -> Result<bool, CommandError> {
   let config_lock = config.lock().await;
@@ -185,7 +185,7 @@ pub async fn extract_new_texture_pack(
       ));
     }
   };
-  let expected_top_level_dir = format!("custom_assets/{}/texture_replacements", &game_name);
+  let expected_top_level_dir = format!("custom_assets/{game_name}/texture_replacements");
   let valid_zip =
     check_if_zip_contains_top_level_dir(&zip_path_buf, expected_top_level_dir.clone()).map_err(
       |err| {
@@ -204,7 +204,7 @@ pub async fn extract_new_texture_pack(
   // It's valid, let's extract it.  The name of the zip becomes the folder, if one already exists it will be deleted!
   let destination_dir = &install_path
     .join("features")
-    .join(game_name)
+    .join(game_name.to_string())
     .join("texture-packs")
     .join(&texture_pack_name);
   // TODO - delete it
@@ -233,7 +233,7 @@ pub struct GameJobStepOutput {
 #[tauri::command]
 pub async fn update_texture_pack_data(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<GameJobStepOutput, CommandError> {
   let config_lock = config.lock().await;
   let install_path = match &config_lock.installation_dir {
@@ -248,10 +248,10 @@ pub async fn update_texture_pack_data(
 
   let game_texture_pack_dir = install_path
     .join("active")
-    .join(&game_name)
+    .join(game_name.to_string())
     .join("data")
     .join("custom_assets")
-    .join(&game_name)
+    .join(game_name.to_string())
     .join("texture_replacements");
   // Reset texture replacement directory
   delete_dir(&game_texture_pack_dir)?;
@@ -263,11 +263,11 @@ pub async fn update_texture_pack_data(
     for pack in texture_packs.iter().filter_map(|pack| pack.as_str()).rev() {
       let texture_pack_dir = install_path
         .join("features")
-        .join(&game_name)
+        .join(game_name.to_string())
         .join("texture-packs")
         .join(pack)
         .join("custom_assets")
-        .join(&game_name)
+        .join(game_name.to_string())
         .join("texture_replacements");
 
       log::info!("Appending textures from: {}", texture_pack_dir.display());
@@ -295,7 +295,7 @@ pub async fn update_texture_pack_data(
 #[tauri::command]
 pub async fn delete_texture_packs(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
   packs: Vec<String>,
 ) -> Result<GameJobStepOutput, CommandError> {
   let config_lock = config.lock().await;
@@ -311,7 +311,7 @@ pub async fn delete_texture_packs(
 
   let texture_pack_dir = install_path
     .join("features")
-    .join(&game_name)
+    .join(game_name.to_string())
     .join("texture-packs");
 
   for pack in packs {
