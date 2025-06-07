@@ -1,15 +1,11 @@
 use crate::config::LauncherConfig;
 use crate::config::SupportedGame;
 use crate::util::file::delete_dir;
-#[cfg(target_os = "macos")]
-use log::error;
-#[cfg(target_os = "macos")]
-use log::info;
+use log::{error, info};
 use serde_json::Value;
 use std::path::Path;
 #[cfg(target_os = "macos")]
-use sysctl::Sysctl;
-use sysinfo::Disks;
+use sysinfo::{Disks, System};
 use tauri::Manager;
 
 use super::CommandError;
@@ -66,7 +62,7 @@ pub async fn is_diskspace_requirement_met(
 
   let install_dir = match &config_lock.installation_dir {
     None => {
-      log::error!("Can't check disk space, no install directory has been choosen!");
+      error!("Can't check disk space, no install directory has been choosen!");
       return Err(CommandError::Configuration(
         "Can't check disk space, no install directory has been choosen!".to_owned(),
       ));
@@ -87,7 +83,7 @@ pub async fn is_diskspace_requirement_met(
     }
   }
 
-  log::error!("Unable to find relevant drive to check for space");
+  error!("Unable to find relevant drive to check for space");
   Err(CommandError::Configuration(
     "Unable to find relevant drive to check for space".to_owned(),
   ))
@@ -122,37 +118,30 @@ pub async fn is_avx_supported() -> bool {
 
 #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
 pub async fn is_avx_supported() -> bool {
-  // TODO - macOS check if on atleast sequoia and rosetta 2 is installed
   false
 }
 
 #[cfg(not(target_os = "macos"))]
 #[tauri::command]
-pub async fn is_macos_version_15_or_above() -> Result<bool, CommandError> {
-  return Ok(false);
+pub async fn is_macos_version_15_or_above() -> bool {
+  false
 }
 
 #[cfg(target_os = "macos")]
 #[tauri::command]
-pub async fn is_macos_version_15_or_above() -> Result<bool, CommandError> {
-  if let Ok(ctl) = sysctl::Ctl::new("kern.osproductversion") {
-    if let Ok(ctl_val) = ctl.value_string() {
-      info!("MacOS Version Number: {}", ctl_val);
-      let mut stripped_ctl_val = ctl_val.as_str();
-      if stripped_ctl_val.contains(".") {
-        let first_value = stripped_ctl_val.split(".").next();
-        if first_value.is_none() {
-          error!("Unable to parse MacOS major version number");
-          return Ok(false);
-        }
-        stripped_ctl_val = first_value.unwrap();
-      }
-      info!("Checking MacOS Version Number: {}", stripped_ctl_val);
-      let version = stripped_ctl_val.parse::<f32>();
-      if version.is_ok() {
-        return Ok(version.unwrap() >= 15.0);
-      }
-    }
-  }
-  Ok(false)
+pub async fn is_macos_version_15_or_above() -> bool {
+  System::os_version()
+    .and_then(|v| v.parse::<f32>().ok())
+    .map(|ver| {
+      info!("MacOS Version Number: {}", ver);
+      ver >= 15.0
+    })
+    .unwrap_or(false)
 }
+
+// TODO - macOS check if rosetta 2 is installed
+// #[cfg(target_os = "macos")]
+// #[tauri::command]
+// pub async fn is_rosetta2_installed() -> bool {
+//   todo!()
+// }
