@@ -3,7 +3,9 @@ use crate::config::SupportedGame;
 use crate::util::file::delete_dir;
 use log::error;
 use std::path::Path;
-use sysinfo::{Disks, System};
+use sysinfo::Disks;
+#[cfg(target_os = "macos")]
+use sysinfo::System;
 use tauri::Manager;
 
 use super::CommandError;
