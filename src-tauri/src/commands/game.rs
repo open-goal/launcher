@@ -8,7 +8,7 @@ use tauri::{Emitter, Manager};
 use walkdir::WalkDir;
 
 use crate::{
-  config::LauncherConfig,
+  config::{LauncherConfig, SupportedGame},
   util::game_milestones::{get_jak1_milestones, GameTaskStatus, MilestoneCriteria},
 };
 
@@ -18,7 +18,7 @@ use super::CommandError;
 pub async fn uninstall_game(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
 
@@ -33,7 +33,7 @@ pub async fn uninstall_game(
 
   let data_folder = Path::new(install_path)
     .join("active")
-    .join(&game_name)
+    .join(game_name.to_string())
     .join("data");
 
   match std::fs::remove_dir_all(data_folder.join("decompiler_out")) {
@@ -81,7 +81,7 @@ pub async fn uninstall_game(
 #[tauri::command]
 pub async fn reset_game_settings(
   app_handle: tauri::AppHandle,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<(), CommandError> {
   let config_dir = match app_handle.path().config_dir() {
     Ok(path) => path,
@@ -94,7 +94,7 @@ pub async fn reset_game_settings(
 
   let path_to_settings = config_dir
     .join("OpenGOAL")
-    .join(game_name)
+    .join(game_name.to_string())
     .join("settings")
     .join("pc-settings.gc");
   if path_to_settings.exists() {
@@ -174,10 +174,9 @@ fn get_saves_highest_milestone(
 #[tauri::command]
 pub async fn get_furthest_game_milestone(
   app_handle: tauri::AppHandle,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<String, CommandError> {
   // TODO - currently only checking Jak 1
-  // TODO - It would be cool if the launcher had save-game editing features and the like
   // Scan each save file, we inspect the `game-save`'s tag list.
   // - to find the beginning of the tags, scan 16 bytes at a time, find the group that ends with `00 01 00 64` aka 1 element type 100 (name)
   //  - the name tag always comes first
@@ -197,7 +196,10 @@ pub async fn get_furthest_game_milestone(
   // there is also a task status field but we don't really care about it, the task-status entry is sufficient
   let game_save_dir = match app_handle.path().config_dir() {
     Ok(config_dir) => {
-      let expected_dir = config_dir.join("OpenGOAL").join(game_name).join("saves");
+      let expected_dir = config_dir
+        .join("OpenGOAL")
+        .join(game_name.to_string())
+        .join("saves");
       if !expected_dir.exists() {
         info!(
           "Expected save directory {} does not exist",

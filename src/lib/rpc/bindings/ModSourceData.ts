@@ -5,6 +5,6 @@ export type ModSourceData = {
   schemaVersion: string;
   sourceName: string;
   lastUpdated: string;
-  mods: { [key: string]: ModInfo };
-  texturePacks: { [key: string]: ModInfo };
+  mods: { [key in string]?: ModInfo };
+  texturePacks: { [key in string]?: ModInfo };
 };

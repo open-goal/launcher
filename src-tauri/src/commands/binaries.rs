@@ -17,7 +17,7 @@ use serde_json::Value;
 use tauri::{Emitter, Manager};
 
 use crate::{
-  config::LauncherConfig,
+  config::{LauncherConfig, SupportedGame},
   util::{
     file::overwrite_dir,
     process::{create_log_file, create_std_log_file, watch_process},
@@ -65,9 +65,8 @@ fn common_prelude(
       "No active version set, can't perform operation".to_owned(),
     ))?;
 
-  let tooling_version = Version::parse(active_version.strip_prefix('v').unwrap_or(active_version))
-    .unwrap_or(Version::new(0, 1, 35)); // assume new format if none can be found
-
+  let tooling_version =
+    Version::parse(active_version.trim_start_matches('v')).unwrap_or(Version::new(0, 1, 44)); // default to new format if none can be found
   Ok(CommonConfigData {
     install_path: install_path.to_path_buf(),
     active_version: active_version.clone(),
@@ -82,12 +81,12 @@ struct LauncherErrorCode {
 
 fn get_error_codes(
   config: &CommonConfigData,
-  game_name: &String,
+  game_name: SupportedGame,
 ) -> HashMap<i32, LauncherErrorCode> {
   let json_file = config
     .install_path
     .join("active")
-    .join(game_name)
+    .join(game_name.to_string())
     .join("data")
     .join("launcher")
     .join("error-code-metadata.json");
@@ -132,7 +131,10 @@ fn get_error_codes(
   HashMap::new()
 }
 
-fn copy_data_dir(config_info: &CommonConfigData, game_name: &String) -> Result<(), CommandError> {
+fn copy_data_dir(
+  config_info: &CommonConfigData,
+  game_name: SupportedGame,
+) -> Result<(), CommandError> {
   let src_dir = config_info
     .install_path
     .join("versions")
@@ -143,7 +145,7 @@ fn copy_data_dir(config_info: &CommonConfigData, game_name: &String) -> Result<(
   let dst_dir = config_info
     .install_path
     .join("active")
-    .join(game_name)
+    .join(game_name.to_string())
     .join("data");
 
   info!("Copying {} into {}", src_dir.display(), dst_dir.display());
@@ -156,13 +158,13 @@ fn copy_data_dir(config_info: &CommonConfigData, game_name: &String) -> Result<(
 
 fn get_data_dir(
   config_info: &CommonConfigData,
-  game_name: &String,
+  game_name: SupportedGame,
   copy_directory: bool,
 ) -> Result<PathBuf, CommandError> {
   let data_folder = config_info
     .install_path
     .join("active")
-    .join(game_name)
+    .join(game_name.to_string())
     .join("data");
   if !data_folder.exists() && !copy_directory {
     return Err(CommandError::BinaryExecution(format!(
@@ -216,12 +218,12 @@ pub struct InstallStepOutput {
 #[tauri::command]
 pub async fn update_data_directory(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
-  copy_data_dir(&config_info, &game_name)?;
+  copy_data_dir(&config_info, game_name)?;
 
   Ok(InstallStepOutput {
     success: true,
@@ -234,12 +236,12 @@ pub async fn extract_and_validate_iso(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
   path_to_iso: String,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
-  let data_folder = get_data_dir(&config_info, &game_name, true)?;
+  let data_folder = get_data_dir(&config_info, game_name, true)?;
   log::info!(
     "extracting using data folder: {}",
     data_folder.to_string_lossy()
@@ -266,9 +268,9 @@ pub async fn extract_and_validate_iso(
     args.push("--folder".to_string());
   }
   // Add new --game argument
-  if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
+  if config_info.tooling_version >= Version::new(0, 1, 44) {
     args.push("--game".to_string());
-    args.push(game_name.clone());
+    args.push(game_name.to_string());
   }
 
   log::info!("Running extractor with args: {:?}", args);
@@ -300,7 +302,7 @@ pub async fn extract_and_validate_iso(
           msg: None,
         });
       }
-      let error_code_map = get_error_codes(&config_info, &game_name);
+      let error_code_map = get_error_codes(&config_info, game_name);
       let default_error = LauncherErrorCode {
         msg: format!("Unexpected error occured with code {code}"),
       };
@@ -326,14 +328,14 @@ pub async fn run_decompiler(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
   path_to_iso: String,
-  game_name: String,
+  game_name: SupportedGame,
   truncate_logs: bool,
   use_decomp_settings: bool,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
-  let data_folder = get_data_dir(&config_info, &game_name, false)?;
+  let data_folder = get_data_dir(&config_info, game_name, false)?;
   log::info!(
     "decompiling using data folder: {}",
     data_folder.to_string_lossy()
@@ -353,7 +355,7 @@ pub async fn run_decompiler(
   if source_path.is_empty() {
     source_path = data_folder
       .join("iso_data")
-      .join(&game_name)
+      .join(game_name.to_string())
       .to_string_lossy()
       .to_string();
   }
@@ -397,9 +399,9 @@ pub async fn run_decompiler(
   ];
 
   // Add new --game argument
-  if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
+  if config_info.tooling_version >= Version::new(0, 1, 44) {
     args.push("--game".to_string());
-    args.push(game_name.clone());
+    args.push(game_name.to_string());
   }
 
   // TODO NOW - minimum
@@ -442,7 +444,7 @@ pub async fn run_decompiler(
           msg: None,
         });
       }
-      let error_code_map = get_error_codes(&config_info, &game_name);
+      let error_code_map = get_error_codes(&config_info, game_name);
       let default_error = LauncherErrorCode {
         msg: format!("Unexpected error occured with code {code}"),
       };
@@ -468,13 +470,13 @@ pub async fn run_compiler(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
   path_to_iso: String,
-  game_name: String,
+  game_name: SupportedGame,
   truncate_logs: bool,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
 
-  let data_folder = get_data_dir(&config_info, &game_name, false)?;
+  let data_folder = get_data_dir(&config_info, game_name, false)?;
   log::info!(
     "compiling using data folder: {}",
     data_folder.to_string_lossy()
@@ -493,7 +495,7 @@ pub async fn run_compiler(
   if source_path.is_empty() {
     source_path = data_folder
       .join("iso_data")
-      .join(&game_name)
+      .join(game_name.to_string())
       .to_string_lossy()
       .to_string();
   }
@@ -505,9 +507,9 @@ pub async fn run_compiler(
     data_folder.to_string_lossy().into_owned(),
   ];
   // Add new --game argument
-  if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
+  if config_info.tooling_version >= Version::new(0, 1, 44) {
     args.push("--game".to_string());
-    args.push(game_name.clone());
+    args.push(game_name.to_string());
   }
 
   log::info!("Running compiler with args: {:?}", args);
@@ -542,7 +544,7 @@ pub async fn run_compiler(
           msg: None,
         });
       }
-      let error_code_map = get_error_codes(&config_info, &game_name);
+      let error_code_map = get_error_codes(&config_info, game_name);
       let default_error = LauncherErrorCode {
         msg: format!("Unexpected error occured with code {code}"),
       };
@@ -567,11 +569,11 @@ pub async fn run_compiler(
 pub async fn open_repl(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
-  let data_folder = get_data_dir(&config_info, &game_name, false)?;
+  let data_folder = get_data_dir(&config_info, game_name, false)?;
   let exec_info = get_exec_location(&config_info, "goalc")?;
   let mut command;
   #[cfg(windows)]
@@ -583,7 +585,7 @@ pub async fn open_repl(
         "start",
         &bin_ext("goalc"),
         "--game",
-        &game_name,
+        &game_name.to_string(),
         "--proj-path",
         &data_folder.to_string_lossy(),
       ])
@@ -632,11 +634,11 @@ pub async fn open_repl(
 
 fn generate_launch_game_string(
   config_info: &CommonConfigData,
-  game_name: String,
+  game_name: SupportedGame,
   in_debug: bool,
   quote_project_path: bool,
 ) -> Result<Vec<String>, CommandError> {
-  let data_folder = get_data_dir(config_info, &game_name, false)?;
+  let data_folder = get_data_dir(config_info, game_name, false)?;
 
   let proj_path = if quote_project_path {
     format!("\"{}\"", data_folder.to_string_lossy().into_owned())
@@ -644,11 +646,8 @@ fn generate_launch_game_string(
     data_folder.to_string_lossy().into_owned()
   };
   let mut args;
-  // NOTE - order unfortunately matters for gk args
-  if config_info.tooling_version.major == 0
-    && config_info.tooling_version.minor <= 1
-    && config_info.tooling_version.patch < 35
-  {
+  // NOTE - we do this check because the order of arguments matters for gk
+  if config_info.tooling_version < Version::new(0, 1, 35) {
     // old argument format
     args = vec![
       "-boot".to_string(),
@@ -662,9 +661,9 @@ fn generate_launch_game_string(
   } else {
     args = vec!["-v".to_string(), "--proj-path".to_string(), proj_path];
     // Add new --game argument
-    if config_info.tooling_version.minor > 1 || config_info.tooling_version.patch >= 44 {
+    if config_info.tooling_version >= Version::new(0, 1, 44) {
       args.push("--game".to_string());
-      args.push(game_name.clone());
+      args.push(game_name.to_string());
     }
     // passthru args
     args.push("--".to_string());
@@ -680,7 +679,7 @@ fn generate_launch_game_string(
 #[tauri::command]
 pub async fn get_launch_game_string(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<String, CommandError> {
   let config_lock = config.lock().await;
   let config_info = common_prelude(&config_lock)?;
@@ -699,7 +698,7 @@ pub async fn get_launch_game_string(
 pub async fn launch_game(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
-  game_name: String,
+  game_name: SupportedGame,
   in_debug: bool,
   executable_location: Option<String>,
 ) -> Result<(), CommandError> {
@@ -730,7 +729,7 @@ pub async fn launch_game(
     }
   }
 
-  let args = generate_launch_game_string(&config_info, game_name.clone(), in_debug, false)?;
+  let args = generate_launch_game_string(&config_info, game_name, in_debug, false)?;
 
   log::info!(
     "Launching game version {:?} -> {:?} with args: {:?}. Working Directory: {:?}, Path: {:?}",
@@ -786,7 +785,7 @@ pub async fn launch_game(
 
 async fn track_playtime(
   start_time: std::time::Instant,
-  game_name: String,
+  game_name: SupportedGame,
 ) -> Result<(), CommandError> {
   let app_handle = TAURI_APP
     .get()

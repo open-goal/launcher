@@ -4,7 +4,7 @@ use log::error;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::util::network::download_json;
+use crate::{config::SupportedGame, util::network::download_json};
 
 #[derive(Debug, thiserror::Error)]
 pub enum CacheError {
@@ -20,7 +20,7 @@ pub struct ModVersion {
   pub version: String,
   pub published_date: String,
   pub assets: HashMap<String, Option<String>>,
-  pub supported_games: Option<Vec<String>>, // TODO map to SupportedMap
+  pub supported_games: Option<Vec<SupportedGame>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, TS)]
@@ -40,7 +40,7 @@ pub struct ModInfo {
   pub description: String,
   pub authors: Vec<String>,
   pub tags: Vec<String>,
-  pub supported_games: Vec<String>, // TODO map to SupportedMap
+  pub supported_games: Vec<SupportedGame>,
   pub website_url: Option<String>,
   pub versions: Vec<ModVersion>,
   pub per_game_config: Option<HashMap<String, ModPerGameConfig>>,
