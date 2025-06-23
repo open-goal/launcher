@@ -1035,10 +1035,10 @@
     "@tauri-apps/cli-win32-ia32-msvc" "2.5.0"
     "@tauri-apps/cli-win32-x64-msvc" "2.5.0"
 
-"@tauri-apps/plugin-clipboard-manager@^2.2.2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-clipboard-manager/-/plugin-clipboard-manager-2.2.2.tgz#19559f2b80dd6c692b4e7b884515b5b693ca9791"
-  integrity sha512-bZvDLMqfcNmsw7Ag8I49jlaCjdpDvvlJHnpp6P+Gg/3xtpSERdwlDxm7cKGbs2mj46dsw4AuG3RoAgcpwgioUA==
+"@tauri-apps/plugin-clipboard-manager@^2.2.3":
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-clipboard-manager/-/plugin-clipboard-manager-2.2.3.tgz#9c5e170871e8aab10f6309a14ec14b711a081e25"
+  integrity sha512-myZTLyBpJ9gnDsywtdgRpAYLxEtSVaJa11s1xoiB6w8cjFtG2/znas4Cz3vqYigJkY0A57tyZUE6tjxavIAzgw==
   dependencies:
     "@tauri-apps/api" "^2.0.0"
 
@@ -1071,37 +1071,37 @@
     "@tauri-apps/api" "^2.0.0"
 
 "@tauri-apps/plugin-notification@~2":
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-notification/-/plugin-notification-2.2.2.tgz#1c08c96e3411374ceb1015f5ccfc859284e79b8e"
-  integrity sha512-d71rJdtkFUTcG4dqydnv6d7ZwlNZVcdjrVOPwc9GsF6y9DgVN1WCZ9T/vbfD2qrJslf7ai+rnNJc62TLLC2IdA==
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-notification/-/plugin-notification-2.2.3.tgz#acf02b4f12c7d321ae7e3e923b486ad81a691c71"
+  integrity sha512-IlMdSVFsrKg0eIHBloFFosnWbbz6JdwBywfZrYZnE1+acgXvNS3T1YB5w9R6UXw+KKQ94ODBu7JF7a1YUiAK6A==
   dependencies:
     "@tauri-apps/api" "^2.0.0"
 
 "@tauri-apps/plugin-os@~2":
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-os/-/plugin-os-2.2.1.tgz#64550ece964e73c710ec2017b88aa6694512ba5f"
-  integrity sha512-cNYpNri2CCc6BaNeB6G/mOtLvg8dFyFQyCUdf2y0K8PIAKGEWdEcu8DECkydU2B+oj4OJihDPD2de5K6cbVl9A==
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-os/-/plugin-os-2.2.2.tgz#d83db66da86eddb034f7e86559b3fbae5c0e3ff0"
+  integrity sha512-pZ03bQeRTgid5u5F5nVLhJ6+nS4caAZggwaeZMsChuFvV2SV+EEJkf4XhH1L5fsRnEKlNoyHO5oA5viAy7RtNw==
   dependencies:
     "@tauri-apps/api" "^2.0.0"
 
 "@tauri-apps/plugin-process@~2":
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-process/-/plugin-process-2.2.1.tgz#0d442377e37dac52b45d5a1b55d35a20df5f550c"
-  integrity sha512-cF/k8J+YjjuowhNG1AboHNTlrGiOwgX5j6NzsX6WFf9FMzyZUchkCgZMxCdSE5NIgFX0vvOgLQhODFJgbMenLg==
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-process/-/plugin-process-2.2.2.tgz#0281ea00ad0bcfd5fff9b9640927e137c3cba8da"
+  integrity sha512-1HuR+uGcokQxlgbS0DheFyMpJSuVGuy3Yh3Eq5o3Jm/sEW+44JaVVgYWM0efpDPA8oT5wpabTFEOZHvKfp8dCg==
   dependencies:
     "@tauri-apps/api" "^2.0.0"
 
 "@tauri-apps/plugin-shell@~2":
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-shell/-/plugin-shell-2.2.1.tgz#586ab725ef622ba65a946bff1a3e166cee181903"
-  integrity sha512-G1GFYyWe/KlCsymuLiNImUgC8zGY0tI0Y3p8JgBCWduR5IEXlIJS+JuG1qtveitwYXlfJrsExt3enhv5l2/yhA==
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-shell/-/plugin-shell-2.2.2.tgz#fc01ab7345f3a5ffc971308c744eaaa8355053e4"
+  integrity sha512-fg9XKWfzRQsN8p+Zrk82WeHvXFvGVnG0/mTlujQdLWNnO5cM6WD9qCrHbFytScVS+WhmRAkuypQPcxeKKl3VBg==
   dependencies:
     "@tauri-apps/api" "^2.0.0"
 
 "@tauri-apps/plugin-updater@~2":
-  version "2.7.1"
-  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-updater/-/plugin-updater-2.7.1.tgz#82adcfd06cdd4bc6d64343c8934b700c9174913a"
-  integrity sha512-1OPqEY/z7NDVSeTEMIhD2ss/vXWdpfZ5Th2Mk0KtPR/RA6FKuOTDGZQhxoyYBk0pcZJ+nNZUbl/IujDCLBApjA==
+  version "2.8.1"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-updater/-/plugin-updater-2.8.1.tgz#359ee3caef894d9b1d2e3b9c2ce4654a8a48de7c"
+  integrity sha512-VVQ3wCfM+zok/e0QNBT0oBaFu3gBbzzMsRHzS2yxl7VOCh9dWuZo4yyl29OfaExxSvcixWJ9BZ6pWmKdUt8fCg==
   dependencies:
     "@tauri-apps/api" "^2.0.0"
 
