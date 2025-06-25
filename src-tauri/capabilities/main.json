@@ -22,7 +22,6 @@
     "os:default",
     "core:default",
     "process:default",
-    "notification:default",
     "os:allow-hostname",
     "core:window:allow-create",
     "core:window:allow-center",
