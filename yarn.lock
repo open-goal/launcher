@@ -1063,13 +1063,6 @@
   dependencies:
     "@tauri-apps/api" "^2.0.0"
 
-"@tauri-apps/plugin-http@~2":
-  version "2.4.4"
-  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-http/-/plugin-http-2.4.4.tgz#b1a56a217e6b27cb403ab7637b67ac66a2f95a22"
-  integrity sha512-IjlaaS4z8ybB10qnh6djZ2FIaHdWVs/U1D1C56udKcjX1f+jAmR8/s7qBV5cv/OmcGkOIzet3LWuH70LKf4J2A==
-  dependencies:
-    "@tauri-apps/api" "^2.0.0"
-
 "@tauri-apps/plugin-os@~2":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-os/-/plugin-os-2.2.1.tgz#64550ece964e73c710ec2017b88aa6694512ba5f"

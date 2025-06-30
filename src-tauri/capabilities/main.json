@@ -17,7 +17,6 @@
     "fs:allow-resource-read-recursive",
     "shell:default",
     "dialog:default",
-    "http:default",
     "clipboard-manager:default",
     "os:default",
     "core:default",

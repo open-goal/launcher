@@ -1,6 +1,6 @@
 [package]
 name = "opengoal-launcher"
-version = "2.8.2" # APP_VERSION
+version = "2.8.2"                                    # APP_VERSION
 description = "A frontend for the OpenGOAL project"
 authors = ["OpenGOAL"]
 license = "ISC"
@@ -15,8 +15,8 @@ rust-version = "1.64"
 tauri-build = { version = "2.1.0", features = [] }
 
 [dependencies]
-plist = "1.7.1" # ensuring a bug fix for newer rustc versions
-notify-rust = "4.11.6" # ensuring a bug fix for newer rustc versions
+plist = "1.7.1"                                                          # ensuring a bug fix for newer rustc versions
+notify-rust = "4.11.6"                                                   # ensuring a bug fix for newer rustc versions
 backtrace = "0.3.74"
 chrono = "0.4.39"
 dir-diff = "0.3.3"
@@ -36,7 +36,7 @@ serde_json = "1.0.134"
 strum = { version = "0.27", features = ["derive"] }
 sysinfo = "0.35.2"
 tar = "0.4.43"
-tauri = { version = "2.4.0", features = [ "protocol-asset", "devtools"] }
+tauri = { version = "2.4.0", features = ["protocol-asset", "devtools"] }
 thiserror = "2.0.9"
 tokio = { version = "1", features = ["full"] }
 ts-rs = "11.0"
@@ -51,7 +51,6 @@ tauri-plugin = "2.1.0"
 tauri-plugin-fs = "2.3.0"
 tauri-plugin-shell = "2.2.1"
 tauri-plugin-dialog = "2.2.2"
-tauri-plugin-http = "2.4.4"
 tauri-plugin-clipboard-manager = "2.2.2"
 tauri-plugin-os = "2.2.1"
 tauri-plugin-process = "2.2.1"
@@ -71,9 +70,9 @@ tauri-plugin-updater = "2.7.1"
 # by default Tauri runs in production mode
 # when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is an URL
 default = ["custom-protocol"]
-# this feature is used used for production builds where `devPath` points to the filesystem
+# this feature is used for production builds where `devPath` points to the filesystem
 # DO NOT remove this
 custom-protocol = ["tauri/custom-protocol"]
 
 [profile.release]
-strip = true  # Automatically strip symbols from the binary.
+strip = true # Automatically strip symbols from the binary.
