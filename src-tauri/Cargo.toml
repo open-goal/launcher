@@ -15,8 +15,8 @@ rust-version = "1.64"
 tauri-build = { version = "2.1.0", features = [] }
 
 [dependencies]
-plist = "1.7.1"                                                          # ensuring a bug fix for newer rustc versions
-notify-rust = "4.11.6"                                                   # ensuring a bug fix for newer rustc versions
+plist = "1.7.2" # ensuring a bug fix for newer rustc versions
+notify-rust = "4.11.6" # ensuring a bug fix for newer rustc versions
 backtrace = "0.3.74"
 chrono = "0.4.39"
 dir-diff = "0.3.3"
@@ -49,11 +49,11 @@ tokio-util = "0.7.13"
 tauri-codegen = "2.1.0"
 tauri-plugin = "2.1.0"
 tauri-plugin-fs = "2.3.0"
-tauri-plugin-shell = "2.2.1"
+tauri-plugin-shell = "2.2.2"
 tauri-plugin-dialog = "2.2.2"
-tauri-plugin-clipboard-manager = "2.2.2"
-tauri-plugin-os = "2.2.1"
-tauri-plugin-process = "2.2.1"
+tauri-plugin-clipboard-manager = "2.2.3"
+tauri-plugin-os = "2.2.2"
+tauri-plugin-process = "2.2.2"
 strum_macros = "0.27.1"
 
 [target.'cfg(target_os = "macos")'.dependencies]
@@ -64,7 +64,7 @@ winreg = "0.55.0"
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
 tauri-plugin-global-shortcut = "2.2.1"
-tauri-plugin-updater = "2.7.1"
+tauri-plugin-updater = "2.8.1"
 
 [features]
 # by default Tauri runs in production mode

@@ -51,9 +51,8 @@
       "backgrounds",
       `${$activeGame}.mp4`,
     );
-    const assetUrl = convertFileSrc(filePath);
-    if (await exists(assetUrl)) {
-      bgVideo = assetUrl;
+    if (await exists(filePath)) {
+      bgVideo = convertFileSrc(filePath);
     }
   }
 
@@ -78,11 +77,12 @@
           return;
         }
       }
+      return;
     }
 
     modBackground =
-      $modInfoStore.coverArtUrl ||
-      $modInfoStore.perGameConfig[$activeGame].coverArtUrl ||
+      $modInfoStore?.coverArtUrl ||
+      $modInfoStore?.perGameConfig[$activeGame].coverArtUrl ||
       coverArtPlaceholder;
   }
 </script>
