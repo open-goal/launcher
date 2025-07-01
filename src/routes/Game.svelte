@@ -28,7 +28,7 @@
   import { activeGame, modInfoStore } from "$lib/stores/AppStore";
 
   const params = useParams();
-  $: $params, loadGameInfo();
+  $: ($params, loadGameInfo());
 
   export let modName: string | undefined = undefined;
   export let modSource: string | undefined = undefined;

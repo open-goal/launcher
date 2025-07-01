@@ -39,7 +39,7 @@
   let playtime = "";
   let textureSupportEnabled = true;
 
-  $: $activeGame, refreshDirectories();
+  $: ($activeGame, refreshDirectories());
 
   onMount(async () => {
     textureSupportEnabled = await doesActiveToolingVersionMeetMinimum(0, 2, 13);
