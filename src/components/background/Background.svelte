@@ -16,9 +16,9 @@
   import { exists } from "@tauri-apps/plugin-fs";
 
   const location = useLocation();
-  $: $location.pathname, updateBackground();
-  $: $activeGame, updateBackground();
-  $: $modInfoStore, updateModBackground();
+  $: ($location.pathname, updateBackground());
+  $: ($activeGame, updateBackground());
+  $: ($modInfoStore, updateModBackground());
 
   let style = "absolute object-fill h-screen brightness-75 pt-[60px] w-full";
   let jak1Background = "";
