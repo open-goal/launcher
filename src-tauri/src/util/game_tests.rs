@@ -1,53 +1,15 @@
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
-use std::{
-  path::{Path, PathBuf},
-  process::Command,
-};
+use std::{path::PathBuf, process::Command};
 
-use semver::Version;
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
 
-use crate::{commands::CommandError, config::LauncherConfig, util::file::create_dir};
-
-// TODO - duplicate code, cleanup later
-
-struct CommonConfigData {
-  install_path: std::path::PathBuf,
-  active_version: String,
-  #[allow(dead_code)]
-  tooling_version: Version,
-}
-
-fn common_prelude(
-  config: &tokio::sync::MutexGuard<LauncherConfig>,
-) -> Result<CommonConfigData, CommandError> {
-  let install_path = match &config.installation_dir {
-    None => {
-      return Err(CommandError::BinaryExecution(
-        "No installation directory set, can't perform operation".to_owned(),
-      ))
-    }
-    Some(path) => Path::new(path),
-  };
-
-  let active_version = config
-    .active_version
-    .as_ref()
-    .ok_or(CommandError::BinaryExecution(
-      "No active version set, can't perform operation".to_owned(),
-    ))?;
-
-  let tooling_version = Version::parse(active_version.strip_prefix('v').unwrap_or(active_version))
-    .unwrap_or(Version::new(0, 1, 35)); // assume new format if none can be found
-
-  Ok(CommonConfigData {
-    install_path: install_path.to_path_buf(),
-    active_version: active_version.clone(),
-    tooling_version,
-  })
-}
+use crate::{
+  commands::CommandError,
+  config::{CommonConfigData, LauncherConfig},
+  util::file::create_dir,
+};
 
 fn bin_ext(filename: &str) -> String {
   if cfg!(windows) {
@@ -101,7 +63,7 @@ pub async fn run_game_gpu_test(
   config_lock: &tokio::sync::MutexGuard<'_, LauncherConfig>,
   app_handle: &tauri::AppHandle,
 ) -> Result<GPUTestOutput, CommandError> {
-  let config_info = common_prelude(config_lock)?;
+  let config_info = config_lock.common_prelude()?;
 
   let exec_info = get_exec_location(&config_info, "gk")?;
   let gpu_test_result_path = &match app_handle.path().app_data_dir() {

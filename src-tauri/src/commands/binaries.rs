@@ -17,7 +17,7 @@ use serde_json::Value;
 use tauri::{Emitter, Manager};
 
 use crate::{
-  config::{LauncherConfig, SupportedGame},
+  config::{CommonConfigData, LauncherConfig, SupportedGame},
   util::{
     file::overwrite_dir,
     process::{create_log_file, create_std_log_file, watch_process},
@@ -34,44 +34,10 @@ fn bin_ext(filename: &str) -> String {
   filename.to_string()
 }
 
-struct CommonConfigData {
-  install_path: std::path::PathBuf,
-  active_version: String,
-  tooling_version: Version,
-}
-
 #[derive(Clone, serde::Serialize)]
 struct ToastPayload {
   toast: String,
   level: String,
-}
-
-fn common_prelude(
-  config: &tokio::sync::MutexGuard<LauncherConfig>,
-) -> Result<CommonConfigData, CommandError> {
-  let install_path = match &config.installation_dir {
-    None => {
-      return Err(CommandError::BinaryExecution(
-        "No installation directory set, can't perform operation".to_owned(),
-      ))
-    }
-    Some(path) => Path::new(path),
-  };
-
-  let active_version = config
-    .active_version
-    .as_ref()
-    .ok_or(CommandError::BinaryExecution(
-      "No active version set, can't perform operation".to_owned(),
-    ))?;
-
-  let tooling_version =
-    Version::parse(active_version.trim_start_matches('v')).unwrap_or(Version::new(0, 1, 44)); // default to new format if none can be found
-  Ok(CommonConfigData {
-    install_path: install_path.to_path_buf(),
-    active_version: active_version.clone(),
-    tooling_version,
-  })
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -221,7 +187,7 @@ pub async fn update_data_directory(
   game_name: SupportedGame,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
-  let config_info = common_prelude(&config_lock)?;
+  let config_info = config_lock.common_prelude()?;
 
   copy_data_dir(&config_info, game_name)?;
 
@@ -239,7 +205,7 @@ pub async fn extract_and_validate_iso(
   game_name: SupportedGame,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
-  let config_info = common_prelude(&config_lock)?;
+  let config_info = config_lock.common_prelude()?;
 
   let data_folder = get_data_dir(&config_info, game_name, true)?;
   log::info!(
@@ -333,7 +299,7 @@ pub async fn run_decompiler(
   use_decomp_settings: bool,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
-  let config_info = common_prelude(&config_lock)?;
+  let config_info = config_lock.common_prelude()?;
 
   let data_folder = get_data_dir(&config_info, game_name, false)?;
   log::info!(
@@ -474,7 +440,7 @@ pub async fn run_compiler(
   truncate_logs: bool,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
-  let config_info = common_prelude(&config_lock)?;
+  let config_info = config_lock.common_prelude()?;
 
   let data_folder = get_data_dir(&config_info, game_name, false)?;
   log::info!(
@@ -572,7 +538,7 @@ pub async fn open_repl(
   game_name: SupportedGame,
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
-  let config_info = common_prelude(&config_lock)?;
+  let config_info = config_lock.common_prelude()?;
   let data_folder = get_data_dir(&config_info, game_name, false)?;
   let exec_info = get_exec_location(&config_info, "goalc")?;
   let mut command;
@@ -682,7 +648,7 @@ pub async fn get_launch_game_string(
   game_name: SupportedGame,
 ) -> Result<String, CommandError> {
   let config_lock = config.lock().await;
-  let config_info = common_prelude(&config_lock)?;
+  let config_info = config_lock.common_prelude()?;
 
   let exec_info = get_exec_location(&config_info, "gk")?;
   let args = generate_launch_game_string(&config_info, game_name, false, true)?;
@@ -703,7 +669,7 @@ pub async fn launch_game(
   executable_location: Option<String>,
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
-  let config_info = common_prelude(&config_lock)?;
+  let config_info = config_lock.common_prelude()?;
 
   let mut exec_info = get_exec_location(&config_info, "gk")?;
   if let Some(custom_exec_location) = executable_location {
