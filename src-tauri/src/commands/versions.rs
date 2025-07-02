@@ -8,7 +8,6 @@ use crate::{
   util::{
     file::{create_dir, delete_dir},
     network::download_file,
-    os::open_dir_in_os,
     tar::extract_and_delete_tar_ball,
     zip::extract_and_delete_zip_file,
   },
@@ -218,36 +217,6 @@ pub async fn remove_version(
     }
   }
 
-  Ok(())
-}
-
-#[tauri::command]
-pub async fn go_to_version_folder(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  version_folder: String,
-) -> Result<(), CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::VersionManagement(
-        "Cannot go to version folder, no installation directory set".to_owned(),
-      ))
-    }
-    Some(path) => Path::new(path),
-  };
-
-  let folder_path = Path::new(install_path)
-    .join("versions")
-    .join(version_folder);
-  create_dir(&folder_path).map_err(|_| {
-    CommandError::VersionManagement(format!(
-      "Unable to go to create version folder '{}' in order to open it",
-      folder_path.display()
-    ))
-  })?;
-
-  open_dir_in_os(folder_path.to_string_lossy().into_owned())
-    .map_err(|_| CommandError::VersionManagement("Unable to open folder in OS".to_owned()))?;
   Ok(())
 }
 

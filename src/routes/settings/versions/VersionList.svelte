@@ -22,6 +22,8 @@
   import { getActiveVersion } from "$lib/rpc/versions";
   import { writable } from "svelte/store";
   import { VersionStore } from "$lib/stores/VersionStore";
+  import { revealItemInDir } from "@tauri-apps/plugin-opener";
+  import { getInstallationDirectory } from "$lib/rpc/config";
 
   export let description: string;
   export let releaseList: ReleaseInfo[];
@@ -74,7 +76,10 @@
       </Button>
       <Button
         class="!p-2 rounded-md bg-orange-500 hover:bg-orange-600 text-slate-900"
-        onclick={() => dispatch("openVersionFolder")}
+        onclick={async () =>
+          revealItemInDir(
+            (await getInstallationDirectory()) + "/versions/official/",
+          )}
       >
         <IconFolderOpen
           aria-label={$_("settings_versions_icon_openFolder_altText")}

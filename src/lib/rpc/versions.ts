@@ -49,15 +49,6 @@ export async function removeOldVersions(): Promise<boolean> {
   return false;
 }
 
-export async function openVersionFolder() {
-  return await invoke_rpc(
-    "go_to_version_folder",
-    { versionFolder: "official" },
-    () => {},
-    "Unable to open version folder",
-  );
-}
-
 export async function getActiveVersion(): Promise<string | null> {
   return await invoke_rpc(
     "get_setting_value",
