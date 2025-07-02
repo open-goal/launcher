@@ -364,7 +364,7 @@ impl LauncherConfig {
       Some(path) => path,
     };
     // Ensure the directory exists
-    create_dir(&settings_path.parent().unwrap().to_path_buf())?;
+    create_dir(&settings_path.parent().unwrap())?;
     let file = fs::File::create(settings_path)?;
     serde_json::to_writer_pretty(file, &self)?;
     Ok(())

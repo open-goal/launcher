@@ -1,35 +1,27 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use crate::util::{file::create_dir, network};
 
 use super::CommandError;
 
 #[tauri::command]
-pub async fn download_file(url: String, destination: String) -> Result<(), CommandError> {
-  let download_path = PathBuf::from(&destination);
-  match download_path.parent() {
-    Some(parent) => {
-      if parent == Path::new("") {
-        return Err(CommandError::OSOperation(
-          "Unable to successfully download file".to_owned(),
-        ));
-      } else {
-        create_dir(&parent.to_path_buf()).map_err(|_| {
-          CommandError::VersionManagement(format!(
-            "Unable to prepare destination folder '{}' for download",
-            parent.display()
-          ))
-        })?;
-      }
-    }
-    None => {
-      return Err(CommandError::OSOperation(
-        "Unable to successfully download file".to_owned(),
-      ));
-    }
+pub async fn download_file(url: String, destination: PathBuf) -> Result<(), CommandError> {
+  let parent = destination.parent().ok_or_else(|| {
+    CommandError::OSOperation("Destination path has no parent directory".to_owned())
+  })?;
+
+  if !parent.exists() {
+    create_dir(parent).map_err(|_| {
+      CommandError::OSOperation(format!(
+        "Unable to prepare destination folder '{}'",
+        parent.display()
+      ))
+    })?;
   }
-  network::download_file(&url, &download_path)
+
+  network::download_file(&url, &destination)
     .await
     .map_err(|_| CommandError::OSOperation("Unable to successfully download file".to_owned()))?;
+
   Ok(())
 }

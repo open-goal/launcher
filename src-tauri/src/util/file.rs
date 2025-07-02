@@ -17,7 +17,7 @@ pub fn delete_dir<T: AsRef<Path>>(path: T) -> Result<(), std::io::Error> {
   Ok(())
 }
 
-pub fn create_dir(path: &PathBuf) -> Result<(), std::io::Error> {
+pub fn create_dir(path: &Path) -> Result<(), std::io::Error> {
   if path.exists() {
     return Ok(());
   }
