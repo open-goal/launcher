@@ -57,6 +57,7 @@ tauri-plugin-os = "2.3.0"
 tauri-plugin-notification = "2.3.0"
 tauri-plugin-process = "2.3.0"
 strum_macros = "0.27.1"
+tauri-plugin-opener = "2"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 sysctl = "0.6.0"
