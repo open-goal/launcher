@@ -1,5 +1,3 @@
-// not all util functions are used yet, allow dead code in this module
-#![allow(dead_code)]
 extern crate rustc_serialize;
 
 use rustc_serialize::base64::{ToBase64, MIME};
@@ -25,13 +23,6 @@ pub fn create_dir(path: &Path) -> Result<(), std::io::Error> {
   Ok(())
 }
 
-pub fn delete_file(path: &PathBuf) -> Result<(), std::io::Error> {
-  if path.exists() && path.is_file() {
-    std::fs::remove_file(path)?;
-  }
-  Ok(())
-}
-
 pub fn overwrite_dir(src: &PathBuf, dst: &PathBuf) -> Result<(), fs_extra::error::Error> {
   if src.exists() {
     let mut options = fs_extra::dir::CopyOptions::new();
@@ -41,10 +32,6 @@ pub fn overwrite_dir(src: &PathBuf, dst: &PathBuf) -> Result<(), fs_extra::error
     fs_extra::dir::copy(src, dst, &options)?;
   }
   Ok(())
-}
-
-pub fn read_lines_in_file(path: &PathBuf) -> Result<String, Box<dyn std::error::Error>> {
-  Ok(std::fs::read_to_string(path)?)
 }
 
 pub fn touch_file(path: &PathBuf) -> std::io::Result<()> {
