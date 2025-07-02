@@ -847,7 +847,7 @@ pub async fn open_repl_for_mod(
       .args([
         "/C",
         "start",
-        &bin_ext("goalc"),
+        "goalc.exe",
         "--game",
         &game_name.to_string(),
         "--iso-path",

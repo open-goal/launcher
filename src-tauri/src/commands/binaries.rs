@@ -511,7 +511,7 @@ pub async fn open_repl(
       .args([
         "/C",
         "start",
-        &bin_ext("goalc"),
+        "goalc.exe",
         "--game",
         &game_name.to_string(),
         "--proj-path",
