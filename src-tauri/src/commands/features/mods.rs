@@ -12,7 +12,7 @@ use tokio::{io::AsyncWriteExt, process::Command};
 
 use crate::{
   commands::{binaries::InstallStepOutput, CommandError},
-  config::{LauncherConfig, SupportedGame},
+  config::{ExecutableLocation, LauncherConfig, SupportedGame},
   util::{
     file::{create_dir, delete_dir, to_image_base64},
     network::download_file,
@@ -174,20 +174,8 @@ pub async fn base_game_iso_exists(
   )
 }
 
-fn bin_ext(filename: &str) -> String {
-  if cfg!(windows) {
-    return format!("{filename}.exe");
-  }
-  filename.to_string()
-}
-
-struct ExecutableLocation {
-  executable_dir: PathBuf,
-  executable_path: PathBuf,
-}
-
 fn get_mod_exec_location(
-  install_path: std::path::PathBuf,
+  install_path: PathBuf,
   executable_name: &str,
   game_name: SupportedGame,
   mod_name: &str,
@@ -199,7 +187,10 @@ fn get_mod_exec_location(
     .join("mods")
     .join(source_name)
     .join(mod_name);
-  let exec_path = exec_dir.join(bin_ext(executable_name));
+  let mut exec_path: PathBuf = exec_dir.join(executable_name);
+  if cfg!(windows) {
+    exec_path = exec_path.join(".exe");
+  }
   if !exec_path.exists() {
     log::error!(
       "Could not find the required binary '{}', can't perform operation",
@@ -856,7 +847,7 @@ pub async fn open_repl_for_mod(
       .args([
         "/C",
         "start",
-        &bin_ext("goalc"),
+        "goalc.exe",
         "--game",
         &game_name.to_string(),
         "--iso-path",

@@ -4,7 +4,6 @@
     downloadOfficialVersion,
     getActiveVersion,
     listDownloadedVersions,
-    openVersionFolder,
     removeVersion,
   } from "$lib/rpc/versions";
   import { listOfficialReleases, type ReleaseInfo } from "$lib/utils/github";
@@ -111,10 +110,6 @@
     }
   }
 
-  async function openOfficialVersionFolder() {
-    openVersionFolder();
-  }
-
   async function onDownloadVersion(event: any) {
     // Mark that release as being downloaded
     for (const release of releases) {
@@ -182,7 +177,6 @@
   description={$_("settings_versions_official_description")}
   releaseList={releases}
   loaded={versionsLoaded}
-  on:openVersionFolder={openOfficialVersionFolder}
   on:refreshVersions={refreshVersionList}
   on:versionChange={saveOfficialVersionChange}
   on:removeVersion={onRemoveVersion}

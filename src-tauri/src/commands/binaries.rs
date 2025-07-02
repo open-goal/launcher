@@ -17,7 +17,7 @@ use serde_json::Value;
 use tauri::{Emitter, Manager};
 
 use crate::{
-  config::{LauncherConfig, SupportedGame},
+  config::{CommonConfigData, ExecutableLocation, LauncherConfig, SupportedGame},
   util::{
     file::overwrite_dir,
     process::{create_log_file, create_std_log_file, watch_process},
@@ -27,51 +27,10 @@ use crate::{
 
 use super::CommandError;
 
-fn bin_ext(filename: &str) -> String {
-  if cfg!(windows) {
-    return format!("{filename}.exe");
-  }
-  filename.to_string()
-}
-
-struct CommonConfigData {
-  install_path: std::path::PathBuf,
-  active_version: String,
-  tooling_version: Version,
-}
-
 #[derive(Clone, serde::Serialize)]
 struct ToastPayload {
   toast: String,
   level: String,
-}
-
-fn common_prelude(
-  config: &tokio::sync::MutexGuard<LauncherConfig>,
-) -> Result<CommonConfigData, CommandError> {
-  let install_path = match &config.installation_dir {
-    None => {
-      return Err(CommandError::BinaryExecution(
-        "No installation directory set, can't perform operation".to_owned(),
-      ))
-    }
-    Some(path) => Path::new(path),
-  };
-
-  let active_version = config
-    .active_version
-    .as_ref()
-    .ok_or(CommandError::BinaryExecution(
-      "No active version set, can't perform operation".to_owned(),
-    ))?;
-
-  let tooling_version =
-    Version::parse(active_version.trim_start_matches('v')).unwrap_or(Version::new(0, 1, 44)); // default to new format if none can be found
-  Ok(CommonConfigData {
-    install_path: install_path.to_path_buf(),
-    active_version: active_version.clone(),
-    tooling_version,
-  })
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -177,37 +136,6 @@ fn get_data_dir(
   Ok(data_folder)
 }
 
-struct ExecutableLocation {
-  executable_dir: PathBuf,
-  executable_path: PathBuf,
-}
-
-fn get_exec_location(
-  config_info: &CommonConfigData,
-  executable_name: &str,
-) -> Result<ExecutableLocation, CommandError> {
-  let exec_dir = config_info
-    .install_path
-    .join("versions")
-    .join("official")
-    .join(&config_info.active_version);
-  let exec_path = exec_dir.join(bin_ext(executable_name));
-  if !exec_path.exists() {
-    log::error!(
-      "Could not find the required binary '{}', can't perform operation",
-      exec_path.to_string_lossy()
-    );
-    return Err(CommandError::BinaryExecution(format!(
-      "Could not find the required binary '{}', can't perform operation",
-      exec_path.to_string_lossy()
-    )));
-  }
-  Ok(ExecutableLocation {
-    executable_dir: exec_dir,
-    executable_path: exec_path,
-  })
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InstallStepOutput {
@@ -221,7 +149,7 @@ pub async fn update_data_directory(
   game_name: SupportedGame,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
-  let config_info = common_prelude(&config_lock)?;
+  let config_info = config_lock.common_prelude()?;
 
   copy_data_dir(&config_info, game_name)?;
 
@@ -239,14 +167,14 @@ pub async fn extract_and_validate_iso(
   game_name: SupportedGame,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
-  let config_info = common_prelude(&config_lock)?;
+  let config_info = config_lock.common_prelude()?;
 
   let data_folder = get_data_dir(&config_info, game_name, true)?;
   log::info!(
     "extracting using data folder: {}",
     data_folder.to_string_lossy()
   );
-  let exec_info = match get_exec_location(&config_info, "extractor") {
+  let exec_info = match config_info.get_exec_location("extractor") {
     Ok(exec_info) => exec_info,
     Err(_) => {
       log::error!("extractor executable not found");
@@ -333,14 +261,14 @@ pub async fn run_decompiler(
   use_decomp_settings: bool,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
-  let config_info = common_prelude(&config_lock)?;
+  let config_info = config_lock.common_prelude()?;
 
   let data_folder = get_data_dir(&config_info, game_name, false)?;
   log::info!(
     "decompiling using data folder: {}",
     data_folder.to_string_lossy()
   );
-  let exec_info = match get_exec_location(&config_info, "extractor") {
+  let exec_info = match config_info.get_exec_location("extractor") {
     Ok(exec_info) => exec_info,
     Err(_) => {
       log::error!("extractor executable not found");
@@ -474,14 +402,14 @@ pub async fn run_compiler(
   truncate_logs: bool,
 ) -> Result<InstallStepOutput, CommandError> {
   let config_lock = config.lock().await;
-  let config_info = common_prelude(&config_lock)?;
+  let config_info = config_lock.common_prelude()?;
 
   let data_folder = get_data_dir(&config_info, game_name, false)?;
   log::info!(
     "compiling using data folder: {}",
     data_folder.to_string_lossy()
   );
-  let exec_info = match get_exec_location(&config_info, "extractor") {
+  let exec_info = match config_info.get_exec_location("extractor") {
     Ok(exec_info) => exec_info,
     Err(_) => {
       return Ok(InstallStepOutput {
@@ -572,9 +500,9 @@ pub async fn open_repl(
   game_name: SupportedGame,
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
-  let config_info = common_prelude(&config_lock)?;
+  let config_info = config_lock.common_prelude()?;
   let data_folder = get_data_dir(&config_info, game_name, false)?;
-  let exec_info = get_exec_location(&config_info, "goalc")?;
+  let exec_info = config_info.get_exec_location("goalc")?;
   let mut command;
   #[cfg(windows)]
   {
@@ -583,7 +511,7 @@ pub async fn open_repl(
       .args([
         "/C",
         "start",
-        &bin_ext("goalc"),
+        "goalc.exe",
         "--game",
         &game_name.to_string(),
         "--proj-path",
@@ -682,9 +610,9 @@ pub async fn get_launch_game_string(
   game_name: SupportedGame,
 ) -> Result<String, CommandError> {
   let config_lock = config.lock().await;
-  let config_info = common_prelude(&config_lock)?;
+  let config_info = config_lock.common_prelude()?;
 
-  let exec_info = get_exec_location(&config_info, "gk")?;
+  let exec_info = config_info.get_exec_location("gk")?;
   let args = generate_launch_game_string(&config_info, game_name, false, true)?;
 
   Ok(format!(
@@ -703,9 +631,9 @@ pub async fn launch_game(
   executable_location: Option<String>,
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
-  let config_info = common_prelude(&config_lock)?;
+  let config_info = config_lock.common_prelude()?;
 
-  let mut exec_info = get_exec_location(&config_info, "gk")?;
+  let mut exec_info = config_info.get_exec_location("gk")?;
   if let Some(custom_exec_location) = executable_location {
     match PathBuf::from_str(custom_exec_location.as_str()) {
       Ok(exec_path) => {

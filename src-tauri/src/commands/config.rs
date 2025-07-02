@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use super::{util::is_avx_supported, CommandError};
 use crate::config::{LauncherConfig, SupportedGame};
 use semver::Version;
@@ -83,7 +85,7 @@ pub async fn update_mods_setting_value(
 #[tauri::command]
 pub async fn set_install_directory(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  new_dir: String,
+  new_dir: PathBuf,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   config_lock.set_install_directory(new_dir).map_err(|err| {

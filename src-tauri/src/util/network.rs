@@ -1,5 +1,5 @@
-use std::path::PathBuf;
-use tokio::{fs::File, io::AsyncWriteExt};
+use std::path::Path;
+use tokio;
 
 #[derive(Debug, thiserror::Error)]
 pub enum NetworkError {
@@ -9,20 +9,14 @@ pub enum NetworkError {
   NetworkRequest(#[from] reqwest::Error),
 }
 
-pub async fn download_file(url: &String, destination: &PathBuf) -> Result<(), NetworkError> {
-  let client = reqwest::Client::new();
-  let req = client.get(url);
-  let res = req.send().await?;
-
-  let mut file = File::create(destination).await?;
-  let resp_bytes = res.bytes().await?;
-  file.write_all(&resp_bytes).await?;
+pub async fn download_file(url: &str, destination: &Path) -> Result<(), NetworkError> {
+  let res = reqwest::get(url).await?;
+  let bytes = res.bytes().await?;
+  tokio::fs::write(destination, &bytes).await?;
   Ok(())
 }
 
-pub async fn download_json(url: &String) -> Result<String, NetworkError> {
-  let client = reqwest::Client::new();
-  let req = client.get(url);
-  let resp = req.send().await?;
-  Ok(resp.text().await?)
+pub async fn download_json(url: &str) -> Result<String, NetworkError> {
+  let res = reqwest::get(url).await?;
+  Ok(res.text().await?)
 }

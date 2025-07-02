@@ -70,6 +70,7 @@ fn main() {
   std::panic::set_hook(Box::new(panic_hook));
 
   let tauri_setup = tauri::Builder::default()
+    .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_updater::Builder::new().build())
     .plugin(tauri_plugin_process::init())
     .plugin(tauri_plugin_notification::init())
@@ -215,10 +216,8 @@ fn main() {
       commands::util::path_exists,
       commands::versions::download_version,
       commands::versions::ensure_active_version_still_exists,
-      commands::versions::go_to_version_folder,
       commands::versions::list_downloaded_versions,
       commands::versions::remove_version,
-      commands::window::open_dir_in_os,
       commands::window::open_main_window,
     ])
     .build(tauri::generate_context!())

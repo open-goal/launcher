@@ -9,12 +9,14 @@
 //
 // serde does not support defaultLiterals yet - https://github.com/serde-rs/serde/issues/368
 
+use crate::commands::CommandError;
 use crate::util::file::create_dir;
+use semver::Version;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use strum_macros::{Display, EnumIter};
 use ts_rs::TS;
 
@@ -133,7 +135,7 @@ pub struct LauncherConfig {
   pub version: String,
   pub requirements: Requirements,
   pub games: HashMap<SupportedGame, GameConfig>,
-  pub installation_dir: Option<String>,
+  pub installation_dir: Option<PathBuf>,
   pub active_version: Option<String>,
   pub locale: Option<String>,
   pub mod_sources: Vec<String>,
@@ -142,6 +144,48 @@ pub struct LauncherConfig {
   pub proceed_after_successful_operation: bool,
   pub auto_update_games: bool,
   pub delete_previous_versions: bool,
+}
+
+pub struct CommonConfigData {
+  pub install_path: PathBuf,
+  pub active_version: String,
+  #[allow(dead_code)]
+  pub tooling_version: Version,
+}
+
+impl CommonConfigData {
+  pub fn get_exec_location(
+    &self,
+    executable_name: &str,
+  ) -> Result<ExecutableLocation, CommandError> {
+    let exec_dir = self
+      .install_path
+      .join("versions")
+      .join("official")
+      .join(&self.active_version);
+
+    let mut exec_path: PathBuf = exec_dir.join(executable_name);
+    if cfg!(windows) {
+      exec_path = exec_path.join(".exe");
+    }
+
+    if !exec_path.exists() {
+      return Err(CommandError::BinaryExecution(format!(
+        "Could not find the required binary '{}', can't perform operation",
+        exec_path.to_string_lossy()
+      )));
+    }
+
+    Ok(ExecutableLocation {
+      executable_dir: exec_dir,
+      executable_path: exec_path,
+    })
+  }
+}
+
+pub struct ExecutableLocation {
+  pub executable_dir: PathBuf,
+  pub executable_path: PathBuf,
 }
 
 fn default_version() -> String {
@@ -199,7 +243,7 @@ fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> 
   new_config.installation_dir = json_value
     .get("installationDir")
     .and_then(|v| v.as_str())
-    .map(String::from);
+    .map(PathBuf::from);
 
   new_config.active_version = json_value
     .get("activeVersion")
@@ -320,7 +364,7 @@ impl LauncherConfig {
       Some(path) => path,
     };
     // Ensure the directory exists
-    create_dir(&settings_path.parent().unwrap().to_path_buf())?;
+    create_dir(&settings_path.parent().unwrap())?;
     let file = fs::File::create(settings_path)?;
     serde_json::to_writer_pretty(file, &self)?;
     Ok(())
@@ -334,9 +378,8 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn set_install_directory(&mut self, new_dir: String) -> Result<(), ConfigError> {
+  pub fn set_install_directory(&mut self, path: PathBuf) -> Result<(), ConfigError> {
     // Do some tests on this folder, if they fail, return a decent error
-    let path = Path::new(&new_dir);
     if !path.exists() {
       return Err(ConfigError::Configuration(
         "Provided folder does not exist".to_owned(),
@@ -365,7 +408,7 @@ impl LauncherConfig {
     // - wipe any installed games (make them reinstall)
     // - wipe the active version/version types
     if let Some(old_dir) = &self.installation_dir {
-      if *old_dir != new_dir {
+      if *old_dir != path {
         self.active_version = None;
         self.update_setting_value("installed", false.into(), Some(SupportedGame::Jak1))?;
         self.update_setting_value("installed", false.into(), Some(SupportedGame::Jak2))?;
@@ -374,7 +417,7 @@ impl LauncherConfig {
       }
     }
 
-    self.installation_dir = Some(new_dir);
+    self.installation_dir = Some(path);
     self.save_config()?;
     Ok(())
   }
@@ -472,12 +515,9 @@ impl LauncherConfig {
       match key {
         "opengl_requirements_met" => Ok(Value::Bool(self.requirements.opengl)),
         "bypass_requirements" => Ok(Value::Bool(self.requirements.bypass_requirements)),
-        "install_directory" => Ok(
-          self
-            .installation_dir
-            .as_ref()
-            .map_or(Value::Null, |v| Value::String(v.clone())),
-        ),
+        "install_directory" => Ok(self.installation_dir.as_ref().map_or(Value::Null, |v| {
+          Value::String(v.to_string_lossy().into_owned())
+        })),
         "active_version" => Ok(
           self
             .active_version
@@ -564,5 +604,27 @@ impl LauncherConfig {
       .retain(|pack| !cleanup_list.contains(pack));
     self.save_config()?;
     Ok(())
+  }
+
+  pub fn common_prelude(&self) -> Result<CommonConfigData, CommandError> {
+    let install_path = self.installation_dir.as_ref().ok_or_else(|| {
+      CommandError::BinaryExecution(
+        "No installation directory set, can't perform operation".to_owned(),
+      )
+    })?;
+
+    let active_version = self.active_version.as_ref().ok_or_else(|| {
+      CommandError::BinaryExecution("No active version set, can't perform operation".to_owned())
+    })?;
+
+    let version_str = active_version.strip_prefix('v').unwrap_or(active_version);
+
+    let tooling_version = Version::parse(version_str).unwrap_or_else(|_| Version::new(0, 1, 35));
+
+    Ok(CommonConfigData {
+      install_path: install_path.clone(),
+      active_version: active_version.clone(),
+      tooling_version,
+    })
   }
 }
