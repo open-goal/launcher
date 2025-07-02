@@ -1,53 +1,11 @@
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
-use std::{path::PathBuf, process::Command};
+use std::process::Command;
 
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
 
-use crate::{
-  commands::CommandError,
-  config::{CommonConfigData, LauncherConfig},
-  util::file::create_dir,
-};
-
-fn bin_ext(filename: &str) -> String {
-  if cfg!(windows) {
-    return format!("{filename}.exe");
-  }
-  filename.to_string()
-}
-
-struct ExecutableLocation {
-  executable_dir: PathBuf,
-  executable_path: PathBuf,
-}
-
-fn get_exec_location(
-  config_info: &CommonConfigData,
-  executable_name: &str,
-) -> Result<ExecutableLocation, CommandError> {
-  let exec_dir = config_info
-    .install_path
-    .join("versions")
-    .join("official")
-    .join(&config_info.active_version);
-  let exec_path = exec_dir.join(bin_ext(executable_name));
-  if !exec_path.exists() {
-    log::error!(
-      "Could not find the required binary '{}', can't perform operation",
-      exec_path.to_string_lossy()
-    );
-    return Err(CommandError::BinaryExecution(format!(
-      "Could not find the required binary '{}', can't perform operation",
-      exec_path.to_string_lossy()
-    )));
-  }
-  Ok(ExecutableLocation {
-    executable_dir: exec_dir,
-    executable_path: exec_path,
-  })
-}
+use crate::{commands::CommandError, config::LauncherConfig, util::file::create_dir};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -65,7 +23,7 @@ pub async fn run_game_gpu_test(
 ) -> Result<GPUTestOutput, CommandError> {
   let config_info = config_lock.common_prelude()?;
 
-  let exec_info = get_exec_location(&config_info, "gk")?;
+  let exec_info = config_info.get_exec_location("gk")?;
   let gpu_test_result_path = &match app_handle.path().app_data_dir() {
     Ok(path) => path,
     Err(err) => {

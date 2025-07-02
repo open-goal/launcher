@@ -147,10 +147,45 @@ pub struct LauncherConfig {
 }
 
 pub struct CommonConfigData {
-  pub install_path: std::path::PathBuf,
+  pub install_path: PathBuf,
   pub active_version: String,
   #[allow(dead_code)]
   pub tooling_version: Version,
+}
+
+impl CommonConfigData {
+  pub fn get_exec_location(
+    &self,
+    executable_name: &str,
+  ) -> Result<ExecutableLocation, CommandError> {
+    let exec_dir = self
+      .install_path
+      .join("versions")
+      .join("official")
+      .join(&self.active_version);
+
+    let mut exec_path: PathBuf = exec_dir.join(executable_name);
+    if cfg!(windows) {
+      exec_path = exec_path.join(".exe");
+    }
+
+    if !exec_path.exists() {
+      return Err(CommandError::BinaryExecution(format!(
+        "Could not find the required binary '{}', can't perform operation",
+        exec_path.to_string_lossy()
+      )));
+    }
+
+    Ok(ExecutableLocation {
+      executable_dir: exec_dir,
+      executable_path: exec_path,
+    })
+  }
+}
+
+pub struct ExecutableLocation {
+  pub executable_dir: PathBuf,
+  pub executable_path: PathBuf,
 }
 
 fn default_version() -> String {
