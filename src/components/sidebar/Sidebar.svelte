@@ -28,7 +28,7 @@
 
   function getNavItemStyle(itemName: string, pathName: string): string {
     const baseStyle =
-      "flex items-center hover:grayscale-0 hover:opacity-100 duration-500 text-orange-400";
+      "hover:grayscale-0 hover:opacity-100 duration-500 text-orange-400";
     const isActive =
       pathName.startsWith(`/${itemName}`) ||
       (itemName === "jak1" && pathName === "/");
