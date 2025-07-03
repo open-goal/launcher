@@ -11,39 +11,37 @@
 
   const location = useLocation();
   const navigate = useNavigate();
-  $: $location.pathname;
   $: disabled = $progressTracker.overallStatus == "pending";
 
-  function getNavStyle(): string {
-    const baseStyle =
-      "grow-0 shrink-0 basis-1/10 h-full bg-[#101010] px-1 z-10";
+  function getNavStyle(pathName: string): string {
+    const baseStyle = "grow-0 shrink-0 size-20 h-full bg-[#101010] px-1 z-10";
     const isOpaque =
-      $location.pathname.startsWith("/settings") ||
-      $location.pathname.startsWith("/faq") ||
-      $location.pathname.startsWith("/update") ||
-      $location.pathname.endsWith("/mods") ||
-      $location.pathname.endsWith("/texture_packs");
+      pathName.startsWith("/settings") ||
+      pathName.startsWith("/update") ||
+      pathName.startsWith("/faq") ||
+      pathName.endsWith("/mods") ||
+      pathName.endsWith("/texture_packs");
     return isOpaque
       ? baseStyle
       : `${baseStyle} opacity-50 hover:opacity-100 duration-500`;
   }
 
-  function getNavItemStyle(itemName: string): string {
+  function getNavItemStyle(itemName: string, pathName: string): string {
     const baseStyle =
-      "flex items-center hover:grayscale-0 hover:opacity-100 duration-500 text-orange-400";
+      "hover:grayscale-0 hover:opacity-100 duration-500 text-orange-400";
     const isActive =
-      $location.pathname.startsWith(`/${itemName}`) ||
-      (itemName === "jak1" && $location.pathname === "/");
+      pathName.startsWith(`/${itemName}`) ||
+      (itemName === "jak1" && pathName === "/");
     return isActive ? baseStyle : `${baseStyle} grayscale`;
   }
 </script>
 
-<div class={getNavStyle()}>
+<div class={getNavStyle($location.pathname)}>
   <ul class="flex flex-col h-full space-y-10 px-1 py-5 items-center">
     <li>
       <button
         id="jak1"
-        class={getNavItemStyle("jak1")}
+        class={getNavItemStyle("jak1", $location.pathname)}
         onclick={async () => {
           navigate(`/jak1`);
         }}
@@ -63,7 +61,7 @@
     <li>
       <button
         id="jak2"
-        class={getNavItemStyle("jak2")}
+        class={getNavItemStyle("jak2", $location.pathname)}
         onclick={async () => {
           navigate(`/jak2`);
         }}
@@ -79,7 +77,7 @@
     <li>
       <button
         id="jak3"
-        class={getNavItemStyle("jak3")}
+        class={getNavItemStyle("jak3", $location.pathname)}
         onclick={async () => {
           navigate(`/jak3`);
         }}
@@ -95,7 +93,7 @@
     <li class="!mt-auto">
       <button
         id="settings"
-        class={getNavItemStyle("settings")}
+        class={getNavItemStyle("settings", $location.pathname)}
         onclick={async () => {
           navigate(`/settings/general`);
         }}
@@ -112,7 +110,7 @@
     <li>
       <button
         id="faq"
-        class={getNavItemStyle("faq")}
+        class={getNavItemStyle("faq", $location.pathname)}
         use:link
         onclick={async () => {
           navigate(`/faq`);

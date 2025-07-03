@@ -11,7 +11,6 @@
     DropdownItem,
     DropdownDivider,
     Helper,
-    Tooltip,
   } from "flowbite-svelte";
   import { resetGameSettings, uninstallGame } from "$lib/rpc/game";
   import {
@@ -23,11 +22,9 @@
   import {
     doesActiveToolingVersionMeetMinimum,
     getInstallationDirectory,
-    getPlaytime,
   } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { navigate } from "svelte-navigator";
-  import { listen } from "@tauri-apps/api/event";
   import { toastStore } from "$lib/stores/ToastStore";
   import { activeGame } from "$lib/stores/AppStore";
 
@@ -36,7 +33,6 @@
   let extractedAssetsDir: string | undefined = undefined;
   let settingsDir: string | undefined = undefined;
   let savesDir: string | undefined = undefined;
-  let playtime = "";
   let textureSupportEnabled = true;
 
   $: ($activeGame, refreshDirectories());
@@ -57,52 +53,6 @@
       "settings",
     );
   }
-
-  // format the time from the settings file which is stored as seconds
-  function formatPlaytime(playtimeRaw: number) {
-    // calculate the number of hours and minutes
-    const hours = Math.floor(playtimeRaw / 3600);
-    const minutes = Math.floor((playtimeRaw % 3600) / 60);
-
-    // initialize the formatted playtime string
-    let formattedPlaytime = "";
-
-    // add the hours to the formatted playtime string
-    if (hours > 0) {
-      if (hours > 1) {
-        formattedPlaytime += `${hours} ${$_(`gameControls_timePlayed_hours`)}`;
-      } else {
-        formattedPlaytime += `${hours} ${$_(`gameControls_timePlayed_hour`)}`;
-      }
-    }
-
-    // add the minutes to the formatted playtime string
-    if (minutes > 0) {
-      // add a comma if there are already hours in the formatted playtime string
-      if (formattedPlaytime.length > 0) {
-        formattedPlaytime += ", ";
-      }
-      if (minutes > 1) {
-        formattedPlaytime += `${minutes} ${$_(
-          `gameControls_timePlayed_minutes`,
-        )}`;
-      } else {
-        formattedPlaytime += `${minutes} ${$_(
-          `gameControls_timePlayed_minute`,
-        )}`;
-      }
-    }
-
-    // return the formatted playtime string
-    return formattedPlaytime;
-  }
-
-  // listen for the custom playtiemUpdated event from the backend and then refresh the playtime on screen
-  listen<string>("playtimeUpdated", (event) => {
-    getPlaytime($activeGame).then((result) => {
-      playtime = formatPlaytime(result);
-    });
-  });
 </script>
 
 <div class="flex flex-col justify-end items-end mt-auto">
@@ -111,11 +61,6 @@
   >
     {$_(`gameName_${$activeGame}`)}
   </h1>
-  {#if playtime}
-    <h1 class="pb-4 text-xl text-outline tracking-tighter font-extrabold">
-      {`${$_(`gameControls_timePlayed_label`)} ${playtime}`}
-    </h1>
-  {/if}
   <div class="flex flex-row gap-2">
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
@@ -130,10 +75,11 @@
     <Dropdown
       simple
       trigger="hover"
-      placement="top-end"
+      placement="top"
       class="!bg-slate-900 dark:text-white **:w-full"
     >
       <DropdownItem
+        hidden={!textureSupportEnabled}
         disabled={!textureSupportEnabled}
         onclick={async () => {
           navigate(`/${$activeGame}/texture_packs`);
@@ -141,12 +87,7 @@
       >
         {$_("gameControls_button_features_textures")}
       </DropdownItem>
-      {#if !textureSupportEnabled}
-        <Tooltip>{$_("gameControls_button_features_textures_disabled")}</Tooltip
-        >
-      {/if}
       <DropdownItem
-        class=""
         onclick={async () => {
           navigate(`/${$activeGame}/mods`);
         }}
@@ -162,7 +103,7 @@
     <Dropdown
       simple
       trigger="hover"
-      placement="top-end"
+      placement="top"
       class="!bg-slate-900 dark:text-white **:w-full"
     >
       <DropdownItem
@@ -229,7 +170,7 @@
     <Dropdown
       simple
       trigger="hover"
-      placement="top-end"
+      placement="top"
       class="!bg-slate-900 dark:text-white **:w-full"
     >
       <!-- TODO - screenshot folder? how do we even configure where those go? -->
