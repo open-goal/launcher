@@ -102,7 +102,7 @@
 </script>
 
 <header
-  class="flex flex-row grow-0 shrink-0 basis-1/10 bg-[#101010] pl-2 pr-4 pt-1 pb-1 items-center z-10"
+  class="flex flex-row grow-0 shrink-0 bg-[#101010] pl-2 pr-4 pt-1 pb-1 items-center z-10"
   data-tauri-drag-region
 >
   <div
@@ -124,10 +124,10 @@
   <div
     class="flex flex-col text-neutral-300 mr-2 pointer-events-none max-w-[250px]"
   >
-    <p class="font-mono text-sm truncate-text">
+    <p class="font-mono text-sm">
       {launcherVerison}
     </p>
-    <p class="font-mono text-sm truncate-text">
+    <p class="font-mono text-sm">
       {$VersionStore.activeVersionName === null
         ? "not set!"
         : $VersionStore.activeVersionName}
@@ -135,7 +135,7 @@
   </div>
   {#if $UpdateStore.selectedTooling.updateAvailable}
     <Link
-      class="font-mono text-sm mt-5 truncate-text text-orange-500 hover:text-orange-300"
+      class="font-mono text-sm mt-5 text-orange-500 hover:text-orange-300"
       to="/settings/versions"
       >>&nbsp;{$_("header_updateAvailable")}
     </Link>

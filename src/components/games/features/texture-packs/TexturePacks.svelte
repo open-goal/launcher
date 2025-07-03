@@ -329,8 +329,6 @@
         {#each availablePacks as pack, packIndex}
           {#if !pack.toBeDeleted}
             <div class="flex flex-row gap-2 mt-3">
-              <!-- Placeholder image -->
-              <!-- class="texture-pack-card" -->
               <Card
                 horizontal={true}
                 img={convertFileSrc(

@@ -14,8 +14,7 @@
   $: disabled = $progressTracker.overallStatus == "pending";
 
   function getNavStyle(pathName: string): string {
-    const baseStyle =
-      "grow-0 shrink-0 basis-1/10 h-full bg-[#101010] px-1 z-10";
+    const baseStyle = "grow-0 shrink-0 size-20 h-full bg-[#101010] px-1 z-10";
     const isOpaque =
       pathName.startsWith("/settings") ||
       pathName.startsWith("/update") ||

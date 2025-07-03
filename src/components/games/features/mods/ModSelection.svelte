@@ -212,7 +212,7 @@
                         );
                       }}
                     >
-                      <h3 class="pointer-events-none select-none text-shadow">
+                      <h3 class="text-outline">
                         {getModDisplayName(sourceName, modName)}
                       </h3>
                       <div class="absolute top-0 right-0 m-2 flex gap-1">
@@ -268,7 +268,7 @@
                         modInfo,
                       )}'); background-size: cover;"
                     >
-                      <h3 class="pointer-events-none select-none text-outline">
+                      <h3 class="text-outline">
                         {modInfo.displayName}
                       </h3>
                       <div class="absolute top-0 right-0 m-2 flex gap-1">
@@ -298,7 +298,7 @@
                         );
                       }}
                     >
-                      <h3 class="pointer-events-none select-none text-outline">
+                      <h3 class="text-outline">
                         {modInfo.displayName}
                       </h3>
                       <div class="absolute top-0 right-0 m-2 flex gap-1">
