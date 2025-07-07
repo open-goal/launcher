@@ -15,7 +15,7 @@ rust-version = "1.64"
 tauri-build = { version = "2.1.0", features = [] }
 
 [dependencies]
-plist = "1.7.2" # ensuring a bug fix for newer rustc versions
+plist = "1.7.3" # ensuring a bug fix for newer rustc versions
 notify-rust = "4.11.6" # ensuring a bug fix for newer rustc versions
 backtrace = "0.3.74"
 chrono = "0.4.39"
