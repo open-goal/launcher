@@ -15,7 +15,7 @@ rust-version = "1.64"
 tauri-build = { version = "2.1.0", features = [] }
 
 [dependencies]
-plist = "1.7.2" # ensuring a bug fix for newer rustc versions
+plist = "1.7.4" # ensuring a bug fix for newer rustc versions
 notify-rust = "4.11.6" # ensuring a bug fix for newer rustc versions
 backtrace = "0.3.74"
 chrono = "0.4.39"
@@ -34,7 +34,7 @@ semver = "1.0.24"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.134"
 strum = { version = "0.27", features = ["derive"] }
-sysinfo = "0.35.2"
+sysinfo = "0.36.0"
 tar = "0.4.43"
 tauri = { version = "2.4.0", features = [ "protocol-asset", "devtools"] }
 thiserror = "2.0.9"
