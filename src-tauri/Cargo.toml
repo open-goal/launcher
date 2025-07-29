@@ -15,7 +15,7 @@ rust-version = "1.64"
 tauri-build = { version = "2.1.0", features = [] }
 
 [dependencies]
-plist = "1.7.2" # ensuring a bug fix for newer rustc versions
+plist = "1.7.4" # ensuring a bug fix for newer rustc versions
 notify-rust = "4.11.6" # ensuring a bug fix for newer rustc versions
 backtrace = "0.3.74"
 chrono = "0.4.39"
@@ -32,9 +32,9 @@ reqwest = { version = "0.12", features = ["json"] }
 rev_buf_reader = "0.3.0"
 semver = "1.0.24"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.134"
+serde_json = "1.0.141"
 strum = { version = "0.27", features = ["derive"] }
-sysinfo = "0.35.2"
+sysinfo = "0.36.1"
 tar = "0.4.43"
 tauri = { version = "2.4.0", features = [ "protocol-asset", "devtools"] }
 thiserror = "2.0.9"
@@ -56,7 +56,7 @@ tauri-plugin-clipboard-manager = "2.3.0"
 tauri-plugin-os = "2.3.0"
 tauri-plugin-notification = "2.3.0"
 tauri-plugin-process = "2.3.0"
-strum_macros = "0.27.1"
+strum_macros = "0.27.2"
 tauri-plugin-opener = "2"
 
 [target.'cfg(target_os = "macos")'.dependencies]
