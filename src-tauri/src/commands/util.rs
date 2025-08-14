@@ -116,8 +116,8 @@ pub async fn is_macos_version_15_or_above() -> bool {
 #[tauri::command]
 pub async fn is_macos_version_15_or_above() -> bool {
   System::os_version()
-    .and_then(|v| v.parse::<f32>().ok())
-    .map(|ver| ver >= 15.0)
+    .and_then(|v| v.split('.').next()?.parse::<u32>().ok())
+    .map(|major| major >= 15)
     .unwrap_or(false)
 }
 
