@@ -13,7 +13,7 @@ use crate::commands::CommandError;
 use crate::util::file::create_dir;
 use semver::Version;
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;

@@ -6,8 +6,8 @@ pub fn get_installed_vcc_runtime() -> Option<semver::Version> {
 #[cfg(target_os = "windows")]
 pub fn get_installed_vcc_runtime() -> Option<semver::Version> {
   use winreg::{
-    enums::{HKEY_LOCAL_MACHINE, KEY_READ},
     RegKey,
+    enums::{HKEY_LOCAL_MACHINE, KEY_READ},
   };
   let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
   let path = r"SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64";

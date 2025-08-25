@@ -97,7 +97,7 @@ fn dump_per_game_info(
     Err(_) => {
       return Err(CommandError::Support(
         "Couldn't determine application config directory".to_owned(),
-      ))
+      ));
     }
   };
   append_dir_contents_to_zip(
@@ -281,7 +281,7 @@ pub async fn generate_support_package(
     None => {
       return Err(CommandError::Support(
         "No installation directory set, can't generate the support package".to_owned(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };
@@ -373,7 +373,7 @@ pub async fn generate_support_package(
     Err(_) => {
       return Err(CommandError::Support(
         "Couldn't determine launcher config directory".to_owned(),
-      ))
+      ));
     }
   };
   let launcher_log_dir = match app_handle.path().app_log_dir() {
@@ -381,7 +381,7 @@ pub async fn generate_support_package(
     Err(_) => {
       return Err(CommandError::Support(
         "Couldn't determine launcher log directory".to_owned(),
-      ))
+      ));
     }
   };
   append_dir_contents_to_zip(

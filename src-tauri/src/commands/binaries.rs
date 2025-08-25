@@ -17,12 +17,12 @@ use serde_json::Value;
 use tauri::{Emitter, Manager};
 
 use crate::{
+  TAURI_APP,
   config::{CommonConfigData, ExecutableLocation, LauncherConfig, SupportedGame},
   util::{
     file::overwrite_dir,
     process::{create_log_file, create_std_log_file, watch_process},
   },
-  TAURI_APP,
 };
 
 use super::CommandError;
@@ -685,7 +685,7 @@ pub async fn launch_game(
   // if all goes well, we await the child to exit in the background (separate thread)
   tokio::spawn(async move {
     let start_time = Instant::now(); // get the start time of the game
-                                     // start waiting for the game to exit
+    // start waiting for the game to exit
     match child.wait() {
       Ok(status_code) => {
         if status_code.code().is_none() || status_code.code().unwrap() != 0 {

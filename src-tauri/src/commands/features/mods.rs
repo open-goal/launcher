@@ -11,7 +11,7 @@ use tauri::Emitter;
 use tokio::{io::AsyncWriteExt, process::Command};
 
 use crate::{
-  commands::{binaries::InstallStepOutput, CommandError},
+  commands::{CommandError, binaries::InstallStepOutput},
   config::{ExecutableLocation, LauncherConfig, SupportedGame},
   util::{
     file::{create_dir, delete_dir, to_image_base64},
@@ -34,7 +34,7 @@ pub async fn extract_new_mod(
     None => {
       return Err(CommandError::GameFeatures(
         "No installation directory set, can't extract mod".to_string(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };
@@ -94,7 +94,7 @@ pub async fn download_and_extract_new_mod(
     None => {
       return Err(CommandError::GameFeatures(
         "No installation directory set, can't download and extract mod".to_string(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };
@@ -159,7 +159,7 @@ pub async fn base_game_iso_exists(
     None => {
       return Err(CommandError::GameFeatures(
         "No installation directory set, can't extract mod".to_string(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };
@@ -226,7 +226,7 @@ pub async fn extract_iso_for_mod_install(
     None => {
       return Err(CommandError::GameFeatures(
         "No installation directory set, can't extract mod".to_string(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };
@@ -330,7 +330,7 @@ pub async fn decompile_for_mod_install(
     None => {
       return Err(CommandError::GameFeatures(
         "No installation directory set, can't extract mod".to_string(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };
@@ -429,7 +429,7 @@ pub async fn compile_for_mod_install(
     None => {
       return Err(CommandError::GameFeatures(
         "No installation directory set, can't extract mod".to_string(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };
@@ -591,7 +591,7 @@ pub async fn launch_mod(
     None => {
       return Err(CommandError::GameFeatures(
         "No installation directory set, can't extract mod".to_string(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };
@@ -697,7 +697,7 @@ pub async fn uninstall_mod(
     None => {
       return Err(CommandError::GameFeatures(
         "No installation directory set, can't extract mod".to_string(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };
@@ -735,7 +735,7 @@ pub async fn reset_mod_settings(
     None => {
       return Err(CommandError::GameFeatures(
         "No installation directory set, can't reset mod settings".to_string(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };
@@ -775,7 +775,7 @@ pub async fn get_launch_mod_string(
     None => {
       return Err(CommandError::GameFeatures(
         "No installation directory set, can't extract mod".to_string(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };
@@ -821,7 +821,7 @@ pub async fn open_repl_for_mod(
     None => {
       return Err(CommandError::GameFeatures(
         "No installation directory set, can't open REPL for mod".to_string(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };
