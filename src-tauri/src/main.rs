@@ -64,7 +64,9 @@ fn panic_hook(info: &std::panic::PanicHookInfo) {
 static TAURI_APP: OnceCell<tauri::AppHandle> = OnceCell::const_new();
 
 fn main() {
-  std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
+  unsafe {
+    std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
+  }
   // In the event that some catastrophic happens, atleast log it out
   // the panic_hook will log to a file in the folder of the executable
   std::panic::set_hook(Box::new(panic_hook));

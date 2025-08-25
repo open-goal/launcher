@@ -6,8 +6,8 @@ authors = ["OpenGOAL"]
 license = "ISC"
 repository = "https://github.com/open-goal/launcher"
 default-run = "opengoal-launcher"
-edition = "2021"
-rust-version = "1.64"
+edition = "2024"
+rust-version = "1.89"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
