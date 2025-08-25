@@ -20,7 +20,7 @@ pub async fn create_log_file(
     Err(_) => {
       return Err(CommandError::Installation(
         "Could not determine path to save installation logs".to_owned(),
-      ))
+      ));
     }
   };
   create_dir(log_path)?;
@@ -100,7 +100,7 @@ pub fn create_std_log_file(
     Err(_) => {
       return Err(CommandError::Installation(
         "Could not determine path to save installation logs".to_owned(),
-      ))
+      ));
     }
   };
   create_dir(log_path)?;

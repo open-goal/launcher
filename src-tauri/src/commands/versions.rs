@@ -75,7 +75,7 @@ pub async fn download_version(
     None => {
       return Err(CommandError::VersionManagement(
         "Cannot install version, no installation directory set".to_owned(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };
@@ -190,7 +190,7 @@ pub async fn remove_version(
     None => {
       return Err(CommandError::VersionManagement(
         "Cannot install version, no installation directory set".to_owned(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };
@@ -229,7 +229,7 @@ pub async fn ensure_active_version_still_exists(
     None => {
       return Err(CommandError::VersionManagement(
         "Cannot install version, no installation directory set".to_owned(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };

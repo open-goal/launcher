@@ -170,7 +170,7 @@ pub async fn extract_new_texture_pack(
     None => {
       return Err(CommandError::GameFeatures(
         "No installation directory set, can't extract texture pack".to_string(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };

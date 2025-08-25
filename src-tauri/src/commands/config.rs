@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 
-use super::{util::is_avx_supported, CommandError};
+use super::{CommandError, util::is_avx_supported};
 use crate::config::{LauncherConfig, SupportedGame};
 use semver::Version;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 #[tauri::command]
 pub async fn reset_to_defaults(

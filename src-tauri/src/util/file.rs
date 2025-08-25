@@ -1,6 +1,6 @@
 extern crate rustc_serialize;
 
-use rustc_serialize::base64::{ToBase64, MIME};
+use rustc_serialize::base64::{MIME, ToBase64};
 use rustc_serialize::hex::ToHex;
 use std::{
   fs::File,

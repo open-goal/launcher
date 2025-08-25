@@ -44,7 +44,9 @@ fn log_crash(panic_info: Option<&std::panic::PanicHookInfo>, error: Option<tauri
 
   let mut dialog_text = "Unrecoverable crash occurred!".to_string();
   if cfg!(windows) {
-    dialog_text = format!("{dialog_text} Ensure you have not uninstalled WebView2: https://developer.microsoft.com/en-us/microsoft-edge/webview2/?form=MA13LH#download");
+    dialog_text = format!(
+      "{dialog_text} Ensure you have not uninstalled WebView2: https://developer.microsoft.com/en-us/microsoft-edge/webview2/?form=MA13LH#download"
+    );
   }
   dialog_text = format!("{dialog_text}\n\nDetails:\n{log_contents}");
 
@@ -64,7 +66,9 @@ fn panic_hook(info: &std::panic::PanicHookInfo) {
 static TAURI_APP: OnceCell<tauri::AppHandle> = OnceCell::const_new();
 
 fn main() {
-  std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
+  unsafe {
+    std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
+  }
   // In the event that some catastrophic happens, atleast log it out
   // the panic_hook will log to a file in the folder of the executable
   std::panic::set_hook(Box::new(panic_hook));

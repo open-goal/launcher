@@ -9,7 +9,7 @@ use walkdir::WalkDir;
 
 use crate::{
   config::{LauncherConfig, SupportedGame},
-  util::game_milestones::{get_jak1_milestones, GameTaskStatus, MilestoneCriteria},
+  util::game_milestones::{GameTaskStatus, MilestoneCriteria, get_jak1_milestones},
 };
 
 use super::CommandError;
@@ -26,7 +26,7 @@ pub async fn uninstall_game(
     None => {
       return Err(CommandError::GameManagement(
         "No installation directory set, can't perform uninstallation".to_owned(),
-      ))
+      ));
     }
     Some(path) => Path::new(path),
   };
@@ -88,7 +88,7 @@ pub async fn reset_game_settings(
     Err(_) => {
       return Err(CommandError::GameManagement(
         "Could not determine game config directory".to_owned(),
-      ))
+      ));
     }
   };
 
