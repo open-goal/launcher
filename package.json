@@ -26,6 +26,8 @@
     "@octokit/plugin-throttling": "^11.0.1",
     "@octokit/rest": "^22.0.0",
     "@popperjs/core": "^2.11.7",
+    "@sveltejs/adapter-static": "^3.0.9",
+    "@sveltejs/kit": "^2.36.2",
     "@sveltejs/vite-plugin-svelte": "^6.1.2",
     "@tailwindcss/vite": "^4.1.12",
     "@tauri-apps/cli": "^2.8.2",

@@ -41,9 +41,9 @@
   },
   "build": {
     "beforeBuildCommand": "npm run build",
-    "frontendDist": "../dist",
+    "frontendDist": "../build",
     "beforeDevCommand": "npm run dev",
-    "devUrl": "http://localhost:3000/"
+    "devUrl": "http://localhost:1420/"
   },
   "productName": "OpenGOAL-Launcher",
   "mainBinaryName": "OpenGOAL-Launcher",
@@ -63,19 +63,11 @@
     },
     "windows": [
       {
-        "title": "OpenGOAL Launcher - Splash",
-        "label": "splashscreen",
-        "width": 200,
-        "height": 300,
+        "title": "OpenGOAL Launcher",
+        "width": 800,
+        "height": 600,
         "center": true,
-        "decorations": false,
-        "transparent": true,
-        "resizable": false,
-        "fullscreen": false,
-        "url": "./src/splash/index.html",
-        "visible": true,
-        "focus": true,
-        "useHttpsScheme": true
+        "resizable": false
       }
     ]
   }

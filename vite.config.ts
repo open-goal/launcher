@@ -1,40 +1,39 @@
 import { defineConfig } from "vite";
-import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { sveltekit } from "@sveltejs/kit/vite";
 import tailwindcss from "@tailwindcss/vite";
 import Icons from "unplugin-icons/vite";
-import { fileURLToPath, URL } from "url";
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  server: {
-    port: 3000, // The port the server will listen on.
-  },
+// @ts-expect-error process is a nodejs global
+const host = process.env.TAURI_DEV_HOST;
+
+export default defineConfig(async () => ({
   plugins: [
-    svelte({
-      compilerOptions: {
-        hmr: !process.env.VITEST,
-      },
-    }),
+    sveltekit(),
+    tailwindcss(),
     Icons({
       compiler: "svelte",
     }),
-    tailwindcss(),
   ],
-  resolve: {
-    alias: {
-      $lib: fileURLToPath(new URL("./src/lib", import.meta.url)),
-      $assets: fileURLToPath(new URL("./src/assets", import.meta.url)),
+
+  // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
+  //
+  // 1. prevent Vite from obscuring rust errors
+  clearScreen: false,
+  // 2. tauri expects a fixed port, fail if that port is not available
+  server: {
+    port: 1420,
+    strictPort: true,
+    host: host || false,
+    hmr: host
+      ? {
+          protocol: "ws",
+          host,
+          port: 1421,
+        }
+      : undefined,
+    watch: {
+      // 3. tell Vite to ignore watching `src-tauri`
+      ignored: ["**/src-tauri/**"],
     },
   },
-  optimizeDeps: { exclude: ["svelte-navigator"] },
-  build: {
-    rollupOptions: {
-      input: {
-        main: fileURLToPath(new URL("./index.html", import.meta.url)),
-        splash: fileURLToPath(
-          new URL("./src/splash/index.html", import.meta.url),
-        ),
-      },
-    },
-  },
-});
+}));
