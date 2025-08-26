@@ -1,23 +1,23 @@
 {
-  "version": "2.8.3",
-  "notes": "{\"changes\":[{\"description\":\"Rust Refactor\",\"contributor\":\"trippjoe\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/768\"},{\"description\":\"fix: logviewer\",\"contributor\":\"trippjoe\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/769\"},{\"description\":\"build(deps): bump the backend-deps group with 3 updates\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/770\"},{\"description\":\"chore: bump the backend-deps group with 2 updates\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/773\"},{\"description\":\"fix: bug when navigating from mods page to game page\",\"contributor\":\"trippjoe\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/777\"},{\"description\":\"chore: bump the frontend-deps-tauri group with 6 updates\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/776\"},{\"description\":\"chore: bump the backend-deps-tauri group with 6 updates\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/775\"},{\"description\":\"chore: bump the frontend-deps-tauri group with 12 updates\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/782\"},{\"description\":\"chore: bump the backend-deps-tauri group with 11 updates\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/781\"},{\"description\":\"chore: bump reqwest from 0.12.20 to 0.12.21 backend-deps group\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/780\"},{\"description\":\"chore: bump the frontend-deps group across 1 directory with 11 updates\",\"contributor\":\"dependabot\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/779\"}]}",
-  "pub_date": "2025-07-01T18:27:01.652Z",
+  "version": "2.8.6",
+  "notes": "{\"changes\":[{\"description\":\"revert 2.8.5 release\",\"contributor\":\"trippjoe\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/818\"},{\"description\":\"fix mod install bug\",\"contributor\":\"trippjoe\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/819\"}]}",
+  "pub_date": "2025-08-26T15:05:24.859Z",
   "platforms": {
-    "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2FjaUd4THRMN21XMHRzY1laUEVQRnhHblY2STdHRDR5Z2tKQ2QzZWpUaXFFZGtXYVYvTHR5OFpRNUpZa25JbW9oalVMUjBmWmVWUXNTc1NLSGRTT1FvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzUxMzkzNzY2CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpkNnRWU21rMWxHQ2UwQXhpK3RxcVp6Qk5LeGkyZmZOMnJEK2hSNm1LK2RyeWJpMlkzVUZrOUF3Q25RSmcrb1poVC9DL1pFRFdjTVZ6bnJJQmtMMmREZz09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.3/OpenGOAL-Launcher_aarch64.app.tar.gz"
-    },
-    "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2R2WE5GdDdyRGpjL0NiSktxN05TcTRyT2MrN052cHdFV2I0Wjc5dXV6WEZGM3hzOXp0TEwzWkhpU0pmT2cxcTM5N0xuZjlubGE1cjR3ajBKR04yQmdBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzUxMzkzODMyCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi44LjNfYW1kNjQuQXBwSW1hZ2UKdUREWlFuaGxGbU00UFlQYkNUby9TVEJPK0lsZTVQbkUySWF1VDI1SHZhWHRGVnVRQ1R2ZmlpTThKVjVnWHFYaVFzNlFqeXpnQjVRRkV4S0JKMG51Q3c9PQo=",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.3/OpenGOAL-Launcher_2.8.3_amd64.AppImage"
-    },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1czWnZHVDN3eE1FVWF4emlzRzVrVzVoOWV4Uys2QTAvYlNRL21GVTVmZ3NtYzhHSDRkQzU2bHh0eXphd3dUMVpMVXZSVzNkbzNFRDFBczZaNVl0ZXdBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzUxMzkzOTUxCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi44LjNfeDY0X2VuLVVTLm1zaS56aXAKaFRob3hJK1NySmNpSndyK3g1bStoanhxQ3ZEM2hydkFtWXJjWVN5b1hrRjVTMUFkRVIyR2VwYVhCVTZJNWdiTHdVR2V5SEVxWEw5ZlBrRit4TU9IRGc9PQo=",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.3/OpenGOAL-Launcher_2.8.3_x64_en-US.msi.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1lZL1kvRXZiL21NWGdUbU5IdzRGYng0cWx5V01IQWtsSi9CUnF4WXU1WVhyQlRiWkx2SE5zZUJaUWJYNGsrZFRnMzJCK1JDMnZXSVpZa2lXN2o0Z0FzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzU2MjE5NzMwCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi44LjZfeDY0X2VuLVVTLm1zaS56aXAKK3l5Y25mWG5VVFI4SFBsblZMbHJYSU5JOExpVTFkaHZvV3lCRStsYU0rK3pCdGQyWGk4alMrT05KbVAzMjY1MnFjS0tCMHdjTWNkZkVMdE1iMENzQlE9PQo=",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.6/OpenGOAL-Launcher_2.8.6_x64_en-US.msi.zip"
+    },
+    "darwin-aarch64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1lpQXFDRHM0MS9XbU1qaS9kSlFYN0p4ZkJBaWNxSkNPYVJpTkU5NVRQallWdnZvMWZxdmZZRUMvUGhTUlFjTllwcmdoRVVobDFKVEFESXk5dFFVR1E0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzU2MjE5NzMyCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpqejJpWitLcEI4d3NhMzJqVW1iMkZCWU43NHBOMDMybGREK0tjK28vU1p3S0VQbVR2UGpORU1WekI4aWc0Vlh2a01FdDFCRHBDWW9tQ0VJdmJlcW1Ddz09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.6/OpenGOAL-Launcher_aarch64.app.tar.gz"
     },
     "darwin-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1VPUWZGRmN0WGZrZmppbEFnalRqQWNiRTRkak9hNEUxb2NKdEhmcExEcFRBSlBjQmNvRVVGWGJ0OUJFT1pwL3pYK3VYMC8zTGJQT2wxK3podUZsR2dRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzUxMzk0NDE2CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negovTkVZQmwrdUdJTE4rWDh0UE9tUy9lSE1oUzFsQzhpK01oOWtSbW9PcHRUTTJ1dEZEek1yUFZyMWRUMjg5WjFTcDVuTjBPTVc0ZDNmVmpLaHh1RlpCUT09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.3/OpenGOAL-Launcher_x64.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1YzUWQwNDhtbCtFYk9KUnMrU0xzeGJ6OFkzWERuMWtKM3ZULzJ5TFk3YmhUOG8xZ0hkSk1hZmFEZ3J6cmRGM3d0V1pYendkWTZ0cTlIUTlldnlmS2c4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzU2MjE5ODY4CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5nego2OUtPNDE3a2grTFYwalFGTmJzZ1NxNFV4ZlpObG9ZS2dJWnZ2bGwwM1l2cmJpU2tPeUVUaGdqamEyLzdsdmlUdldVWG9DK1IwRWJCMUJVVE1OZ1FDdz09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.6/OpenGOAL-Launcher_x64.app.tar.gz"
+    },
+    "linux-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1ZNTXhPV1ZCWEpMTXVqZnMveDlEalcvWlJLbjA0WERJdDR5R21ISFd1MHRkQlRGeVdnd2J1bGxjWHpkemFYYTN2bkw3VmZUM2RZVm1UNVN3M1U0UkFjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzU2MjIwNzE2CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi44LjZfYW1kNjQuQXBwSW1hZ2UKcGRmVFp6c3lsQkgwNUZYb0h1T09xMjg0N3pHVm5ha05sVFZRTU9BUHlLalRQYlBlL0dXZWZnMktmdmlFSHFiandDZDNlcnExQ0ZpeGhzTGk4Y1hKQmc9PQo=",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.6/OpenGOAL-Launcher_2.8.6_amd64.AppImage"
     }
   }
 }
