@@ -30,13 +30,13 @@
   const params = useParams();
   $: ($params, loadGameInfo());
 
-  export let modName: string | undefined = undefined;
-  export let modSource: string | undefined = undefined;
+  let modName: string | undefined = undefined;
+  let modSource: string | undefined = undefined;
   let modVersionToInstall: string = "";
   let modDownloadUrlToInstall: string = "";
 
-  $: modName = $params["mod_name"];
-  $: modSource = $params["source_url"];
+  modName = $params["mod_name"];
+  modSource = $params["source_url"];
 
   let gameInstalled = false;
   let gameJobToRun: Job | undefined = undefined;
