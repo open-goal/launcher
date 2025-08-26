@@ -189,7 +189,7 @@ fn get_mod_exec_location(
     .join(mod_name);
   let mut exec_path: PathBuf = exec_dir.join(executable_name);
   if cfg!(windows) {
-    exec_path = exec_path.join(".exe");
+    exec_path.set_extension("exe");
   }
   if !exec_path.exists() {
     log::error!(
