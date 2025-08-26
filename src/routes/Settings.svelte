@@ -24,7 +24,7 @@
     <TabItem
       {activeClass}
       {inactiveClass}
-      open
+      open={$params.tab.includes("general")}
       title={$_("settings_tabs_general")}
     >
       <General />
