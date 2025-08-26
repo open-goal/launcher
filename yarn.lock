@@ -828,10 +828,10 @@
   dependencies:
     debug "^4.4.1"
 
-"@sveltejs/vite-plugin-svelte@^6.1.2":
-  version "6.1.2"
-  resolved "https://registry.yarnpkg.com/@sveltejs/vite-plugin-svelte/-/vite-plugin-svelte-6.1.2.tgz#8486778ef9d7031a5b431dfc65966d57ed0d01e8"
-  integrity sha512-7v+7OkUYelC2dhhYDAgX1qO2LcGscZ18Hi5kKzJQq7tQeXpH215dd0+J/HnX2zM5B3QKcIrTVqCGkZXAy5awYw==
+"@sveltejs/vite-plugin-svelte@^6.1.3":
+  version "6.1.3"
+  resolved "https://registry.yarnpkg.com/@sveltejs/vite-plugin-svelte/-/vite-plugin-svelte-6.1.3.tgz#59bbd556e4b015d5292c7d8b8423741bdd89fac5"
+  integrity sha512-3pppgIeIZs6nrQLazzKcdnTJ2IWiui/UucEPXKyFG35TKaHQrfkWBnv6hyJcLxFuR90t+LaoecrqTs8rJKWfSQ==
   dependencies:
     "@sveltejs/vite-plugin-svelte-inspector" "^5.0.0"
     debug "^4.4.1"
@@ -1163,10 +1163,10 @@
   dependencies:
     "@testing-library/dom" "9.x.x || 10.x.x"
 
-"@tsconfig/svelte@^5.0.4":
-  version "5.0.4"
-  resolved "https://registry.yarnpkg.com/@tsconfig/svelte/-/svelte-5.0.4.tgz#8bd0254472bd39a5e750f1b4a05ecb18c9f3bf80"
-  integrity sha512-BV9NplVgLmSi4mwKzD8BD/NQ8erOY/nUE/GpgWe2ckx+wIQF5RyRirn/QsSSCPeulVpc3RA/iJt6DpfTIZps0Q==
+"@tsconfig/svelte@^5.0.5":
+  version "5.0.5"
+  resolved "https://registry.yarnpkg.com/@tsconfig/svelte/-/svelte-5.0.5.tgz#781df887c6a41b574e6972f9e002cea7edf4f450"
+  integrity sha512-48fAnUjKye38FvMiNOj0J9I/4XlQQiZlpe9xaNPfe8vy2Y1hFBt8g1yqf2EGjVvHavo4jf2lC+TQyENCr4BJBQ==
 
 "@tybys/wasm-util@^0.10.0":
   version "0.10.0"
@@ -1287,12 +1287,7 @@
   resolved "https://registry.yarnpkg.com/@yr/monotone-cubic-spline/-/monotone-cubic-spline-1.0.3.tgz#7272d89f8e4f6fb7a1600c28c378cc18d3b577b9"
   integrity sha512-FQXkOta0XBSUPHndIKON2Y9JeQz5ZeMqLYZVVK93FliNBFm7LNMIZmY6FrMEB9XPcDbE2bekMbZD6kzDkxwYjA==
 
-acorn@^8.12.1, acorn@^8.14.0:
-  version "8.14.1"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.14.1.tgz#721d5dc10f7d5b5609a891773d47731796935dfb"
-  integrity sha512-OvQ/2pUDKmgfCg++xsTX1wGxfTaszcHVcTctW4UJB4hibJx2HXxxO5UmVgyjMa+ZDsiaf5wWLXYpRWMmBI0QHg==
-
-acorn@^8.15.0:
+acorn@^8.12.1, acorn@^8.14.0, acorn@^8.15.0:
   version "8.15.0"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.15.0.tgz#a360898bc415edaac46c8241f6383975b930b816"
   integrity sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==
@@ -1818,10 +1813,10 @@ fast-content-type-parse@^3.0.0:
   resolved "https://registry.yarnpkg.com/fast-content-type-parse/-/fast-content-type-parse-3.0.0.tgz#5590b6c807cc598be125e6740a9fde589d2b7afb"
   integrity sha512-ZvLdcY8P+N8mGQJahJV5G4U88CSvT1rP8ApL6uETe88MBXrBHAkZlSEySdUlyztF7ccb+Znos3TFqaepHxdhBg==
 
-fdir@^6.4.4, fdir@^6.4.6:
-  version "6.4.6"
-  resolved "https://registry.yarnpkg.com/fdir/-/fdir-6.4.6.tgz#2b268c0232697063111bbf3f64810a2a741ba281"
-  integrity sha512-hiFoqpyZcfNm1yc4u8oWCf9A2c4D3QjCrks3zmoVKVxpQRzmPNar1hUJcBG2RQHvEVGDN+Jm81ZheVLAQMK6+w==
+fdir@^6.4.4, fdir@^6.5.0:
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/fdir/-/fdir-6.5.0.tgz#ed2ab967a331ade62f18d077dae192684d50d350"
+  integrity sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg==
 
 flowbite-datepicker@^1.3.0:
   version "1.3.0"
@@ -2745,10 +2740,10 @@ svelte2tsx@^0.1.151:
     dedent-js "^1.0.1"
     pascal-case "^3.1.1"
 
-svelte@^5.38.2:
-  version "5.38.2"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-5.38.2.tgz#a6a9a59c8b9f7d3fdcc2f2aa587e7a938601e932"
-  integrity sha512-iAcp/oFAWauVSGILdD67n7DiwgLHXZzWZIdzl7araRxu72jUr7PFAo2Iie7gXt0IbnlYvhxCb9GT3ZJUquO3PA==
+svelte@^5.38.3:
+  version "5.38.3"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-5.38.3.tgz#f8cf62f53b000ded5e2732e30743875b19b7a50e"
+  integrity sha512-ldbPzKdjUy7IALMBn15jzBM/TNxdXMxKeQZ538zzdABUjLg7e7/OIwnlaMQ+OR6s91W7DbDmJYjxHThHH7r9xA==
   dependencies:
     "@jridgewell/remapping" "^2.3.4"
     "@jridgewell/sourcemap-codec" "^1.5.0"
@@ -2971,13 +2966,13 @@ vite-node@3.2.4:
     pathe "^2.0.3"
     vite "^5.0.0 || ^6.0.0 || ^7.0.0-0"
 
-"vite@^5.0.0 || ^6.0.0 || ^7.0.0-0", vite@^7.1.2:
-  version "7.1.2"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-7.1.2.tgz#62ffd8a915977ff387fbe7a731af1a650ec5006e"
-  integrity sha512-J0SQBPlQiEXAF7tajiH+rUooJPo0l8KQgyg4/aMunNtrOa7bwuZJsJbDWzeljqQpgftxuq5yNJxQ91O9ts29UQ==
+"vite@^5.0.0 || ^6.0.0 || ^7.0.0-0", vite@^7.1.3:
+  version "7.1.3"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-7.1.3.tgz#8d70cb02fd6346b4bf1329a6760800538ef0faea"
+  integrity sha512-OOUi5zjkDxYrKhTV3V7iKsoS37VUM7v40+HuwEmcrsf11Cdx9y3DIr2Px6liIcZFwt3XSRpQvFpL3WVy7ApkGw==
   dependencies:
     esbuild "^0.25.0"
-    fdir "^6.4.6"
+    fdir "^6.5.0"
     picomatch "^4.0.3"
     postcss "^8.5.6"
     rollup "^4.43.0"
