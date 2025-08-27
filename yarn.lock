@@ -411,10 +411,10 @@
   dependencies:
     "@floating-ui/utils" "^0.2.10"
 
-"@floating-ui/dom@^1.7.3":
-  version "1.7.3"
-  resolved "https://registry.yarnpkg.com/@floating-ui/dom/-/dom-1.7.3.tgz#6174ac3409e6a064bbdf1f4bb07188ee9461f8cf"
-  integrity sha512-uZA413QEpNuhtb3/iIKoYMSK07keHPYeXF02Zhd6e213j+d1NamLix/mCLxBUDW/Gx52sPH2m+chlUsyaBs/Ag==
+"@floating-ui/dom@^1.7.4":
+  version "1.7.4"
+  resolved "https://registry.yarnpkg.com/@floating-ui/dom/-/dom-1.7.4.tgz#ee667549998745c9c3e3e84683b909c31d6c9a77"
+  integrity sha512-OOchDgh4F2CchOX94cRVqhvy7b3AFb+/rQXyswmzmGakRfkMgoWVjfnLWkRirfLEfuD4ysVW16eXzwt3jHIzKA==
   dependencies:
     "@floating-ui/core" "^1.7.3"
     "@floating-ui/utils" "^0.2.10"
@@ -828,10 +828,10 @@
   dependencies:
     debug "^4.4.1"
 
-"@sveltejs/vite-plugin-svelte@^6.1.2":
-  version "6.1.2"
-  resolved "https://registry.yarnpkg.com/@sveltejs/vite-plugin-svelte/-/vite-plugin-svelte-6.1.2.tgz#8486778ef9d7031a5b431dfc65966d57ed0d01e8"
-  integrity sha512-7v+7OkUYelC2dhhYDAgX1qO2LcGscZ18Hi5kKzJQq7tQeXpH215dd0+J/HnX2zM5B3QKcIrTVqCGkZXAy5awYw==
+"@sveltejs/vite-plugin-svelte@^6.1.3":
+  version "6.1.3"
+  resolved "https://registry.yarnpkg.com/@sveltejs/vite-plugin-svelte/-/vite-plugin-svelte-6.1.3.tgz#59bbd556e4b015d5292c7d8b8423741bdd89fac5"
+  integrity sha512-3pppgIeIZs6nrQLazzKcdnTJ2IWiui/UucEPXKyFG35TKaHQrfkWBnv6hyJcLxFuR90t+LaoecrqTs8rJKWfSQ==
   dependencies:
     "@sveltejs/vite-plugin-svelte-inspector" "^5.0.0"
     debug "^4.4.1"
@@ -1163,10 +1163,10 @@
   dependencies:
     "@testing-library/dom" "9.x.x || 10.x.x"
 
-"@tsconfig/svelte@^5.0.4":
-  version "5.0.4"
-  resolved "https://registry.yarnpkg.com/@tsconfig/svelte/-/svelte-5.0.4.tgz#8bd0254472bd39a5e750f1b4a05ecb18c9f3bf80"
-  integrity sha512-BV9NplVgLmSi4mwKzD8BD/NQ8erOY/nUE/GpgWe2ckx+wIQF5RyRirn/QsSSCPeulVpc3RA/iJt6DpfTIZps0Q==
+"@tsconfig/svelte@^5.0.5":
+  version "5.0.5"
+  resolved "https://registry.yarnpkg.com/@tsconfig/svelte/-/svelte-5.0.5.tgz#781df887c6a41b574e6972f9e002cea7edf4f450"
+  integrity sha512-48fAnUjKye38FvMiNOj0J9I/4XlQQiZlpe9xaNPfe8vy2Y1hFBt8g1yqf2EGjVvHavo4jf2lC+TQyENCr4BJBQ==
 
 "@tybys/wasm-util@^0.10.0":
   version "0.10.0"
@@ -1287,12 +1287,7 @@
   resolved "https://registry.yarnpkg.com/@yr/monotone-cubic-spline/-/monotone-cubic-spline-1.0.3.tgz#7272d89f8e4f6fb7a1600c28c378cc18d3b577b9"
   integrity sha512-FQXkOta0XBSUPHndIKON2Y9JeQz5ZeMqLYZVVK93FliNBFm7LNMIZmY6FrMEB9XPcDbE2bekMbZD6kzDkxwYjA==
 
-acorn@^8.12.1, acorn@^8.14.0:
-  version "8.14.1"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.14.1.tgz#721d5dc10f7d5b5609a891773d47731796935dfb"
-  integrity sha512-OvQ/2pUDKmgfCg++xsTX1wGxfTaszcHVcTctW4UJB4hibJx2HXxxO5UmVgyjMa+ZDsiaf5wWLXYpRWMmBI0QHg==
-
-acorn@^8.15.0:
+acorn@^8.12.1, acorn@^8.14.0, acorn@^8.15.0:
   version "8.15.0"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.15.0.tgz#a360898bc415edaac46c8241f6383975b930b816"
   integrity sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==
@@ -1341,10 +1336,10 @@ ansi-to-span@^0.0.1:
   resolved "https://registry.npmjs.org/ansi-to-span/-/ansi-to-span-0.0.1.tgz"
   integrity sha512-XLdA+dwBbMrzZQpsJ/ZDbAxuj8g81X2G/UWztQUVGQOaEfFVDk5XhROsaPhYXMMlpJ3WXQrPJ9ecrDyZxzJaUw==
 
-apexcharts@^5.3.2:
-  version "5.3.3"
-  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-5.3.3.tgz#613194203bb990b2409ff2a72a05fa2fc0486617"
-  integrity sha512-mu171I5+zZfUvx8H9Ofi7ZwIbT91l5Jgb1IdghoUHk7pxUJWDDLf2kKte+IkCkMQ+2h66Z2ZJFcQTcLIX4PiAg==
+apexcharts@^5.3.4:
+  version "5.3.4"
+  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-5.3.4.tgz#a3698d96d7719f22c1904f67cdf216987d05d63e"
+  integrity sha512-N0gNh8uLu/BN8N+BCphNK+gZAoSoUtDDn1jFGB+3+EMcv8s6vajuP3W0g4dMLTRp6chFkjMmQK3uD8pz4ISmLA==
   dependencies:
     "@svgdotjs/svg.draggable.js" "^3.0.4"
     "@svgdotjs/svg.filter.js" "^3.0.8"
@@ -1818,10 +1813,10 @@ fast-content-type-parse@^3.0.0:
   resolved "https://registry.yarnpkg.com/fast-content-type-parse/-/fast-content-type-parse-3.0.0.tgz#5590b6c807cc598be125e6740a9fde589d2b7afb"
   integrity sha512-ZvLdcY8P+N8mGQJahJV5G4U88CSvT1rP8ApL6uETe88MBXrBHAkZlSEySdUlyztF7ccb+Znos3TFqaepHxdhBg==
 
-fdir@^6.4.4, fdir@^6.4.6:
-  version "6.4.6"
-  resolved "https://registry.yarnpkg.com/fdir/-/fdir-6.4.6.tgz#2b268c0232697063111bbf3f64810a2a741ba281"
-  integrity sha512-hiFoqpyZcfNm1yc4u8oWCf9A2c4D3QjCrks3zmoVKVxpQRzmPNar1hUJcBG2RQHvEVGDN+Jm81ZheVLAQMK6+w==
+fdir@^6.4.4, fdir@^6.5.0:
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/fdir/-/fdir-6.5.0.tgz#ed2ab967a331ade62f18d077dae192684d50d350"
+  integrity sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg==
 
 flowbite-datepicker@^1.3.0:
   version "1.3.0"
@@ -1839,19 +1834,18 @@ flowbite-datepicker@^1.3.1:
     "@rollup/plugin-node-resolve" "^15.2.3"
     flowbite "^2.0.0"
 
-flowbite-svelte@1.12.6:
-  version "1.12.6"
-  resolved "https://registry.yarnpkg.com/flowbite-svelte/-/flowbite-svelte-1.12.6.tgz#3888d95425593605fc36a694ccb8390f7b0d501f"
-  integrity sha512-4Kaj20ogUfYMdgW8i+dFQn4d6UezJg2HxJL645HEJMXs5UoBFB+nXC8W6wtx5SVE1kAGuCkaddpc19G8AD5+pA==
+flowbite-svelte@1.13.0:
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/flowbite-svelte/-/flowbite-svelte-1.13.0.tgz#078a147c5712f3dade51556fc92f1e6145573858"
+  integrity sha512-I9yI4zqGbg++8j2OTsn5/nHpfnoW3wEYSg4ItJ+wYy+aI9SvsQMYKV+xo1/o76DqQDRLNSSP5oFM/Plwge0lUw==
   dependencies:
-    "@floating-ui/dom" "^1.7.3"
+    "@floating-ui/dom" "^1.7.4"
     "@floating-ui/utils" "^0.2.10"
-    apexcharts "^5.3.2"
+    apexcharts "^5.3.4"
     clsx "^2.1.1"
     date-fns "^4.1.0"
     flowbite "^3.1.2"
     tailwind-merge "^3.3.1"
-    tailwind-variants "2.0.1"
 
 flowbite@^2.0.0:
   version "2.5.2"
@@ -2745,10 +2739,10 @@ svelte2tsx@^0.1.151:
     dedent-js "^1.0.1"
     pascal-case "^3.1.1"
 
-svelte@^5.38.2:
-  version "5.38.2"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-5.38.2.tgz#a6a9a59c8b9f7d3fdcc2f2aa587e7a938601e932"
-  integrity sha512-iAcp/oFAWauVSGILdD67n7DiwgLHXZzWZIdzl7araRxu72jUr7PFAo2Iie7gXt0IbnlYvhxCb9GT3ZJUquO3PA==
+svelte@^5.38.3:
+  version "5.38.3"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-5.38.3.tgz#f8cf62f53b000ded5e2732e30743875b19b7a50e"
+  integrity sha512-ldbPzKdjUy7IALMBn15jzBM/TNxdXMxKeQZ538zzdABUjLg7e7/OIwnlaMQ+OR6s91W7DbDmJYjxHThHH7r9xA==
   dependencies:
     "@jridgewell/remapping" "^2.3.4"
     "@jridgewell/sourcemap-codec" "^1.5.0"
@@ -2774,11 +2768,6 @@ tailwind-merge@^3.3.1:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/tailwind-merge/-/tailwind-merge-3.3.1.tgz#a7e7db7c714f6020319e626ecfb7e7dac8393a4b"
   integrity sha512-gBXpgUm/3rp1lMZZrM/w7D8GKqshif0zAymAhbCyIt8KMe+0v9DQ7cdYLR4FHH/cKpdTXb+A/tKKU3eolfsI+g==
-
-tailwind-variants@2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/tailwind-variants/-/tailwind-variants-2.0.1.tgz#4b688938491c8df018a36eba7066903075250dfd"
-  integrity sha512-1wt8c4PWO3jbZcKGBrjIV8cehWarREw1C2os0k8Mcq0nof/CbafNhUUjb0LRWiiRfAvDK6v1deswtHLsygKglw==
 
 tailwindcss@4.1.12, tailwindcss@^4.1.7:
   version "4.1.12"
@@ -2971,13 +2960,13 @@ vite-node@3.2.4:
     pathe "^2.0.3"
     vite "^5.0.0 || ^6.0.0 || ^7.0.0-0"
 
-"vite@^5.0.0 || ^6.0.0 || ^7.0.0-0", vite@^7.1.2:
-  version "7.1.2"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-7.1.2.tgz#62ffd8a915977ff387fbe7a731af1a650ec5006e"
-  integrity sha512-J0SQBPlQiEXAF7tajiH+rUooJPo0l8KQgyg4/aMunNtrOa7bwuZJsJbDWzeljqQpgftxuq5yNJxQ91O9ts29UQ==
+"vite@^5.0.0 || ^6.0.0 || ^7.0.0-0", vite@^7.1.3:
+  version "7.1.3"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-7.1.3.tgz#8d70cb02fd6346b4bf1329a6760800538ef0faea"
+  integrity sha512-OOUi5zjkDxYrKhTV3V7iKsoS37VUM7v40+HuwEmcrsf11Cdx9y3DIr2Px6liIcZFwt3XSRpQvFpL3WVy7ApkGw==
   dependencies:
     esbuild "^0.25.0"
-    fdir "^6.4.6"
+    fdir "^6.5.0"
     picomatch "^4.0.3"
     postcss "^8.5.6"
     rollup "^4.43.0"
