@@ -79,7 +79,7 @@
 <div class="flex flex-col gap-5 mt-2">
   <div>
     <Label class="text-gray-200"
-      >{$_("settings_general_localeChange")}
+      >{"settings_general_localeChange"}
       <Select
         class="mt-2"
         items={availableLocales}
@@ -92,14 +92,14 @@
       />
     </Label>
     <Helper class="text-xs mt-2 italic"
-      >{$_("settings_general_localeChange_helper_1")}
+      >{"settings_general_localeChange_helper_1"}
       <a
         class=" text-orange-400 hover:text-orange-600"
         href="https://crowdin.com/project/opengoal-launcher"
         target="_blank"
-        rel="noreferrer">{$_("settings_general_localeChange_helper_link")}</a
+        rel="noreferrer">{"settings_general_localeChange_helper_link"}</a
       >
-      {$_("settings_general_localeChange_helper_2")}</Helper
+      {"settings_general_localeChange_helper_2"}</Helper
     >
     {#if localeFontForDownload !== undefined}
       <Button
@@ -128,21 +128,21 @@
         {#if localeFontDownloading}
           <Spinner class="mr-3" size="4" color="yellow" />
         {/if}
-        {$_("settings_general_downloadLocaleSpecificFont")}
+        {"settings_general_downloadLocaleSpecificFont"}
       </Button>
     {/if}
   </div>
   {#if !isLinux}
     <div>
       <Label for="default-input" class="block mb-2 text-gray-200"
-        >{$_("settings_folders_installationDir")}</Label
+        >{"settings_folders_installationDir"}</Label
       >
       <Input
         id="default-input"
         placeholder={currentInstallationDirectory}
         onclick={async () => {
           const newInstallDir = await folderPrompt(
-            $_("settings_folders_installationDir_prompt"),
+            "settings_folders_installationDir_prompt",
           );
           if (
             newInstallDir !== undefined &&
@@ -160,7 +160,7 @@
         }}
       />
       <Helper class="text-xs mt-2 italic"
-        >{$_("settings_general_installationDir_helper")}</Helper
+        >{"settings_general_installationDir_helper"}</Helper
       >
     </div>
   {/if}
@@ -171,22 +171,22 @@
       onchange={async () => {
         $uninstallOldVersions = false;
       }}
-      class="mb-2">{$_("settings_general_keep_updated")}</Toggle
+      class="mb-2">{"settings_general_keep_updated"}</Toggle
     >
     {#if $keepGamesUpdated}
       <Toggle
         color="orange"
         bind:checked={$uninstallOldVersions}
-        class="ml-14 mb-2">{$_("settings_general_uninstall_old")}</Toggle
+        class="ml-14 mb-2">{"settings_general_uninstall_old"}</Toggle
       >
     {/if}
-    <Toggle
-      checked={currentBypassRequirementsVal}
-      color="orange"
-      onchange={async (evt) => {
+    <Toggle checked={currentBypassRequirementsVal} color="orange"
+      >{"settings_general_toggle_bypassRequirementsCheck"}</Toggle
+    >
+    <!--       onchange={async (evt) => {
         if (evt.target.checked) {
           const confirmed = await confirm(
-            `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
+            `${("requirements_button_bypass_warning_1")}\n\n${(
               "requirements_button_bypass_warning_2",
             )}`,
             { title: "OpenGOAL Launcher", type: "warning" },
@@ -201,15 +201,14 @@
           await setBypassRequirements(evt.target.checked);
           currentBypassRequirementsVal = await getBypassRequirements();
         }
-      }}>{$_("settings_general_toggle_bypassRequirementsCheck")}</Toggle
-    >
+      }} -->
   </div>
   <div>
     <Button
       class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
       onclick={async () => {
         const confirmed = await confirm(
-          $_("settings_general_button_resetSettings_confirmation"),
+          "settings_general_button_resetSettings_confirmation",
         );
         if (confirmed) {
           const result = resetLauncherSettingsToDefaults();
@@ -218,7 +217,7 @@
             $VersionStore.activeVersionName = await getActiveVersion();
           }
         }
-      }}>{$_("settings_general_button_resetSettings")}</Button
+      }}>{"settings_general_button_resetSettings"}</Button
     >
   </div>
 </div>

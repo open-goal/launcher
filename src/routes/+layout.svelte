@@ -32,6 +32,7 @@
   function getNavItemStyle(itemName: string, pathName: string): string {
     const baseStyle =
       "hover:grayscale-0 hover:opacity-100 duration-500 text-orange-400";
+    return baseStyle; // early return so i can develop more important things
     const isActive =
       pathName.startsWith(`${itemName}`) ||
       (itemName === "jak1" && pathName === "/");
