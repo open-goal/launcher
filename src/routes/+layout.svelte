@@ -8,7 +8,6 @@
 
   let { data, children }: LayoutProps = $props();
   const activeGame = $derived(page.params.game);
-  console.log(page.params);
 
   function getNavStyle(pathName: string): string {
     const baseStyle = "w-20 h-screen bg-[#101010] z-100";
