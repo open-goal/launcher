@@ -5,6 +5,7 @@
   import IconArrowLeft from "~icons/mdi/arrow-left";
   import IconGlobe from "~icons/mdi/globe";
   import { extractNewMod, getInstalledMods } from "$lib/rpc/features";
+  import { _ } from "svelte-i18n";
 
   let { data } = $props();
   const activeGame = $derived(page.params.game);
@@ -52,32 +53,32 @@
           outline
           class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
           href={`/game/${activeGame}`}
-          aria-label={"features_backToGamePage_buttonAlt"}
+          aria-label={$_("features_backToGamePage_buttonAlt")}
         >
           <IconArrowLeft />
         </Button>
         <Button
           class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
           onclick={addModFromFile}
-          aria-label={"features_mods_addFromFile_buttonAlt"}
+          aria-label={$_("features_mods_addFromFile_buttonAlt")}
           disabled={addingMod}
         >
           {#if addingFromFile}
             <Spinner class="mr-3" size="4" color="yellow" />
           {/if}
-          {"features_mods_addFromFile"}</Button
+          {$_("features_mods_addFromFile")}</Button
         >
       </div>
       <div class="mt-4">
         <Input
-          placeholder={"features_mods_filter_placeholder"}
+          placeholder={$_("features_mods_filter_placeholder")}
           bind:value={modFilter}
         />
       </div>
-      <h2 class="font-bold mt-2">{"features_mods_installed_header"}</h2>
+      <h2 class="font-bold mt-2">{$_("features_mods_installed_header")}</h2>
       {#if Object.entries(installedMods).length === 0}
         <p class="mt-2 mb-2 text-slate-400 italic">
-          {"features_mods_nothing_installed"}
+          {$_("features_mods_nothing_installed")}
         </p>
       {:else}
         {#each Object.keys(installedMods).sort() as sourceName}
@@ -117,11 +118,11 @@
           {/if}
         {/each}
       {/if}
-      <h2 class="font-bold mt-5">{"features_mods_available_header"}</h2>
+      <h2 class="font-bold mt-5">{$_("features_mods_available_header")}</h2>
       {#if Object.keys(sourceData).length <= 0}
         <div class="mt-2 mb-2">
           <p class="text-slate-400 italic">
-            {"features_mods_no_sources"}
+            {$_("features_mods_no_sources")}
           </p>
           <Button
             class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
@@ -129,7 +130,7 @@
               navigate(`/settings/mod`, {
                 replace: true,
               });
-            }}>{"features_mods_go_to_settings"}</Button
+            }}>{$_("features_mods_go_to_settings")}</Button
           >
         </div>
       {:else}
@@ -212,8 +213,8 @@
 
                   {#if !isLatestVersionOfModSupportedOnCurrentPlatform(userPlatform, modInfo) && modInfo.externalLink === null}
                     <Tooltip placement="top"
-                      >{"features_mods_not_supported_platform_1"} ({userPlatform})<br
-                      />{"features_mods_not_supported_platform_2"}</Tooltip
+                      >{$_("features_mods_not_supported_platform_1")} ({userPlatform})<br
+                      />{$_("features_mods_not_supported_platform_2")}</Tooltip
                     >
                   {/if}
                 {/if}

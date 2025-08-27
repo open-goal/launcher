@@ -11,6 +11,7 @@
   import { relaunch } from "@tauri-apps/plugin-process";
   import { ask } from "@tauri-apps/plugin-dialog";
   import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+  import { _ } from "svelte-i18n";
 
   let { data, children }: LayoutProps = $props();
   const activeGame = $derived(page.params.game);
@@ -39,8 +40,12 @@
     return isActive ? baseStyle : `${baseStyle} grayscale`;
   }
 
-  let launcherVerison = 420;
   const appWindow = getCurrentWebviewWindow();
+
+  // TEMP VARIABLES TO GET IT WORKING
+  let launcherVerison = "v3.0.0";
+  let updateAvailable = false;
+  let activeVersionName = "v0.2.29";
 </script>
 
 <div class="flex h-screen flex-col">
@@ -64,8 +69,8 @@
     <div
       class="flex flex-col shrink-0 text-neutral-500 mr-2 pointer-events-none"
     >
-      <p class="font-mono text-sm">{"header_launcherVersionLabel"}</p>
-      <p class="font-mono text-sm">{"header_toolingVersionLabel"}</p>
+      <p class="font-mono text-sm">{$_("header_launcherVersionLabel")}</p>
+      <p class="font-mono text-sm">{$_("header_toolingVersionLabel")}</p>
     </div>
     <div
       class="flex flex-col text-neutral-300 mr-2 pointer-events-none max-w-[250px]"
@@ -73,18 +78,16 @@
       <p class="font-mono text-sm">
         {launcherVerison}
       </p>
-      <!-- <p class="font-mono text-sm">
-        {$VersionStore.activeVersionName === null
-          ? "not set!"
-          : $VersionStore.activeVersionName}
-      </p> -->
+      <p class="font-mono text-sm">
+        {activeVersionName === null ? "not set!" : activeVersionName}
+      </p>
     </div>
-    <!-- {#if $UpdateStore.selectedTooling.updateAvailable}
+    {#if updateAvailable}
       <a
         class="font-mono text-sm mt-5 text-orange-500 hover:text-orange-300"
-        href="/settings/versions">{("header_updateAvailable")}</a
+        href="/settings/versions">{$_("header_updateAvailable")}</a
       >
-    {/if} -->
+    {/if}
     <div class="flex shrink-0 space-x-4 text-xl ml-auto">
       <button
         class="text-white hover:text-amber-600"
@@ -104,7 +107,9 @@
   <div class="flex">
     <!-- SIDEBAR  -->
     <aside class={getNavStyle("$location.pathname")}>
-      <ul class="flex flex-col h-full space-y-10 px-1 py-5 items-center">
+      <ul
+        class="flex flex-col h-full space-y-10 px-1 py-5 items-center text-black"
+      >
         <li>
           <a
             id="jak1"
@@ -118,7 +123,7 @@
             />
           </a>
           <Tooltip triggeredBy="#jak1" placement="right" type="dark"
-            >{"gameName_jak1"}</Tooltip
+            >$_{$_("gameName_jak1")}</Tooltip
           >
         </li>
         <li>
@@ -130,7 +135,7 @@
             <img src="/images/jak-2.webp" alt="Jak 2" aria-label="Jak 2" />
           </a>
           <Tooltip triggeredBy="#jak2" placement="right" type="dark"
-            >{"gameName_jak2"}</Tooltip
+            >{$_("gameName_jak2")}</Tooltip
           >
         </li>
         <li>
@@ -142,7 +147,7 @@
             <img src="/images/jak-3.webp" alt="Jak 3" aria-label="Jak 3" />
           </a>
           <Tooltip triggeredBy="#jak3" placement="right" type="dark"
-            >{"gameName_jak3"}</Tooltip
+            >{$_("gameName_jak3")}</Tooltip
           >
         </li>
         <li class="!mt-auto">
@@ -154,7 +159,7 @@
             <IconCog style="font-size: 36px" />
           </a>
           <Tooltip triggeredBy="#settings" placement="right" type="dark"
-            >{"sidebar_settings"}</Tooltip
+            >{$_("sidebar_settings")}</Tooltip
           >
         </li>
 
@@ -167,7 +172,7 @@
             <IconChatQuestion style="font-size: 36px" />
           </a>
           <Tooltip triggeredBy="#faq" placement="right" type="dark"
-            >{"sidebar_help"}</Tooltip
+            >{$_("sidebar_help")}</Tooltip
           >
         </li>
       </ul>

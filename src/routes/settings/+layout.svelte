@@ -6,6 +6,7 @@
   import Mods from "./Mods.svelte";
   import Decompiler from "./Decompiler.svelte";
   import { page } from "$app/state";
+  import { _ } from "svelte-i18n";
 
   let { data, children }: LayoutProps = $props();
 
@@ -29,7 +30,7 @@
       {activeClass}
       {inactiveClass}
       open={activeTab.includes("general")}
-      title={"settings_tabs_general"}
+      title={$_("settings_tabs_general")}
     >
       <General />
     </TabItem>
@@ -37,18 +38,22 @@
       {activeClass}
       {inactiveClass}
       open={activeTab.includes("versions")}
-      title={"settings_tabs_versions"}
+      title={$_("settings_tabs_versions")}
     >
       <Versions />
     </TabItem>
-    <TabItem {activeClass} {inactiveClass} title={"settings_tabs_decompiler"}>
+    <TabItem
+      {activeClass}
+      {inactiveClass}
+      title={$_("settings_tabs_decompiler")}
+    >
       <Decompiler />
     </TabItem>
     <TabItem
       {activeClass}
       {inactiveClass}
       open={activeTab.includes("mod")}
-      title={"settings_tabs_mods"}
+      title={$_("settings_tabs_mods")}
     >
       <Mods />
     </TabItem>

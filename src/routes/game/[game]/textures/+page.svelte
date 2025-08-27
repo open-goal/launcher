@@ -172,28 +172,28 @@
             outline
             class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
             href={`/game/${activeGame}`}
-            aria-label={"features_backToGamePage_buttonAlt"}
+            aria-label={$_("features_backToGamePage_buttonAlt")}
           >
             <IconArrowLeft />
           </Button>
           <Button
             class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
             onclick={addNewTexturePack}
-            aria-label={"features_textures_addNewPack_buttonAlt"}
+            aria-label={$_("features_textures_addNewPack_buttonAlt")}
             disabled={addingPack}
           >
             {#if addingPack}
               <Spinner class="mr-3" size="4" color="yellow" />
             {/if}
-            {"features_textures_addNewPack"}</Button
+            {$_("features_textures_addNewPack")}</Button
           >
           {#if pending_changes(availablePacks, availablePacksOriginal)}
             <Button
               disabled={addingPack}
               class="flex-shrink border-solid rounded bg-green-400 hover:bg-green-500 text-sm text-slate-900 font-semibold px-5 py-2"
               onclick={applyTexturePacks}
-              aria-label={"features_textures_applyChanges_buttonAlt"}
-              >{"features_textures_applyChanges"}</Button
+              aria-label={$_("features_textures_applyChanges_buttonAlt")}
+              >{$_("features_textures_applyChanges")}</Button
             >
           {/if}
         </div>
@@ -206,11 +206,11 @@
         {/if}
         {#if availablePacks.length > 0}
           <div class="flex flex-row font-bold mt-3">
-            <h2>{"features_textures_listHeading"}</h2>
+            <h2>{$_("features_textures_listHeading")}</h2>
           </div>
           <div class="flex flex-row text-sm">
             <p>
-              {"features_textures_description"}
+              {$_("features_textures_description")}
             </p>
           </div>
         {/if}
@@ -238,7 +238,7 @@
                     {extractedPackInfo[pack.name]["releaseDate"]}
                   </p>
                   <p class="font-bold text-gray-500 text-xs">
-                    {"features_textures_replacedCount"} - {num_textures_in_pack(
+                    {$_("features_textures_replacedCount")} - {num_textures_in_pack(
                       pack.name,
                     )}
                   </p>
@@ -265,15 +265,15 @@
                       }}
                     >
                       {pack.enabled
-                        ? "features_textures_enabled"
-                        : "features_textures_disabled"}
+                        ? $_("features_textures_enabled")
+                        : $_("features_textures_disabled")}
                     </Button>
                     {#if pack.enabled}
                       {#if packIndex !== 0}
                         <Button
                           outline
                           class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
-                          aria-label={"features_textures_moveUp_buttonAlt"}
+                          aria-label={$_("features_textures_moveUp_buttonAlt")}
                           onclick={() => {
                             moveTexturePack(packIndex - 1, packIndex);
                           }}
@@ -285,7 +285,9 @@
                         <Button
                           outline
                           class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
-                          aria-label="features_textures_moveDown_buttonAlt"
+                          aria-label={$_(
+                            "features_textures_moveDown_buttonAlt",
+                          )}
                           onclick={() => {
                             moveTexturePack(packIndex + 1, packIndex);
                           }}
@@ -297,7 +299,7 @@
                     <Button
                       outline
                       class="!p-1.5 rounded-md border-red-500 text-red-500 hover:bg-red-600"
-                      aria-label={"features_textures_deletePack_buttonAlt"}
+                      aria-label={$_("features_textures_deletePack_buttonAlt")}
                       onclick={() => {
                         pack.toBeDeleted = true;
                         pack.enabled = false;
@@ -312,7 +314,7 @@
                     <Accordion flush class="mt-2">
                       <AccordionItem class="p-2">
                         <!-- {#snippet header()}
-                          "features_textures_conflictsDetected",
+                          $_("features_textures_conflictsDetected"),
                         {/snippet} -->
                         <p
                           class="mb-2 text-gray-500 dark:text-gray-400 text-xs"
@@ -331,7 +333,7 @@
         {/each}
         <div class="flex flex-row font-bold mt-3">
           <Alert class="flex-grow text-red-400">
-            {"features_textures_largePackWarning"}
+            {$_("features_textures_largePackWarning")}
           </Alert>
         </div>
       {/if}
