@@ -94,14 +94,10 @@
                     .toLocaleLowerCase()
                     .includes(modFilter.toLocaleLowerCase())}
                   {#await getThumbnailImageFromSources(sourceName, modName) then thumbnailSrc}
-                    <button
+                    <a
                       class="h-[200px] bg-cover p-1 flex justify-center items-end relative"
                       style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{thumbnailSrc}'); background-size: cover;"
-                      on:click={async () => {
-                        navigate(
-                          `/${activeGame}/mods/${encodeURI(sourceName)}/${encodeURI(modName)}`,
-                        );
-                      }}
+                      href={`/${activeGame}/mods/${sourceName}/${modName}`}
                     >
                       <h3 class="text-outline">
                         {getModDisplayName(sourceName, modName)}
@@ -110,7 +106,7 @@
                         <IconGlobe />
                         <Tooltip placement="bottom">{sourceName}</Tooltip>
                       </div>
-                    </button>
+                    </a>
                   {/await}
                 {/if}
               {/each}
@@ -124,13 +120,9 @@
           <p class="text-slate-400 italic">
             {$_("features_mods_no_sources")}
           </p>
-          <Button
+          <a
             class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
-            onclick={async () => {
-              navigate(`/settings/mod`, {
-                replace: true,
-              });
-            }}>{$_("features_mods_go_to_settings")}</Button
+            href={`/settings/mod`}>{$_("features_mods_go_to_settings")}</a
           >
         </div>
       {:else}
@@ -183,7 +175,7 @@
                       style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{getThumbnailImage(
                         modInfo,
                       )}'); background-size: cover;"
-                      on:click={async () => {
+                      onclick={async () => {
                         navigate(
                           `/${activeGame}/mods/${encodeURI(sourceInfo.sourceName)}/${encodeURI(modName)}`,
                         );
