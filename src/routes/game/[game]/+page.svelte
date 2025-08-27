@@ -35,7 +35,7 @@
 <!-- GAME CONTROLS -->
 <div class="absolute right-4 bottom-4 z-0">
   <h1
-    class="absolute right-0 bottom-12 text-2xl font-bold pb-3 text-orange-500 text-outline pointer-events-none"
+    class="absolute right-0 bottom-12 text-2xl text-nowrap font-bold pb-3 text-orange-500 text-outline pointer-events-none"
   >
     {$_(`gameName_${activeGame}`)}
   </h1>
