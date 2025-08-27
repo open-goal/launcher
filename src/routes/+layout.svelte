@@ -63,6 +63,7 @@
         alt="OpenGOAL logo"
         aria-label="OpenGOAL logo"
       />
+
       <p class="font-black text-white tracking-tight text-lg">OpenGOAL</p>
     </div>
     <div class="border-l shrink-0 border-[#9f9f9f] h-8 m-2"></div>
@@ -105,85 +106,88 @@
   </header>
 
   <div class="flex">
-    <!-- SIDEBAR  -->
-    <aside class={getNavStyle("$location.pathname")}>
-      <ul
-        class="flex flex-col justify-between h-full px-1 items-center text-black"
-      >
-        <!-- Top section -->
-        <div class="flex flex-col space-y-16 pt-4">
-          <li>
-            <a
-              id="jak1"
-              class={getNavItemStyle("jak1", activeGame)}
-              href="/game/jak1"
-            >
-              <img
-                src="/images/jak-tpl.webp"
-                alt="Jak - The Precursor Legacy"
-                aria-label="Jak - The Precursor Legacy"
-              />
-            </a>
-            <Tooltip triggeredBy="#jak1" placement="right" type="dark"
-              >$_{$_("gameName_jak1")}</Tooltip
-            >
-          </li>
-          <li>
-            <a
-              id="jak2"
-              class={getNavItemStyle("jak2", activeGame)}
-              href="/game/jak2"
-            >
-              <img src="/images/jak-2.webp" alt="Jak 2" aria-label="Jak 2" />
-            </a>
-            <Tooltip triggeredBy="#jak2" placement="right" type="dark"
-              >{$_("gameName_jak2")}</Tooltip
-            >
-          </li>
-          <li>
-            <a
-              id="jak3"
-              class={getNavItemStyle("jak3", activeGame)}
-              href="/game/jak3"
-            >
-              <img src="/images/jak-3.webp" alt="Jak 3" aria-label="Jak 3" />
-            </a>
-            <Tooltip triggeredBy="#jak3" placement="right" type="dark"
-              >{$_("gameName_jak3")}</Tooltip
-            >
-          </li>
-        </div>
+    <!-- I dislike this conditional, but i don't know how else to approach this... -->
+    {#if !page.route.id?.includes("setup")}
+      <!-- SIDEBAR  -->
+      <aside class={getNavStyle("$location.pathname")}>
+        <ul
+          class="flex flex-col justify-between h-full px-1 items-center text-black"
+        >
+          <!-- Top section -->
+          <div class="flex flex-col space-y-16 pt-4">
+            <li>
+              <a
+                id="jak1"
+                class={getNavItemStyle("jak1", activeGame)}
+                href="/game/jak1"
+              >
+                <img
+                  src="/images/jak-tpl.webp"
+                  alt="Jak - The Precursor Legacy"
+                  aria-label="Jak - The Precursor Legacy"
+                />
+              </a>
+              <Tooltip triggeredBy="#jak1" placement="right" type="dark"
+                >$_{$_("gameName_jak1")}</Tooltip
+              >
+            </li>
+            <li>
+              <a
+                id="jak2"
+                class={getNavItemStyle("jak2", activeGame)}
+                href="/game/jak2"
+              >
+                <img src="/images/jak-2.webp" alt="Jak 2" aria-label="Jak 2" />
+              </a>
+              <Tooltip triggeredBy="#jak2" placement="right" type="dark"
+                >{$_("gameName_jak2")}</Tooltip
+              >
+            </li>
+            <li>
+              <a
+                id="jak3"
+                class={getNavItemStyle("jak3", activeGame)}
+                href="/game/jak3"
+              >
+                <img src="/images/jak-3.webp" alt="Jak 3" aria-label="Jak 3" />
+              </a>
+              <Tooltip triggeredBy="#jak3" placement="right" type="dark"
+                >{$_("gameName_jak3")}</Tooltip
+              >
+            </li>
+          </div>
 
-        <!-- Bottom section -->
-        <div class="flex flex-col items-center space-y-16 pb-16">
-          <li>
-            <a
-              id="settings"
-              class={getNavItemStyle("settings", "$location.pathname")}
-              href="/settings/general"
-            >
-              <IconCog style="font-size: 36px" />
-            </a>
-            <Tooltip triggeredBy="#settings" placement="right" type="dark"
-              >{$_("sidebar_settings")}</Tooltip
-            >
-          </li>
+          <!-- Bottom section -->
+          <div class="flex flex-col items-center space-y-16 pb-16">
+            <li>
+              <a
+                id="settings"
+                class={getNavItemStyle("settings", "$location.pathname")}
+                href="/settings/general"
+              >
+                <IconCog style="font-size: 36px" />
+              </a>
+              <Tooltip triggeredBy="#settings" placement="right" type="dark"
+                >{$_("sidebar_settings")}</Tooltip
+              >
+            </li>
 
-          <li class="pb-2">
-            <a
-              id="faq"
-              class={getNavItemStyle("faq", "$location.pathname")}
-              href="/faq"
-            >
-              <IconChatQuestion style="font-size: 36px" />
-            </a>
-            <Tooltip triggeredBy="#faq" placement="right" type="dark"
-              >{$_("sidebar_help")}</Tooltip
-            >
-          </li>
-        </div>
-      </ul>
-    </aside>
+            <li class="pb-2">
+              <a
+                id="faq"
+                class={getNavItemStyle("faq", "$location.pathname")}
+                href="/faq"
+              >
+                <IconChatQuestion style="font-size: 36px" />
+              </a>
+              <Tooltip triggeredBy="#faq" placement="right" type="dark"
+                >{$_("sidebar_help")}</Tooltip
+              >
+            </li>
+          </div>
+        </ul>
+      </aside>
+    {/if}
 
     <!-- BODY -->
     <main class="flex-1 overflow-hidden">
