@@ -11,7 +11,7 @@
 </script>
 
 <div
-  class="flex flex-col justify-center w-screen h-screen bg-gray-900 px-40 gap-4"
+  class="flex flex-col justify-center w-screen h-screen bg-zinc-900 px-40 gap-4"
 >
   <LocaleSelector />
   <ChooseInstallFolder />
