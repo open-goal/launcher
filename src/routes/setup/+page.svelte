@@ -4,16 +4,21 @@
   import LocaleSelector from "../../splash/components/LocaleSelector.svelte";
   import ChooseInstallFolder from "../../splash/components/ChooseInstallFolder.svelte";
   import { Button } from "flowbite-svelte";
-  // import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
   import "./splash.postcss";
+  import { goto } from "$app/navigation";
 
   let { data }: PageProps = $props();
 </script>
 
 <div
-  class="flex flex-col justify-center w-screen h-screen bg-gray-900 px-40 gap-8"
+  class="flex flex-col justify-center w-screen h-screen bg-gray-900 px-40 gap-4"
 >
   <LocaleSelector />
   <ChooseInstallFolder />
-  <Button>Continue</Button>
+  <!-- this continue button should only show if the user has selected a locale and install directory-->
+  <Button
+    onclick={() => goto("/game")}
+    class="splash-button pointer-events-auto bg-orange-500 p-1 mt-1 text-black font-bold rounded hover:bg-orange-700"
+    >Continue</Button
+  >
 </div>
