@@ -20,11 +20,11 @@
 
 {@render children()}
 
-<div class="flex flex-col h-full bg-[#141414]">
+<div class="flex flex-col h-full bg-gray-900">
   <Tabs
     tabStyle="underline"
     class="flex flex-wrap space-x-2 rtl:space-x-reverse"
-    contentClass="p-4 pt-0 rounded-lg mt-2 mb-5 overflow-y-auto !bg-[#141414]"
+    contentClass="p-4 pt-0 rounded-lg mt-2 mb-5 overflow-y-auto !bg-gray-900"
   >
     <TabItem
       {activeClass}

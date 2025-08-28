@@ -15,11 +15,11 @@
     "inline-block text-sm font-normal text-center disabled:cursor-not-allowed p-4 border-b-2 border-transparent text-gray-400 hover:text-orange-300 hover:border-orange-500 dark:hover:text-orange-300 dark:text-orange-400";
 </script>
 
-<div class="flex flex-col h-full bg-[#141414]">
+<div class="flex flex-col h-full bg-gray-900">
   <Tabs
     tabStyle="underline"
     class="flex flex-wrap space-x-2 rtl:space-x-reverse"
-    contentClass="p-4 pt-0 rounded-lg mt-2 mb-5 overflow-y-auto !bg-[#141414]"
+    contentClass="p-4 pt-0 rounded-lg mt-2 mb-5 overflow-y-auto !bg-gray-900"
   >
     <TabItem
       {activeClass}

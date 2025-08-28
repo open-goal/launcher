@@ -25,7 +25,7 @@
 </script>
 
 <div class="flex flex-col h-full justify-center items-center">
-  <Card size="lg" class="!pt-5 px-8 !pb-5 !bg-[#141414]">
+  <Card size="lg" class="!pt-5 px-8 !pb-5 !bg-gray-900">
     <h5
       class="mb-2 text-xl font-bold text-gray-900 dark:text-white text-center"
     >
