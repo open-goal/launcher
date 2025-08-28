@@ -3,11 +3,11 @@
   import { Router, Route } from "svelte-navigator";
   import Game from "./routes/Game.svelte";
   import Settings from "./routes/Settings.svelte";
-  import Sidebar from "./components/sidebar/Sidebar.svelte";
-  import Background from "./components/background/Background.svelte";
-  import Header from "./components/header/Header.svelte";
+  import Sidebar from "./old_components/sidebar/Sidebar.svelte";
+  import Background from "./old_components/background/Background.svelte";
+  import Header from "./old_components/header/Header.svelte";
   import { isInDebugMode } from "$lib/utils/common";
-  import Toast from "./components/toast/Toast.svelte";
+  import Toast from "./old_components/toast/Toast.svelte";
   import Help from "./routes/Help.svelte";
   import { isLoading } from "svelte-i18n";
   import {
@@ -19,8 +19,8 @@
   import { toastStore } from "$lib/stores/ToastStore";
   import { isMinMacOSVersion, isMinVCCRuntime } from "$lib/stores/VersionStore";
   import { isMacOSVersion15OrAbove } from "$lib/rpc/util";
-  import ModSelection from "./components/games/features/mods/ModSelection.svelte";
-  import TexturePacks from "./components/games/features/texture-packs/TexturePacks.svelte";
+  import ModSelection from "./old_components/games/features/mods/ModSelection.svelte";
+  import TexturePacks from "./old_components/games/features/texture-packs/TexturePacks.svelte";
 
   let revokeSpecificActions = false;
   let toastListener: any = undefined;

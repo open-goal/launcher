@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
   import { locale as svelteLocale, _ } from "svelte-i18n";
-  import LocaleSelector from "../../splash/components/LocaleSelector.svelte";
-  import ChooseInstallFolder from "../../splash/components/ChooseInstallFolder.svelte";
+  import LocaleSelector from "../../components/LocaleSelector.svelte";
+  import ChooseInstallFolder from "../../components/ChooseInstallFolder.svelte";
   import { Button } from "flowbite-svelte";
   import "./splash.postcss";
   import { goto } from "$app/navigation";
@@ -12,7 +12,7 @@
 </script>
 
 <div
-  class="flex flex-col justify-center w-screen h-screen bg-zinc-900 px-40 gap-4"
+  class="flex flex-col justify-center pb-24 w-screen h-screen bg-zinc-900 px-40 gap-4"
 >
   <LocaleSelector />
   <ChooseInstallFolder />

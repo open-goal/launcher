@@ -1,7 +1,7 @@
 <script lang="ts">
   import { useParams } from "svelte-navigator";
-  import GameControls from "../components/games/GameControls.svelte";
-  import GameSetup from "../components/games/setup/GameSetup.svelte";
+  import GameControls from "../old_components/games/GameControls.svelte";
+  import GameSetup from "../old_components/games/setup/GameSetup.svelte";
   import { onMount } from "svelte";
   import { Alert } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
@@ -10,21 +10,21 @@
     getInstalledVersion,
     isGameInstalled,
   } from "$lib/rpc/config";
-  import GameJob from "../components/games/job/GameJob.svelte";
-  import GameUpdate from "../components/games/setup/GameUpdate.svelte";
+  import GameJob from "../old_components/games/job/GameJob.svelte";
+  import GameUpdate from "../old_components/games/setup/GameUpdate.svelte";
   import {
     ensureActiveVersionStillExists,
     getActiveVersion,
   } from "$lib/rpc/versions";
-  import GameToolsNotSet from "../components/games/GameToolsNotSet.svelte";
-  import GameNotSupportedByTooling from "../components/games/GameNotSupportedByTooling.svelte";
+  import GameToolsNotSet from "../old_components/games/GameToolsNotSet.svelte";
+  import GameNotSupportedByTooling from "../old_components/games/GameNotSupportedByTooling.svelte";
   import { isMinVCCRuntime, VersionStore } from "$lib/stores/VersionStore";
   import type { Job } from "$lib/utils/jobs";
   import { type } from "@tauri-apps/plugin-os";
   import { getModSourcesData } from "$lib/rpc/cache";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
-  import GameControlsMod from "../components/games/GameControlsMod.svelte";
-  import GameInProgress from "../components/games/GameInProgress.svelte";
+  import GameControlsMod from "../old_components/games/GameControlsMod.svelte";
+  import GameInProgress from "../old_components/games/GameInProgress.svelte";
   import { activeGame, modInfoStore } from "$lib/stores/AppStore";
 
   const params = useParams();
