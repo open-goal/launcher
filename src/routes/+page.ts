@@ -5,7 +5,7 @@ export const ssr = false; // client-only
 
 export const load = () => {
   let hasInstallDir = getInstallationDirectory();
-  let testing = true; // TODO: remove this after im done developing splash
+  let testing = false; // TODO: remove this after im done developing splash
   if (!hasInstallDir || testing) {
     throw redirect(307, "/setup");
   }
