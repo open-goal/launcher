@@ -1,22 +1,14 @@
 <script lang="ts">
   import type { LayoutProps } from "./$types";
-  import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
   import {
-    getBypassRequirements,
-    getInstallationDirectory,
-    getLocale,
     localeSpecificFontAvailableForDownload,
     resetLauncherSettingsToDefaults,
     setAutoUpdateGames,
-    getAutoUpdateGames,
     setBypassRequirements,
     setInstallationDirectory,
     setLocale,
     setAutoUninstallOldVersions,
-    getAutoUninstallOldVersions,
   } from "$lib/rpc/config";
-  import { getActiveVersion } from "$lib/rpc/versions";
-  import { VersionStore } from "$lib/stores/VersionStore";
   import {
     Button,
     Helper,
@@ -26,7 +18,6 @@
     Spinner,
     Toggle,
   } from "flowbite-svelte";
-  import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import { confirm } from "@tauri-apps/plugin-dialog";
   import { platform } from "@tauri-apps/plugin-os";
@@ -34,13 +25,14 @@
   import { appDataDir, join } from "@tauri-apps/api/path";
   import { folderPrompt } from "$lib/utils/file-dialogs";
   import { writable } from "svelte/store";
+  import LocaleSelector from "../../../components/LocaleSelector.svelte";
+  import { invalidateAll } from "$app/navigation";
 
   let { data, children }: LayoutProps = $props();
-  let { config } = data;
+  const config = $derived(data.config);
 
   let currentInstallationDirectory = "";
   let currentLocale = writable();
-  let availableLocales = [];
   let currentBypassRequirementsVal = false;
   let keepGamesUpdated = writable(false);
   let uninstallOldVersions = writable(false);
@@ -48,70 +40,21 @@
   let localeFontDownloading = false;
   let isLinux = platform() === "linux";
   let initialized = false;
+  // config.deletePreviousVersions; // getAutouninstallOldVersions
 
-  onMount(async () => {
-    keepGamesUpdated.set(await getAutoUpdateGames());
-    uninstallOldVersions.set(await getAutoUninstallOldVersions());
-    currentInstallationDirectory = await getInstallationDirectory();
-    for (const locale of AVAILABLE_LOCALES) {
-      availableLocales = [
-        ...availableLocales,
-        {
-          value: locale.id,
-          name: `${locale.flag} ${locale.localizedName}`,
-        },
-      ];
-    }
-    $currentLocale = await getLocale();
-    currentBypassRequirementsVal = await getBypassRequirements();
-    if ($currentLocale !== null) {
-      localeFontForDownload =
-        await localeSpecificFontAvailableForDownload($currentLocale);
-    }
-    initialized = true;
-  });
-
-  // $: if (initialized) {
-  //   setAutoUpdateGames($keepGamesUpdated);
-  // }
-
-  // $: if (initialized) {
-  //   setAutoUninstallOldVersions($uninstallOldVersions);
-  // }
+  // localeFontForDownload = await localeSpecificFontAvailableForDownload($currentLocale); // TODO: FIND A BETTER HOME FOR THIS CODE (root route?)
 </script>
 
 <div class="flex flex-col gap-5 mt-2">
   <div>
-    <Label class="text-gray-200"
-      >{$_("settings_general_localeChange")}
-      <Select
-        class="mt-2"
-        items={availableLocales}
-        bind:value={$currentLocale}
-        onchange={async () => {
-          await setLocale($currentLocale);
-          localeFontForDownload =
-            await localeSpecificFontAvailableForDownload($currentLocale);
-        }}
-      />
-    </Label>
-    <Helper class="text-xs mt-2 italic"
-      >{$_("settings_general_localeChange_helper_1")}
-      <a
-        class=" text-orange-400 hover:text-orange-600"
-        href="https://crowdin.com/project/opengoal-launcher"
-        target="_blank"
-        rel="noreferrer">{$_("settings_general_localeChange_helper_link")}</a
-      >
-      {$_("settings_general_localeChange_helper_2")}</Helper
-    >
+    <LocaleSelector></LocaleSelector>
+    <!-- DOWNLOAD LOCALE FONT. TODO: FIND A BETTER HOME FOR THIS -->
     {#if localeFontForDownload !== undefined}
       <Button
         class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
         disabled={localeFontDownloading}
         onclick={async () => {
           if (
-            localeFontForDownload !== undefined &&
             localeFontForDownload.fontDownloadUrl !== undefined &&
             localeFontForDownload.fontFileName !== undefined
           ) {
@@ -143,23 +86,16 @@
       >
       <Input
         id="default-input"
-        placeholder={currentInstallationDirectory}
+        placeholder={config.installationDir}
         onclick={async () => {
           const newInstallDir = await folderPrompt(
             $_("settings_folders_installationDir_prompt"),
           );
           if (
             newInstallDir !== undefined &&
-            newInstallDir !== currentInstallationDirectory
+            newInstallDir !== config.installationDir
           ) {
-            const errMsg = await setInstallationDirectory(newInstallDir);
-            if (errMsg === null) {
-              if (currentInstallationDirectory !== newInstallDir) {
-                $VersionStore.activeVersionType = null;
-                $VersionStore.activeVersionName = null;
-              }
-              currentInstallationDirectory = newInstallDir;
-            }
+            await setInstallationDirectory(newInstallDir);
           }
         }}
       />
@@ -171,23 +107,23 @@
   <div class="*:text-gray-200">
     <Toggle
       color="orange"
-      bind:checked={$keepGamesUpdated}
+      bind:checked={config.autoUpdateGames}
       onchange={async () => {
         $uninstallOldVersions = false;
       }}
       class="mb-2">{$_("settings_general_keep_updated")}</Toggle
     >
-    {#if $keepGamesUpdated}
+    {#if config.autoUpdateGames}
       <Toggle
         color="orange"
-        bind:checked={$uninstallOldVersions}
+        bind:checked={config.deletePreviousVersions}
         class="ml-14 mb-2">{$_("settings_general_uninstall_old")}</Toggle
       >
     {/if}
-    <Toggle checked={currentBypassRequirementsVal} color="orange"
-      >{$_("settings_general_toggle_bypassRequirementsCheck")}</Toggle
-    >
-    <!--       onchange={async (evt) => {
+    <Toggle
+      checked={config.requirements.bypassRequirements}
+      color="orange"
+      onchange={async (evt) => {
         if (evt.target.checked) {
           const confirmed = await confirm(
             `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
@@ -196,16 +132,16 @@
             { title: "OpenGOAL Launcher", type: "warning" },
           );
           if (confirmed) {
-            await setBypassRequirements(evt.target.checked);
-            currentBypassRequirementsVal = await getBypassRequirements();
+            await setBypassRequirements(true);
+            await invalidateAll();
           } else {
-            evt.target.checked = false;
+            // evt.target.checked = false;
           }
         } else {
           await setBypassRequirements(evt.target.checked);
-          currentBypassRequirementsVal = await getBypassRequirements();
         }
-      }} -->
+      }}>{$_("settings_general_toggle_bypassRequirementsCheck")}</Toggle
+    >
   </div>
   <div>
     <Button
@@ -215,11 +151,7 @@
           $_("settings_general_button_resetSettings_confirmation"),
         );
         if (confirmed) {
-          const result = resetLauncherSettingsToDefaults();
-          if (result) {
-            // TODO - move these to a store method
-            $VersionStore.activeVersionName = await getActiveVersion();
-          }
+          await resetLauncherSettingsToDefaults();
         }
       }}>{$_("settings_general_button_resetSettings")}</Button
     >
