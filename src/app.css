@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "flowbite/dist/flowbite.css";
 
 :root {
   --launcher-font-family: "Noto Sans";
