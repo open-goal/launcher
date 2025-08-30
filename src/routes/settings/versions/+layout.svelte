@@ -12,7 +12,7 @@
   import { revealItemInDir } from "@tauri-apps/plugin-opener";
 
   let { data, children }: LayoutProps = $props();
-  let { config } = data;
+  const config = $derived(data.config);
 </script>
 
 <p class="text-sm mt-2 mb-2">{$_("settings_versions_header")}</p>
