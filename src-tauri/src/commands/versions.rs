@@ -68,7 +68,7 @@ pub async fn download_version(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   version: String,
   version_folder: String,
-  url: String,
+  download_url: String,
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let install_path = match &config_lock.installation_dir {
@@ -106,9 +106,11 @@ pub async fn download_version(
       .join(format!("{version}.zip"));
 
     // Download the file
-    download_file(&url, &download_path).await.map_err(|_| {
-      CommandError::VersionManagement("Unable to successfully download version".to_owned())
-    })?;
+    download_file(&download_url, &download_path)
+      .await
+      .map_err(|_| {
+        CommandError::VersionManagement("Unable to successfully download version".to_owned())
+      })?;
 
     // Extract the zip file
     extract_and_delete_zip_file(&download_path, &dest_dir, true).map_err(|_| {
@@ -143,9 +145,11 @@ pub async fn download_version(
       .join(format!("{version}.tar.gz"));
 
     // Download the file
-    download_file(&url, &download_path).await.map_err(|_| {
-      CommandError::VersionManagement("Unable to successfully download version".to_owned())
-    })?;
+    download_file(&download_url, &download_path)
+      .await
+      .map_err(|_| {
+        CommandError::VersionManagement("Unable to successfully download version".to_owned())
+      })?;
 
     // Extract the zip file
     extract_and_delete_tar_ball(&download_path, &dest_dir).map_err(|err| {

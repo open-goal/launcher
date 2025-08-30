@@ -7,6 +7,7 @@ import { exists } from "@tauri-apps/plugin-fs";
 import { appDataDir, join } from "@tauri-apps/api/path";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import type { LauncherConfig } from "./bindings/LauncherConfig";
+import type { ReleaseInfo } from "$lib/utils/github";
 
 export async function getAppConfig(): Promise<LauncherConfig> {
   return await invoke_rpc("get_app_config", {}, () => false);
@@ -122,11 +123,11 @@ export async function getInstalledVersion(gameName: string): Promise<String> {
 }
 
 export async function saveActiveVersionChange(
-  newActiveVersion: String,
+  release: ReleaseInfo,
 ): Promise<boolean> {
   return invoke_rpc(
     "update_setting_value",
-    { key: "active_version", val: newActiveVersion },
+    { key: "active_version", val: release.version },
     () => false,
     "Couldn't save active version change",
     () => true,

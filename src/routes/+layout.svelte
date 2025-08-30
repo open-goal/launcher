@@ -11,7 +11,7 @@
   let { data, children }: LayoutProps = $props();
 
   listen<LauncherConfig>("settingsUpdated", (e) => {
-    console.log(e.payload);
+    // console.log(e.payload);
     // launcherConfig.set(e.payload);
   });
 </script>

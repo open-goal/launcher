@@ -1,4 +1,4 @@
-import { getLatestOfficialRelease } from "$lib/utils/github";
+import { getLatestOfficialRelease, type ReleaseInfo } from "$lib/utils/github";
 import { getAutoUninstallOldVersions } from "./config";
 import { invoke_rpc } from "./rpc";
 
@@ -11,19 +11,20 @@ export async function listDownloadedVersions(): Promise<string[]> {
 }
 
 export async function downloadOfficialVersion(
-  version: String,
-  url: String,
+  release: ReleaseInfo,
 ): Promise<boolean> {
+  const { version, downloadUrl } = release;
   return await invoke_rpc(
     "download_version",
-    { version, url, versionFolder: "official" },
+    { version, downloadUrl, versionFolder: "official" },
     () => false,
     "Unable to download official version",
     () => true,
   );
 }
 
-export async function removeVersion(version: String): Promise<boolean> {
+export async function removeVersion(release: ReleaseInfo): Promise<boolean> {
+  const { version } = release;
   return await invoke_rpc(
     "remove_version",
     { version },
