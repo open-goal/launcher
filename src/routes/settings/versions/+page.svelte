@@ -50,7 +50,7 @@
 </script>
 
 {#each official as release (release.version)}
-  <TableBodyRow class="bg-slate-700">
+  <TableBodyRow class="bg-zinc-900">
     <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
       {#if isDownloaded(release)}
         <Radio

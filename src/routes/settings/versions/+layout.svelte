@@ -36,7 +36,7 @@
 
 <div class="flex flex-col max-h-96 overflow-y-scroll">
   <Table>
-    <TableHead class="bg-slate-400">
+    <TableHead class="bg-zinc-800 text-lg">
       <TableHeadCell></TableHeadCell>
       <TableHeadCell></TableHeadCell>
       <TableHeadCell
@@ -47,7 +47,7 @@
         >{$_("settings_versions_table_header_changes")}</TableHeadCell
       >
     </TableHead>
-    <TableBody class="divide-y *:text-white">
+    <TableBody class="text-gray-300  divide-y">
       {@render children()}
     </TableBody>
   </Table>
