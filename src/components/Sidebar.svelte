@@ -7,24 +7,25 @@
 
   const activeGame = $derived(page.params.game);
 
-  function getNavStyle(pathName: string): string {
+  function getNavStyle(): string {
     const baseStyle = "w-20 h-screen bg-[#101010] z-100";
     const isOpaque =
-      pathName.startsWith("/settings") ||
-      pathName.startsWith("/update") ||
-      pathName.startsWith("/faq") ||
-      pathName.endsWith("/mods") ||
-      pathName.endsWith("/texture_packs");
+      page.route.id?.startsWith("/settings") ||
+      page.route.id?.startsWith("/update") ||
+      page.route.id?.startsWith("/faq") ||
+      page.route.id?.endsWith("/mods") ||
+      page.route.id?.endsWith("/textures");
     return isOpaque
       ? baseStyle
       : `${baseStyle} opacity-50 hover:opacity-100 duration-500`;
   }
 
-  // TODO: Fix this function
   function getNavItemStyle(itemName: string, pathName: string): string {
     const baseStyle =
       "hover:grayscale-0 hover:opacity-100 duration-500 text-orange-400";
-    return baseStyle; // early return so i can develop more important things
+    if (!pathName) {
+      return `${baseStyle} grayscale`;
+    }
     const isActive =
       pathName.startsWith(`${itemName}`) ||
       (itemName === "jak1" && pathName === "/");
@@ -34,7 +35,7 @@
   let props = $props();
 </script>
 
-<aside class={getNavStyle("$location.pathname")}>
+<aside class={getNavStyle()}>
   <ul class="flex flex-col justify-between h-full px-1 items-center text-black">
     <div class="flex flex-col space-y-16 pt-4">
       <li>
@@ -83,7 +84,7 @@
       <li>
         <a
           id="settings"
-          class={getNavItemStyle("settings", "$location.pathname")}
+          class={getNavItemStyle("/settings", page.route.id)}
           href="/settings/general"
         >
           <IconCog style="font-size: 36px" />
@@ -94,11 +95,7 @@
       </li>
 
       <li class="pb-2">
-        <a
-          id="faq"
-          class={getNavItemStyle("faq", "$location.pathname")}
-          href="/faq"
-        >
+        <a id="faq" class={getNavItemStyle("/faq", page.route.id)} href="/faq">
           <IconChatQuestion style="font-size: 36px" />
         </a>
         <Tooltip triggeredBy="#faq" placement="right" type="dark"
