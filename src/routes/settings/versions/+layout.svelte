@@ -34,17 +34,21 @@
   </Button>
 </div>
 
-<Table class="overflow-y-scroll">
-  <TableHead class="bg-slate-400">
-    <TableHeadCell></TableHeadCell>
-    <TableHeadCell></TableHeadCell>
-    <TableHeadCell>{$_("settings_versions_table_header_version")}</TableHeadCell
-    >
-    <TableHeadCell>{$_("settings_versions_table_header_date")}</TableHeadCell>
-    <TableHeadCell>{$_("settings_versions_table_header_changes")}</TableHeadCell
-    >
-  </TableHead>
-  <TableBody class="divide-y *:text-white">
-    {@render children()}
-  </TableBody>
-</Table>
+<div class="flex flex-col max-h-96 overflow-y-scroll">
+  <Table>
+    <TableHead class="bg-slate-400">
+      <TableHeadCell></TableHeadCell>
+      <TableHeadCell></TableHeadCell>
+      <TableHeadCell
+        >{$_("settings_versions_table_header_version")}</TableHeadCell
+      >
+      <TableHeadCell>{$_("settings_versions_table_header_date")}</TableHeadCell>
+      <TableHeadCell
+        >{$_("settings_versions_table_header_changes")}</TableHeadCell
+      >
+    </TableHead>
+    <TableBody class="divide-y *:text-white">
+      {@render children()}
+    </TableBody>
+  </Table>
+</div>
