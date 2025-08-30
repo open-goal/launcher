@@ -20,7 +20,9 @@ use std::path::PathBuf;
 use strum_macros::{Display, EnumIter};
 use ts_rs::TS;
 
+use crate::TAURI_APP;
 use crate::util::file::touch_file;
+use tauri::Emitter;
 
 #[derive(Debug, thiserror::Error)]
 pub enum ConfigError {
@@ -354,6 +356,12 @@ impl LauncherConfig {
     LauncherConfig::default(settings_path)
   }
 
+  fn emit_settings_updated(&self) {
+    if let Some(app) = TAURI_APP.get() {
+      let _ = app.emit("settingsUpdated", self.clone());
+    }
+  }
+
   pub fn save_config(&self) -> Result<(), ConfigError> {
     let settings_path = match &self.settings_path {
       None => {
@@ -368,6 +376,7 @@ impl LauncherConfig {
     create_dir(&settings_path.parent().unwrap())?;
     let file = fs::File::create(settings_path)?;
     serde_json::to_writer_pretty(file, &self)?;
+    self.emit_settings_updated();
     Ok(())
   }
 

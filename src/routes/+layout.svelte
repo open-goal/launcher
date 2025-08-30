@@ -5,8 +5,15 @@
   import { _ } from "svelte-i18n";
   import Sidebar from "../components/Sidebar.svelte";
   import Header from "../components/Header.svelte";
+  import { listen } from "@tauri-apps/api/event";
+  import type { LauncherConfig } from "$lib/rpc/bindings/LauncherConfig";
 
   let { data, children }: LayoutProps = $props();
+
+  listen<LauncherConfig>("settingsUpdated", (e) => {
+    console.log(e.payload);
+    // launcherConfig.set(e.payload);
+  });
 </script>
 
 <div class="flex h-screen flex-col">
