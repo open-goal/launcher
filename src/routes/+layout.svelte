@@ -11,12 +11,13 @@
 
 <div class="flex h-screen flex-col">
   <!-- HEADER -->
-  <Header></Header>
+  <!-- I dislike passing the config using props and would rather use a global store, but im just experimenting right now -->
+  <Header config={data.config}></Header>
 
   <div class="flex">
     <!-- I dislike this conditional, but i don't know how else to approach this... -->
     {#if !page.route.id?.includes("setup")}
-      <Sidebar></Sidebar>
+      <Sidebar config={data.config}></Sidebar>
     {/if}
 
     <!-- BODY -->

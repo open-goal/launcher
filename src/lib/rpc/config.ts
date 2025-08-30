@@ -6,6 +6,11 @@ import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
 import { exists } from "@tauri-apps/plugin-fs";
 import { appDataDir, join } from "@tauri-apps/api/path";
 import { convertFileSrc } from "@tauri-apps/api/core";
+import type { LauncherConfig } from "./bindings/LauncherConfig";
+
+export async function getAppConfig(): Promise<LauncherConfig> {
+  return await invoke_rpc("get_app_config", {}, () => false);
+}
 
 export async function oldDataDirectoryExists(): Promise<boolean> {
   return await invoke_rpc("has_old_data_directory", {}, () => false);
@@ -86,11 +91,7 @@ export async function isDiskSpaceRequirementMet(
 }
 
 export async function isMinimumVCCRuntimeInstalled(): Promise<boolean> {
-  return await invoke_rpc(
-    "is_minimum_vcc_runtime_installed",
-    {},
-    () => undefined,
-  );
+  return await invoke_rpc("is_minimum_vcc_runtime_installed", {}, () => false);
 }
 
 export async function finalizeInstallation(

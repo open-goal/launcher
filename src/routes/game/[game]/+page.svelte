@@ -30,6 +30,8 @@
   const activeGame = $derived(page.params.game);
   let textureSupportEnabled = true;
   let { data }: PageProps = $props();
+  let config = data.config;
+  // console.log(config);
 </script>
 
 <!-- GAME CONTROLS -->

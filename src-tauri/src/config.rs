@@ -55,7 +55,7 @@ impl SupportedGame {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct GameConfig {
   pub is_installed: bool,
@@ -86,7 +86,7 @@ impl GameConfig {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct Requirements {
   pub bypass_requirements: bool,
@@ -105,7 +105,7 @@ impl Requirements {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct DecompilerSettings {
   pub rip_levels_enabled: bool,
@@ -125,8 +125,9 @@ impl DecompilerSettings {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, TS)]
 #[serde(rename_all = "camelCase")]
+#[ts(export)]
 pub struct LauncherConfig {
   #[serde(skip_serializing)]
   #[serde(skip_deserializing)]

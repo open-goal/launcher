@@ -21,6 +21,8 @@
   import { relaunch } from "@tauri-apps/plugin-process";
   import { ask } from "@tauri-apps/plugin-dialog";
 
+  let { config } = $props();
+
   let launcherVerison = null;
   const appWindow = getCurrentWebviewWindow();
 
@@ -126,9 +128,7 @@
       {launcherVerison}
     </p>
     <p class="font-mono text-sm">
-      {$VersionStore.activeVersionName === null
-        ? "not set!"
-        : $VersionStore.activeVersionName}
+      {config.activeVersion === null ? "not set!" : config.activeVersion}
     </p>
   </div>
   {#if $UpdateStore.selectedTooling.updateAvailable}
@@ -139,10 +139,10 @@
     </a>
   {/if}
   <div class="flex shrink-0 space-x-4 text-xl ml-auto">
-    <button class="hover:text-amber-600" on:click={() => appWindow.minimize()}>
+    <button class="hover:text-amber-600" onclick={() => appWindow.minimize()}>
       <IconWindowMinimize />
     </button>
-    <button class="hover:text-red-600" on:click={() => appWindow.close()}>
+    <button class="hover:text-red-600" onclick={() => appWindow.close()}>
       <IconWindowClose />
     </button>
   </div>

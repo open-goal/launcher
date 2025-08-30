@@ -4,6 +4,16 @@ use super::{CommandError, util::is_avx_supported};
 use crate::config::{LauncherConfig, SupportedGame};
 use semver::Version;
 use serde_json::{Value, json};
+use tauri::State;
+use tauri::async_runtime::Mutex;
+
+#[tauri::command]
+pub async fn get_app_config(
+  config: State<'_, Mutex<crate::config::LauncherConfig>>,
+) -> Result<crate::config::LauncherConfig, CommandError> {
+  let cfg = config.lock().await;
+  Ok(cfg.clone())
+}
 
 #[tauri::command]
 pub async fn reset_to_defaults(

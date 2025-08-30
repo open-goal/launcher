@@ -30,6 +30,8 @@
       (itemName === "jak1" && pathName === "/");
     return isActive ? baseStyle : `${baseStyle} grayscale`;
   }
+
+  let props = $props();
 </script>
 
 <aside class={getNavStyle("$location.pathname")}>
