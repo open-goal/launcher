@@ -51,7 +51,7 @@
           />
         </a>
         <Tooltip triggeredBy="#jak1" placement="right" type="dark"
-          >$_{$_("gameName_jak1")}</Tooltip
+          >{$_("gameName_jak1")}</Tooltip
         >
       </li>
       <li>

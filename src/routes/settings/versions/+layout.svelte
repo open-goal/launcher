@@ -15,11 +15,11 @@
   const config = $derived(data.config);
 </script>
 
-<p class="text-sm mt-2 mb-2">{$_("settings_versions_header")}</p>
+<p class="mt-2 mb-2">{$_("settings_versions_header")}</p>
 
 <div class="flex items-center mb-2">
   <div class="grow">
-    <p class="text-sm text-gray-300">
+    <p class="text-gray-300">
       {$_("settings_versions_official_description")}
     </p>
   </div>
@@ -36,7 +36,7 @@
 
 <div class="flex flex-col max-h-96 overflow-y-scroll">
   <Table>
-    <TableHead class="bg-zinc-800 text-lg">
+    <TableHead class="bg-zinc-800">
       <TableHeadCell></TableHeadCell>
       <TableHeadCell></TableHeadCell>
       <TableHeadCell
@@ -47,7 +47,7 @@
         >{$_("settings_versions_table_header_changes")}</TableHeadCell
       >
     </TableHead>
-    <TableBody class="text-gray-300  divide-y">
+    <TableBody class="text-gray-300">
       {@render children()}
     </TableBody>
   </Table>
