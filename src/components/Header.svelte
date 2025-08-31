@@ -4,49 +4,30 @@
   import { getVersion } from "@tauri-apps/api/app";
   import IconWindowMinimize from "~icons/mdi/window-minimize";
   import IconWindowClose from "~icons/mdi/window-close";
-  import { UpdateStore } from "$lib/stores/AppStore";
   import { isInDebugMode } from "$lib/utils/common";
   import {
     downloadOfficialVersion,
-    getActiveVersion,
     listDownloadedVersions,
     removeOldVersions,
   } from "$lib/rpc/versions";
   import { getLatestOfficialRelease } from "$lib/utils/github";
-  import { VersionStore } from "$lib/stores/VersionStore";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
-  import { getAutoUpdateGames, saveActiveVersionChange } from "$lib/rpc/config";
+  import { saveActiveVersionChange } from "$lib/rpc/config";
   import { check } from "@tauri-apps/plugin-updater";
   import { relaunch } from "@tauri-apps/plugin-process";
   import { ask } from "@tauri-apps/plugin-dialog";
+  import { invalidateAll } from "$app/navigation";
 
   let { config } = $props();
-
-  let launcherVerison = null;
   const appWindow = getCurrentWebviewWindow();
-
-  async function downloadLatestVersion(version: string, url: String) {
-    await downloadOfficialVersion(version, url);
-    $UpdateStore.selectedTooling.updateAvailable = false;
-    await saveOfficialVersionChange(version);
-  }
-
-  async function saveOfficialVersionChange(version) {
-    const success = await saveActiveVersionChange(version);
-    if (success) {
-      $VersionStore.activeVersionName = version;
-      toastStore.makeToast($_("toasts_savedToolingVersion"), "info");
-    }
-  }
+  let launcherVerison = $derived("");
+  let updateAvailable = $state(false);
 
   onMount(async () => {
-    // Get current versions
     launcherVerison = `v${await getVersion()}`;
-    $VersionStore.activeVersionName = await getActiveVersion();
-
-    // Check for a launcher update
     if (!isInDebugMode()) {
+      // Check for a launcher update
       const update = await check();
       if (update) {
         const doUpdate = await ask(
@@ -62,41 +43,25 @@
         }
       }
     }
-    await checkIfLatestVersionInstalled();
+    if (!(await isLatestVersionInstalled())) {
+      updateAvailable = true;
+      await installLatestVersion();
+    }
   });
 
-  async function checkIfLatestVersionInstalled() {
-    const latestToolingVersion = await getLatestOfficialRelease();
-    if (
-      latestToolingVersion !== undefined &&
-      $VersionStore.activeVersionName !== latestToolingVersion.version
-    ) {
-      // Check that we havn't already downloaded it
-      let alreadyHaveRelease = false;
-      const downloadedOfficialVersions = await listDownloadedVersions();
-      for (const releaseVersion of downloadedOfficialVersions) {
-        if (releaseVersion === latestToolingVersion.version) {
-          alreadyHaveRelease = true;
-          break;
-        }
-      }
-      if (!alreadyHaveRelease) {
-        let shouldAutoUpdate = await getAutoUpdateGames();
-        if (shouldAutoUpdate) {
-          await downloadLatestVersion(
-            latestToolingVersion.version,
-            latestToolingVersion.downloadUrl,
-          );
-          await removeOldVersions();
+  async function isLatestVersionInstalled() {
+    const latest = await getLatestOfficialRelease();
+    const downloadedVersions = await listDownloadedVersions();
+    return downloadedVersions.includes(latest.version);
+  }
 
-          location.reload(); // TODO! this is hacky, when i refactor this will be done automatically
-        }
-
-        $UpdateStore.selectedTooling = {
-          updateAvailable: true,
-          versionNumber: latestToolingVersion.version,
-        };
-      }
+  async function installLatestVersion() {
+    const latest = await getLatestOfficialRelease();
+    if (config.autoUpdateGames) {
+      await downloadOfficialVersion(latest);
+      await removeOldVersions();
+      await saveActiveVersionChange(latest);
+      await invalidateAll();
     }
   }
 </script>
@@ -131,7 +96,7 @@
       {config.activeVersion === null ? "not set!" : config.activeVersion}
     </p>
   </div>
-  {#if $UpdateStore.selectedTooling.updateAvailable}
+  {#if updateAvailable}
     <a
       class="font-mono text-sm mt-5 text-orange-500 hover:text-orange-300"
       href="/settings/versions"

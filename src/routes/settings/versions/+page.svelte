@@ -56,7 +56,10 @@
         <Radio
           bind:group={active}
           value={release.version}
-          onchange={async () => await saveActiveVersionChange(release)}
+          onchange={async () => {
+            await saveActiveVersionChange(release);
+            await invalidateAll();
+          }}
           disabled={!isDownloaded(release)}
           class="disabled:cursor-not-allowed p-0"
         />
