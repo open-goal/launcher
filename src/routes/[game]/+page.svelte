@@ -1,8 +1,6 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
-  import { page } from "$app/state";
   import IconCog from "~icons/mdi/cog";
-  import { configDir, join } from "@tauri-apps/api/path";
   import { revealItemInDir } from "@tauri-apps/plugin-opener";
   import { writeText } from "@tauri-apps/plugin-clipboard-manager";
   import { confirm } from "@tauri-apps/plugin-dialog";
@@ -20,18 +18,17 @@
     launchGameWithCustomExecutable,
     openREPL,
   } from "$lib/rpc/binaries";
-  import {
-    doesActiveToolingVersionMeetMinimum,
-    getInstallationDirectory,
-  } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
 
-  const activeGame = $derived(page.params.game);
   let textureSupportEnabled = true;
-  let { data }: PageProps = $props();
+  let { data, params }: PageProps = $props();
+  const activeGame = $derived(params.game);
   let config = data.config;
-  // console.log(config);
+  const gameDataDir = $derived(data.gameDataDir);
+  const extractedAssetsDir = $derived(data.extractedAssetsDir);
+  const savesDir = $derived(data.savesDir);
+  const settingsDir = $derived(data.settingsDir);
 </script>
 
 <!-- GAME CONTROLS -->
@@ -61,11 +58,11 @@
       <DropdownItem
         hidden={!textureSupportEnabled}
         disabled={!textureSupportEnabled}
-        href={`/game/${activeGame}/textures`}
+        href={`${activeGame}/textures`}
       >
         {$_("gameControls_button_features_textures")}
       </DropdownItem>
-      <DropdownItem href={`/game/${activeGame}/mods`}>
+      <DropdownItem href={`${activeGame}/mods`}>
         {$_("gameControls_button_features_mods")}
       </DropdownItem>
     </Dropdown>
@@ -78,7 +75,7 @@
       simple
       trigger="hover"
       placement="top"
-      class="!bg-slate-900 dark:text-white **:w-full"
+      class="!bg-slate-900 dark:text-white **:w-full **:text-left"
     >
       <DropdownItem
         onclick={async () => {
@@ -146,7 +143,7 @@
       simple
       trigger="hover"
       placement="top"
-      class="!bg-slate-900 dark:text-white **:w-full"
+      class="!bg-slate-900 dark:text-white **:w-full **:text-left"
     >
       <!-- TODO - screenshot folder? how do we even configure where those go? -->
       <DropdownItem

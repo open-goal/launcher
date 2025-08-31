@@ -39,11 +39,7 @@
   <ul class="flex flex-col justify-between h-full px-1 items-center text-black">
     <div class="flex flex-col space-y-16 pt-4">
       <li>
-        <a
-          id="jak1"
-          class={getNavItemStyle("jak1", activeGame)}
-          href="/game/jak1"
-        >
+        <a id="jak1" class={getNavItemStyle("jak1", activeGame)} href="/jak1">
           <img
             src="/images/jak-tpl.webp"
             alt="Jak - The Precursor Legacy"
@@ -55,11 +51,7 @@
         >
       </li>
       <li>
-        <a
-          id="jak2"
-          class={getNavItemStyle("jak2", activeGame)}
-          href="/game/jak2"
-        >
+        <a id="jak2" class={getNavItemStyle("jak2", activeGame)} href="/jak2">
           <img src="/images/jak-2.webp" alt="Jak 2" aria-label="Jak 2" />
         </a>
         <Tooltip triggeredBy="#jak2" placement="right" type="dark"
@@ -67,11 +59,7 @@
         >
       </li>
       <li>
-        <a
-          id="jak3"
-          class={getNavItemStyle("jak3", activeGame)}
-          href="/game/jak3"
-        >
+        <a id="jak3" class={getNavItemStyle("jak3", activeGame)} href="/jak3">
           <img src="/images/jak-3.webp" alt="Jak 3" aria-label="Jak 3" />
         </a>
         <Tooltip triggeredBy="#jak3" placement="right" type="dark"

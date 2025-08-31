@@ -16,5 +16,5 @@ export const load = () => {
     | "jak3"
     | null;
   const target = last ?? "jak1";
-  throw redirect(307, `/game/${target}`);
+  throw redirect(307, `/${target}`);
 };
