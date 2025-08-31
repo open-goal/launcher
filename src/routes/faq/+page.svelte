@@ -5,18 +5,17 @@
   import IconGitHub from "~icons/mdi/github";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { revealItemInDir } from "@tauri-apps/plugin-opener";
-  import { onMount } from "svelte";
-  import { appLogDir } from "@tauri-apps/api/path";
   import { _ } from "svelte-i18n";
 
-  let appLogDirPath = $state("");
-  let downloadingPackage = $state(false);
-
   let { data }: PageProps = $props();
+  const appLogDirPath = $derived(data.appLogDirPath);
+  let downloadingPackage = $state(false);
 </script>
 
 <div class="flex flex-col h-full bg-slate-900 p-4 gap-3">
-  <h1 class="font-semibold text-xl text-orange-500">{$_("help_header")}</h1>
+  <h1 class="font-semibold text-xl text-orange-500">
+    {$_("help_header")}
+  </h1>
   <p class="text-sm">
     {$_("help_foreword")}
   </p>
@@ -82,7 +81,7 @@
       <IconGitHub />&nbsp;{$_("help_button_reportGameIssue")}
     </Button>
   </div>
-  <div class="flex mt-auto justify-end">
+  <div class="flex mt-auto pb-16 justify-end">
     <p class="text-gray-500 text-xs text-center">
       All third party trademarks (including but not limited to: logos and icons)
       referenced by OpenGOAL remain the property of their respective owners.
