@@ -129,7 +129,7 @@
     </p>
     <p class="font-mono text-sm">
       {$VersionStore.activeVersionName === null
-        ? "not set!"
+        ? $_("header_toolingNotSet")
         : $VersionStore.activeVersionName}
     </p>
   </div>

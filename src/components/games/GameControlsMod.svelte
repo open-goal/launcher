@@ -167,7 +167,7 @@
         installedMods[$modInfoStore?.source][$modInfoStore?.name];
       $VersionStore.activeVersionName = currentlyInstalledVersion;
     } else {
-      $VersionStore.activeVersionName = "not set!";
+      $VersionStore.activeVersionName = $_("header_toolingNotSet");
     }
 
     for (const version of modVersionListSorted) {
