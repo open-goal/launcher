@@ -4,12 +4,14 @@
   import { Select, Label, Helper } from "flowbite-svelte";
   import { setLocale } from "$lib/rpc/config";
   import { invalidateAll } from "$app/navigation";
+  import { launcherConfig } from "$lib/stores/Config";
 
   const LOCALES = AVAILABLE_LOCALES.map((locale) => ({
     value: locale.id,
     name: locale.localizedName,
   }));
 
+  // let selectedLocale = $state($launcherConfig.locale);
   let selectedLocale = $state("");
 </script>
 

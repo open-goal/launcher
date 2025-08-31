@@ -64,6 +64,6 @@ export const load = (async ({ params }) => {
     rawSourceData as Record<string, ModSourceData>,
     game,
   );
-  console.log(sourceData);
+  // console.log(sourceData);
   return { sources, sourceData, installedMods };
 }) satisfies PageLoad;

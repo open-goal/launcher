@@ -18,6 +18,7 @@
   import { relaunch } from "@tauri-apps/plugin-process";
   import { ask } from "@tauri-apps/plugin-dialog";
   import { invalidateAll } from "$app/navigation";
+  import { launcherConfig } from "$lib/stores/Config";
 
   let { config } = $props();
   const appWindow = getCurrentWebviewWindow();
@@ -57,7 +58,7 @@
 
   async function installLatestVersion() {
     const latest = await getLatestOfficialRelease();
-    if (config.autoUpdateGames) {
+    if ($launcherConfig.autoUpdateGames) {
       await downloadOfficialVersion(latest);
       await removeOldVersions();
       await saveActiveVersionChange(latest);
