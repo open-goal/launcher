@@ -1,4 +1,4 @@
-import { getModSources, getModSourcesData } from "$lib/rpc/features";
+import { getModSources } from "$lib/rpc/features";
 import type { PageLoad } from "./$types";
 
 export const load = (async () => {
