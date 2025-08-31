@@ -77,10 +77,7 @@ export async function deleteTexturePacks(
   );
 }
 
-export async function addModSource(
-  url: string,
-  currentSources: Record<string, ModSourceData>,
-): Promise<boolean> {
+export async function addModSource(url: string): Promise<boolean> {
   // Check that the URL is valid, easiest to do this on the client-side
   try {
     const sourceResp = await fetch(url);
@@ -91,6 +88,7 @@ export async function addModSource(
       );
       return false;
     }
+    const currentSources = getModSourcesData();
     const newSourceData = await sourceResp.json();
     // Make sure that we don't already have a mod source with the same display name
     for (const [sourceUrl, sourceData] of Object.entries(currentSources)) {
@@ -146,6 +144,15 @@ export async function getModSources(): Promise<ModSource[]> {
     { key: "mod_sources" },
     () => [],
   );
+}
+
+export async function getModSourcesData(): Promise<
+  Record<string, ModSourceData>
+> {
+  return await invoke_rpc("get_mod_sources_data", {}, () => {
+    let val: Record<string, ModSourceData> = {};
+    return val;
+  });
 }
 
 export async function extractNewMod(
