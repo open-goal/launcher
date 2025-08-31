@@ -1,20 +1,17 @@
-import { getInstallationDirectory } from "$lib/rpc/config.js";
+import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame.js";
 import { redirect } from "@sveltejs/kit";
 
 export const ssr = false; // client-only
 
-export const load = () => {
-  let hasInstallDir = getInstallationDirectory();
-  let testing = false; // TODO: remove this after im done developing splash
+export const load = async ({ parent }) => {
+  const { config } = await parent();
+  const hasInstallDir = config.installationDir;
+  const testing = false; // TODO: remove this after im done developing splash
   if (!hasInstallDir || testing) {
     throw redirect(307, "/setup");
   }
 
-  const last = localStorage.getItem("lastGame") as
-    | "jak1"
-    | "jak2"
-    | "jak3"
-    | null;
+  const last = localStorage.getItem("lastGame") as SupportedGame;
   const target = last ?? "jak1";
   throw redirect(307, `/${target}`);
 };
