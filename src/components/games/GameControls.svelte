@@ -114,7 +114,7 @@
       <DropdownItem
         onclick={async () => {
           launchGameWithCustomExecutable($activeGame);
-        }}>Launch with Custom Executable</DropdownItem
+        }}>{$_("gameControls_button_customExe")}</DropdownItem
       >
       <DropdownItem
         onclick={async () => {
