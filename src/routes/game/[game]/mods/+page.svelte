@@ -95,8 +95,8 @@
   }
 </script>
 
-<div class="flex flex-col h-full bg-[#1e1e1e]">
-  <div class="pb-20 overflow-y-auto p-4">
+<div class="flex flex-col h-screen bg-zinc-900">
+  <div class="pb-20 overflow-y-scroll px-4 pt-4">
     <div class="flex flex-row gap-2 items-center">
       <Button
         outline
@@ -225,12 +225,12 @@
                     <h3 class="text-outline">
                       {modInfo.displayName}
                     </h3>
-                    <div class="absolute top-0 right-0 m-2 flex gap-1">
+                    <!-- <div class="absolute top-0 right-0 m-2 flex gap-1">
                       <IconGlobe />
                       <Tooltip placement="bottom"
                         >{sourceInfo.sourceName}</Tooltip
                       >
-                    </div>
+                    </div> -->
                     {#if modAge && modAge < 30}
                       <Indicator
                         color="green"
