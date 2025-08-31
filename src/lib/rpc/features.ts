@@ -118,7 +118,7 @@ export async function addModSource(url: string): Promise<boolean> {
   );
 }
 
-export async function removeModSource(modSource: string): Promise<void> {
+export async function removeModSource(modSource: ModSource): Promise<void> {
   await invoke_rpc(
     "update_setting_value",
     {
