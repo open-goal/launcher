@@ -122,7 +122,7 @@
           </p>
           <a
             class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
-            href={`/settings/mod`}>{$_("features_mods_go_to_settings")}</a
+            href={`/settings/mods`}>{$_("features_mods_go_to_settings")}</a
           >
         </div>
       {:else}
