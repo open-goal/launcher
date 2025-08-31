@@ -8,24 +8,24 @@ use crate::{
 use super::CommandError;
 
 #[tauri::command]
-pub async fn refresh_mod_sources(
+pub async fn refresh(
   cache: tauri::State<'_, tokio::sync::Mutex<LauncherCache>>,
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<(), CommandError> {
-  let mut cache_lock = cache.lock().await;
-  let config_lock = config.lock().await;
-  let mod_sources = config_lock.mod_sources.clone();
-  cache_lock
-    .refresh_mod_sources(mod_sources)
+  let sources = { config.lock().await.mod_sources.clone() };
+  let mut cache = cache.lock().await;
+  cache
+    .refresh(&sources)
     .await
-    .map_err(|_| CommandError::Cache("Unable to refresh mod source cache".to_owned()))?;
+    .map_err(|e| CommandError::Cache(format!("Unable to refresh mod source cache: {e}")))?;
   Ok(())
 }
 
 #[tauri::command]
 pub async fn get_mod_sources_data(
   cache: tauri::State<'_, tokio::sync::Mutex<LauncherCache>>,
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<HashMap<String, ModSourceData>, CommandError> {
-  let cache_lock = cache.lock().await;
-  Ok(cache_lock.mod_sources.clone())
+  refresh(cache.clone(), config).await?;
+  Ok(cache.lock().await.mod_sources.clone())
 }

@@ -71,21 +71,18 @@ impl LauncherCache {
     }
   }
 
-  pub async fn refresh_mod_sources(&mut self, sources: Vec<String>) -> Result<(), CacheError> {
+  pub async fn refresh(&mut self, sources: &[String]) -> Result<(), CacheError> {
     self.mod_sources.clear();
+
     for source in sources {
-      let source_json = download_json(&source).await;
-      match source_json {
-        Ok(json) => match serde_json::from_str(&json) {
-          Ok(json_value) => {
-            let source_data: ModSourceData = json_value;
-            self.mod_sources.insert(source, source_data);
+      match download_json(source).await {
+        Ok(json) => match serde_json::from_str::<ModSourceData>(&json) {
+          Ok(data) => {
+            self.mod_sources.insert(source.clone(), data);
           }
-          Err(err) => error!("Unable to convert {json} to typed value: {err:?}"),
+          Err(err) => error!("Unable to convert downloaded json to ModSourceData: {err:?}"),
         },
-        Err(err) => {
-          error!("Unable to download json from {source}: {err:?}")
-        }
+        Err(err) => error!("Unable to download json from {source}: {err:?}"),
       }
     }
     Ok(())
