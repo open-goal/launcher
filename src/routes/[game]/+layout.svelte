@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { LayoutProps } from "./$types";
   import { page } from "$app/state";
+  import GameInProgress from "../../components/GameInProgress.svelte";
 
   let { data, children }: LayoutProps = $props();
   const game = $derived(page.params.game);
@@ -14,5 +15,9 @@
   alt=""
 />
 
-<!-- keep this its important -->
-{@render children()}
+<!-- TODO: get rid of this conditional when jak3 is released, keep {@render children()} -->
+{#if game == "jak3"}
+  <GameInProgress></GameInProgress>
+{:else}
+  {@render children()}
+{/if}
