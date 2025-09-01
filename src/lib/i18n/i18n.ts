@@ -26,6 +26,11 @@ export const AVAILABLE_LOCALES: Locale[] = [
       "https://github.com/open-goal/launcher-assets/releases/download/fonts%2Fv1.0.0/NotoSansArabic-VariableFont.woff2",
   },
   {
+    id: "bs-BA",
+    flag: "🇧🇦",
+    localizedName: "Bosanski",
+  },
+  {
     id: "ca-ES",
     flag: "🇪🇸",
     localizedName: "Català",
