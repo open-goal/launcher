@@ -2,20 +2,32 @@ import { configDir, join } from "@tauri-apps/api/path";
 import type { PageLoad } from "./$types";
 import { redirect } from "@sveltejs/kit";
 import {
+  doesActiveToolingVersionSupportGame,
   isAVXRequirementMet,
   isDiskSpaceRequirementMet,
   isMinimumVCCRuntimeInstalled,
   isOpenGLRequirementMet,
 } from "$lib/rpc/config";
 import { type } from "@tauri-apps/plugin-os";
+import { ensureActiveVersionStillExists } from "$lib/rpc/versions";
 
 export const load = (async ({ parent, params }) => {
   const game = params.game;
   const { config } = await parent();
   const gameConfig = config.games[game];
 
+  const supported = await doesActiveToolingVersionSupportGame(game);
+  if (!supported) {
+    throw redirect(308, `/${game}/unsupported`)
+  }
+
   const installed = gameConfig.isInstalled;
   if (!installed) {
+    throw redirect(308, `/${game}/install`);
+  }
+
+  const versionExists = await ensureActiveVersionStillExists();
+  if (!versionExists) {
     throw redirect(308, `/${game}/install`);
   }
 
