@@ -7,12 +7,12 @@
   $effect(() => localStorage.setItem("lastGame", game));
 </script>
 
-<!-- keep this its important -->
-{@render children()}
-
 <!-- BACKGROUND -->
 <img
   class="absolute right-0 top-0 w-screen h-screen -z-100"
   src={`/images/${game}/background.webp`}
   alt=""
 />
+
+<!-- keep this its important -->
+{@render children()}
