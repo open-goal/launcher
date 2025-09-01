@@ -13,6 +13,7 @@
       page.route.id?.startsWith("/settings") ||
       page.route.id?.startsWith("/update") ||
       page.route.id?.startsWith("/faq") ||
+      page.route.id?.startsWith("/requirements") ||
       page.route.id?.endsWith("/mods") ||
       page.route.id?.endsWith("/textures");
     return isOpaque
