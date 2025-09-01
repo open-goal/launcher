@@ -5,7 +5,7 @@
   import { goto } from "$app/navigation";
 
   let { data }: PageProps = $props();
-  const game = data.game;
+  const game = $derived(data.game);
   let installing = $state(false);
   const proceedAfterSuccessfulOperation = false;
   async function install() {
