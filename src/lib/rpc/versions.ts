@@ -23,6 +23,17 @@ export async function downloadOfficialVersion(
   );
 }
 
+export async function downloadLatestOfficialVersion(): Promise<boolean> {
+  const { version, downloadUrl } = await getLatestOfficialRelease();
+  return await invoke_rpc(
+    "download_version",
+    { version, downloadUrl, versionFolder: "official" },
+    () => false,
+    "Unable to download official version",
+    () => true,
+  );
+}
+
 export async function removeVersion(release: ReleaseInfo): Promise<boolean> {
   const { version } = release;
   return await invoke_rpc(
