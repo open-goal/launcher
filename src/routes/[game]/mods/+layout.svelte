@@ -19,7 +19,11 @@
 
   async function addModFromFile(evt: Event) {
     addingMod = true;
-    const modArchivePath = await filePrompt(["zip"], "ZIP", "Select a mod");
+    const modArchivePath = await filePrompt(
+      ["zip, gz"],
+      ".zip, .gz",
+      "Select a mod",
+    );
     if (modArchivePath === null) {
       addingMod = false;
       return;
