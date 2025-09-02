@@ -55,6 +55,8 @@
         event.preventDefault();
       }
     });
+    // Disable selecting elements
+    document.onselectstart = new Function ("return false");
     // Disable Refreshing (F5 / Ctrl+R)
     document.addEventListener("keydown", (e) => {
       if (e.code == "F5") {
