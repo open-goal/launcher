@@ -33,9 +33,18 @@
 
   // temporary while i figure out what the hell this code is doing
   const modVersionListSorted = mod.versions;
-  console.log(modVersionListSorted);
+  // console.log(modVersionListSorted);
   let checkForLatestModVersionChecked = false;
 </script>
+
+<!-- BACKGROUND -->
+<img
+  class="absolute right-0 top-0 w-screen h-screen -z-100"
+  src={mod.coverArtUrl ||
+    mod.perGameConfig[game].coverArtUrl ||
+    `/images/mod/coverart-placeholder.webp`}
+  alt=""
+/>
 
 <div class="absolute right-4 bottom-4 z-0">
   <h1

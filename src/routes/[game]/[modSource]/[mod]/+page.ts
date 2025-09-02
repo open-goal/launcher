@@ -8,7 +8,7 @@ export const load = (async ({ params, parent }) => {
   const source = params.modSource;
   const mod = params.mod;
   const gameConfig = config.games[game];
-  const installedVersion = config.games[game].mods[source][mod.displayName];
+  const installedVersion = config.games[game].mods[source]?.[mod.displayName];
 
   const modSourceData = await getModSourcesData();
   const modInfo: ModInfo = modSourceData[source].mods[mod];
