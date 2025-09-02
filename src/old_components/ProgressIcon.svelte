@@ -3,6 +3,7 @@
   import IconDots from "~icons/mdi/dots-horizontal";
   import IconAlert from "~icons/mdi/stop-alert";
   import IconHourglass from "~icons/mdi/hourglass";
+  import { _ } from "svelte-i18n";
 
   export let step;
   let { status, label } = step;
@@ -23,6 +24,6 @@
     {/if}
   </div>
   <div class="text-center text-outline font-semibold mt-2">
-    {label}
+    {$_(label)}
   </div>
 </div>

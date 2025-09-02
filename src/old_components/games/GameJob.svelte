@@ -5,15 +5,7 @@
   import { Alert, Button } from "flowbite-svelte";
   import { progressTracker } from "$lib/stores/ProgressStore";
   import type { Job } from "$lib/utils/jobs";
-  import {
-    runCompiler,
-    runDecompiler,
-    updateDataDirectory,
-  } from "$lib/rpc/binaries";
-  import {
-    finalizeInstallation,
-    getProceedAfterSuccessfulOperation,
-  } from "$lib/rpc/config";
+  import { getProceedAfterSuccessfulOperation } from "$lib/rpc/config";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { _ } from "svelte-i18n";
   import {
@@ -25,7 +17,6 @@
     saveModInstallInfo,
   } from "$lib/rpc/features";
   import { isoPrompt } from "$lib/utils/file-dialogs";
-  import { emit } from "@tauri-apps/api/event";
   import { activeGame } from "$lib/stores/AppStore";
 
   export let jobType: Job;
@@ -51,100 +42,6 @@
   ) {
     progressTracker.clear();
     dispatch("jobFinished");
-  }
-
-  async function setupDecompileJob() {
-    installationError = undefined;
-    progressTracker.init([
-      {
-        status: "queued",
-        label: $_("setup_decompile"),
-      },
-      {
-        status: "queued",
-        label: $_("setup_done"),
-      },
-    ]);
-    progressTracker.start();
-    let resp = await runDecompiler("", $activeGame, true, true);
-    if (!resp.success) {
-      progressTracker.halt();
-      installationError = resp.msg;
-      return;
-    }
-    progressTracker.proceed();
-    progressTracker.proceed();
-  }
-
-  async function setupCompileJob() {
-    installationError = undefined;
-    progressTracker.init([
-      {
-        status: "queued",
-        label: $_("setup_compile"),
-      },
-      {
-        status: "queued",
-        label: $_("setup_done"),
-      },
-    ]);
-    progressTracker.start();
-    let resp = await runCompiler("", $activeGame, true);
-    if (!resp.success) {
-      progressTracker.halt();
-      installationError = resp.msg;
-      return;
-    }
-    progressTracker.proceed();
-    progressTracker.proceed();
-  }
-
-  async function setupUpdateGameJob() {
-    installationError = undefined;
-    progressTracker.init([
-      {
-        status: "queued",
-        label: $_("setup_copyFiles"),
-      },
-      {
-        status: "queued",
-        label: $_("setup_decompile"),
-      },
-      {
-        status: "queued",
-        label: $_("setup_compile"),
-      },
-      {
-        status: "queued",
-        label: $_("setup_done"),
-      },
-    ]);
-    progressTracker.start();
-    let resp = await updateDataDirectory($activeGame);
-    if (!resp.success) {
-      progressTracker.halt();
-      installationError = resp.msg;
-      return;
-    }
-    progressTracker.proceed();
-    resp = await runDecompiler("", $activeGame, true, false);
-    if (!resp.success) {
-      progressTracker.halt();
-      installationError = resp.msg;
-      return;
-    }
-    progressTracker.proceed();
-    resp = await runCompiler("", $activeGame);
-    if (!resp.success) {
-      progressTracker.halt();
-      installationError = resp.msg;
-      return;
-    }
-    progressTracker.proceed();
-    await finalizeInstallation($activeGame);
-    await emit("gameInstalled");
-    progressTracker.proceed();
-    location.reload();
   }
 
   async function setupModInstallation() {
@@ -371,21 +268,8 @@
     progressTracker.proceed();
   }
 
-  // This is basically a stripped down `GameSetup` component that doesn't care about user initiation,
-  // requirement checking, etc
-  //
-  // It's used to provide almost the same interface as the normal installation, with logs, etc
-  // but for arbitrary jobs.  Such as updating versions, decompiling, or compiling.
-  //
-  // TODO - break this up into multiple files, getting cumbersome
   onMount(async () => {
-    if (jobType === "decompile") {
-      await setupDecompileJob();
-    } else if (jobType === "compile") {
-      await setupCompileJob();
-    } else if (jobType === "updateGame") {
-      await setupUpdateGameJob();
-    } else if (jobType === "installMod") {
+    if (jobType === "installMod") {
       await setupModInstallation();
     } else if (jobType === "installModExternal") {
       await setupModInstallationExternal();

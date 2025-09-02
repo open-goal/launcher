@@ -20,6 +20,7 @@
   } from "$lib/rpc/binaries";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
+  import { compileJob, decompileJob, runJob } from "$lib/utils/jobs";
 
   let textureSupportEnabled = true;
   let { data, params }: PageProps = $props();
@@ -96,9 +97,7 @@
       <DropdownDivider />
       <DropdownItem
         onclick={async () => {
-          dispatch("job", {
-            type: "decompile",
-          });
+          await runJob(decompileJob(activeGame));
         }}
         >{$_("gameControls_button_decompile")}
         <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
@@ -108,9 +107,7 @@
       >
       <DropdownItem
         onclick={async () => {
-          dispatch("job", {
-            type: "compile",
-          });
+          await runJob(compileJob(activeGame));
         }}
         >{$_("gameControls_button_compile")}
         <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->

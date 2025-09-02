@@ -17,6 +17,7 @@ interface ProgressTracker {
   overallStatus: ProgressStatus;
   steps: ProgressStep[];
   logs: string[];
+  error?: string | undefined;
 }
 
 const storeValue: ProgressTracker = {
@@ -79,6 +80,13 @@ function createProgressTracker() {
         logs: [],
       });
     },
+    fail: (err: string | undefined) =>
+      update((v) => {
+        v.overallStatus = "failed";
+        v.steps[v.currentStep].status = "failed";
+        v.error = err;
+        return v;
+      }),
   };
 }
 
