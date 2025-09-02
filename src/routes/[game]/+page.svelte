@@ -31,14 +31,28 @@
   const savesDir = $derived(data.savesDir);
   const settingsDir = $derived(data.settingsDir);
   const texturesSupported = $derived(data.texturesSupported);
+  const bgVideo = $derived(data.bgVideo);
 </script>
 
 <!-- BACKGROUND -->
-<img
-  class="absolute right-0 top-0 w-screen h-screen -z-100"
-  src={`/images/${activeGame}/background.webp`}
-  alt=""
-/>
+<!-- background video needs to extend past the sidebar, TODO: figure this out -->
+{#if bgVideo}
+  <video
+    class="flex h-screen w-screen object-fill -z-100"
+    poster={`/images/${activeGame}/background.webp`}
+    src={bgVideo}
+    autoplay
+    muted
+    loop
+  >
+  </video>
+{:else}
+  <img
+    class="absolute right-0 top-0 w-screen h-screen -z-100"
+    src={`/images/${activeGame}/background.webp`}
+    alt=""
+  />
+{/if}
 
 <!-- GAME CONTROLS -->
 <div class="absolute right-4 bottom-4 z-0">

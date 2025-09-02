@@ -1,4 +1,4 @@
-import { configDir, join } from "@tauri-apps/api/path";
+import { appDataDir, configDir, join } from "@tauri-apps/api/path";
 import type { PageLoad } from "./$types";
 import { redirect } from "@sveltejs/kit";
 import {
@@ -11,6 +11,8 @@ import {
 } from "$lib/rpc/config";
 import { type } from "@tauri-apps/plugin-os";
 import { ensureActiveVersionStillExists } from "$lib/rpc/versions";
+import { exists } from "@tauri-apps/plugin-fs";
+import { convertFileSrc } from "@tauri-apps/api/core";
 
 export const load = (async ({ parent, params }) => {
   const game = params.game;
@@ -74,11 +76,19 @@ export const load = (async ({ parent, params }) => {
 
   const texturesSupported = await doesActiveToolingVersionMeetMinimum(0, 2, 13);
 
+  let bgVideo = null;
+  const appDataDirPath = await appDataDir();
+  const bgVideoPath = await join(appDataDirPath, "backgrounds", `${game}.mp4`);
+  if (await exists(bgVideoPath)) {
+    bgVideo = convertFileSrc(bgVideoPath);
+  }
+
   return {
     gameDataDir,
     extractedAssetsDir,
     savesDir,
     settingsDir,
     texturesSupported,
+    bgVideo,
   };
 }) satisfies PageLoad;
