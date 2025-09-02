@@ -56,6 +56,7 @@ tauri-plugin-clipboard-manager = "2.3.0"
 tauri-plugin-os = "2.3.1"
 tauri-plugin-notification = "2.3.1"
 tauri-plugin-process = "2.3.0"
+tauri-plugin-window-state = "2.4.0"
 strum_macros = "0.27.2"
 tauri-plugin-opener = "2"
 

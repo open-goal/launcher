@@ -19,6 +19,7 @@
   import { ask } from "@tauri-apps/plugin-dialog";
   import { invalidateAll } from "$app/navigation";
   import { launcherConfig } from "$lib/stores/Config";
+  import { saveWindowState, StateFlags } from "@tauri-apps/plugin-window-state";
 
   let { config } = $props();
   const appWindow = getCurrentWebviewWindow();
@@ -108,7 +109,13 @@
     <button class="hover:text-amber-600" onclick={() => appWindow.minimize()}>
       <IconWindowMinimize />
     </button>
-    <button class="hover:text-red-600" onclick={() => appWindow.close()}>
+    <button
+      class="hover:text-red-600"
+      onclick={async () => {
+        await saveWindowState(StateFlags.ALL);
+        await appWindow.close();
+      }}
+    >
       <IconWindowClose />
     </button>
   </div>

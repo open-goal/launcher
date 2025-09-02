@@ -66,6 +66,7 @@
     "global-shortcut:allow-unregister",
     "global-shortcut:allow-unregister-all",
     "opener:default",
-    "opener:allow-reveal-item-in-dir"
+    "opener:allow-reveal-item-in-dir",
+    "window-state:allow-save-window-state"
   ]
 }
