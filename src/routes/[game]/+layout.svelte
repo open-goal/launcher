@@ -8,15 +8,14 @@
   $effect(() => localStorage.setItem("lastGame", game));
 </script>
 
-<!-- BACKGROUND -->
-<img
-  class="absolute right-0 top-0 w-screen h-screen -z-100"
-  src={`/images/${game}/background.webp`}
-  alt=""
-/>
-
 <!-- TODO: get rid of this conditional when jak3 is released, keep {@render children()} -->
 {#if game == "jak3"}
+  <!-- BACKGROUND -->
+  <img
+    class="absolute right-0 top-0 w-screen h-screen -z-100"
+    src={`/images/${game}/background.webp`}
+    alt=""
+  />
   <GameInProgress></GameInProgress>
 {:else}
   {@render children()}
