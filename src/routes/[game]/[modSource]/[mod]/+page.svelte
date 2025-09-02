@@ -12,7 +12,7 @@
   import IconCog from "~icons/mdi/cog";
   import type { PageProps } from "./mod/$types";
   import { _ } from "svelte-i18n";
-  import { goto } from "$app/navigation";
+  import { goto, invalidateAll } from "$app/navigation";
   import {
     getLaunchModString,
     launchMod,
@@ -22,14 +22,16 @@
   } from "$lib/rpc/features";
   import { writeText } from "@tauri-apps/plugin-clipboard-manager";
   import { revealItemInDir } from "@tauri-apps/plugin-opener";
+  import { installModExternal, runJob } from "$lib/utils/jobs";
 
   let { data }: PageProps = $props();
   const config = $derived(data.config);
   const game = $derived(data.game);
   const mod = $derived(data.modInfo);
+  const modName = $derived(data.modName);
   const source = $derived(data.source);
-  console.log(mod);
   const installedVersion = $derived(data.installedVersion);
+  const versions = $derived(data.versions);
 
   // temporary while i figure out what the hell this code is doing
   const modVersionListSorted = mod.versions;
@@ -110,7 +112,7 @@
           }}>{$_("gameControls_update_mod")}</Button
         >
       {/if}
-      {#if modVersionListSorted.length > 0}
+      {#if versions.length > 0}
         <Button
           class="relative text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
         >
@@ -132,7 +134,7 @@
             >{$_("gameControls_always_use_newest_tooltip")}</Tooltip
           >
           <DropdownDivider />
-          {#each modVersionListSorted as version, i}
+          {#each versions as { version, url }}
             {#if version === installedVersion}
               <DropdownItem class="text-orange-400 w-full">
                 {version}
@@ -142,7 +144,10 @@
               <DropdownItem
                 class="w-full"
                 onclick={async () => {
-                  // await addModFromUrl(modAssetUrlsSorted[i], mod.source, version);
+                  await runJob(
+                    installModExternal(game, modName, source, version, url),
+                  );
+                  await invalidateAll();
                 }}>{version}</DropdownItem
               >
             {/if}
