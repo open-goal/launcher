@@ -67,6 +67,18 @@
           >{$_("gameName_jak3")}</Tooltip
         >
       </li>
+      <li>
+        <a
+          id="mods"
+          class={getNavItemStyle("mods", page.route.id)}
+          href="/mods"
+        >
+          <img src="/images/mods.webp" alt="mods" aria-label="mods" />
+        </a>
+        <Tooltip triggeredBy="#mods" placement="right" type="dark"
+          >{$_("settings_tabs_mods")}</Tooltip
+        >
+      </li>
     </div>
 
     <div class="flex flex-col items-center space-y-16 pb-16">
