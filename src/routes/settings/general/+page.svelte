@@ -80,7 +80,9 @@
     <Toggle
       color="orange"
       bind:checked={config.autoUpdateGames}
-      onchange={async () => {}}
+      onchange={async () => {
+        await setAutoUpdateGames(config.autoUpdateGames);
+      }}
       class="mb-2">{$_("settings_general_keep_updated")}</Toggle
     >
     {#if config.autoUpdateGames}
