@@ -12,7 +12,6 @@
     baseGameIsoExists,
     compileForModInstall,
     decompileForModInstall,
-    downloadAndExtractNewMod,
     extractIsoForModInstall,
     saveModInstallInfo,
   } from "$lib/rpc/features";
@@ -21,8 +20,6 @@
 
   export let jobType: Job;
 
-  // mods
-  export let modDownloadUrl: string | undefined = undefined;
   export let modSourceName: string | undefined = undefined;
   export let modName: string | undefined = undefined;
   export let modVersion: string | undefined = undefined;
@@ -127,95 +124,6 @@
     progressTracker.proceed();
   }
 
-  async function setupModInstallationExternal() {
-    // Check to see if we need to prompt for the ISO or not
-    installationError = undefined;
-    let jobs = [];
-    const isoAlreadyExtracted = await baseGameIsoExists($activeGame);
-    jobs.push(
-      {
-        status: "queued",
-        label: $_("setup_extractAndVerify"),
-      },
-      {
-        status: "queued",
-        label: $_("setup_decompile"),
-      },
-      {
-        status: "queued",
-        label: $_("setup_compile"),
-      },
-      {
-        status: "queued",
-        label: $_("setup_done"),
-      },
-    );
-    progressTracker.init(jobs);
-    progressTracker.start();
-    if (!isoAlreadyExtracted) {
-      let sourcePath = await isoPrompt(
-        $_("setup_prompt_ISOFileLabel"),
-        $_("setup_prompt_selectISO"),
-      );
-      if (sourcePath !== undefined) {
-        let resp = await extractIsoForModInstall(
-          $activeGame,
-          modName,
-          modSourceName,
-          sourcePath,
-        );
-        if (!resp.success) {
-          progressTracker.halt();
-          installationError = resp.msg;
-          return;
-        }
-      } else {
-        progressTracker.halt();
-        installationError = "Can't continue without an ISO - TODO translate";
-        return;
-      }
-    }
-    // extract the file into install_dir/features/<game>/<sourceName>/<modName>
-    let resp = await downloadAndExtractNewMod(
-      $activeGame,
-      modDownloadUrl,
-      modName,
-      modSourceName,
-    );
-    if (!resp.success) {
-      progressTracker.halt();
-      installationError = resp.msg;
-      return;
-    }
-    progressTracker.proceed();
-    resp = await decompileForModInstall($activeGame, modName, modSourceName);
-    if (!resp.success) {
-      progressTracker.halt();
-      installationError = resp.msg;
-      return;
-    }
-    progressTracker.proceed();
-    resp = await compileForModInstall($activeGame, modName, modSourceName);
-    if (!resp.success) {
-      progressTracker.halt();
-      installationError = resp.msg;
-      return;
-    }
-    progressTracker.proceed();
-    resp = await saveModInstallInfo(
-      $activeGame,
-      modName,
-      modSourceName,
-      modVersion,
-    );
-    if (!resp.success) {
-      progressTracker.halt();
-      installationError = resp.msg;
-      return;
-    }
-    progressTracker.proceed();
-  }
-
   async function setupDecompileModJob() {
     // Check to see if we need to prompt for the ISO or not
     installationError = undefined;
@@ -271,8 +179,6 @@
   onMount(async () => {
     if (jobType === "installMod") {
       await setupModInstallation();
-    } else if (jobType === "installModExternal") {
-      await setupModInstallationExternal();
     } else if (jobType === "decompileMod") {
       await setupDecompileModJob();
     } else if (jobType === "compileMod") {
