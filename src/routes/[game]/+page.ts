@@ -18,7 +18,7 @@ export const load = (async ({ parent, params }) => {
 
   const supported = await doesActiveToolingVersionSupportGame(game);
   if (!supported) {
-    throw redirect(308, `/${game}/unsupported`)
+    throw redirect(308, `/${game}/unsupported`);
   }
 
   const installed = gameConfig.isInstalled;

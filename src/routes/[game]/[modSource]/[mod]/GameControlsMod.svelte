@@ -13,12 +13,10 @@
     DropdownItem,
     DropdownDivider,
     Helper,
-    Indicator,
     Tooltip,
   } from "flowbite-svelte";
   import { platform } from "@tauri-apps/plugin-os";
   import {
-    getInstallationDirectory,
     setCheckForLatestModVersion,
     getCheckForLatestModVersion,
   } from "$lib/rpc/config";
@@ -26,7 +24,6 @@
   import { navigate } from "svelte-navigator";
   import { toastStore } from "$lib/stores/ToastStore";
   import {
-    getInstalledMods,
     getLaunchModString,
     launchMod,
     openREPLForMod,
@@ -50,7 +47,6 @@
   let modVersionListSorted: string[] = $state([]);
   let modAssetUrlsSorted: string[] = $state([]);
   let currentlyInstalledVersion: string = $state("");
-  let numberOfVersionsOutOfDate = $state(0);
   let userPlatform: string = platform();
   let checkForLatestModVersionChecked = $state(false);
 
@@ -59,10 +55,6 @@
     sourceName: string,
     modVersion: string,
   ) {
-    // install it immediately
-    // - prompt user for iso if it doesn't exist
-    // - decompile
-    // - compile
     dispatch("job", {
       type: "installModExternal",
       modDownloadUrl: url,
@@ -74,53 +66,43 @@
 
   onMount(async () => {
     checkForLatestModVersionChecked = await getCheckForLatestModVersion();
-    let installationDir = await getInstallationDirectory();
-    if (installationDir !== null) {
-      gameDataDir = await join(
-        installationDir,
-        "features",
-        $activeGame,
-        "mods",
-        $modInfoStore?.source,
-        $modInfoStore?.name,
-        "data",
-      );
-      extractedAssetsDir = await join(
-        gameDataDir,
-        "decompiler_out",
-        $activeGame,
-      );
-      settingsDir = await join(
-        installationDir,
-        "features",
-        $activeGame,
-        "mods",
-        $modInfoStore?.source,
-        "_settings",
-        $modInfoStore?.name,
-        "OpenGOAL",
-        $activeGame,
-        "settings",
-      );
-      if (!(await pathExists(settingsDir))) {
-        settingsDir = undefined;
-      }
-      savesDir = await join(
-        installationDir,
-        "features",
-        $activeGame,
-        "mods",
-        $modInfoStore?.source,
-        "_settings",
-        $modInfoStore?.name,
-        "OpenGOAL",
-        $activeGame,
-        "saves",
-      );
-      if (!(await pathExists(savesDir))) {
-        savesDir = undefined;
-      }
+    gameDataDir = await join(
+      installationDir,
+      "features",
+      $activeGame,
+      "mods",
+      $modInfoStore?.source,
+      $modInfoStore?.name,
+      "data",
+    );
+    extractedAssetsDir = await join(gameDataDir, "decompiler_out", $activeGame);
+    settingsDir = await join(
+      installationDir,
+      "features",
+      $activeGame,
+      "mods",
+      $modInfoStore?.source,
+      "_settings",
+      $modInfoStore?.name,
+      "OpenGOAL",
+      $activeGame,
+      "settings",
+    );
+    if (!(await pathExists(settingsDir))) {
+      settingsDir = undefined;
     }
+    savesDir = await join(
+      installationDir,
+      "features",
+      $activeGame,
+      "mods",
+      $modInfoStore?.source,
+      "_settings",
+      $modInfoStore?.name,
+      "OpenGOAL",
+      $activeGame,
+      "saves",
+    );
     // Get a list of available versions, this is how we see if we're on the latest!
     let sourceData = await getModSourcesData();
 
@@ -156,15 +138,12 @@
     }
 
     // get current installed version
-    let installedMods = await getInstalledMods($activeGame);
     if (
       Object.keys(installedMods).includes($modInfoStore?.source) &&
       Object.keys(installedMods[$modInfoStore?.source]).includes(
         $modInfoStore?.name,
       )
     ) {
-      currentlyInstalledVersion =
-        installedMods[$modInfoStore?.source][$modInfoStore?.name];
       $VersionStore.activeVersionName = currentlyInstalledVersion;
     } else {
       $VersionStore.activeVersionName = "not set!";
@@ -174,7 +153,6 @@
       if (version === currentlyInstalledVersion) {
         break;
       }
-      numberOfVersionsOutOfDate = numberOfVersionsOutOfDate + 1;
     }
   });
 
@@ -263,11 +241,6 @@
         class="relative text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
       >
         {$_("features_mods_versions")}
-        {#if numberOfVersionsOutOfDate > 0}
-          <Indicator color="red" border size="xl" placement="top-right">
-            <span class="text-xs font-bold">{numberOfVersionsOutOfDate}</span>
-          </Indicator>
-        {/if}
       </Button>
       <Dropdown
         simple

@@ -85,7 +85,7 @@
               <a
                 class="h-[200px] bg-cover p-1 flex justify-center items-end relative"
                 style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{thumbnailSrc}'); background-size: cover;"
-                href={`/${activeGame}/mods/${sourceName}/${modName}`}
+                href={`${sourceName}/${modName}`}
               >
                 <h3 class="text-outline">
                   {getModDisplayName(sourceName, modName)}
