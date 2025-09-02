@@ -32,6 +32,8 @@
   const source = $derived(data.source);
   const installedVersion = $derived(data.installedVersion);
   const versions = $derived(data.versions);
+  const gameDataDir = data.gameDataDir;
+  const extractedAssetsDir = data.extractedAssetsDir;
 
   // temporary while i figure out what the hell this code is doing
   const modVersionListSorted = mod.versions;
@@ -202,22 +204,24 @@
               >{$_("gameControls_button_compile_helpText")}
             </Helper></DropdownItem
           >
-          <DropdownDivider />
-          <DropdownItem
-            onclick={async () => {
-              if (gameDataDir) {
+          {#if gameDataDir}
+            <DropdownDivider />
+            <DropdownItem
+              onclick={async () => {
                 await revealItemInDir(gameDataDir);
-              }
-            }}>{$_("gameControls_button_openGameFolder")}</DropdownItem
-          >
-          <DropdownItem
-            onclick={async () => {
-              if (extractedAssetsDir) {
+              }}>{$_("gameControls_button_openGameFolder")}</DropdownItem
+            >
+          {/if}
+          {#if extractedAssetsDir}
+            <DropdownItem
+              onclick={async () => {
                 await revealItemInDir(extractedAssetsDir);
-              }
-            }}
-            >{$_("gameControls_button_openExtractedAssetsFolder")}</DropdownItem
-          >
+              }}
+              >{$_(
+                "gameControls_button_openExtractedAssetsFolder",
+              )}</DropdownItem
+            >
+          {/if}
         </Dropdown>
       {/if}
       {#if installedVersion == ""}

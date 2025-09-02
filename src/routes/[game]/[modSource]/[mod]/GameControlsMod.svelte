@@ -50,20 +50,6 @@
   let userPlatform: string = platform();
   let checkForLatestModVersionChecked = $state(false);
 
-  async function addModFromUrl(
-    url: string,
-    sourceName: string,
-    modVersion: string,
-  ) {
-    dispatch("job", {
-      type: "installModExternal",
-      modDownloadUrl: url,
-      modSourceName: sourceName,
-      modName: $modInfoStore?.name,
-      modVersion: modVersion,
-    });
-  }
-
   onMount(async () => {
     checkForLatestModVersionChecked = await getCheckForLatestModVersion();
     gameDataDir = await join(
