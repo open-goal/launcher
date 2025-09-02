@@ -147,7 +147,6 @@
                   await runJob(
                     installModExternal(game, modName, source, version, url),
                   );
-                  await invalidateAll();
                 }}>{version}</DropdownItem
               >
             {/if}

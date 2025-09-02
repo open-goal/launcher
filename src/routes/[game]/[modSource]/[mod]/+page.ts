@@ -13,7 +13,9 @@ export const load = (async ({ params, parent }) => {
 
   const modSourceData = await getModSourcesData();
   const modInfo: ModInfo = modSourceData[source].mods[modName];
-  const versions = modInfo.versions?.filter((v) => v.assets[type()] !== null).map(v => ({ version: v.version, url: v.assets?.[type()] }));
+  const versions = modInfo.versions
+    ?.filter((v) => v.assets[type()] !== null)
+    .map((v) => ({ version: v.version, url: v.assets?.[type()] }));
   // i want versions to look like {version: "", url: ""}
 
   return { modName, source, game, modInfo, installedVersion, versions };
