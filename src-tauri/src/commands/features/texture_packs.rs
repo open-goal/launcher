@@ -6,6 +6,8 @@ use std::{
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use log::{error, info};
+
 use crate::{
   commands::CommandError,
   config::{LauncherConfig, SupportedGame},
@@ -49,7 +51,7 @@ pub async fn list_extracted_texture_pack_info(
     .join(game_name.to_string())
     .join("texture-packs");
   if !expected_path.exists() || !expected_path.is_dir() {
-    log::info!(
+    info!(
       "No {} folder found, returning no texture packs",
       expected_path.display()
     );
@@ -77,7 +79,7 @@ pub async fn list_extracted_texture_pack_info(
           CommandError::GameFeatures(format!("Unable to get directory name for {:?}", entry_path))
         })?;
       // Get a list of all texture files for this pack
-      log::info!("Texture pack dir name: {}", directory_name);
+      info!("Texture pack dir name: {}", directory_name);
       let mut file_list = Vec::new();
       for entry in glob::glob(
         &entry_path
@@ -139,12 +141,12 @@ pub async fn list_extracted_texture_pack_info(
                 pack_info.tags = pack_metadata.tags;
               }
               Err(err) => {
-                log::error!("Unable to parse {}: {}", &content, err);
+                error!("Unable to parse {}: {}", &content, err);
               }
             }
           }
           Err(err) => {
-            log::error!(
+            error!(
               "Unable to read {}: {}",
               entry_path.join("metadata.json").display(),
               err
@@ -188,11 +190,11 @@ pub async fn extract_new_texture_pack(
   let expected_top_level_dir = format!("custom_assets/{game_name}/texture_replacements");
   let valid_zip = check_if_zip_contains_top_level_entry(&zip_path_buf, &expected_top_level_dir)
     .map_err(|err| {
-      log::error!("Unable to read texture replacement zip file: {}", err);
+      error!("Unable to read texture replacement zip file: {}", err);
       CommandError::GameFeatures(format!("Unable to read texture replacement pack: {}", err))
     })?;
   if !valid_zip {
-    log::error!(
+    error!(
       "Invalid texture pack, no top-level `{}` folder in: {}",
       &expected_top_level_dir,
       zip_path_buf.display()
@@ -207,14 +209,14 @@ pub async fn extract_new_texture_pack(
     .join(&texture_pack_name);
   // TODO - delete it
   create_dir(destination_dir).map_err(|err| {
-    log::error!("Unable to create directory for texture pack: {}", err);
+    error!("Unable to create directory for texture pack: {}", err);
     CommandError::GameFeatures(format!(
       "Unable to create directory for texture pack: {}",
       err
     ))
   })?;
   extract_zip_file(&zip_path_buf, destination_dir, false).map_err(|err| {
-    log::error!("Unable to extract replacement pack: {}", err);
+    error!("Unable to extract replacement pack: {}", err);
     CommandError::GameFeatures(format!("Unable to extract texture pack: {}", err))
   })?;
   Ok(true)
@@ -268,10 +270,10 @@ pub async fn update_texture_pack_data(
         .join(game_name.to_string())
         .join("texture_replacements");
 
-      log::info!("Appending textures from: {}", texture_pack_dir.display());
+      info!("Appending textures from: {}", texture_pack_dir.display());
 
       if let Err(err) = overwrite_dir(&texture_pack_dir, &game_texture_pack_dir) {
-        log::error!("Unable to update texture replacements: {}", err);
+        error!("Unable to update texture replacements: {}", err);
         return Ok(GameJobStepOutput {
           success: false,
           msg: Some(format!("Unable to update texture replacements: {}", err)),
@@ -313,11 +315,11 @@ pub async fn delete_texture_packs(
     .join("texture-packs");
 
   for pack in packs {
-    log::info!("Deleting texture pack: {}", pack);
+    info!("Deleting texture pack: {}", pack);
     match delete_dir(texture_pack_dir.join(&pack)) {
       Ok(_) => (),
       Err(err) => {
-        log::error!("Unable to delete texture pack: {}", err);
+        error!("Unable to delete texture pack: {}", err);
         return Ok(GameJobStepOutput {
           success: false,
           msg: Some(format!("Unable to delete texture pack: {}", err)),

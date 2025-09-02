@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use super::{CommandError, util::is_avx_supported};
 use crate::config::{LauncherConfig, SupportedGame};
+use log::{error, info, warn};
 use semver::Version;
 use serde_json::{Value, json};
 use tauri::State;
@@ -37,7 +38,7 @@ pub async fn update_setting_value(
   match &config_lock.update_setting_value(&key, val, game_name) {
     Ok(()) => Ok(()),
     Err(e) => {
-      log::error!("Unable to get setting directory: {:?}", e);
+      error!("Unable to get setting directory: {:?}", e);
       Err(CommandError::Configuration(
         "Unable to update setting".to_owned(),
       ))
@@ -55,7 +56,7 @@ pub async fn get_setting_value(
   match &config_lock.get_setting_value(&key, game_name) {
     Ok(value) => Ok(json!(value)),
     Err(e) => {
-      log::error!("Unable to get setting directory: {:?}", e);
+      error!("Unable to get setting directory: {:?}", e);
       Err(CommandError::Configuration(
         "Unable to get setting".to_owned(),
       ))
@@ -84,7 +85,7 @@ pub async fn update_mods_setting_value(
   ) {
     Ok(()) => Ok(()),
     Err(e) => {
-      log::error!("Unable to get setting directory: {:?}", e);
+      error!("Unable to get setting directory: {:?}", e);
       Err(CommandError::Configuration(
         "Unable to update setting".to_owned(),
       ))
@@ -99,7 +100,7 @@ pub async fn set_install_directory(
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   config_lock.set_install_directory(new_dir).map_err(|err| {
-    log::error!("Unable to persist installation directory: {:?}", err);
+    error!("Unable to persist installation directory: {:?}", err);
     CommandError::Configuration("Unable to persist installation directory".to_owned())
   })
 }
@@ -110,7 +111,7 @@ pub async fn is_avx_requirement_met(
 ) -> Result<bool, CommandError> {
   let mut config_lock = config.lock().await;
   if config_lock.requirements.bypass_requirements {
-    log::warn!("Bypassing the AVX requirements check!");
+    warn!("Bypassing the AVX requirements check!");
     Ok(true)
   } else {
     let _ = config_lock.update_setting_value("avx", is_avx_supported().await.into(), None);
@@ -129,7 +130,7 @@ pub async fn is_opengl_requirement_met(
     config_lock.requirements.opengl = false;
   }
   if config_lock.requirements.bypass_requirements {
-    log::warn!("Bypassing the OpenGL requirements check!");
+    warn!("Bypassing the OpenGL requirements check!");
     return Ok(true);
   }
   // If the value is already set, just return it
@@ -151,13 +152,13 @@ pub async fn is_opengl_requirement_met(
     .unwrap_or(Version::new(0, 1, 37));
   if tooling_version.major == 0 && tooling_version.minor <= 1 && tooling_version.patch < 38 {
     // Assume it's fine
-    log::warn!(
+    warn!(
       "We no longer check for OpenGL support via heuristics, assuming they meet the requirement"
     );
     return Ok(true);
   }
   // Do it the new way!
-  log::info!("Checking for OpenGL support via `gk`");
+  info!("Checking for OpenGL support via `gk`");
   let test_result = crate::util::game_tests::run_game_gpu_test(&config_lock, &app_handle).await?;
   config_lock
     .update_setting_value("opengl_requirements_met", test_result.success.into(), None)
@@ -191,7 +192,7 @@ pub async fn does_active_tooling_version_support_game(
   let version_str = if let Some(v) = &config_lock.active_version {
     v.strip_prefix('v').unwrap_or(v)
   } else {
-    log::warn!("No active tooling version set, can't check the game supports it!");
+    warn!("No active tooling version set, can't check the game supports it!");
     return Ok(false);
   };
 
@@ -220,7 +221,7 @@ pub async fn does_active_tooling_version_meet_minimum(
     let compare_version = Version::new(minimum_major, minimum_minor, minimum_patch);
     Ok(tooling_version >= compare_version)
   } else {
-    log::warn!("No active tooling version set, can't check if the minimum!");
+    warn!("No active tooling version set, can't check if the minimum!");
     Ok(false)
   }
 }

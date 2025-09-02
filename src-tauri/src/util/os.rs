@@ -1,3 +1,5 @@
+use log::{error, info};
+
 #[cfg(not(target_os = "windows"))]
 pub fn get_installed_vcc_runtime() -> Option<semver::Version> {
   None
@@ -16,19 +18,19 @@ pub fn get_installed_vcc_runtime() -> Option<semver::Version> {
     match key.get_value::<u32, _>("Installed") {
       Ok(val) => {
         if val != 1 {
-          log::error!("VCC runtime exists in the registry but is not marked as installed");
+          error!("VCC runtime exists in the registry but is not marked as installed");
           return None;
         }
       }
       Err(err) => {
-        log::error!("Couldn't determine if VCC runtime was installed: {}", err);
+        error!("Couldn't determine if VCC runtime was installed: {}", err);
         return None;
       }
     };
     let patch_version: u32 = match key.get_value("Bld") {
       Ok(val) => val,
       Err(err) => {
-        log::error!(
+        error!(
           "Couldn't determine installed VCC runtime patch version: {}",
           err
         );
@@ -38,7 +40,7 @@ pub fn get_installed_vcc_runtime() -> Option<semver::Version> {
     let minor_version: u32 = match key.get_value("Minor") {
       Ok(val) => val,
       Err(err) => {
-        log::error!(
+        error!(
           "Couldn't determine installed VCC runtime minor version: {}",
           err
         );
@@ -48,7 +50,7 @@ pub fn get_installed_vcc_runtime() -> Option<semver::Version> {
     let major_version: u32 = match key.get_value("Major") {
       Ok(val) => val,
       Err(err) => {
-        log::error!(
+        error!(
           "Couldn't determine installed VCC runtime major version: {}",
           err
         );
@@ -60,7 +62,7 @@ pub fn get_installed_vcc_runtime() -> Option<semver::Version> {
       minor_version.into(),
       patch_version.into(),
     );
-    log::info!("Detected VCC Runtime: {major_version}.{minor_version}.{patch_version}");
+    info!("Detected VCC Runtime: {major_version}.{minor_version}.{patch_version}");
     return Some(installed_version);
   }
   return None;

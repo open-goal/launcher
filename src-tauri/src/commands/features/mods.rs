@@ -6,6 +6,8 @@ use std::{
   process::Stdio,
 };
 
+use ::log::{error, info};
+
 use serde::{Deserialize, Serialize};
 use tauri::Emitter;
 use tokio::{io::AsyncWriteExt, process::Command};
@@ -57,17 +59,17 @@ pub async fn extract_new_mod(
     .join(&mod_name);
   delete_dir(destination_dir)?;
   create_dir(destination_dir).map_err(|err| {
-    log::error!("Unable to create directory for mod: {}", err);
+    error!("Unable to create directory for mod: {}", err);
     CommandError::GameFeatures(format!("Unable to create directory for mod: {}", err))
   })?;
   if cfg!(windows) {
     extract_zip_file(&bundle_path_buf, destination_dir, false).map_err(|err| {
-      log::error!("Unable to extract mod: {}", err);
+      error!("Unable to extract mod: {}", err);
       CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
     })?;
   } else if cfg!(unix) {
     extract_tar_ball(&bundle_path_buf, destination_dir).map_err(|err| {
-      log::error!("Unable to extract mod: {}", err);
+      error!("Unable to extract mod: {}", err);
       CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
     })?;
   } else {
@@ -110,7 +112,7 @@ pub async fn download_and_extract_new_mod(
 
   delete_dir(parent_path)?;
   create_dir(parent_path).map_err(|err| {
-    log::error!("Unable to create directory for mod: {}", err);
+    error!("Unable to create directory for mod: {}", err);
     CommandError::GameFeatures(format!("Unable to create directory for mod: {}", err))
   })?;
   download_file(&download_url, download_path)
@@ -129,12 +131,12 @@ pub async fn download_and_extract_new_mod(
 
   if cfg!(windows) {
     extract_and_delete_zip_file(download_path, parent_path, false).map_err(|err| {
-      log::error!("Unable to extract mod: {}", err);
+      error!("Unable to extract mod: {}", err);
       CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
     })?;
   } else if cfg!(unix) {
     extract_and_delete_tar_ball(download_path, parent_path).map_err(|err| {
-      log::error!("Unable to extract mod: {}", err);
+      error!("Unable to extract mod: {}", err);
       CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
     })?;
   } else {
@@ -192,7 +194,7 @@ fn get_mod_exec_location(
     exec_path.set_extension("exe");
   }
   if !exec_path.exists() {
-    log::error!(
+    error!(
       "Could not find the required binary '{}', can't perform operation",
       exec_path.to_string_lossy()
     );
@@ -239,7 +241,7 @@ pub async fn extract_iso_for_mod_install(
   ) {
     Ok(exec_info) => exec_info,
     Err(_) => {
-      log::error!("extractor executable not found");
+      error!("extractor executable not found");
       return Ok(InstallStepOutput {
         success: false,
         msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
@@ -266,7 +268,7 @@ pub async fn extract_iso_for_mod_install(
     game_name.to_string(),
   ];
 
-  log::info!("Running extractor with args: {:?}", args);
+  info!("Running extractor with args: {:?}", args);
 
   let mut command = Command::new(exec_info.executable_path);
   command
@@ -292,7 +294,7 @@ pub async fn extract_iso_for_mod_install(
   match process_status.code() {
     Some(code) => {
       if code == 0 {
-        log::info!("extraction and validation was successful");
+        info!("extraction and validation was successful");
         return Ok(InstallStepOutput {
           success: true,
           msg: None,
@@ -301,14 +303,14 @@ pub async fn extract_iso_for_mod_install(
       let default_error = LauncherErrorCode {
         msg: format!("Unexpected error occured with code {code}"),
       };
-      log::error!("extraction and validation was not successful. Code {code}");
+      error!("extraction and validation was not successful. Code {code}");
       Ok(InstallStepOutput {
         success: false,
         msg: Some(default_error.msg.clone()),
       })
     }
     None => {
-      log::error!("extraction and validation was not successful. No status code");
+      error!("extraction and validation was not successful. No status code");
       Ok(InstallStepOutput {
         success: false,
         msg: Some("Unexpected error occurred".to_owned()),
@@ -343,7 +345,7 @@ pub async fn decompile_for_mod_install(
   ) {
     Ok(exec_info) => exec_info,
     Err(_) => {
-      log::error!("extractor executable not found");
+      error!("extractor executable not found");
       return Ok(InstallStepOutput {
         success: false,
         msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
@@ -367,7 +369,7 @@ pub async fn decompile_for_mod_install(
     game_name.to_string(),
   ];
 
-  log::info!("Running extractor with args: {:?}", args);
+  info!("Running extractor with args: {:?}", args);
 
   let mut command = Command::new(exec_info.executable_path);
   command
@@ -391,7 +393,7 @@ pub async fn decompile_for_mod_install(
   match process_status.code() {
     Some(code) => {
       if code == 0 {
-        log::info!("decompilation was successful");
+        info!("decompilation was successful");
         return Ok(InstallStepOutput {
           success: true,
           msg: None,
@@ -400,14 +402,14 @@ pub async fn decompile_for_mod_install(
       let default_error = LauncherErrorCode {
         msg: format!("Unexpected error occured with code {code}"),
       };
-      log::error!("decompilation was not successful. Code {code}");
+      error!("decompilation was not successful. Code {code}");
       Ok(InstallStepOutput {
         success: false,
         msg: Some(default_error.msg.clone()),
       })
     }
     None => {
-      log::error!("decompilation was not successful. No status code");
+      error!("decompilation was not successful. No status code");
       Ok(InstallStepOutput {
         success: false,
         msg: Some("Unexpected error occurred".to_owned()),
@@ -442,7 +444,7 @@ pub async fn compile_for_mod_install(
   ) {
     Ok(exec_info) => exec_info,
     Err(_) => {
-      log::error!("extractor executable not found");
+      error!("extractor executable not found");
       return Ok(InstallStepOutput {
         success: false,
         msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
@@ -466,7 +468,7 @@ pub async fn compile_for_mod_install(
     game_name.to_string(),
   ];
 
-  log::info!("Running extractor with args: {:?}", args);
+  info!("Running extractor with args: {:?}", args);
 
   let mut command = Command::new(exec_info.executable_path);
   command
@@ -488,7 +490,7 @@ pub async fn compile_for_mod_install(
   match process_status.code() {
     Some(code) => {
       if code == 0 {
-        log::info!("compilation was successful");
+        info!("compilation was successful");
         return Ok(InstallStepOutput {
           success: true,
           msg: None,
@@ -497,14 +499,14 @@ pub async fn compile_for_mod_install(
       let default_error = LauncherErrorCode {
         msg: format!("Unexpected error occured with code {code}"),
       };
-      log::error!("compilation was not successful. Code {code}");
+      error!("compilation was not successful. Code {code}");
       Ok(InstallStepOutput {
         success: false,
         msg: Some(default_error.msg.clone()),
       })
     }
     None => {
-      log::error!("compilation was not successful. No status code");
+      error!("compilation was not successful. No status code");
       Ok(InstallStepOutput {
         success: false,
         msg: Some("Unexpected error occurred".to_owned()),
@@ -522,7 +524,7 @@ pub async fn save_mod_install_info(
   version_name: String,
 ) -> Result<InstallStepOutput, CommandError> {
   let mut config_lock = config.lock().await;
-  log::info!(
+  info!(
     "Saving mod install info {}, {}, {}, {}",
     game_name.to_string(),
     mod_name,
@@ -539,7 +541,7 @@ pub async fn save_mod_install_info(
       None,
     )
     .map_err(|err| {
-      log::error!("Unable to remove mod source: {:?}", err);
+      error!("Unable to remove mod source: {:?}", err);
       CommandError::Configuration("Unable to remove mod source".to_owned())
     })?;
   Ok(InstallStepOutput {
@@ -611,7 +613,7 @@ pub async fn launch_mod(
   )?;
   let args = generate_launch_mod_args(game_name, in_debug, config_dir, false)?;
 
-  log::info!("Launching gk args: {:?}", args);
+  info!("Launching gk args: {:?}", args);
 
   let log_file = create_std_log_file(
     &app_handle,

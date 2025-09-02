@@ -10,6 +10,7 @@ use tokio::sync::OnceCell;
 use util::file::create_dir;
 
 use backtrace::Backtrace;
+use log::{error, info};
 use native_dialog::{DialogBuilder, MessageLevel};
 use std::io::Write;
 
@@ -28,16 +29,16 @@ fn log_crash(panic_info: Option<&std::panic::PanicHookInfo>, error: Option<tauri
   } else {
     log_contents = format!("unexpected error occurred: {backtrace:?}");
   }
-  log::error!("{}", log_contents);
+  error!("{}", log_contents);
   if let Some(user_dirs) = UserDirs::new() {
     if let Some(desktop_dir) = user_dirs.desktop_dir() {
       match std::fs::File::create(desktop_dir.join("og-launcher-crash.log")) {
         Ok(mut file) => {
           if let Err(err) = file.write_all(log_contents.as_bytes()) {
-            log::error!("unable to log crash report to a file - {:?}", err)
+            error!("unable to log crash report to a file - {:?}", err)
           }
         }
-        Err(err) => log::error!("unable to log crash report to a file - {:?}", err),
+        Err(err) => error!("unable to log crash report to a file - {:?}", err),
       }
     }
   }
@@ -137,7 +138,7 @@ fn main() {
         .apply();
       match log_setup_ok {
         Ok(_) => {
-          log::info!("Logging Initialized");
+          info!("Logging Initialized");
           // Truncate rotated log files to '5'
           let mut paths: Vec<_> = std::fs::read_dir(&log_path)?.map(|r| r.unwrap()).collect();
           paths.sort_by_key(|dir| dir.path());
@@ -146,12 +147,12 @@ fn main() {
           for path in paths {
             i += 1;
             if i > 5 {
-              log::info!("deleting - {}", path.path().display());
+              info!("deleting - {}", path.path().display());
               std::fs::remove_file(path.path())?;
             }
           }
         }
-        Err(err) => log::error!("Could not initialize logging {:?}", err),
+        Err(err) => error!("Could not initialize logging {:?}", err),
       };
 
       // Load the config (or initialize it with defaults)
@@ -231,16 +232,16 @@ fn main() {
     });
   match tauri_setup {
     Ok(app) => {
-      log::info!("application starting up");
+      info!("application starting up");
       app.run(|_app_handle, event| {
         if let RunEvent::ExitRequested { .. } = event {
-          log::info!("Exit requested, exiting!");
+          info!("Exit requested, exiting!");
           std::process::exit(0);
         }
       })
     }
     Err(err) => {
-      log::error!("Could not setup tauri application {:?}, exiting", err);
+      error!("Could not setup tauri application {:?}, exiting", err);
       std::process::exit(1);
     }
   };

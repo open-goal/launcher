@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use log::info;
+use log::{error, info};
 use serde_json::Value;
 
 use crate::{
@@ -30,7 +30,7 @@ pub async fn list_downloaded_versions(
     .join("versions")
     .join(version_folder);
   if !expected_path.exists() || !expected_path.is_dir() {
-    log::info!(
+    info!(
       "No {} folder found, returning no releases",
       expected_path.display()
     );
@@ -122,7 +122,7 @@ pub async fn download_version(
     // Verify that the extracted files seem correct (look for extractor.exe)
     let expected_extractor_path = dest_dir.join("extractor.exe");
     if !expected_extractor_path.exists() {
-      log::info!(
+      info!(
         "Version did not extract properly, {} is missing!",
         expected_extractor_path.display()
       );
@@ -153,7 +153,7 @@ pub async fn download_version(
 
     // Extract the zip file
     extract_and_delete_tar_ball(&download_path, &dest_dir).map_err(|err| {
-      log::error!("unable to extract and delete version tar.gz file {}", err);
+      error!("unable to extract and delete version tar.gz file {}", err);
       CommandError::VersionManagement(
         "Unable to successfully extract downloaded version".to_owned(),
       )
@@ -162,7 +162,7 @@ pub async fn download_version(
     // Verify that the extracted files seem correct (look for extractor.exe)
     let expected_extractor_path = dest_dir.join("extractor");
     if !expected_extractor_path.exists() {
-      log::info!(
+      info!(
         "Version did not extract properly, {} is missing!",
         expected_extractor_path.display()
       );

@@ -10,7 +10,7 @@ use std::{
 };
 use tokio::{io::AsyncWriteExt, process::Command};
 
-use log::{info, warn};
+use log::{error, info, warn};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -170,14 +170,14 @@ pub async fn extract_and_validate_iso(
   let config_info = config_lock.common_prelude()?;
 
   let data_folder = get_data_dir(&config_info, game_name, true)?;
-  log::info!(
+  info!(
     "extracting using data folder: {}",
     data_folder.to_string_lossy()
   );
   let exec_info = match config_info.get_exec_location("extractor") {
     Ok(exec_info) => exec_info,
     Err(_) => {
-      log::error!("extractor executable not found");
+      error!("extractor executable not found");
       return Ok(InstallStepOutput {
         success: false,
         msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
@@ -201,7 +201,7 @@ pub async fn extract_and_validate_iso(
     args.push(game_name.to_string());
   }
 
-  log::info!("Running extractor with args: {:?}", args);
+  info!("Running extractor with args: {:?}", args);
 
   let mut command = Command::new(exec_info.executable_path);
   command
@@ -224,7 +224,7 @@ pub async fn extract_and_validate_iso(
   match process_status.code() {
     Some(code) => {
       if code == 0 {
-        log::info!("extraction and validation was successful");
+        info!("extraction and validation was successful");
         return Ok(InstallStepOutput {
           success: true,
           msg: None,
@@ -235,14 +235,14 @@ pub async fn extract_and_validate_iso(
         msg: format!("Unexpected error occured with code {code}"),
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
-      log::error!("extraction and validation was not successful. Code {code}");
+      error!("extraction and validation was not successful. Code {code}");
       Ok(InstallStepOutput {
         success: false,
         msg: Some(message.msg.clone()),
       })
     }
     None => {
-      log::error!("extraction and validation was not successful. No status code");
+      error!("extraction and validation was not successful. No status code");
       Ok(InstallStepOutput {
         success: false,
         msg: Some("Unexpected error occurred".to_owned()),
@@ -264,14 +264,14 @@ pub async fn run_decompiler(
   let config_info = config_lock.common_prelude()?;
 
   let data_folder = get_data_dir(&config_info, game_name, false)?;
-  log::info!(
+  info!(
     "decompiling using data folder: {}",
     data_folder.to_string_lossy()
   );
   let exec_info = match config_info.get_exec_location("extractor") {
     Ok(exec_info) => exec_info,
     Err(_) => {
-      log::error!("extractor executable not found");
+      error!("extractor executable not found");
       return Ok(InstallStepOutput {
         success: false,
         msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
@@ -338,7 +338,7 @@ pub async fn run_decompiler(
     args.push(format!("{{{}}}", decomp_config_overrides.join(", ")));
   }
 
-  log::info!("Running extractor with args: {:?}", args);
+  info!("Running extractor with args: {:?}", args);
 
   command
     .args(args)
@@ -366,7 +366,7 @@ pub async fn run_decompiler(
   match process_status.code() {
     Some(code) => {
       if code == 0 {
-        log::info!("decompilation was successful");
+        info!("decompilation was successful");
         return Ok(InstallStepOutput {
           success: true,
           msg: None,
@@ -377,14 +377,14 @@ pub async fn run_decompiler(
         msg: format!("Unexpected error occured with code {code}"),
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
-      log::error!("decompilation was not successful. Code {code}");
+      error!("decompilation was not successful. Code {code}");
       Ok(InstallStepOutput {
         success: false,
         msg: Some(message.msg.clone()),
       })
     }
     None => {
-      log::error!("decompilation was not successful. No status code");
+      error!("decompilation was not successful. No status code");
       Ok(InstallStepOutput {
         success: false,
         msg: Some("Unexpected error occurred".to_owned()),
@@ -405,7 +405,7 @@ pub async fn run_compiler(
   let config_info = config_lock.common_prelude()?;
 
   let data_folder = get_data_dir(&config_info, game_name, false)?;
-  log::info!(
+  info!(
     "compiling using data folder: {}",
     data_folder.to_string_lossy()
   );
@@ -440,7 +440,7 @@ pub async fn run_compiler(
     args.push(game_name.to_string());
   }
 
-  log::info!("Running compiler with args: {:?}", args);
+  info!("Running compiler with args: {:?}", args);
 
   let mut command = Command::new(exec_info.executable_path);
   command
@@ -466,7 +466,7 @@ pub async fn run_compiler(
   match process_status.code() {
     Some(code) => {
       if code == 0 {
-        log::info!("compilation was successful");
+        info!("compilation was successful");
         return Ok(InstallStepOutput {
           success: true,
           msg: None,
@@ -477,14 +477,14 @@ pub async fn run_compiler(
         msg: format!("Unexpected error occured with code {code}"),
       };
       let message = error_code_map.get(&code).unwrap_or(&default_error);
-      log::error!("compilation was not successful. Code {code}");
+      error!("compilation was not successful. Code {code}");
       Ok(InstallStepOutput {
         success: false,
         msg: Some(message.msg.clone()),
       })
     }
     None => {
-      log::error!("compilation was not successful. No status code");
+      error!("compilation was not successful. No status code");
       Ok(InstallStepOutput {
         success: false,
         msg: Some("Unexpected error occurred".to_owned()),
@@ -659,7 +659,7 @@ pub async fn launch_game(
 
   let args = generate_launch_game_string(&config_info, game_name, in_debug, false)?;
 
-  log::info!(
+  info!(
     "Launching game version {:?} -> {:?} with args: {:?}. Working Directory: {:?}, Path: {:?}",
     &config_info.active_version,
     &config_info.tooling_version,
@@ -699,13 +699,13 @@ pub async fn launch_game(
         }
       }
       Err(err) => {
-        log::error!("Error occured when waiting for game to exit: {}", err);
+        error!("Error occured when waiting for game to exit: {}", err);
         return;
       }
     }
     // once the game exits pass the time the game started to the track_playtine function
     if let Err(err) = track_playtime(start_time, game_name).await {
-      log::error!("Error occured when tracking playtime: {}", err);
+      error!("Error occured when tracking playtime: {}", err);
     }
   });
   Ok(())
@@ -726,7 +726,7 @@ async fn track_playtime(
 
   // get the playtime of the session
   let elapsed_time = start_time.elapsed().as_secs().into();
-  log::info!("elapsed time: {}", elapsed_time);
+  info!("elapsed time: {}", elapsed_time);
 
   config_lock
     .update_setting_value("seconds_played", elapsed_time, Some(game_name))
@@ -734,7 +734,7 @@ async fn track_playtime(
 
   // send an event to the front end so that it can refresh the playtime on screen
   if let Err(err) = app_handle.emit("playtimeUpdated", ()) {
-    log::error!("Failed to emit playtimeUpdated event: {}", err);
+    error!("Failed to emit playtimeUpdated event: {}", err);
     return Err(CommandError::BinaryExecution(format!(
       "Failed to emit playtimeUpdated event: {}",
       err

@@ -1,3 +1,4 @@
+use log::info;
 use tauri::Manager;
 
 use super::CommandError;
@@ -25,7 +26,7 @@ pub async fn open_main_window(handle: tauri::AppHandle) -> Result<(), CommandErr
   //   "center": true,
   //   "decorations": false
   // },
-  log::info!("Creating main window");
+  info!("Creating main window");
   tauri::WebviewWindowBuilder::new(
     &handle,
     "main", /* the unique window label */
@@ -43,7 +44,7 @@ pub async fn open_main_window(handle: tauri::AppHandle) -> Result<(), CommandErr
   .map_err(|_| {
     CommandError::WindowManagement("Unable to create main launcher window".to_owned())
   })?;
-  log::info!("Closing splash window");
+  info!("Closing splash window");
   // Close splashscreen
   if let Some(splashscreen) = handle.app_handle().get_webview_window("splashscreen") {
     splashscreen

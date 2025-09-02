@@ -2,6 +2,7 @@
 use std::os::windows::process::CommandExt;
 use std::process::Command;
 
+use log::{error, info};
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
 
@@ -27,7 +28,7 @@ pub async fn run_game_gpu_test(
   let gpu_test_result_path = &match app_handle.path().app_data_dir() {
     Ok(path) => path,
     Err(err) => {
-      log::error!(
+      error!(
         "Error encountered when determined path for binary for GPU test: {:?}",
         err
       );
@@ -39,10 +40,9 @@ pub async fn run_game_gpu_test(
   create_dir(gpu_test_result_path)?;
   let gpu_test_result_path = &gpu_test_result_path.join("gpu-test-result.json");
 
-  log::info!(
+  info!(
     "Running GPU test on game version {:?} and storing in folder: {:?}",
-    &config_info.active_version,
-    gpu_test_result_path
+    &config_info.active_version, gpu_test_result_path
   );
 
   let mut command = Command::new(exec_info.executable_path);
@@ -68,7 +68,7 @@ pub async fn run_game_gpu_test(
         let content = match std::fs::read_to_string(gpu_test_result_path) {
           Ok(content) => content,
           Err(err) => {
-            log::error!("Unable to read {}: {}", gpu_test_result_path.display(), err);
+            error!("Unable to read {}: {}", gpu_test_result_path.display(), err);
             return Err(CommandError::BinaryExecution(
               "Unable to read gpu test result".to_owned(),
             ));
@@ -79,7 +79,7 @@ pub async fn run_game_gpu_test(
         match serde_json::from_str::<GPUTestOutput>(&content) {
           Ok(test_results) => Ok(test_results),
           Err(err) => {
-            log::error!("Unable to parse {}: {}", &content, err);
+            error!("Unable to parse {}: {}", &content, err);
             Err(CommandError::BinaryExecution(
               "Unable to parse GPU test result".to_owned(),
             ))

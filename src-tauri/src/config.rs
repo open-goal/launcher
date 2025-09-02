@@ -11,6 +11,7 @@
 
 use crate::commands::CommandError;
 use crate::util::file::create_dir;
+use log::{error, info, warn};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -196,8 +197,8 @@ fn default_version() -> String {
 }
 
 fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> LauncherConfig {
-  log::warn!("Outdated config detected. Migrating to the latest version.");
-  log::warn!("Creating a backup copy of existing settings before migrating to latest.");
+  warn!("Outdated config detected. Migrating to the latest version.");
+  warn!("Creating a backup copy of existing settings before migrating to latest.");
   let to = settings_path.with_file_name("settings.backup.json");
   let _ = fs::copy(settings_path.clone(), to);
   let mut new_config = LauncherConfig::default(Some(settings_path));
@@ -292,7 +293,7 @@ fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> 
     .and_then(|v| v.as_bool())
     .unwrap_or(false);
 
-  log::info!("Migration complete. New configuration ready.");
+  info!("Migration complete. New configuration ready.");
   new_config
 }
 
@@ -325,7 +326,7 @@ impl LauncherConfig {
     game_name: SupportedGame,
   ) -> Result<&mut GameConfig, ConfigError> {
     self.games.get_mut(&game_name).ok_or_else(|| {
-      log::error!("Game not found or unsupported: {}", game_name);
+      error!("Game not found or unsupported: {}", game_name);
       ConfigError::Configuration(format!("Game not found or unsupported: {game_name}"))
     })
   }
@@ -334,7 +335,7 @@ impl LauncherConfig {
     let settings_path = config_dir.map(|dir| dir.join("settings.json"));
 
     if let Some(path) = &settings_path {
-      log::info!("Loading configuration at path: {}", path.display());
+      info!("Loading configuration at path: {}", path.display());
 
       match fs::read_to_string(path)
         .ok()
@@ -348,10 +349,10 @@ impl LauncherConfig {
           config.settings_path = Some(path.to_path_buf());
           return config;
         }
-        None => log::error!("Failed to load or parse settings file, using defaults"),
+        None => error!("Failed to load or parse settings file, using defaults"),
       }
     } else {
-      log::warn!("No configuration directory provided, using defaults");
+      warn!("No configuration directory provided, using defaults");
     }
     LauncherConfig::default(settings_path)
   }
@@ -365,7 +366,7 @@ impl LauncherConfig {
   pub fn save_config(&self) -> Result<(), ConfigError> {
     let settings_path = match &self.settings_path {
       None => {
-        log::warn!("Can't save the settings file, as no path was initialized!");
+        warn!("Can't save the settings file, as no path was initialized!");
         return Err(ConfigError::Configuration(
           "No settings path defined, unable to save settings!".to_owned(),
         ));
@@ -405,7 +406,7 @@ impl LauncherConfig {
     // Check our permissions on the folder by touching a file (and deleting it)
     let test_file = path.join(".perm-test.tmp");
     if let Err(e) = touch_file(&test_file) {
-      log::error!(
+      error!(
         "Provided installation folder could not be written to: {}",
         e
       );
@@ -452,7 +453,7 @@ impl LauncherConfig {
         "installed_version" => game_config.version = val.as_str().map(|s| s.to_string()),
         "seconds_played" => game_config.seconds_played += val.as_u64().unwrap_or(0),
         _ => {
-          log::error!("Key '{}' not recognized", key);
+          error!("Key '{}' not recognized", key);
           return Err(ConfigError::Configuration("Invalid key".to_owned()));
         }
       }
@@ -495,7 +496,7 @@ impl LauncherConfig {
           self.mod_sources.retain(|source| source != &mod_source);
         }
         _ => {
-          log::error!("Key '{}' not recognized", key);
+          error!("Key '{}' not recognized", key);
           return Err(ConfigError::Configuration("Invalid key".to_owned()));
         }
       }
@@ -517,7 +518,7 @@ impl LauncherConfig {
         "seconds_played" => Ok(json!(game_config.seconds_played)),
         "installed_mods" => Ok(json!(game_config.mods_installed_version)),
         _ => {
-          log::error!("Key '{}' not recognized", key);
+          error!("Key '{}' not recognized", key);
           Err(ConfigError::Configuration("Invalid key".to_owned()))
         }
       }
@@ -554,7 +555,7 @@ impl LauncherConfig {
           self.decompiler_settings.rip_streamed_audio_enabled,
         )),
         _ => {
-          log::error!("Key '{}' not recognized", key);
+          error!("Key '{}' not recognized", key);
           Err(ConfigError::Configuration("Invalid key".to_owned()))
         }
       }

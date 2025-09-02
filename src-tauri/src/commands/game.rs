@@ -3,7 +3,7 @@ use std::{
   path::{Path, PathBuf},
 };
 
-use log::info;
+use log::{error, info};
 use tauri::{Emitter, Manager};
 use walkdir::WalkDir;
 
@@ -41,7 +41,7 @@ pub async fn uninstall_game(
     Err(e) => match e.kind() {
       std::io::ErrorKind::NotFound => Ok(()),
       _ => {
-        log::error!("Failed to delete directory: {:?}", e);
+        error!("Failed to delete directory: {:?}", e);
         Err(e)
       }
     },
@@ -52,7 +52,7 @@ pub async fn uninstall_game(
     Err(e) => match e.kind() {
       std::io::ErrorKind::NotFound => Ok(()),
       _ => {
-        log::error!("Failed to delete directory: {:?}", e);
+        error!("Failed to delete directory: {:?}", e);
         Err(e)
       }
     },
@@ -63,7 +63,7 @@ pub async fn uninstall_game(
     Err(e) => match e.kind() {
       std::io::ErrorKind::NotFound => Ok(()),
       _ => {
-        log::error!("Failed to delete directory: {:?}", e);
+        error!("Failed to delete directory: {:?}", e);
         Err(e)
       }
     },
@@ -118,7 +118,7 @@ fn get_saves_highest_milestone(
   let save_bytes = match std::fs::read(path) {
     Ok(bytes) => bytes,
     Err(err) => {
-      log::error!("Failed to read save file: {:?}", err);
+      error!("Failed to read save file: {:?}", err);
       return None;
     }
   };

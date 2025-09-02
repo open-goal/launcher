@@ -1,4 +1,4 @@
-use log::info;
+use log::{info, warn};
 use std::io::{BufReader, Cursor};
 use std::path::PathBuf;
 use std::{
@@ -42,7 +42,7 @@ pub fn append_dir_contents_to_zip(
 
       if !allowed_extensions.contains(&extension) {
         // Skip files that we don't care about
-        log::warn!("skipping {path:?} - extension {extension}");
+        warn!("skipping {path:?} - extension {extension}");
         continue;
       }
 
@@ -71,7 +71,7 @@ pub fn append_file_to_zip(
   path_in_zip: &str,
 ) -> zip::result::ZipResult<()> {
   if !src.exists() || src.is_dir() {
-    log::warn!("'{}', doesnt exist", src.display());
+    warn!("'{}', doesnt exist", src.display());
     return Ok(());
   }
 

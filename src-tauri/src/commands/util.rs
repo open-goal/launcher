@@ -2,6 +2,7 @@ use crate::config::LauncherConfig;
 use crate::config::SupportedGame;
 use crate::util::file::delete_dir;
 use log::error;
+use log::warn;
 use std::path::Path;
 use sysinfo::Disks;
 #[cfg(target_os = "macos")]
@@ -41,7 +42,7 @@ pub async fn is_diskspace_requirement_met(
     return Ok(true);
   }
   if config_lock.requirements.bypass_requirements {
-    log::warn!("Bypassing the Disk Space requirements check!");
+    warn!("Bypassing the Disk Space requirements check!");
     return Ok(true);
   }
 
@@ -60,7 +61,7 @@ pub async fn is_diskspace_requirement_met(
   for disk in Disks::new_with_refreshed_list().into_iter() {
     if install_dir.starts_with(disk.mount_point()) {
       if disk.available_space() < minimum_required_drive_space {
-        log::warn!("Not enough space left on disk: {:?}", disk.name());
+        warn!("Not enough space left on disk: {:?}", disk.name());
         return Ok(false);
       } else {
         return Ok(true);
