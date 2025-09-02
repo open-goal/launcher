@@ -171,7 +171,7 @@
             disabled={addingPack}
             outline
             class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
-            href={`/game/${activeGame}`}
+            href={`/${activeGame}`}
             aria-label={$_("features_backToGamePage_buttonAlt")}
           >
             <IconArrowLeft />
