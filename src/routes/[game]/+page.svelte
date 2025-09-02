@@ -21,8 +21,8 @@
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
   import { compileJob, decompileJob, runJob } from "$lib/utils/jobs";
+  import { invalidateAll } from "$app/navigation";
 
-  let textureSupportEnabled = true;
   let { data, params }: PageProps = $props();
   const activeGame = $derived(params.game);
   let config = data.config;
@@ -30,6 +30,7 @@
   const extractedAssetsDir = $derived(data.extractedAssetsDir);
   const savesDir = $derived(data.savesDir);
   const settingsDir = $derived(data.settingsDir);
+  const texturesSupported = $derived(data.texturesSupported);
 </script>
 
 <!-- BACKGROUND -->
@@ -63,11 +64,7 @@
       placement="top"
       class="!bg-slate-900 dark:text-white **:w-full"
     >
-      <DropdownItem
-        hidden={!textureSupportEnabled}
-        disabled={!textureSupportEnabled}
-        href={`${activeGame}/textures`}
-      >
+      <DropdownItem hidden={!texturesSupported} href={`${activeGame}/textures`}>
         {$_("gameControls_button_features_textures")}
       </DropdownItem>
       <DropdownItem href={`${activeGame}/mods`}>
@@ -193,6 +190,7 @@
           );
           if (confirmed) {
             await uninstallGame(activeGame);
+            await invalidateAll();
           }
         }}
         >{$_("gameControls_button_uninstall")}<Helper

@@ -2,6 +2,7 @@ import { configDir, join } from "@tauri-apps/api/path";
 import type { PageLoad } from "./$types";
 import { redirect } from "@sveltejs/kit";
 import {
+  doesActiveToolingVersionMeetMinimum,
   doesActiveToolingVersionSupportGame,
   isAVXRequirementMet,
   isDiskSpaceRequirementMet,
@@ -71,5 +72,13 @@ export const load = (async ({ parent, params }) => {
     "settings",
   );
 
-  return { gameDataDir, extractedAssetsDir, savesDir, settingsDir };
+  const texturesSupported = await doesActiveToolingVersionMeetMinimum(0, 2, 13);
+
+  return {
+    gameDataDir,
+    extractedAssetsDir,
+    savesDir,
+    settingsDir,
+    texturesSupported,
+  };
 }) satisfies PageLoad;
