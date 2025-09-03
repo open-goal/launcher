@@ -224,7 +224,6 @@ fn main() {
       commands::versions::ensure_active_version_still_exists,
       commands::versions::list_downloaded_versions,
       commands::versions::remove_version,
-      commands::window::open_main_window,
     ])
     .build(tauri::generate_context!())
     .map_err(|err| {
