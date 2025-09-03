@@ -5,7 +5,6 @@
   import { Alert, Button } from "flowbite-svelte";
   import { progressTracker } from "$lib/stores/ProgressStore";
   import type { Job } from "$lib/utils/jobs";
-  import { getProceedAfterSuccessfulOperation } from "$lib/rpc/config";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { _ } from "svelte-i18n";
   import {
@@ -26,20 +25,6 @@
 
   const dispatch = createEventDispatcher();
   let installationError: string | undefined | null = undefined;
-  let proceedAfterSuccessfulOperation = true;
-
-  onMount(async () => {
-    proceedAfterSuccessfulOperation =
-      await getProceedAfterSuccessfulOperation();
-  });
-
-  $: if (
-    $progressTracker.overallStatus === "success" &&
-    proceedAfterSuccessfulOperation
-  ) {
-    progressTracker.clear();
-    dispatch("jobFinished");
-  }
 
   async function setupModInstallation() {
     // Check to see if we need to prompt for the ISO or not
