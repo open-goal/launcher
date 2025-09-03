@@ -2,6 +2,7 @@ import {
   runDecompiler,
   runCompiler,
   updateDataDirectory,
+  extractAndValidateISO,
 } from "$lib/rpc/binaries";
 import { finalizeInstallation } from "$lib/rpc/config";
 import {
@@ -12,10 +13,13 @@ import {
   extractIsoForModInstall,
   saveModInstallInfo,
 } from "$lib/rpc/features";
-import { isoPrompt } from "./file-dialogs";
+import { folderPrompt, isoPrompt } from "./file-dialogs";
 import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
 import { progressTracker } from "$lib/stores/ProgressStore";
 import { invalidateAll } from "$app/navigation";
+import { unwrapFunctionStore, format } from "svelte-i18n";
+
+const $format = unwrapFunctionStore(format);
 
 export interface JobStep {
   label: string;
@@ -45,11 +49,11 @@ export async function runJob(steps: JobStep[]) {
 
 export const decompileJob = (game: SupportedGame): JobStep[] => [
   {
-    label: "setup_decompile",
+    label: $format("setup_decompile"),
     task: async () => runDecompiler("", game, true, true),
   },
   {
-    label: "setup_done",
+    label: $format("setup_done"),
     task: async () => ({ success: true }),
     callback: async () => progressTracker.clear(),
   },
@@ -57,11 +61,11 @@ export const decompileJob = (game: SupportedGame): JobStep[] => [
 
 export const compileJob = (game: SupportedGame): JobStep[] => [
   {
-    label: "setup_compile",
+    label: $format("setup_compile"),
     task: () => runCompiler("", game, true),
   },
   {
-    label: "setup_done",
+    label: $format("setup_done"),
     task: async () => ({ success: true }),
     callback: async () => progressTracker.clear(),
   },
@@ -69,19 +73,19 @@ export const compileJob = (game: SupportedGame): JobStep[] => [
 
 export const updateGameJob = (game: SupportedGame): JobStep[] => [
   {
-    label: "setup_copyFiles",
+    label: $format("setup_copyFiles"),
     task: () => updateDataDirectory(game),
   },
   {
-    label: "setup_decompile",
+    label: $format("setup_decompile"),
     task: () => runDecompiler("", game, true, false),
   },
   {
-    label: "setup_compile",
+    label: $format("setup_compile"),
     task: () => runCompiler("", game),
   },
   {
-    label: "setup_done",
+    label: $format("setup_done"),
     task: async () => ({ success: true }),
     callback: async () => {
       await finalizeInstallation(game);
@@ -91,6 +95,71 @@ export const updateGameJob = (game: SupportedGame): JobStep[] => [
   },
 ];
 
+export async function installBaseGame(
+  game: SupportedGame,
+  viaFolder: boolean = false,
+) {
+  const sourcePath = viaFolder
+    ? await folderPrompt($format("setup_prompt_selectFolderWithISO"))
+    : await isoPrompt(
+        $format("setup_prompt_ISOFileLabel"),
+        $format("setup_prompt_selectISO"),
+      );
+
+  if (!sourcePath) return;
+
+  const steps: JobStep[] = [
+    {
+      label: $format("setup_extractAndVerify"),
+      task: async () => {
+        const resp = await extractAndValidateISO(sourcePath, game);
+        return resp?.success
+          ? resp
+          : {
+              success: false,
+              msg: resp?.msg ?? $format("setup_error_extractVerifyFailed"),
+            };
+      },
+    },
+    {
+      label: $format("setup_decompile"),
+      task: async () => {
+        const resp = await runDecompiler(sourcePath, game, false, false);
+        return resp?.success
+          ? resp
+          : {
+              success: false,
+              msg: resp?.msg ?? $format("setup_error_decompileFailed"),
+            };
+      },
+    },
+    {
+      label: $format("setup_compile"),
+      task: async () => {
+        const resp = await runCompiler(sourcePath, game);
+        return resp?.success
+          ? resp
+          : {
+              success: false,
+              msg: resp?.msg ?? $format("setup_error_compileFailed"),
+            };
+      },
+    },
+    {
+      label: $format("setup_done"),
+      task: async () => {
+        await finalizeInstallation(game);
+        return { success: true };
+      },
+      callback: async () => {
+        await invalidateAll();
+      },
+    },
+  ];
+
+  await runJob(steps);
+}
+
 export const installModExternal = (
   game,
   modName,
@@ -99,18 +168,16 @@ export const installModExternal = (
   modDownloadUrl,
 ): JobStep[] => [
   {
-    label: "setup_extractAndVerify",
+    label: $format("setup_extractAndVerify"),
     task: async () => {
-      // 1) Ensure ISO extracted (prompt if missing)
       const isoPresent = await baseGameIsoExists(game);
       if (!isoPresent) {
         const sourcePath = await isoPrompt(
-          "setup_prompt_ISOFileLabel",
-          "setup_prompt_selectISO",
+          $format("setup_prompt_ISOFileLabel"),
+          $format("setup_prompt_selectISO"),
         );
         if (!sourcePath) {
-          // Return a translated-friendly key; ProgressStore.fail(msg) will surface it
-          return { success: false, msg: "setup_error_missingISO" };
+          return { success: false, msg: $format("setup_error_missingISO") };
         }
         const r = await extractIsoForModInstall(
           game,
@@ -121,11 +188,10 @@ export const installModExternal = (
         if (!r?.success)
           return {
             success: false,
-            msg: r?.msg ?? "setup_error_extractISOFailed",
+            msg: r?.msg ?? $format("setup_error_extractISOFailed"),
           };
       }
 
-      // 2) Download & extract the mod package
       const d = await downloadAndExtractNewMod(
         game,
         modDownloadUrl,
@@ -135,32 +201,38 @@ export const installModExternal = (
       if (!d?.success)
         return {
           success: false,
-          msg: d?.msg ?? "setup_error_downloadExtractFailed",
+          msg: d?.msg ?? $format("setup_error_downloadExtractFailed"),
         };
 
       return { success: true };
     },
   },
   {
-    label: "setup_decompile",
+    label: $format("setup_decompile"),
     task: async () => {
       const r = await decompileForModInstall(game, modName, modSourceName);
       return r?.success
         ? r
-        : { success: false, msg: r?.msg ?? "setup_error_decompileFailed" };
+        : {
+            success: false,
+            msg: r?.msg ?? $format("setup_error_decompileFailed"),
+          };
     },
   },
   {
-    label: "setup_compile",
+    label: $format("setup_compile"),
     task: async () => {
       const r = await compileForModInstall(game, modName, modSourceName);
       return r?.success
         ? r
-        : { success: false, msg: r?.msg ?? "setup_error_compileFailed" };
+        : {
+            success: false,
+            msg: r?.msg ?? $format("setup_error_compileFailed"),
+          };
     },
   },
   {
-    label: "setup_done",
+    label: $format("setup_done"),
     task: async () => {
       const r = await saveModInstallInfo(
         game,
@@ -170,10 +242,9 @@ export const installModExternal = (
       );
       return r?.success
         ? r
-        : { success: false, msg: r?.msg ?? "setup_error_saveFailed" };
+        : { success: false, msg: r?.msg ?? $format("setup_error_saveFailed") };
     },
     callback: async () => {
-      // optional: refresh any pages reading mod lists/config
       progressTracker.clear();
       await invalidateAll();
     },
