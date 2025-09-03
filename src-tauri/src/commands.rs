@@ -32,8 +32,6 @@ pub enum CommandError {
   #[error("{0}")]
   OSOperation(String),
   #[error("{0}")]
-  WindowManagement(String),
-  #[error("{0}")]
   BinaryExecution(String),
   #[error("{0}")]
   Support(String),
