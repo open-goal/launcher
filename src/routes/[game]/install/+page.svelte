@@ -5,7 +5,7 @@
   import { goto } from "$app/navigation";
   import { installBaseGame } from "$lib/utils/jobs";
   import Progress from "../../../old_components/Progress.svelte";
-  import LogViewer from "../../../old_components/LogViewer.svelte";
+  import LogViewer from "../../../components/LogViewer.svelte";
   import { progressTracker } from "$lib/stores/ProgressStore";
 
   let { data }: PageProps = $props();
