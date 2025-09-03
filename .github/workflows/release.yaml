@@ -24,7 +24,7 @@ jobs:
     outputs:
       new_tag: ${{ steps.version_bump.outputs.new_tag }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         # TODO - still have to use PAT to bypass branch protections
         # https://github.com/orgs/community/discussions/13836
         with:
@@ -76,7 +76,7 @@ jobs:
     outputs:
       release_id: ${{ steps.get_release_id.outputs.release_id }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: "main"
 
@@ -120,7 +120,7 @@ jobs:
       # NOTE - there is technically a race condition here if multiple releases go out
       # but the build needs to have the up to date version files
       # In the past this was handled by a two-stage release, but now it's all in one workflow
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: "main"
 
@@ -168,7 +168,7 @@ jobs:
     needs: [build-app, create-release]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: "main"
           # TODO - still have to use PAT to bypass branch protections
