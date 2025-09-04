@@ -10,7 +10,6 @@ pub mod logging;
 pub mod support;
 pub mod util;
 pub mod versions;
-pub mod window;
 
 #[derive(Debug, thiserror::Error)]
 pub enum CommandError {
@@ -32,8 +31,6 @@ pub enum CommandError {
   GameManagement(String),
   #[error("{0}")]
   OSOperation(String),
-  #[error("{0}")]
-  WindowManagement(String),
   #[error("{0}")]
   BinaryExecution(String),
   #[error("{0}")]

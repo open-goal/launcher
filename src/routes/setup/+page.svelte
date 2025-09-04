@@ -8,6 +8,7 @@
   import { goto } from "$app/navigation";
 
   let { data }: PageProps = $props();
+  const game = data.lastGame;
   let canContinue = $state(false); // build this out so it depends on locale $svelteLocale && $installDir
 </script>
 
@@ -19,7 +20,7 @@
   <!-- this continue button should only show if the user has selected a locale and install directory-->
   <Button
     disabled={!canContinue}
-    onclick={() => goto("/game")}
+    onclick={() => goto(`/${game}`)}
     class="splash-button pointer-events-auto bg-orange-500 p-1 mt-1 text-black font-bold rounded hover:bg-orange-700"
     >Continue</Button
   >
