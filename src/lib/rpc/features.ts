@@ -13,7 +13,7 @@ interface FeatureJobOutput {
 }
 
 function failed(msg: string): FeatureJobOutput {
-  toastStore.makeToast(msg, "error");
+  toastStore.push(msg, "error");
   return { success: false, msg };
 }
 
@@ -82,7 +82,7 @@ export async function addModSource(url: string): Promise<boolean> {
   try {
     const sourceResp = await fetch(url);
     if (sourceResp.status !== 200) {
-      toastStore.makeToast(
+      toastStore.push(
         `${$format("toasts_modSourceUnreachable")} - Status ${sourceResp.status}`,
         "error",
       );
@@ -93,7 +93,7 @@ export async function addModSource(url: string): Promise<boolean> {
     // Make sure that we don't already have a mod source with the same display name
     for (const [sourceUrl, sourceData] of Object.entries(currentSources)) {
       if (sourceData.sourceName === newSourceData["sourceName"]) {
-        toastStore.makeToast(
+        toastStore.push(
           `${$format("toasts_modSourceDuplicateName")}: ${sourceData.sourceName}@${sourceUrl}`,
           "error",
         );
@@ -102,7 +102,7 @@ export async function addModSource(url: string): Promise<boolean> {
     }
   } catch (e) {
     errorLog(`Unable to add mod source: ${e}`);
-    toastStore.makeToast(`${$format("toasts_modSourceUnreachable")}`, "error");
+    toastStore.push(`${$format("toasts_modSourceUnreachable")}`, "error");
     return false;
   }
 
@@ -126,10 +126,7 @@ export async function removeModSource(modSource: ModSource): Promise<void> {
       val: modSource,
     },
     () => {
-      toastStore.makeToast(
-        `${$format("toasts_couldNotRemoveModSource")}`,
-        "error",
-      );
+      toastStore.push(`${$format("toasts_couldNotRemoveModSource")}`, "error");
     },
   );
 }

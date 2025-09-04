@@ -34,7 +34,7 @@
     pending[release.version] = true;
     await downloadOfficialVersion(release);
     await saveActiveVersionChange(release);
-    toastStore.makeToast($_("toasts_savedToolingVersion"), "info");
+    toastStore.push($_("toasts_savedToolingVersion"), "info");
     await invalidateAll();
     pending[release.version] = false;
   }

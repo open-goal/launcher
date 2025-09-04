@@ -55,7 +55,7 @@ export async function setInstallationDirectory(
     // for RPC errors the log and toast are done by invoke_rpc
     // but this is a successful RPC, so we need to do it here
     errorLog("Unable to set install directory");
-    toastStore.makeToast(errMsg, "error");
+    toastStore.push(errMsg, "error");
   }
 
   return errMsg;

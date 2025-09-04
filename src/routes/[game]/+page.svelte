@@ -180,7 +180,7 @@
         onclick={async () => {
           const launchString = await getLaunchGameString(activeGame);
           await writeText(launchString);
-          toastStore.makeToast("toasts_copiedToClipboard", "info");
+          toastStore.push($_("toasts_copiedToClipboard"), "info");
         }}
         >{$_("gameControls_button_copyExecutableCommand")}<Helper
           class="!text-neutral-400 !text-xs"

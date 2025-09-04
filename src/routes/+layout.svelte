@@ -9,6 +9,7 @@
   import type { LauncherConfig } from "$lib/rpc/bindings/LauncherConfig";
   import { launcherConfig } from "$lib/stores/Config";
   import { isInDebugMode } from "$lib/utils/common";
+  import Toast from "../components/Toast.svelte";
 
   let { data, children }: LayoutProps = $props();
   let revokeSpecificActions = false;
@@ -59,6 +60,7 @@
 
     <!-- BODY -->
     <main class="flex-1 overflow-hidden">
+      <Toast></Toast>
       {@render children()}
     </main>
   </div>

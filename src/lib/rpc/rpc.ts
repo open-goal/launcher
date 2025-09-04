@@ -33,10 +33,10 @@ export async function invoke_rpc<T>(
     }
     // TODO - this is a dumb hack but whatever for now
     if (toastOnError === "_mirror_") {
-      toastStore.makeToast(e, "error");
+      toastStore.push(e, "error");
     } else {
       const toastMessage = toastOnError ?? "An unexpected error occurred";
-      toastStore.makeToast(toastMessage, "error");
+      toastStore.push(toastMessage, "error");
     }
     return handleError(e);
   }
