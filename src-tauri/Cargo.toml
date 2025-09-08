@@ -18,7 +18,7 @@ tauri-build = { version = "2.1.0", features = [] }
 plist = "1.7.4" # ensuring a bug fix for newer rustc versions
 notify-rust = "4.11.6" # ensuring a bug fix for newer rustc versions
 backtrace = "0.3.74"
-chrono = "0.4.39"
+chrono = "0.4.42"
 dir-diff = "0.3.3"
 directories = "6.0.0"
 rustc-serialize = "0.3"
@@ -27,7 +27,7 @@ flate2 = "1.1.2"
 fs_extra = "1.3.0"
 futures-util = "0.3.31"
 glob = "0.3.3"
-log = "0.4.21"
+log = "0.4.28"
 reqwest = { version = "0.12", features = ["json"] }
 rev_buf_reader = "0.3.0"
 semver = "1.0.24"
