@@ -10,6 +10,7 @@
   let { data } = $props();
   const sourceData = $derived(data.sourceData);
   const installedMods = $derived(data.installedMods);
+  console.log(installedMods);
 
   const activeGame: SupportedGame = $derived(page.params.game);
   let modFilter = getContext("modFilter");
