@@ -55,9 +55,9 @@ const groupModsByGame = (sourceData: Record<string, ModSourceData>) => {
   const grouped: Record<GameKey, ModInfo[]> = { jak1: [], jak2: [], jak3: [] };
 
   for (const src of Object.values(sourceData)) {
-    for (const mod of Object.values(src.mods)) {
+    for (const [name, mod] of Object.entries(src.mods)) {
       for (const g of gamesForMod(mod)) {
-        grouped[g].push(mod);
+        grouped[g].push({ ...mod, source: src.sourceName, name: name });
       }
     }
   }
@@ -79,6 +79,5 @@ export const load = (async ({ params, parent }) => {
     rawSourceData as Record<string, ModSourceData>,
   );
   const modsByGame = groupModsByGame(sourceData);
-  console.log(sourceData);
   return { sources, sourceData, installedMods, modsByGame };
 }) satisfies PageLoad;

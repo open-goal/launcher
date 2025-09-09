@@ -11,9 +11,8 @@
   const sourceData = $derived(data.sourceData);
   const installedMods = $derived(data.installedMods);
   const modsByGame = $derived(data.modsByGame);
-  console.log(modsByGame);
+  const { jak1, jak2, jak3 } = $derived(data.modsByGame);
 
-  // const activeGame: SupportedGame = $derived(page.params.game);
   const activeGame = "jak1";
   let modFilter = getContext("modFilter");
 
@@ -71,8 +70,8 @@
 </script>
 
 {#if Object.entries(installedMods).length !== 0}
-  <h2 class="font-bold">{$_("features_mods_installed_header")}</h2>
-  {#each Object.keys(installedMods).sort() as sourceName}
+  <!-- <h2 class="font-bold">{$_("features_mods_installed_header")}</h2> -->
+  <!-- {#each Object.keys(installedMods).sort() as sourceName}
     {@const sourceInstalledMods = installedMods[sourceName]}
     {#if Object.entries(sourceInstalledMods).length !== 0}
       <h2 class="mt-2 text-orange-400">{sourceName}</h2>
@@ -103,10 +102,34 @@
         {/each}
       </div>
     {/if}
-  {/each}
+  {/each} -->
 {/if}
 
-<h2 class="font-bold">{$_("features_mods_available_header")}</h2>
+{#each Object.entries(modsByGame) as [game, mods]}
+  {#if game.length > 0}
+    <h2 class="mt-2 text-orange-400">{$_(`gameName_${game}`)}</h2>
+    <div class="grid grid-cols-4 gap-4 mt-2">
+      {#each Object.values(mods) as mod}
+        {#await getThumbnailImageFromSources(mod.source, mod.name) then thumbnailSrc}
+          <a
+            class="h-[200px] bg-cover p-1 flex justify-center items-end relative"
+            style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{thumbnailSrc}'); background-size: cover;"
+            href={`/${game}/${mod.source}/${mod.name}`}
+          >
+            <h3 class="text-outline">
+              {getModDisplayName(mod.source, mod.name)}
+            </h3>
+            <div class="absolute top-0 right-0 m-2 flex gap-1">
+              <IconGlobe />
+              <Tooltip placement="bottom">{mod.source}</Tooltip>
+            </div>
+          </a>
+        {/await}
+      {/each}
+    </div>
+  {/if}
+{/each}
+
 {#if Object.keys(sourceData).length == 0}
   <div class="mt-2 mb-2">
     <p class="text-slate-400 italic">
@@ -118,12 +141,12 @@
     >
   </div>
 {:else}
+  <!-- <h2 class="font-bold">{$_("features_mods_available_header")}</h2> -->
   {#each Object.keys(sourceData).sort() as sourceUrl}
     {@const sourceInfo = sourceData[sourceUrl]}
-    <h2 class="mt-2 text-orange-400">{sourceInfo.sourceName}</h2>
     <div class="grid grid-cols-4 gap-4 mt-2">
       <!-- TODO - sort new mods to the top -->
-      {#each Object.keys(sourceInfo.mods).sort() as modName}
+      <!-- {#each Object.keys(sourceInfo.mods).sort() as modName}
         {@const modInfo = sourceInfo.mods[modName]}
         {@const modAge = ageOfModInDays(modInfo)}
         {#if !isModInstalled(sourceInfo.sourceName, modName)}
@@ -162,17 +185,15 @@
                 <h3 class="text-outline">
                   {modInfo.displayName}
                 </h3>
-                <!-- <div class="absolute top-0 right-0 m-2 flex gap-1">
-                      <IconGlobe />
-                      <Tooltip placement="bottom"
-                        >{sourceInfo.sourceName}</Tooltip
-                      >
-                    </div> -->
+                <div class="absolute top-0 right-0 m-2 flex gap-1">
+                  <IconGlobe />
+                  <Tooltip placement="bottom">{sourceInfo.sourceName}</Tooltip>
+                </div>
               </a>
             {/if}
           {/if}
         {/if}
-      {/each}
+      {/each} -->
     </div>
   {/each}
 {/if}

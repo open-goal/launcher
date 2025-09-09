@@ -72,7 +72,8 @@
       <Button
         class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         onclick={async () => {
-          goto(`/${game}/mods`);
+          // goto(`/${game}/mods`);
+          window.history.back();
         }}><IconArrowLeft />&nbsp;{$_("features_mods_go_back")}</Button
       >
       {#if installedVersion == "" && modVersionListSorted.length == 0}
