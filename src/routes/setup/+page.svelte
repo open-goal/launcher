@@ -4,7 +4,6 @@
   import LocaleSelector from "../../components/LocaleSelector.svelte";
   import ChooseInstallFolder from "../../components/ChooseInstallFolder.svelte";
   import { Button } from "flowbite-svelte";
-  import "./splash.postcss";
   import { goto } from "$app/navigation";
 
   let { data }: PageProps = $props();

@@ -1,5 +1,5 @@
 export const ssr = false;
-export const prerender = true;
+export const prerender = false;
 import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
 import { getAppConfig } from "$lib/rpc/config";
 import { launcherConfig } from "$lib/stores/Config";
