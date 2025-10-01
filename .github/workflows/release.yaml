@@ -31,7 +31,7 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 20
           cache: yarn
@@ -88,7 +88,7 @@ jobs:
           gh release create ${{needs.create-tag.outputs.new_tag}} --generate-notes --draft --repo open-goal/launcher
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 20
           cache: yarn
@@ -125,7 +125,7 @@ jobs:
           ref: "main"
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 20
           cache: yarn
@@ -176,7 +176,7 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
 
       - name: setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 20
           cache: yarn
