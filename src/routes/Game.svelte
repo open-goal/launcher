@@ -90,8 +90,26 @@
         source.sourceName === modSource && source.mods.hasOwnProperty(modName),
     )?.mods[modName];
 
-    if (!foundMod) return;
-
+    if (!foundMod) {
+      // couldn't find mod in modlists (user might be offline, or mod/list abandoned)
+      // just create a dummy entry so they can at least launch game
+      modInfoStore.set({
+        name: modName,
+        source: modSource,
+        displayName: modName,
+        description: "",
+        authors: [],
+        tags: [],
+        supportedGames: [],
+        versions: [],
+        websiteUrl: null,
+        perGameConfig: null,
+        coverArtUrl: null,
+        thumbnailArtUrl: null,
+        externalLink: null
+      });
+      return;
+    }
     modInfoStore.set({ ...foundMod, name: modName, source: modSource });
   }
 
