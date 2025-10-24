@@ -106,7 +106,7 @@
         perGameConfig: null,
         coverArtUrl: null,
         thumbnailArtUrl: null,
-        externalLink: null
+        externalLink: null,
       });
       return;
     }
