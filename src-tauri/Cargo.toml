@@ -36,7 +36,7 @@ serde_json = "1.0.142"
 strum = { version = "0.27", features = ["derive"] }
 sysinfo = "0.37.0"
 tar = "0.4.43"
-tauri = { version = "2.4.0", features = [ "protocol-asset", "devtools"] }
+tauri = { version = "2.8.5", features = [ "protocol-asset", "devtools"] }
 thiserror = "2.0.15"
 tokio = { version = "1", features = ["full"] }
 ts-rs = "11.0"
@@ -46,16 +46,16 @@ zip-extract = "0.3.0"
 tempfile = "3.14.0"
 native-dialog = "0.9.0"
 tokio-util = "0.7.16"
-tauri-codegen = "2.4.0"
-tauri-plugin = "2.4.0"
-tauri-plugin-fs = "2.4.1"
-tauri-plugin-shell = "2.3.0"
-tauri-plugin-dialog = "2.3.2"
-tauri-plugin-http = "2.5.1"
-tauri-plugin-clipboard-manager = "2.3.0"
-tauri-plugin-os = "2.3.1"
-tauri-plugin-notification = "2.3.1"
-tauri-plugin-process = "2.3.0"
+tauri-codegen = "2.5.0"
+tauri-plugin = "2.5.1"
+tauri-plugin-fs = "2.4.4"
+tauri-plugin-shell = "2.3.3"
+tauri-plugin-dialog = "2.4.2"
+tauri-plugin-http = "2.5.4"
+tauri-plugin-clipboard-manager = "2.3.2"
+tauri-plugin-os = "2.3.2"
+tauri-plugin-notification = "2.3.3"
+tauri-plugin-process = "2.3.1"
 strum_macros = "0.27.2"
 tauri-plugin-opener = "2"
 
@@ -66,7 +66,7 @@ sysctl = "0.6.0"
 winreg = "0.55.0"
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
-tauri-plugin-global-shortcut = "2.3.0"
+tauri-plugin-global-shortcut = "2.3.1"
 tauri-plugin-updater = "2.9.0"
 
 [features]
