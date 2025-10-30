@@ -74,9 +74,9 @@ jobs:
           # NOTE: so that we can use the experimental appimage stuff
           tauriScript: "cargo tauri"
 
-      - name: Upload appimage bundle
-        if: matrix.platform == 'ubuntu-24.04'
-        uses: actions/upload-artifact@v5
-        with:
-          name: AppImage Bundle
-          path: ./src-tauri/target/release/bundle/appimage/*.AppImage
+      # - name: Upload appimage bundle
+      #   if: matrix.platform == 'ubuntu-24.04'
+      #   uses: actions/upload-artifact@v5
+      #   with:
+      #     name: AppImage Bundle
+      #     path: ./src-tauri/target/release/bundle/appimage/*.AppImage
