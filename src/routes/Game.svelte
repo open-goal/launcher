@@ -116,9 +116,8 @@
 <div class="flex flex-col h-full p-5">
   {#if $VersionStore.activeVersionName === null}
     <GameToolsNotSet />
-  {:else if $activeGame == "jak3"}
+  {:else if $activeGame == "jak3" || $activeGame == "jakx"}
     <!-- TODO: remove this else if arm for jak3 support -->
-    <!-- Delete GameInProgress.svelte component -->
     <GameInProgress />
   {:else if !gameSupportedByTooling}
     <GameNotSupportedByTooling />
