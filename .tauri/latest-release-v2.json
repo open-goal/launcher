@@ -1,43 +1,43 @@
 {
-  "version": "2.8.8",
-  "notes": "{\"changes\":[{\"description\":\"deps: update tauri related dependencies, hopefully resolve build failures\",\"contributor\":\"xTVaser\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/858\"}]}",
-  "pub_date": "2025-10-31T21:49:42.957Z",
+  "version": "2.8.9",
+  "notes": "{\"changes\":[{\"description\":\"chore: bump sysctl from 0.6.0 to 0.7.1 backend-deps group across 1 directory\",\"contributor\":\"dependabot[bot]\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/857\"}]}",
+  "pub_date": "2025-10-31T22:25:48.431Z",
   "platforms": {
-    "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1VneWVCR1gzRTVQR2w1S3NrREozZ1R4KzZJNVBob1hZWFl6QUlKblhjZXZxb3JOQlM1d3FWVjAydVMvQkNYUFk2MnE5eEFuamdmSHpDOHdkZ0ZrVndFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ1OTAwCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi44LjhfYW1kNjQuQXBwSW1hZ2UudGFyLmd6ClF3aGpOcW8rYXQvSWNpTW92L3VydlBBUjB1QzAvL05aVXJqbU9TNy9BbVVIYld4bWczZWxTQ0E5MGJZc0IzaDZuSk8wZExaczVSMGdEMFFueDJ6ZUJBPT0K",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.8/OpenGOAL-Launcher_2.8.8_amd64_linux.AppImage.tar.gz"
-    },
-    "linux-x86_64-appimage": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2RObGNVWDhXQVRaYzEvT1pNZU9OSGJOamQ2RlpEdXgwY0pDemRsTEw2dkJTTWZBMTlhU1ZLOW5pVmJxYnFwQngrS014MGgvZWNlQXBXZklINnM5RkFRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ1OTAwCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi44LjhfYW1kNjQuQXBwSW1hZ2UKcUpVUUU1K21yMFJyK05ZRVhIZUNydVo5WE5iVitDODNYZWsxK091RGR4MzFpUmY2dHpRQzVvcmIxRC9RYUFldGtmcW5VUjlMMFViR3dIeFpzbUZ3Q2c9PQo=",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.8/OpenGOAL-Launcher_2.8.8_amd64_linux.AppImage"
-    },
-    "linux-x86_64-deb": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2FsT0J6cmtwdWJRZVFOV2U0b0g0c2dDcDZ5NWtWdjJocXJuazNkR21TV2RROTM3bGZHdXRXRkhRdVJ2Qm01ank0YUtSUkNFVkRiZWFRSmN4VGpiT1F3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ1OTAwCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi44LjhfYW1kNjQuZGViCnE2T0U1VlFjcG1WZnp1aGluRHpqWUFSODU1TTlEQWd0dU9SOGU0c1IxRWFHSkgza0dYeExBa0w5RG1hc1piUi9SbG5qQ1RPRWs3ZE42QnJJeGw4UEFBPT0K",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.8/OpenGOAL-Launcher_2.8.8_amd64_linux.deb"
-    },
-    "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2VYVno2am0xR2tQRThaeE1KM0dVYVFQbEw1WE1zdlF2c01naC80eS9Bc0s1VXk1dkpPbHhUek5mYWE5MTBrc1U4UHJxemFJUGlFa3ZQTjhQeXoyU1E4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ2MDAwCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi44LjhfeDY0X2VuLVVTLm1zaS56aXAKOXRHK0puMjZva1FONFc4SHJlcVB0UjgyRlBNR0tWQzF5SUlIVllxSkVPdy9VTjJ5T1M3MjBMN3JnRFZZODFFUDEvdytPRXZLSlJXaG9iUGZqa1lJQ2c9PQo=",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.8/OpenGOAL-Launcher_2.8.8_x64_en-US_windows.msi.zip"
-    },
-    "windows-x86_64-msi": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2NjUXlMemxYNjBpVDQ4aVh4cm1wYzVFVy84MWwvTFNON1lvazcwVDQ5SmdvTzlMaE82Y1VZNytwMjNBTHFyOHdvdC9UQjNadmwvblByOXpVV1cyWXdVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ2MDAwCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi44LjhfeDY0X2VuLVVTLm1zaQpRQUxERXoreko3NXNsRXQ4ZUpjZDJ4UHA3OG04MXBxc3lBY3Z6a1dCRUM2VHozL2tOTDZjYmVaU1E5MVN0UmVqRmlvV0dSR1BLeHAyR0NMOTlubG5Bdz09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.8/OpenGOAL-Launcher_2.8.8_x64_en-US_windows.msi"
-    },
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1U3d2ZlQUxlbnBXOUdHVmdmL3pWODVBU2ZnMmVVNWlnSjNIalM1WHdCQWhJNHJwV0hLbDJyKzAwamVobkl5STJtaTVQTnJaVkVDUHRHTEwzVXBoZWdzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ2MjA3CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpqSkZFZmpSRFhFejNmcENrNUtpYlNFK2l5Vld2ZVBSa1NHaFBoTG1wbTVaay8zaUdQVCt2VWQwcTVROWhzRHJzVnI3N0UvSzhCL0lyb1RiKzN5YkhEZz09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.8/OpenGOAL-Launcher_darwin_aarch64.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1pqT3hKZFpmNTZZajN3eUhESjFnQ2t1WHJDSjdpd2R2S0g2aXBocyszNWsyandOTXVVRVdjSGJnQlQzT2JtOXAzdkVNWWl2ZUxSdzJDSjBQN29zZGdVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ5MDg1CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpzY2t4a0pCOGRTaVZpRlphOVlpMlNVRVozRksvNDR2SkVTTDdyTWIrWkFobjZlYnBmcksxM0lwRXU0NGpvMm9yRGdsVXZiZXo5VUhWTDFhbGFGMWhDUT09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.9/OpenGOAL-Launcher_darwin_aarch64.app.tar.gz"
     },
     "darwin-aarch64-app": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1U3d2ZlQUxlbnBXOUdHVmdmL3pWODVBU2ZnMmVVNWlnSjNIalM1WHdCQWhJNHJwV0hLbDJyKzAwamVobkl5STJtaTVQTnJaVkVDUHRHTEwzVXBoZWdzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ2MjA3CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpqSkZFZmpSRFhFejNmcENrNUtpYlNFK2l5Vld2ZVBSa1NHaFBoTG1wbTVaay8zaUdQVCt2VWQwcTVROWhzRHJzVnI3N0UvSzhCL0lyb1RiKzN5YkhEZz09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.8/OpenGOAL-Launcher_darwin_aarch64.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1pqT3hKZFpmNTZZajN3eUhESjFnQ2t1WHJDSjdpd2R2S0g2aXBocyszNWsyandOTXVVRVdjSGJnQlQzT2JtOXAzdkVNWWl2ZUxSdzJDSjBQN29zZGdVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ5MDg1CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpzY2t4a0pCOGRTaVZpRlphOVlpMlNVRVozRksvNDR2SkVTTDdyTWIrWkFobjZlYnBmcksxM0lwRXU0NGpvMm9yRGdsVXZiZXo5VUhWTDFhbGFGMWhDUT09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.9/OpenGOAL-Launcher_darwin_aarch64.app.tar.gz"
+    },
+    "windows-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1VadzJSS3o3K3VDT3R2Q0o5cmVlRzRid3FBQ2VsUEROQlV5aVExdUlPczEzQTVMVXYzVXZwYmd2OEZUUXpZck5JTmZ4RmZoOFRVSnhtSG96QjEvS0FzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ5MTM5CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi44LjlfeDY0X2VuLVVTLm1zaS56aXAKd2NkdUVmZlZUVWRaUzIrZWVZZmFSK0NMakdaVFdGUXQ1dGkzTklua0pscVBEVnNqVHZleEx1T0dNV3dqNDhIY3ZET1gzTkFUTmFqazdUWGJ4OUN6Qmc9PQo=",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.9/OpenGOAL-Launcher_2.8.9_x64_en-US_windows.msi.zip"
+    },
+    "windows-x86_64-msi": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2JOWlowVzBpZFB2MnlqaFlEanExVzhkZDZ6RTFuVGpRMnNmM2pYb05FT0o4SU43OXRUMjRaNEpIWWl5MklVQk1WeVRURStRN3ZNU2lTOE5DZWtkSVEwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ5MTM5CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi44LjlfeDY0X2VuLVVTLm1zaQpWM2puVHA0UitoMnRxZEN1d3htQkptbDh0cW1JMTliV2UzeHZlU1hPWm8vVzBsR1NSOUU2U0lxVVIreElwTjVUcnRJZDhPMlNUM0dHWmdXakRBKzNCQT09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.9/OpenGOAL-Launcher_2.8.9_x64_en-US_windows.msi"
+    },
+    "linux-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2NwYU1WMld1cWFZRWEreFZIR0E0M1FHc0FZTlNUR0gyajNIMGZWek81ZnlHUjcycWtkMXhjZnRMOTF2VndSazQwWkNQMExVNUJqTkxiTmw3TE1DTXdrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ5MTM4CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi44LjlfYW1kNjQuQXBwSW1hZ2UudGFyLmd6CjNkNnUvZDZYVXBvWENtTmxrYkR6eFZoQTJEVGVySkFwdzczSkN2ZWx0Z2lpd2Y4R1FaRm5JZzNPL29FR2YxY2p2bkZ1M2c4UVE0OUFuT24xVWIwNkRBPT0K",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.9/OpenGOAL-Launcher_2.8.9_amd64_linux.AppImage.tar.gz"
+    },
+    "linux-x86_64-appimage": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2RuUjBoR1BleFFmcTE1TXIvOUYwaE9lVUprMDI1Z3luWG40dm5tTHRLRHJRMy8wQzIzN21TQWcrNDAzNHQzeWpWVU1IVnBlZjdiazQrVTlMVExEcndFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ5MTM4CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi44LjlfYW1kNjQuQXBwSW1hZ2UKaHBOMUgzcERGa1lJc0h0K2VZSkJjRGNUTk1pSVRoU2h0aTdUK1FrYnZRdzFEZUFFWXNhQSt6NjB4LytGZkR0T05wWkpLZjUwUlJPNkNmZ2ZQR250Q3c9PQo=",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.9/OpenGOAL-Launcher_2.8.9_amd64_linux.AppImage"
+    },
+    "linux-x86_64-deb": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2U5MlYxL21DOWYwQlJ3R2NWcXMxNk1xWEllTTFqSnVEUnQyamdMK2QxWUZqTDFaMENTZXNqVWRGWkNnS2dnWFcrdkREZE5YR2wwVXJ2TS9xVWFPL0FZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ5MTM4CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi44LjlfYW1kNjQuZGViCjIvckhzMW9lTGVJSGJRYlZuZWpMWkpOSDU3VXV1WWZMVGxjNFRmWERqWXQvY0ZseFdVYzk2ZUdCekVtTUVsZlZGaUlIWE9tTHh3UzZvNmtBcWNrU0RBPT0K",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.9/OpenGOAL-Launcher_2.8.9_amd64_linux.deb"
     },
     "darwin-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1VDclZZVlMwSGQwaGJmU245NUhxaHE3Nkd1Uk80RnhvSDI4cFlaczZoY2JsWW52YXY1bGhiQjFHWWdZZUc2UzdobnJhWUhpaUxEblIxUU05dDQvcEE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ3Mzc3CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpKN0xONURKOVI5SThiei83TkRjQStYaGxRYXptNlNMUElMb2dWRXc1UzU4OENWRTZlWFlzUEJnejlVc0J0NVJLc1RHZlZqUkxsaUlxRzVpaEdBQTVCZz09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.8/OpenGOAL-Launcher_darwin_x64.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2ZGZ0Q4SFdSL3k0QmN5a0J0akh4Ti9yMnI0alQrOVhMcGpNZE9HV3gzdXVIZzR1ejlpdllveWF5R3ZHTmRMQ2FwTmlyWWd4UGtJNlVoRGRXNVJzaHdRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ5NTQzCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negp4Z3U2NWxEZGdLQ0VNQW92OFVEd2dVNUk1d0tXU3grb3JDYWdCWm5YMS8yR05zV3hqODBrbCtwMXdEeWtPUGJpRm5NZHpCZmJZU2ExZDZidTJxTm5CQT09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.9/OpenGOAL-Launcher_darwin_x64.app.tar.gz"
     },
     "darwin-x86_64-app": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1VDclZZVlMwSGQwaGJmU245NUhxaHE3Nkd1Uk80RnhvSDI4cFlaczZoY2JsWW52YXY1bGhiQjFHWWdZZUc2UzdobnJhWUhpaUxEblIxUU05dDQvcEE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ3Mzc3CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpKN0xONURKOVI5SThiei83TkRjQStYaGxRYXptNlNMUElMb2dWRXc1UzU4OENWRTZlWFlzUEJnejlVc0J0NVJLc1RHZlZqUkxsaUlxRzVpaEdBQTVCZz09Cg==",
-      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.8/OpenGOAL-Launcher_darwin_x64.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2ZGZ0Q4SFdSL3k0QmN5a0J0akh4Ti9yMnI0alQrOVhMcGpNZE9HV3gzdXVIZzR1ejlpdllveWF5R3ZHTmRMQ2FwTmlyWWd4UGtJNlVoRGRXNVJzaHdRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYxOTQ5NTQzCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negp4Z3U2NWxEZGdLQ0VNQW92OFVEd2dVNUk1d0tXU3grb3JDYWdCWm5YMS8yR05zV3hqODBrbCtwMXdEeWtPUGJpRm5NZHpCZmJZU2ExZDZidTJxTm5CQT09Cg==",
+      "url": "https://github.com/open-goal/launcher/releases/download/v2.8.9/OpenGOAL-Launcher_darwin_x64.app.tar.gz"
     }
   }
 }
