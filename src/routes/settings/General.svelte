@@ -42,7 +42,6 @@
   let uninstallOldVersions = writable(false);
   let localeFontForDownload: Locale | undefined = undefined;
   let localeFontDownloading = false;
-  let isLinux = platform() === "linux";
   let initialized = false;
 
   onMount(async () => {
@@ -84,7 +83,7 @@
         class="mt-2"
         items={availableLocales}
         bind:value={$currentLocale}
-        onchange={async () => {
+        on:change={async () => {
           await setLocale($currentLocale);
           localeFontForDownload =
             await localeSpecificFontAvailableForDownload($currentLocale);
@@ -105,7 +104,7 @@
       <Button
         class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
         disabled={localeFontDownloading}
-        onclick={async () => {
+        on:click={async () => {
           if (
             localeFontForDownload !== undefined &&
             localeFontForDownload.fontDownloadUrl !== undefined &&
@@ -132,43 +131,41 @@
       </Button>
     {/if}
   </div>
-  {#if !isLinux}
-    <div>
-      <Label for="default-input" class="block mb-2 text-gray-200"
-        >{$_("settings_folders_installationDir")}</Label
-      >
-      <Input
-        id="default-input"
-        placeholder={currentInstallationDirectory}
-        onclick={async () => {
-          const newInstallDir = await folderPrompt(
-            $_("settings_folders_installationDir_prompt"),
-          );
-          if (
-            newInstallDir !== undefined &&
-            newInstallDir !== currentInstallationDirectory
-          ) {
-            const errMsg = await setInstallationDirectory(newInstallDir);
-            if (errMsg === null) {
-              if (currentInstallationDirectory !== newInstallDir) {
-                $VersionStore.activeVersionType = null;
-                $VersionStore.activeVersionName = null;
-              }
-              currentInstallationDirectory = newInstallDir;
+  <div>
+    <Label for="default-input" class="block mb-2 text-gray-200"
+      >{$_("settings_folders_installationDir")}</Label
+    >
+    <Input
+      id="default-input"
+      placeholder={currentInstallationDirectory}
+      on:click={async () => {
+        const newInstallDir = await folderPrompt(
+          $_("settings_folders_installationDir_prompt"),
+        );
+        if (
+          newInstallDir !== undefined &&
+          newInstallDir !== currentInstallationDirectory
+        ) {
+          const errMsg = await setInstallationDirectory(newInstallDir);
+          if (errMsg === null) {
+            if (currentInstallationDirectory !== newInstallDir) {
+              $VersionStore.activeVersionType = null;
+              $VersionStore.activeVersionName = null;
             }
+            currentInstallationDirectory = newInstallDir;
           }
-        }}
-      />
-      <Helper class="text-xs mt-2 italic"
-        >{$_("settings_general_installationDir_helper")}</Helper
-      >
-    </div>
-  {/if}
+        }
+      }}
+    />
+    <Helper class="text-xs mt-2 italic"
+      >{$_("settings_general_installationDir_helper")}</Helper
+    >
+  </div>
   <div class="*:text-gray-200">
     <Toggle
       color="orange"
       bind:checked={$keepGamesUpdated}
-      onchange={async () => {
+      on:change={async () => {
         $uninstallOldVersions = false;
       }}
       class="mb-2">{$_("settings_general_keep_updated")}</Toggle
@@ -183,7 +180,7 @@
     <Toggle
       checked={currentBypassRequirementsVal}
       color="orange"
-      onchange={async (evt) => {
+      on:change={async (evt) => {
         if (evt.target.checked) {
           const confirmed = await confirm(
             `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
@@ -207,7 +204,7 @@
   <div>
     <Button
       class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
-      onclick={async () => {
+      on:click={async () => {
         const confirmed = await confirm(
           $_("settings_general_button_resetSettings_confirmation"),
         );
