@@ -42,7 +42,6 @@
   let uninstallOldVersions = writable(false);
   let localeFontForDownload: Locale | undefined = undefined;
   let localeFontDownloading = false;
-  let isLinux = platform() === "linux";
   let initialized = false;
 
   onMount(async () => {
@@ -132,38 +131,36 @@
       </Button>
     {/if}
   </div>
-  {#if !isLinux}
-    <div>
-      <Label for="default-input" class="block mb-2 text-gray-200"
-        >{$_("settings_folders_installationDir")}</Label
-      >
-      <Input
-        id="default-input"
-        placeholder={currentInstallationDirectory}
-        onclick={async () => {
-          const newInstallDir = await folderPrompt(
-            $_("settings_folders_installationDir_prompt"),
-          );
-          if (
-            newInstallDir !== undefined &&
-            newInstallDir !== currentInstallationDirectory
-          ) {
-            const errMsg = await setInstallationDirectory(newInstallDir);
-            if (errMsg === null) {
-              if (currentInstallationDirectory !== newInstallDir) {
-                $VersionStore.activeVersionType = null;
-                $VersionStore.activeVersionName = null;
-              }
-              currentInstallationDirectory = newInstallDir;
+  <div>
+    <Label for="default-input" class="block mb-2 text-gray-200"
+      >{$_("settings_folders_installationDir")}</Label
+    >
+    <Input
+      id="default-input"
+      placeholder={currentInstallationDirectory}
+      onclick={async () => {
+        const newInstallDir = await folderPrompt(
+          $_("settings_folders_installationDir_prompt"),
+        );
+        if (
+          newInstallDir !== undefined &&
+          newInstallDir !== currentInstallationDirectory
+        ) {
+          const errMsg = await setInstallationDirectory(newInstallDir);
+          if (errMsg === null) {
+            if (currentInstallationDirectory !== newInstallDir) {
+              $VersionStore.activeVersionType = null;
+              $VersionStore.activeVersionName = null;
             }
+            currentInstallationDirectory = newInstallDir;
           }
-        }}
-      />
-      <Helper class="text-xs mt-2 italic"
-        >{$_("settings_general_installationDir_helper")}</Helper
-      >
-    </div>
-  {/if}
+        }
+      }}
+    />
+    <Helper class="text-xs mt-2 italic"
+      >{$_("settings_general_installationDir_helper")}</Helper
+    >
+  </div>
   <div class="*:text-gray-200">
     <Toggle
       color="orange"

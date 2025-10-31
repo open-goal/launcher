@@ -114,7 +114,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-22.04, windows-latest, macos-15-intel, macos-15]
+        platform: [ubuntu-24.04, windows-latest, macos-15-intel, macos-15]
     runs-on: ${{ matrix.platform }}
     steps:
       # NOTE - there is technically a race condition here if multiple releases go out
@@ -142,10 +142,13 @@ jobs:
           workspaces: src-tauri
 
       - name: Install Linux Dependencies
-        if: matrix.platform == 'ubuntu-22.04'
+        if: matrix.platform == 'ubuntu-24.04'
+        # NOTE: have to pull in the experimental appimage stuff manually for now until merged
+        # https://github.com/tauri-apps/tauri/pull/12491
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+          cargo install tauri-cli --git https://github.com/tauri-apps/tauri --branch feat/truly-portable-appimage
 
       - name: Install NPM Dependencies
         run: |
@@ -153,6 +156,7 @@ jobs:
           yarn build
 
       - uses: tauri-apps/tauri-action@v0
+        if: matrix.platform != 'ubuntu-24.04'
         name: Build Tauri App
         timeout-minutes: 30
         env:
@@ -161,6 +165,21 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           args: "--verbose --config ./src-tauri/tauri.conf.release.json"
+          releaseId: ${{needs.create-release.outputs.release_id}}
+
+      - uses: tauri-apps/tauri-action@v0
+        if: matrix.platform == 'ubuntu-24.04'
+        name: Build Tauri App (Linux)
+        timeout-minutes: 30
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_BUNDLER_NEW_APPIMAGE_FORMAT: true
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        with:
+          args: "--verbose --config ./src-tauri/tauri.conf.release.json"
+          # NOTE: so that we can use the experimental appimage stuff
+          tauriScript: "cargo tauri"
           releaseId: ${{needs.create-release.outputs.release_id}}
 
   publish-release:
