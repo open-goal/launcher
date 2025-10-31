@@ -20,7 +20,7 @@
   }
 </script>
 
-<div class="w-full pt-2 pb-6 flex justify-evenly">
+<div class="w-full pt-2 pb-6 flex justify-evenly gap-2">
   {#each $progressTracker.steps as step, i}
     <!-- NOTE - this will break if you add too many steps! -->
     {#if i > 0}
