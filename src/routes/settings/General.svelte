@@ -28,7 +28,6 @@
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import { confirm } from "@tauri-apps/plugin-dialog";
-  import { platform } from "@tauri-apps/plugin-os";
   import { downloadFile } from "$lib/rpc/download";
   import { appDataDir, join } from "@tauri-apps/api/path";
   import { folderPrompt } from "$lib/utils/file-dialogs";
@@ -83,7 +82,7 @@
         class="mt-2"
         items={availableLocales}
         bind:value={$currentLocale}
-        on:change={async () => {
+        onchange={async () => {
           await setLocale($currentLocale);
           localeFontForDownload =
             await localeSpecificFontAvailableForDownload($currentLocale);
@@ -104,7 +103,7 @@
       <Button
         class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
         disabled={localeFontDownloading}
-        on:click={async () => {
+        onclick={async () => {
           if (
             localeFontForDownload !== undefined &&
             localeFontForDownload.fontDownloadUrl !== undefined &&
@@ -138,7 +137,7 @@
     <Input
       id="default-input"
       placeholder={currentInstallationDirectory}
-      on:click={async () => {
+      onclick={async () => {
         const newInstallDir = await folderPrompt(
           $_("settings_folders_installationDir_prompt"),
         );
@@ -165,7 +164,7 @@
     <Toggle
       color="orange"
       bind:checked={$keepGamesUpdated}
-      on:change={async () => {
+      onchange={async () => {
         $uninstallOldVersions = false;
       }}
       class="mb-2">{$_("settings_general_keep_updated")}</Toggle
@@ -180,7 +179,7 @@
     <Toggle
       checked={currentBypassRequirementsVal}
       color="orange"
-      on:change={async (evt) => {
+      onchange={async (evt) => {
         if (evt.target.checked) {
           const confirmed = await confirm(
             `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
@@ -204,7 +203,7 @@
   <div>
     <Button
       class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
-      on:click={async () => {
+      onclick={async () => {
         const confirmed = await confirm(
           $_("settings_general_button_resetSettings_confirmation"),
         );
