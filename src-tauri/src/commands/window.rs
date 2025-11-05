@@ -12,19 +12,10 @@ pub async fn open_main_window(handle: tauri::AppHandle) -> Result<(), CommandErr
   // and when a panic hook was added that exited the process, the app would crash.
   //
   // So instead we make the main window at runtime, and close the splashscreen
-
-  // Create main window
-  // {
-  //   "title": "OpenGOAL Launcher",
-  //   "label": "main",
-  //   "width": 800,
-  //   "height": 600,
-  //   "resizable": false,
-  //   "fullscreen": false,
-  //   "visible": false,
-  //   "center": true,
-  //   "decorations": false
-  // },
+  //
+  // TODO LATER - consider removing the multi-window setup and just integrate the splash
+  // into the main app.  This would probably make for a better experience on things like
+  // the steamdeck
   log::info!("Creating main window");
   tauri::WebviewWindowBuilder::new(
     &handle,
@@ -32,7 +23,7 @@ pub async fn open_main_window(handle: tauri::AppHandle) -> Result<(), CommandErr
     tauri::WebviewUrl::App("index.html".parse().unwrap()),
   )
   .title("OpenGOAL Launcher")
-  .resizable(false)
+  .resizable(true)
   .fullscreen(false)
   .visible(true)
   .center()
