@@ -91,6 +91,7 @@
     )?.mods[modName];
 
     if (!foundMod) {
+      // TODO: this should be a temporary fix until we land on a permanent solution (e.g. caching mod metadata)
       // couldn't find mod in modlists (user might be offline, or mod/list abandoned)
       // just create a dummy entry so they can at least launch game
       modInfoStore.set({
@@ -245,3 +246,4 @@
     {/if}
   {/if}
 </div>
+
