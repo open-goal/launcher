@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { useParams } from "svelte-navigator";
   import GameControls from "../components/games/GameControls.svelte";
   import GameSetup from "../components/games/setup/GameSetup.svelte";
   import { onMount } from "svelte";
@@ -26,31 +25,33 @@
   import GameControlsMod from "../components/games/GameControlsMod.svelte";
   import GameInProgress from "../components/games/GameInProgress.svelte";
   import { activeGame, modInfoStore } from "$lib/stores/AppStore";
+  import { route } from "../router";
 
-  const params = useParams();
-  $: ($params, loadGameInfo());
+  $effect(() => {
+    route.search;
+    loadGameInfo();
+  });
 
-  let modName: string | undefined = undefined;
-  let modSource: string | undefined = undefined;
-  let modVersionToInstall: string = "";
-  let modDownloadUrlToInstall: string = "";
+  $effect(() => {
+    if (route.params.game_name !== undefined) {
+      activeGame.set(route.params.game_name);
+    }
+  });
 
-  modName = $params["mod_name"];
-  modSource = $params["source_url"];
+  const showVccWarning = $derived(type() == "windows" && !$isMinVCCRuntime);
 
-  let gameInstalled = false;
-  let gameJobToRun: Job | undefined = undefined;
+  let modVersionToInstall: string = $state("");
+  let modDownloadUrlToInstall: string = $state("");
 
-  let installedVersion: String | undefined;
+  let modName: string | undefined = $derived(route.params.mod_name);
+  let modSource: string | undefined = $derived(route.params.source_name);
 
-  let versionMismatchDetected = false;
-  export let game_name;
-  $: activeGame.set(game_name);
-
-  let gameSupportedByTooling = false;
-  let showVccWarning;
-  $: showVccWarning = type() == "windows" && !$isMinVCCRuntime;
-
+  let gameInstalled = $state(false);
+  let gameJobToRun: Job | undefined = $state(undefined);
+  let installedVersion: String | undefined = $state(undefined);
+  let versionMismatchDetected = $state(false);
+  let gameSupportedByTooling = $state(false);
+  
   onMount(async () => {
     loadGameInfo();
     loadModInfo();

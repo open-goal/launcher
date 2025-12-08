@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@iconify-json/mdi": "^1.2.3",
+    "@octokit/core": "7.0.6",
     "@octokit/plugin-retry": "^8.0.3",
     "@octokit/plugin-throttling": "^11.0.3",
     "@octokit/rest": "^22.0.1",
@@ -42,9 +43,9 @@
     "postcss-load-config": "^6.0.1",
     "prettier": "^3.7.4",
     "prettier-plugin-svelte": "^3.4.0",
+    "sv-router": "^0.11.1",
     "svelte": "^5.45.6",
     "svelte-i18n": "^4.0.1",
-    "svelte-navigator": "^3.2.2",
     "svelte-preprocess": "^6.0.3",
     "tailwindcss": "^4.1.7",
     "typescript": "^5.9.3",

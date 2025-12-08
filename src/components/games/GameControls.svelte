@@ -24,10 +24,10 @@
     getInstallationDirectory,
   } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
-  import { navigate } from "svelte-navigator";
   import { toastStore } from "$lib/stores/ToastStore";
   import { activeGame } from "$lib/stores/AppStore";
   import Playtime from "./Playtime.svelte";
+  import { navigate } from "/src/router";
 
   const dispatch = createEventDispatcher();
   let gameDataDir: string | undefined = undefined;
@@ -90,14 +90,16 @@
         hidden={!textureSupportEnabled}
         disabled={!textureSupportEnabled}
         onclick={async () => {
-          navigate(`/${$activeGame}/texture_packs`);
+          navigate(`/:game_name/texture_packs`, {
+            params: { game_name: $activeGame },
+          });
         }}
       >
         {$_("gameControls_button_features_textures")}
       </DropdownItem>
       <DropdownItem
         onclick={async () => {
-          navigate(`/${$activeGame}/mods`);
+          navigate(`/:game_name/mods`, { params: { game_name: $activeGame } });
         }}
       >
         {$_("gameControls_button_features_mods")}

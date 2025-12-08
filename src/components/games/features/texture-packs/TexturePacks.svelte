@@ -36,13 +36,13 @@
     Spinner,
   } from "flowbite-svelte";
   import { onMount } from "svelte";
-  import { navigate } from "svelte-navigator";
   import { _ } from "svelte-i18n";
   import { activeGame } from "$lib/stores/AppStore";
   import { progressTracker } from "$lib/stores/ProgressStore";
   import { runDecompiler } from "$lib/rpc/binaries";
   import LogViewer from "../../setup/LogViewer.svelte";
   import Progress from "../../setup/Progress.svelte";
+  import { navigate } from "/src/router";
 
   let loaded = false;
   let extractedPackInfo: any = undefined;
@@ -283,7 +283,7 @@
             disabled={addingPack}
             outline
             class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
-            onclick={async () => navigate(`/${$activeGame}`, { replace: true })}
+            onclick={async () => navigate(`/:game_name`, { params: {game_name: $activeGame} })}
             aria-label={$_("features_backToGamePage_buttonAlt")}
           >
             <IconArrowLeft />

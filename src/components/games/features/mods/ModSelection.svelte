@@ -1,7 +1,6 @@
 <script lang="ts">
   import { platform } from "@tauri-apps/plugin-os";
   import { createEventDispatcher, onMount } from "svelte";
-  import { navigate } from "svelte-navigator";
   import { _ } from "svelte-i18n";
   import { Button, Indicator, Input, Spinner, Tooltip } from "flowbite-svelte";
   import IconArrowLeft from "~icons/mdi/arrow-left";
@@ -19,6 +18,7 @@
   import thumbnailPlaceholder from "$assets/images/mod-thumbnail-placeholder.webp";
   import { isLatestVersionOfModSupportedOnCurrentPlatform } from "$lib/features/mods";
   import { activeGame } from "$lib/stores/AppStore";
+  import { navigate } from "/src/router";
 
   const dispatch = createEventDispatcher();
 
@@ -161,7 +161,8 @@
         <Button
           outline
           class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
-          onclick={async () => navigate(`/${$activeGame}`, { replace: true })}
+          onclick={async () =>
+            navigate(`/:game_name`, { params: { game_name: $activeGame } })}
           aria-label={$_("features_backToGamePage_buttonAlt")}
         >
           <IconArrowLeft />
@@ -207,9 +208,13 @@
                       class="h-[200px] bg-cover p-1 flex justify-center items-end relative"
                       style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{thumbnailSrc}'); background-size: cover;"
                       on:click={async () => {
-                        navigate(
-                          `/${$activeGame}/mods/${encodeURI(sourceName)}/${encodeURI(modName)}`,
-                        );
+                        navigate(`/:game_name/mods/:source_name/:mod_name`, {
+                          params: {
+                            game_name: $activeGame,
+                            source_name: encodeURI(sourceName),
+                            mod_name: encodeURI(modName),
+                          },
+                        });
                       }}
                     >
                       <h3 class="text-outline">
@@ -236,8 +241,8 @@
           <Button
             class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
             onclick={async () => {
-              navigate(`/settings/mod`, {
-                replace: true,
+              navigate(`/settings/:tab`, {
+                params: { tab: "mod" },
               });
             }}>{$_("features_mods_go_to_settings")}</Button
           >
@@ -293,9 +298,13 @@
                         modInfo,
                       )}'); background-size: cover;"
                       on:click={async () => {
-                        navigate(
-                          `/${$activeGame}/mods/${encodeURI(sourceInfo.sourceName)}/${encodeURI(modName)}`,
-                        );
+                        navigate(`/:game_name/mods/:source_name/:mod_name`, {
+                          params: {
+                            game_name: $activeGame,
+                            source_name: encodeURI(sourceInfo.sourceName),
+                            mod_name: encodeURI(modName),
+                          },
+                        });
                       }}
                     >
                       <h3 class="text-outline">

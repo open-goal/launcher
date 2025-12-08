@@ -5,10 +5,9 @@
   import { Button, Card } from "flowbite-svelte";
   import { createEventDispatcher, onMount } from "svelte";
   import { _ } from "svelte-i18n";
-  import { useNavigate } from "svelte-navigator";
+  import { navigate } from "/src/router";
 
   const dispatch = createEventDispatcher();
-  const navigate = useNavigate();
 
   export let installedVersion: String | undefined;
 
@@ -81,8 +80,8 @@
         <Button
           class="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
           onclick={async () => {
-            navigate(`/settings/versions`, {
-              replace: true,
+            navigate(`/settings/:tab`, {
+              params: {tab: "versions"},
             });
           }}>{$_("gameUpdate_versionMismatch_button_changeVersion")}</Button
         >

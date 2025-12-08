@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { useLocation } from "svelte-navigator";
   import { isGameInstalled } from "$lib/rpc/config";
   import { onMount } from "svelte";
   import { listen } from "@tauri-apps/api/event";
@@ -14,9 +13,9 @@
   import { appDataDir, join } from "@tauri-apps/api/path";
   import { convertFileSrc } from "@tauri-apps/api/core";
   import { exists } from "@tauri-apps/plugin-fs";
+  import { p, route } from "../../router";
 
-  const location = useLocation();
-  $: ($location.pathname, updateBackground());
+  $: (route.pathname, updateBackground());
   $: ($activeGame, updateBackground());
   $: ($modInfoStore, updateModBackground());
 
@@ -25,7 +24,7 @@
   let onWindows = platform() !== "linux";
   let modBackground = "";
   let grayscale = false;
-  let bgVideo = null;
+  let bgVideo: string | null = null;
 
   onMount(async () => {
     const unlistenInstalled = await listen("gameInstalled", (event) => {
@@ -61,7 +60,7 @@
     if (!$activeGame) return;
     if (!$modInfoStore) {
       // Handle local mod backgrounds
-      const pathComponents = $location.pathname
+      const pathComponents = route.pathname
         .split("/")
         .filter((s) => s !== "");
       if (pathComponents.length === 5) {
@@ -80,16 +79,18 @@
       return;
     }
 
-    modBackground =
-      $modInfoStore?.coverArtUrl ||
-      $modInfoStore?.perGameConfig[$activeGame].coverArtUrl ||
-      coverArtPlaceholder;
+    modBackground = coverArtPlaceholder;
+    if ($modInfoStore?.coverArtUrl) {
+      modBackground = $modInfoStore.coverArtUrl
+    } else if ($modInfoStore?.perGameConfig && $modInfoStore.perGameConfig[$activeGame]?.coverArtUrl) {
+      modBackground = $modInfoStore.perGameConfig[$activeGame].coverArtUrl
+    }
   }
 </script>
 
 <!-- TODO: the three else if statements can go away once 1. the milestone code is finished and 2. jak3 is released -->
 <div class:grayscale>
-  {#if modBackground}
+  {#if modBackground && route.pathname.includes("mods")}
     <!-- svelte-ignore a11y_missing_attribute -->
     <img class={style} src={modBackground} />
   {:else if $activeGame === "jak1"}

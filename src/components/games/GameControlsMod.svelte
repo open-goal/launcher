@@ -23,7 +23,6 @@
     getCheckForLatestModVersion,
   } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
-  import { navigate } from "svelte-navigator";
   import { toastStore } from "$lib/stores/ToastStore";
   import {
     getInstalledMods,
@@ -41,6 +40,7 @@
   } from "$lib/features/mods";
   import { VersionStore } from "$lib/stores/VersionStore";
   import { activeGame, modInfoStore } from "$lib/stores/AppStore";
+  import { navigate } from "/src/router";
 
   const dispatch = createEventDispatcher();
   let gameDataDir: string | undefined = undefined;
@@ -209,9 +209,7 @@
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       onclick={async () => {
-        navigate(`/${$activeGame}/mods`, {
-          replace: true,
-        });
+        navigate(`/:game_name/mods`, { params: {game_name: $activeGame}});
       }}><IconArrowLeft />&nbsp;{$_("features_mods_go_back")}</Button
     >
     {#if currentlyInstalledVersion == "" && modVersionListSorted.length == 0}
@@ -475,9 +473,7 @@
                 $modInfoStore?.name,
                 $modInfoStore?.source,
               );
-              navigate(`/${$activeGame}/mods`, {
-                replace: true,
-              });
+              navigate(`/:game_name/mods`, { params: {game_name: $activeGame}});
             }
           }}
           >{$_("gameControls_button_uninstall")}<Helper

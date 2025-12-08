@@ -3,7 +3,6 @@
   import logo from "$assets/images/icon.webp";
   import { onMount } from "svelte";
   import { getVersion } from "@tauri-apps/api/app";
-  import { Link } from "svelte-navigator";
   import IconWindowMinimize from "~icons/mdi/window-minimize";
   import IconWindowClose from "~icons/mdi/window-close";
   import { UpdateStore } from "$lib/stores/AppStore";
@@ -134,11 +133,11 @@
     </p>
   </div>
   {#if $UpdateStore.selectedTooling.updateAvailable}
-    <Link
+    <a
       class="font-mono text-sm mt-5 text-orange-500 hover:text-orange-300"
-      to="/settings/versions"
+      href="/settings/versions"
       >>&nbsp;{$_("header_updateAvailable")}
-    </Link>
+    </a>
   {/if}
   <div class="flex shrink-0 space-x-4 text-xl ml-auto">
     <button class="hover:text-amber-600" on:click={() => appWindow.minimize()}>
