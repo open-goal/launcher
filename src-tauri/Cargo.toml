@@ -79,3 +79,6 @@ custom-protocol = ["tauri/custom-protocol"]
 
 [profile.release]
 strip = true  # Automatically strip symbols from the binary.
+
+[profile.dev.package.zip] # build zip as release, else its slow when making a support package when dev'ing
+opt-level = 3
