@@ -27,6 +27,7 @@
   import { navigate } from "svelte-navigator";
   import { toastStore } from "$lib/stores/ToastStore";
   import { activeGame } from "$lib/stores/AppStore";
+  import Playtime from "./Playtime.svelte";
 
   const dispatch = createEventDispatcher();
   let gameDataDir: string | undefined = undefined;
@@ -42,16 +43,22 @@
   });
 
   async function refreshDirectories() {
-    let installationDir = await getInstallationDirectory();
     savesDir = await join(await configDir(), "OpenGOAL", $activeGame, "saves");
-    gameDataDir = await join(installationDir, "active", $activeGame, "data");
-    extractedAssetsDir = await join(gameDataDir, "decompiler_out", $activeGame);
     settingsDir = await join(
       await configDir(),
       "OpenGOAL",
       $activeGame,
       "settings",
     );
+    let installationDir = await getInstallationDirectory();
+    if (installationDir !== null) {
+      gameDataDir = await join(installationDir, "active", $activeGame, "data");
+      extractedAssetsDir = await join(
+        gameDataDir,
+        "decompiler_out",
+        $activeGame,
+      );
+    }
   }
 </script>
 
@@ -61,6 +68,7 @@
   >
     {$_(`gameName_${$activeGame}`)}
   </h1>
+  <Playtime></Playtime>
   <div class="flex flex-row gap-2">
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
