@@ -1,1 +1,6 @@
-export type Job = "decompile" | "compile" | "updateGame" | "installModExternal" | "installMod";
+export type Job =
+  | "decompile"
+  | "compile"
+  | "updateGame"
+  | "installModExternal"
+  | "installMod";

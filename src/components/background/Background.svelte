@@ -60,9 +60,7 @@
     if (!$activeGame) return;
     if (!$modInfoStore) {
       // Handle local mod backgrounds
-      const pathComponents = route.pathname
-        .split("/")
-        .filter((s) => s !== "");
+      const pathComponents = route.pathname.split("/").filter((s) => s !== "");
       if (pathComponents.length === 5) {
         const modSource = decodeURI(pathComponents[3]); // TODO: i dislike this pattern, but im keeping it for now
         const modName = decodeURI(pathComponents[4]);
@@ -81,9 +79,12 @@
 
     modBackground = coverArtPlaceholder;
     if ($modInfoStore?.coverArtUrl) {
-      modBackground = $modInfoStore.coverArtUrl
-    } else if ($modInfoStore?.perGameConfig && $modInfoStore.perGameConfig[$activeGame]?.coverArtUrl) {
-      modBackground = $modInfoStore.perGameConfig[$activeGame].coverArtUrl
+      modBackground = $modInfoStore.coverArtUrl;
+    } else if (
+      $modInfoStore?.perGameConfig &&
+      $modInfoStore.perGameConfig[$activeGame]?.coverArtUrl
+    ) {
+      modBackground = $modInfoStore.perGameConfig[$activeGame].coverArtUrl;
     }
   }
 </script>

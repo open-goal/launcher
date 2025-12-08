@@ -13,7 +13,7 @@
   </p>
   <Button
     onclick={async () => {
-      navigate(`/settings/:tab`, {params: {tab: "versions"}});
+      navigate(`/settings/:tab`, { params: { tab: "versions" } });
     }}
     class="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
     >{$_("gameControls_noToolingSet_button_setVersion")}</Button

@@ -51,7 +51,7 @@
   let installedVersion: String | undefined = $state(undefined);
   let versionMismatchDetected = $state(false);
   let gameSupportedByTooling = $state(false);
-  
+
   onMount(async () => {
     loadGameInfo();
     loadModInfo();
