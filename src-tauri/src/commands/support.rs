@@ -32,9 +32,9 @@ pub struct GPUInfo {
 #[derive(Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ReleaseIntegrity {
-  pub decompiler_folder_modified: bool,
-  pub game_folder_modified: bool,
-  pub goal_src_modified: bool,
+  pub decompiler_folder_state: String,
+  pub game_folder_state: String,
+  pub goal_src_state: String,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -77,10 +77,34 @@ pub struct SupportPackage {
   pub os_kernel_ver: String,
   pub disk_info: Vec<String>,
   pub gpu_info: Option<GPUInfo>,
+  pub install_dir: String,
   pub game_info: PerGameInfo,
   pub launcher_version: String,
   pub extractor_binary_exists: bool,
   pub game_binary_exists: bool,
+}
+
+fn get_game_info_folder_diff_state(
+  base_data_dir: &std::path::PathBuf,
+  base_active_version_dir: &std::path::PathBuf,
+  sub_dir: &str,
+) -> String {
+  // The data_dir is always guaranteed to be there (it's just the extracted tooling)
+  // however, the active version folder may or may not exist (might not be installed)
+  let active_version_dir = base_active_version_dir.join(sub_dir);
+  let data_dir = base_data_dir.join(sub_dir);
+  if active_version_dir.exists() {
+    let diff_result = dir_diff::is_different(active_version_dir, data_dir);
+    if diff_result.is_err() {
+      return "Unknown".to_string();
+    }
+    if diff_result.is_ok() && diff_result.unwrap() {
+      return "Different".to_string();
+    } else {
+      return "Match".to_string();
+    }
+  }
+  return "Not Installed".to_string();
 }
 
 fn dump_per_game_info(
@@ -174,24 +198,18 @@ fn dump_per_game_info(
       .game_info
       .get_game_info(game_name)
       .release_integrity
-      .decompiler_folder_modified = dir_diff::is_different(
-      data_dir.join("decompiler"),
-      version_data_dir.join("decompiler"),
-    )
-    .unwrap_or(true);
+      .decompiler_folder_state =
+      get_game_info_folder_diff_state(&version_data_dir, &data_dir, "decompiler");
     package
       .game_info
       .get_game_info(game_name)
       .release_integrity
-      .game_folder_modified =
-      dir_diff::is_different(data_dir.join("game"), version_data_dir.join("game")).unwrap_or(true);
+      .game_folder_state = get_game_info_folder_diff_state(&version_data_dir, &data_dir, "game");
     package
       .game_info
       .get_game_info(game_name)
       .release_integrity
-      .goal_src_modified =
-      dir_diff::is_different(data_dir.join("goal_src"), version_data_dir.join("goal_src"))
-        .unwrap_or(true);
+      .goal_src_state = get_game_info_folder_diff_state(&version_data_dir, &data_dir, "goal_src");
   }
 
   // Append mod settings and logs
@@ -298,6 +316,16 @@ pub async fn generate_support_package(
   package.os_name_long = System::long_os_version().unwrap_or("unknown".to_string());
   package.os_kernel_ver = System::kernel_version().unwrap_or("unknown".to_string());
   package.launcher_version = app_handle.package_info().version.to_string();
+  if config_lock.installation_dir.is_none() {
+    package.install_dir = "Not Set".to_string();
+  } else {
+    package.install_dir = config_lock
+      .installation_dir
+      .clone()
+      .unwrap()
+      .to_string_lossy()
+      .to_string();
+  }
   if let Some(active_version) = &config_lock.active_version {
     if cfg!(windows) {
       package.extractor_binary_exists = install_path
