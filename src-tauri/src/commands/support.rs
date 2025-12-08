@@ -80,6 +80,7 @@ pub struct SupportPackage {
   pub install_dir: String,
   pub game_info: PerGameInfo,
   pub launcher_version: String,
+  pub active_tooling_version: String,
   pub extractor_binary_exists: bool,
   pub game_binary_exists: bool,
 }
@@ -316,6 +317,10 @@ pub async fn generate_support_package(
   package.os_name_long = System::long_os_version().unwrap_or("unknown".to_string());
   package.os_kernel_ver = System::kernel_version().unwrap_or("unknown".to_string());
   package.launcher_version = app_handle.package_info().version.to_string();
+  package.active_tooling_version = config_lock
+    .active_version
+    .clone()
+    .unwrap_or("unset".to_string());
   if config_lock.installation_dir.is_none() {
     package.install_dir = "Not Set".to_string();
   } else {
