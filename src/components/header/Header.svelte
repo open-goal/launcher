@@ -20,19 +20,26 @@
   import { toastStore } from "$lib/stores/ToastStore";
   import { getAutoUpdateGames, saveActiveVersionChange } from "$lib/rpc/config";
   import { check } from "@tauri-apps/plugin-updater";
-  import { relaunch } from "@tauri-apps/plugin-process";
-  import { ask } from "@tauri-apps/plugin-dialog";
+  import { warnLog } from "$lib/rpc/logging";
 
-  let launcherVerison = null;
+  let launcherVersion: string | null = null;
+  let launcherUpdateAvailable = false;
   const appWindow = getCurrentWebviewWindow();
 
-  async function downloadLatestVersion(version: string, url: String) {
+  async function downloadLatestVersion(
+    version: string,
+    url: String | undefined,
+  ) {
+    if (url === undefined) {
+      warnLog("can't download latest version with an undefined url");
+      return;
+    }
     await downloadOfficialVersion(version, url);
     $UpdateStore.selectedTooling.updateAvailable = false;
     await saveOfficialVersionChange(version);
   }
 
-  async function saveOfficialVersionChange(version) {
+  async function saveOfficialVersionChange(version: string) {
     const success = await saveActiveVersionChange(version);
     if (success) {
       $VersionStore.activeVersionName = version;
@@ -42,24 +49,14 @@
 
   onMount(async () => {
     // Get current versions
-    launcherVerison = `v${await getVersion()}`;
+    launcherVersion = `v${await getVersion()}`;
     $VersionStore.activeVersionName = await getActiveVersion();
 
     // Check for a launcher update
     if (!isInDebugMode()) {
       const update = await check();
       if (update) {
-        const doUpdate = await ask(
-          `${$_("update_versionLabel")}: ${update.version}`,
-          {
-            title: $_("header_updateAvailable"),
-            kind: "info",
-          },
-        );
-        if (doUpdate) {
-          await update.downloadAndInstall();
-          await relaunch();
-        }
+        launcherUpdateAvailable = true;
       }
     }
     await checkIfLatestVersionInstalled();
@@ -125,7 +122,7 @@
     class="flex flex-col text-neutral-300 mr-2 pointer-events-none max-w-[250px]"
   >
     <p class="font-mono text-sm">
-      {launcherVerison}
+      {launcherVersion}
     </p>
     <p class="font-mono text-sm">
       {$VersionStore.activeVersionName === null
@@ -133,13 +130,20 @@
         : $VersionStore.activeVersionName}
     </p>
   </div>
-  {#if $UpdateStore.selectedTooling.updateAvailable}
+  <div
+    class="flex flex-col text-neutral-300 mr-2 pointer-events-none max-w-[250px]"
+  >
     <Link
-      class="font-mono text-sm mt-5 text-orange-500 hover:text-orange-300"
-      to="/settings/versions"
-      >>&nbsp;{$_("header_updateAvailable")}
+      class={`font-mono text-sm text-orange-500 hover:text-orange-300 ${$UpdateStore.selectedTooling.updateAvailable ? "pointer-events-auto" : "invisible pointer-events-none"}`}
+      to="/update/launcher"
+      >&gt;&nbsp;{$_("header_updateAvailable")}
     </Link>
-  {/if}
+    <Link
+      class={`font-mono text-sm text-orange-500 hover:text-orange-300  ${$UpdateStore.selectedTooling.updateAvailable ? "pointer-events-auto" : "invisible pointer-events-none"}`}
+      to="/settings/versions"
+      >&gt;&nbsp;{$_("header_updateAvailable")}
+    </Link>
+  </div>
   <div class="flex shrink-0 space-x-4 text-xl ml-auto">
     <button class="hover:text-amber-600" on:click={() => appWindow.minimize()}>
       <IconWindowMinimize />
