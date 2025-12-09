@@ -134,7 +134,7 @@
     class="flex flex-col text-neutral-300 mr-2 pointer-events-none max-w-[250px]"
   >
     <Link
-      class={`font-mono text-sm text-orange-500 hover:text-orange-300 ${$UpdateStore.selectedTooling.updateAvailable ? "pointer-events-auto" : "invisible pointer-events-none"}`}
+      class={`font-mono text-sm text-orange-500 hover:text-orange-300 ${launcherUpdateAvailable ? "pointer-events-auto" : "invisible pointer-events-none"}`}
       to="/update/launcher"
       >&gt;&nbsp;{$_("header_updateAvailable")}
     </Link>
