@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
   import { Router, Route } from "svelte-navigator";
+  import UpdateLauncher from "./routes/UpdateLauncher.svelte";
   import Game from "./routes/Game.svelte";
   import Settings from "./routes/Settings.svelte";
   import Sidebar from "./components/sidebar/Sidebar.svelte";
@@ -99,6 +100,11 @@
           <Route
             path="/:game_name/mods/:source_url/:mod_name"
             component={Game}
+            primary={false}
+          />
+          <Route
+            path="/update/launcher"
+            component={UpdateLauncher}
             primary={false}
           />
           <Route path="/settings/*tab" component={Settings} primary={false} />
