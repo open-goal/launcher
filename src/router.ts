@@ -9,6 +9,8 @@ import Help from "./routes/Help.svelte";
 import ModSelection from "./components/games/features/mods/ModSelection.svelte";
 // @ts-ignore
 import TexturePacks from "./components/games/features/texture-packs/TexturePacks.svelte";
+// @ts-ignore
+import UpdateLauncher from "./routes/UpdateLauncher.svelte";
 
 export const { p, navigate, isActive, route } = createRouter({
   "/": Game,
@@ -19,4 +21,5 @@ export const { p, navigate, isActive, route } = createRouter({
   "/settings": Settings,
   "/settings/:tab": Settings,
   "/faq": Help,
+  "/update/launcher": UpdateLauncher,
 });

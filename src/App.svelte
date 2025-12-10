@@ -2,6 +2,9 @@
   import { onDestroy, onMount } from "svelte";
   import { Router } from "sv-router";
   import "./router.ts";
+  import UpdateLauncher from "./routes/UpdateLauncher.svelte";
+  import Game from "./routes/Game.svelte";
+  import Settings from "./routes/Settings.svelte";
   import Sidebar from "./components/sidebar/Sidebar.svelte";
   import Background from "./components/background/Background.svelte";
   import Header from "./components/header/Header.svelte";
