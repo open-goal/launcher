@@ -17,7 +17,11 @@
     setLocale,
   } from "$lib/rpc/config";
   import { listen } from "@tauri-apps/api/event";
-  import { toastStore } from "$lib/stores/ToastStore";
+  import {
+    toastStore,
+    type ToastLevel,
+    type ToastMessage,
+  } from "$lib/stores/ToastStore";
   import { isMinMacOSVersion, isMinVCCRuntime } from "$lib/stores/VersionStore";
   import { isMacOSVersion15OrAbove } from "$lib/rpc/util";
 
@@ -35,9 +39,12 @@
     isMinVCCRuntime.set(await isMinimumVCCRuntimeInstalled());
     isMinMacOSVersion.set(await isMacOSVersion15OrAbove());
 
-    toastListener = await listen("toast_msg", (event) => {
-      toastStore.makeToast(event.payload.toast, event.payload.level);
-    });
+    toastListener = await listen(
+      "toast_msg",
+      (event: { payload: { toast: string; level: ToastLevel } }) => {
+        toastStore.makeToast(event.payload.toast, event.payload.level);
+      },
+    );
   });
 
   onDestroy(() => {
@@ -75,16 +82,4 @@
   }
 </script>
 
-<div class={`container h-screen max-w-none flex flex-col bg-black`}>
-  {#if !$isLoading}
-    <Background />
-    <Header />
-    <div class="flex flex-row grow shrink h-[90%] z-10">
-      <Sidebar />
-      <div id="content" class="overflow-y-auto grow shrink">
-        <Router />
-      </div>
-    </div>
-    <Toast />
-  {/if}
-</div>
+<Router />

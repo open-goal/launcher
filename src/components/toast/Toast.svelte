@@ -14,7 +14,7 @@
     setTimeout(() => {
       toastStore.removeToast();
       currentToast = null;
-    }, 5000)
+    }, 5000);
   }
 </script>
 

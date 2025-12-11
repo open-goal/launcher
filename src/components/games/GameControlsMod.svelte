@@ -41,11 +41,10 @@
   import { VersionStore } from "$lib/stores/VersionStore";
   import { modInfoStore } from "$lib/stores/AppStore";
   import { navigate } from "/src/router";
-  import { activeGameState } from "/src/state/ActiveGameState.svelte";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
 
-  const activeGame = $derived(activeGameState.game);
+  let { activeGame }: { activeGame: SupportedGame } = $props();
   const modInfo = $derived($modInfoStore);
 
   // TODO - why are name/source Options from rust, makes this code very cumbersome
@@ -86,15 +85,12 @@
   });
 
   $effect(() => {
-    refreshDirectories(activeGame, modInfo);
-    refreshModInfo(activeGame, modInfo);
+    refreshDirectories(modInfo);
+    refreshModInfo(modInfo);
   });
 
-  async function refreshDirectories(
-    activeGame: SupportedGame | undefined,
-    modInfo: ModInfo | undefined,
-  ) {
-    if (!activeGame || !modInfo || !modInfo.source || !modInfo.name) {
+  async function refreshDirectories(modInfo: ModInfo | undefined) {
+    if (!modInfo || !modInfo.source || !modInfo.name) {
       return;
     }
     let installationDir = await getInstallationDirectory();
@@ -146,11 +142,8 @@
     }
   }
 
-  async function refreshModInfo(
-    activeGame: SupportedGame | undefined,
-    modInfo: ModInfo | undefined,
-  ) {
-    if (!activeGame || !modInfo || !modInfo.source || !modInfo.name) {
+  async function refreshModInfo(modInfo: ModInfo | undefined) {
+    if (!modInfo || !modInfo.source || !modInfo.name) {
       return;
     }
 
@@ -216,7 +209,7 @@
   }
 </script>
 
-{#if activeGame && modInfo && modInfo.name !== undefined && modInfo.source !== undefined}
+{#if modInfo && modInfo.name !== undefined && modInfo.source !== undefined}
   <div
     class="[margin-left:35%] p-3 rounded-lg flex flex-col justify-end items-end mt-auto [background-color:rgba(0,0,0,.5)]"
   >

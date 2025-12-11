@@ -87,11 +87,7 @@ export async function isDiskSpaceRequirementMet(
 }
 
 export async function isMinimumVCCRuntimeInstalled(): Promise<boolean> {
-  return await invoke_rpc(
-    "is_minimum_vcc_runtime_installed",
-    {},
-    () => false,
-  );
+  return await invoke_rpc("is_minimum_vcc_runtime_installed", {}, () => false);
 }
 
 export async function finalizeInstallation(
@@ -105,7 +101,9 @@ export async function finalizeInstallation(
   );
 }
 
-export async function isGameInstalled(gameName: SupportedGame | string): Promise<boolean> {
+export async function isGameInstalled(
+  gameName: SupportedGame | string,
+): Promise<boolean> {
   return await invoke_rpc(
     "get_setting_value",
     { key: "installed", gameName },
@@ -113,7 +111,9 @@ export async function isGameInstalled(gameName: SupportedGame | string): Promise
   );
 }
 
-export async function getInstalledVersion(gameName: string): Promise<String | undefined> {
+export async function getInstalledVersion(
+  gameName: string,
+): Promise<String | undefined> {
   return invoke_rpc(
     "get_setting_value",
     { key: "installed_version", gameName: gameName },

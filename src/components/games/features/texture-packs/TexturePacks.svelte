@@ -43,17 +43,20 @@
   import LogViewer from "../../setup/LogViewer.svelte";
   import Progress from "../../setup/Progress.svelte";
   import { navigate } from "/src/router";
+  import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
 
-  let loaded = false;
-  let extractedPackInfo: any = undefined;
-  let availablePacks = [];
-  let availablePacksOriginal = [];
+  let { activeGame }: { activeGame: SupportedGame } = $props();
 
-  let addingPack = false;
-  let packAddingError = "";
+  let loaded = $state(false);
+  let extractedPackInfo: any = $state(undefined);
+  let availablePacks = $state([]);
+  let availablePacksOriginal = $state([]);
 
-  let enabledPacks = [];
-  let packsToDelete = [];
+  let addingPack = $state(false);
+  let packAddingError = $state("");
+
+  let enabledPacks = $state([]);
+  let packsToDelete = $state([]);
 
   onMount(async () => {
     await update_pack_list();
@@ -86,7 +89,7 @@
     progressTracker.init(jobs);
     progressTracker.start();
     if (packsToDelete.length) {
-      let resp = await deleteTexturePacks($activeGame, packsToDelete);
+      let resp = await deleteTexturePacks(activeGame, packsToDelete);
       if (!resp.success) {
         progressTracker.halt();
         installationError = resp.msg;
@@ -94,21 +97,21 @@
       }
       progressTracker.proceed();
     }
-    let resp = await setEnabledTexturePacks($activeGame, enabledPacks);
+    let resp = await setEnabledTexturePacks(activeGame, enabledPacks);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
       return;
     }
     progressTracker.proceed();
-    resp = await updateTexturePackData($activeGame);
+    resp = await updateTexturePackData(activeGame);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
       return;
     }
     progressTracker.proceed();
-    resp = await runDecompiler("", $activeGame, true, false);
+    resp = await runDecompiler("", activeGame, true, false);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -120,8 +123,8 @@
   async function update_pack_list() {
     availablePacks = [];
     availablePacksOriginal = [];
-    let currentlyEnabledPacks = await getEnabledTexturePacks($activeGame);
-    extractedPackInfo = await listExtractedTexturePackInfo($activeGame);
+    let currentlyEnabledPacks = await getEnabledTexturePacks(activeGame);
+    extractedPackInfo = await listExtractedTexturePackInfo(activeGame);
     // Finalize `availablePacks` list
     // - First, cleanup any packs that were enabled but can no longer be found
     let cleanupPackList = [];
@@ -133,7 +136,7 @@
         filteredCurrentlyEnabledPacks.push(packName);
       }
     }
-    await cleanupEnabledTexturePacks($activeGame, cleanupPackList);
+    await cleanupEnabledTexturePacks(activeGame, cleanupPackList);
     // - secondly, add the ones that are enabled so they are at the top of the list
     for (const pack of currentlyEnabledPacks) {
       availablePacks.push({
@@ -217,7 +220,7 @@
       "Select a texture pack",
     );
     if (texturePackPath !== null) {
-      const success = await extractNewTexturePack($activeGame, texturePackPath);
+      const success = await extractNewTexturePack(activeGame, texturePackPath);
       if (success) {
         // if the user made any changes, attempt to restore them after
         let preexistingChanges = undefined;
@@ -284,7 +287,7 @@
             outline
             class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
             onclick={async () =>
-              navigate(`/:game_name`, { params: { game_name: $activeGame } })}
+              navigate(`/:game_name`, { params: { game_name: activeGame } })}
             aria-label={$_("features_backToGamePage_buttonAlt")}
           >
             <IconArrowLeft />

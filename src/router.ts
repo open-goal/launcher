@@ -11,15 +11,28 @@ import ModSelection from "./components/games/features/mods/ModSelection.svelte";
 import TexturePacks from "./components/games/features/texture-packs/TexturePacks.svelte";
 // @ts-ignore
 import UpdateLauncher from "./routes/UpdateLauncher.svelte";
+// @ts-ignore
+import Layout from "./routes/layouts/Layout.svelte";
 
 export const { p, navigate, isActive, route } = createRouter({
   "/": Game,
-  "/:game_name": Game,
-  "/:game_name/mods": ModSelection,
-  "/:game_name/mods/:source_name/:mod_name": Game,
-  "/:game_name/texture_packs": TexturePacks,
-  "/settings": Settings,
-  "/settings/:tab": Settings,
+  "/:game_name": {
+    "/": Game,
+    "/mods": {
+      "/": ModSelection,
+      "/:source_name/:mod_name": {
+        "/": Game,
+      },
+    },
+    "/texture_packs": {
+      "/": TexturePacks,
+    },
+  },
+  "/settings": {
+    "/": Settings,
+    "/:tab": Settings,
+  },
   "/faq": Help,
   "/update/launcher": UpdateLauncher,
+  layout: Layout,
 });

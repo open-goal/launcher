@@ -1,7 +1,6 @@
 <script lang="ts">
   import GameControls from "../components/games/GameControls.svelte";
   import GameSetup from "../components/games/setup/GameSetup.svelte";
-  import { onMount } from "svelte";
   import { Alert } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import {
@@ -26,34 +25,35 @@
   import GameInProgress from "../components/games/GameInProgress.svelte";
   import { modInfoStore } from "$lib/stores/AppStore";
   import { route } from "../router";
-  import { activeGameState } from "../state/ActiveGameState.svelte.ts";
   import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame.ts";
 
-  const activeGame = $derived(activeGameState.game);
-
-  $effect(() => {
-    loadGameInfo(activeGame);
-    loadModInfo();
-  });
-
-  $effect(() => {
-    activeGameState.game = toSupportedGame(route.params.game_name);
-  });
-
-  const showVccWarning = $derived(type() == "windows" && !$isMinVCCRuntime);
-
-  let modVersionToInstall: string = $state("");
-  let modDownloadUrlToInstall: string = $state("");
-
+  const gameParam = $derived(route.params.game_name);
   let modName: string | undefined = $derived(route.params.mod_name);
   let modSource: string | undefined = $derived(route.params.source_name);
 
+  const showVccWarning = $derived(type() == "windows" && !$isMinVCCRuntime);
+
+  let activeGame: SupportedGame | undefined = $state(undefined);
+  let modVersionToInstall: string = $state("");
+  let modDownloadUrlToInstall: string = $state("");
   let gameInstalled = $state(false);
   let gameJobToRun: Job | undefined = $state(undefined);
   let installedVersion: String | undefined = $state(undefined);
   let versionMismatchDetected = $state(false);
   let gameSupportedByTooling = $state(false);
+
+  $effect(() => {
+    const activeGameFromParam = toSupportedGame(gameParam);
+    if (activeGameFromParam) {
+      activeGame = activeGameFromParam;
+    }
+  });
+
+  $effect(() => {
+    loadGameInfo(activeGame);
+    loadModInfo();
+  });
 
   async function loadGameInfo(activeGame?: SupportedGame) {
     if (!activeGame) {
@@ -137,85 +137,87 @@
   }
 </script>
 
-<div class="flex flex-col h-full p-5">
-  {#if $VersionStore.activeVersionName === null}
-    <GameToolsNotSet />
-  {:else if activeGame == "jak3" || activeGame == "jakx"}
-    <!-- TODO: remove this else if arm for jak3 support -->
-    <GameInProgress />
-  {:else if !gameSupportedByTooling}
-    <GameNotSupportedByTooling />
-  {:else if !gameInstalled}
-    <GameSetup on:change={updateGameState} />
-  {:else if gameJobToRun !== undefined}
-    <GameJob
-      jobType={gameJobToRun}
-      modSourceName={modSource}
-      modDownloadUrl={modDownloadUrlToInstall}
-      modVersion={modVersionToInstall}
-      {modName}
-      on:jobFinished={gameJobFinished}
-    />
-  {:else if versionMismatchDetected}
-    <GameUpdate {installedVersion} on:job={runGameJob} />
-  {:else}
-    {#if showVccWarning}
-      <Alert rounded={false} class="border-t-4 text-red-400">
-        <span class="font-bold"
-          >{$_("gameControls_warning_vccVersion_headerA")}</span
-        >
-        <em>{$_("gameControls_warning_vccVersion_headerB")}</em>
-        <br />
-        <ul>
-          <li>
-            <a
-              class="font-bold text-blue-500"
-              target="_blank"
-              rel="noreferrer"
-              href="https://aka.ms/vs/17/release/vc_redist.x64.exe"
-              >{$_(
-                "requirements_windows_vccRuntimeExplanation_downloadLink",
-              )}</a
-            >
-          </li>
-        </ul>
-      </Alert>
-    {/if}
+{#if activeGame}
+  <div class="flex flex-col h-full p-5">
+    {#if $VersionStore.activeVersionName === null}
+      <GameToolsNotSet />
+    {:else if activeGame == "jak3" || activeGame == "jakx"}
+      <!-- TODO: remove this else if arm for jak3 support -->
+      <GameInProgress />
+    {:else if !gameSupportedByTooling}
+      <GameNotSupportedByTooling />
+    {:else if !gameInstalled}
+      <GameSetup {activeGame} on:change={updateGameState} />
+    {:else if gameJobToRun !== undefined}
+      <GameJob
+        {activeGame}
+        jobType={gameJobToRun}
+        modSourceName={modSource}
+        modDownloadUrl={modDownloadUrlToInstall}
+        modVersion={modVersionToInstall}
+        {modName}
+        on:jobFinished={gameJobFinished}
+      />
+    {:else if versionMismatchDetected}
+      <GameUpdate {installedVersion} on:job={runGameJob} />
+    {:else}
+      {#if showVccWarning}
+        <Alert rounded={false} class="border-t-4 text-red-400">
+          <span class="font-bold"
+            >{$_("gameControls_warning_vccVersion_headerA")}</span
+          >
+          <em>{$_("gameControls_warning_vccVersion_headerB")}</em>
+          <br />
+          <ul>
+            <li>
+              <a
+                class="font-bold text-blue-500"
+                target="_blank"
+                rel="noreferrer"
+                href="https://aka.ms/vs/17/release/vc_redist.x64.exe"
+                >{$_(
+                  "requirements_windows_vccRuntimeExplanation_downloadLink",
+                )}</a
+              >
+            </li>
+          </ul>
+        </Alert>
+      {/if}
 
-    <!-- Jak 2 BETA warning -->
-    {#if activeGame === "jak2"}
-      <Alert rounded={false} class="border-t-4 text-red-400">
-        <span class="font-bold">{$_("gameControls_beta_headerA")}</span>
-        <em>{$_("gameControls_beta_headerB")}</em>
-        <br />
-        <ul>
-          <li>
-            {$_("gameControls_beta_issueTracker_linkPreText")}
-            <a
-              class="text-blue-400"
-              href="https://github.com/open-goal/jak-project/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3Ajak2"
-              target="_blank"
-              rel="noopener noreferrer"
-              >{$_("gameControls_beta_issueTracker_linkText")}</a
-            >
-          </li>
-          <li>
-            {$_("gameControls_beta_bugReport_linkPreText")}
-            <a
-              class="text-blue-400"
-              href="https://github.com/open-goal/jak-project/issues/new?template=jak2-bug-report.yml"
-              target="_blank"
-              rel="noopener noreferrer"
-              >{$_("gameControls_beta_bugReport_linkText")}</a
-            >
-          </li>
-        </ul>
-      </Alert>
-    {/if}
+      <!-- Jak 2 BETA warning -->
+      {#if activeGame === "jak2"}
+        <Alert rounded={false} class="border-t-4 text-red-400">
+          <span class="font-bold">{$_("gameControls_beta_headerA")}</span>
+          <em>{$_("gameControls_beta_headerB")}</em>
+          <br />
+          <ul>
+            <li>
+              {$_("gameControls_beta_issueTracker_linkPreText")}
+              <a
+                class="text-blue-400"
+                href="https://github.com/open-goal/jak-project/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3Ajak2"
+                target="_blank"
+                rel="noopener noreferrer"
+                >{$_("gameControls_beta_issueTracker_linkText")}</a
+              >
+            </li>
+            <li>
+              {$_("gameControls_beta_bugReport_linkPreText")}
+              <a
+                class="text-blue-400"
+                href="https://github.com/open-goal/jak-project/issues/new?template=jak2-bug-report.yml"
+                target="_blank"
+                rel="noopener noreferrer"
+                >{$_("gameControls_beta_bugReport_linkText")}</a
+              >
+            </li>
+          </ul>
+        </Alert>
+      {/if}
 
-    <!-- Jak 3 BETA warning -->
-    <!-- NOTE - dead branch, disabling until relevant to avoid ts error -->
-    <!-- {#if activeGame === "jak3"}
+      <!-- Jak 3 BETA warning -->
+      <!-- NOTE - dead branch, disabling until relevant to avoid ts error -->
+      <!-- {#if activeGame === "jak3"}
       <Alert rounded={false} class="border-t-4 text-red-400">
         <span class="font-bold">{$_("gameControls_beta_headerA_jak3")}</span>
         <em>{$_("gameControls_beta_headerB")}</em>
@@ -244,10 +246,19 @@
         </ul>
       </Alert>
     {/if} -->
-    {#if modName !== undefined}
-      <GameControlsMod on:change={updateGameState} on:job={runGameJob} />
-    {:else}
-      <GameControls on:change={updateGameState} on:job={runGameJob} />
+      {#if modName !== undefined}
+        <GameControlsMod
+          {activeGame}
+          on:change={updateGameState}
+          on:job={runGameJob}
+        />
+      {:else}
+        <GameControls
+          {activeGame}
+          on:change={updateGameState}
+          on:job={runGameJob}
+        />
+      {/if}
     {/if}
-  {/if}
-</div>
+  </div>
+{/if}

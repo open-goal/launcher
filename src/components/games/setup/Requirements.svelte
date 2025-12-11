@@ -12,21 +12,23 @@
   import { arch, type } from "@tauri-apps/plugin-os";
   import { isMinMacOSVersion } from "$lib/stores/VersionStore";
   import { isMinVCCRuntime } from "$lib/stores/VersionStore";
+  import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
 
+  let { activeGame }: { activeGame: SupportedGame } = $props();
 
   let isAVXRelevant = type() !== "macos";
   let isTryingToUseARMOutsideOfMacOS: boolean | undefined =
     arch() == "aarch64" && type() !== "macos";
-  let isAVXMet: boolean | undefined = false;
-  let isOpenGLMet: boolean | undefined = false;
-  let isDiskSpaceMet: boolean | undefined = false;
-  let isVCCRelevant: boolean | undefined = type() == "windows";
+  let isAVXMet: boolean | undefined = $state(false);
+  let isOpenGLMet: boolean | undefined = $state(false);
+  let isDiskSpaceMet: boolean | undefined = $state(false);
+  const isVCCRelevant: boolean | undefined = type() == "windows";
 
   const dispatch = createEventDispatcher();
 
   onMount(async () => {
     isOpenGLMet = await isOpenGLRequirementMet(false);
-    isDiskSpaceMet = await isDiskSpaceRequirementMet($activeGame);
+    isDiskSpaceMet = await isDiskSpaceRequirementMet(activeGame);
     if (isAVXRelevant) {
       isAVXMet = await isAVXRequirementMet();
     }
@@ -147,14 +149,14 @@
   >
     {#if isDiskSpaceMet}
       <span class="font-bold"
-        >{$_(`requirements_disk_enoughSpace_${$activeGame}`)}</span
+        >{$_(`requirements_disk_enoughSpace_${activeGame}`)}</span
       >
     {:else if isDiskSpaceMet === undefined}
       <span class="font-bold">{$_(`requirements_disk_unableToCheckSpace`)}</span
       >
     {:else}
       <span class="font-bold"
-        >{$_(`requirements_disk_notEnoughSpace_${$activeGame}`)}</span
+        >{$_(`requirements_disk_notEnoughSpace_${activeGame}`)}</span
       >
     {/if}
   </Alert>

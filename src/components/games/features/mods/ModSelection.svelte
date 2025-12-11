@@ -17,21 +17,23 @@
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import thumbnailPlaceholder from "$assets/images/mod-thumbnail-placeholder.webp";
   import { isLatestVersionOfModSupportedOnCurrentPlatform } from "$lib/features/mods";
-
   import { navigate } from "/src/router";
+  import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
 
   const dispatch = createEventDispatcher();
 
+  let { activeGame }: { activeGame: SupportedGame } = $props();
+
   let userPlatform = platform();
-  let loaded = false;
-  let modFilter = "";
-  let installedMods: Record<string, Record<string, string>> = {};
-  let sourceData: Record<string, ModSourceData> = {};
-  let addingMod = false;
-  let addingFromFile = false;
+  let loaded = $state(false);
+  let modFilter = $state("");
+  let installedMods: Record<string, Record<string, string>> = $state({});
+  let sourceData: Record<string, ModSourceData> = $state({});
+  let addingMod = $state(false);
+  let addingFromFile = $state(false);
 
   onMount(async () => {
-    installedMods = await getInstalledMods($activeGame);
+    installedMods = await getInstalledMods(activeGame);
     await refreshModSources();
     sourceData = await getModSourcesData();
     loaded = true;
@@ -46,7 +48,7 @@
       return;
     }
     // extract the file into install_dir/features/<game>/_local/zip-name
-    await extractNewMod($activeGame, modArchivePath, "_local");
+    await extractNewMod(activeGame, modArchivePath, "_local");
     // install it immediately
     // - prompt user for iso if it doesn't exist
     // - decompile
@@ -86,10 +88,10 @@
     // Prefer pre-game-config if available
     if (
       modInfo.perGameConfig !== null &&
-      modInfo.perGameConfig.hasOwnProperty($activeGame) &&
-      modInfo.perGameConfig[$activeGame].thumbnailArtUrl
+      modInfo.perGameConfig.hasOwnProperty(activeGame) &&
+      modInfo.perGameConfig[activeGame].thumbnailArtUrl
     ) {
-      return modInfo.perGameConfig[$activeGame].thumbnailArtUrl;
+      return modInfo.perGameConfig[activeGame].thumbnailArtUrl;
     } else if (modInfo.thumbnailArtUrl !== null) {
       return modInfo.thumbnailArtUrl;
     }
@@ -105,7 +107,7 @@
   ): Promise<string> {
     // TODO - make this not a promise, do it in the initial component loading
     if (sourceName === "_local") {
-      return await getLocalModThumbnailBase64($activeGame, modName);
+      return await getLocalModThumbnailBase64(activeGame, modName);
     }
     // Find the mod by looking at the sources, if we can't find it then return the placeholder
     const source = Object.values(sourceData).find(
@@ -138,11 +140,11 @@
   }
 
   function isModSupportedByCurrentGame(modInfo: ModInfo): boolean {
-    return modInfo.versions[0]?.supportedGames?.includes($activeGame) ?? false;
+    return modInfo.versions[0]?.supportedGames?.includes(activeGame) ?? false;
   }
 
   function ageOfModInDays(modInfo: ModInfo): number | undefined {
-    const config = modInfo.perGameConfig?.[$activeGame];
+    const config = modInfo.perGameConfig?.[activeGame];
     if (!config?.releaseDate) return undefined;
     const releaseTime = Date.parse(config.releaseDate);
     const now = Date.now();
@@ -162,7 +164,7 @@
           outline
           class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
           onclick={async () =>
-            navigate(`/:game_name`, { params: { game_name: $activeGame } })}
+            navigate(`/:game_name`, { params: { game_name: activeGame } })}
           aria-label={$_("features_backToGamePage_buttonAlt")}
         >
           <IconArrowLeft />
@@ -210,7 +212,7 @@
                       on:click={async () => {
                         navigate(`/:game_name/mods/:source_name/:mod_name`, {
                           params: {
-                            game_name: $activeGame,
+                            game_name: activeGame,
                             source_name: encodeURI(sourceName),
                             mod_name: encodeURI(modName),
                           },
@@ -300,7 +302,7 @@
                       on:click={async () => {
                         navigate(`/:game_name/mods/:source_name/:mod_name`, {
                           params: {
-                            game_name: $activeGame,
+                            game_name: activeGame,
                             source_name: encodeURI(sourceInfo.sourceName),
                             mod_name: encodeURI(modName),
                           },

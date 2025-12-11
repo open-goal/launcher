@@ -1,1 +1,1 @@
-declare module 'ansi-to-span';
+declare module "ansi-to-span";

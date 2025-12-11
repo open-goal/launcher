@@ -3,7 +3,10 @@
   import LogViewer from "../setup/LogViewer.svelte";
   import { createEventDispatcher, onMount } from "svelte";
   import { Alert, Button } from "flowbite-svelte";
-  import { progressTracker, type ProgressStep } from "$lib/stores/ProgressStore";
+  import {
+    progressTracker,
+    type ProgressStep,
+  } from "$lib/stores/ProgressStore";
   import type { Job } from "$lib/utils/jobs";
   import {
     runCompiler,
@@ -26,9 +29,10 @@
   } from "$lib/rpc/features";
   import { isoPrompt } from "$lib/utils/file-dialogs";
   import { emit } from "@tauri-apps/api/event";
-  import { activeGameState } from "/src/state/ActiveGameState.svelte";
+  import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
 
   interface Props {
+    activeGame: SupportedGame;
     jobType: Job;
     modDownloadUrl: string | undefined;
     modSourceName: string | undefined;
@@ -36,9 +40,14 @@
     modVersion: string | undefined;
   }
 
-  const activeGame = $derived(activeGameState.game);
-  let { jobType, modDownloadUrl, modSourceName, modName, modVersion }: Props =
-    $props();
+  let {
+    activeGame,
+    jobType,
+    modDownloadUrl,
+    modSourceName,
+    modName,
+    modVersion,
+  }: Props = $props();
   const dispatch = createEventDispatcher();
   let installationError: string | undefined | null = $state(undefined);
   let proceedAfterSuccessfulOperation = $state(true);
@@ -59,9 +68,6 @@
   });
 
   async function setupDecompileJob() {
-    if (!activeGame) {
-      return;
-    }
     installationError = undefined;
     progressTracker.init([
       {
@@ -85,9 +91,6 @@
   }
 
   async function setupCompileJob() {
-    if (!activeGame) {
-      return;
-    }
     installationError = undefined;
     progressTracker.init([
       {
@@ -111,9 +114,6 @@
   }
 
   async function setupUpdateGameJob() {
-    if (!activeGame) {
-      return;
-    }
     installationError = undefined;
     progressTracker.init([
       {
@@ -162,9 +162,6 @@
   }
 
   async function setupModInstallation() {
-    if (!activeGame) {
-      return;
-    }
     // Check to see if we need to prompt for the ISO or not
     installationError = undefined;
     let jobs: ProgressStep[] = [];
@@ -244,7 +241,7 @@
   }
 
   async function setupModInstallationExternal() {
-    if (!activeGame || !modDownloadUrl || !modName || !modSourceName) {
+    if (!modDownloadUrl || !modName || !modSourceName) {
       return;
     }
     // Check to see if we need to prompt for the ISO or not
@@ -336,9 +333,6 @@
   }
 
   async function setupDecompileModJob() {
-    if (!activeGame) {
-      return;
-    }
     // Check to see if we need to prompt for the ISO or not
     installationError = undefined;
     progressTracker.init([
@@ -363,9 +357,6 @@
   }
 
   async function setupCompileModJob() {
-    if (!activeGame) {
-      return;
-    }
     // Check to see if we need to prompt for the ISO or not
     installationError = undefined;
     progressTracker.init([
