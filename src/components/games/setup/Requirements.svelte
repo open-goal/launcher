@@ -12,7 +12,7 @@
   import { arch, type } from "@tauri-apps/plugin-os";
   import { isMinMacOSVersion } from "$lib/stores/VersionStore";
   import { isMinVCCRuntime } from "$lib/stores/VersionStore";
-  import { activeGame } from "$lib/stores/AppStore";
+
 
   let isAVXRelevant = type() !== "macos";
   let isTryingToUseARMOutsideOfMacOS: boolean | undefined =

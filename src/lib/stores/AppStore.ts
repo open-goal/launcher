@@ -15,6 +15,4 @@ export const UpdateStore = writable<UpdateState>({
   },
 });
 
-export const activeGame = writable<SupportedGame>(undefined);
-
 export const modInfoStore = writable<ModInfo | undefined>(undefined);

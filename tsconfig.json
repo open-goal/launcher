@@ -6,6 +6,9 @@
     "module": "ESNext",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     /**
      * To have warnings / errors of the Svelte compiler at the
      * correct position, enable source maps by default.

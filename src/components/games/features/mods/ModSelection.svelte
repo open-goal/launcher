@@ -17,7 +17,7 @@
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import thumbnailPlaceholder from "$assets/images/mod-thumbnail-placeholder.webp";
   import { isLatestVersionOfModSupportedOnCurrentPlatform } from "$lib/features/mods";
-  import { activeGame } from "$lib/stores/AppStore";
+
   import { navigate } from "/src/router";
 
   const dispatch = createEventDispatcher();

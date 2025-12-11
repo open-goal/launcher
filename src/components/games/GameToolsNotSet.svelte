@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { Button } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { navigate } from "/src/router";

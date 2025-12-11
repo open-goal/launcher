@@ -24,18 +24,21 @@
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import GameControlsMod from "../components/games/GameControlsMod.svelte";
   import GameInProgress from "../components/games/GameInProgress.svelte";
-  import { activeGame, modInfoStore } from "$lib/stores/AppStore";
+  import { modInfoStore } from "$lib/stores/AppStore";
   import { route } from "../router";
+  import { activeGameState } from "../state/ActiveGameState.svelte.ts";
+  import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
+  import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame.ts";
+
+  const activeGame = $derived(activeGameState.game);
 
   $effect(() => {
-    route.search;
-    loadGameInfo();
+    loadGameInfo(activeGame);
+    loadModInfo();
   });
 
   $effect(() => {
-    if (route.params.game_name !== undefined) {
-      activeGame.set(route.params.game_name);
-    }
+    activeGameState.game = toSupportedGame(route.params.game_name);
   });
 
   const showVccWarning = $derived(type() == "windows" && !$isMinVCCRuntime);
@@ -52,26 +55,24 @@
   let versionMismatchDetected = $state(false);
   let gameSupportedByTooling = $state(false);
 
-  onMount(async () => {
-    loadGameInfo();
-    loadModInfo();
-  });
-
-  async function loadGameInfo() {
+  async function loadGameInfo(activeGame?: SupportedGame) {
+    if (!activeGame) {
+      return;
+    }
     // First off, check that they've downloaded and have a jak-project release set
     const activeVersionExists = await ensureActiveVersionStillExists();
     $VersionStore.activeVersionName = await getActiveVersion();
 
     if (activeVersionExists) {
       gameSupportedByTooling =
-        await doesActiveToolingVersionSupportGame($activeGame);
+        await doesActiveToolingVersionSupportGame(activeGame);
       // verify the game is installed
-      gameInstalled = await isGameInstalled($activeGame);
+      gameInstalled = await isGameInstalled(activeGame);
 
       // verify selected version is installed tooling version
       // - prompt them to either reinstall OR go and select their previous version
       if (gameInstalled) {
-        installedVersion = await getInstalledVersion($activeGame);
+        installedVersion = await getInstalledVersion(activeGame);
         versionMismatchDetected =
           installedVersion !== $VersionStore.activeVersionName;
       }
@@ -116,7 +117,10 @@
   }
 
   async function updateGameState(event: any) {
-    gameInstalled = await isGameInstalled($activeGame);
+    if (!activeGame) {
+      return;
+    }
+    gameInstalled = await isGameInstalled(activeGame);
   }
 
   async function runGameJob(event: any) {
@@ -136,7 +140,7 @@
 <div class="flex flex-col h-full p-5">
   {#if $VersionStore.activeVersionName === null}
     <GameToolsNotSet />
-  {:else if $activeGame == "jak3" || $activeGame == "jakx"}
+  {:else if activeGame == "jak3" || activeGame == "jakx"}
     <!-- TODO: remove this else if arm for jak3 support -->
     <GameInProgress />
   {:else if !gameSupportedByTooling}
@@ -179,7 +183,7 @@
     {/if}
 
     <!-- Jak 2 BETA warning -->
-    {#if $activeGame === "jak2"}
+    {#if activeGame === "jak2"}
       <Alert rounded={false} class="border-t-4 text-red-400">
         <span class="font-bold">{$_("gameControls_beta_headerA")}</span>
         <em>{$_("gameControls_beta_headerB")}</em>
@@ -210,7 +214,8 @@
     {/if}
 
     <!-- Jak 3 BETA warning -->
-    {#if $activeGame === "jak3"}
+    <!-- NOTE - dead branch, disabling until relevant to avoid ts error -->
+    <!-- {#if activeGame === "jak3"}
       <Alert rounded={false} class="border-t-4 text-red-400">
         <span class="font-bold">{$_("gameControls_beta_headerA_jak3")}</span>
         <em>{$_("gameControls_beta_headerB")}</em>
@@ -238,7 +243,7 @@
           </li>
         </ul>
       </Alert>
-    {/if}
+    {/if} -->
     {#if modName !== undefined}
       <GameControlsMod on:change={updateGameState} on:job={runGameJob} />
     {:else}

@@ -23,7 +23,7 @@
   import { emit } from "@tauri-apps/api/event";
   import { arch, type } from "@tauri-apps/plugin-os";
   import { isMinVCCRuntime, isMinMacOSVersion } from "$lib/stores/VersionStore";
-  import { activeGame } from "$lib/stores/AppStore";
+
 
   const dispatch = createEventDispatcher();
 

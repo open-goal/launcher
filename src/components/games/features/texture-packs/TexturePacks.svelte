@@ -37,7 +37,7 @@
   } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
-  import { activeGame } from "$lib/stores/AppStore";
+
   import { progressTracker } from "$lib/stores/ProgressStore";
   import { runDecompiler } from "$lib/rpc/binaries";
   import LogViewer from "../../setup/LogViewer.svelte";

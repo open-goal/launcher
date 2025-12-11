@@ -2,7 +2,7 @@ import { writable } from "svelte/store";
 
 export type ToastLevel = "error" | "warn" | "info" | undefined;
 
-interface ToastMessage {
+export interface ToastMessage {
   msg: string;
   level: ToastLevel;
   interval?: any;
