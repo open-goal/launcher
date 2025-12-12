@@ -17,12 +17,24 @@
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import thumbnailPlaceholder from "$assets/images/mod-thumbnail-placeholder.webp";
   import { isLatestVersionOfModSupportedOnCurrentPlatform } from "$lib/features/mods";
-  import { navigate } from "/src/router";
+  import { navigate, route } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
+  import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
 
   const dispatch = createEventDispatcher();
 
-  let { activeGame }: { activeGame: SupportedGame } = $props();
+  const gameParam = $derived(route.params.game_name);
+  let activeGame: SupportedGame | undefined = $state(undefined);
+
+  $effect(() => {
+    const activeGameFromParam = toSupportedGame(gameParam);
+    if (activeGameFromParam) {
+      activeGame = activeGameFromParam;
+      getInstalledMods(activeGame).then(val => {
+        installedMods = val;
+      });
+    }
+  });
 
   let userPlatform = platform();
   let loaded = $state(false);
@@ -33,13 +45,15 @@
   let addingFromFile = $state(false);
 
   onMount(async () => {
-    installedMods = await getInstalledMods(activeGame);
     await refreshModSources();
     sourceData = await getModSourcesData();
     loaded = true;
   });
 
   async function addModFromFile(evt: Event) {
+    if (!activeGame) {
+      return;
+    }
     addingMod = true;
     addingFromFile = true;
     const modArchivePath = await filePrompt(["zip"], "ZIP", "Select a mod");
@@ -63,28 +77,10 @@
     addingFromFile = false;
   }
 
-  async function addModFromUrl(
-    url: string,
-    modName: string,
-    sourceName: string,
-    modVersion: string,
-  ) {
-    addingMod = true;
-    // install it immediately
-    // - prompt user for iso if it doesn't exist
-    // - decompile
-    // - compile
-    dispatch("job", {
-      type: "installModExternal",
-      modDownloadUrl: url,
-      modSourceName: sourceName,
-      modName: modName,
-      modVersion: modVersion,
-    });
-    addingMod = false;
-  }
-
   function getThumbnailImage(modInfo: ModInfo): string {
+    if (!activeGame) {
+      return thumbnailPlaceholder;
+    }
     // Prefer pre-game-config if available
     if (
       modInfo.perGameConfig !== null &&
@@ -105,6 +101,9 @@
     sourceName: string,
     modName: string,
   ): Promise<string> {
+    if (!activeGame) {
+      return thumbnailPlaceholder;
+    }
     // TODO - make this not a promise, do it in the initial component loading
     if (sourceName === "_local") {
       return await getLocalModThumbnailBase64(activeGame, modName);
@@ -140,10 +139,16 @@
   }
 
   function isModSupportedByCurrentGame(modInfo: ModInfo): boolean {
+    if (!activeGame) {
+      return false;
+    }
     return modInfo.versions[0]?.supportedGames?.includes(activeGame) ?? false;
   }
 
   function ageOfModInDays(modInfo: ModInfo): number | undefined {
+    if (!activeGame) {
+      return undefined;
+    }
     const config = modInfo.perGameConfig?.[activeGame];
     if (!config?.releaseDate) return undefined;
     const releaseTime = Date.parse(config.releaseDate);
@@ -153,7 +158,7 @@
 </script>
 
 <div class="flex flex-col h-full bg-[#1e1e1e]">
-  {#if !loaded}
+  {#if !loaded || !activeGame}
     <div class="flex flex-col h-full justify-center items-center">
       <Spinner color="yellow" size={"12"} />
     </div>

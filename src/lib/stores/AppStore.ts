@@ -14,5 +14,3 @@ export const UpdateStore = writable<UpdateState>({
     versionNumber: undefined,
   },
 });
-
-export const modInfoStore = writable<ModInfo | undefined>(undefined);

@@ -19,22 +19,19 @@
   import { isMinVCCRuntime, VersionStore } from "$lib/stores/VersionStore";
   import type { Job } from "$lib/utils/jobs";
   import { type } from "@tauri-apps/plugin-os";
-  import { getModSourcesData } from "$lib/rpc/cache";
-  import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import GameControlsMod from "../components/games/GameControlsMod.svelte";
   import GameInProgress from "../components/games/GameInProgress.svelte";
-  import { modInfoStore } from "$lib/stores/AppStore";
   import { route } from "../router";
   import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame.ts";
 
   const gameParam = $derived(route.params.game_name);
+  let activeGame: SupportedGame | undefined = $state(undefined);
   let modName: string | undefined = $derived(route.params.mod_name);
   let modSource: string | undefined = $derived(route.params.source_name);
 
   const showVccWarning = $derived(type() == "windows" && !$isMinVCCRuntime);
 
-  let activeGame: SupportedGame | undefined = $state(undefined);
   let modVersionToInstall: string = $state("");
   let modDownloadUrlToInstall: string = $state("");
   let gameInstalled = $state(false);
@@ -52,7 +49,6 @@
 
   $effect(() => {
     loadGameInfo(activeGame);
-    loadModInfo();
   });
 
   async function loadGameInfo(activeGame?: SupportedGame) {
@@ -79,43 +75,6 @@
     }
   }
 
-  async function loadModInfo() {
-    if (!modName || !modSource) {
-      modInfoStore.set(undefined);
-      return;
-    }
-
-    const modSourceData = await getModSourcesData();
-
-    const foundMod: ModInfo | undefined = Object.values(modSourceData).find(
-      (source) =>
-        source.sourceName === modSource && source.mods.hasOwnProperty(modName),
-    )?.mods[modName];
-
-    if (!foundMod) {
-      // TODO: this should be a temporary fix until we land on a permanent solution (e.g. caching mod metadata)
-      // couldn't find mod in modlists (user might be offline, or mod/list abandoned)
-      // just create a dummy entry so they can at least launch game
-      modInfoStore.set({
-        name: modName,
-        source: modSource,
-        displayName: modName,
-        description: "",
-        authors: [],
-        tags: [],
-        supportedGames: [],
-        versions: [],
-        websiteUrl: null,
-        perGameConfig: null,
-        coverArtUrl: null,
-        thumbnailArtUrl: null,
-        externalLink: null,
-      });
-      return;
-    }
-    modInfoStore.set({ ...foundMod, name: modName, source: modSource });
-  }
-
   async function updateGameState(event: any) {
     if (!activeGame) {
       return;
@@ -137,6 +96,7 @@
   }
 </script>
 
+<!-- TODO - stop with the flashes of rendering, don't render until we know what needs to be rendered -->
 {#if activeGame}
   <div class="flex flex-col h-full p-5">
     {#if $VersionStore.activeVersionName === null}
@@ -246,9 +206,11 @@
         </ul>
       </Alert>
     {/if} -->
-      {#if modName !== undefined}
+      {#if modName && modSource}
         <GameControlsMod
           {activeGame}
+          {modName}
+          {modSource}
           on:change={updateGameState}
           on:job={runGameJob}
         />

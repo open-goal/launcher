@@ -2,15 +2,7 @@
   import { onDestroy, onMount } from "svelte";
   import { Router } from "sv-router";
   import "./router.ts";
-  import UpdateLauncher from "./routes/UpdateLauncher.svelte";
-  import Game from "./routes/Game.svelte";
-  import Settings from "./routes/Settings.svelte";
-  import Sidebar from "./components/sidebar/Sidebar.svelte";
-  import Background from "./components/background/Background.svelte";
-  import Header from "./components/header/Header.svelte";
   import { isInDebugMode } from "$lib/utils/common";
-  import Toast from "./components/toast/Toast.svelte";
-  import { isLoading } from "svelte-i18n";
   import {
     getLocale,
     isMinimumVCCRuntimeInstalled,
@@ -20,7 +12,6 @@
   import {
     toastStore,
     type ToastLevel,
-    type ToastMessage,
   } from "$lib/stores/ToastStore";
   import { isMinMacOSVersion, isMinVCCRuntime } from "$lib/stores/VersionStore";
   import { isMacOSVersion15OrAbove } from "$lib/rpc/util";

@@ -3,9 +3,14 @@
   import { listen } from "@tauri-apps/api/event";
   import { _ } from "svelte-i18n";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
+  import { onMount } from "svelte";
 
   let { activeGame }: { activeGame: SupportedGame } = $props();
   let playtime = $state("");
+
+  onMount(() => {
+    refreshPlaytime();
+  })
 
   listen<string>("playtimeUpdated", async (e) => {
     await refreshPlaytime();

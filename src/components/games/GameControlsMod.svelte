@@ -39,16 +39,17 @@
     isVersionSupportedOnPlatform,
   } from "$lib/features/mods";
   import { VersionStore } from "$lib/stores/VersionStore";
-  import { modInfoStore } from "$lib/stores/AppStore";
   import { navigate } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
+  import { getModInfo } from "$lib/rpc/bindings/utils/ModInfo";
 
-  let { activeGame }: { activeGame: SupportedGame } = $props();
-  const modInfo = $derived($modInfoStore);
-
-  // TODO - why are name/source Options from rust, makes this code very cumbersome
-  // these two values should be the bare minimum that can be guaranteed about the mod
+  let {
+    activeGame,
+    modName,
+    modSource,
+  }: { activeGame: SupportedGame; modName: string; modSource: string } =
+    $props();
 
   const dispatch = createEventDispatcher();
   let gameDataDir: string | undefined = undefined;
@@ -61,12 +62,9 @@
   let numberOfVersionsOutOfDate = $state(0);
   let userPlatform: string = platform();
   let checkForLatestModVersionChecked = $state(false);
+  let modInfo: ModInfo | undefined = $state(undefined);
 
-  async function addModFromUrl(
-    url: string,
-    sourceName: string,
-    modVersion: string,
-  ) {
+  async function addModFromUrl(url: string, modVersion: string) {
     // install it immediately
     // - prompt user for iso if it doesn't exist
     // - decompile
@@ -74,25 +72,22 @@
     dispatch("job", {
       type: "installModExternal",
       modDownloadUrl: url,
-      modSourceName: sourceName,
-      modName: $modInfoStore?.name,
+      modSourceName: modSource,
+      modName: modName,
       modVersion: modVersion,
     });
   }
 
   onMount(async () => {
     checkForLatestModVersionChecked = await getCheckForLatestModVersion();
+    modInfo = await getModInfo(modName, modSource);
+    await initDirectories(modInfo);
+    await sortModVersions(modInfo);
   });
 
-  $effect(() => {
-    refreshDirectories(modInfo);
-    refreshModInfo(modInfo);
-  });
-
-  async function refreshDirectories(modInfo: ModInfo | undefined) {
-    if (!modInfo || !modInfo.source || !modInfo.name) {
-      return;
-    }
+  async function initDirectories(modInfo: ModInfo) {
+    // TODO - why are name/source Options from rust, makes this code very cumbersome
+    // these two values should be the bare minimum that can be guaranteed about the mod
     let installationDir = await getInstallationDirectory();
     if (installationDir !== null) {
       gameDataDir = await join(
@@ -100,8 +95,8 @@
         "features",
         activeGame,
         "mods",
-        modInfo.source,
-        modInfo.name,
+        modInfo.source ?? "",
+        modInfo.name ?? "",
         "data",
       );
       extractedAssetsDir = await join(
@@ -114,9 +109,9 @@
         "features",
         activeGame,
         "mods",
-        modInfo.source,
+        modInfo.source ?? "",
         "_settings",
-        modInfo.name,
+        modInfo.name ?? "",
         "OpenGOAL",
         activeGame,
         "settings",
@@ -129,9 +124,9 @@
         "features",
         activeGame,
         "mods",
-        modInfo.source,
+        modInfo.source ?? "",
         "_settings",
-        modInfo.name,
+        modInfo.name ?? "",
         "OpenGOAL",
         activeGame,
         "saves",
@@ -142,11 +137,7 @@
     }
   }
 
-  async function refreshModInfo(modInfo: ModInfo | undefined) {
-    if (!modInfo || !modInfo.source || !modInfo.name) {
-      return;
-    }
-
+  async function sortModVersions(modInfo: ModInfo) {
     // Get a list of available versions, this is how we see if we're on the latest!
     let sourceData = await getModSourcesData();
     let relevantSourceData = undefined;
@@ -156,11 +147,14 @@
       }
     }
 
+    modVersionListSorted = [];
+    numberOfVersionsOutOfDate = 0;
+
     if (
       relevantSourceData !== undefined &&
-      Object.keys(relevantSourceData.mods).includes(modInfo.name)
+      Object.keys(relevantSourceData.mods).includes(modInfo.name ?? "")
     ) {
-      const mod = relevantSourceData.mods[modInfo.name];
+      const mod = relevantSourceData.mods[modInfo.name ?? ""];
       if (mod !== undefined) {
         // ensure versions are sorted by date desc (newest first)
         let versions = mod.versions;
@@ -186,10 +180,15 @@
     // get current installed version
     let installedMods = await getInstalledMods(activeGame);
     if (
-      Object.keys(installedMods).includes(modInfo.source) &&
-      Object.keys(installedMods[modInfo.source]).includes(modInfo.name)
+      Object.keys(installedMods).includes(modInfo.source ?? "") &&
+      Object.keys(installedMods[modInfo.source ?? ""]).includes(
+        modInfo.name ?? "",
+      )
     ) {
-      currentlyInstalledVersion = installedMods[modInfo.source][modInfo.name];
+      currentlyInstalledVersion =
+        installedMods[modInfo.source ?? ""][modInfo.name ?? ""];
+      // TODO - change this, this is really confusing, make it clear it's talking about the mod version
+      // that the mod isn't installed
       $VersionStore.activeVersionName = currentlyInstalledVersion;
     } else {
       $VersionStore.activeVersionName = $_("header_toolingNotSet");
@@ -199,7 +198,7 @@
       if (version === currentlyInstalledVersion) {
         break;
       }
-      numberOfVersionsOutOfDate = numberOfVersionsOutOfDate + 1;
+      numberOfVersionsOutOfDate++;
     }
   }
 
@@ -216,18 +215,18 @@
     <h1
       class="tracking-tighter text-2xl font-bold pb-2 text-orange-500 text-outline pointer-events-none"
     >
-      {$modInfoStore?.displayName}
+      {modInfo.displayName}
     </h1>
     <h1
       class="tracking-tighter pb-2 font-bold text-outline text-justify [text-align-last:right]"
     >
-      {$modInfoStore?.description}
+      {modInfo.description}
     </h1>
     <p class="pb-2 text-outline">
-      {$_("features_mods_tags")}: {$modInfoStore?.tags}
+      {$_("features_mods_tags")}: {modInfo.tags}
     </p>
     <p class="text-outline">
-      {$_("features_mods_authors")}: {$modInfoStore?.authors}
+      {$_("features_mods_authors")}: {modInfo.authors}
     </p>
   </div>
   <div class="flex flex-col justify-end items-end mt-3">
@@ -249,11 +248,7 @@
         <Button
           class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
           onclick={async () => {
-            await addModFromUrl(
-              modAssetUrlsSorted[0],
-              modInfo.source ?? "",
-              modVersionListSorted[0],
-            );
+            await addModFromUrl(modAssetUrlsSorted[0], modVersionListSorted[0]);
           }}>{$_("gameControls_button_install")}</Button
         >
       {:else if modVersionListSorted.length == 0 || modVersionListSorted[0] === currentlyInstalledVersion || !checkForLatestModVersionChecked}
@@ -261,12 +256,7 @@
         <Button
           class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
           onclick={async () => {
-            launchMod(
-              activeGame,
-              false,
-              modInfo.name ?? "",
-              modInfo.source ?? "",
-            );
+            launchMod(activeGame, false, modName, modSource);
           }}>{$_("gameControls_button_play")}</Button
         >
       {:else}
@@ -274,11 +264,7 @@
         <Button
           class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
           onclick={async () => {
-            await addModFromUrl(
-              modAssetUrlsSorted[0],
-              modInfo.source ?? "",
-              modVersionListSorted[0],
-            );
+            await addModFromUrl(modAssetUrlsSorted[0], modVersionListSorted[0]);
           }}>{$_("gameControls_update_mod")}</Button
         >
       {/if}
@@ -309,7 +295,9 @@
               {$_("gameControls_always_use_newest")}
             </Checkbox>
           </div>
-          <Tooltip triggeredBy="#checkbox_always_use_newest"
+          <Tooltip
+            triggeredBy="#checkbox_always_use_newest"
+            class="max-w-[300px]"
             >{$_("gameControls_always_use_newest_tooltip")}</Tooltip
           >
           <DropdownDivider />
@@ -323,11 +311,7 @@
               <DropdownItem
                 class="w-full"
                 onclick={async () => {
-                  await addModFromUrl(
-                    modAssetUrlsSorted[i],
-                    modInfo.source ?? "",
-                    version,
-                  );
+                  await addModFromUrl(modAssetUrlsSorted[i], version);
                 }}>{version}</DropdownItem
               >
             {/if}
@@ -356,21 +340,12 @@
         >
           <DropdownItem
             onclick={async () => {
-              launchMod(
-                activeGame,
-                true,
-                modInfo.name ?? "",
-                modInfo.source ?? "",
-              );
+              launchMod(activeGame, true, modName, modSource);
             }}>{$_("gameControls_button_playInDebug")}</DropdownItem
           >
           <DropdownItem
             onclick={async () => {
-              openREPLForMod(
-                activeGame,
-                modInfo.name ?? "",
-                modInfo.source ?? "",
-              );
+              openREPLForMod(activeGame, modName, modSource);
             }}>{$_("gameControls_button_openREPL")}</DropdownItem
           >
           <DropdownDivider />
@@ -462,8 +437,8 @@
             onclick={async () => {
               const launchString = await getLaunchModString(
                 activeGame,
-                modInfo.name ?? "",
-                modInfo.source ?? "",
+                modName,
+                modSource,
               );
               await writeText(launchString);
               toastStore.makeToast($_("toasts_copiedToClipboard"), "info");
@@ -479,11 +454,7 @@
           <DropdownDivider />
           <DropdownItem
             onclick={async () => {
-              await resetModSettings(
-                activeGame,
-                modInfo.name ?? "",
-                modInfo.source ?? "",
-              );
+              await resetModSettings(activeGame, modName, modSource);
             }}>{$_("gameControls_button_resetSettings")}</DropdownItem
           >
           <DropdownItem
@@ -495,11 +466,7 @@
                 { title: "OpenGOAL Launcher", kind: "warning" },
               );
               if (confirmed) {
-                await uninstallMod(
-                  activeGame,
-                  modInfo.name ?? "",
-                  modInfo.source ?? "",
-                );
+                await uninstallMod(activeGame, modName, modSource);
                 navigate(`/:game_name/mods`, {
                   params: { game_name: activeGame },
                 });

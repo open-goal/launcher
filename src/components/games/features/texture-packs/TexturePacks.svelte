@@ -42,19 +42,26 @@
   import { runDecompiler } from "$lib/rpc/binaries";
   import LogViewer from "../../setup/LogViewer.svelte";
   import Progress from "../../setup/Progress.svelte";
-  import { navigate } from "/src/router";
+  import { navigate, route } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
+  import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
 
-  let { activeGame }: { activeGame: SupportedGame } = $props();
+  const gameParam = $derived(route.params.game_name);
+  let activeGame: SupportedGame | undefined = $state(undefined);
+
+  $effect(() => {
+    const activeGameFromParam = toSupportedGame(gameParam);
+    if (activeGameFromParam) {
+      activeGame = activeGameFromParam;
+    }
+  });
 
   let loaded = $state(false);
   let extractedPackInfo: any = $state(undefined);
   let availablePacks = $state([]);
   let availablePacksOriginal = $state([]);
-
   let addingPack = $state(false);
   let packAddingError = $state("");
-
   let enabledPacks = $state([]);
   let packsToDelete = $state([]);
 
@@ -64,6 +71,9 @@
   });
 
   async function setupTexturePacks() {
+    if (!activeGame) {
+      return;
+    }
     let installationError = undefined;
     let jobs = [];
     if (packsToDelete.length) {
@@ -121,6 +131,9 @@
   }
 
   async function update_pack_list() {
+    if (!activeGame) {
+      return;
+    }
     availablePacks = [];
     availablePacksOriginal = [];
     let currentlyEnabledPacks = await getEnabledTexturePacks(activeGame);
@@ -212,6 +225,9 @@
   }
 
   async function addNewTexturePack() {
+    if (!activeGame) {
+      return;
+    }
     addingPack = true;
     packAddingError = "";
     const texturePackPath = await filePrompt(
@@ -271,7 +287,7 @@
 </script>
 
 <div class="flex flex-col h-full bg-[#1e1e1e]">
-  {#if !loaded}
+  {#if !loaded || !activeGame}
     <div class="flex flex-col h-full justify-center items-center">
       <Spinner color="yellow" size={"12"} />
     </div>

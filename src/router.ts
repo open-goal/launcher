@@ -16,6 +16,14 @@ import Layout from "./routes/layouts/Layout.svelte";
 
 export const { p, navigate, isActive, route } = createRouter({
   "/": Game,
+  hooks: {
+    // simplify things -- stop having to worry about treating '/' differently
+    beforeLoad({ pathname }) {
+    if (pathname === "/") {
+          throw navigate("/jak1");
+        }
+    },
+  },
   "/:game_name": {
     "/": Game,
     "/mods": {
