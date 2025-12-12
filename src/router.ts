@@ -19,9 +19,9 @@ export const { p, navigate, isActive, route } = createRouter({
   hooks: {
     // simplify things -- stop having to worry about treating '/' differently
     beforeLoad({ pathname }) {
-    if (pathname === "/") {
-          throw navigate("/jak1");
-        }
+      if (pathname === "/") {
+        throw navigate("/jak1");
+      }
     },
   },
   "/:game_name": {

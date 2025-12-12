@@ -9,10 +9,7 @@
     setLocale,
   } from "$lib/rpc/config";
   import { listen } from "@tauri-apps/api/event";
-  import {
-    toastStore,
-    type ToastLevel,
-  } from "$lib/stores/ToastStore";
+  import { toastStore, type ToastLevel } from "$lib/stores/ToastStore";
   import { isMinMacOSVersion, isMinVCCRuntime } from "$lib/stores/VersionStore";
   import { isMacOSVersion15OrAbove } from "$lib/rpc/util";
 

@@ -30,7 +30,7 @@
     const activeGameFromParam = toSupportedGame(gameParam);
     if (activeGameFromParam) {
       activeGame = activeGameFromParam;
-      getInstalledMods(activeGame).then(val => {
+      getInstalledMods(activeGame).then((val) => {
         installedMods = val;
       });
     }

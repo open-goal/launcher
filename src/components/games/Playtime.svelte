@@ -10,7 +10,7 @@
 
   onMount(() => {
     refreshPlaytime();
-  })
+  });
 
   listen<string>("playtimeUpdated", async (e) => {
     await refreshPlaytime();
