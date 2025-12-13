@@ -12,12 +12,16 @@
   import { toastStore, type ToastLevel } from "$lib/stores/ToastStore";
   import { isMinMacOSVersion, isMinVCCRuntime } from "$lib/stores/VersionStore";
   import { isMacOSVersion15OrAbove } from "$lib/rpc/util";
+  import { getActiveVersion } from "$lib/rpc/versions.ts";
+  import { versionState } from "./state/VersionState.svelte.ts";
 
   let revokeSpecificActions = false;
   let toastListener: any = undefined;
 
   // Events
   onMount(async () => {
+    versionState.activeToolingVersion = await getActiveVersion();
+
     // Set locale from settings
     const locale = await getLocale();
     if (locale !== null) {

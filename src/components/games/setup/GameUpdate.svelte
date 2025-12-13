@@ -1,11 +1,12 @@
 <script lang="ts">
   import { getAutoUpdateGames } from "$lib/rpc/config";
-  import { isMinVCCRuntime, VersionStore } from "$lib/stores/VersionStore";
+  import { isMinVCCRuntime } from "$lib/stores/VersionStore";
   import { type } from "@tauri-apps/plugin-os";
   import { Button, Card } from "flowbite-svelte";
   import { createEventDispatcher, onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import { navigate } from "/src/router";
+  import { versionState } from "/src/state/VersionState.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -45,7 +46,7 @@
     <ul class="list-disc list-inside mb-5">
       <li>
         {$_("gameUpdate_versionMismatch_version")}:
-        <strong>{$VersionStore.activeVersionName}</strong>
+        <strong>{versionState.activeToolingVersion}</strong>
       </li>
     </ul>
     {#if displayVCCWarning}

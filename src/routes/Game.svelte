@@ -16,7 +16,7 @@
   } from "$lib/rpc/versions";
   import GameToolsNotSet from "../components/games/GameToolsNotSet.svelte";
   import GameNotSupportedByTooling from "../components/games/GameNotSupportedByTooling.svelte";
-  import { isMinVCCRuntime, VersionStore } from "$lib/stores/VersionStore";
+  import { isMinVCCRuntime } from "$lib/stores/VersionStore";
   import type { Job } from "$lib/utils/jobs";
   import { type } from "@tauri-apps/plugin-os";
   import GameControlsMod from "../components/games/GameControlsMod.svelte";
@@ -24,6 +24,7 @@
   import { route } from "../router";
   import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame.ts";
+  import { versionState } from "../state/VersionState.svelte";
 
   const gameParam = $derived(route.params.game_name);
   let activeGame: SupportedGame | undefined = $state(undefined);
@@ -57,7 +58,6 @@
     }
     // First off, check that they've downloaded and have a jak-project release set
     const activeVersionExists = await ensureActiveVersionStillExists();
-    $VersionStore.activeVersionName = await getActiveVersion();
 
     if (activeVersionExists) {
       gameSupportedByTooling =
@@ -70,7 +70,7 @@
       if (gameInstalled) {
         installedVersion = await getInstalledVersion(activeGame);
         versionMismatchDetected =
-          installedVersion !== $VersionStore.activeVersionName;
+          installedVersion !== versionState.activeToolingVersion;
       }
     }
   }
@@ -99,7 +99,7 @@
 <!-- TODO - stop with the flashes of rendering, don't render until we know what needs to be rendered -->
 {#if activeGame}
   <div class="flex flex-col h-full p-5">
-    {#if $VersionStore.activeVersionName === null}
+    {#if !versionState.activeToolingVersion}
       <GameToolsNotSet />
     {:else if activeGame == "jak3" || activeGame == "jakx"}
       <!-- TODO: remove this else if arm for jak3 support -->

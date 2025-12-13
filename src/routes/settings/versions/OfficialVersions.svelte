@@ -8,11 +8,11 @@
   } from "$lib/rpc/versions";
   import { listOfficialReleases, type ReleaseInfo } from "$lib/utils/github";
   import VersionList from "./VersionList.svelte";
-  import { VersionStore } from "$lib/stores/VersionStore";
   import { UpdateStore } from "$lib/stores/AppStore";
   import { saveActiveVersionChange } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
+  import { versionState } from "/src/state/VersionState.svelte";
 
   let versionsLoaded = false;
   let releases: ReleaseInfo[] = [];
@@ -23,8 +23,7 @@
 
   async function refreshVersionList() {
     versionsLoaded = false;
-    // Reset store to defaults (TODO, move this to a store method)
-    $VersionStore.activeVersionName = await getActiveVersion();
+    versionState.activeToolingVersion = await getActiveVersion();
     // Check the backend to see if the folder has any versions
     const installedVersions = await listDownloadedVersions();
     releases = [];
