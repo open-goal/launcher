@@ -10,13 +10,9 @@
   } from "$lib/rpc/config";
   import GameJob from "../components/games/job/GameJob.svelte";
   import GameUpdate from "../components/games/setup/GameUpdate.svelte";
-  import {
-    ensureActiveVersionStillExists,
-    getActiveVersion,
-  } from "$lib/rpc/versions";
+  import { ensureActiveVersionStillExists } from "$lib/rpc/versions";
   import GameToolsNotSet from "../components/games/GameToolsNotSet.svelte";
   import GameNotSupportedByTooling from "../components/games/GameNotSupportedByTooling.svelte";
-  import { isMinVCCRuntime } from "$lib/stores/VersionStore";
   import type { Job } from "$lib/utils/jobs";
   import { type } from "@tauri-apps/plugin-os";
   import GameControlsMod from "../components/games/GameControlsMod.svelte";
@@ -25,13 +21,16 @@
   import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame.ts";
   import { versionState } from "../state/VersionState.svelte";
+  import { systemInfoState } from "../state/SystemInfoState.svelte";
 
   const gameParam = $derived(route.params.game_name);
   let activeGame: SupportedGame | undefined = $state(undefined);
   let modName: string | undefined = $derived(route.params.mod_name);
   let modSource: string | undefined = $derived(route.params.source_name);
 
-  const showVccWarning = $derived(type() == "windows" && !$isMinVCCRuntime);
+  const showVccWarning = $derived(
+    type() == "windows" && !systemInfoState.isMinVCCRuntimeInstalled,
+  );
 
   let modVersionToInstall: string = $state("");
   let modDownloadUrlToInstall: string = $state("");

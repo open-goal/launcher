@@ -1,18 +1,19 @@
 <script lang="ts">
   import { getAutoUpdateGames } from "$lib/rpc/config";
-  import { isMinVCCRuntime } from "$lib/stores/VersionStore";
   import { type } from "@tauri-apps/plugin-os";
   import { Button, Card } from "flowbite-svelte";
   import { createEventDispatcher, onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import { navigate } from "/src/router";
   import { versionState } from "/src/state/VersionState.svelte";
+  import { systemInfoState } from "/src/state/SystemInfoState.svelte";
 
   const dispatch = createEventDispatcher();
 
   export let installedVersion: String | undefined;
 
-  let displayVCCWarning = type() == "windows" && !$isMinVCCRuntime;
+  let displayVCCWarning =
+    type() == "windows" && !systemInfoState.isMinVCCRuntimeInstalled;
 
   onMount(async () => {
     let shouldAutoUpdate = await getAutoUpdateGames();

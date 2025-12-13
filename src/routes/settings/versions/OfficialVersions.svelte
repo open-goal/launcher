@@ -121,7 +121,7 @@
       event.detail.version,
       event.detail.downloadUrl,
     );
-    $VersionStore.activeVersionName = event.detail.version;
+    versionState.activeToolingVersion = event.detail.version;
     // Then mark it as downloaded
     for (const release of releases) {
       if (release.version === event.detail.version) {
@@ -150,8 +150,8 @@
     const ok = await removeVersion(detail.version);
     if (ok) {
       // Update the store, if we removed the active version
-      if ($VersionStore.activeVersionName === detail.version) {
-        $VersionStore.activeVersionName = null;
+      if (versionState.activeToolingVersion === detail.version) {
+        versionState.activeToolingVersion = undefined;
       }
 
       // Then mark it as not downloaded

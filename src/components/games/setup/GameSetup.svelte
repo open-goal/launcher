@@ -22,8 +22,8 @@
   import { _ } from "svelte-i18n";
   import { emit } from "@tauri-apps/api/event";
   import { arch, type } from "@tauri-apps/plugin-os";
-  import { isMinVCCRuntime, isMinMacOSVersion } from "$lib/stores/VersionStore";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
+  import { systemInfoState } from "/src/state/SystemInfoState.svelte";
 
   let { activeGame }: { activeGame: SupportedGame } = $props();
 
@@ -54,12 +54,16 @@
         requirementsMet = false;
         return;
       }
-      requirementsMet = $isMinMacOSVersion && isOpenGLMet && isDiskSpaceMet;
+      requirementsMet =
+        systemInfoState.isMinMacOSVersion && isOpenGLMet && isDiskSpaceMet;
     } else {
       const isAvxMet = await isAVXRequirementMet();
       if (osType == "windows") {
         requirementsMet =
-          isAvxMet && isOpenGLMet && isDiskSpaceMet && $isMinVCCRuntime;
+          isAvxMet &&
+          isOpenGLMet &&
+          isDiskSpaceMet &&
+          systemInfoState.isMinVCCRuntimeInstalled;
       } else {
         requirementsMet = isAvxMet && isOpenGLMet && isDiskSpaceMet;
       }
