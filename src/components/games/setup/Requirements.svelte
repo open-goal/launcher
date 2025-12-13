@@ -10,9 +10,8 @@
   import { _ } from "svelte-i18n";
   import { confirm } from "@tauri-apps/plugin-dialog";
   import { arch, type } from "@tauri-apps/plugin-os";
-  import { isMinMacOSVersion } from "$lib/stores/VersionStore";
-  import { isMinVCCRuntime } from "$lib/stores/VersionStore";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
+  import { systemInfoState } from "/src/state/SystemInfoState.svelte";
 
   let { activeGame }: { activeGame: SupportedGame } = $props();
 
@@ -92,13 +91,13 @@
     <Alert
       class="w-full text-start"
       rounded={false}
-      color={alertColor($isMinMacOSVersion)}
+      color={alertColor(systemInfoState.isMinMacOSVersion)}
     >
-      {#if $isMinMacOSVersion}
+      {#if systemInfoState.isMinMacOSVersion}
         <span class="font-bold"
           >{$_("requirements_macos_atleastVersion15")}</span
         >
-      {:else if $isMinMacOSVersion === undefined}
+      {:else if systemInfoState.isMinMacOSVersion === undefined}
         <span class="font-bold"
           >{$_("requirements_macos_unableToCheckVersion")}</span
         >
@@ -164,13 +163,13 @@
     <Alert
       class="w-full text-start"
       rounded={false}
-      color={alertColor($isMinVCCRuntime)}
+      color={alertColor(systemInfoState.isMinVCCRuntimeInstalled)}
     >
-      {#if $isMinVCCRuntime}
+      {#if systemInfoState.isMinVCCRuntimeInstalled}
         <span class="font-bold"
           >{$_("requirements_windows_vccRuntimeInstalled")}</span
         >
-      {:else if $isMinVCCRuntime === undefined}
+      {:else if systemInfoState.isMinVCCRuntimeInstalled === undefined}
         <span class="font-bold"
           >{$_("requirements_windows_cantCheckIfVccRuntimeInstalled")}</span
         >

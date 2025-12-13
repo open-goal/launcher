@@ -49,11 +49,11 @@ export async function removeOldVersions(): Promise<boolean> {
   return false;
 }
 
-export async function getActiveVersion(): Promise<string | null> {
+export async function getActiveVersion(): Promise<string | undefined> {
   return await invoke_rpc(
     "get_setting_value",
     { key: "active_version" },
-    () => null,
+    () => undefined,
   );
 }
 

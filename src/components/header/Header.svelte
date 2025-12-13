@@ -14,12 +14,12 @@
     removeOldVersions,
   } from "$lib/rpc/versions";
   import { getLatestOfficialRelease } from "$lib/utils/github";
-  import { VersionStore } from "$lib/stores/VersionStore";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
   import { getAutoUpdateGames, saveActiveVersionChange } from "$lib/rpc/config";
   import { check } from "@tauri-apps/plugin-updater";
   import { warnLog } from "$lib/rpc/logging";
+  import { versionState } from "/src/state/VersionState.svelte";
 
   let launcherVersion: string | null = null;
   let launcherUpdateAvailable = false;
@@ -41,7 +41,7 @@
   async function saveOfficialVersionChange(version: string) {
     const success = await saveActiveVersionChange(version);
     if (success) {
-      $VersionStore.activeVersionName = version;
+      versionState.activeToolingVersion = version;
       toastStore.makeToast($_("toasts_savedToolingVersion"), "info");
     }
   }
@@ -49,7 +49,7 @@
   onMount(async () => {
     // Get current versions
     launcherVersion = `v${await getVersion()}`;
-    $VersionStore.activeVersionName = await getActiveVersion();
+    versionState.activeToolingVersion = await getActiveVersion();
 
     // Check for a launcher update
     if (!isInDebugMode()) {
@@ -65,7 +65,7 @@
     const latestToolingVersion = await getLatestOfficialRelease();
     if (
       latestToolingVersion !== undefined &&
-      $VersionStore.activeVersionName !== latestToolingVersion.version
+      versionState.activeToolingVersion !== latestToolingVersion.version
     ) {
       // Check that we havn't already downloaded it
       let alreadyHaveRelease = false;
@@ -115,7 +115,13 @@
   <div class="border-l shrink-0 border-[#9f9f9f] h-8 m-2"></div>
   <div class="flex flex-col shrink-0 text-neutral-500 mr-2 pointer-events-none">
     <p class="font-mono text-sm">{$_("header_launcherVersionLabel")}</p>
-    <p class="font-mono text-sm">{$_("header_toolingVersionLabel")}</p>
+    <p class="font-mono text-sm">
+      {#if versionState.displayModVersion}
+        {$_("header_modVersionLabel")}
+      {:else}
+        {$_("header_toolingVersionLabel")}
+      {/if}
+    </p>
   </div>
   <div
     class="flex flex-col text-neutral-300 mr-2 pointer-events-none max-w-[250px]"
@@ -124,9 +130,19 @@
       {launcherVersion}
     </p>
     <p class="font-mono text-sm">
-      {$VersionStore.activeVersionName === null
-        ? $_("header_toolingNotSet")
-        : $VersionStore.activeVersionName}
+      {#if versionState.displayModVersion}
+        {#if !versionState.activeModVersionInfo.installed}
+          {$_("header_modNotInstalled")}
+        {:else if versionState.activeModVersionInfo.installedVersion !== undefined}
+          {versionState.activeModVersionInfo.installedVersion}
+        {:else}
+          <span>&nbsp;</span>
+        {/if}
+      {:else}
+        {versionState.activeToolingVersion === undefined
+          ? $_("header_toolingNotSet")
+          : versionState.activeToolingVersion}
+      {/if}
     </p>
   </div>
   <div

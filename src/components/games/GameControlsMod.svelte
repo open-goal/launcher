@@ -3,7 +3,7 @@
   import IconArrowLeft from "~icons/mdi/arrow-left";
   import IconCog from "~icons/mdi/cog";
   import { join } from "@tauri-apps/api/path";
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher, onDestroy, onMount } from "svelte";
   import { writeText } from "@tauri-apps/plugin-clipboard-manager";
   import { confirm } from "@tauri-apps/plugin-dialog";
   import {
@@ -38,11 +38,11 @@
     getModAssetUrl,
     isVersionSupportedOnPlatform,
   } from "$lib/features/mods";
-  import { VersionStore } from "$lib/stores/VersionStore";
   import { navigate } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import { getModInfo } from "$lib/rpc/bindings/utils/ModInfo";
+  import { versionState } from "/src/state/VersionState.svelte";
 
   let {
     activeGame,
@@ -83,6 +83,12 @@
     modInfo = await getModInfo(modName, modSource);
     await initDirectories(modInfo);
     await sortModVersions(modInfo);
+  });
+
+  onDestroy(() => {
+    versionState.displayModVersion = false;
+    versionState.activeModVersionInfo.installedVersion = undefined;
+    versionState.activeModVersionInfo.installed = true;
   });
 
   async function initDirectories(modInfo: ModInfo) {
@@ -187,11 +193,14 @@
     ) {
       currentlyInstalledVersion =
         installedMods[modInfo.source ?? ""][modInfo.name ?? ""];
-      // TODO - change this, this is really confusing, make it clear it's talking about the mod version
-      // that the mod isn't installed
-      $VersionStore.activeVersionName = currentlyInstalledVersion;
+      versionState.displayModVersion = true;
+      versionState.activeModVersionInfo.installedVersion =
+        currentlyInstalledVersion;
+      versionState.activeModVersionInfo.installed = true;
     } else {
-      $VersionStore.activeVersionName = $_("header_toolingNotSet");
+      versionState.displayModVersion = true;
+      versionState.activeModVersionInfo.installedVersion = undefined;
+      versionState.activeModVersionInfo.installed = false;
     }
 
     for (const version of modVersionListSorted) {

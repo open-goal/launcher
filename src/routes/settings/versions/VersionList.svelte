@@ -17,23 +17,16 @@
     TableHead,
     TableHeadCell,
   } from "flowbite-svelte";
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher } from "svelte";
   import { _ } from "svelte-i18n";
-  import { getActiveVersion } from "$lib/rpc/versions";
-  import { writable } from "svelte/store";
-  import { VersionStore } from "$lib/stores/VersionStore";
   import { revealItemInDir } from "@tauri-apps/plugin-opener";
   import { getInstallationDirectory } from "$lib/rpc/config";
+  import { versionState } from "/src/state/VersionState.svelte";
 
   export let description: string;
   export let releaseList: ReleaseInfo[];
   export let loaded: boolean;
-  let activeVersion = writable();
   const dispatch = createEventDispatcher();
-
-  onMount(async () => {
-    $activeVersion = await getActiveVersion();
-  });
 
   const handleAction = async (release: ReleaseInfo) => {
     if (release.isDownloaded) {
@@ -113,7 +106,7 @@
             <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
               {#if release.isDownloaded}
                 <Radio
-                  bind:group={$VersionStore.activeVersionName}
+                  bind:group={versionState.activeToolingVersion}
                   value={release.version}
                   onchange={() =>
                     dispatch("versionChange", { version: release.version })}
