@@ -3176,6 +3176,7 @@ version = "2.8.10"
 dependencies = [
  "backtrace",
  "chrono",
+ "cmake",
  "dir-diff",
  "directories",
  "fern",

@@ -6,6 +6,7 @@ import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
 import { exists } from "@tauri-apps/plugin-fs";
 import { appDataDir, join } from "@tauri-apps/api/path";
 import { convertFileSrc } from "@tauri-apps/api/core";
+import type { SupportedGame } from "./bindings/SupportedGame";
 
 export async function oldDataDirectoryExists(): Promise<boolean> {
   return await invoke_rpc("has_old_data_directory", {}, () => false);
@@ -86,11 +87,7 @@ export async function isDiskSpaceRequirementMet(
 }
 
 export async function isMinimumVCCRuntimeInstalled(): Promise<boolean> {
-  return await invoke_rpc(
-    "is_minimum_vcc_runtime_installed",
-    {},
-    () => undefined,
-  );
+  return await invoke_rpc("is_minimum_vcc_runtime_installed", {}, () => false);
 }
 
 export async function finalizeInstallation(
@@ -104,7 +101,9 @@ export async function finalizeInstallation(
   );
 }
 
-export async function isGameInstalled(gameName: string): Promise<boolean> {
+export async function isGameInstalled(
+  gameName: SupportedGame | string,
+): Promise<boolean> {
   return await invoke_rpc(
     "get_setting_value",
     { key: "installed", gameName },
@@ -112,11 +111,13 @@ export async function isGameInstalled(gameName: string): Promise<boolean> {
   );
 }
 
-export async function getInstalledVersion(gameName: string): Promise<String> {
+export async function getInstalledVersion(
+  gameName: string,
+): Promise<String | undefined> {
   return invoke_rpc(
     "get_setting_value",
     { key: "installed_version", gameName: gameName },
-    () => null,
+    () => undefined,
   );
 }
 

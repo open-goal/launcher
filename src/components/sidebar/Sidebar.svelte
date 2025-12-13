@@ -4,13 +4,11 @@
   import logoJak3 from "$assets/images/jak-3.webp";
   import IconCog from "~icons/mdi/cog";
   import IconChatQuestion from "~icons/mdi/chat-question";
-  import { link, useLocation, useNavigate } from "svelte-navigator";
   import { Tooltip } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { progressTracker } from "$lib/stores/ProgressStore";
+  import { navigate, route } from "../../router";
 
-  const location = useLocation();
-  const navigate = useNavigate();
   $: disabled = $progressTracker.overallStatus == "pending";
 
   function getNavStyle(pathName: string): string {
@@ -36,16 +34,15 @@
   }
 </script>
 
-<div class={getNavStyle($location.pathname)}>
+<div class={getNavStyle(route.pathname)}>
   <ul class="flex flex-col h-full space-y-10 px-1 py-5 items-center">
     <li>
       <button
         id="jak1"
-        class={getNavItemStyle("jak1", $location.pathname)}
+        class={getNavItemStyle("jak1", route.pathname)}
         onclick={async () => {
-          navigate(`/jak1`);
+          navigate(`/:game_name`, { params: { game_name: "jak1" } });
         }}
-        use:link
         {disabled}
       >
         <img
@@ -61,11 +58,10 @@
     <li>
       <button
         id="jak2"
-        class={getNavItemStyle("jak2", $location.pathname)}
+        class={getNavItemStyle("jak2", route.pathname)}
         onclick={async () => {
-          navigate(`/jak2`);
+          navigate(`/:game_name`, { params: { game_name: "jak2" } });
         }}
-        use:link
         {disabled}
       >
         <img src={logoJak2} alt="Jak 2" aria-label="Jak 2" />
@@ -77,11 +73,10 @@
     <li>
       <button
         id="jak3"
-        class={getNavItemStyle("jak3", $location.pathname)}
+        class={getNavItemStyle("jak3", route.pathname)}
         onclick={async () => {
-          navigate(`/jak3`);
+          navigate(`/:game_name`, { params: { game_name: "jak3" } });
         }}
-        use:link
         {disabled}
       >
         <img src={logoJak3} alt="Jak 3" aria-label="Jak 3" />
@@ -93,11 +88,10 @@
     <li class="!mt-auto">
       <button
         id="settings"
-        class={getNavItemStyle("settings", $location.pathname)}
+        class={getNavItemStyle("settings", route.pathname)}
         onclick={async () => {
-          navigate(`/settings/general`);
+          navigate(`/settings/:tab`, { params: { tab: "general" } });
         }}
-        use:link
         {disabled}
       >
         <IconCog style="font-size: 36px" />
@@ -110,12 +104,10 @@
     <li>
       <button
         id="faq"
-        class={getNavItemStyle("faq", $location.pathname)}
-        use:link
+        class={getNavItemStyle("faq", route.pathname)}
         onclick={async () => {
           navigate(`/faq`);
         }}
-        use:link
         {disabled}
       >
         <IconChatQuestion style="font-size: 36px" />

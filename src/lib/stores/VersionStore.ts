@@ -8,6 +8,6 @@ export const VersionStore = writable<VersionStoreIFace>({
   activeVersionName: null,
 });
 
-export const isMinVCCRuntime = writable<Boolean>(false);
+export const isMinVCCRuntime = writable<boolean>(false);
 
-export const isMinMacOSVersion = writable<Boolean | undefined>(false);
+export const isMinMacOSVersion = writable<boolean | undefined>(false);

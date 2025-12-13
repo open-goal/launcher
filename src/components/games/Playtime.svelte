@@ -1,26 +1,25 @@
 <script lang="ts">
   import { getPlaytime } from "$lib/rpc/config";
-  import { activeGame } from "$lib/stores/AppStore";
   import { listen } from "@tauri-apps/api/event";
-  import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
+  import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
+  import { onMount } from "svelte";
 
-  let playtime = "";
-  $: ($activeGame, refreshPlaytime());
+  let { activeGame }: { activeGame: SupportedGame } = $props();
+  let playtime = $state("");
 
-  async function refreshPlaytime() {
-    let playtimeSec = await getPlaytime($activeGame);
-    playtime = new Date(playtimeSec * 1000).toISOString().slice(11, 19);
-    return playtime;
-  }
-
-  onMount(async () => {
-    await refreshPlaytime();
+  onMount(() => {
+    refreshPlaytime();
   });
 
   listen<string>("playtimeUpdated", async (e) => {
     await refreshPlaytime();
   });
+
+  async function refreshPlaytime() {
+    let playtimeSec = await getPlaytime(activeGame);
+    playtime = new Date(playtimeSec * 1000).toISOString().slice(11, 19);
+  }
 </script>
 
 <!-- add an option to disable this -->

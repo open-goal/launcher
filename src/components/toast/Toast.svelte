@@ -1,35 +1,25 @@
-<script>
+<script lang="ts">
   import { Toast } from "flowbite-svelte";
   import { toastStore } from "$lib/stores/ToastStore";
   import { fly } from "svelte/transition";
   import IconCheck from "~icons/mdi/check";
   import IconAlert from "~icons/mdi/stop-alert";
   import IconAlertCircle from "~icons/mdi/alert-circle";
+  import type { ToastMessage } from "$lib/stores/ToastStore";
 
-  let open = false;
-  let counter;
-  let currentToast = null;
+  let currentToast: ToastMessage | null = null;
 
   $: if ($toastStore.length > 0 && !currentToast) {
     currentToast = $toastStore[0];
-    open = true;
-    counter = 6;
-    timeout();
-  }
-
-  function timeout() {
-    if (--counter > 0) {
-      return setTimeout(timeout, 1000);
-    }
-    open = false;
-    toastStore.removeToast();
-    currentToast = null;
+    setTimeout(() => {
+      toastStore.removeToast();
+      currentToast = null;
+    }, 5000);
   }
 </script>
 
-{#if currentToast}
+{#if currentToast !== null}
   <Toast
-    {open}
     dismissable={false}
     position="top-right"
     class="z-50 top-20 text-wrap"
@@ -38,11 +28,11 @@
     params={{ y: 200 }}
   >
     {#snippet icon()}
-      {#if currentToast.level == "info"}
+      {#if currentToast?.level == "info"}
         <IconCheck class="text-green-500 text-5xl" />
-      {:else if currentToast.level == "warn"}
+      {:else if currentToast?.level == "warn"}
         <IconAlertCircle class="text-orange-500 text-5xl" />
-      {:else if currentToast.level == "error"}
+      {:else if currentToast?.level == "error"}
         <IconAlert class="text-red-500 text-5xl" />
       {/if}
     {/snippet}

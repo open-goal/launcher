@@ -1,4 +1,5 @@
 import { filePrompt, filePromptNoFilters } from "$lib/utils/file-dialogs";
+import type { SupportedGame } from "./bindings/SupportedGame";
 import { invoke_rpc } from "./rpc";
 
 interface InstallationOutput {
@@ -63,7 +64,7 @@ export async function getLaunchGameString(gameName: string): Promise<string> {
 }
 
 export async function launchGame(
-  gameName: string,
+  gameName: SupportedGame,
   inDebug: boolean,
 ): Promise<void> {
   return await invoke_rpc(

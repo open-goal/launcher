@@ -3,7 +3,6 @@
   import logo from "$assets/images/icon.webp";
   import { onMount } from "svelte";
   import { getVersion } from "@tauri-apps/api/app";
-  import { Link } from "svelte-navigator";
   import IconWindowMinimize from "~icons/mdi/window-minimize";
   import IconWindowClose from "~icons/mdi/window-close";
   import { UpdateStore } from "$lib/stores/AppStore";
@@ -133,16 +132,16 @@
   <div
     class="flex flex-col text-neutral-300 mr-2 pointer-events-none max-w-[250px]"
   >
-    <Link
+    <a
       class={`font-mono text-sm text-orange-500 hover:text-orange-300 ${launcherUpdateAvailable ? "pointer-events-auto" : "invisible pointer-events-none"}`}
-      to="/update/launcher"
+      href="/update/launcher"
       >&gt;&nbsp;{$_("header_updateAvailable")}
-    </Link>
-    <Link
+    </a>
+    <a
       class={`font-mono text-sm text-orange-500 hover:text-orange-300  ${$UpdateStore.selectedTooling.updateAvailable ? "pointer-events-auto" : "invisible pointer-events-none"}`}
-      to="/settings/versions"
+      href="/settings/versions"
       >&gt;&nbsp;{$_("header_updateAvailable")}
-    </Link>
+    </a>
   </div>
   <div class="flex shrink-0 space-x-4 text-xl ml-auto">
     <button class="hover:text-amber-600" on:click={() => appWindow.minimize()}>

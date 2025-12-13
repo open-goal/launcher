@@ -3,7 +3,10 @@
   import LogViewer from "../setup/LogViewer.svelte";
   import { createEventDispatcher, onMount } from "svelte";
   import { Alert, Button } from "flowbite-svelte";
-  import { progressTracker } from "$lib/stores/ProgressStore";
+  import {
+    progressTracker,
+    type ProgressStep,
+  } from "$lib/stores/ProgressStore";
   import type { Job } from "$lib/utils/jobs";
   import {
     runCompiler,
@@ -26,32 +29,43 @@
   } from "$lib/rpc/features";
   import { isoPrompt } from "$lib/utils/file-dialogs";
   import { emit } from "@tauri-apps/api/event";
-  import { activeGame } from "$lib/stores/AppStore";
+  import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
 
-  export let jobType: Job;
+  interface Props {
+    activeGame: SupportedGame;
+    jobType: Job;
+    modDownloadUrl: string | undefined;
+    modSourceName: string | undefined;
+    modName: string | undefined;
+    modVersion: string | undefined;
+  }
 
-  // mods
-  export let modDownloadUrl: string | undefined = undefined;
-  export let modSourceName: string | undefined = undefined;
-  export let modName: string | undefined = undefined;
-  export let modVersion: string | undefined = undefined;
-
+  let {
+    activeGame,
+    jobType,
+    modDownloadUrl,
+    modSourceName,
+    modName,
+    modVersion,
+  }: Props = $props();
   const dispatch = createEventDispatcher();
-  let installationError: string | undefined | null = undefined;
-  let proceedAfterSuccessfulOperation = true;
+  let installationError: string | undefined | null = $state(undefined);
+  let proceedAfterSuccessfulOperation = $state(true);
 
   onMount(async () => {
     proceedAfterSuccessfulOperation =
       await getProceedAfterSuccessfulOperation();
   });
 
-  $: if (
-    $progressTracker.overallStatus === "success" &&
-    proceedAfterSuccessfulOperation
-  ) {
-    progressTracker.clear();
-    dispatch("jobFinished");
-  }
+  $effect(() => {
+    if (
+      $progressTracker.overallStatus === "success" &&
+      proceedAfterSuccessfulOperation
+    ) {
+      progressTracker.clear();
+      dispatch("jobFinished");
+    }
+  });
 
   async function setupDecompileJob() {
     installationError = undefined;
@@ -66,7 +80,7 @@
       },
     ]);
     progressTracker.start();
-    let resp = await runDecompiler("", $activeGame, true, true);
+    let resp = await runDecompiler("", activeGame, true, true);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -89,7 +103,7 @@
       },
     ]);
     progressTracker.start();
-    let resp = await runCompiler("", $activeGame, true);
+    let resp = await runCompiler("", activeGame, true);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -120,28 +134,28 @@
       },
     ]);
     progressTracker.start();
-    let resp = await updateDataDirectory($activeGame);
+    let resp = await updateDataDirectory(activeGame);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
       return;
     }
     progressTracker.proceed();
-    resp = await runDecompiler("", $activeGame, true, false);
+    resp = await runDecompiler("", activeGame, true, false);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
       return;
     }
     progressTracker.proceed();
-    resp = await runCompiler("", $activeGame);
+    resp = await runCompiler("", activeGame);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
       return;
     }
     progressTracker.proceed();
-    await finalizeInstallation($activeGame);
+    await finalizeInstallation(activeGame);
     await emit("gameInstalled");
     progressTracker.proceed();
     location.reload();
@@ -150,8 +164,8 @@
   async function setupModInstallation() {
     // Check to see if we need to prompt for the ISO or not
     installationError = undefined;
-    let jobs = [];
-    const isoAlreadyExtracted = await baseGameIsoExists($activeGame);
+    let jobs: ProgressStep[] = [];
+    const isoAlreadyExtracted = await baseGameIsoExists(activeGame);
     if (!isoAlreadyExtracted) {
       jobs.push({
         status: "queued",
@@ -181,7 +195,7 @@
       );
       if (sourcePath !== undefined) {
         let resp = await extractIsoForModInstall(
-          $activeGame,
+          activeGame,
           modName,
           modSourceName,
           sourcePath,
@@ -198,18 +212,14 @@
       }
       progressTracker.proceed();
     }
-    let resp = await decompileForModInstall(
-      $activeGame,
-      modName,
-      modSourceName,
-    );
+    let resp = await decompileForModInstall(activeGame, modName, modSourceName);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
       return;
     }
     progressTracker.proceed();
-    resp = await compileForModInstall($activeGame, modName, modSourceName);
+    resp = await compileForModInstall(activeGame, modName, modSourceName);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -217,7 +227,7 @@
     }
     progressTracker.proceed();
     resp = await saveModInstallInfo(
-      $activeGame,
+      activeGame,
       modName,
       modSourceName,
       modVersion,
@@ -231,10 +241,13 @@
   }
 
   async function setupModInstallationExternal() {
+    if (!modDownloadUrl || !modName || !modSourceName) {
+      return;
+    }
     // Check to see if we need to prompt for the ISO or not
     installationError = undefined;
-    let jobs = [];
-    const isoAlreadyExtracted = await baseGameIsoExists($activeGame);
+    let jobs: ProgressStep[] = [];
+    const isoAlreadyExtracted = await baseGameIsoExists(activeGame);
     jobs.push(
       {
         status: "queued",
@@ -262,7 +275,7 @@
       );
       if (sourcePath !== undefined) {
         let resp = await extractIsoForModInstall(
-          $activeGame,
+          activeGame,
           modName,
           modSourceName,
           sourcePath,
@@ -280,7 +293,7 @@
     }
     // extract the file into install_dir/features/<game>/<sourceName>/<modName>
     let resp = await downloadAndExtractNewMod(
-      $activeGame,
+      activeGame,
       modDownloadUrl,
       modName,
       modSourceName,
@@ -291,14 +304,14 @@
       return;
     }
     progressTracker.proceed();
-    resp = await decompileForModInstall($activeGame, modName, modSourceName);
+    resp = await decompileForModInstall(activeGame, modName, modSourceName);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
       return;
     }
     progressTracker.proceed();
-    resp = await compileForModInstall($activeGame, modName, modSourceName);
+    resp = await compileForModInstall(activeGame, modName, modSourceName);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -306,7 +319,7 @@
     }
     progressTracker.proceed();
     resp = await saveModInstallInfo(
-      $activeGame,
+      activeGame,
       modName,
       modSourceName,
       modVersion,
@@ -333,11 +346,7 @@
       },
     ]);
     progressTracker.start();
-    let resp = await decompileForModInstall(
-      $activeGame,
-      modName,
-      modSourceName,
-    );
+    let resp = await decompileForModInstall(activeGame, modName, modSourceName);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;
@@ -361,7 +370,7 @@
       },
     ]);
     progressTracker.start();
-    let resp = await compileForModInstall($activeGame, modName, modSourceName);
+    let resp = await compileForModInstall(activeGame, modName, modSourceName);
     if (!resp.success) {
       progressTracker.halt();
       installationError = resp.msg;

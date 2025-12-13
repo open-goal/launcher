@@ -507,7 +507,7 @@ impl LauncherConfig {
         "seconds_played" => Ok(json!(game_config.seconds_played)),
         "installed_mods" => Ok(json!(game_config.mods_installed_version)),
         _ => {
-          log::error!("Key '{}' not recognized", key);
+          log::error!("Key '{}' not recognized in game config", key);
           Err(ConfigError::Configuration("Invalid key".to_owned()))
         }
       }
