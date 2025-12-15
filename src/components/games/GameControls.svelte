@@ -28,6 +28,7 @@
   import Playtime from "./Playtime.svelte";
   import { navigate } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
+  import { asJobType } from "$lib/job/jobs";
 
   let { activeGame }: { activeGame: SupportedGame } = $props();
   let textureSupportEnabled = $state(true);
@@ -135,8 +136,11 @@
       <DropdownDivider />
       <DropdownItem
         onclick={async () => {
-          dispatch("job", {
-            type: "decompile",
+          navigate("/job/:job_type", {
+            params: { job_type: asJobType("decompile") },
+            search: {
+              activeGame: activeGame,
+            },
           });
         }}
         >{$_("gameControls_button_decompile")}
@@ -147,8 +151,11 @@
       >
       <DropdownItem
         onclick={async () => {
-          dispatch("job", {
-            type: "compile",
+          navigate("/job/:job_type", {
+            params: { job_type: asJobType("compile") },
+            search: {
+              activeGame: activeGame,
+            },
           });
         }}
         >{$_("gameControls_button_compile")}
@@ -226,9 +233,8 @@
             $_("gameControls_button_uninstall_confirmation"),
             { title: "OpenGOAL Launcher", kind: "warning" },
           );
-          if (confirmed) {
-            await uninstallGame(activeGame);
-            dispatch("change");
+          if (confirmed && await uninstallGame(activeGame)) {
+            dispatch("gameInstallStateChanged");
           }
         }}
         >{$_("gameControls_button_uninstall")}<Helper

@@ -43,6 +43,7 @@
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import { getModInfo } from "$lib/rpc/bindings/utils/ModInfo";
+  import { asJobType } from "$lib/job/jobs";
 
   let {
     activeGame,
@@ -51,7 +52,6 @@
   }: { activeGame: SupportedGame; modName: string; modSource: string } =
     $props();
 
-  const dispatch = createEventDispatcher();
   let gameDataDir: string | undefined = undefined;
   let extractedAssetsDir: string | undefined = undefined;
   let settingsDir: string | undefined = $state(undefined);
@@ -65,16 +65,17 @@
   let modInfo: ModInfo | undefined = $state(undefined);
 
   async function addModFromUrl(url: string, modVersion: string) {
-    // install it immediately
-    // - prompt user for iso if it doesn't exist
-    // - decompile
-    // - compile
-    dispatch("job", {
-      type: "installModExternal",
-      modDownloadUrl: url,
-      modSourceName: modSource,
-      modName: modName,
-      modVersion: modVersion,
+    navigate("/job/:job_type", {
+      params: {
+        job_type: asJobType("installModFromUrl"),
+      },
+      search: {
+        activeGame: activeGame,
+        modName: modName,
+        modSourceName: modSource,
+        modDownloadUrl: url,
+        modVersion: modVersion,
+      },
     });
   }
 
@@ -351,8 +352,15 @@
           <DropdownDivider />
           <DropdownItem
             onclick={async () => {
-              dispatch("job", {
-                type: "decompileMod",
+              navigate("/job/:job_type", {
+                params: {
+                  job_type: asJobType("decompileMod"),
+                },
+                search: {
+                  activeGame: activeGame,
+                  modName: modName,
+                  modSourceName: modSource,
+                },
               });
             }}
             >{$_("gameControls_button_decompile")}
@@ -363,8 +371,15 @@
           >
           <DropdownItem
             onclick={async () => {
-              dispatch("job", {
-                type: "compileMod",
+              navigate("/job/:job_type", {
+                params: {
+                  job_type: asJobType("compileMod"),
+                },
+                search: {
+                  activeGame: activeGame,
+                  modName: modName,
+                  modSourceName: modSource,
+                },
               });
             }}
             >{$_("gameControls_button_compile")}

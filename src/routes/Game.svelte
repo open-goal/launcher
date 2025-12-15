@@ -1,6 +1,6 @@
 <script lang="ts">
   import GameControls from "../components/games/GameControls.svelte";
-  import GameSetup from "../components/games/setup/GameSetup.svelte";
+  import GameSetup from "../components/job/GameSetup.svelte";
   import { Alert } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import {
@@ -8,8 +8,7 @@
     getInstalledVersion,
     isGameInstalled,
   } from "$lib/rpc/config";
-  import GameJob from "../components/games/job/GameJob.svelte";
-  import GameUpdate from "../components/games/setup/GameUpdate.svelte";
+  import GameUpdate from "../components/job/GameUpdate.svelte";
   import {
     ensureActiveVersionStillExists,
     getActiveVersion,
@@ -17,7 +16,6 @@
   import GameToolsNotSet from "../components/games/GameToolsNotSet.svelte";
   import GameNotSupportedByTooling from "../components/games/GameNotSupportedByTooling.svelte";
   import { isMinVCCRuntime, VersionStore } from "$lib/stores/VersionStore";
-  import type { Job } from "$lib/utils/jobs";
   import { type } from "@tauri-apps/plugin-os";
   import GameControlsMod from "../components/games/GameControlsMod.svelte";
   import GameInProgress from "../components/games/GameInProgress.svelte";
@@ -32,10 +30,7 @@
 
   const showVccWarning = $derived(type() == "windows" && !$isMinVCCRuntime);
 
-  let modVersionToInstall: string = $state("");
-  let modDownloadUrlToInstall: string = $state("");
   let gameInstalled = $state(false);
-  let gameJobToRun: Job | undefined = $state(undefined);
   let installedVersion: String | undefined = $state(undefined);
   let versionMismatchDetected = $state(false);
   let gameSupportedByTooling = $state(false);
@@ -44,11 +39,8 @@
     const activeGameFromParam = toSupportedGame(gameParam);
     if (activeGameFromParam) {
       activeGame = activeGameFromParam;
+      loadGameInfo(activeGame);
     }
-  });
-
-  $effect(() => {
-    loadGameInfo(activeGame);
   });
 
   async function loadGameInfo(activeGame?: SupportedGame) {
@@ -75,24 +67,11 @@
     }
   }
 
-  async function updateGameState(event: any) {
+  async function gameInstallStateChanged(event: any) {
     if (!activeGame) {
       return;
     }
     gameInstalled = await isGameInstalled(activeGame);
-  }
-
-  async function runGameJob(event: any) {
-    gameJobToRun = event.detail.type;
-    if (gameJobToRun === "installModExternal") {
-      modDownloadUrlToInstall = event.detail.modDownloadUrl;
-      modVersionToInstall = event.detail.modVersion;
-    }
-  }
-
-  async function gameJobFinished() {
-    gameJobToRun = undefined;
-    versionMismatchDetected = false;
   }
 </script>
 
@@ -107,19 +86,9 @@
     {:else if !gameSupportedByTooling}
       <GameNotSupportedByTooling />
     {:else if !gameInstalled}
-      <GameSetup {activeGame} on:change={updateGameState} />
-    {:else if gameJobToRun !== undefined}
-      <GameJob
-        {activeGame}
-        jobType={gameJobToRun}
-        modSourceName={modSource}
-        modDownloadUrl={modDownloadUrlToInstall}
-        modVersion={modVersionToInstall}
-        {modName}
-        on:jobFinished={gameJobFinished}
-      />
+      <GameSetup {activeGame} />
     {:else if versionMismatchDetected}
-      <GameUpdate {installedVersion} on:job={runGameJob} />
+      <GameUpdate {installedVersion} />
     {:else}
       {#if showVccWarning}
         <Alert rounded={false} class="border-t-4 text-red-400">
@@ -207,19 +176,9 @@
       </Alert>
     {/if} -->
       {#if modName && modSource}
-        <GameControlsMod
-          {activeGame}
-          {modName}
-          {modSource}
-          on:change={updateGameState}
-          on:job={runGameJob}
-        />
+        <GameControlsMod {activeGame} {modName} {modSource} on:gameInstallStateChanged={gameInstallStateChanged} />
       {:else}
-        <GameControls
-          {activeGame}
-          on:change={updateGameState}
-          on:job={runGameJob}
-        />
+        <GameControls {activeGame} />
       {/if}
     {/if}
   </div>

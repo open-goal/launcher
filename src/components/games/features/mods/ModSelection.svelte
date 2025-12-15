@@ -1,6 +1,6 @@
 <script lang="ts">
   import { platform } from "@tauri-apps/plugin-os";
-  import { createEventDispatcher, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import { Button, Indicator, Input, Spinner, Tooltip } from "flowbite-svelte";
   import IconArrowLeft from "~icons/mdi/arrow-left";
@@ -20,11 +20,11 @@
   import { navigate, route } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
-
-  const dispatch = createEventDispatcher();
+  import { asJobType } from "$lib/job/jobs";
 
   const gameParam = $derived(route.params.game_name);
   let activeGame: SupportedGame | undefined = $state(undefined);
+  let onWindows = platform() === "windows";
 
   $effect(() => {
     const activeGameFromParam = toSupportedGame(gameParam);
@@ -56,25 +56,31 @@
     }
     addingMod = true;
     addingFromFile = true;
-    const modArchivePath = await filePrompt(["zip"], "ZIP", "Select a mod");
+    let modArchivePath;
+    if (onWindows) {
+      modArchivePath = await filePrompt(["zip"], "ZIP", "Select a mod");
+    } else {
+      modArchivePath = await filePrompt(["gz"], "TAR", "Select a mod");
+    }
     if (modArchivePath === null) {
       addingMod = false;
+      addingFromFile = false;
       return;
     }
     // extract the file into install_dir/features/<game>/_local/zip-name
     await extractNewMod(activeGame, modArchivePath, "_local");
-    // install it immediately
-    // - prompt user for iso if it doesn't exist
-    // - decompile
-    // - compile
-    dispatch("job", {
-      type: "installMod",
-      modSourceName: "_local",
-      modName: await basename(modArchivePath, ".zip"),
-      modVersion: "local",
-    });
-    addingMod = false;
-    addingFromFile = false;
+    // install it
+    navigate("/job/:job_type", {
+      params: {
+        job_type: asJobType("installModLocally")
+      },
+      search: {
+        activeGame: activeGame,
+        modName: await basename(modArchivePath, onWindows ? ".zip" : ".tar.gz"),
+        modSourceName: "_local",
+        modVersion: "local"
+      }
+    })
   }
 
   function getThumbnailImage(modInfo: ModInfo): string {
@@ -168,8 +174,11 @@
         <Button
           outline
           class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
-          onclick={async () =>
-            navigate(`/:game_name`, { params: { game_name: activeGame } })}
+          onclick={async () => {
+            if (activeGame) {
+              navigate(`/:game_name`, { params: { game_name: activeGame } });
+            }
+          }}
           aria-label={$_("features_backToGamePage_buttonAlt")}
         >
           <IconArrowLeft />

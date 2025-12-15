@@ -1,24 +1,11 @@
-<!--
-  - verify mod JSON file with a json schema https://docs.rs/jsonschema/latest/jsonschema/
- -->
-<!-- NOTE - this does not attempt to verify that the user has not manually messed with the texture_replacements folder.
-  This is no different than how we don't verify the user hasn't messed with goal_src -->
-
-<!-- TODO - collecting rating metrics / number of users might be cool (same for mods) -->
-<!-- TODO - instead of currently allowing full access - explicitly allow the install folder in the Rust layer https://docs.rs/tauri/1.4.1/tauri/scope/struct.FsScope.html -->
-<!-- TODO - check supported games, not bothering right now cause there's only 1! -->
-
 <script lang="ts">
   import {
     cleanupEnabledTexturePacks,
     getEnabledTexturePacks,
-    setEnabledTexturePacks,
   } from "$lib/rpc/config";
   import {
-    deleteTexturePacks,
     extractNewTexturePack,
     listExtractedTexturePackInfo,
-    updateTexturePackData,
   } from "$lib/rpc/features";
   import { filePrompt } from "$lib/utils/file-dialogs";
   import IconArrowLeft from "~icons/mdi/arrow-left";
@@ -38,13 +25,11 @@
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
 
-  import { progressTracker } from "$lib/stores/ProgressStore";
-  import { runDecompiler } from "$lib/rpc/binaries";
-  import LogViewer from "../../setup/LogViewer.svelte";
-  import Progress from "../../setup/Progress.svelte";
   import { navigate, route } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
+  import { asJobType } from "$lib/job/jobs";
+  import { act } from "@testing-library/svelte";
 
   const gameParam = $derived(route.params.game_name);
   let activeGame: SupportedGame | undefined = $state(undefined);
@@ -62,73 +47,11 @@
   let availablePacksOriginal = $state([]);
   let addingPack = $state(false);
   let packAddingError = $state("");
-  let enabledPacks = $state([]);
-  let packsToDelete = $state([]);
 
   onMount(async () => {
     await update_pack_list();
     loaded = true;
   });
-
-  async function setupTexturePacks() {
-    if (!activeGame) {
-      return;
-    }
-    let installationError = undefined;
-    let jobs = [];
-    if (packsToDelete.length) {
-      jobs.push({
-        status: "queued",
-        label: $_("gameJob_deleteTexturePacks"),
-      });
-    }
-    jobs.push(
-      {
-        status: "queued",
-        label: $_("gameJob_enablingTexturePacks"),
-      },
-      {
-        status: "queued",
-        label: $_("gameJob_applyTexturePacks"),
-      },
-      {
-        status: "queued",
-        label: $_("setup_decompile"),
-      },
-    );
-    progressTracker.init(jobs);
-    progressTracker.start();
-    if (packsToDelete.length) {
-      let resp = await deleteTexturePacks(activeGame, packsToDelete);
-      if (!resp.success) {
-        progressTracker.halt();
-        installationError = resp.msg;
-        return;
-      }
-      progressTracker.proceed();
-    }
-    let resp = await setEnabledTexturePacks(activeGame, enabledPacks);
-    if (!resp.success) {
-      progressTracker.halt();
-      installationError = resp.msg;
-      return;
-    }
-    progressTracker.proceed();
-    resp = await updateTexturePackData(activeGame);
-    if (!resp.success) {
-      progressTracker.halt();
-      installationError = resp.msg;
-      return;
-    }
-    progressTracker.proceed();
-    resp = await runDecompiler("", activeGame, true, false);
-    if (!resp.success) {
-      progressTracker.halt();
-      installationError = resp.msg;
-      return;
-    }
-    progressTracker.proceed();
-  }
 
   async function update_pack_list() {
     if (!activeGame) {
@@ -263,9 +186,11 @@
   }
 
   async function applyTexturePacks() {
-    addingPack = true;
-    enabledPacks = [];
-    packsToDelete = [];
+    if (!activeGame) {
+      return;
+    }
+    let enabledPacks: string[] = [];
+    let packsToDelete: string[] = [];
     for (const pack of availablePacks) {
       if (pack.enabled) {
         enabledPacks.push(pack.name);
@@ -273,9 +198,16 @@
         packsToDelete.push(pack.name);
       }
     }
-    let res = await setupTexturePacks();
-    await update_pack_list();
-    addingPack = false;
+    navigate("/job/:job_type", {
+      params: {
+        job_type: asJobType("applyTexturePacks")
+      },
+      search: {
+        activeGame: activeGame,
+        enabledPacks: JSON.stringify(enabledPacks),
+        packsToDelete: JSON.stringify(packsToDelete),
+      }
+    })
   }
 
   function moveTexturePack(dst: number, src: number) {
@@ -293,182 +225,169 @@
     </div>
   {:else}
     <div class="pb-20 overflow-y-auto p-4">
-      {#if addingPack}
-        <Progress></Progress>
-        <LogViewer></LogViewer>
-      {:else}
-        <div class="flex flex-row gap-2">
+      <div class="flex flex-row gap-2">
+        <Button
+          disabled={addingPack}
+          outline
+          class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
+          onclick={async () =>
+            navigate(`/:game_name`, { params: { game_name: activeGame } })}
+          aria-label={$_("features_backToGamePage_buttonAlt")}
+        >
+          <IconArrowLeft />
+        </Button>
+        <Button
+          class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
+          onclick={addNewTexturePack}
+          aria-label={$_("features_textures_addNewPack_buttonAlt")}
+          disabled={addingPack}
+        >
+          {#if addingPack}
+            <Spinner class="mr-3" size="4" color="yellow" />
+          {/if}
+          {$_("features_textures_addNewPack")}</Button
+        >
+        {#if pending_changes(availablePacks, availablePacksOriginal)}
           <Button
             disabled={addingPack}
-            outline
-            class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
-            onclick={async () =>
-              navigate(`/:game_name`, { params: { game_name: activeGame } })}
-            aria-label={$_("features_backToGamePage_buttonAlt")}
+            class="flex-shrink border-solid rounded bg-green-400 hover:bg-green-500 text-sm text-slate-900 font-semibold px-5 py-2"
+            onclick={applyTexturePacks}
+            aria-label={$_("features_textures_applyChanges_buttonAlt")}
+            >{$_("features_textures_applyChanges")}</Button
           >
-            <IconArrowLeft />
-          </Button>
-          <Button
-            class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
-            onclick={addNewTexturePack}
-            aria-label={$_("features_textures_addNewPack_buttonAlt")}
-            disabled={addingPack}
-          >
-            {#if addingPack}
-              <Spinner class="mr-3" size="4" color="yellow" />
-            {/if}
-            {$_("features_textures_addNewPack")}</Button
-          >
-          {#if pending_changes(availablePacks, availablePacksOriginal)}
-            <Button
-              disabled={addingPack}
-              class="flex-shrink border-solid rounded bg-green-400 hover:bg-green-500 text-sm text-slate-900 font-semibold px-5 py-2"
-              onclick={applyTexturePacks}
-              aria-label={$_("features_textures_applyChanges_buttonAlt")}
-              >{$_("features_textures_applyChanges")}</Button
-            >
-          {/if}
-        </div>
-        {#if packAddingError !== ""}
-          <div class="flex flex-row font-bold mt-3">
-            <Alert class="flex-grow text-red-400">
-              {packAddingError}
-            </Alert>
-          </div>
         {/if}
-        {#if availablePacks.length > 0}
-          <div class="flex flex-row font-bold mt-3">
-            <h2>{$_("features_textures_listHeading")}</h2>
-          </div>
-          <div class="flex flex-row text-sm">
-            <p>
-              {$_("features_textures_description")}
-            </p>
-          </div>
-        {/if}
-        {#each availablePacks as pack, packIndex}
-          {#if !pack.toBeDeleted}
-            <div class="flex flex-row gap-2 mt-3">
-              <Card
-                horizontal={true}
-                img={convertFileSrc(
-                  extractedPackInfo[pack.name]["coverImagePath"],
-                )}
-                size="xl"
-              >
-                <div class="w-full pl-4 py-2">
-                  <h2 class="text-xl font-bold tracking-tight text-white">
-                    {extractedPackInfo[pack.name]["name"]}
-                    <span class="text-xs text-gray-500"></span>
-                  </h2>
-                  <p class="font-bold text-xs text-gray-500">
-                    {extractedPackInfo[pack.name]["version"]} by {extractedPackInfo[
-                      pack.name
-                    ]["author"]}
-                  </p>
-                  <p class="font-bold text-gray-500 text-xs">
-                    {extractedPackInfo[pack.name]["releaseDate"]}
-                  </p>
-                  <p class="font-bold text-gray-500 text-xs">
-                    {$_("features_textures_replacedCount")} - {num_textures_in_pack(
-                      pack.name,
-                    )}
-                  </p>
-                  <p class="mt-2 mb-4 font-normal text-gray-400 leading-tight">
-                    {extractedPackInfo[pack.name]["description"]}
-                  </p>
-                  {#if extractedPackInfo[pack.name]["tags"].length > 0}
-                    <div class="flex flex-row gap-2">
-                      {#each extractedPackInfo[pack.name]["tags"] as tag}
-                        <Badge border color={tag_name_to_color(tag)}
-                          >{tag}</Badge
-                        >
-                      {/each}
-                    </div>
-                  {/if}
-                  <!-- Buttons -->
-                  <div class="mt-2 flex flex-row gap-2">
-                    <!-- TODO: this button should be a toggle tbh -->
-                    <Button
-                      size={"xs"}
-                      color={pack.enabled ? "green" : "red"}
-                      onclick={() => {
-                        pack.enabled = !pack.enabled;
-                      }}
-                    >
-                      {pack.enabled
-                        ? $_("features_textures_enabled")
-                        : $_("features_textures_disabled")}
-                    </Button>
-                    {#if pack.enabled}
-                      {#if packIndex !== 0}
-                        <Button
-                          outline
-                          class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
-                          aria-label={$_("features_textures_moveUp_buttonAlt")}
-                          onclick={() => {
-                            moveTexturePack(packIndex - 1, packIndex);
-                          }}
-                        >
-                          <IconArrowUp />
-                        </Button>
-                      {/if}
-                      {#if packIndex !== availablePacks.length - 1}
-                        <Button
-                          outline
-                          class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
-                          aria-label={$_(
-                            "features_textures_moveDown_buttonAlt",
-                          )}
-                          onclick={() => {
-                            moveTexturePack(packIndex + 1, packIndex);
-                          }}
-                        >
-                          <IconArrowDown />
-                        </Button>
-                      {/if}
-                    {/if}
-                    <Button
-                      outline
-                      class="!p-1.5 rounded-md border-red-500 text-red-500 hover:bg-red-600"
-                      aria-label={$_("features_textures_deletePack_buttonAlt")}
-                      onclick={() => {
-                        pack.toBeDeleted = true;
-                        pack.enabled = false;
-                      }}
-                    >
-                      <IconDelete />
-                    </Button>
-                  </div>
-                  <!-- double computation, TODO - separate component -->
-                  <!-- TODO: this could be more elegant -->
-                  {#if find_pack_conflicts(pack.name).size > 0}
-                    <Accordion flush class="mt-2">
-                      <AccordionItem class="p-2">
-                        {#snippet header()}{$_(
-                            "features_textures_conflictsDetected",
-                          )}{/snippet}
-                        <p
-                          class="mb-2 text-gray-500 dark:text-gray-400 text-xs"
-                        >
-                          {[...find_pack_conflicts(pack.name)]
-                            .join("\n")
-                            .trim()}
-                        </p>
-                      </AccordionItem>
-                    </Accordion>
-                  {/if}
-                </div>
-              </Card>
-            </div>
-          {/if}
-        {/each}
+      </div>
+      {#if packAddingError !== ""}
         <div class="flex flex-row font-bold mt-3">
           <Alert class="flex-grow text-red-400">
-            {$_("features_textures_largePackWarning")}
+            {packAddingError}
           </Alert>
         </div>
       {/if}
+      {#if availablePacks.length > 0}
+        <div class="flex flex-row font-bold mt-3">
+          <h2>{$_("features_textures_listHeading")}</h2>
+        </div>
+        <div class="flex flex-row text-sm">
+          <p>
+            {$_("features_textures_description")}
+          </p>
+        </div>
+      {/if}
+      {#each availablePacks as pack, packIndex}
+        {#if !pack.toBeDeleted}
+          <div class="flex flex-row gap-2 mt-3">
+            <Card
+              horizontal={true}
+              img={convertFileSrc(
+                extractedPackInfo[pack.name]["coverImagePath"],
+              )}
+              size="xl"
+            >
+              <div class="w-full pl-4 py-2">
+                <h2 class="text-xl font-bold tracking-tight text-white">
+                  {extractedPackInfo[pack.name]["name"]}
+                  <span class="text-xs text-gray-500"></span>
+                </h2>
+                <p class="font-bold text-xs text-gray-500">
+                  {extractedPackInfo[pack.name]["version"]} by {extractedPackInfo[
+                    pack.name
+                  ]["author"]}
+                </p>
+                <p class="font-bold text-gray-500 text-xs">
+                  {extractedPackInfo[pack.name]["releaseDate"]}
+                </p>
+                <p class="font-bold text-gray-500 text-xs">
+                  {$_("features_textures_replacedCount")} - {num_textures_in_pack(
+                    pack.name,
+                  )}
+                </p>
+                <p class="mt-2 mb-4 font-normal text-gray-400 leading-tight">
+                  {extractedPackInfo[pack.name]["description"]}
+                </p>
+                {#if extractedPackInfo[pack.name]["tags"].length > 0}
+                  <div class="flex flex-row gap-2">
+                    {#each extractedPackInfo[pack.name]["tags"] as tag}
+                      <Badge border color={tag_name_to_color(tag)}>{tag}</Badge>
+                    {/each}
+                  </div>
+                {/if}
+                <!-- Buttons -->
+                <div class="mt-2 flex flex-row gap-2">
+                  <!-- TODO: this button should be a toggle tbh -->
+                  <Button
+                    size={"xs"}
+                    color={pack.enabled ? "green" : "red"}
+                    onclick={() => {
+                      pack.enabled = !pack.enabled;
+                    }}
+                  >
+                    {pack.enabled
+                      ? $_("features_textures_enabled")
+                      : $_("features_textures_disabled")}
+                  </Button>
+                  {#if pack.enabled}
+                    {#if packIndex !== 0}
+                      <Button
+                        outline
+                        class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
+                        aria-label={$_("features_textures_moveUp_buttonAlt")}
+                        onclick={() => {
+                          moveTexturePack(packIndex - 1, packIndex);
+                        }}
+                      >
+                        <IconArrowUp />
+                      </Button>
+                    {/if}
+                    {#if packIndex !== availablePacks.length - 1}
+                      <Button
+                        outline
+                        class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
+                        aria-label={$_("features_textures_moveDown_buttonAlt")}
+                        onclick={() => {
+                          moveTexturePack(packIndex + 1, packIndex);
+                        }}
+                      >
+                        <IconArrowDown />
+                      </Button>
+                    {/if}
+                  {/if}
+                  <Button
+                    outline
+                    class="!p-1.5 rounded-md border-red-500 text-red-500 hover:bg-red-600"
+                    aria-label={$_("features_textures_deletePack_buttonAlt")}
+                    onclick={() => {
+                      pack.toBeDeleted = true;
+                      pack.enabled = false;
+                    }}
+                  >
+                    <IconDelete />
+                  </Button>
+                </div>
+                <!-- double computation, TODO - separate component -->
+                <!-- TODO: this could be more elegant -->
+                {#if find_pack_conflicts(pack.name).size > 0}
+                  <Accordion flush class="mt-2">
+                    <AccordionItem class="p-2">
+                      {#snippet header()}{$_(
+                          "features_textures_conflictsDetected",
+                        )}{/snippet}
+                      <p class="mb-2 text-gray-500 dark:text-gray-400 text-xs">
+                        {[...find_pack_conflicts(pack.name)].join("\n").trim()}
+                      </p>
+                    </AccordionItem>
+                  </Accordion>
+                {/if}
+              </div>
+            </Card>
+          </div>
+        {/if}
+      {/each}
+      <div class="flex flex-row font-bold mt-3">
+        <Alert class="flex-grow text-red-400">
+          {$_("features_textures_largePackWarning")}
+        </Alert>
+      </div>
     </div>
   {/if}
 </div>
