@@ -1,6 +1,6 @@
 <script lang="ts">
   import Requirements from "./Requirements.svelte";
-  import { createEventDispatcher, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { Button } from "flowbite-svelte";
   import { folderPrompt, isoPrompt } from "$lib/utils/file-dialogs";
   import {
@@ -8,13 +8,14 @@
     isDiskSpaceRequirementMet,
     isOpenGLRequirementMet,
     getProceedAfterSuccessfulOperation,
+    isMinimumVCCRuntimeInstalled,
   } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { arch, type } from "@tauri-apps/plugin-os";
-  import { isMinVCCRuntime, isMinMacOSVersion } from "$lib/stores/VersionStore";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { navigate } from "/src/router";
   import { asJobType } from "$lib/job/jobs";
+  import { systemInfoState } from "/src/state/SystemInfoState.svelte";
 
   let { activeGame }: { activeGame: SupportedGame } = $props();
 
@@ -41,12 +42,12 @@
         requirementsMet = false;
         return;
       }
-      requirementsMet = $isMinMacOSVersion && isOpenGLMet && isDiskSpaceMet;
+      requirementsMet = systemInfoState.isMinMacOSVersion && isOpenGLMet && isDiskSpaceMet;
     } else {
       const isAvxMet = await isAVXRequirementMet();
       if (osType == "windows") {
         requirementsMet =
-          isAvxMet && isOpenGLMet && isDiskSpaceMet && $isMinVCCRuntime;
+          isAvxMet && isOpenGLMet && isDiskSpaceMet && systemInfoState.isMinVCCRuntimeInstalled;
       } else {
         requirementsMet = isAvxMet && isOpenGLMet && isDiskSpaceMet;
       }

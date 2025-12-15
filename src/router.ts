@@ -15,6 +15,7 @@ import UpdateLauncher from "./routes/UpdateLauncher.svelte";
 import Layout from "./routes/layouts/Layout.svelte";
 // @ts-ignore
 import Job from "./routes/Job.svelte";
+import { versionState } from "./state/VersionState.svelte";
 
 export const { p, navigate, isActive, route } = createRouter({
   "/": Game,
@@ -40,6 +41,11 @@ export const { p, navigate, isActive, route } = createRouter({
       "/": ModSelection,
       "/:source_name/:mod_name": {
         "/": Game,
+        hooks: {
+          beforeLoad() {
+            versionState.displayModVersion = true;
+          },
+        },
       },
     },
     "/texture_packs": {
