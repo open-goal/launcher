@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Router } from "sv-router";
   import type { Snippet } from "svelte";
   import { isLoading } from "svelte-i18n";
   import Background from "../../components/background/Background.svelte";
