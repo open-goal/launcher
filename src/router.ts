@@ -14,7 +14,7 @@ import UpdateLauncher from "./routes/UpdateLauncher.svelte";
 // @ts-ignore
 import Layout from "./routes/layouts/Layout.svelte";
 // @ts-ignore
-import Job from "./routes/Job.svelte"
+import Job from "./routes/Job.svelte";
 
 export const { p, navigate, isActive, route } = createRouter({
   "/": Game,

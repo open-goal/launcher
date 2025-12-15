@@ -28,7 +28,7 @@ const storeValue: JobTracker = {
   overallStatus: "inactive",
   steps: [],
   logs: [],
-  failureReason: undefined
+  failureReason: undefined,
 };
 
 function createJobTracker() {
@@ -51,7 +51,7 @@ function createJobTracker() {
         overallStatus: "inactive",
         steps: [],
         logs: [],
-        failureReason: undefined
+        failureReason: undefined,
       });
     },
     start: async () => {
@@ -60,22 +60,23 @@ function createJobTracker() {
         val.overallStatus = "pending";
         return val;
       });
-      // TODO - change to a while?
-      for (const step of storeState.steps) {
+      let i = 0;
+      while (i < storeState.steps.length) {
+        const step = storeState.steps[i];
         update((val) => {
-          val.steps[val.currentStep].status = "pending"
+          val.steps[val.currentStep].status = "pending";
           return val;
         });
         const result = await step.task();
         if (!result) {
           update((val) => {
             val.overallStatus = "failed";
-            val.steps[val.currentStep].status = "failed"
+            val.steps[val.currentStep].status = "failed";
             return val;
           });
         } else {
           update((val) => {
-            val.steps[val.currentStep].status = "success"
+            val.steps[val.currentStep].status = "success";
             val.currentStep++;
             // Check if we're done or not
             if (val.currentStep >= val.steps.length) {

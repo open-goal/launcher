@@ -70,7 +70,7 @@
         },
         search: {
           activeGame: activeGame,
-          sourcePath: sourcePath
+          sourcePath: sourcePath,
         },
       });
     }

@@ -176,7 +176,12 @@
       </Alert>
     {/if} -->
       {#if modName && modSource}
-        <GameControlsMod {activeGame} {modName} {modSource} on:gameInstallStateChanged={gameInstallStateChanged} />
+        <GameControlsMod
+          {activeGame}
+          {modName}
+          {modSource}
+          on:gameInstallStateChanged={gameInstallStateChanged}
+        />
       {:else}
         <GameControls {activeGame} />
       {/if}

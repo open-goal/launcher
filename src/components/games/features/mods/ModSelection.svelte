@@ -72,15 +72,15 @@
     // install it
     navigate("/job/:job_type", {
       params: {
-        job_type: asJobType("installModLocally")
+        job_type: asJobType("installModLocally"),
       },
       search: {
         activeGame: activeGame,
         modName: await basename(modArchivePath, onWindows ? ".zip" : ".tar.gz"),
         modSourceName: "_local",
-        modVersion: "local"
-      }
-    })
+        modVersion: "local",
+      },
+    });
   }
 
   function getThumbnailImage(modInfo: ModInfo): string {

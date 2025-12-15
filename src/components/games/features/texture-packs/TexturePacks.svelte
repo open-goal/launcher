@@ -200,14 +200,14 @@
     }
     navigate("/job/:job_type", {
       params: {
-        job_type: asJobType("applyTexturePacks")
+        job_type: asJobType("applyTexturePacks"),
       },
       search: {
         activeGame: activeGame,
         enabledPacks: JSON.stringify(enabledPacks),
         packsToDelete: JSON.stringify(packsToDelete),
-      }
-    })
+      },
+    });
   }
 
   function moveTexturePack(dst: number, src: number) {

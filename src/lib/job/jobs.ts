@@ -10,7 +10,7 @@ const JOB_TYPES = [
   "compileMod",
 ] as const;
 
-export type JobType = typeof JOB_TYPES[number];
+export type JobType = (typeof JOB_TYPES)[number];
 
 export function asJobType(value: JobType): JobType {
   return value;

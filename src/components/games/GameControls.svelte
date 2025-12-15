@@ -233,7 +233,7 @@
             $_("gameControls_button_uninstall_confirmation"),
             { title: "OpenGOAL Launcher", kind: "warning" },
           );
-          if (confirmed && await uninstallGame(activeGame)) {
+          if (confirmed && (await uninstallGame(activeGame))) {
             dispatch("gameInstallStateChanged");
           }
         }}
