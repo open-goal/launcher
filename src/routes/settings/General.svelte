@@ -15,7 +15,6 @@
     getAutoUninstallOldVersions,
   } from "$lib/rpc/config";
   import { getActiveVersion } from "$lib/rpc/versions";
-  import { VersionStore } from "$lib/stores/VersionStore";
   import {
     Button,
     Helper,
@@ -32,6 +31,7 @@
   import { appDataDir, join } from "@tauri-apps/api/path";
   import { folderPrompt } from "$lib/utils/file-dialogs";
   import { writable } from "svelte/store";
+  import { versionState } from "/src/state/VersionState.svelte";
 
   let currentInstallationDirectory = "";
   let currentLocale = writable();
@@ -148,8 +148,7 @@
           const errMsg = await setInstallationDirectory(newInstallDir);
           if (errMsg === null) {
             if (currentInstallationDirectory !== newInstallDir) {
-              $VersionStore.activeVersionType = null;
-              $VersionStore.activeVersionName = null;
+              versionState.activeToolingVersion = undefined;
             }
             currentInstallationDirectory = newInstallDir;
           }
@@ -210,8 +209,7 @@
         if (confirmed) {
           const result = resetLauncherSettingsToDefaults();
           if (result) {
-            // TODO - move these to a store method
-            $VersionStore.activeVersionName = await getActiveVersion();
+            versionState.activeToolingVersion = await getActiveVersion();
           }
         }
       }}>{$_("settings_general_button_resetSettings")}</Button
