@@ -175,11 +175,7 @@
       </Alert>
     {/if} -->
       {#if modName && modSource}
-        <GameControlsMod
-          {activeGame}
-          {modName}
-          {modSource}
-        />
+        <GameControlsMod {activeGame} {modName} {modSource} />
       {:else}
         <GameControls {activeGame} />
       {/if}

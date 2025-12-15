@@ -89,6 +89,7 @@ function createJobTracker() {
         }
         // incase something has changed (there are no steps)
         storeState = get({ subscribe });
+        i++;
       }
     },
     updateFailureReason: (reason: string | undefined | null) =>

@@ -42,12 +42,16 @@
         requirementsMet = false;
         return;
       }
-      requirementsMet = systemInfoState.isMinMacOSVersion && isOpenGLMet && isDiskSpaceMet;
+      requirementsMet =
+        systemInfoState.isMinMacOSVersion && isOpenGLMet && isDiskSpaceMet;
     } else {
       const isAvxMet = await isAVXRequirementMet();
       if (osType == "windows") {
         requirementsMet =
-          isAvxMet && isOpenGLMet && isDiskSpaceMet && systemInfoState.isMinVCCRuntimeInstalled;
+          isAvxMet &&
+          isOpenGLMet &&
+          isDiskSpaceMet &&
+          systemInfoState.isMinVCCRuntimeInstalled;
       } else {
         requirementsMet = isAvxMet && isOpenGLMet && isDiskSpaceMet;
       }
