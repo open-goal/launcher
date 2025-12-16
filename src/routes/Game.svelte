@@ -20,6 +20,9 @@
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame.ts";
   import { versionState } from "../state/VersionState.svelte";
   import { systemInfoState } from "../state/SystemInfoState.svelte";
+  import GameBetaAlert from "../components/games/GameBetaAlert.svelte";
+  import VCCWarning from "../components/games/VCCWarning.svelte";
+  import { onMount } from "svelte";
 
   const gameParam = $derived(route.params.game_name);
   let activeGame: SupportedGame | undefined = $state(undefined);
@@ -30,7 +33,7 @@
     type() == "windows" && !systemInfoState.isMinVCCRuntimeInstalled,
   );
 
-  let gameInstalled = $state(false);
+  let gameInstalled: boolean | undefined = $state(undefined);
   let installedVersion: String | undefined = $state(undefined);
   let versionMismatchDetected = $state(false);
   let gameSupportedByTooling = $state(false);
@@ -74,8 +77,7 @@
   }
 </script>
 
-<!-- TODO - stop with the flashes of rendering, don't render until we know what needs to be rendered -->
-{#if activeGame}
+{#if activeGame && gameInstalled !== undefined}
   <div class="flex flex-col h-full p-5">
     {#if !versionState.activeToolingVersion}
       <GameToolsNotSet />
@@ -90,94 +92,19 @@
       <GameUpdate {installedVersion} />
     {:else}
       {#if showVccWarning}
-        <Alert rounded={false} class="border-t-4 text-red-400">
-          <span class="font-bold"
-            >{$_("gameControls_warning_vccVersion_headerA")}</span
-          >
-          <em>{$_("gameControls_warning_vccVersion_headerB")}</em>
-          <br />
-          <ul>
-            <li>
-              <a
-                class="font-bold text-blue-500"
-                target="_blank"
-                rel="noreferrer"
-                href="https://aka.ms/vs/17/release/vc_redist.x64.exe"
-                >{$_(
-                  "requirements_windows_vccRuntimeExplanation_downloadLink",
-                )}</a
-              >
-            </li>
-          </ul>
-        </Alert>
+        <VCCWarning></VCCWarning>
       {/if}
-
       <!-- Jak 2 BETA warning -->
       {#if activeGame === "jak2"}
-        <Alert rounded={false} class="border-t-4 text-red-400">
-          <span class="font-bold">{$_("gameControls_beta_headerA")}</span>
-          <em>{$_("gameControls_beta_headerB")}</em>
-          <br />
-          <ul>
-            <li>
-              {$_("gameControls_beta_issueTracker_linkPreText")}
-              <a
-                class="text-blue-400"
-                href="https://github.com/open-goal/jak-project/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3Ajak2"
-                target="_blank"
-                rel="noopener noreferrer"
-                >{$_("gameControls_beta_issueTracker_linkText")}</a
-              >
-            </li>
-            <li>
-              {$_("gameControls_beta_bugReport_linkPreText")}
-              <a
-                class="text-blue-400"
-                href="https://github.com/open-goal/jak-project/issues/new?template=jak2-bug-report.yml"
-                target="_blank"
-                rel="noopener noreferrer"
-                >{$_("gameControls_beta_bugReport_linkText")}</a
-              >
-            </li>
-          </ul>
-        </Alert>
+        <GameBetaAlert></GameBetaAlert>
       {/if}
-
-      <!-- Jak 3 BETA warning -->
-      <!-- NOTE - dead branch, disabling until relevant to avoid ts error -->
-      <!-- {#if activeGame === "jak3"}
-      <Alert rounded={false} class="border-t-4 text-red-400">
-        <span class="font-bold">{$_("gameControls_beta_headerA_jak3")}</span>
-        <em>{$_("gameControls_beta_headerB")}</em>
-        <br />
-        <ul>
-          <li>
-            {$_("gameControls_beta_issueTracker_linkPreText")}
-            <a
-              class="text-blue-400"
-              href="https://github.com/open-goal/jak-project/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3Ajak3"
-              target="_blank"
-              rel="noopener noreferrer"
-              >{$_("gameControls_beta_issueTracker_linkText")}</a
-            >
-          </li>
-          <li>
-            {$_("gameControls_beta_bugReport_linkPreText")}
-            <a
-              class="text-blue-400"
-              href="https://github.com/open-goal/jak-project/issues/new?template=jak3-bug-report.yml"
-              target="_blank"
-              rel="noopener noreferrer"
-              >{$_("gameControls_beta_bugReport_linkText")}</a
-            >
-          </li>
-        </ul>
-      </Alert>
-    {/if} -->
       {#if modName && modSource}
         <GameControlsMod {activeGame} {modName} {modSource} />
       {:else}
-        <GameControls {activeGame} />
+        <GameControls
+          {activeGame}
+          on:gameInstallStateChanged={gameInstallStateChanged}
+        />
       {/if}
     {/if}
   </div>

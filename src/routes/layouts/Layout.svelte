@@ -5,6 +5,7 @@
   import Header from "../../components/header/Header.svelte";
   import Sidebar from "../../components/sidebar/Sidebar.svelte";
   import Toast from "../../components/toast/Toast.svelte";
+  import { route } from "/src/router";
 
   let { children }: { children: Snippet } = $props();
 </script>
@@ -15,9 +16,11 @@
     <Header />
     <div class="flex flex-row grow shrink h-[90%] z-10">
       <Sidebar />
-      <main id="content" class="overflow-y-auto grow shrink">
-        {@render children()}
-      </main>
+      {#key route.params.game_name}
+        <main id="content" class="overflow-y-auto grow shrink">
+          {@render children()}
+        </main>
+      {/key}
     </div>
     <Toast />
   {/if}
