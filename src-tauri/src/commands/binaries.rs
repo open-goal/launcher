@@ -332,7 +332,6 @@ pub async fn run_decompiler(
     args.push(game_name.to_string());
   }
 
-  // TODO NOW - minimum
   if !decomp_config_overrides.is_empty() {
     args.push("--decomp-config-override".to_string());
     args.push(format!("{{{}}}", decomp_config_overrides.join(", ")));

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { progressTracker } from "$lib/stores/ProgressStore";
+  import { jobTracker } from "$lib/stores/JobStore";
   import { listen } from "@tauri-apps/api/event";
   import { ansiSpan } from "ansi-to-span";
   import escapeHtml from "escape-html";
@@ -15,7 +15,7 @@
         .split("\n")
         .map((log) => ansiSpan(escapeHtml(log)).replaceAll("\n", "<br/>"))
         .filter((log) => log.length > 0);
-      progressTracker.appendLogs(newLogs);
+      jobTracker.appendLogs(newLogs);
 
       requestAnimationFrame(() => {
         if (logContainer) {
@@ -31,12 +31,12 @@
   });
 </script>
 
-{#if $progressTracker.logs.length > 0}
+{#if $jobTracker.logs.length > 0}
   <div
     bind:this={logContainer}
     class="rounded bg-[#141414] text-[11px] max-h-[300px] overflow-auto font-mono px-2 py-2"
   >
-    {#each $progressTracker.logs as log}
+    {#each $jobTracker.logs as log}
       <div>{@html log}</div>
     {/each}
   </div>

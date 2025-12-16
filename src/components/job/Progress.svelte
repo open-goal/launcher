@@ -1,11 +1,8 @@
 <script lang="ts">
-  import {
-    progressTracker,
-    type ProgressStatus,
-  } from "$lib/stores/ProgressStore";
+  import { jobTracker, type StepStatus } from "$lib/stores/JobStore";
   import ProgressIcon from "./ProgressIcon.svelte";
 
-  function progressBarStyle(currentStatus: ProgressStatus) {
+  function progressBarStyle(currentStatus: StepStatus) {
     let style = "w-xs h-min py-1 my-4 rounded";
     if (currentStatus === "success") {
       style += " bg-green-500";
@@ -20,12 +17,12 @@
   }
 </script>
 
-<div class="w-full pt-2 pb-6 flex justify-evenly gap-2">
-  {#each $progressTracker.steps as step, i}
+<div class="w-full mt-2 mb-5 flex justify-evenly gap-2">
+  {#each $jobTracker.steps as step, i}
     <!-- NOTE - this will break if you add too many steps! -->
-    {#if i > 0}
-      <div class={progressBarStyle($progressTracker.steps[i - 1].status)}></div>
+    <ProgressIcon stepStatus={step.status} stepLabel={step.label} />
+    {#if i < $jobTracker.steps.length - 1}
+      <div class={progressBarStyle(step.status)}></div>
     {/if}
-    <ProgressIcon {step} />
   {/each}
 </div>

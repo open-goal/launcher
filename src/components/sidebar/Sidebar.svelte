@@ -6,10 +6,10 @@
   import IconChatQuestion from "~icons/mdi/chat-question";
   import { Tooltip } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
-  import { progressTracker } from "$lib/stores/ProgressStore";
+  import { jobTracker } from "$lib/stores/JobStore";
   import { navigate, route } from "../../router";
 
-  $: disabled = $progressTracker.overallStatus == "pending";
+  $: disabled = $jobTracker.overallStatus == "pending";
 
   function getNavStyle(pathName: string): string {
     const baseStyle = "grow-0 shrink-0 size-20 h-full bg-[#101010] px-1 z-10";

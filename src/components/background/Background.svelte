@@ -16,6 +16,7 @@
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
   import { getModInfo } from "$lib/rpc/bindings/utils/ModInfo";
+  import { searchParams } from "sv-router";
 
   const gameParam = $derived(route.params.game_name);
   let activeGame: SupportedGame | undefined = $state(undefined);
@@ -55,9 +56,16 @@
 
   $effect(() => {
     loading = true;
-    const activeGameFromParam = toSupportedGame(gameParam);
-    if (activeGameFromParam) {
-      activeGame = activeGameFromParam;
+    let activeGameFromRoute = toSupportedGame(gameParam);
+    // if we can't find it from the route, look at the query params
+    if (!activeGameFromRoute && searchParams.has("activeGame")) {
+      const param = searchParams.get("activeGame");
+      if (param) {
+        activeGameFromRoute = toSupportedGame(param.toString());
+      }
+    }
+    if (activeGameFromRoute) {
+      activeGame = activeGameFromRoute;
       if (route.params.mod_name && route.params.source_name) {
         getModInfo(route.params.mod_name, route.params.source_name).then(
           (modInfo) => {

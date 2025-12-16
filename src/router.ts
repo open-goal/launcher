@@ -13,6 +13,8 @@ import TexturePacks from "./components/games/features/texture-packs/TexturePacks
 import UpdateLauncher from "./routes/UpdateLauncher.svelte";
 // @ts-ignore
 import Layout from "./routes/layouts/Layout.svelte";
+// @ts-ignore
+import Job from "./routes/Job.svelte";
 import { versionState } from "./state/VersionState.svelte";
 
 export const { p, navigate, isActive, route } = createRouter({
@@ -25,6 +27,14 @@ export const { p, navigate, isActive, route } = createRouter({
       }
     },
   },
+  "/update/launcher": UpdateLauncher,
+  "/faq": Help,
+  "/job/:job_type": Job,
+  "/settings": {
+    "/": Settings,
+    "/:tab": Settings,
+  },
+  // has to go last because it can match some of the above
   "/:game_name": {
     "/": Game,
     "/mods": {
@@ -42,11 +52,5 @@ export const { p, navigate, isActive, route } = createRouter({
       "/": TexturePacks,
     },
   },
-  "/settings": {
-    "/": Settings,
-    "/:tab": Settings,
-  },
-  "/faq": Help,
-  "/update/launcher": UpdateLauncher,
   layout: Layout,
 });
