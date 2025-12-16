@@ -22,6 +22,13 @@ use crate::{
   },
 };
 
+fn strip_tar_gz(path: &String) -> String {
+  if path.ends_with(".tar") {
+    return path.strip_suffix(".tar").unwrap().to_string();
+  }
+  return path.to_string();
+}
+
 #[tauri::command]
 pub async fn extract_new_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -41,7 +48,7 @@ pub async fn extract_new_mod(
 
   // The name of the zip becomes the folder, if one already exists it will be deleted!
   let bundle_path_buf = PathBuf::from(bundle_path);
-  let mod_name = match bundle_path_buf.file_stem() {
+  let mut mod_name = match bundle_path_buf.file_stem() {
     Some(name) => name.to_string_lossy().to_string(),
     None => {
       return Err(CommandError::GameFeatures(
@@ -49,6 +56,8 @@ pub async fn extract_new_mod(
       ));
     }
   };
+  // .tar.gz files will only get the .gz portion stripped
+  mod_name = strip_tar_gz(&mod_name);
   let destination_dir = &install_path
     .join("features")
     .join(game_name.to_string())

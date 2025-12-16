@@ -69,6 +69,13 @@
     }
     // extract the file into install_dir/features/<game>/_local/zip-name
     await extractNewMod(activeGame, modArchivePath, "_local");
+    let modName = await basename(
+      modArchivePath,
+      onWindows ? ".zip" : ".tar.gz",
+    );
+    if (!onWindows && modName.endsWith(".tar")) {
+      modName = modName.substring(0, modName.indexOf(".tar"));
+    }
     // install it
     navigate("/job/:job_type", {
       params: {
@@ -76,7 +83,7 @@
       },
       search: {
         activeGame: activeGame,
-        modName: await basename(modArchivePath, onWindows ? ".zip" : ".tar.gz"),
+        modName: modName,
         modSourceName: "_local",
         modVersion: "local",
       },

@@ -60,14 +60,14 @@
     }
     // - packsToDelete
     if (searchParams.has("packsToDelete")) {
-      packsToDelete = (
-        searchParams.get("packsToDelete")?.toString() ?? ""
-      ).split(",");
+      packsToDelete = JSON.parse(
+        searchParams.get("packsToDelete")?.toString() ?? "",
+      );
     }
     // - enabledPacks
     if (searchParams.has("enabledPacks")) {
-      enabledPacks = (searchParams.get("enabledPacks")?.toString() ?? "").split(
-        ",",
+      enabledPacks = JSON.parse(
+        searchParams.get("enabledPacks")?.toString() ?? "",
       );
     }
     // - modName
