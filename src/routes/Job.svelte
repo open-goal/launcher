@@ -27,7 +27,6 @@
   import { infoLog } from "$lib/rpc/logging";
 
   let proceedAfterSuccessfulOperation = $state(true);
-  // TODO NOW - wire this up
   let invalidJobDefinition = $state(false);
 
   onMount(async () => {
@@ -186,7 +185,7 @@
 
 <div class="flex flex-col h-full p-5">
   {#if invalidJobDefinition}
-    Bad
+    App got into a bad state, report this to the devs!
   {:else}
     <div class="flex flex-col justify-content">
       <Progress />
