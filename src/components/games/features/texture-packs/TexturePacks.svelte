@@ -24,15 +24,19 @@
   } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
-
   import { navigate, route } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
   import { asJobType } from "$lib/job/jobs";
-  import { act } from "@testing-library/svelte";
 
   const gameParam = $derived(route.params.game_name);
   let activeGame: SupportedGame | undefined = $state(undefined);
+
+  interface PackInfo {
+    name: string;
+    enabled: boolean;
+    toBeDeleted: boolean;
+  }
 
   $effect(() => {
     const activeGameFromParam = toSupportedGame(gameParam);
@@ -42,9 +46,9 @@
   });
 
   let loaded = $state(false);
-  let extractedPackInfo: any = $state(undefined);
-  let availablePacks = $state([]);
-  let availablePacksOriginal = $state([]);
+  let extractedPackInfo: Record<string, any> | undefined = $state(undefined);
+  let availablePacks: PackInfo[] = $state([]);
+  let availablePacksOriginal: PackInfo[] = $state([]);
   let addingPack = $state(false);
   let packAddingError = $state("");
 
@@ -61,6 +65,9 @@
     availablePacksOriginal = [];
     let currentlyEnabledPacks = await getEnabledTexturePacks(activeGame);
     extractedPackInfo = await listExtractedTexturePackInfo(activeGame);
+    if (extractedPackInfo === undefined) {
+      return;
+    }
     // Finalize `availablePacks` list
     // - First, cleanup any packs that were enabled but can no longer be found
     let cleanupPackList = [];
@@ -95,11 +102,14 @@
     availablePacksOriginal = JSON.parse(JSON.stringify(availablePacks));
   }
 
-  function pending_changes(current, original): boolean {
+  function pending_changes(current: PackInfo[], original: PackInfo[]): boolean {
     return JSON.stringify(current) !== JSON.stringify(original);
   }
 
   function num_textures_in_pack(packName: string): number {
+    if (!extractedPackInfo) {
+      return 0;
+    }
     return extractedPackInfo[packName]["fileList"].length;
   }
 
@@ -134,6 +144,9 @@
   // Iterate through all enabled packs, flag and files that are in the relevant pack
   function find_pack_conflicts(relevantPackName: string): Set<String> {
     let conflicts: Set<String> = new Set();
+    if (!extractedPackInfo) {
+      return conflicts;
+    }
     for (const filePath of extractedPackInfo[relevantPackName]["fileList"]) {
       for (const [packName, packInfo] of Object.entries(extractedPackInfo)) {
         if (packName === relevantPackName) {
@@ -230,8 +243,11 @@
           disabled={addingPack}
           outline
           class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
-          onclick={async () =>
-            navigate(`/:game_name`, { params: { game_name: activeGame } })}
+          onclick={async () => {
+            if (activeGame) {
+              navigate(`/:game_name`, { params: { game_name: activeGame } });
+            }
+          }}
           aria-label={$_("features_backToGamePage_buttonAlt")}
         >
           <IconArrowLeft />

@@ -17,33 +17,42 @@
     TableHead,
     TableHeadCell,
   } from "flowbite-svelte";
-  import { createEventDispatcher } from "svelte";
   import { _ } from "svelte-i18n";
   import { revealItemInDir } from "@tauri-apps/plugin-opener";
   import { getInstallationDirectory } from "$lib/rpc/config";
   import { versionState } from "/src/state/VersionState.svelte";
 
-  export let description: string;
-  export let releaseList: ReleaseInfo[];
-  export let loaded: boolean;
-  const dispatch = createEventDispatcher();
+  let {
+    description,
+    releaseList,
+    loaded,
+    onVersionChange,
+    onRemoveVersion,
+    onRefreshVersions,
+    onDownloadVersion,
+  }: {
+    description: string;
+    releaseList: ReleaseInfo[];
+    loaded: boolean;
+    onVersionChange: (version: string) => Promise<void>;
+    onRemoveVersion: (version: string) => Promise<void>;
+    onRefreshVersions: () => Promise<void>;
+    onDownloadVersion: (version: string, downloadUrl: string) => Promise<void>;
+  } = $props();
 
   const handleAction = async (release: ReleaseInfo) => {
     if (release.isDownloaded) {
-      dispatch("removeVersion", { version: release.version });
-    } else {
-      dispatch("downloadVersion", {
-        version: release.version,
-        downloadUrl: release.downloadUrl,
-      });
+      await onRemoveVersion(release.version);
+    } else if (release.downloadUrl) {
+      await onDownloadVersion(release.version, release.downloadUrl);
     }
   };
 
-  const handleRedownload = (release: ReleaseInfo) => {
-    dispatch("redownloadVersion", {
-      version: release.version,
-      downloadUrl: release.downloadUrl,
-    });
+  const handleRedownload = async (release: ReleaseInfo) => {
+    if (release.downloadUrl) {
+      await onRemoveVersion(release.version);
+      await onDownloadVersion(release.version, release.downloadUrl);
+    }
   };
 </script>
 
@@ -61,7 +70,7 @@
     <div class="flex">
       <Button
         class="!p-2 mr-2 rounded-md bg-orange-500 hover:bg-orange-600 text-slate-900"
-        onclick={() => dispatch("refreshVersions")}
+        onclick={() => onRefreshVersions()}
       >
         <IconRefresh
           aria-label={$_("settings_versions_icon_refresh_altText")}
@@ -108,8 +117,9 @@
                 <Radio
                   bind:group={versionState.activeToolingVersion}
                   value={release.version}
-                  onchange={() =>
-                    dispatch("versionChange", { version: release.version })}
+                  onchange={() => {
+                    onVersionChange(release.version);
+                  }}
                   disabled={!release.isDownloaded}
                   class="disabled:cursor-not-allowed p-0"
                 />
