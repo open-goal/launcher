@@ -20,9 +20,10 @@ jobs:
           node-version: 24
           cache: yarn
 
-      - name: Install Dependencies and Check Formatting
+      - name: Install Dependencies and Lint Repo
         run: |
           yarn install --frozen-lockfile
+          yarn typecheck
           yarn check-format
 
   backend:

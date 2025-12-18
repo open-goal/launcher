@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "strict": true,
-    "composite": true,
-    "module": "esnext",
-    "moduleResolution": "bundler"
-  },
-  "include": ["vite.config.ts"]
-}

@@ -15,7 +15,7 @@
   id="locales"
   class="pointer-events-auto p-0 pl-1 text-xs bg-gray-700 mt-1"
   on:change={(evt) => {
-    let newLocale = evt.target.value;
+    let newLocale = evt.currentTarget.value;
     dispatch("change", {
       newLocale: newLocale,
     });

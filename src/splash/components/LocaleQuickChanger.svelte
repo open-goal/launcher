@@ -24,7 +24,7 @@
   title={$_("splash_selectLocale")}
   class="emoji-font pointer-events-auto !p-0 !pl-1 !pr-1 !pt-1 text-sm bg-gray-700 mb-1 absolute top-0 border-transparent focus:border-transparent focus:ring-0"
   on:change={(evt) => {
-    let newLocale = evt.target.value;
+    let newLocale = evt.currentTarget.value;
     dispatch("change", {
       newLocale: newLocale,
     });

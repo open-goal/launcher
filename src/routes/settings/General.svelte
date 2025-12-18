@@ -30,23 +30,28 @@
   import { downloadFile } from "$lib/rpc/download";
   import { appDataDir, join } from "@tauri-apps/api/path";
   import { folderPrompt } from "$lib/utils/file-dialogs";
-  import { writable } from "svelte/store";
   import { versionState } from "/src/state/VersionState.svelte";
 
-  let currentInstallationDirectory = "";
-  let currentLocale = writable();
-  let availableLocales = [];
-  let currentBypassRequirementsVal = false;
-  let keepGamesUpdated = writable(false);
-  let uninstallOldVersions = writable(false);
-  let localeFontForDownload: Locale | undefined = undefined;
-  let localeFontDownloading = false;
-  let initialized = false;
+  let currentLocale: string | null = $state(null);
+  let currentInstallationDirectory: string | null = $state(null);
+  let keepGamesUpdated: boolean = $state(false);
+  let uninstallOldVersions: boolean = $state(false);
+  let currentBypassRequirementsVal = $state(false);
+  let availableLocales: LocaleOption[] = $state([]);
+  let localeFontForDownload: Locale | undefined = $state(undefined);
+  let localeFontDownloading = $state(false);
+  interface LocaleOption {
+    value: string;
+    name: string;
+  }
 
   onMount(async () => {
-    keepGamesUpdated.set(await getAutoUpdateGames());
-    uninstallOldVersions.set(await getAutoUninstallOldVersions());
+    currentLocale = await getLocale();
     currentInstallationDirectory = await getInstallationDirectory();
+    keepGamesUpdated = await getAutoUpdateGames();
+    uninstallOldVersions = await getAutoUninstallOldVersions();
+    currentBypassRequirementsVal = await getBypassRequirements();
+
     for (const locale of AVAILABLE_LOCALES) {
       availableLocales = [
         ...availableLocales,
@@ -56,22 +61,12 @@
         },
       ];
     }
-    $currentLocale = await getLocale();
-    currentBypassRequirementsVal = await getBypassRequirements();
-    if ($currentLocale !== null) {
+
+    if (currentLocale !== null) {
       localeFontForDownload =
-        await localeSpecificFontAvailableForDownload($currentLocale);
+        await localeSpecificFontAvailableForDownload(currentLocale);
     }
-    initialized = true;
   });
-
-  $: if (initialized) {
-    setAutoUpdateGames($keepGamesUpdated);
-  }
-
-  $: if (initialized) {
-    setAutoUninstallOldVersions($uninstallOldVersions);
-  }
 </script>
 
 <div class="flex flex-col gap-5 mt-2">
@@ -81,11 +76,13 @@
       <Select
         class="mt-2"
         items={availableLocales}
-        bind:value={$currentLocale}
+        bind:value={currentLocale}
         onchange={async () => {
-          await setLocale($currentLocale);
-          localeFontForDownload =
-            await localeSpecificFontAvailableForDownload($currentLocale);
+          if (currentLocale !== null) {
+            await setLocale(currentLocale);
+            localeFontForDownload =
+              await localeSpecificFontAvailableForDownload(currentLocale);
+          }
         }}
       />
     </Label>
@@ -107,7 +104,8 @@
           if (
             localeFontForDownload !== undefined &&
             localeFontForDownload.fontDownloadUrl !== undefined &&
-            localeFontForDownload.fontFileName !== undefined
+            localeFontForDownload.fontFileName !== undefined &&
+            currentLocale !== null
           ) {
             localeFontDownloading = true;
             const fontPath = await join(
@@ -116,9 +114,9 @@
               localeFontForDownload.fontFileName,
             );
             await downloadFile(localeFontForDownload.fontDownloadUrl, fontPath);
-            await setLocale($currentLocale);
+            await setLocale(currentLocale);
             localeFontForDownload =
-              await localeSpecificFontAvailableForDownload($currentLocale);
+              await localeSpecificFontAvailableForDownload(currentLocale);
             localeFontDownloading = false;
           }
         }}
@@ -162,38 +160,44 @@
   <div class="*:text-gray-200">
     <Toggle
       color="orange"
-      bind:checked={$keepGamesUpdated}
+      bind:checked={keepGamesUpdated}
       onchange={async () => {
-        $uninstallOldVersions = false;
+        if (!keepGamesUpdated) {
+          uninstallOldVersions = false;
+        }
+        setAutoUpdateGames(keepGamesUpdated);
       }}
       class="mb-2">{$_("settings_general_keep_updated")}</Toggle
     >
-    {#if $keepGamesUpdated}
+    {#if keepGamesUpdated}
       <Toggle
         color="orange"
-        bind:checked={$uninstallOldVersions}
+        bind:checked={uninstallOldVersions}
+        onchange={async () => {
+          setAutoUninstallOldVersions(uninstallOldVersions);
+        }}
         class="ml-14 mb-2">{$_("settings_general_uninstall_old")}</Toggle
       >
     {/if}
     <Toggle
-      checked={currentBypassRequirementsVal}
+      bind:checked={currentBypassRequirementsVal}
       color="orange"
       onchange={async (evt) => {
-        if (evt.target.checked) {
+        if (evt.currentTarget.checked) {
           const confirmed = await confirm(
             `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
               "requirements_button_bypass_warning_2",
             )}`,
-            { title: "OpenGOAL Launcher", type: "warning" },
+            { title: "OpenGOAL Launcher", kind: "warning" },
           );
           if (confirmed) {
-            await setBypassRequirements(evt.target.checked);
+            await setBypassRequirements(evt.currentTarget.checked);
             currentBypassRequirementsVal = await getBypassRequirements();
           } else {
-            evt.target.checked = false;
+            currentBypassRequirementsVal = false;
           }
         } else {
-          await setBypassRequirements(evt.target.checked);
+          await setBypassRequirements(evt.currentTarget.checked);
           currentBypassRequirementsVal = await getBypassRequirements();
         }
       }}>{$_("settings_general_toggle_bypassRequirementsCheck")}</Toggle

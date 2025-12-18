@@ -46,7 +46,7 @@
       checked={ripLevels}
       color="orange"
       onchange={async (evt) => {
-        await setRipLevelsEnabled(evt.target.checked);
+        await setRipLevelsEnabled(evt.currentTarget.checked);
         ripLevels = await isRipLevelsEnabled();
       }}>{$_("settings_decompiler_ripLevels")}</Toggle
     >
@@ -54,7 +54,7 @@
       checked={ripCollision}
       color="orange"
       onchange={async (evt) => {
-        await setRipCollisionEnabled(evt.target.checked);
+        await setRipCollisionEnabled(evt.currentTarget.checked);
         ripCollision = await isRipCollisionEnabled();
       }}>{$_("settings_decompiler_ripCollision")}</Toggle
     >
@@ -62,7 +62,7 @@
       checked={ripTextures}
       color="orange"
       onchange={async (evt) => {
-        await setRipTexturesEnabled(evt.target.checked);
+        await setRipTexturesEnabled(evt.currentTarget.checked);
         ripTextures = await isRipTexturesEnabled();
       }}>{$_("settings_decompiler_ripTextures")}</Toggle
     >
@@ -70,7 +70,7 @@
       checked={ripStreamedAudio}
       color="orange"
       onchange={async (evt) => {
-        await setRipStreamedAudioEnabled(evt.target.checked);
+        await setRipStreamedAudioEnabled(evt.currentTarget.checked);
         ripStreamedAudio = await isRipStreamedAudioEnabled();
       }}>{$_("settings_decompiler_ripStreamedAudio")}</Toggle
     >
