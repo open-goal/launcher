@@ -23,7 +23,7 @@ jobs:
       - name: Install Dependencies and Check Formatting
         run: |
           yarn install --frozen-lockfile
-          yarn lint
+          yarn check-format
 
   backend:
     name: Backend Formatting

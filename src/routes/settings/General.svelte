@@ -207,7 +207,7 @@
           $_("settings_general_button_resetSettings_confirmation"),
         );
         if (confirmed) {
-          const result = resetLauncherSettingsToDefaults();
+          const result = await resetLauncherSettingsToDefaults();
           if (result) {
             versionState.activeToolingVersion = await getActiveVersion();
           }
