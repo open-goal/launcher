@@ -4,11 +4,15 @@ import { mount } from "svelte";
 import App from "./App.svelte";
 import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
 
-polyfillCountryFlagEmojis();
-
-// Register Translations
-initLocales(true);
-
-const app = mount(App, { target: document.getElementById("app") });
-
-export default app;
+export default (async () => {
+  polyfillCountryFlagEmojis();
+  await initLocales(false);
+  const elem = document.getElementById("app");
+  if (elem) {
+    return mount(App, {
+      target: elem,
+    });
+  }
+  console.error("Unable to locate #app element");
+  return;
+})();

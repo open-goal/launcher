@@ -6,23 +6,26 @@
   import { onDestroy, onMount } from "svelte";
   import { _ } from "svelte-i18n";
 
-  let logContainer;
+  let logContainer: Element;
   let unlisten: () => void;
 
   onMount(async () => {
-    const unlistenFn = await listen("log_update", (event) => {
-      const newLogs = event.payload.logs
-        .split("\n")
-        .map((log) => ansiSpan(escapeHtml(log)).replaceAll("\n", "<br/>"))
-        .filter((log) => log.length > 0);
-      jobTracker.appendLogs(newLogs);
+    const unlistenFn = await listen(
+      "log_update",
+      (event: { payload: { logs: string } }) => {
+        const newLogs = event.payload.logs
+          .split("\n")
+          .map((log) => ansiSpan(escapeHtml(log)).replaceAll("\n", "<br/>"))
+          .filter((log) => log.length > 0);
+        jobTracker.appendLogs(newLogs);
 
-      requestAnimationFrame(() => {
-        if (logContainer) {
-          logContainer.scrollTop = logContainer.scrollHeight;
-        }
-      });
-    });
+        requestAnimationFrame(() => {
+          if (logContainer) {
+            logContainer.scrollTop = logContainer.scrollHeight;
+          }
+        });
+      },
+    );
     unlisten = unlistenFn;
   });
 

@@ -1,6 +1,7 @@
 {
   "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
+    "strict": true,
     "moduleResolution": "bundler",
     "target": "esnext",
     "module": "ESNext",
@@ -28,7 +29,7 @@
      * Disable this if you'd like to use dynamic types.
      */
     "checkJs": true,
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals", "node"]
   },
   /**
    * Use global.d.ts instead of compilerOptions.types
@@ -41,10 +42,10 @@
     "./src/**/*.svelte",
     "./svelte.config.js"
   ],
-  "exclude": ["./svelte.config.js"],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
+  "exclude": [
+    "./src/tests/**/*",
+    "**/*.test*",
+    "**/*.spec*",
+    "./svelte.config.js"
   ]
 }

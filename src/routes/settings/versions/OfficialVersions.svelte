@@ -102,61 +102,58 @@
     versionsLoaded = true;
   }
 
-  async function saveOfficialVersionChange({ detail }) {
-    const success = await saveActiveVersionChange(detail.version);
+  async function saveOfficialVersionChange(version: string) {
+    const success = await saveActiveVersionChange(version);
     if (success) {
       toastStore.makeToast($_("toasts_savedToolingVersion"), "info");
     }
   }
 
-  async function onDownloadVersion(event: any) {
+  async function onDownloadVersion(version: string, downloadUrl: string) {
     // Mark that release as being downloaded
     for (const release of releases) {
-      if (release.version === event.detail.version) {
+      if (release.version === version) {
         release.pendingAction = true;
       }
     }
     releases = releases;
-    const success = await downloadOfficialVersion(
-      event.detail.version,
-      event.detail.downloadUrl,
-    );
-    versionState.activeToolingVersion = event.detail.version;
+    const success = await downloadOfficialVersion(version, downloadUrl);
+    versionState.activeToolingVersion = version;
     // Then mark it as downloaded
     for (const release of releases) {
-      if (release.version === event.detail.version) {
+      if (release.version === version) {
         release.pendingAction = false;
         release.isDownloaded = success;
         // If they downloaded the latest, get rid of the notification
         if ($UpdateStore.selectedTooling.updateAvailable) {
-          if (event.detail.version === releases[0].version) {
+          if (version === releases[0].version) {
             $UpdateStore.selectedTooling.updateAvailable = false;
           }
         }
       }
     }
     releases = releases;
-    await saveActiveVersionChange(event.detail.version);
+    await saveActiveVersionChange(version);
   }
 
-  async function onRemoveVersion({ detail }) {
+  async function onRemoveVersion(version: string) {
     // Mark that release as being downloaded
     for (const release of releases) {
-      if (release.version === detail.version) {
+      if (release.version === version) {
         release.pendingAction = true;
       }
     }
     releases = releases;
-    const ok = await removeVersion(detail.version);
+    const ok = await removeVersion(version);
     if (ok) {
       // Update the store, if we removed the active version
-      if (versionState.activeToolingVersion === detail.version) {
+      if (versionState.activeToolingVersion === version) {
         versionState.activeToolingVersion = undefined;
       }
 
       // Then mark it as not downloaded
       for (const release of releases) {
-        if (release.version === detail.version) {
+        if (release.version === version) {
           release.pendingAction = false;
           release.isDownloaded = false;
         }
@@ -164,21 +161,14 @@
       releases = releases;
     }
   }
-
-  async function onRedownloadVersion(event: any) {
-    // If we are redownloading the version that is currently selected (but not active, get rid of the selection)
-    await onRemoveVersion(event);
-    await onDownloadVersion(event);
-  }
 </script>
 
 <VersionList
   description={$_("settings_versions_official_description")}
   releaseList={releases}
   loaded={versionsLoaded}
-  on:refreshVersions={refreshVersionList}
-  on:versionChange={saveOfficialVersionChange}
-  on:removeVersion={onRemoveVersion}
-  on:downloadVersion={onDownloadVersion}
-  on:redownloadVersion={onRedownloadVersion}
+  onVersionChange={saveOfficialVersionChange}
+  {onRemoveVersion}
+  onRefreshVersions={refreshVersionList}
+  {onDownloadVersion}
 />

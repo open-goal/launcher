@@ -23,7 +23,7 @@ export const { p, navigate, isActive, route } = createRouter({
     // simplify things -- stop having to worry about treating '/' differently
     beforeLoad({ pathname }) {
       if (pathname === "/") {
-        throw navigate("/jak1");
+        throw navigate("/:game_name", { params: { game_name: "jak1" } });
       }
     },
   },

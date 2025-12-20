@@ -8,7 +8,12 @@ import "./splash.postcss";
 export default (async () => {
   polyfillCountryFlagEmojis();
   await initLocales(false);
-  return mount(App, {
-    target: document.getElementById("app"),
-  });
+  const elem = document.getElementById("app");
+  if (elem) {
+    return mount(App, {
+      target: elem,
+    });
+  }
+  console.error("Unable to locate #app element");
+  return;
 })();

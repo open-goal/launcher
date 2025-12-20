@@ -7,10 +7,16 @@
   import { navigate } from "/src/router";
   import { versionState } from "/src/state/VersionState.svelte";
   import { systemInfoState } from "/src/state/SystemInfoState.svelte";
+  import { asJobType } from "$lib/job/jobs";
+  import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
+
+  let {
+    activeGame,
+    installedVersion,
+  }: { activeGame: SupportedGame; installedVersion: String | undefined } =
+    $props();
 
   const dispatch = createEventDispatcher();
-
-  export let installedVersion: String | undefined;
 
   let displayVCCWarning =
     type() == "windows" && !systemInfoState.isMinVCCRuntimeInstalled;
@@ -74,8 +80,13 @@
         <Button
           class="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
           onclick={async () => {
-            dispatch("job", {
-              type: "updateGame",
+            navigate("/job/:job_type", {
+              params: {
+                job_type: asJobType("updateGame"),
+              },
+              search: {
+                activeGame: activeGame,
+              },
             });
           }}>{$_("gameUpdate_versionMismatch_button_updateGame")}</Button
         >

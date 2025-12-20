@@ -89,7 +89,7 @@
     {:else if !gameInstalled}
       <GameSetup {activeGame} />
     {:else if versionMismatchDetected}
-      <GameUpdate {installedVersion} />
+      <GameUpdate {installedVersion} {activeGame} />
     {:else}
       {#if showVccWarning}
         <VCCWarning></VCCWarning>

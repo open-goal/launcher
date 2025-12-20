@@ -1,6 +1,10 @@
 import { toastStore } from "$lib/stores/ToastStore";
 import { arch, platform } from "@tauri-apps/plugin-os";
 import { unwrapFunctionStore, format } from "svelte-i18n";
+import type { RestEndpointMethodTypes } from "@octokit/rest";
+
+type GitHubRelease =
+  RestEndpointMethodTypes["repos"]["getRelease"]["response"]["data"];
 
 const $format = unwrapFunctionStore(format);
 
@@ -15,12 +19,12 @@ export interface ReleaseInfo {
   invalidationReasons: string[];
 }
 
-function getDownloadLinkForCurrentPlatform(release) {
+function getDownloadLinkForCurrentPlatform(githubRelease: GitHubRelease) {
   let plat = platform();
   let matchingAsset;
   if (plat == "macos") {
     const userArch = arch() === "aarch64" ? "arm" : "intel";
-    matchingAsset = release.assets.find(
+    matchingAsset = githubRelease.assets.find(
       (asset) =>
         asset.name.toLowerCase().includes(plat) &&
         !asset.name.toLowerCase().includes(".bin") &&
@@ -28,7 +32,7 @@ function getDownloadLinkForCurrentPlatform(release) {
         asset.name.toLowerCase().includes(userArch),
     );
   } else {
-    matchingAsset = release.assets.find(
+    matchingAsset = githubRelease.assets.find(
       (asset) =>
         asset.name.toLowerCase().includes(plat) &&
         !asset.name.toLowerCase().includes(".bin") &&
@@ -41,18 +45,23 @@ function getDownloadLinkForCurrentPlatform(release) {
   return undefined;
 }
 
-async function parseGithubRelease(githubRelease: any): Promise<ReleaseInfo> {
+async function parseGithubRelease(
+  githubRelease: GitHubRelease,
+): Promise<ReleaseInfo> {
   const releaseInfo: ReleaseInfo = {
     version: githubRelease.tag_name,
-    date: githubRelease.published_at,
+    date:
+      githubRelease.published_at === null
+        ? undefined
+        : githubRelease.published_at,
     githubLink: githubRelease.html_url,
-    downloadUrl: await getDownloadLinkForCurrentPlatform(githubRelease),
+    downloadUrl: getDownloadLinkForCurrentPlatform(githubRelease),
     isDownloaded: false,
     pendingAction: false,
     invalid: false,
     invalidationReasons: [],
   };
-  if (githubRelease.body.includes("<!-- invalid:")) {
+  if (githubRelease.body && githubRelease.body.includes("<!-- invalid:")) {
     releaseInfo.invalid = true;
     // Get the line it's on
     try {
@@ -73,11 +82,11 @@ async function parseGithubRelease(githubRelease: any): Promise<ReleaseInfo> {
 export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
   const nextUrlPattern = /<([\S]+)>; rel="Next"/i;
   let releases = [];
-  let urlToHit =
+  let urlToHit: string | undefined =
     "https://api.github.com/repos/open-goal/jak-project/releases?per_page=100";
 
   while (urlToHit !== undefined) {
-    const resp = await fetch(urlToHit);
+    const resp: Response = await fetch(urlToHit);
     if (resp.status === 403 || resp.status === 429) {
       toastStore.makeToast($format("toasts_githubRateLimit"), "error");
       return [];
@@ -86,22 +95,32 @@ export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
       return [];
     }
 
-    const githubReleases = await resp.json();
+    const githubReleases: GitHubRelease[] = await resp.json();
     for (const release of githubReleases) {
       releases.push(await parseGithubRelease(release));
     }
 
-    if (
-      resp.headers.has("link") &&
-      resp.headers.get("link").includes(`rel=\"next\"`)
-    ) {
-      // we must paginate!
-      urlToHit = resp.headers.get("link").match(nextUrlPattern)[1];
+    const linkHeader = resp.headers.get("link");
+    if (linkHeader && linkHeader.includes(`rel=\"next\"`)) {
+      const match = linkHeader.match(nextUrlPattern);
+      if (match && match.length >= 2) {
+        // we must paginate!
+        urlToHit = match[1];
+      } else {
+        urlToHit = undefined;
+      }
     } else {
       urlToHit = undefined;
     }
   }
-  return releases.sort((a, b) => b.date.localeCompare(a.date));
+  return releases.sort((a, b) => {
+    const aDate = a.date;
+    const bDate = b.date;
+    if (aDate && bDate) {
+      return bDate.localeCompare(aDate);
+    }
+    return 0;
+  });
 }
 
 export async function getLatestOfficialRelease(): Promise<
