@@ -1,6 +1,7 @@
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 use std::{
+  fs,
   io::ErrorKind,
   path::{Path, PathBuf},
   process::Stdio,
@@ -11,7 +12,8 @@ use tauri::Emitter;
 use tokio::{io::AsyncWriteExt, process::Command};
 
 use crate::{
-  commands::{CommandError, binaries::InstallStepOutput},
+  cache::{LauncherCache, ModInfo},
+  commands::{CommandError, binaries::InstallStepOutput, cache::get_mod_sources_data},
   config::{ExecutableLocation, LauncherConfig, SupportedGame},
   util::{
     file::{create_dir, delete_dir, to_image_base64},
@@ -93,6 +95,7 @@ pub async fn extract_new_mod(
 #[tauri::command]
 pub async fn download_and_extract_new_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  cache: tauri::State<'_, tokio::sync::Mutex<LauncherCache>>,
   game_name: SupportedGame,
   download_url: String,
   mod_name: String,
@@ -152,10 +155,71 @@ pub async fn download_and_extract_new_mod(
     ))?;
   }
 
+  // Persist the info about the mod to the disk in the event that the mod source is removed / etc
+  let mod_source_data = get_mod_sources_data(cache).await;
+  match mod_source_data {
+    Ok(mod_source_data) => {
+      let relevant_mod_source = mod_source_data
+        .iter()
+        .find(|(_mod_source_url, mod_source_data)| mod_source_data.source_name == source_name);
+      if let Some(found_mode_source) = relevant_mod_source {
+        if let Some(mod_info) = found_mode_source.1.mods.get(&mod_name) {
+          let metadata_path = parent_path.join("_metadata.json");
+          log::info!("saving mod info to: {metadata_path:?}");
+          create_dir(&metadata_path.parent().unwrap())?;
+          let file = fs::File::create(metadata_path)?;
+          if let Err(err) = serde_json::to_writer_pretty(file, mod_info) {
+            log::error!("Unable to save _metadata.json file: {err:?}")
+          }
+        }
+      }
+    }
+    Err(err) => {
+      log::error!(
+        "Unable to fetch mod source data, so unable to persist metadata to disk: {err:?}"
+      );
+    }
+  }
+
   Ok(InstallStepOutput {
     success: true,
     msg: None,
   })
+}
+
+#[tauri::command]
+pub async fn get_locally_persisted_mod_info(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: SupportedGame,
+  mod_name: String,
+  source_name: String,
+) -> Result<ModInfo, CommandError> {
+  let config_lock = config.lock().await;
+  let install_path = match &config_lock.installation_dir {
+    None => {
+      return Err(CommandError::GameFeatures(
+        "No installation directory set, can't find mod metadata".to_string(),
+      ));
+    }
+    Some(path) => Path::new(path),
+  };
+  let metadata_path = &install_path
+    .join("features")
+    .join(game_name.to_string())
+    .join("mods")
+    .join(&source_name)
+    .join(&mod_name)
+    .join("_metadata.json");
+  if metadata_path.exists() {
+    let file = fs::File::open(metadata_path)?;
+    let mod_info = serde_json::from_reader(file).map_err(|_| {
+      CommandError::GameFeatures("Unable to deserialize local mod metadata".to_string())
+    })?;
+    return Ok(mod_info);
+  }
+  Err(CommandError::GameFeatures(
+    "Locally persisted mod metadata does not exist".to_string(),
+  ))
 }
 
 #[tauri::command]

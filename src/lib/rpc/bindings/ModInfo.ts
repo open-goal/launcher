@@ -4,6 +4,8 @@ import type { ModVersion } from "./ModVersion";
 import type { SupportedGame } from "./SupportedGame";
 
 export type ModInfo = {
+  name: string;
+  source: string;
   displayName: string;
   description: string;
   authors: Array<string>;
@@ -15,6 +17,5 @@ export type ModInfo = {
   coverArtUrl: string | null;
   thumbnailArtUrl: string | null;
   externalLink: string | null;
-  name?: string;
-  source?: string;
+  metadataOffline?: boolean;
 };
