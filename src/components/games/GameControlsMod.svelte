@@ -81,7 +81,7 @@
 
   onMount(async () => {
     checkForLatestModVersionChecked = await getCheckForLatestModVersion();
-    modInfo = await getModInfo(modName, modSource);
+    modInfo = await getModInfo(activeGame, modName, modSource);
     await initDirectories(modInfo);
     await sortModVersions(modInfo);
   });
@@ -93,8 +93,6 @@
   });
 
   async function initDirectories(modInfo: ModInfo) {
-    // TODO - why are name/source Options from rust, makes this code very cumbersome
-    // these two values should be the bare minimum that can be guaranteed about the mod
     let installationDir = await getInstallationDirectory();
     if (installationDir !== null) {
       gameDataDir = await join(
@@ -102,8 +100,8 @@
         "features",
         activeGame,
         "mods",
-        modInfo.source ?? "",
-        modInfo.name ?? "",
+        modInfo.source,
+        modInfo.name,
         "data",
       );
       extractedAssetsDir = await join(
@@ -116,9 +114,9 @@
         "features",
         activeGame,
         "mods",
-        modInfo.source ?? "",
+        modInfo.source,
         "_settings",
-        modInfo.name ?? "",
+        modInfo.name,
         "OpenGOAL",
         activeGame,
         "settings",
@@ -131,9 +129,9 @@
         "features",
         activeGame,
         "mods",
-        modInfo.source ?? "",
+        modInfo.source,
         "_settings",
-        modInfo.name ?? "",
+        modInfo.name,
         "OpenGOAL",
         activeGame,
         "saves",
@@ -159,9 +157,9 @@
 
     if (
       relevantSourceData !== undefined &&
-      Object.keys(relevantSourceData.mods).includes(modInfo.name ?? "")
+      Object.keys(relevantSourceData.mods).includes(modInfo.name)
     ) {
-      const mod = relevantSourceData.mods[modInfo.name ?? ""];
+      const mod = relevantSourceData.mods[modInfo.name];
       if (mod !== undefined) {
         // ensure versions are sorted by date desc (newest first)
         let versions = mod.versions;
@@ -187,13 +185,10 @@
     // get current installed version
     let installedMods = await getInstalledMods(activeGame);
     if (
-      Object.keys(installedMods).includes(modInfo.source ?? "") &&
-      Object.keys(installedMods[modInfo.source ?? ""]).includes(
-        modInfo.name ?? "",
-      )
+      Object.keys(installedMods).includes(modInfo.source) &&
+      Object.keys(installedMods[modInfo.source]).includes(modInfo.name)
     ) {
-      currentlyInstalledVersion =
-        installedMods[modInfo.source ?? ""][modInfo.name ?? ""];
+      currentlyInstalledVersion = installedMods[modInfo.source][modInfo.name];
       versionState.displayModVersion = true;
       versionState.activeModVersionInfo.installedVersion =
         currentlyInstalledVersion;

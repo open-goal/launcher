@@ -67,15 +67,17 @@
     if (activeGameFromRoute) {
       activeGame = activeGameFromRoute;
       if (route.params.mod_name && route.params.source_name) {
-        getModInfo(route.params.mod_name, route.params.source_name).then(
-          (modInfo) => {
-            if (activeGame) {
-              updateModBackground(activeGame, modInfo).then(() => {
-                loading = false;
-              });
-            }
-          },
-        );
+        getModInfo(
+          activeGame,
+          route.params.mod_name,
+          route.params.source_name,
+        ).then((modInfo) => {
+          if (activeGame) {
+            updateModBackground(activeGame, modInfo).then(() => {
+              loading = false;
+            });
+          }
+        });
       } else {
         updateBackground(activeGame).then(() => {
           loading = false;
@@ -112,7 +114,7 @@
     if (modInfo.source === "_local") {
       const coverResult = await getLocalModThumbnailBase64(
         activeGame,
-        modInfo.name ?? "",
+        modInfo.name,
       );
       modBackground = coverResult || coverArtPlaceholder;
       return;
