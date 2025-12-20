@@ -1,4 +1,5 @@
 import { toastStore } from "$lib/stores/ToastStore";
+import type { ModInfo } from "./bindings/ModInfo";
 import type { ModSourceData } from "./bindings/ModSourceData";
 import { errorLog } from "./logging";
 import { invoke_rpc } from "./rpc";
@@ -170,6 +171,18 @@ export async function downloadAndExtractNewMod(
     "download_and_extract_new_mod",
     { gameName, downloadUrl, modName, sourceName },
     () => failed("Failed to download and extract mod"),
+  );
+}
+
+export async function getLocallyPersistedModInfo(
+  gameName: string,
+  modName: string,
+  sourceName: string,
+): Promise<ModInfo | undefined> {
+  return await invoke_rpc(
+    "get_locally_persisted_mod_info",
+    { gameName, modName, sourceName },
+    () => undefined,
   );
 }
 

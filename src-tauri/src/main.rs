@@ -193,6 +193,7 @@ fn main() {
       commands::features::mods::compile_for_mod_install,
       commands::features::mods::decompile_for_mod_install,
       commands::features::mods::download_and_extract_new_mod,
+      commands::features::mods::get_locally_persisted_mod_info,
       commands::features::mods::extract_iso_for_mod_install,
       commands::features::mods::extract_new_mod,
       commands::features::mods::get_launch_mod_string,

@@ -120,10 +120,3 @@ pub async fn is_macos_version_15_or_above() -> bool {
     .map(|major| major >= 15)
     .unwrap_or(false)
 }
-
-// TODO - macOS check if rosetta 2 is installed
-// #[cfg(target_os = "macos")]
-// #[tauri::command]
-// pub async fn is_rosetta2_installed() -> bool {
-//   todo!()
-// }

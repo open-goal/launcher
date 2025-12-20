@@ -7,6 +7,8 @@ pub enum NetworkError {
   IO(#[from] std::io::Error),
   #[error(transparent)]
   NetworkRequest(#[from] reqwest::Error),
+  #[error("{0}")]
+  Message(String),
 }
 
 pub async fn download_file(url: &str, destination: &Path) -> Result<(), NetworkError> {
@@ -18,5 +20,11 @@ pub async fn download_file(url: &str, destination: &Path) -> Result<(), NetworkE
 
 pub async fn download_json(url: &str) -> Result<String, NetworkError> {
   let res = reqwest::get(url).await?;
-  Ok(res.text().await?)
+  if res.status().is_success() {
+    return Ok(res.text().await?);
+  }
+  Err(NetworkError::Message(format!(
+    "Unable to download json from {url}, status: {}",
+    res.status()
+  )))
 }
