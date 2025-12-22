@@ -17,7 +17,7 @@ tauri-build = { version = "2.5.1", features = [] }
 [dependencies]
 plist = "1.7.4" # ensuring a bug fix for newer rustc versions
 notify-rust = "4.11.6" # ensuring a bug fix for newer rustc versions
-cmake = "0.1.56" # VS2026 causes issues
+cmake = "0.1.57" # VS2026 causes issues
 backtrace = "0.3.74"
 chrono = "0.4.39"
 dir-diff = "0.3.3"
@@ -33,7 +33,7 @@ reqwest = { version = "0.12", features = ["json"] }
 rev_buf_reader = "0.3.0"
 semver = "1.0.24"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.142"
+serde_json = "1.0.146"
 strum = { version = "0.27", features = ["derive"] }
 sysinfo = "0.37.0"
 tar = "0.4.43"
