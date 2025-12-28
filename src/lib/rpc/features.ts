@@ -137,11 +137,7 @@ export async function removeModSource(modSource: string): Promise<void> {
   );
 }
 
-export interface ModSource {
-  url: string;
-}
-
-export async function getModSources(): Promise<ModSource[]> {
+export async function getModSourceUrls(): Promise<string[]> {
   return await invoke_rpc(
     "get_setting_value",
     { key: "mod_sources" },

@@ -19,7 +19,7 @@
 
   let { activeGame }: { activeGame: SupportedGame } = $props();
 
-  let requirementsMet: boolean | undefined = $state(true);
+  let requirementsMet: boolean | undefined = $state(undefined);
   let proceedAfterSuccessfulOperation = $state(true);
 
   onMount(async () => {
@@ -82,27 +82,29 @@
   }
 </script>
 
-{#if !requirementsMet}
-  <Requirements {activeGame} on:recheckRequirements={checkRequirements} />
-{:else}
-  <div class="flex flex-col justify-end items-end mt-auto">
-    <h1
-      class="tracking-tighter text-2xl font-bold pb-3 text-orange-500 text-outline"
-    >
-      {$_(`gameName_${activeGame}`)}
-    </h1>
-    <div class="flex flex-row gap-2">
-      <Button
-        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-        onclick={async () => await install(false)}
-        >{$_("setup_button_installViaISO")}</Button
+{#if requirementsMet !== undefined}
+  {#if !requirementsMet}
+    <Requirements {activeGame} on:recheckRequirements={checkRequirements} />
+  {:else}
+    <div class="flex flex-col justify-end items-end mt-auto">
+      <h1
+        class="tracking-tighter text-2xl font-bold pb-3 text-orange-500 text-outline"
       >
-      <!-- TODO - disabled for now, needs fixes in the extractor -->
-      <!-- <Button
+        {$_(`gameName_${activeGame}`)}
+      </h1>
+      <div class="flex flex-row gap-2">
+        <Button
+          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+          onclick={async () => await install(false)}
+          >{$_("setup_button_installViaISO")}</Button
+        >
+        <!-- TODO - disabled for now, needs fixes in the extractor -->
+        <!-- <Button
         class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         onclick={async () => await install(true)}
         >Install via Folder</Button
       > -->
+      </div>
     </div>
-  </div>
+  {/if}
 {/if}

@@ -121,6 +121,7 @@
                     onVersionChange(release.version);
                   }}
                   disabled={!release.isDownloaded}
+                  color="orange"
                   class="disabled:cursor-not-allowed p-0"
                 />
               {/if}

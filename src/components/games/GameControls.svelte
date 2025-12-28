@@ -2,7 +2,7 @@
   import IconCog from "~icons/mdi/cog";
   import { configDir, join } from "@tauri-apps/api/path";
   import { revealItemInDir } from "@tauri-apps/plugin-opener";
-  import { createEventDispatcher, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { writeText } from "@tauri-apps/plugin-clipboard-manager";
   import { confirm } from "@tauri-apps/plugin-dialog";
   import {
@@ -30,14 +30,18 @@
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { asJobType } from "$lib/job/jobs";
 
-  let { activeGame }: { activeGame: SupportedGame } = $props();
+  let {
+    activeGame,
+    onGameUninstalled,
+  }: {
+    activeGame: SupportedGame;
+    onGameUninstalled: () => Promise<void>;
+  } = $props();
   let textureSupportEnabled = $state(true);
   let gameDataDir: string | undefined = $state(undefined);
   let extractedAssetsDir: string | undefined = $state(undefined);
   let settingsDir: string | undefined = $state(undefined);
   let savesDir: string | undefined = $state(undefined);
-
-  const dispatch = createEventDispatcher();
 
   onMount(async () => {
     textureSupportEnabled = await doesActiveToolingVersionMeetMinimum(0, 2, 13);
@@ -220,6 +224,7 @@
         ></DropdownItem
       >
       <DropdownDivider />
+      <!-- TODO - clicking this button provides zero feedback -->
       <DropdownItem
         onclick={async () => {
           await resetGameSettings(activeGame);
@@ -233,8 +238,11 @@
             $_("gameControls_button_uninstall_confirmation"),
             { title: "OpenGOAL Launcher", kind: "warning" },
           );
-          if (confirmed && (await uninstallGame(activeGame))) {
-            dispatch("gameInstallStateChanged");
+          if (confirmed) {
+            const successfulUninstall = await uninstallGame(activeGame);
+            if (successfulUninstall) {
+              await onGameUninstalled();
+            }
           }
         }}
         >{$_("gameControls_button_uninstall")}<Helper

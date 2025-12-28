@@ -7,7 +7,7 @@ updates:
   - package-ecosystem: "cargo"
     directory: "src-tauri/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     groups:
       backend-deps:
         patterns:
@@ -20,7 +20,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     groups:
       frontend-deps:
         patterns:

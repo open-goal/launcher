@@ -19,7 +19,9 @@
   <Tabs
     tabStyle="underline"
     class="flex flex-wrap space-x-2 rtl:space-x-reverse"
-    contentClass="p-4 pt-0 rounded-lg mt-2 mb-5 overflow-y-auto !bg-[#141414]"
+    classes={{
+      content: "p-4 pt-0 rounded-lg mt-2 mb-5 overflow-y-auto !bg-[#141414]",
+    }}
   >
     <TabItem
       {activeClass}

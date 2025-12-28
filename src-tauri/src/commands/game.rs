@@ -19,7 +19,7 @@ pub async fn uninstall_game(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
   game_name: SupportedGame,
-) -> Result<(), CommandError> {
+) -> Result<bool, CommandError> {
   let mut config_lock = config.lock().await;
 
   let install_path = match &config_lock.installation_dir {
@@ -37,9 +37,9 @@ pub async fn uninstall_game(
     .join("data");
 
   match std::fs::remove_dir_all(data_folder.join("decompiler_out")) {
-    Ok(_) => Ok(()),
+    Ok(_) => Ok(false),
     Err(e) => match e.kind() {
-      std::io::ErrorKind::NotFound => Ok(()),
+      std::io::ErrorKind::NotFound => Ok(false),
       _ => {
         log::error!("Failed to delete directory: {:?}", e);
         Err(e)
@@ -48,9 +48,9 @@ pub async fn uninstall_game(
   }?;
 
   match std::fs::remove_dir_all(data_folder.join("iso_data")) {
-    Ok(_) => Ok(()),
+    Ok(_) => Ok(false),
     Err(e) => match e.kind() {
-      std::io::ErrorKind::NotFound => Ok(()),
+      std::io::ErrorKind::NotFound => Ok(false),
       _ => {
         log::error!("Failed to delete directory: {:?}", e);
         Err(e)
@@ -59,9 +59,9 @@ pub async fn uninstall_game(
   }?;
 
   match std::fs::remove_dir_all(data_folder.join("out")) {
-    Ok(_) => Ok(()),
+    Ok(_) => Ok(false),
     Err(e) => match e.kind() {
-      std::io::ErrorKind::NotFound => Ok(()),
+      std::io::ErrorKind::NotFound => Ok(false),
       _ => {
         log::error!("Failed to delete directory: {:?}", e);
         Err(e)
@@ -75,7 +75,7 @@ pub async fn uninstall_game(
       CommandError::GameManagement("Unable to persist game installation status".to_owned())
     })?;
   app_handle.emit("gameUninstalled", {})?;
-  Ok(())
+  Ok(true)
 }
 
 #[tauri::command]
