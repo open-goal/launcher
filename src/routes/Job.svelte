@@ -148,7 +148,6 @@
         if (activeGame && modName && modSourceName) {
           await setupDecompileModJob(activeGame, modName, modSourceName);
         } else {
-          console.log();
           invalidJobDefinition = true;
         }
         break;

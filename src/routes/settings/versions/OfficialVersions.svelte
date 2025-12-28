@@ -111,54 +111,66 @@
 
   async function onDownloadVersion(version: string, downloadUrl: string) {
     // Mark that release as being downloaded
-    for (const release of releases) {
-      if (release.version === version) {
-        release.pendingAction = true;
-      }
-    }
-    releases = releases;
+    releases = releases.map((release) =>
+      release.version === version
+        ? { ...release, pendingAction: true }
+        : release,
+    );
     const success = await downloadOfficialVersion(version, downloadUrl);
-    versionState.activeToolingVersion = version;
-    // Then mark it as downloaded
-    for (const release of releases) {
-      if (release.version === version) {
-        release.pendingAction = false;
-        release.isDownloaded = success;
-        // If they downloaded the latest, get rid of the notification
-        if ($UpdateStore.selectedTooling.updateAvailable) {
-          if (version === releases[0].version) {
-            $UpdateStore.selectedTooling.updateAvailable = false;
-          }
+    if (success) {
+      versionState.activeToolingVersion = version;
+      // Then mark it as downloaded
+      releases = releases.map((release) => {
+        if (release.version !== version) return release;
+
+        const isLatest = version === releases[0]?.version;
+
+        if ($UpdateStore.selectedTooling.updateAvailable && isLatest) {
+          $UpdateStore.selectedTooling.updateAvailable = false;
         }
-      }
+
+        return {
+          ...release,
+          pendingAction: false,
+          isDownloaded: success,
+        };
+      });
+      await saveActiveVersionChange(version);
+    } else {
+      releases = releases.map((release) =>
+        release.version === version
+          ? { ...release, pendingAction: false }
+          : release,
+      );
     }
-    releases = releases;
-    await saveActiveVersionChange(version);
   }
 
   async function onRemoveVersion(version: string) {
-    // Mark that release as being downloaded
-    for (const release of releases) {
-      if (release.version === version) {
-        release.pendingAction = true;
-      }
-    }
-    releases = releases;
-    const ok = await removeVersion(version);
-    if (ok) {
+    // Mark that release as being removed
+    releases = releases.map((release) =>
+      release.version === version
+        ? { ...release, pendingAction: true }
+        : release,
+    );
+    const success = await removeVersion(version);
+    if (success) {
       // Update the store, if we removed the active version
       if (versionState.activeToolingVersion === version) {
         versionState.activeToolingVersion = undefined;
       }
 
       // Then mark it as not downloaded
-      for (const release of releases) {
-        if (release.version === version) {
-          release.pendingAction = false;
-          release.isDownloaded = false;
-        }
-      }
-      releases = releases;
+      releases = releases.map((release) =>
+        release.version === version
+          ? { ...release, pendingAction: false, isDownloaded: false }
+          : release,
+      );
+    } else {
+      releases = releases.map((release) =>
+        release.version === version
+          ? { ...release, pendingAction: false }
+          : release,
+      );
     }
   }
 </script>

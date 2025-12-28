@@ -3,9 +3,8 @@
   import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
   import {
     addModSource,
-    getModSources,
+    getModSourceUrls,
     removeModSource,
-    type ModSource,
   } from "$lib/rpc/features";
   import {
     Label,
@@ -23,13 +22,13 @@
   import IconPlus from "~icons/mdi/plus";
 
   let newSourceURL = "";
-  let currentSources: ModSource[] = [];
+  let currentSources: string[] = [];
   let currentSourceData: Record<string, ModSourceData> = {};
 
   let pageLoaded = false;
 
   async function refreshModSourceData() {
-    currentSources = await getModSources();
+    currentSources = await getModSourceUrls();
     await refreshModSources();
     currentSourceData = await getModSourcesData();
   }
@@ -89,7 +88,7 @@
                 ><Button
                   class="p-0 m-3 hover:text-red-500 text-slate-800 dark:text-gray-200"
                   onclick={async () => {
-                    await removeModSource(source.url);
+                    await removeModSource(source);
                     await refreshModSourceData();
                   }}
                   ><IconDeleteForever

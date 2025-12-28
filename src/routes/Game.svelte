@@ -22,7 +22,7 @@
   import { systemInfoState } from "../state/SystemInfoState.svelte";
   import GameBetaAlert from "../components/games/GameBetaAlert.svelte";
   import VCCWarning from "../components/games/VCCWarning.svelte";
-  import { onMount } from "svelte";
+  import { active } from "@tauri-apps/plugin-notification";
 
   const gameParam = $derived(route.params.game_name);
   let activeGame: SupportedGame | undefined = $state(undefined);
@@ -35,8 +35,8 @@
 
   let gameInstalled: boolean | undefined = $state(undefined);
   let installedVersion: String | undefined = $state(undefined);
-  let versionMismatchDetected = $state(false);
-  let gameSupportedByTooling = $state(false);
+  let versionMismatchDetected: boolean | undefined = $state(undefined);
+  let gameSupportedByTooling: boolean | undefined = $state(undefined);
 
   $effect(() => {
     const activeGameFromParam = toSupportedGame(gameParam);
@@ -53,23 +53,24 @@
     // First off, check that they've downloaded and have a jak-project release set
     const activeVersionExists = await ensureActiveVersionStillExists();
 
+    // verify the game is installed
+    gameInstalled = await isGameInstalled(activeGame);
+
+    // verify selected version is installed tooling version
+    // - prompt them to either reinstall OR go and select their previous version
+    if (gameInstalled) {
+      installedVersion = await getInstalledVersion(activeGame);
+      versionMismatchDetected =
+        installedVersion !== versionState.activeToolingVersion;
+    }
+
     if (activeVersionExists) {
       gameSupportedByTooling =
         await doesActiveToolingVersionSupportGame(activeGame);
-      // verify the game is installed
-      gameInstalled = await isGameInstalled(activeGame);
-
-      // verify selected version is installed tooling version
-      // - prompt them to either reinstall OR go and select their previous version
-      if (gameInstalled) {
-        installedVersion = await getInstalledVersion(activeGame);
-        versionMismatchDetected =
-          installedVersion !== versionState.activeToolingVersion;
-      }
     }
   }
 
-  async function gameInstallStateChanged(event: any) {
+  async function gameInstallStateChanged() {
     if (!activeGame) {
       return;
     }
@@ -79,16 +80,16 @@
 
 {#if activeGame && gameInstalled !== undefined}
   <div class="flex flex-col h-full p-5">
-    {#if !versionState.activeToolingVersion}
+    {#if versionState.activeToolingVersion === null}
       <GameToolsNotSet />
     {:else if activeGame == "jak3" || activeGame == "jakx"}
       <!-- TODO: remove this else if arm for jak3 support -->
       <GameInProgress />
-    {:else if !gameSupportedByTooling}
+    {:else if gameSupportedByTooling !== undefined && !gameSupportedByTooling}
       <GameNotSupportedByTooling />
-    {:else if !gameInstalled}
+    {:else if gameInstalled !== undefined && !gameInstalled}
       <GameSetup {activeGame} />
-    {:else if versionMismatchDetected}
+    {:else if versionMismatchDetected !== undefined && versionMismatchDetected}
       <GameUpdate {installedVersion} {activeGame} />
     {:else}
       {#if showVccWarning}
@@ -103,7 +104,7 @@
       {:else}
         <GameControls
           {activeGame}
-          on:gameInstallStateChanged={gameInstallStateChanged}
+          onGameUninstalled={gameInstallStateChanged}
         />
       {/if}
     {/if}

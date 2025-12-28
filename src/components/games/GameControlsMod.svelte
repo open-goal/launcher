@@ -3,7 +3,7 @@
   import IconArrowLeft from "~icons/mdi/arrow-left";
   import IconCog from "~icons/mdi/cog";
   import { join } from "@tauri-apps/api/path";
-  import { createEventDispatcher, onDestroy, onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { writeText } from "@tauri-apps/plugin-clipboard-manager";
   import { confirm } from "@tauri-apps/plugin-dialog";
   import {

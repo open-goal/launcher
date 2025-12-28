@@ -133,13 +133,13 @@
       {#if versionState.displayModVersion}
         {#if !versionState.activeModVersionInfo.installed}
           {$_("header_modNotInstalled")}
-        {:else if versionState.activeModVersionInfo.installedVersion !== undefined}
+        {:else if versionState.activeModVersionInfo.installedVersion}
           {versionState.activeModVersionInfo.installedVersion}
         {:else}
           <span>&nbsp;</span>
         {/if}
       {:else}
-        {versionState.activeToolingVersion === undefined
+        {!versionState.activeToolingVersion
           ? $_("header_toolingNotSet")
           : versionState.activeToolingVersion}
       {/if}
