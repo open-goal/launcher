@@ -207,7 +207,9 @@
           <Alert class="dark:bg-slate-900 flex-grow text-red-400">
             <span class="font-medium text-red-500"
               >{$_("setup_installationFailed")}
-            </span><span class="text-white"> {$jobTracker.failureReason}</span>
+            </span><span class="text-white"
+              >&nbsp;{$jobTracker.failureReason}</span
+            >
           </Alert>
           <Button
             class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"

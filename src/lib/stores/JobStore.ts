@@ -74,6 +74,7 @@ function createJobTracker() {
             val.steps[val.currentStep].status = "failed";
             return val;
           });
+          break; // fail fast
         } else {
           update((val) => {
             val.steps[val.currentStep].status = "success";
