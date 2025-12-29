@@ -57,21 +57,42 @@ pub async fn is_diskspace_requirement_met(
 
   // Check the drive that the installation directory is set to
   let minimum_required_drive_space = game_name.required_diskspace();
-  for disk in Disks::new_with_refreshed_list().into_iter() {
+
+  let disks = Disks::new_with_refreshed_list();
+  let mut longest_matching_disk: Option<&sysinfo::Disk> = None;
+
+  for disk in disks.into_iter() {
     if install_dir.starts_with(disk.mount_point()) {
-      if disk.available_space() < minimum_required_drive_space {
-        log::warn!("Not enough space left on disk: {:?}", disk.name());
-        return Ok(false);
-      } else {
-        return Ok(true);
+      if longest_matching_disk.is_none()
+        || disk.mount_point().as_os_str().len()
+          > longest_matching_disk
+            .unwrap()
+            .mount_point()
+            .as_os_str()
+            .len()
+      {
+        longest_matching_disk = Some(disk);
       }
     }
   }
-
-  error!("Unable to find relevant drive to check for space");
-  Err(CommandError::Configuration(
-    "Unable to find relevant drive to check for space".to_owned(),
-  ))
+  if let Some(disk) = longest_matching_disk {
+    if disk.available_space() < minimum_required_drive_space {
+      log::warn!(
+        "Not enough space ({:?} bytes) left on disk: {:?}, mount point: {:?}",
+        minimum_required_drive_space,
+        disk.name(),
+        disk.mount_point()
+      );
+      Ok(false)
+    } else {
+      Ok(true)
+    }
+  } else {
+    error!("Unable to find relevant drive to check for space");
+    Err(CommandError::Configuration(
+      "Unable to find relevant drive to check for space".to_owned(),
+    ))
+  }
 }
 
 #[cfg(target_os = "windows")]
