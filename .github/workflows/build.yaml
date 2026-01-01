@@ -76,7 +76,7 @@ jobs:
 
       - name: Upload appimage bundle
         if: matrix.platform == 'ubuntu-24.04'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: AppImage Bundle
           path: ./src-tauri/target/release/bundle/appimage/*.AppImage
