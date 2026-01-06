@@ -195,13 +195,12 @@ pub async fn remove_version(
     Some(path) => Path::new(path),
   };
 
-  info!("Deleting Version: {}", version);
-
   let version_dir = install_path
     .join("versions")
     .join("official")
     .join(&version);
 
+  info!("Deleting Version: {} at {:?}", version, version_dir);
   delete_dir(&version_dir)?;
 
   // If it's the active version, we should clean that up in the settings file
