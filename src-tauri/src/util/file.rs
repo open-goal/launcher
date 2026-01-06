@@ -11,6 +11,13 @@ use std::{
 pub fn delete_dir<T: AsRef<Path>>(path: T) -> Result<(), std::io::Error> {
   if path.as_ref().exists() && path.as_ref().is_dir() {
     std::fs::remove_dir_all(path)?;
+  } else {
+    log::warn!(
+      "Not deleting dir: {:?} as it does not exist ({}) or is not a directory ({})",
+      path.as_ref(),
+      path.as_ref().exists(),
+      path.as_ref().is_dir()
+    )
   }
   Ok(())
 }

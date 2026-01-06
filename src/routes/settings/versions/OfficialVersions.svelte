@@ -137,6 +137,8 @@
       });
       await saveActiveVersionChange(version);
     } else {
+      // ensure the version folder is removed if it failed
+      await onRemoveVersion(version);
       releases = releases.map((release) =>
         release.version === version
           ? { ...release, pendingAction: false }
