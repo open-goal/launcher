@@ -47,6 +47,13 @@ export async function setupModInstallation(
             return false;
           }
         }
+        return true;
+      },
+    },
+    {
+      status: "queued",
+      label: $format("setup_download"),
+      task: async () => {
         if (modDownloadUrl) {
           // extract the file into install_dir/features/<game>/<sourceName>/<modName>
           let resp = await downloadAndExtractNewMod(
