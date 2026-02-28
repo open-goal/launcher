@@ -1,37 +1,16 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from "svelte";
   import { Alert, Button } from "flowbite-svelte";
+  import { setBypassRequirements } from "$lib/rpc/config";
   import {
-    isAVXRequirementMet,
-    isDiskSpaceRequirementMet,
-    isOpenGLRequirementMet,
-    setBypassRequirements,
-  } from "$lib/rpc/config";
+    requirementsStore,
+    currentRequirements,
+  } from "/src/state/requirements-store";
   import { _ } from "svelte-i18n";
   import { confirm } from "@tauri-apps/plugin-dialog";
-  import { arch, type } from "@tauri-apps/plugin-os";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { systemInfoState } from "/src/state/SystemInfoState.svelte";
 
   let { activeGame }: { activeGame: SupportedGame } = $props();
-
-  let isAVXRelevant = type() !== "macos";
-  let isTryingToUseARMOutsideOfMacOS: boolean | undefined =
-    arch() == "aarch64" && type() !== "macos";
-  let isAVXMet: boolean | undefined = $state(false);
-  let isOpenGLMet: boolean | undefined = $state(false);
-  let isDiskSpaceMet: boolean | undefined = $state(false);
-  const isVCCRelevant: boolean | undefined = type() == "windows";
-
-  const dispatch = createEventDispatcher();
-
-  onMount(async () => {
-    isOpenGLMet = await isOpenGLRequirementMet(false);
-    isDiskSpaceMet = await isDiskSpaceRequirementMet(activeGame);
-    if (isAVXRelevant) {
-      isAVXMet = await isAVXRequirementMet();
-    }
-  });
 
   function alertColor(val: boolean | undefined) {
     if (val === undefined) {
@@ -41,22 +20,20 @@
   }
 </script>
 
-<!-- TODO - good spot for a new component -->
-
 <div
   class="flex flex-col h-full justify-center items-center p-5 text-center gap-3"
 >
   <h1 class="text-xl font-black mb-5 text-outline">
     {$_("requirements_notMet_header")}
   </h1>
-  {#if isAVXRelevant}
-    {#if !isAVXMet}
+  {#if $currentRequirements?.isAVXRelevant}
+    {#if !$currentRequirements?.isAVXMet}
       <Alert
         class="w-full text-start"
         rounded={false}
-        color={alertColor(isAVXMet)}
+        color={alertColor($currentRequirements?.isAVXMet)}
       >
-        {#if isAVXMet === undefined}
+        {#if $currentRequirements?.isAVXMet === undefined}
           <span class="font-bold"
             >{$_("requirements_cpu_unableToCheckAVX")}</span
           >
@@ -80,11 +57,11 @@
         {/if}
       </Alert>
     {/if}
-  {:else if isTryingToUseARMOutsideOfMacOS}
+  {:else if $currentRequirements?.isTryingToUseARMOutsideOfMacOS}
     <Alert
       class="w-full text-start"
       rounded={false}
-      color={alertColor(!isTryingToUseARMOutsideOfMacOS)}
+      color={alertColor(!$currentRequirements?.isTryingToUseARMOutsideOfMacOS)}
     >
       <span class="font-bold"
         >{$_("requirements_armNotSupportedOutsideMacOS")}</span
@@ -108,13 +85,13 @@
     </Alert>
   {/if}
 
-  {#if !isOpenGLMet}
+  {#if !$currentRequirements?.isOpenGLMet}
     <Alert
       class="w-full text-start"
       rounded={false}
-      color={alertColor(isOpenGLMet)}
+      color={alertColor($currentRequirements?.isOpenGLMet)}
     >
-      {#if isOpenGLMet === undefined}
+      {#if $currentRequirements?.isOpenGLMet === undefined}
         <span class="font-bold"
           >{$_("requirements_gpu_unableToCheckOpenGL")}</span
         >
@@ -143,13 +120,13 @@
     </Alert>
   {/if}
 
-  {#if !isDiskSpaceMet}
+  {#if !$currentRequirements?.isDiskSpaceMet}
     <Alert
       class="w-full text-start"
       rounded={false}
-      color={alertColor(isDiskSpaceMet)}
+      color={alertColor($currentRequirements?.isDiskSpaceMet)}
     >
-      {#if isDiskSpaceMet === undefined}
+      {#if $currentRequirements?.isDiskSpaceMet === undefined}
         <span class="font-bold"
           >{$_(`requirements_disk_unableToCheckSpace`)}</span
         >
@@ -161,7 +138,7 @@
     </Alert>
   {/if}
 
-  {#if isVCCRelevant}
+  {#if $currentRequirements?.isVCCRelevant}
     {#if !systemInfoState.isMinVCCRuntimeInstalled}
       <Alert
         class="w-full text-start"
@@ -198,13 +175,12 @@
     <Button
       class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       onclick={async () => {
-        isAVXMet = await isAVXRequirementMet();
-        isOpenGLMet = await isOpenGLRequirementMet(true);
-        dispatch("recheckRequirements");
+        await requirementsStore.refresh(activeGame, true);
       }}>{$_("requirements_button_recheck")}</Button
     >
     <Button
-      hidden={isVCCRelevant && !systemInfoState.isMinVCCRuntimeInstalled}
+      hidden={$currentRequirements?.isVCCRelevant &&
+        !systemInfoState.isMinVCCRuntimeInstalled}
       class="border-solid border-2 border-slate-900 rounded bg-orange-800 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       onclick={async () => {
         const confirmed = await confirm(
@@ -215,7 +191,7 @@
         );
         if (confirmed) {
           await setBypassRequirements(true);
-          dispatch("recheckRequirements");
+          await requirementsStore.refresh(activeGame, false);
         }
       }}>{$_("requirements_button_bypass")}</Button
     >

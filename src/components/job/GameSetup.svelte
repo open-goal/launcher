@@ -3,60 +3,25 @@
   import { onMount } from "svelte";
   import { Button } from "flowbite-svelte";
   import { folderPrompt, isoPrompt } from "$lib/utils/file-dialogs";
+  import { getProceedAfterSuccessfulOperation } from "$lib/rpc/config";
   import {
-    isAVXRequirementMet,
-    isDiskSpaceRequirementMet,
-    isOpenGLRequirementMet,
-    getProceedAfterSuccessfulOperation,
-  } from "$lib/rpc/config";
+    requirementsStore,
+    currentRequirements,
+  } from "/src/state/requirements-store";
   import { _ } from "svelte-i18n";
-  import { arch, type } from "@tauri-apps/plugin-os";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { navigate } from "/src/router";
   import { asJobType } from "$lib/job/jobs";
-  import { systemInfoState } from "/src/state/SystemInfoState.svelte";
 
   let { activeGame }: { activeGame: SupportedGame } = $props();
 
-  let requirementsMet: boolean | undefined = $state(undefined);
   let proceedAfterSuccessfulOperation = $state(true);
 
   onMount(async () => {
-    // Check requirements
-    await checkRequirements();
+    await requirementsStore.refresh(activeGame);
     proceedAfterSuccessfulOperation =
       await getProceedAfterSuccessfulOperation();
   });
-
-  async function checkRequirements() {
-    const architecture = arch();
-    const osType = type();
-    const isOpenGLMet = await isOpenGLRequirementMet(false);
-    const isDiskSpaceMet = await isDiskSpaceRequirementMet(activeGame);
-    if (architecture === "aarch64") {
-      // arm, we don't bother checking for simd
-      // - if macOS (the only supported ARM platform), we check they are on atleast macOS 15
-      // there is no easy way to check to see if they have rosetta 2, if you know of one, contribute it
-      if (osType !== "macos") {
-        requirementsMet = false;
-        return;
-      }
-      requirementsMet =
-        systemInfoState.isMinMacOSVersion && isOpenGLMet && isDiskSpaceMet;
-    } else {
-      const isAvxMet = await isAVXRequirementMet();
-      if (osType == "windows") {
-        requirementsMet = Boolean(
-          isAvxMet &&
-          isOpenGLMet &&
-          isDiskSpaceMet &&
-          systemInfoState.isMinVCCRuntimeInstalled,
-        );
-      } else {
-        requirementsMet = isAvxMet && isOpenGLMet && isDiskSpaceMet;
-      }
-    }
-  }
 
   async function install(viaFolder: boolean) {
     let sourcePath = undefined;
@@ -82,9 +47,9 @@
   }
 </script>
 
-{#if requirementsMet !== undefined}
-  {#if !requirementsMet}
-    <Requirements {activeGame} on:recheckRequirements={checkRequirements} />
+{#if $currentRequirements?.requirementsMet !== undefined}
+  {#if !$currentRequirements.requirementsMet}
+    <Requirements {activeGame} />
   {:else}
     <div class="flex flex-col justify-end items-end mt-auto">
       <h1
