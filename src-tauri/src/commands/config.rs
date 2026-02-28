@@ -148,6 +148,8 @@ pub async fn is_opengl_requirement_met(
   }
   // Do it the new way!
   log::info!("Checking for OpenGL support via `gk`");
+  // Note: if the minimum vcc runtime requirement (windows only) isn't met then run_game_gpu_test will fail right here with a non zero error code
+  // what looks like a GPU test failure is actually just the game not launching
   let test_result = crate::util::game_tests::run_game_gpu_test(&config_lock, &app_handle).await?;
   config_lock
     .update_setting_value("opengl_requirements_met", test_result.success.into(), None)
