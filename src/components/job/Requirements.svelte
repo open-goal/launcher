@@ -9,8 +9,12 @@
   import { confirm } from "@tauri-apps/plugin-dialog";
   import { systemInfoState } from "/src/state/SystemInfoState.svelte";
   import { route } from "/src/router";
+  import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
+  import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
 
-  const activeGame = $derived(route.params.game_name);
+  const gameParam = $derived(route.params.game_name);
+  // @ts-ignore
+  const activeGame: SupportedGame = toSupportedGame(gameParam);
 
   function alertColor(val: boolean | undefined) {
     if (val === undefined) {
