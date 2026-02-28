@@ -86,9 +86,10 @@ pub async fn run_game_gpu_test(
           }
         }
       } else {
-        Err(CommandError::BinaryExecution(
-          "GPU Test failed with a non-zero exit code".to_owned(),
-        ))
+        Err(CommandError::BinaryExecution(format!(
+          "GPU Test failed with a non-zero exit code: {:?}",
+          code
+        )))
       }
     }
     None => Err(CommandError::BinaryExecution(

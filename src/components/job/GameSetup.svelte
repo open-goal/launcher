@@ -8,7 +8,6 @@
     isDiskSpaceRequirementMet,
     isOpenGLRequirementMet,
     getProceedAfterSuccessfulOperation,
-    isMinimumVCCRuntimeInstalled,
   } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { arch, type } from "@tauri-apps/plugin-os";
@@ -47,11 +46,12 @@
     } else {
       const isAvxMet = await isAVXRequirementMet();
       if (osType == "windows") {
-        requirementsMet =
+        requirementsMet = Boolean(
           isAvxMet &&
           isOpenGLMet &&
           isDiskSpaceMet &&
-          systemInfoState.isMinVCCRuntimeInstalled;
+          systemInfoState.isMinVCCRuntimeInstalled,
+        );
       } else {
         requirementsMet = isAvxMet && isOpenGLMet && isDiskSpaceMet;
       }

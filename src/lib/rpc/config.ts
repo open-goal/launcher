@@ -66,7 +66,8 @@ export async function isOpenGLRequirementMet(
   const result = await invoke_rpc(
     "is_opengl_requirement_met",
     { force },
-    () => undefined,
+    () => {},
+    "_mirror_",
   );
 
   if (typeof result !== "boolean") {

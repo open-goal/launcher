@@ -50,33 +50,36 @@
     {$_("requirements_notMet_header")}
   </h1>
   {#if isAVXRelevant}
-    <Alert
-      class="w-full text-start"
-      rounded={false}
-      color={alertColor(isAVXMet)}
-    >
-      {#if isAVXMet}
-        <span class="font-bold">{$_("requirements_cpu_supportsAVX")}</span>
-      {:else if isAVXMet === undefined}
-        <span class="font-bold">{$_("requirements_cpu_unableToCheckAVX")}</span>
-      {:else}
-        <span class="font-bold">{$_("requirements_cpu_doesNotSupportAVX")}</span
-        >
-        <ul class="font-medium list-disc list-inside">
-          <li>{$_("requirements_cpu_avxExplanation_1")}</li>
-          <li>{$_("requirements_cpu_avxExplanation_2")}</li>
-          <li>
-            <a
-              class="font-bold text-blue-500"
-              target="_blank"
-              rel="noreferrer"
-              href="https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#CPUs_with_AVX"
-              >{$_("requirements_cpu_avxExplanation_3")}</a
-            >
-          </li>
-        </ul>
-      {/if}
-    </Alert>
+    {#if !isAVXMet}
+      <Alert
+        class="w-full text-start"
+        rounded={false}
+        color={alertColor(isAVXMet)}
+      >
+        {#if isAVXMet === undefined}
+          <span class="font-bold"
+            >{$_("requirements_cpu_unableToCheckAVX")}</span
+          >
+        {:else}
+          <span class="font-bold"
+            >{$_("requirements_cpu_doesNotSupportAVX")}</span
+          >
+          <ul class="font-medium list-disc list-inside">
+            <li>{$_("requirements_cpu_avxExplanation_1")}</li>
+            <li>{$_("requirements_cpu_avxExplanation_2")}</li>
+            <li>
+              <a
+                class="font-bold text-blue-500"
+                target="_blank"
+                rel="noreferrer"
+                href="https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#CPUs_with_AVX"
+                >{$_("requirements_cpu_avxExplanation_3")}</a
+              >
+            </li>
+          </ul>
+        {/if}
+      </Alert>
+    {/if}
   {:else if isTryingToUseARMOutsideOfMacOS}
     <Alert
       class="w-full text-start"
@@ -87,17 +90,13 @@
         >{$_("requirements_armNotSupportedOutsideMacOS")}</span
       >
     </Alert>
-  {:else}
+  {:else if !systemInfoState.isMinMacOSVersion}
     <Alert
       class="w-full text-start"
       rounded={false}
       color={alertColor(systemInfoState.isMinMacOSVersion)}
     >
-      {#if systemInfoState.isMinMacOSVersion}
-        <span class="font-bold"
-          >{$_("requirements_macos_atleastVersion15")}</span
-        >
-      {:else if systemInfoState.isMinMacOSVersion === undefined}
+      {#if systemInfoState.isMinMacOSVersion === undefined}
         <span class="font-bold"
           >{$_("requirements_macos_unableToCheckVersion")}</span
         >
@@ -108,91 +107,92 @@
       {/if}
     </Alert>
   {/if}
-  <Alert
-    class="w-full text-start"
-    rounded={false}
-    color={alertColor(isOpenGLMet)}
-  >
-    {#if isOpenGLMet}
-      <span class="font-bold">{$_("requirements_gpu_supportsOpenGL")}</span>
-    {:else if isOpenGLMet === undefined}
-      <span class="font-bold">{$_("requirements_gpu_unableToCheckOpenGL")}</span
-      >
-    {:else}
-      <span class="font-bold"
-        >{$_("requirements_gpu_doesNotSupportOpenGL")}</span
-      >
-      <ul class="font-medium list-disc list-inside">
-        <li>
-          {$_("requirements_gpu_avxExplanation_1_preLink")}
-          <a
-            class="font-bold text-blue-500"
-            target="_blank"
-            rel="noreferrer"
-            href="https://www.techpowerup.com/gpu-specs/"
-            >{$_("requirements_gpu_avxExplanation_1_link")}</a
-          >
-          {$_("requirements_gpu_avxExplanation_1_postLink")}
-        </li>
-        <li>{$_("requirements_gpu_avxExplanation_2")}</li>
-        <li>
-          {$_("requirements_gpu_avxExplanation_3")}
-        </li>
-      </ul>
-    {/if}
-  </Alert>
-  <Alert
-    class="w-full text-start"
-    rounded={false}
-    color={alertColor(isDiskSpaceMet)}
-  >
-    {#if isDiskSpaceMet}
-      <span class="font-bold"
-        >{$_(`requirements_disk_enoughSpace_${activeGame}`)}</span
-      >
-    {:else if isDiskSpaceMet === undefined}
-      <span class="font-bold">{$_(`requirements_disk_unableToCheckSpace`)}</span
-      >
-    {:else}
-      <span class="font-bold"
-        >{$_(`requirements_disk_notEnoughSpace_${activeGame}`)}</span
-      >
-    {/if}
-  </Alert>
-  {#if isVCCRelevant}
+
+  {#if !isOpenGLMet}
     <Alert
       class="w-full text-start"
       rounded={false}
-      color={alertColor(systemInfoState.isMinVCCRuntimeInstalled)}
+      color={alertColor(isOpenGLMet)}
     >
-      {#if systemInfoState.isMinVCCRuntimeInstalled}
+      {#if isOpenGLMet === undefined}
         <span class="font-bold"
-          >{$_("requirements_windows_vccRuntimeInstalled")}</span
-        >
-      {:else if systemInfoState.isMinVCCRuntimeInstalled === undefined}
-        <span class="font-bold"
-          >{$_("requirements_windows_cantCheckIfVccRuntimeInstalled")}</span
+          >{$_("requirements_gpu_unableToCheckOpenGL")}</span
         >
       {:else}
         <span class="font-bold"
-          >{$_("requirements_windows_vccRuntimeNotInstalled")}</span
+          >{$_("requirements_gpu_doesNotSupportOpenGL")}</span
         >
         <ul class="font-medium list-disc list-inside">
-          <li>{$_("requirements_windows_vccRuntimeExplanation")}</li>
           <li>
+            {$_("requirements_gpu_avxExplanation_1_preLink")}
             <a
               class="font-bold text-blue-500"
               target="_blank"
               rel="noreferrer"
-              href="https://aka.ms/vs/17/release/vc_redist.x64.exe"
-              >{$_(
-                "requirements_windows_vccRuntimeExplanation_downloadLink",
-              )}</a
+              href="https://www.techpowerup.com/gpu-specs/"
+              >{$_("requirements_gpu_avxExplanation_1_link")}</a
             >
+            {$_("requirements_gpu_avxExplanation_1_postLink")}
+          </li>
+          <li>{$_("requirements_gpu_avxExplanation_2")}</li>
+          <li>
+            {$_("requirements_gpu_avxExplanation_3")}
           </li>
         </ul>
       {/if}
     </Alert>
+  {/if}
+
+  {#if !isDiskSpaceMet}
+    <Alert
+      class="w-full text-start"
+      rounded={false}
+      color={alertColor(isDiskSpaceMet)}
+    >
+      {#if isDiskSpaceMet === undefined}
+        <span class="font-bold"
+          >{$_(`requirements_disk_unableToCheckSpace`)}</span
+        >
+      {:else}
+        <span class="font-bold"
+          >{$_(`requirements_disk_notEnoughSpace_${activeGame}`)}</span
+        >
+      {/if}
+    </Alert>
+  {/if}
+
+  {#if isVCCRelevant}
+    {#if !systemInfoState.isMinVCCRuntimeInstalled}
+      <Alert
+        class="w-full text-start"
+        rounded={false}
+        color={alertColor(systemInfoState.isMinVCCRuntimeInstalled)}
+      >
+        {#if systemInfoState.isMinVCCRuntimeInstalled === undefined}
+          <span class="font-bold"
+            >{$_("requirements_windows_cantCheckIfVccRuntimeInstalled")}</span
+          >
+        {:else}
+          <span class="font-bold"
+            >{$_("requirements_windows_vccRuntimeNotInstalled")}</span
+          >
+          <ul class="font-medium list-disc list-inside">
+            <li>{$_("requirements_windows_vccRuntimeExplanation")}</li>
+            <li>
+              <a
+                class="font-bold text-blue-500"
+                target="_blank"
+                rel="noreferrer"
+                href="https://aka.ms/vs/17/release/vc_redist.x64.exe"
+                >{$_(
+                  "requirements_windows_vccRuntimeExplanation_downloadLink",
+                )}</a
+              >
+            </li>
+          </ul>
+        {/if}
+      </Alert>
+    {/if}
   {/if}
   <div>
     <Button
@@ -204,6 +204,7 @@
       }}>{$_("requirements_button_recheck")}</Button
     >
     <Button
+      hidden={isVCCRelevant && !systemInfoState.isMinVCCRuntimeInstalled}
       class="border-solid border-2 border-slate-900 rounded bg-orange-800 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
       onclick={async () => {
         const confirmed = await confirm(
