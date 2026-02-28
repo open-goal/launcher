@@ -7,10 +7,10 @@
   } from "/src/state/requirements-store";
   import { _ } from "svelte-i18n";
   import { confirm } from "@tauri-apps/plugin-dialog";
-  import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { systemInfoState } from "/src/state/SystemInfoState.svelte";
+  import { route } from "/src/router";
 
-  let { activeGame }: { activeGame: SupportedGame } = $props();
+  const activeGame = $derived(route.params.game_name);
 
   function alertColor(val: boolean | undefined) {
     if (val === undefined) {

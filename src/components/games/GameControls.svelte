@@ -13,6 +13,7 @@
     Helper,
   } from "flowbite-svelte";
   import { resetGameSettings, uninstallGame } from "$lib/rpc/game";
+  import { route } from "/src/router";
   import {
     getLaunchGameString,
     launchGame,
@@ -32,10 +33,8 @@
 
   let {
     activeGame,
-    onGameUninstalled,
   }: {
     activeGame: SupportedGame;
-    onGameUninstalled: () => Promise<void>;
   } = $props();
   let textureSupportEnabled = $state(true);
   let gameDataDir: string | undefined = $state(undefined);
@@ -144,6 +143,7 @@
             params: { job_type: asJobType("decompile") },
             search: {
               activeGame: activeGame,
+              returnTo: route.pathname,
             },
           });
         }}
@@ -159,6 +159,7 @@
             params: { job_type: asJobType("compile") },
             search: {
               activeGame: activeGame,
+              returnTo: route.pathname,
             },
           });
         }}
@@ -241,7 +242,9 @@
           if (confirmed) {
             const successfulUninstall = await uninstallGame(activeGame);
             if (successfulUninstall) {
-              await onGameUninstalled();
+              navigate("/:game_name/", {
+                params: { game_name: activeGame },
+              });
             }
           }
         }}

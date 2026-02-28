@@ -1,25 +1,30 @@
 <script lang="ts">
-  import { getAutoUpdateGames } from "$lib/rpc/config";
-  import { type } from "@tauri-apps/plugin-os";
+  import { getAutoUpdateGames, getInstalledVersion } from "$lib/rpc/config";
   import { Button, Card } from "flowbite-svelte";
   import { createEventDispatcher, onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import { navigate } from "/src/router";
   import { versionState } from "/src/state/VersionState.svelte";
-  import { systemInfoState } from "/src/state/SystemInfoState.svelte";
   import { asJobType } from "$lib/job/jobs";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
+  import { route } from "/src/router";
+  import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
 
-  let {
-    activeGame,
-    installedVersion,
-  }: { activeGame: SupportedGame; installedVersion: String | undefined } =
-    $props();
+  const gameParam = $derived(route.params.game_name);
+  let activeGame: SupportedGame | undefined = $state(undefined);
+  let installedVersion: String | undefined = $state(undefined);
+
+  $effect(() => {
+    (async () => {
+      const g = toSupportedGame(gameParam);
+      if (g) {
+        activeGame = g;
+        installedVersion = await getInstalledVersion(activeGame);
+      }
+    })();
+  });
 
   const dispatch = createEventDispatcher();
-
-  let displayVCCWarning =
-    type() == "windows" && !systemInfoState.isMinVCCRuntimeInstalled;
 
   onMount(async () => {
     let shouldAutoUpdate = await getAutoUpdateGames();
@@ -56,49 +61,34 @@
         <strong>{versionState.activeToolingVersion}</strong>
       </li>
     </ul>
-    {#if displayVCCWarning}
-      <span class="font-bold"
-        >{$_("requirements_windows_vccRuntimeNotInstalled")}</span
+    <p class="mb-3">
+      {$_("gameUpdate_versionMismatch_nextSteps")}
+    </p>
+    <div
+      class="justify-center items-center space-y-4 sm:flex sm:space-y-0 sm:space-x-4"
+    >
+      <Button
+        class="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+        onclick={async () => {
+          navigate("/job/:job_type", {
+            params: {
+              job_type: asJobType("updateGame"),
+            },
+            search: {
+              activeGame: `${activeGame}`,
+              returnTo: `/${activeGame}`,
+            } as any,
+          });
+        }}>{$_("gameUpdate_versionMismatch_button_updateGame")}</Button
       >
-      <p>
-        {$_("gameUpdate_windows_vccRuntimeExplanation")}
-        <a
-          class="font-bold text-blue-500"
-          target="_blank"
-          rel="noreferrer"
-          href="https://aka.ms/vs/17/release/vc_redist.x64.exe"
-          >{$_("requirements_windows_vccRuntimeExplanation_downloadLink")}</a
-        >
-      </p>
-    {:else}
-      <p class="mb-3">
-        {$_("gameUpdate_versionMismatch_nextSteps")}
-      </p>
-      <div
-        class="justify-center items-center space-y-4 sm:flex sm:space-y-0 sm:space-x-4"
+      <Button
+        class="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+        onclick={async () => {
+          navigate(`/settings/:tab`, {
+            params: { tab: "versions" },
+          });
+        }}>{$_("gameUpdate_versionMismatch_button_changeVersion")}</Button
       >
-        <Button
-          class="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-          onclick={async () => {
-            navigate("/job/:job_type", {
-              params: {
-                job_type: asJobType("updateGame"),
-              },
-              search: {
-                activeGame: activeGame,
-              },
-            });
-          }}>{$_("gameUpdate_versionMismatch_button_updateGame")}</Button
-        >
-        <Button
-          class="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-          onclick={async () => {
-            navigate(`/settings/:tab`, {
-              params: { tab: "versions" },
-            });
-          }}>{$_("gameUpdate_versionMismatch_button_changeVersion")}</Button
-        >
-      </div>
-    {/if}
+    </div>
   </Card>
 </div>

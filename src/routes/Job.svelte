@@ -177,7 +177,12 @@
       proceedAfterSuccessfulOperation
     ) {
       jobTracker.clear();
-      navigate(-1);
+      const returnTo = searchParams.get("returnTo")?.toString();
+      if (returnTo) {
+        navigate(returnTo as any);
+      } else {
+        navigate(-1);
+      }
     }
   });
 </script>
