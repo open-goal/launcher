@@ -1,6 +1,7 @@
 <script lang="ts">
   import { revealItemInDir } from "@tauri-apps/plugin-opener";
   import IconArrowLeft from "~icons/mdi/arrow-left";
+  import OpenInNew from "~icons/mdi/open-in-new";
   import IconCog from "~icons/mdi/cog";
   import { join } from "@tauri-apps/api/path";
   import { onDestroy, onMount } from "svelte";
@@ -217,11 +218,27 @@
   <div
     class="[margin-left:35%] p-3 rounded-lg flex flex-col justify-end items-end mt-auto [background-color:rgba(0,0,0,.5)]"
   >
-    <h1
-      class="tracking-tighter text-2xl font-bold pb-2 text-orange-500 text-outline pointer-events-none"
-    >
-      {modInfo.displayName}
-    </h1>
+    {#if modInfo && modInfo.websiteUrl != undefined}
+      <!-- Have website, make name a link and show icon -->
+      <a
+        class="inline-flex tracking-tighter font-bold pb-2 text-outline text-orange-500 hover:text-orange-600 items-center"
+        target="_blank"
+        rel="noreferrer"
+        href={modInfo.websiteUrl}
+      >
+        <h1 class="text-2xl">
+          {modInfo.displayName}
+        </h1>
+        &nbsp;<OpenInNew />
+      </a>
+    {:else}
+      <!-- No website, just show name -->
+      <h1
+        class="tracking-tighter text-2xl font-bold pb-2 text-orange-500 text-outline pointer-events-none"
+      >
+        {modInfo.displayName}
+      </h1>
+    {/if}
     <h1
       class="tracking-tighter pb-2 font-bold text-outline text-justify [text-align-last:right]"
     >
