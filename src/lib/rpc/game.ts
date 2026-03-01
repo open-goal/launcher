@@ -1,4 +1,5 @@
 import { invoke_rpc } from "./rpc";
+import { toastStore } from "$lib/stores/ToastStore";
 
 export async function uninstallGame(gameName: string): Promise<boolean> {
   return await invoke_rpc(
@@ -14,7 +15,10 @@ export async function resetGameSettings(gameName: string): Promise<void> {
     "reset_game_settings",
     { gameName },
     () => {},
-    "Unable to reset game settings",
+    "_mirror_",
+    () => {
+      toastStore.makeToast(`${gameName} settings reset`, "info");
+    },
   );
 }
 
