@@ -77,7 +77,7 @@ pub async fn list_extracted_texture_pack_info(
           CommandError::GameFeatures(format!("Unable to get directory name for {:?}", entry_path))
         })?;
       // Get a list of all texture files for this pack
-      log::info!("Texture pack dir name: {}", directory_name);
+      // log::info!("Texture pack dir name: {}", directory_name); // not convinced logging this is essential
       let mut file_list = Vec::new();
       for entry in glob::glob(
         &entry_path
