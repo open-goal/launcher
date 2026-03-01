@@ -12,7 +12,7 @@ import TexturePacks from "./components/games/features/texture-packs/TexturePacks
 // @ts-ignore
 import UpdateLauncher from "./routes/UpdateLauncher.svelte";
 // @ts-ignore
-import Layout from "./routes/layouts/Layout.svelte";
+import Layout from "./layouts/Layout.svelte";
 // @ts-ignore
 import Job from "./routes/Job.svelte";
 // @ts-ignore
