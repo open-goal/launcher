@@ -41,7 +41,9 @@
         id="jak1"
         class={getNavItemStyle("jak1", route.pathname)}
         onclick={async () => {
-          navigate(`/:game_name`, { params: { game_name: "jak1" } });
+          navigate(`/:game_name/`, {
+            params: { game_name: "jak1" },
+          });
         }}
         {disabled}
       >
@@ -60,7 +62,9 @@
         id="jak2"
         class={getNavItemStyle("jak2", route.pathname)}
         onclick={async () => {
-          navigate(`/:game_name`, { params: { game_name: "jak2" } });
+          navigate(`/:game_name/`, {
+            params: { game_name: "jak2" },
+          });
         }}
         {disabled}
       >
@@ -75,7 +79,9 @@
         id="jak3"
         class={getNavItemStyle("jak3", route.pathname)}
         onclick={async () => {
-          navigate(`/:game_name`, { params: { game_name: "jak3" } });
+          navigate(`/:game_name/`, {
+            params: { game_name: "jak3" },
+          });
         }}
         {disabled}
       >
@@ -90,7 +96,9 @@
         id="settings"
         class={getNavItemStyle("settings", route.pathname)}
         onclick={async () => {
-          navigate(`/settings/:tab`, { params: { tab: "general" } });
+          navigate(`/settings/:tab`, {
+            params: { tab: "general" },
+          });
         }}
         {disabled}
       >

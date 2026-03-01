@@ -39,7 +39,7 @@
     getModAssetUrl,
     isVersionSupportedOnPlatform,
   } from "$lib/features/mods";
-  import { navigate } from "/src/router";
+  import { navigate, route } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import { getModInfo } from "$lib/rpc/bindings/utils/ModInfo";
@@ -76,6 +76,7 @@
         modSourceName: modSource,
         modDownloadUrl: url,
         modVersion: modVersion,
+        returnTo: route.pathname,
       },
     });
   }
@@ -381,6 +382,7 @@
                   activeGame: activeGame,
                   modName: modName,
                   modSourceName: modSource,
+                  returnTo: route.pathname,
                 },
               });
             }}
@@ -400,6 +402,7 @@
                   activeGame: activeGame,
                   modName: modName,
                   modSourceName: modSource,
+                  returnTo: route.pathname,
                 },
               });
             }}

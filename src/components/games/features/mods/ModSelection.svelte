@@ -76,6 +76,7 @@
         modName: modName,
         modSourceName: "_local",
         modVersion: "local",
+        returnTo: route.pathname,
       },
     });
   }
@@ -94,7 +95,7 @@
           class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
           onclick={async () => {
             if (activeGame) {
-              navigate(`/:game_name`, { params: { game_name: activeGame } });
+              navigate(`/:game_name/`, { params: { game_name: activeGame } });
             }
           }}
           aria-label={$_("features_backToGamePage_buttonAlt")}

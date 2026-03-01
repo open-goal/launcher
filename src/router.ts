@@ -15,7 +15,24 @@ import UpdateLauncher from "./routes/UpdateLauncher.svelte";
 import Layout from "./routes/layouts/Layout.svelte";
 // @ts-ignore
 import Job from "./routes/Job.svelte";
+// @ts-ignore
+import GameToolsNotSet from "./components/games/GameToolsNotSet.svelte";
+// @ts-ignore
+import GameNotSupportedByTooling from "./components/games/GameNotSupportedByTooling.svelte";
+// @ts-ignore
+import GameSetup from "./components/job/GameSetup.svelte";
+// @ts-ignore
+import GameUpdate from "./components/job/GameUpdate.svelte";
 import { versionState } from "./state/VersionState.svelte";
+import {
+  doesActiveToolingVersionSupportGame,
+  getInstalledVersion,
+  isGameInstalled,
+} from "$lib/rpc/config";
+import { ensureActiveVersionStillExists } from "$lib/rpc/versions";
+import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
+import Requirements from "./components/job/Requirements.svelte";
+import { requirementsStore } from "./state/requirements-store";
 
 export const { p, navigate, isActive, route } = createRouter({
   "/": Game,
@@ -23,7 +40,8 @@ export const { p, navigate, isActive, route } = createRouter({
     // simplify things -- stop having to worry about treating '/' differently
     beforeLoad({ pathname }) {
       if (pathname === "/") {
-        throw navigate("/:game_name", { params: { game_name: "jak1" } });
+        // simple redirect to default game
+        throw navigate("/jak1" as any);
       }
     },
   },
@@ -36,7 +54,71 @@ export const { p, navigate, isActive, route } = createRouter({
   },
   // has to go last because it can match some of the above
   "/:game_name": {
-    "/": Game,
+    "/": {
+      "/": Game,
+      hooks: {
+        async beforeLoad(context) {
+          const { params } = context as any;
+          if (!params || !params.game_name) {
+            return;
+          }
+
+          const activeGame = toSupportedGame(params.game_name);
+          if (!activeGame) {
+            return;
+          }
+
+          // TODO: TEMPORARY REMOVE WHEN JAK3 RELEASED
+          if (activeGame === "jak3") {
+            return;
+          }
+
+          const currentRequirements =
+            await requirementsStore.refresh(activeGame);
+          if (!currentRequirements.requirementsMet) {
+            throw navigate("/:game_name/requirements", {
+              params: { game_name: params.game_name },
+            });
+          }
+
+          if (versionState.activeToolingVersion === null) {
+            throw navigate("/:game_name/tools-not-set", {
+              params: { game_name: params.game_name },
+            });
+          }
+
+          const activeVersionExists = await ensureActiveVersionStillExists();
+          if (activeVersionExists) {
+            const supported =
+              await doesActiveToolingVersionSupportGame(activeGame);
+            if (!supported) {
+              throw navigate("/:game_name/not-supported", {
+                params: { game_name: params.game_name },
+              });
+            }
+          }
+
+          const installed = await isGameInstalled(activeGame);
+          if (!installed) {
+            throw navigate("/:game_name/setup", {
+              params: { game_name: params.game_name },
+            });
+          }
+
+          const installedVersion = await getInstalledVersion(activeGame);
+          if (installedVersion !== versionState.activeToolingVersion) {
+            throw navigate("/:game_name/update", {
+              params: { game_name: params.game_name },
+            });
+          }
+        },
+      },
+    },
+    "/tools-not-set": GameToolsNotSet,
+    "/not-supported": GameNotSupportedByTooling,
+    "/setup": GameSetup,
+    "/update": GameUpdate,
+    "/requirements": Requirements,
     "/mods": {
       "/": ModSelection,
       "/:source_name/:mod_name": {
