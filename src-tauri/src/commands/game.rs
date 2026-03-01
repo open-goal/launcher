@@ -201,10 +201,6 @@ pub async fn get_furthest_game_milestone(
         .join(game_name.to_string())
         .join("saves");
       if !expected_dir.exists() {
-        info!(
-          "Expected save directory {} does not exist",
-          expected_dir.display()
-        );
         return Ok("geyser".to_owned());
       }
       expected_dir

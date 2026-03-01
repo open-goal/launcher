@@ -128,6 +128,7 @@ fn main() {
         .level(log::LevelFilter::Debug)
         .filter(|metadata| metadata.target() != "tao::platform_impl::platform::event_loop::runner") // suppress tauri log spam (windows only)
         // - and per-module overrides
+        .level_for("tauri_plugin_updater::updater", log::LevelFilter::Info) // filter updater log spam
         // .level_for("opengoal-launcher", log::LevelFilter::Debug)
         // Output to stdout, files, and other Dispatch configurations
         .chain(std::io::stdout())

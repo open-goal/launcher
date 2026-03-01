@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import { isLoading } from "svelte-i18n";
-  import Background from "../../components/background/Background.svelte";
-  import Header from "../../components/header/Header.svelte";
-  import Sidebar from "../../components/sidebar/Sidebar.svelte";
-  import Toast from "../../components/toast/Toast.svelte";
+  import Background from "../components/background/Background.svelte";
+  import Header from "../components/header/Header.svelte";
+  import Sidebar from "../components/sidebar/Sidebar.svelte";
+  import Toast from "../components/toast/Toast.svelte";
   import { route } from "/src/router";
 
   let { children }: { children: Snippet } = $props();
