@@ -60,7 +60,6 @@ pub fn get_installed_vcc_runtime() -> Option<semver::Version> {
       minor_version.into(),
       patch_version.into(),
     );
-    log::info!("Detected VCC Runtime: {major_version}.{minor_version}.{patch_version}");
     return Some(installed_version);
   }
   return None;
