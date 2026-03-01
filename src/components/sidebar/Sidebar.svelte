@@ -98,7 +98,6 @@
         onclick={async () => {
           navigate(`/settings/:tab`, {
             params: { tab: "general" },
-            search: {},
           });
         }}
         {disabled}
@@ -115,7 +114,7 @@
         id="faq"
         class={getNavItemStyle("faq", route.pathname)}
         onclick={async () => {
-          navigate(`/faq`, { search: {} });
+          navigate(`/faq`);
         }}
         {disabled}
       >
