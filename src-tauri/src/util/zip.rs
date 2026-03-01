@@ -123,8 +123,10 @@ pub fn check_if_zip_contains_top_level_entry<P: AsRef<Path>>(
 
   for i in 0..zip.len() {
     let file = zip.by_index(i)?;
-    info!("{}", file.name());
-    if file.name().starts_with(&expected) {
+    let name = file.name();
+    info!("{}", name);
+    let name_lower = name.to_lowercase();
+    if name_lower.starts_with(&expected) {
       return Ok(true);
     }
   }
