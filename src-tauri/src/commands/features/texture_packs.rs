@@ -240,7 +240,6 @@ pub async fn extract_new_texture_pack(
     Some(path) => Path::new(path),
   };
 
-  // First, we'll check the zip file to make sure it has a `custom_assets/<game>/texture_replacements` folder before extracting
   let zip_path_buf = PathBuf::from(zip_path);
   let texture_pack_name = match zip_path_buf.file_stem() {
     Some(name) => name.to_string_lossy().to_string(),
