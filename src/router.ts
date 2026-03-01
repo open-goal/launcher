@@ -68,7 +68,7 @@ export const { p, navigate, isActive, route } = createRouter({
             return;
           }
 
-          // TEMPORARY REMOVE WHEN JAK3 RELEASED
+          // TODO: TEMPORARY REMOVE WHEN JAK3 RELEASED
           if (activeGame === "jak3") {
             return;
           }
