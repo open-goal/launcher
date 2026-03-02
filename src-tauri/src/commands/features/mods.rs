@@ -77,10 +77,7 @@ pub async fn extract_new_mod(
       CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
     })?;
   } else if cfg!(unix) {
-    extract_tar_ball(&bundle_path_buf, destination_dir).map_err(|err| {
-      log::error!("Unable to extract mod: {}", err);
-      CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
-    })?;
+    extract_tar_ball(&bundle_path_buf, destination_dir)?;
   } else {
     Err(CommandError::VersionManagement(
       "Unknown operating system, unable to download and extract mod".to_owned(),
@@ -145,10 +142,7 @@ pub async fn download_and_extract_new_mod(
       CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
     })?;
   } else if cfg!(unix) {
-    extract_and_delete_tar_ball(download_path, parent_path).map_err(|err| {
-      log::error!("Unable to extract mod: {}", err);
-      CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
-    })?;
+    extract_and_delete_tar_ball(download_path, parent_path)?;
   } else {
     Err(CommandError::VersionManagement(
       "Unknown operating system, unable to download and extract mod".to_owned(),

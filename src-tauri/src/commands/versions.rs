@@ -147,13 +147,8 @@ pub async fn download_version(
       CommandError::VersionManagement("Unable to successfully download version".to_owned())
     })?;
 
-    // Extract the zip file
-    extract_and_delete_tar_ball(&download_path, &dest_dir).map_err(|err| {
-      log::error!("unable to extract and delete version tar.gz file {}", err);
-      CommandError::VersionManagement(
-        "Unable to successfully extract downloaded version".to_owned(),
-      )
-    })?;
+    // Extract the tar file
+    extract_and_delete_tar_ball(download_path, &dest_dir)?;
 
     // Verify that the extracted files seem correct (look for extractor.exe)
     let expected_extractor_path = dest_dir.join("extractor");
