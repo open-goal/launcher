@@ -3,6 +3,7 @@ use std::{
   path::{Path, PathBuf},
 };
 
+use anyhow::Context;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -264,11 +265,12 @@ pub async fn update_texture_pack_data(
 
       log::info!("Appending textures from: {}", texture_pack_dir.display());
 
+      // strange, but I can't worry about it right now.
       if let Err(err) = overwrite_dir(&texture_pack_dir, &game_texture_pack_dir) {
-        log::error!("Unable to update texture replacements: {}", err);
+        log::error!("{:#}", err);
         return Ok(GameJobStepOutput {
           success: false,
-          msg: Some(format!("Unable to update texture replacements: {}", err)),
+          msg: Some(err.to_string()),
         });
       }
     }

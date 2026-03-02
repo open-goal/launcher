@@ -109,9 +109,7 @@ fn copy_data_dir(
 
   info!("Copying {} into {}", src_dir.display(), dst_dir.display());
 
-  overwrite_dir(&src_dir, &dst_dir).map_err(|err| {
-    CommandError::Installation(format!("Unable to copy data directory: '{err}'",))
-  })?;
+  overwrite_dir(&src_dir, &dst_dir)?;
   Ok(())
 }
 

@@ -26,13 +26,21 @@ pub fn create_dir(path: &Path) -> Result<()> {
   Ok(())
 }
 
-pub fn overwrite_dir(src: &PathBuf, dst: &PathBuf) -> Result<(), fs_extra::error::Error> {
+pub fn overwrite_dir(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> Result<()> {
+  let src = src.as_ref();
+  let dst = dst.as_ref();
   if src.exists() {
-    let mut options = fs_extra::dir::CopyOptions::new();
-    options.copy_inside = true;
-    options.overwrite = true;
-    options.content_only = true;
-    fs_extra::dir::copy(src, dst, &options)?;
+    let options = fs_extra::dir::CopyOptions::new()
+      .copy_inside(true)
+      .overwrite(true)
+      .content_only(true);
+    fs_extra::dir::copy(src, dst, &options).with_context(|| {
+      format!(
+        "Unable to copy directory from {} to {}",
+        src.display(),
+        dst.display()
+      )
+    })?;
   }
   Ok(())
 }
