@@ -41,6 +41,7 @@ export async function extractNewTexturePack(
       zipPath: pathToZip,
     },
     () => undefined,
+    "_mirror_",
   );
 }
 

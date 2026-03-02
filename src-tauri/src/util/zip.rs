@@ -1,3 +1,4 @@
+use crate::util::file::{delete_dir, overwrite_dir};
 use log::info;
 use std::io::{BufReader, Cursor};
 use std::path::PathBuf;
@@ -123,10 +124,58 @@ pub fn check_if_zip_contains_top_level_entry<P: AsRef<Path>>(
 
   for i in 0..zip.len() {
     let file = zip.by_index(i)?;
-    info!("{}", file.name());
-    if file.name().starts_with(&expected) {
+    let name = file.name();
+    info!("{}", name);
+    let name_lower = name.to_lowercase();
+    if name_lower.starts_with(&expected) {
       return Ok(true);
     }
   }
   Ok(false)
+}
+
+/// Extracts an archive into `extract_dir`, and attempts to normalize cases where
+/// the contents are wrapped in an extra top‑level directory.
+pub fn extract_zip_with_expected<P: AsRef<Path>>(
+  zip_path: P,
+  extract_dir: &Path,
+  expected: &str,
+) -> Result<bool, Box<dyn std::error::Error>> {
+  // scan for prefix
+  let file = File::open(&zip_path)?;
+  let reader = BufReader::new(file);
+  let mut zip = zip::ZipArchive::new(reader)?;
+  let mut prefix: Option<String> = None;
+  for i in 0..zip.len() {
+    let name = zip.by_index(i)?.name().to_string();
+    let name_lower = name.to_lowercase();
+    if let Some(idx) = name_lower.find(expected) {
+      let mut pre = &name[..idx];
+      if pre.ends_with('/') {
+        pre = &pre[..pre.len() - 1];
+      }
+      prefix = Some(pre.to_string());
+      break;
+    }
+  }
+  if prefix.is_none() {
+    return Ok(false);
+  }
+
+  // extract everything first
+  extract_zip_file(&zip_path.as_ref().to_path_buf(), extract_dir, false)?;
+
+  if let Some(p) = prefix {
+    if !p.is_empty() {
+      let src = extract_dir.join(&p);
+      if src.exists() {
+        // copy nested contents up
+        overwrite_dir(&src, &extract_dir.to_path_buf())?;
+        if let Some(root) = p.split('/').next() {
+          let _ = delete_dir(&extract_dir.join(root));
+        }
+      }
+    }
+  }
+  Ok(true)
 }

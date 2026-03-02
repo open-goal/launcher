@@ -11,7 +11,7 @@ use crate::{
   config::{LauncherConfig, SupportedGame},
   util::{
     file::{create_dir, delete_dir, overwrite_dir},
-    zip::{check_if_zip_contains_top_level_entry, extract_zip_file},
+    zip::extract_zip_with_expected,
   },
 };
 
@@ -77,7 +77,7 @@ pub async fn list_extracted_texture_pack_info(
           CommandError::GameFeatures(format!("Unable to get directory name for {:?}", entry_path))
         })?;
       // Get a list of all texture files for this pack
-      log::info!("Texture pack dir name: {}", directory_name);
+      // log::info!("Texture pack dir name: {}", directory_name); // not convinced logging this is essential
       let mut file_list = Vec::new();
       for entry in glob::glob(
         &entry_path
@@ -159,6 +159,71 @@ pub async fn list_extracted_texture_pack_info(
   Ok(package_map)
 }
 
+async fn try_extract_v1_pack(
+  zip_path_buf: &PathBuf,
+  destination_dir: &PathBuf,
+  game_name: SupportedGame,
+) -> Result<(), CommandError> {
+  let destination_dir = &destination_dir
+    .join("custom_assets")
+    .join(game_name.to_string());
+
+  create_dir(destination_dir).map_err(|err| {
+    log::error!("Unable to create directory for texture pack: {}", err);
+    CommandError::GameFeatures(format!(
+      "Unable to create directory for texture pack: {}",
+      err
+    ))
+  })?;
+
+  // old format: `texture_replacements/page_name/txt.png`
+  let expected_top_level_dir = format!("texture_replacements");
+
+  let ok = extract_zip_with_expected(&zip_path_buf, destination_dir, &expected_top_level_dir)
+    .map_err(|err| {
+      log::error!("Unable to extract replacement pack: {}", err);
+      CommandError::GameFeatures(format!("Unable to extract texture pack: {}", err))
+    })?;
+  if !ok {
+    return Err(CommandError::GameFeatures(format!(
+      "Invalid texture pack, no top-level `{}` folder in: {}",
+      &expected_top_level_dir,
+      zip_path_buf.display(),
+    )));
+  }
+  Ok(())
+}
+
+async fn try_extract_v2_pack(
+  zip_path_buf: &PathBuf,
+  destination_dir: &PathBuf,
+  game_name: SupportedGame,
+) -> Result<(), CommandError> {
+  // ensure directory exists (old contents will be overwritten if any)
+  create_dir(destination_dir).map_err(|err| {
+    log::error!("Unable to create directory for texture pack: {}", err);
+    CommandError::GameFeatures(format!(
+      "Unable to create directory for texture pack: {}",
+      err
+    ))
+  })?;
+  // new format: `custom_assets/game_name/texture_replacements/page_name/txt.png`
+  let expected_top_level_dir = format!("custom_assets/{game_name}/texture_replacements");
+  let ok = extract_zip_with_expected(&zip_path_buf, destination_dir, &expected_top_level_dir)
+    .map_err(|err| {
+      log::error!("Unable to extract replacement pack: {}", err);
+      CommandError::GameFeatures(format!("Unable to extract texture pack: {}", err))
+    })?;
+  if !ok {
+    return Err(CommandError::GameFeatures(format!(
+      "Invalid texture pack, no top-level `{}` folder in: {}",
+      &expected_top_level_dir,
+      zip_path_buf.display(),
+    )));
+  }
+  Ok(())
+}
+
 #[tauri::command]
 pub async fn extract_new_texture_pack(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -175,7 +240,6 @@ pub async fn extract_new_texture_pack(
     Some(path) => Path::new(path),
   };
 
-  // First, we'll check the zip file to make sure it has a `custom_assets/<game>/texture_replacements` folder before extracting
   let zip_path_buf = PathBuf::from(zip_path);
   let texture_pack_name = match zip_path_buf.file_stem() {
     Some(name) => name.to_string_lossy().to_string(),
@@ -185,38 +249,23 @@ pub async fn extract_new_texture_pack(
       ));
     }
   };
-  let expected_top_level_dir = format!("custom_assets/{game_name}/texture_replacements");
-  let valid_zip = check_if_zip_contains_top_level_entry(&zip_path_buf, &expected_top_level_dir)
-    .map_err(|err| {
-      log::error!("Unable to read texture replacement zip file: {}", err);
-      CommandError::GameFeatures(format!("Unable to read texture replacement pack: {}", err))
-    })?;
-  if !valid_zip {
-    log::error!(
-      "Invalid texture pack, no top-level `{}` folder in: {}",
-      &expected_top_level_dir,
-      zip_path_buf.display()
-    );
-    return Ok(false);
-  }
-  // It's valid, let's extract it.  The name of the zip becomes the folder, if one already exists it will be deleted!
+
   let destination_dir = &install_path
     .join("features")
     .join(game_name.to_string())
     .join("texture-packs")
     .join(&texture_pack_name);
-  // TODO - delete it
-  create_dir(destination_dir).map_err(|err| {
-    log::error!("Unable to create directory for texture pack: {}", err);
-    CommandError::GameFeatures(format!(
-      "Unable to create directory for texture pack: {}",
-      err
-    ))
-  })?;
-  extract_zip_file(&zip_path_buf, destination_dir, false).map_err(|err| {
-    log::error!("Unable to extract replacement pack: {}", err);
-    CommandError::GameFeatures(format!("Unable to extract texture pack: {}", err))
-  })?;
+
+  match try_extract_v2_pack(&zip_path_buf, destination_dir, game_name).await {
+    Ok(_) => (),
+    Err(err) => {
+      log::error!(
+        "Failed to extract texture pack with v2 format: {}, trying old format...",
+        err
+      );
+      try_extract_v1_pack(&zip_path_buf, destination_dir, game_name).await?;
+    }
+  }
   Ok(true)
 }
 
