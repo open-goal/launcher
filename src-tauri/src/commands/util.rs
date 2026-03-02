@@ -101,13 +101,12 @@ pub async fn is_minimum_vcc_runtime_installed() -> Result<bool, CommandError> {
   use crate::util::os::get_installed_vcc_runtime;
 
   let minimum_version = semver::Version::new(14, 40, 33810);
-  let installed_vcc_runtime_version = get_installed_vcc_runtime();
-  if installed_vcc_runtime_version.is_none() {
-    Err(CommandError::Configuration(
-      "Unable to check if VCC runtime is installed".to_owned(),
-    ))
-  } else {
-    Ok(installed_vcc_runtime_version.unwrap() >= minimum_version)
+  match get_installed_vcc_runtime() {
+    Ok(installed_version) => Ok(installed_version >= minimum_version),
+    Err(err) => Err(CommandError::Configuration(format!(
+      "Unable to check if VCC runtime is installed: {:?}",
+      err
+    ))),
   }
 }
 
