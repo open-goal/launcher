@@ -45,16 +45,15 @@ pub fn overwrite_dir(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> Result<()>
   Ok(())
 }
 
-pub fn touch_file(path: &PathBuf) -> std::io::Result<()> {
-  match std::fs::OpenOptions::new()
+pub fn touch_file(path: impl AsRef<Path>) -> Result<()> {
+  let path = path.as_ref();
+  std::fs::OpenOptions::new()
     .create(true)
     .truncate(true)
     .write(true)
     .open(path)
-  {
-    Ok(_) => Ok(()),
-    Err(e) => Err(e),
-  }
+    .with_context(|| format!("Failed to touch file: {}", path.display()))?;
+  Ok(())
 }
 
 pub fn get_image_file_type(hex: &str) -> &str {

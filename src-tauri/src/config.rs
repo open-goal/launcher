@@ -11,6 +11,7 @@
 
 use crate::commands::CommandError;
 use crate::util::file::create_dir;
+use anyhow::Context;
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -396,15 +397,8 @@ impl LauncherConfig {
 
     // Check our permissions on the folder by touching a file (and deleting it)
     let test_file = path.join(".perm-test.tmp");
-    if let Err(e) = touch_file(&test_file) {
-      log::error!(
-        "Provided installation folder could not be written to: {}",
-        e
-      );
-      return Err(ConfigError::Configuration(
-        "Provided folder cannot be written to".to_owned(),
-      ));
-    }
+    touch_file(&test_file)
+      .with_context(|| format!("Provided installation folder could not be written to."))?;
 
     // If the directory changes (it's not a no-op), we need to:
     // - wipe any installed games (make them reinstall)
