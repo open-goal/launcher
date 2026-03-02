@@ -33,7 +33,7 @@
     resetModSettings,
     uninstallMod,
   } from "$lib/rpc/features";
-  import { pathExists } from "$lib/rpc/util";
+  import { exists } from "@tauri-apps/plugin-fs";
   import { getModSourcesData } from "$lib/rpc/cache";
   import {
     getModAssetUrl,
@@ -123,7 +123,7 @@
         activeGame,
         "settings",
       );
-      if (!(await pathExists(settingsDir))) {
+      if (!(await exists(settingsDir))) {
         settingsDir = undefined;
       }
       savesDir = await join(
@@ -138,7 +138,7 @@
         activeGame,
         "saves",
       );
-      if (!(await pathExists(savesDir))) {
+      if (!(await exists(savesDir))) {
         savesDir = undefined;
       }
     }

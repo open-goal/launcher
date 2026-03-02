@@ -219,7 +219,6 @@ fn main() {
       commands::util::is_diskspace_requirement_met,
       commands::util::is_macos_version_15_or_above,
       commands::util::is_minimum_vcc_runtime_installed,
-      commands::util::path_exists,
       commands::versions::download_version,
       commands::versions::ensure_active_version_still_exists,
       commands::versions::list_downloaded_versions,
