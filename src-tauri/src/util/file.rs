@@ -18,11 +18,11 @@ pub fn delete_dir(path: impl AsRef<Path>) -> Result<()> {
   Ok(())
 }
 
-pub fn create_dir(path: &Path) -> Result<(), std::io::Error> {
-  if path.exists() {
-    return Ok(());
+pub fn create_dir(path: &Path) -> Result<()> {
+  if !path.exists() {
+    std::fs::create_dir_all(path)
+      .with_context(|| format!("Failed to create directory: {}", path.display()))?;
   }
-  std::fs::create_dir_all(path)?;
   Ok(())
 }
 

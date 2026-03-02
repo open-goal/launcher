@@ -87,12 +87,7 @@ pub async fn download_version(
 
   // Delete the directory if it exists, and create it from scratch
   delete_dir(&dest_dir)?;
-  create_dir(&dest_dir).map_err(|_| {
-    CommandError::VersionManagement(format!(
-      "Unable to prepare destination folder '{}' for download",
-      dest_dir.display()
-    ))
-  })?;
+  create_dir(&dest_dir)?;
 
   if cfg!(windows) {
     let download_path = install_path

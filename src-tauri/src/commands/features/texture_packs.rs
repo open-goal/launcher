@@ -206,13 +206,7 @@ pub async fn extract_new_texture_pack(
     .join("texture-packs")
     .join(&texture_pack_name);
   // TODO - delete it
-  create_dir(destination_dir).map_err(|err| {
-    log::error!("Unable to create directory for texture pack: {}", err);
-    CommandError::GameFeatures(format!(
-      "Unable to create directory for texture pack: {}",
-      err
-    ))
-  })?;
+  create_dir(destination_dir)?;
   extract_zip_file(&zip_path_buf, destination_dir, false).map_err(|err| {
     log::error!("Unable to extract replacement pack: {}", err);
     CommandError::GameFeatures(format!("Unable to extract texture pack: {}", err))

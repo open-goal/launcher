@@ -67,10 +67,7 @@ pub async fn extract_new_mod(
     .join(mod_source)
     .join(&mod_name);
   delete_dir(destination_dir)?;
-  create_dir(destination_dir).map_err(|err| {
-    log::error!("Unable to create directory for mod: {}", err);
-    CommandError::GameFeatures(format!("Unable to create directory for mod: {}", err))
-  })?;
+  create_dir(destination_dir)?;
   if cfg!(windows) {
     extract_zip_file(&bundle_path_buf, destination_dir, false).map_err(|err| {
       log::error!("Unable to extract mod: {}", err);
@@ -118,10 +115,7 @@ pub async fn download_and_extract_new_mod(
   let download_path = &parent_path.join(format!("{mod_name}.zip"));
 
   delete_dir(parent_path)?;
-  create_dir(parent_path).map_err(|err| {
-    log::error!("Unable to create directory for mod: {}", err);
-    CommandError::GameFeatures(format!("Unable to create directory for mod: {}", err))
-  })?;
+  create_dir(parent_path)?;
   download_file(&download_url, download_path)
     .await
     .map_err(|err| {
