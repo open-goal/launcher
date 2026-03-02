@@ -86,12 +86,7 @@ pub async fn download_version(
     .join(&version);
 
   // Delete the directory if it exists, and create it from scratch
-  delete_dir(&dest_dir).map_err(|_| {
-    CommandError::VersionManagement(format!(
-      "Unable to prepare destination folder '{}' for download",
-      dest_dir.display()
-    ))
-  })?;
+  delete_dir(&dest_dir)?;
   create_dir(&dest_dir).map_err(|_| {
     CommandError::VersionManagement(format!(
       "Unable to prepare destination folder '{}' for download",
@@ -124,12 +119,7 @@ pub async fn download_version(
         "Version did not extract properly, {} is missing!",
         expected_extractor_path.display()
       );
-      delete_dir(&dest_dir).map_err(|_| {
-        CommandError::VersionManagement(format!(
-          "Unable to prepare destination folder '{}' for download",
-          dest_dir.display()
-        ))
-      })?;
+      delete_dir(&dest_dir)?;
       return Err(CommandError::VersionManagement(
         "Version did not extract properly, critical files are missing. An antivirus may have deleted the files!"
         .to_owned()
@@ -157,12 +147,7 @@ pub async fn download_version(
         "Version did not extract properly, {} is missing!",
         expected_extractor_path.display()
       );
-      delete_dir(&dest_dir).map_err(|_| {
-        CommandError::VersionManagement(format!(
-          "Unable to prepare destination folder '{}' for download",
-          dest_dir.display()
-        ))
-      })?;
+      delete_dir(&dest_dir)?;
       return Err(CommandError::VersionManagement(
         "Version did not extract properly, critical files are missing. An antivirus may have deleted the files!"
         .to_owned()

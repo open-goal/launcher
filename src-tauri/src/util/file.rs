@@ -1,5 +1,6 @@
 extern crate rustc_serialize;
 
+use anyhow::{Context, Result};
 use rustc_serialize::base64::{MIME, ToBase64};
 use rustc_serialize::hex::ToHex;
 use std::{
@@ -8,16 +9,11 @@ use std::{
   path::{Path, PathBuf},
 };
 
-pub fn delete_dir<T: AsRef<Path>>(path: T) -> Result<(), std::io::Error> {
-  if path.as_ref().exists() && path.as_ref().is_dir() {
-    std::fs::remove_dir_all(path)?;
-  } else {
-    log::warn!(
-      "Not deleting dir: {:?} as it does not exist ({}) or is not a directory ({})",
-      path.as_ref(),
-      path.as_ref().exists(),
-      path.as_ref().is_dir()
-    )
+pub fn delete_dir(path: impl AsRef<Path>) -> Result<()> {
+  let path = path.as_ref();
+  if path.is_dir() {
+    std::fs::remove_dir_all(path)
+      .with_context(|| format!("Failed to delete directory: {}", path.display()))?;
   }
   Ok(())
 }
