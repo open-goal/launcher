@@ -25,6 +25,8 @@ use crate::util::file::touch_file;
 #[derive(Debug, thiserror::Error)]
 pub enum ConfigError {
   #[error(transparent)]
+  Anyhow(#[from] anyhow::Error),
+  #[error(transparent)]
   IO(#[from] std::io::Error),
   #[error(transparent)]
   JSONError(#[from] serde_json::Error),
