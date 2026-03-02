@@ -15,6 +15,14 @@
     "fs:default",
     "fs:allow-appdata-write-recursive",
     "fs:allow-resource-read-recursive",
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [
+        {
+          "path": "**/*"
+        }
+      ]
+    },
     "shell:default",
     "dialog:default",
     "http:default",

@@ -11,11 +11,6 @@ use tauri::Manager;
 use super::CommandError;
 
 #[tauri::command]
-pub async fn path_exists(directory: String) -> bool {
-  Path::new(&directory).exists()
-}
-
-#[tauri::command]
 pub async fn has_old_data_directory(app_handle: tauri::AppHandle) -> Result<bool, CommandError> {
   match &app_handle.path().app_config_dir() {
     Ok(dir) => Ok(dir.join("data").join("iso_data").exists()),
