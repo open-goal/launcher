@@ -15,6 +15,8 @@ pub mod window;
 #[derive(Debug, thiserror::Error)]
 pub enum CommandError {
   #[error(transparent)]
+  Anyhow(#[from] anyhow::Error),
+  #[error(transparent)]
   IO(#[from] std::io::Error),
   #[error(transparent)]
   NetworkRequest(#[from] reqwest::Error),
