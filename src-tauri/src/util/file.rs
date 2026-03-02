@@ -3,11 +3,7 @@ extern crate rustc_serialize;
 use anyhow::{Context, Result};
 use rustc_serialize::base64::{MIME, ToBase64};
 use rustc_serialize::hex::ToHex;
-use std::{
-  fs::File,
-  io::Read,
-  path::{Path, PathBuf},
-};
+use std::{fs::File, io::Read, path::Path};
 
 pub fn delete_dir(path: impl AsRef<Path>) -> Result<()> {
   let path = path.as_ref();
@@ -18,7 +14,8 @@ pub fn delete_dir(path: impl AsRef<Path>) -> Result<()> {
   Ok(())
 }
 
-pub fn create_dir(path: &Path) -> Result<()> {
+pub fn create_dir(path: impl AsRef<Path>) -> Result<()> {
+  let path = path.as_ref();
   if !path.exists() {
     std::fs::create_dir_all(path)
       .with_context(|| format!("Failed to create directory: {}", path.display()))?;
@@ -56,6 +53,7 @@ pub fn touch_file(path: impl AsRef<Path>) -> Result<()> {
   Ok(())
 }
 
+// TODO: come back to these last two functions later
 pub fn get_image_file_type(hex: &str) -> &str {
   if hex.starts_with("ffd8ffe0") {
     return "jpeg";

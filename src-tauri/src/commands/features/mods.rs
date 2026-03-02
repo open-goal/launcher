@@ -722,31 +722,6 @@ pub async fn get_local_mod_thumbnail_base64(
 }
 
 #[tauri::command]
-pub async fn get_local_mod_cover_base64(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: SupportedGame,
-  mod_name: String,
-) -> Result<String, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => return Ok("".to_string()),
-    Some(path) => Path::new(path),
-  };
-
-  let cover_path = install_path
-    .join("features")
-    .join(game_name.to_string())
-    .join("mods")
-    .join("_local")
-    .join(mod_name)
-    .join("cover.png");
-  if cover_path.exists() {
-    return Ok(to_image_base64(cover_path.to_string_lossy().as_ref()));
-  }
-  Ok("".to_string())
-}
-
-#[tauri::command]
 pub async fn uninstall_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,

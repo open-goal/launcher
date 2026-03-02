@@ -3,7 +3,6 @@ use std::{
   path::{Path, PathBuf},
 };
 
-use anyhow::Context;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
