@@ -1,12 +1,10 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use std::process::ExitStatus;
 
 use tokio::{
-  io::{AsyncBufReadExt, AsyncWriteExt},
+  io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
   sync::mpsc,
 };
-
-use crate::commands::CommandError;
 
 use super::file::create_dir;
 use tauri::{Emitter, Manager};
@@ -40,49 +38,54 @@ pub async fn watch_process(
   log_file: &mut tokio::fs::File,
   child: &mut tokio::process::Child,
   app_handle: &tauri::AppHandle,
-) -> Result<ExitStatus, CommandError> {
-  let stdout = child.stdout.take().unwrap();
-  let stderr = child.stderr.take().unwrap();
+) -> Result<ExitStatus> {
+  let stdout = child.stdout.take().context("Child stdout was not piped")?;
+  let stderr = child.stderr.take().context("Child stderr was not piped")?;
+  let mut stdout_lines = BufReader::new(stdout).lines();
+  let mut stderr_lines = BufReader::new(stderr).lines();
 
-  let mut stdout_reader = tokio::io::BufReader::new(stdout).lines();
-  let mut stderr_reader = tokio::io::BufReader::new(stderr).lines();
-  let (log_sender, mut log_receiver) = mpsc::channel::<String>(200);
-  let app_handle_clone = app_handle.clone();
+  let (tx, mut rx) = mpsc::channel::<String>(200);
+  let app = app_handle.clone();
 
   tokio::spawn(async move {
-    while let Some(log) = log_receiver.recv().await {
-      let _ = app_handle_clone.emit("log_update", LogPayload { logs: log });
+    while let Some(log) = rx.recv().await {
+      let _ = app.emit("log_update", LogPayload { logs: log });
     }
   });
 
-  let process_status: ExitStatus;
-
   loop {
     tokio::select! {
-        Ok(Some(line)) = stdout_reader.next_line() => {
-          let formatted_line = format!("{line}\n").trim().to_string();
-          if formatted_line != "\n" {
-            log_sender.try_send(formatted_line.clone()).ok();
-            log_file.write_all(formatted_line.as_bytes()).await?;
-            log_file.flush().await?;
-          }
-        },
-        Ok(Some(line)) = stderr_reader.next_line() => {
-          let formatted_line = format!("{line}\n").trim().to_string();
-          if formatted_line != "\n" {
-            log_sender.try_send(formatted_line.clone()).ok();
-            log_file.write_all(formatted_line.as_bytes()).await?;
-            log_file.flush().await?;
-          }
-        },
-        status = child.wait() => {
-          process_status = status?;
-          drop(log_sender);
-          break;
+      line = stdout_lines.next_line() => {
+        if let Some(line) = line.context("Failed reading stdout")? {
+          handle_line(log_file, &tx, line).await?;
         }
+      }
+      line = stderr_lines.next_line() => {
+        if let Some(line) = line.context("Failed reading stderr")? {
+          handle_line(log_file, &tx, line).await?;
+        }
+      }
+      status = child.wait() => {
+        drop(tx);
+        log_file.flush().await.context("Failed flushing log file")?;
+        return Ok(status.context("Failed waiting for child process")?);
+      }
     }
   }
-  Ok(process_status)
+}
+
+async fn handle_line(
+  log_file: &mut tokio::fs::File,
+  tx: &mpsc::Sender<String>,
+  line: String,
+) -> Result<()> {
+  if line.trim().is_empty() {
+    return Ok(());
+  }
+  let _ = tx.try_send(line.clone());
+  log_file.write_all(line.as_bytes()).await?;
+  log_file.write_all(b"\n").await?;
+  Ok(())
 }
 
 pub fn create_std_log_file(
