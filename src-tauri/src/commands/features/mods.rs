@@ -33,11 +33,7 @@ pub async fn extract_new_mod(
 ) -> Result<InstallStepOutput, String> {
   let install_path = {
     let config_lock = config.lock().await;
-    config_lock
-      .installation_dir
-      .as_ref()
-      .cloned()
-      .ok_or_else(|| "No installation directory set, can't extract mod".to_owned())?
+    config_lock.install_dir()?
   };
 
   // The name of the zip becomes the folder, if one already exists it will be deleted!
@@ -150,11 +146,7 @@ pub async fn get_locally_persisted_mod_info(
 ) -> Result<ModInfo, String> {
   let install_path = {
     let config_lock = config.lock().await;
-    config_lock
-      .installation_dir
-      .as_ref()
-      .cloned()
-      .ok_or_else(|| "No installation directory set, can't get mod info".to_owned())?
+    config_lock.install_dir()?
   };
 
   let metadata_path = &install_path
@@ -181,13 +173,7 @@ pub async fn base_game_iso_exists(
 ) -> Result<bool, String> {
   let install_path = {
     let config_lock = config.lock().await;
-    config_lock
-      .installation_dir
-      .as_ref()
-      .cloned()
-      .ok_or_else(|| {
-        "No installation directory set, can't determine if base game ISO exists".to_owned()
-      })?
+    config_lock.install_dir()?
   };
   Ok(
     install_path
