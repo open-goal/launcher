@@ -27,8 +27,6 @@ pub enum CommandError {
   #[error(transparent)]
   TauriEvent(#[from] tauri::Error),
   #[error("{0}")]
-  Installation(String),
-  #[error("{0}")]
   VersionManagement(String),
   #[error("{0}")]
   GameManagement(String),

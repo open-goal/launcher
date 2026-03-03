@@ -8,7 +8,7 @@ use std::{
   str::FromStr,
   time::Instant,
 };
-use tokio::{io::AsyncWriteExt, process::Command};
+use tokio::process::Command;
 
 use log::{info, warn};
 use semver::Version;
@@ -217,36 +217,33 @@ pub async fn extract_and_validate_iso(
   let mut log_file =
     create_log_file(&app_handle, format!("extractor-{game_name}.log"), true).await?;
 
-  let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
-  log_file.flush().await?;
-  match process_status.code() {
-    Some(code) => {
-      if code == 0 {
-        log::info!("extraction and validation was successful");
-        return Ok(InstallStepOutput {
-          success: true,
-          msg: None,
-        });
-      }
-      let error_code_map = get_error_codes(&config_info, game_name);
-      let default_error = LauncherErrorCode {
-        msg: format!("Unexpected error occured with code {code}"),
-      };
-      let message = error_code_map.get(&code).unwrap_or(&default_error);
-      log::error!("extraction and validation was not successful. Code {code}");
-      Ok(InstallStepOutput {
-        success: false,
-        msg: Some(message.msg.clone()),
-      })
-    }
-    None => {
-      log::error!("extraction and validation was not successful. No status code");
-      Ok(InstallStepOutput {
-        success: false,
-        msg: Some("Unexpected error occurred".to_owned()),
-      })
-    }
+  let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
+  if status.success() {
+    log::info!("extraction and validation was successful");
+    return Ok(InstallStepOutput {
+      success: true,
+      msg: None,
+    });
   }
+
+  if let Some(code) = status.code() {
+    let error_code_map = get_error_codes(&config_info, game_name);
+    let default_error = LauncherErrorCode {
+      msg: format!("Unexpected error occured with code {code}"),
+    };
+    let message = error_code_map.get(&code).unwrap_or(&default_error);
+    log::error!("extraction and validation was not successful. Code {code}");
+    return Ok(InstallStepOutput {
+      success: false,
+      msg: Some(message.msg.clone()),
+    });
+  }
+
+  log::error!("extraction and validation was not successful. No status code");
+  Ok(InstallStepOutput {
+    success: false,
+    msg: Some("Unexpected error occurred".to_owned()),
+  })
 }
 
 #[tauri::command]
@@ -356,38 +353,33 @@ pub async fn run_decompiler(
   )
   .await?;
 
-  let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
-
-  // Ensure all remaining data is flushed to the file
-  log_file.flush().await?;
-  match process_status.code() {
-    Some(code) => {
-      if code == 0 {
-        log::info!("decompilation was successful");
-        return Ok(InstallStepOutput {
-          success: true,
-          msg: None,
-        });
-      }
-      let error_code_map = get_error_codes(&config_info, game_name);
-      let default_error = LauncherErrorCode {
-        msg: format!("Unexpected error occured with code {code}"),
-      };
-      let message = error_code_map.get(&code).unwrap_or(&default_error);
-      log::error!("decompilation was not successful. Code {code}");
-      Ok(InstallStepOutput {
-        success: false,
-        msg: Some(message.msg.clone()),
-      })
-    }
-    None => {
-      log::error!("decompilation was not successful. No status code");
-      Ok(InstallStepOutput {
-        success: false,
-        msg: Some("Unexpected error occurred".to_owned()),
-      })
-    }
+  let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
+  if status.success() {
+    log::info!("decompilation was successful");
+    return Ok(InstallStepOutput {
+      success: true,
+      msg: None,
+    });
   }
+
+  if let Some(code) = status.code() {
+    let error_code_map = get_error_codes(&config_info, game_name);
+    let default_error = LauncherErrorCode {
+      msg: format!("Unexpected error occured with code {code}"),
+    };
+    let message = error_code_map.get(&code).unwrap_or(&default_error);
+    log::error!("decompilation was not successful. Code {code}");
+    return Ok(InstallStepOutput {
+      success: false,
+      msg: Some(message.msg.clone()),
+    });
+  }
+
+  log::error!("decompilation was not successful. No status code");
+  Ok(InstallStepOutput {
+    success: false,
+    msg: Some("Unexpected error occurred".to_owned()),
+  })
 }
 
 #[tauri::command]
@@ -458,36 +450,33 @@ pub async fn run_compiler(
   )
   .await?;
 
-  let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
-  log_file.flush().await?;
-  match process_status.code() {
-    Some(code) => {
-      if code == 0 {
-        log::info!("compilation was successful");
-        return Ok(InstallStepOutput {
-          success: true,
-          msg: None,
-        });
-      }
-      let error_code_map = get_error_codes(&config_info, game_name);
-      let default_error = LauncherErrorCode {
-        msg: format!("Unexpected error occured with code {code}"),
-      };
-      let message = error_code_map.get(&code).unwrap_or(&default_error);
-      log::error!("compilation was not successful. Code {code}");
-      Ok(InstallStepOutput {
-        success: false,
-        msg: Some(message.msg.clone()),
-      })
-    }
-    None => {
-      log::error!("compilation was not successful. No status code");
-      Ok(InstallStepOutput {
-        success: false,
-        msg: Some("Unexpected error occurred".to_owned()),
-      })
-    }
+  let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
+  if status.success() {
+    log::info!("compilation was successful");
+    return Ok(InstallStepOutput {
+      success: true,
+      msg: None,
+    });
   }
+
+  if let Some(code) = status.code() {
+    let error_code_map = get_error_codes(&config_info, game_name);
+    let default_error = LauncherErrorCode {
+      msg: format!("Unexpected error occured with code {code}"),
+    };
+    let message = error_code_map.get(&code).unwrap_or(&default_error);
+    log::error!("compilation was not successful. Code {code}");
+    return Ok(InstallStepOutput {
+      success: false,
+      msg: Some(message.msg.clone()),
+    });
+  }
+
+  log::error!("compilation was not successful. No status code");
+  Ok(InstallStepOutput {
+    success: false,
+    msg: Some("Unexpected error occurred".to_owned()),
+  })
 }
 
 #[tauri::command]
@@ -666,12 +655,13 @@ pub async fn launch_game(
   );
 
   let log_file = create_std_log_file(&app_handle, format!("game-{game_name}.log"), false)?;
+  let log_file_err = log_file.try_clone()?;
 
   let mut command = std::process::Command::new(exec_info.executable_path);
   command
     .args(args)
-    .stdout(log_file.try_clone().unwrap())
-    .stderr(log_file)
+    .stdout(log_file)
+    .stderr(log_file_err)
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {

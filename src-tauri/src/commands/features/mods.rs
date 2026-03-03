@@ -9,7 +9,7 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 use tauri::Emitter;
-use tokio::{io::AsyncWriteExt, process::Command};
+use tokio::process::Command;
 
 use crate::{
   cache::{LauncherCache, ModInfo},
@@ -337,33 +337,30 @@ pub async fn extract_iso_for_mod_install(
   )
   .await?;
 
-  let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
-  match process_status.code() {
-    Some(code) => {
-      if code == 0 {
-        log::info!("extraction and validation was successful");
-        return Ok(InstallStepOutput {
-          success: true,
-          msg: None,
-        });
-      }
-      let default_error = LauncherErrorCode {
-        msg: format!("Unexpected error occured with code {code}"),
-      };
-      log::error!("extraction and validation was not successful. Code {code}");
-      Ok(InstallStepOutput {
-        success: false,
-        msg: Some(default_error.msg.clone()),
-      })
-    }
-    None => {
-      log::error!("extraction and validation was not successful. No status code");
-      Ok(InstallStepOutput {
-        success: false,
-        msg: Some("Unexpected error occurred".to_owned()),
-      })
-    }
+  let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
+  if status.success() {
+    log::info!("extraction and validation was successful");
+    return Ok(InstallStepOutput {
+      success: true,
+      msg: None,
+    });
   }
+  if let Some(code) = status.code() {
+    let default_error = LauncherErrorCode {
+      msg: format!("Unexpected error occured with code {code}"),
+    };
+    log::error!("extraction and validation was not successful. Code {code}");
+    return Ok(InstallStepOutput {
+      success: false,
+      msg: Some(default_error.msg.clone()),
+    });
+  }
+
+  log::error!("extraction and validation was not successful. No status code");
+  Ok(InstallStepOutput {
+    success: false,
+    msg: Some("Unexpected error occurred".to_owned()),
+  })
 }
 
 #[tauri::command]
@@ -433,36 +430,31 @@ pub async fn decompile_for_mod_install(
   let mut log_file =
     create_log_file(&app_handle, format!("extractor-{game_name}.log"), false).await?;
 
-  let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
-
-  // Ensure all remaining data is flushed to the file
-  log_file.flush().await?;
-  match process_status.code() {
-    Some(code) => {
-      if code == 0 {
-        log::info!("decompilation was successful");
-        return Ok(InstallStepOutput {
-          success: true,
-          msg: None,
-        });
-      }
-      let default_error = LauncherErrorCode {
-        msg: format!("Unexpected error occured with code {code}"),
-      };
-      log::error!("decompilation was not successful. Code {code}");
-      Ok(InstallStepOutput {
-        success: false,
-        msg: Some(default_error.msg.clone()),
-      })
-    }
-    None => {
-      log::error!("decompilation was not successful. No status code");
-      Ok(InstallStepOutput {
-        success: false,
-        msg: Some("Unexpected error occurred".to_owned()),
-      })
-    }
+  let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
+  if status.success() {
+    log::info!("decompilation was successful");
+    return Ok(InstallStepOutput {
+      success: true,
+      msg: None,
+    });
   }
+
+  if let Some(code) = status.code() {
+    let default_error = LauncherErrorCode {
+      msg: format!("Unexpected error occured with code {code}"),
+    };
+    log::error!("decompilation was not successful. Code {code}");
+    return Ok(InstallStepOutput {
+      success: false,
+      msg: Some(default_error.msg.clone()),
+    });
+  }
+
+  log::error!("decompilation was not successful. No status code");
+  Ok(InstallStepOutput {
+    success: false,
+    msg: Some("Unexpected error occurred".to_owned()),
+  })
 }
 
 #[tauri::command]
@@ -532,34 +524,31 @@ pub async fn compile_for_mod_install(
   let mut log_file =
     create_log_file(&app_handle, format!("extractor-{game_name}.log"), false).await?;
 
-  let process_status = watch_process(&mut log_file, &mut child, &app_handle).await?;
-  log_file.flush().await?;
-  match process_status.code() {
-    Some(code) => {
-      if code == 0 {
-        log::info!("compilation was successful");
-        return Ok(InstallStepOutput {
-          success: true,
-          msg: None,
-        });
-      }
-      let default_error = LauncherErrorCode {
-        msg: format!("Unexpected error occured with code {code}"),
-      };
-      log::error!("compilation was not successful. Code {code}");
-      Ok(InstallStepOutput {
-        success: false,
-        msg: Some(default_error.msg.clone()),
-      })
-    }
-    None => {
-      log::error!("compilation was not successful. No status code");
-      Ok(InstallStepOutput {
-        success: false,
-        msg: Some("Unexpected error occurred".to_owned()),
-      })
-    }
+  let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
+  if status.success() {
+    log::info!("compilation was successful");
+    return Ok(InstallStepOutput {
+      success: true,
+      msg: None,
+    });
   }
+
+  if let Some(code) = status.code() {
+    let default_error = LauncherErrorCode {
+      msg: format!("Unexpected error occured with code {code}"),
+    };
+    log::error!("compilation was not successful. Code {code}");
+    return Ok(InstallStepOutput {
+      success: false,
+      msg: Some(default_error.msg.clone()),
+    });
+  }
+
+  log::error!("compilation was not successful. No status code");
+  Ok(InstallStepOutput {
+    success: false,
+    msg: Some("Unexpected error occurred".to_owned()),
+  })
 }
 
 #[tauri::command]
@@ -667,13 +656,14 @@ pub async fn launch_mod(
     format!("game-{game_name}-{mod_name}.log"),
     false,
   )?;
+  let log_file_err = log_file.try_clone()?;
 
   // TODO - log rotation here would be nice too
   let mut command = Command::new(exec_info.executable_path);
   command
     .args(args)
-    .stdout(log_file.try_clone().unwrap())
-    .stderr(log_file)
+    .stdout(log_file)
+    .stderr(log_file_err)
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {

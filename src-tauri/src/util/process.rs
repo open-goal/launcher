@@ -1,39 +1,32 @@
+use anyhow::{Context, Result};
 use std::process::ExitStatus;
 
 use tokio::{
-  io::{AsyncBufReadExt, AsyncWriteExt},
+  io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
   sync::mpsc,
 };
-
-use crate::commands::CommandError;
 
 use super::file::create_dir;
 use tauri::{Emitter, Manager};
 
 pub async fn create_log_file(
   app_handle: &tauri::AppHandle,
-  name: String,
+  file_name: String,
   append: bool,
-) -> Result<tokio::fs::File, CommandError> {
-  let log_path = &match app_handle.path().app_log_dir() {
-    Ok(path) => path,
-    Err(_) => {
-      return Err(CommandError::Installation(
-        "Could not determine path to save installation logs".to_owned(),
-      ));
-    }
-  };
-  create_dir(log_path)?;
-  let mut file_options = tokio::fs::OpenOptions::new();
-  file_options.read(true);
-  file_options.create(true);
-  if append {
-    file_options.append(true);
-  } else {
-    file_options.write(true).truncate(true);
-  }
-  let file = file_options.open(log_path.join(name)).await?;
-  Ok(file)
+) -> Result<tokio::fs::File> {
+  let log_path = app_handle.path().app_log_dir()?;
+  let file_path = log_path.join(file_name);
+  create_dir(&log_path)?;
+
+  tokio::fs::OpenOptions::new()
+    .read(true)
+    .create(true)
+    .append(append)
+    .write(!append)
+    .truncate(!append)
+    .open(file_path)
+    .await
+    .map_err(Into::into)
 }
 
 #[derive(Clone, serde::Serialize)]
@@ -45,72 +38,70 @@ pub async fn watch_process(
   log_file: &mut tokio::fs::File,
   child: &mut tokio::process::Child,
   app_handle: &tauri::AppHandle,
-) -> Result<ExitStatus, CommandError> {
-  let stdout = child.stdout.take().unwrap();
-  let stderr = child.stderr.take().unwrap();
+) -> Result<ExitStatus> {
+  let stdout = child.stdout.take().context("Child stdout was not piped")?;
+  let stderr = child.stderr.take().context("Child stderr was not piped")?;
+  let mut stdout_lines = BufReader::new(stdout).lines();
+  let mut stderr_lines = BufReader::new(stderr).lines();
 
-  let mut stdout_reader = tokio::io::BufReader::new(stdout).lines();
-  let mut stderr_reader = tokio::io::BufReader::new(stderr).lines();
-  let (log_sender, mut log_receiver) = mpsc::channel::<String>(200);
-  let app_handle_clone = app_handle.clone();
+  let (tx, mut rx) = mpsc::channel::<String>(200);
+  let app = app_handle.clone();
 
   tokio::spawn(async move {
-    while let Some(log) = log_receiver.recv().await {
-      let _ = app_handle_clone.emit("log_update", LogPayload { logs: log });
+    while let Some(log) = rx.recv().await {
+      let _ = app.emit("log_update", LogPayload { logs: log });
     }
   });
 
-  let process_status: ExitStatus;
-
   loop {
     tokio::select! {
-        Ok(Some(line)) = stdout_reader.next_line() => {
-          let formatted_line = format!("{line}\n").trim().to_string();
-          if formatted_line != "\n" {
-            log_sender.try_send(formatted_line.clone()).ok();
-            log_file.write_all(formatted_line.as_bytes()).await?;
-            log_file.flush().await?;
-          }
-        },
-        Ok(Some(line)) = stderr_reader.next_line() => {
-          let formatted_line = format!("{line}\n").trim().to_string();
-          if formatted_line != "\n" {
-            log_sender.try_send(formatted_line.clone()).ok();
-            log_file.write_all(formatted_line.as_bytes()).await?;
-            log_file.flush().await?;
-          }
-        },
-        status = child.wait() => {
-          process_status = status?;
-          drop(log_sender);
-          break;
+      line = stdout_lines.next_line() => {
+        if let Some(line) = line.context("Failed reading stdout")? {
+          handle_line(log_file, &tx, line).await?;
         }
+      }
+      line = stderr_lines.next_line() => {
+        if let Some(line) = line.context("Failed reading stderr")? {
+          handle_line(log_file, &tx, line).await?;
+        }
+      }
+      status = child.wait() => {
+        drop(tx);
+        log_file.flush().await.context("Failed flushing log file")?;
+        return Ok(status.context("Failed waiting for child process")?);
+      }
     }
   }
-  Ok(process_status)
+}
+
+async fn handle_line(
+  log_file: &mut tokio::fs::File,
+  tx: &mpsc::Sender<String>,
+  line: String,
+) -> Result<()> {
+  if line.trim().is_empty() {
+    return Ok(());
+  }
+  let _ = tx.try_send(line.clone());
+  log_file.write_all(line.as_bytes()).await?;
+  log_file.write_all(b"\n").await?;
+  Ok(())
 }
 
 pub fn create_std_log_file(
   app_handle: &tauri::AppHandle,
-  name: String,
+  file_name: String,
   append: bool,
-) -> Result<std::fs::File, CommandError> {
-  let log_path = &match app_handle.path().app_log_dir() {
-    Ok(path) => path,
-    Err(_) => {
-      return Err(CommandError::Installation(
-        "Could not determine path to save installation logs".to_owned(),
-      ));
-    }
-  };
-  create_dir(log_path)?;
-  let mut file_options = std::fs::OpenOptions::new();
-  file_options.create(true);
-  if append {
-    file_options.append(true);
-  } else {
-    file_options.write(true).truncate(true);
-  }
-  let file = file_options.open(log_path.join(name))?;
-  Ok(file)
+) -> Result<std::fs::File> {
+  let log_path = app_handle.path().app_log_dir()?;
+  let file_path = log_path.join(&file_name);
+  create_dir(&log_path)?;
+
+  std::fs::OpenOptions::new()
+    .create(true)
+    .append(append)
+    .write(!append)
+    .truncate(!append)
+    .open(file_path)
+    .map_err(Into::into)
 }
