@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-  cache::{LauncherCache, ModSourceData},
+  cache::{ModCache, ModSourceData},
   config::LauncherConfig,
 };
 
@@ -9,7 +9,7 @@ use super::CommandError;
 
 #[tauri::command]
 pub async fn refresh_mod_sources(
-  cache: tauri::State<'_, tokio::sync::Mutex<LauncherCache>>,
+  cache: tauri::State<'_, tokio::sync::Mutex<ModCache>>,
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<(), CommandError> {
   let mut cache_lock = cache.lock().await;
@@ -24,7 +24,7 @@ pub async fn refresh_mod_sources(
 
 #[tauri::command]
 pub async fn get_mod_sources_data(
-  cache: tauri::State<'_, tokio::sync::Mutex<LauncherCache>>,
+  cache: tauri::State<'_, tokio::sync::Mutex<ModCache>>,
 ) -> Result<HashMap<String, ModSourceData>, CommandError> {
   let cache_lock = cache.lock().await;
   Ok(cache_lock.mod_sources.clone())

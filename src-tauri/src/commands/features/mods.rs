@@ -13,7 +13,7 @@ use tauri::Emitter;
 use tokio::process::Command;
 
 use crate::{
-  cache::{LauncherCache, ModInfo},
+  cache::{ModCache, ModInfo},
   commands::{CommandError, binaries::InstallStepOutput},
   config::{ExecutableLocation, LauncherConfig, SupportedGame},
   util::{
@@ -63,7 +63,7 @@ pub async fn extract_new_mod(
 #[tauri::command]
 pub async fn download_and_extract_new_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  cache: tauri::State<'_, tokio::sync::Mutex<LauncherCache>>,
+  cache: tauri::State<'_, tokio::sync::Mutex<ModCache>>,
   game_name: SupportedGame,
   download_url: String,
   mod_name: String,

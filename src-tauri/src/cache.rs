@@ -121,11 +121,11 @@ pub struct ModSourceData {
   pub texture_packs: HashMap<String, ModInfo>,
 }
 
-pub struct LauncherCache {
+pub struct ModCache {
   pub mod_sources: HashMap<String, ModSourceData>,
 }
 
-impl LauncherCache {
+impl ModCache {
   pub fn default() -> Self {
     Self {
       mod_sources: HashMap::new(),
