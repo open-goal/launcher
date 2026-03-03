@@ -19,67 +19,45 @@ use crate::{
     file::{create_dir, delete_dir, to_image_base64},
     network::download_file,
     process::{create_log_file, create_std_log_file, watch_process},
-    tar::{extract_and_delete_tar_ball, extract_tar_ball},
-    zip::{extract_and_delete_zip_file, extract_zip_file},
+    tar::{extract_and_delete_tar_ball, extract_archive},
+    zip::extract_and_delete_zip_file,
   },
 };
-
-fn strip_tar_gz(path: &String) -> String {
-  if path.ends_with(".tar") {
-    return path.strip_suffix(".tar").unwrap().to_string();
-  }
-  return path.to_string();
-}
 
 #[tauri::command]
 pub async fn extract_new_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,
-  bundle_path: String,
+  bundle_path: PathBuf,
   mod_source: String,
-) -> Result<InstallStepOutput, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't extract mod".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
+) -> Result<InstallStepOutput, String> {
+  let install_path = {
+    let config_lock = config.lock().await;
+    config_lock
+      .installation_dir
+      .as_ref()
+      .cloned()
+      .ok_or_else(|| "No installation directory set, can't extract mod".to_owned())?
   };
 
   // The name of the zip becomes the folder, if one already exists it will be deleted!
-  let bundle_path_buf = PathBuf::from(bundle_path);
-  let mut mod_name = match bundle_path_buf.file_stem() {
-    Some(name) => name.to_string_lossy().to_string(),
-    None => {
-      return Err(CommandError::GameFeatures(
-        "Unable to get mod name from zip file path".to_string(),
-      ));
-    }
-  };
-  // .tar.gz files will only get the .gz portion stripped
-  mod_name = strip_tar_gz(&mod_name);
-  let destination_dir = &install_path
+  let mod_name = bundle_path
+    .file_stem()
+    .and_then(|stem| stem.to_str())
+    .map(|s| s.strip_suffix(".tar").unwrap_or(s))
+    .ok_or_else(|| "Unable to get mod name from archive path".to_owned())?;
+
+  let destination_dir = install_path
     .join("features")
     .join(game_name.to_string())
     .join("mods")
     .join(mod_source)
     .join(&mod_name);
-  delete_dir(destination_dir)?;
-  create_dir(destination_dir)?;
-  if cfg!(windows) {
-    extract_zip_file(&bundle_path_buf, destination_dir, false).map_err(|err| {
-      log::error!("Unable to extract mod: {}", err);
-      CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
-    })?;
-  } else if cfg!(unix) {
-    extract_tar_ball(&bundle_path_buf, destination_dir)?;
-  } else {
-    Err(CommandError::VersionManagement(
-      "Unknown operating system, unable to download and extract mod".to_owned(),
-    ))?;
-  }
+
+  delete_dir(&destination_dir).map_err(|e| e.to_string())?;
+  create_dir(&destination_dir).map_err(|e| e.to_string())?;
+  extract_archive(&bundle_path, &destination_dir).map_err(|e| e.to_string())?;
+
   Ok(InstallStepOutput {
     success: true,
     msg: None,
