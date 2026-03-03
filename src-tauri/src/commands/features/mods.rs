@@ -7,6 +7,7 @@ use std::{
   process::Stdio,
 };
 
+use anyhow::ensure;
 use serde::{Deserialize, Serialize};
 use tauri::Emitter;
 use tokio::process::Command;
@@ -169,32 +170,31 @@ pub async fn base_game_iso_exists(
 }
 
 fn get_mod_exec_location(
-  install_path: PathBuf,
+  install_path: &Path,
   executable_name: &str,
   game_name: SupportedGame,
   mod_name: &str,
   source_name: &str,
-) -> Result<ExecutableLocation, CommandError> {
+) -> anyhow::Result<ExecutableLocation> {
   let exec_dir = install_path
     .join("features")
     .join(game_name.to_string())
     .join("mods")
     .join(source_name)
     .join(mod_name);
-  let mut exec_path: PathBuf = exec_dir.join(executable_name);
-  if cfg!(windows) {
-    exec_path.set_extension("exe");
-  }
-  if !exec_path.exists() {
-    log::error!(
-      "Could not find the required binary '{}', can't perform operation",
-      exec_path.to_string_lossy()
-    );
-    return Err(CommandError::BinaryExecution(format!(
-      "Could not find the required binary '{}', can't perform operation",
-      exec_path.to_string_lossy()
-    )));
-  }
+
+  #[cfg(windows)]
+  let exec_path = exec_dir.join(executable_name).with_extension("exe");
+
+  #[cfg(not(windows))]
+  let exec_path = exec_dir.join(executable_name);
+
+  ensure!(
+    exec_path.exists(),
+    "Executable not found at expected path: {}",
+    exec_path.display()
+  );
+
   Ok(ExecutableLocation {
     executable_dir: exec_dir,
     executable_path: exec_path,
@@ -225,7 +225,7 @@ pub async fn extract_iso_for_mod_install(
     Some(path) => Path::new(path),
   };
   let exec_info = match get_mod_exec_location(
-    install_path.to_path_buf(),
+    &install_path,
     "extractor",
     game_name,
     &mod_name,
@@ -326,7 +326,7 @@ pub async fn decompile_for_mod_install(
     Some(path) => Path::new(path),
   };
   let exec_info = match get_mod_exec_location(
-    install_path.to_path_buf(),
+    &install_path,
     "extractor",
     game_name,
     &mod_name,
@@ -420,7 +420,7 @@ pub async fn compile_for_mod_install(
     Some(path) => Path::new(path),
   };
   let exec_info = match get_mod_exec_location(
-    install_path.to_path_buf(),
+    &install_path,
     "extractor",
     game_name,
     &mod_name,
@@ -585,13 +585,7 @@ pub async fn launch_mod(
     .join(&source_name)
     .join("_settings")
     .join(&mod_name);
-  let exec_info = get_mod_exec_location(
-    install_path.to_path_buf(),
-    "gk",
-    game_name,
-    &mod_name,
-    &source_name,
-  )?;
+  let exec_info = get_mod_exec_location(&install_path, "gk", game_name, &mod_name, &source_name)?;
   let args = generate_launch_mod_args(game_name, in_debug, config_dir, false)?;
 
   log::info!("Launching gk args: {:?}", args);
@@ -738,13 +732,7 @@ pub async fn get_launch_mod_string(
     }
     Some(path) => Path::new(path),
   };
-  let exec_info = get_mod_exec_location(
-    install_path.to_path_buf(),
-    "gk",
-    game_name,
-    &mod_name,
-    &source_name,
-  )?;
+  let exec_info = get_mod_exec_location(&install_path, "gk", game_name, &mod_name, &source_name)?;
   let config_dir = install_path
     .join("features")
     .join(game_name.to_string())
@@ -791,13 +779,8 @@ pub async fn open_repl_for_mod(
     .join("iso_data")
     .join(game_name.to_string())
     .to_path_buf();
-  let exec_info = get_mod_exec_location(
-    install_path.to_path_buf(),
-    "goalc",
-    game_name,
-    &mod_name,
-    &source_name,
-  )?;
+  let exec_info =
+    get_mod_exec_location(&install_path, "goalc", game_name, &mod_name, &source_name)?;
   let mut command;
   #[cfg(windows)]
   {
