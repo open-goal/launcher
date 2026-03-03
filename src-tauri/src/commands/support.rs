@@ -371,27 +371,23 @@ pub async fn generate_support_package(
     ))
   }
 
-  let test_result = crate::util::game_tests::run_game_gpu_test(&config_lock, &app_handle).await;
-  match test_result {
-    Ok(result) => {
-      let gpu_info = GPUInfo {
-        opengl_test_passed: result.success,
-        renderer_name: format!(
-          "{}:{}",
-          result
-            .gpu_renderer_string
-            .unwrap_or("unknown renderer".to_string()),
-          result
-            .gpu_vendor_string
-            .unwrap_or("unknown vendor".to_string())
-        ),
-      };
-      package.gpu_info = Some(gpu_info);
-    }
-    Err(_) => {
-      package.gpu_info = None;
-    }
-  };
+  package.gpu_info = crate::util::game_tests::run_game_gpu_test(&config_lock, &app_handle)
+    .await
+    .ok()
+    .map(|result| GPUInfo {
+      opengl_test_passed: result.success,
+      renderer_name: format!(
+        "{}:{}",
+        result
+          .gpu_renderer_string
+          .as_deref()
+          .unwrap_or("unknown renderer"),
+        result
+          .gpu_vendor_string
+          .as_deref()
+          .unwrap_or("unknown vendor")
+      ),
+    });
 
   // Create zip file
   let save_path = Path::new(&user_path);
