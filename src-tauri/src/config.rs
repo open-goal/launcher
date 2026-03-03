@@ -602,12 +602,12 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn install_dir(&self) -> Result<PathBuf, String> {
+  pub fn install_dir(&self) -> anyhow::Result<PathBuf> {
     self
       .installation_dir
       .as_ref()
       .cloned()
-      .ok_or_else(|| "No installation directory set".to_owned())
+      .ok_or_else(|| anyhow::anyhow!("No installation directory set"))
   }
 
   pub fn common_prelude(&self) -> Result<CommonConfigData, CommandError> {
