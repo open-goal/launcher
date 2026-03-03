@@ -1,6 +1,8 @@
+use anyhow::Result;
 use std::process::ExitStatus;
 
 use tokio::{
+  fs::OpenOptions,
   io::{AsyncBufReadExt, AsyncWriteExt},
   sync::mpsc,
 };
@@ -12,28 +14,22 @@ use tauri::{Emitter, Manager};
 
 pub async fn create_log_file(
   app_handle: &tauri::AppHandle,
-  name: String,
+  file_name: String,
   append: bool,
-) -> Result<tokio::fs::File, CommandError> {
-  let log_path = &match app_handle.path().app_log_dir() {
-    Ok(path) => path,
-    Err(_) => {
-      return Err(CommandError::Installation(
-        "Could not determine path to save installation logs".to_owned(),
-      ));
-    }
-  };
-  create_dir(log_path)?;
-  let mut file_options = tokio::fs::OpenOptions::new();
-  file_options.read(true);
-  file_options.create(true);
-  if append {
-    file_options.append(true);
-  } else {
-    file_options.write(true).truncate(true);
-  }
-  let file = file_options.open(log_path.join(name)).await?;
-  Ok(file)
+) -> Result<tokio::fs::File> {
+  let log_path = app_handle.path().app_log_dir()?;
+  let file_path = log_path.join(file_name);
+  create_dir(&log_path)?;
+
+  OpenOptions::new()
+    .read(true)
+    .create(true)
+    .append(append)
+    .write(!append)
+    .truncate(!append)
+    .open(file_path)
+    .await
+    .map_err(Into::into)
 }
 
 #[derive(Clone, serde::Serialize)]
