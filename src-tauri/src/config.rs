@@ -602,6 +602,14 @@ impl LauncherConfig {
     Ok(())
   }
 
+  pub fn install_dir(&self) -> Result<PathBuf, String> {
+    self
+      .installation_dir
+      .as_ref()
+      .cloned()
+      .ok_or_else(|| "No installation directory set".to_owned())
+  }
+
   pub fn common_prelude(&self) -> Result<CommonConfigData, CommandError> {
     let install_path = self.installation_dir.as_ref().ok_or_else(|| {
       CommandError::BinaryExecution(
