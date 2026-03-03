@@ -116,19 +116,7 @@ pub async fn download_and_extract_new_mod(
 
   delete_dir(parent_path)?;
   create_dir(parent_path)?;
-  download_file(&download_url, download_path)
-    .await
-    .map_err(|err| {
-      CommandError::GameFeatures(
-        format!(
-          "Unable to successfully download mod version from {} to {}, error: {}",
-          download_url,
-          download_path.to_string_lossy(),
-          err
-        )
-        .to_owned(),
-      )
-    })?;
+  download_file(&download_url, download_path).await?;
 
   if cfg!(windows) {
     extract_and_delete_zip_file(download_path, parent_path, false).map_err(|err| {

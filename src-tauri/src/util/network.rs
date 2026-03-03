@@ -1,5 +1,7 @@
+use anyhow::{Context, Result};
 use std::path::Path;
 use tokio;
+use tokio::io::AsyncWriteExt;
 
 #[derive(Debug, thiserror::Error)]
 pub enum NetworkError {
@@ -11,10 +13,27 @@ pub enum NetworkError {
   Message(String),
 }
 
-pub async fn download_file(url: &str, destination: &Path) -> Result<(), NetworkError> {
-  let res = reqwest::get(url).await?;
-  let bytes = res.bytes().await?;
-  tokio::fs::write(destination, &bytes).await?;
+pub async fn download_file(url: &str, destination: impl AsRef<Path>) -> Result<()> {
+  let destination = destination.as_ref();
+  let mut response = reqwest::get(url)
+    .await
+    .with_context(|| format!("Failed to download file from: {url}"))?
+    .error_for_status()
+    .with_context(|| format!("Server returned error for {url}"))?;
+
+  let mut file = tokio::fs::File::create(&destination)
+    .await
+    .with_context(|| {
+      format!(
+        "Failed to create destination file {}",
+        destination.display()
+      )
+    })?;
+
+  while let Some(chunk) = response.chunk().await? {
+    file.write_all(&chunk).await?;
+  }
+
   Ok(())
 }
 
