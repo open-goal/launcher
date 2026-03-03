@@ -96,9 +96,7 @@ pub async fn download_version(
       .join(format!("{version}.zip"));
 
     // Download the file
-    download_file(&url, &download_path).await.map_err(|_| {
-      CommandError::VersionManagement("Unable to successfully download version".to_owned())
-    })?;
+    download_file(&url, &download_path).await?;
 
     // Extract the zip file
     extract_and_delete_zip_file(&download_path, &dest_dir, true).map_err(|_| {
@@ -128,9 +126,7 @@ pub async fn download_version(
       .join(format!("{version}.tar.gz"));
 
     // Download the file
-    download_file(&url, &download_path).await.map_err(|_| {
-      CommandError::VersionManagement("Unable to successfully download version".to_owned())
-    })?;
+    download_file(&url, &download_path).await?;
 
     // Extract the tar file
     extract_and_delete_tar_ball(download_path, &dest_dir)?;

@@ -9,9 +9,7 @@ use super::CommandError;
 pub async fn download_file(url: String, destination: PathBuf) -> Result<(), CommandError> {
   if let Some(parent) = destination.parent() {
     create_dir(parent)?;
-    network::download_file(&url, &destination)
-      .await
-      .map_err(|_| CommandError::OSOperation("Unable to successfully download file".to_owned()))?;
+    network::download_file(&url, &destination).await?;
     Ok(())
   } else {
     return Err(CommandError::OSOperation(
