@@ -147,16 +147,16 @@ pub async fn get_locally_persisted_mod_info(
   game_name: SupportedGame,
   mod_name: String,
   source_name: String,
-) -> Result<ModInfo, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't find mod metadata".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
+) -> Result<ModInfo, String> {
+  let install_path = {
+    let config_lock = config.lock().await;
+    config_lock
+      .installation_dir
+      .as_ref()
+      .cloned()
+      .ok_or_else(|| "No installation directory set, can't get mod info".to_owned())?
   };
+
   let metadata_path = &install_path
     .join("features")
     .join(game_name.to_string())
@@ -164,31 +164,30 @@ pub async fn get_locally_persisted_mod_info(
     .join(&source_name)
     .join(&mod_name)
     .join("_metadata.json");
+
   if metadata_path.exists() {
-    let file = fs::File::open(metadata_path)?;
-    let mod_info = serde_json::from_reader(file).map_err(|_| {
-      CommandError::GameFeatures("Unable to deserialize local mod metadata".to_string())
-    })?;
+    let file = fs::File::open(metadata_path).map_err(|e| e.to_string())?;
+    let mod_info = serde_json::from_reader(file)
+      .map_err(|e| format!("Unable to deserialize local mod metadata: {}", e))?;
     return Ok(mod_info);
   }
-  Err(CommandError::GameFeatures(
-    "Locally persisted mod metadata does not exist".to_string(),
-  ))
+  Err("Locally persisted mod metadata does not exist".into())
 }
 
 #[tauri::command]
 pub async fn base_game_iso_exists(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,
-) -> Result<bool, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't extract mod".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
+) -> Result<bool, String> {
+  let install_path = {
+    let config_lock = config.lock().await;
+    config_lock
+      .installation_dir
+      .as_ref()
+      .cloned()
+      .ok_or_else(|| {
+        "No installation directory set, can't determine if base game ISO exists".to_owned()
+      })?
   };
   Ok(
     install_path
