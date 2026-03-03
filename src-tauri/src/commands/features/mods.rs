@@ -67,10 +67,7 @@ pub async fn extract_new_mod(
     .join(mod_source)
     .join(&mod_name);
   delete_dir(destination_dir)?;
-  create_dir(destination_dir).map_err(|err| {
-    log::error!("Unable to create directory for mod: {}", err);
-    CommandError::GameFeatures(format!("Unable to create directory for mod: {}", err))
-  })?;
+  create_dir(destination_dir)?;
   if cfg!(windows) {
     extract_zip_file(&bundle_path_buf, destination_dir, false).map_err(|err| {
       log::error!("Unable to extract mod: {}", err);
@@ -118,10 +115,7 @@ pub async fn download_and_extract_new_mod(
   let download_path = &parent_path.join(format!("{mod_name}.zip"));
 
   delete_dir(parent_path)?;
-  create_dir(parent_path).map_err(|err| {
-    log::error!("Unable to create directory for mod: {}", err);
-    CommandError::GameFeatures(format!("Unable to create directory for mod: {}", err))
-  })?;
+  create_dir(parent_path)?;
   download_file(&download_url, download_path)
     .await
     .map_err(|err| {
@@ -721,31 +715,6 @@ pub async fn get_local_mod_thumbnail_base64(
     .join("_local")
     .join(mod_name)
     .join("thumbnail.png");
-  if cover_path.exists() {
-    return Ok(to_image_base64(cover_path.to_string_lossy().as_ref()));
-  }
-  Ok("".to_string())
-}
-
-#[tauri::command]
-pub async fn get_local_mod_cover_base64(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  game_name: SupportedGame,
-  mod_name: String,
-) -> Result<String, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => return Ok("".to_string()),
-    Some(path) => Path::new(path),
-  };
-
-  let cover_path = install_path
-    .join("features")
-    .join(game_name.to_string())
-    .join("mods")
-    .join("_local")
-    .join(mod_name)
-    .join("cover.png");
   if cover_path.exists() {
     return Ok(to_image_base64(cover_path.to_string_lossy().as_ref()));
   }

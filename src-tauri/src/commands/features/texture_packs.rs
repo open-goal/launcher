@@ -206,13 +206,7 @@ pub async fn extract_new_texture_pack(
     .join("texture-packs")
     .join(&texture_pack_name);
   // TODO - delete it
-  create_dir(destination_dir).map_err(|err| {
-    log::error!("Unable to create directory for texture pack: {}", err);
-    CommandError::GameFeatures(format!(
-      "Unable to create directory for texture pack: {}",
-      err
-    ))
-  })?;
+  create_dir(destination_dir)?;
   extract_zip_file(&zip_path_buf, destination_dir, false).map_err(|err| {
     log::error!("Unable to extract replacement pack: {}", err);
     CommandError::GameFeatures(format!("Unable to extract texture pack: {}", err))
@@ -270,11 +264,12 @@ pub async fn update_texture_pack_data(
 
       log::info!("Appending textures from: {}", texture_pack_dir.display());
 
+      // strange, but I can't worry about it right now.
       if let Err(err) = overwrite_dir(&texture_pack_dir, &game_texture_pack_dir) {
-        log::error!("Unable to update texture replacements: {}", err);
+        log::error!("{:#}", err);
         return Ok(GameJobStepOutput {
           success: false,
-          msg: Some(format!("Unable to update texture replacements: {}", err)),
+          msg: Some(err.to_string()),
         });
       }
     }
