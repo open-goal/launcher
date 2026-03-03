@@ -666,12 +666,13 @@ pub async fn launch_game(
   );
 
   let log_file = create_std_log_file(&app_handle, format!("game-{game_name}.log"), false)?;
+  let log_file_err = log_file.try_clone()?;
 
   let mut command = std::process::Command::new(exec_info.executable_path);
   command
     .args(args)
-    .stdout(log_file.try_clone().unwrap())
-    .stderr(log_file)
+    .stdout(log_file)
+    .stderr(log_file_err)
     .current_dir(exec_info.executable_dir);
   #[cfg(windows)]
   {
