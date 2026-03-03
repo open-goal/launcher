@@ -1,7 +1,6 @@
 use anyhow::Result;
 use log::info;
 use std::io::{BufReader, Cursor};
-use std::path::PathBuf;
 use std::{
   fs::File,
   io::{Read, Write},
@@ -105,12 +104,12 @@ pub fn extract_zip_file(
 }
 
 pub fn extract_and_delete_zip_file(
-  zip_path: &PathBuf,
+  zip_path: impl AsRef<Path>,
   extract_dir: &Path,
   strip_top_dir: bool,
 ) -> Result<()> {
-  extract_zip_file(zip_path, extract_dir, strip_top_dir)?;
-  std::fs::remove_file(zip_path)?;
+  extract_zip_file(&zip_path, extract_dir, strip_top_dir)?;
+  std::fs::remove_file(&zip_path)?;
   Ok(())
 }
 
