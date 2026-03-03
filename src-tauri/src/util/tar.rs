@@ -1,6 +1,8 @@
 use anyhow::{Context, Result};
 use std::path::Path;
 
+use crate::util::zip::extract_zip_file;
+
 pub fn extract_tar_ball(tar_path: impl AsRef<Path>, extract_dir: impl AsRef<Path>) -> Result<()> {
   let tar_path = tar_path.as_ref();
   let extract_dir = extract_dir.as_ref();
@@ -28,4 +30,12 @@ pub fn extract_and_delete_tar_ball(
   std::fs::remove_file(tar_path)
     .with_context(|| format!("failed to delete: {}", tar_path.display()))?;
   Ok(())
+}
+
+pub fn extract_archive(archive: &Path, dest: &Path) -> Result<()> {
+  match archive.extension().and_then(|e| e.to_str()) {
+    Some("zip") => extract_zip_file(archive, dest, false),
+    Some("gz") => extract_tar_ball(archive, dest),
+    _ => anyhow::bail!("Unsupported archive format (expected .zip or .tar.gz)"),
+  }
 }
