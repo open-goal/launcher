@@ -1,3 +1,4 @@
+use anyhow::Result;
 use log::info;
 use std::io::{BufReader, Cursor};
 use std::path::PathBuf;
@@ -94,10 +95,10 @@ pub fn append_file_to_zip(
 }
 
 pub fn extract_zip_file(
-  zip_path: &PathBuf,
+  zip_path: impl AsRef<Path>,
   extract_dir: &Path,
   strip_top_dir: bool,
-) -> Result<(), zip_extract::ZipExtractError> {
+) -> Result<()> {
   let archive: Vec<u8> = std::fs::read(zip_path)?;
   zip_extract::extract(Cursor::new(archive), extract_dir, strip_top_dir)?;
   Ok(())
@@ -107,7 +108,7 @@ pub fn extract_and_delete_zip_file(
   zip_path: &PathBuf,
   extract_dir: &Path,
   strip_top_dir: bool,
-) -> Result<(), zip_extract::ZipExtractError> {
+) -> Result<()> {
   extract_zip_file(zip_path, extract_dir, strip_top_dir)?;
   std::fs::remove_file(zip_path)?;
   Ok(())
@@ -116,7 +117,7 @@ pub fn extract_and_delete_zip_file(
 pub fn check_if_zip_contains_top_level_entry<P: AsRef<Path>>(
   path: P,
   expected: &str,
-) -> Result<bool, Box<dyn std::error::Error>> {
+) -> Result<bool> {
   let file = File::open(path)?;
   let reader = BufReader::new(file);
   let mut zip = zip::ZipArchive::new(reader)?;
