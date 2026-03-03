@@ -13,14 +13,13 @@ use tokio::process::Command;
 
 use crate::{
   cache::{LauncherCache, ModInfo},
-  commands::{CommandError, binaries::InstallStepOutput, cache::get_mod_sources_data},
+  commands::{CommandError, binaries::InstallStepOutput},
   config::{ExecutableLocation, LauncherConfig, SupportedGame},
   util::{
     file::{create_dir, delete_dir, to_image_base64},
     network::download_file,
     process::{create_log_file, create_std_log_file, watch_process},
-    tar::{extract_and_delete_tar_ball, extract_archive},
-    zip::extract_and_delete_zip_file,
+    tar::{extract_and_delete_archive, extract_archive},
   },
 };
 
@@ -68,68 +67,51 @@ pub async fn download_and_extract_new_mod(
   download_url: String,
   mod_name: String,
   source_name: String,
-) -> Result<InstallStepOutput, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't download and extract mod".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
+) -> Result<InstallStepOutput, String> {
+  let install_path = {
+    let config_lock = config.lock().await;
+    config_lock.install_dir()?
   };
 
   // Download the file
-  let parent_path = &install_path
+  let destination_dir = install_path
     .join("features")
     .join(game_name.to_string())
     .join("mods")
     .join(&source_name)
     .join(&mod_name);
-  let download_path = &parent_path.join(format!("{mod_name}.zip"));
+  let download_path = &destination_dir.join(format!("{mod_name}.zip"));
 
-  delete_dir(parent_path)?;
-  create_dir(parent_path)?;
-  download_file(&download_url, download_path).await?;
-
-  if cfg!(windows) {
-    extract_and_delete_zip_file(download_path, parent_path, false).map_err(|err| {
-      log::error!("Unable to extract mod: {}", err);
-      CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
-    })?;
-  } else if cfg!(unix) {
-    extract_and_delete_tar_ball(download_path, parent_path)?;
-  } else {
-    Err(CommandError::VersionManagement(
-      "Unknown operating system, unable to download and extract mod".to_owned(),
-    ))?;
-  }
+  delete_dir(&destination_dir).map_err(|e| e.to_string())?;
+  create_dir(&destination_dir).map_err(|e| e.to_string())?;
+  download_file(&download_url, &download_path)
+    .await
+    .map_err(|e| e.to_string())?;
+  extract_and_delete_archive(&download_path, &destination_dir).map_err(|e| e.to_string())?;
 
   // Persist the info about the mod to the disk in the event that the mod source is removed / etc
-  let mod_source_data = get_mod_sources_data(cache).await;
-  match mod_source_data {
-    Ok(mod_source_data) => {
-      let relevant_mod_source = mod_source_data
-        .iter()
-        .find(|(_mod_source_url, mod_source_data)| mod_source_data.source_name == source_name);
-      if let Some(found_mode_source) = relevant_mod_source {
-        if let Some(mod_info) = found_mode_source.1.mods.get(&mod_name) {
-          let metadata_path = parent_path.join("_metadata.json");
-          log::info!("saving mod info to: {metadata_path:?}");
-          create_dir(&metadata_path.parent().unwrap())?;
-          let file = fs::File::create(metadata_path)?;
-          if let Err(err) = serde_json::to_writer_pretty(file, mod_info) {
-            log::error!("Unable to save _metadata.json file: {err:?}")
-          }
-        }
-      }
-    }
-    Err(err) => {
-      log::error!(
-        "Unable to fetch mod source data, so unable to persist metadata to disk: {err:?}"
-      );
-    }
-  }
+  let mod_info = {
+    let cache_lock = cache.lock().await;
+    cache_lock
+      .mod_sources
+      .iter()
+      .find(|(_, data)| data.source_name == source_name)
+      .and_then(|(_, source)| source.mods.get(&mod_name))
+      .cloned()
+      .ok_or_else(|| format!("Unable to find mod {} in source {}", mod_name, source_name))?
+  };
+
+  let metadata_path = destination_dir.join("_metadata.json");
+  let parent = metadata_path
+    .parent()
+    .ok_or_else(|| "Unable to get parent directory for mod metadata".to_owned())?;
+
+  create_dir(parent).map_err(|e| e.to_string())?;
+  let file = fs::File::create(&metadata_path).map_err(|e| e.to_string())?;
+
+  log::info!("saving mod info to: {}", &metadata_path.display());
+  serde_json::to_writer_pretty(file, &mod_info)
+    .map_err(|e| format!("Unable to save mod metadata: {}", e).to_string())?;
 
   Ok(InstallStepOutput {
     success: true,
