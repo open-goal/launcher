@@ -8,6 +8,8 @@ use crate::{config::SupportedGame, util::network::download_json};
 
 #[derive(Debug, thiserror::Error)]
 pub enum CacheError {
+  #[error(transparent)]
+  Anyhow(#[from] anyhow::Error),
   #[error("{0}")]
   #[allow(dead_code)]
   ModSource(String),
@@ -130,49 +132,48 @@ impl LauncherCache {
     }
   }
 
+  // TODO: this function is a beast and needs to be tackled later
   pub async fn refresh_mod_sources(&mut self, sources: Vec<String>) -> Result<(), CacheError> {
     self.mod_sources.clear();
     for source in sources {
-      let source_json = download_json(&source).await;
-      match source_json {
-        Ok(json) => match serde_json::from_str(&json) {
-          Ok(json_value) => {
-            let source_schema_data: ModSourceDataSchema = json_value;
-            let source_name = source_schema_data.source_name.clone();
-            let source_mods_data = source_schema_data
-              .mods
-              .into_iter()
-              .map(|(mod_name, mod_info)| {
-                let mut info: ModInfo = mod_info.into();
-                info.name = mod_name;
-                info.source = source_name.clone();
-                (info.name.clone(), info)
-              })
-              .collect();
-            let source_textures_data = source_schema_data
-              .texture_packs
-              .into_iter()
-              .map(|(mod_name, mod_info)| {
-                let mut info: ModInfo = mod_info.into();
-                info.name = mod_name;
-                info.source = source_name.clone();
-                (info.name.clone(), info)
-              })
-              .collect();
-            let source_data = ModSourceData {
-              schema_version: source_schema_data.schema_version,
-              source_name: source_schema_data.source_name,
-              last_updated: source_schema_data.last_updated,
-              mods: source_mods_data,
-              texture_packs: source_textures_data,
-            };
-            self.mod_sources.insert(source, source_data);
-          }
-          Err(err) => error!("Unable to convert {json} to typed value: {err:?}"),
-        },
-        Err(err) => {
-          error!("Unable to download json from {source}: {err:?}")
+      let source_json = download_json(&source).await?;
+      match serde_json::from_str(&source_json) {
+        Ok(json_value) => {
+          let source_schema_data: ModSourceDataSchema = json_value;
+          let source_name = source_schema_data.source_name.clone();
+          let source_mods_data = source_schema_data
+            .mods
+            .into_iter()
+            .map(|(mod_name, mod_info)| {
+              let mut info: ModInfo = mod_info.into();
+              info.name = mod_name;
+              info.source = source_name.clone();
+              (info.name.clone(), info)
+            })
+            .collect();
+
+          let source_textures_data = source_schema_data
+            .texture_packs
+            .into_iter()
+            .map(|(mod_name, mod_info)| {
+              let mut info: ModInfo = mod_info.into();
+              info.name = mod_name;
+              info.source = source_name.clone();
+              (info.name.clone(), info)
+            })
+            .collect();
+
+          let source_data = ModSourceData {
+            schema_version: source_schema_data.schema_version,
+            source_name: source_schema_data.source_name,
+            last_updated: source_schema_data.last_updated,
+            mods: source_mods_data,
+            texture_packs: source_textures_data,
+          };
+
+          self.mod_sources.insert(source, source_data);
         }
+        Err(err) => error!("Unable to convert {source_json} to typed value: {err:?}"),
       }
     }
     Ok(())
