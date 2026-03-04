@@ -33,17 +33,19 @@ pub fn extract_and_delete_tar_ball(
 }
 
 pub fn extract_archive(archive: &Path, dest: &Path) -> Result<()> {
-  match archive.extension().and_then(|e| e.to_str()) {
-    Some("zip") => extract_zip_file(archive, dest, false),
-    Some("gz") => extract_tar_ball(archive, dest),
+  std::fs::create_dir_all(dest)?;
+  match archive.file_name().and_then(|n| n.to_str()) {
+    Some(name) if name.ends_with(".zip") => extract_zip_file(archive, dest, false),
+    Some(name) if name.ends_with(".tar.gz") => extract_tar_ball(archive, dest),
     _ => anyhow::bail!("Unsupported archive format (expected .zip or .tar.gz)"),
   }
 }
 
 pub fn extract_and_delete_archive(archive: &Path, dest: &Path) -> Result<()> {
-  match archive.extension().and_then(|e| e.to_str()) {
-    Some("zip") => extract_and_delete_zip_file(archive, dest, false),
-    Some("gz") => extract_and_delete_tar_ball(archive, dest),
+  std::fs::create_dir_all(dest)?;
+  match archive.file_name().and_then(|n| n.to_str()) {
+    Some(name) if name.ends_with(".zip") => extract_and_delete_zip_file(archive, dest, false),
+    Some(name) if name.ends_with(".tar.gz") => extract_and_delete_tar_ball(archive, dest),
     _ => anyhow::bail!("Unsupported archive format (expected .zip or .tar.gz)"),
   }
 }
