@@ -11,14 +11,11 @@ use super::CommandError;
 pub async fn refresh_mod_sources(
   cache: tauri::State<'_, tokio::sync::Mutex<ModCache>>,
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-) -> Result<(), CommandError> {
+) -> Result<(), ()> {
   let mut cache_lock = cache.lock().await;
   let config_lock = config.lock().await;
   let mod_sources = config_lock.mod_sources.clone();
-  cache_lock
-    .refresh_mod_sources(mod_sources)
-    .await
-    .map_err(|_| CommandError::Cache("Unable to refresh mod source cache".to_owned()))?;
+  cache_lock.refresh_mod_sources(mod_sources).await;
   Ok(())
 }
 

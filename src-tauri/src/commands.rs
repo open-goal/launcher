@@ -22,8 +22,6 @@ pub enum CommandError {
   NetworkRequest(#[from] reqwest::Error),
   #[error("{0}")]
   Configuration(String),
-  #[error("{0}")]
-  Cache(String),
   #[error(transparent)]
   TauriEvent(#[from] tauri::Error),
   #[error("{0}")]
