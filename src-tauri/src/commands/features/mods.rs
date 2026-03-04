@@ -8,7 +8,6 @@ use std::{
 };
 
 use anyhow::ensure;
-use serde::{Deserialize, Serialize};
 use tauri::Emitter;
 use tokio::process::Command;
 
@@ -199,11 +198,6 @@ fn get_mod_exec_location(
     executable_dir: exec_dir,
     executable_path: exec_path,
   })
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct LauncherErrorCode {
-  msg: String,
 }
 
 #[tauri::command]
