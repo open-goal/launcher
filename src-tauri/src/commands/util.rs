@@ -1,30 +1,12 @@
 use crate::config::LauncherConfig;
 use crate::config::SupportedGame;
-use crate::util::file::delete_dir;
 use log::error;
 use std::path::Path;
 use sysinfo::Disks;
 #[cfg(target_os = "macos")]
 use sysinfo::System;
-use tauri::Manager;
 
 use super::CommandError;
-
-#[tauri::command]
-pub async fn has_old_data_directory(app_handle: tauri::AppHandle) -> Result<bool, CommandError> {
-  match &app_handle.path().app_config_dir() {
-    Ok(dir) => Ok(dir.join("data").join("iso_data").exists()),
-    Err(_) => Ok(false),
-  }
-}
-
-#[tauri::command]
-pub async fn delete_old_data_directory(app_handle: tauri::AppHandle) -> Result<(), CommandError> {
-  match &app_handle.path().app_config_dir() {
-    Ok(dir) => Ok(delete_dir(dir.join("data"))?),
-    Err(_) => Ok(()),
-  }
-}
 
 #[tauri::command]
 pub async fn is_diskspace_requirement_met(

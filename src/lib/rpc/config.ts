@@ -8,14 +8,6 @@ import { appDataDir, join } from "@tauri-apps/api/path";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import type { SupportedGame } from "./bindings/SupportedGame";
 
-export async function oldDataDirectoryExists(): Promise<boolean> {
-  return await invoke_rpc("has_old_data_directory", {}, () => false);
-}
-
-export async function deleteOldDataDirectory(): Promise<void> {
-  return await invoke_rpc("delete_old_data_directory", {}, () => {});
-}
-
 export async function resetLauncherSettingsToDefaults(): Promise<boolean> {
   const success = await invoke_rpc(
     "reset_to_defaults",
