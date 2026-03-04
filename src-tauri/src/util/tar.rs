@@ -33,6 +33,7 @@ pub fn extract_and_delete_tar_ball(
 }
 
 pub fn extract_archive(archive: &Path, dest: &Path) -> Result<()> {
+  std::fs::create_dir_all(dest)?;
   match archive.extension().and_then(|e| e.to_str()) {
     Some("zip") => extract_zip_file(archive, dest, false),
     Some("gz") => extract_tar_ball(archive, dest),
@@ -41,6 +42,7 @@ pub fn extract_archive(archive: &Path, dest: &Path) -> Result<()> {
 }
 
 pub fn extract_and_delete_archive(archive: &Path, dest: &Path) -> Result<()> {
+  std::fs::create_dir_all(dest)?;
   match archive.extension().and_then(|e| e.to_str()) {
     Some("zip") => extract_and_delete_zip_file(archive, dest, false),
     Some("gz") => extract_and_delete_tar_ball(archive, dest),

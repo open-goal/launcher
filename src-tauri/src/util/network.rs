@@ -3,15 +3,18 @@ use std::path::Path;
 use tokio;
 use tokio::io::AsyncWriteExt;
 
-pub async fn download_file(url: &str, destination: impl AsRef<Path>) -> Result<()> {
-  let destination = destination.as_ref();
+pub async fn download_file(url: &str, destination: &Path) -> Result<()> {
+  if let Some(parent) = destination.parent() {
+    tokio::fs::create_dir_all(parent).await?;
+  }
+
   let mut response = reqwest::get(url)
     .await
     .with_context(|| format!("Failed to download file from: {url}"))?
     .error_for_status()
     .with_context(|| format!("Server returned error for {url}"))?;
 
-  let mut file = tokio::fs::File::create(&destination)
+  let mut file = tokio::fs::File::create(destination)
     .await
     .with_context(|| {
       format!(

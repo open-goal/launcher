@@ -6,9 +6,7 @@ use serde_json::Value;
 use crate::{
   config::LauncherConfig,
   util::{
-    file::{create_dir, delete_dir},
-    network::download_file,
-    tar::extract_and_delete_tar_ball,
+    file::delete_dir, network::download_file, tar::extract_and_delete_tar_ball,
     zip::extract_and_delete_zip_file,
   },
 };
@@ -85,9 +83,8 @@ pub async fn download_version(
     .join(&version_folder)
     .join(&version);
 
-  // Delete the directory if it exists, and create it from scratch
+  // Delete the directory if it exists
   delete_dir(&dest_dir)?;
-  create_dir(&dest_dir)?;
 
   if cfg!(windows) {
     let download_path = install_path

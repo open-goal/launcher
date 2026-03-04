@@ -16,7 +16,7 @@ use crate::{
   commands::{CommandError, binaries::InstallStepOutput},
   config::{ExecutableLocation, LauncherConfig, SupportedGame},
   util::{
-    file::{create_dir, delete_dir, to_image_base64},
+    file::{delete_dir, to_image_base64},
     network::download_file,
     process::{create_log_file, create_std_log_file, watch_process},
     tar::{extract_and_delete_archive, extract_archive},
@@ -50,7 +50,6 @@ pub async fn extract_new_mod(
     .join(&mod_name);
 
   delete_dir(&destination_dir)?;
-  create_dir(&destination_dir)?;
   extract_archive(&bundle_path, &destination_dir)?;
 
   Ok(InstallStepOutput {
@@ -83,7 +82,6 @@ pub async fn download_and_extract_new_mod(
   let download_path = &destination_dir.join(format!("{mod_name}.zip"));
 
   delete_dir(&destination_dir)?;
-  create_dir(&destination_dir)?;
   download_file(&download_url, &download_path).await?;
   extract_and_delete_archive(&download_path, &destination_dir)?;
 
@@ -100,11 +98,6 @@ pub async fn download_and_extract_new_mod(
   };
 
   let metadata_path = destination_dir.join("_metadata.json");
-  let parent = metadata_path
-    .parent()
-    .ok_or_else(|| anyhow::anyhow!("Unable to get parent directory for mod metadata"))?;
-
-  create_dir(parent)?;
   let file = fs::File::create(&metadata_path)?;
 
   log::info!("saving mod info to: {}", &metadata_path.display());
@@ -238,8 +231,6 @@ pub async fn extract_iso_for_mod_install(
     .join(game_name.to_string())
     .join("data")
     .join("iso_data");
-
-  create_dir(&iso_extraction_dir)?;
 
   let args = vec![
     path_to_iso,

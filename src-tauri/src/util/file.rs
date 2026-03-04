@@ -14,13 +14,9 @@ pub fn delete_dir(path: impl AsRef<Path>) -> Result<()> {
   Ok(())
 }
 
-pub fn create_dir(path: impl AsRef<Path>) -> Result<()> {
-  let path = path.as_ref();
-  if !path.exists() {
-    std::fs::create_dir_all(path)
-      .with_context(|| format!("Failed to create directory: {}", path.display()))?;
-  }
-  Ok(())
+pub fn create_dir(path: &Path) -> Result<()> {
+  std::fs::create_dir_all(path)
+    .with_context(|| format!("Failed to create directory: {}", path.display()))
 }
 
 pub fn overwrite_dir(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> Result<()> {
