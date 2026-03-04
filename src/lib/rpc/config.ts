@@ -76,6 +76,7 @@ export async function isDiskSpaceRequirementMet(
     "is_diskspace_requirement_met",
     { gameName },
     () => undefined,
+    "_mirror_",
   );
 }
 
