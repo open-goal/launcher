@@ -1,19 +1,11 @@
 use std::collections::HashMap;
 
+use anyhow::{Context, Result};
 use log::error;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 use crate::{config::SupportedGame, util::network::download_json};
-
-#[derive(Debug, thiserror::Error)]
-pub enum CacheError {
-  #[error(transparent)]
-  Anyhow(#[from] anyhow::Error),
-  #[error("{0}")]
-  #[allow(dead_code)]
-  ModSource(String),
-}
 
 #[derive(Debug, Serialize, Deserialize, Clone, TS)]
 #[serde(rename_all = "camelCase")]
@@ -121,61 +113,59 @@ pub struct ModSourceData {
   pub texture_packs: HashMap<String, ModInfo>,
 }
 
-pub struct LauncherCache {
+pub struct ModCache {
   pub mod_sources: HashMap<String, ModSourceData>,
 }
 
-impl LauncherCache {
+impl ModCache {
   pub fn default() -> Self {
     Self {
       mod_sources: HashMap::new(),
     }
   }
 
-  // TODO: this function is a beast and needs to be tackled later
-  pub async fn refresh_mod_sources(&mut self, sources: Vec<String>) -> Result<(), CacheError> {
-    self.mod_sources.clear();
-    for source in sources {
-      let source_json = download_json(&source).await?;
-      match serde_json::from_str(&source_json) {
-        Ok(json_value) => {
-          let source_schema_data: ModSourceDataSchema = json_value;
-          let source_name = source_schema_data.source_name.clone();
-          let source_mods_data = source_schema_data
-            .mods
-            .into_iter()
-            .map(|(mod_name, mod_info)| {
-              let mut info: ModInfo = mod_info.into();
-              info.name = mod_name;
-              info.source = source_name.clone();
-              (info.name.clone(), info)
-            })
-            .collect();
+  async fn refresh_mod_source(&mut self, url: String) -> Result<()> {
+    let source_json = download_json(&url).await?;
+    let schema: ModSourceDataSchema = serde_json::from_str(&source_json)
+      .with_context(|| format!("Failed to parse mod source JSON from {url}"))?;
 
-          let source_textures_data = source_schema_data
-            .texture_packs
-            .into_iter()
-            .map(|(mod_name, mod_info)| {
-              let mut info: ModInfo = mod_info.into();
-              info.name = mod_name;
-              info.source = source_name.clone();
-              (info.name.clone(), info)
-            })
-            .collect();
+    let source_name = schema.source_name.clone();
+    let mods = schema
+      .mods
+      .into_iter()
+      .map(|(name, schema)| (name, schema, source_name.clone()))
+      .map(ModInfo::from)
+      .map(|info| (info.name.clone(), info))
+      .collect();
 
-          let source_data = ModSourceData {
-            schema_version: source_schema_data.schema_version,
-            source_name: source_schema_data.source_name,
-            last_updated: source_schema_data.last_updated,
-            mods: source_mods_data,
-            texture_packs: source_textures_data,
-          };
+    let texture_packs = schema
+      .texture_packs
+      .into_iter()
+      .map(|(name, schema)| (name, schema, source_name.clone()))
+      .map(ModInfo::from)
+      .map(|info| (info.name.clone(), info))
+      .collect();
 
-          self.mod_sources.insert(source, source_data);
-        }
-        Err(err) => error!("Unable to convert {source_json} to typed value: {err:?}"),
-      }
-    }
+    self.mod_sources.insert(
+      url,
+      ModSourceData {
+        schema_version: schema.schema_version,
+        source_name: schema.source_name,
+        last_updated: schema.last_updated,
+        mods,
+        texture_packs,
+      },
+    );
     Ok(())
+  }
+
+  pub async fn refresh_mod_sources(&mut self, sources: Vec<String>) {
+    self.mod_sources.clear();
+    for url in sources {
+      self
+        .refresh_mod_source(url)
+        .await
+        .unwrap_or_else(|err| error!("{err:#}"));
+    }
   }
 }

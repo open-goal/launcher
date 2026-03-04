@@ -7,79 +7,52 @@ use std::{
   process::Stdio,
 };
 
-use serde::{Deserialize, Serialize};
+use anyhow::ensure;
 use tauri::Emitter;
 use tokio::process::Command;
 
 use crate::{
-  cache::{LauncherCache, ModInfo},
-  commands::{CommandError, binaries::InstallStepOutput, cache::get_mod_sources_data},
+  cache::{ModCache, ModInfo},
+  commands::{CommandError, binaries::InstallStepOutput},
   config::{ExecutableLocation, LauncherConfig, SupportedGame},
   util::{
     file::{create_dir, delete_dir, to_image_base64},
     network::download_file,
     process::{create_log_file, create_std_log_file, watch_process},
-    tar::{extract_and_delete_tar_ball, extract_tar_ball},
-    zip::{extract_and_delete_zip_file, extract_zip_file},
+    tar::{extract_and_delete_archive, extract_archive},
   },
 };
-
-fn strip_tar_gz(path: &String) -> String {
-  if path.ends_with(".tar") {
-    return path.strip_suffix(".tar").unwrap().to_string();
-  }
-  return path.to_string();
-}
 
 #[tauri::command]
 pub async fn extract_new_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,
-  bundle_path: String,
+  bundle_path: PathBuf,
   mod_source: String,
 ) -> Result<InstallStepOutput, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't extract mod".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
+  let install_path = {
+    let config_lock = config.lock().await;
+    config_lock.install_dir()?
   };
 
   // The name of the zip becomes the folder, if one already exists it will be deleted!
-  let bundle_path_buf = PathBuf::from(bundle_path);
-  let mut mod_name = match bundle_path_buf.file_stem() {
-    Some(name) => name.to_string_lossy().to_string(),
-    None => {
-      return Err(CommandError::GameFeatures(
-        "Unable to get mod name from zip file path".to_string(),
-      ));
-    }
-  };
-  // .tar.gz files will only get the .gz portion stripped
-  mod_name = strip_tar_gz(&mod_name);
-  let destination_dir = &install_path
+  let mod_name = bundle_path
+    .file_stem()
+    .and_then(|stem| stem.to_str())
+    .map(|s| s.strip_suffix(".tar").unwrap_or(s))
+    .ok_or_else(|| anyhow::anyhow!("Unable to get mod name from archive path"))?;
+
+  let destination_dir = install_path
     .join("features")
     .join(game_name.to_string())
     .join("mods")
     .join(mod_source)
     .join(&mod_name);
-  delete_dir(destination_dir)?;
-  create_dir(destination_dir)?;
-  if cfg!(windows) {
-    extract_zip_file(&bundle_path_buf, destination_dir, false).map_err(|err| {
-      log::error!("Unable to extract mod: {}", err);
-      CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
-    })?;
-  } else if cfg!(unix) {
-    extract_tar_ball(&bundle_path_buf, destination_dir)?;
-  } else {
-    Err(CommandError::VersionManagement(
-      "Unknown operating system, unable to download and extract mod".to_owned(),
-    ))?;
-  }
+
+  delete_dir(&destination_dir)?;
+  create_dir(&destination_dir)?;
+  extract_archive(&bundle_path, &destination_dir)?;
+
   Ok(InstallStepOutput {
     success: true,
     msg: None,
@@ -89,73 +62,54 @@ pub async fn extract_new_mod(
 #[tauri::command]
 pub async fn download_and_extract_new_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  cache: tauri::State<'_, tokio::sync::Mutex<LauncherCache>>,
+  cache: tauri::State<'_, tokio::sync::Mutex<ModCache>>,
   game_name: SupportedGame,
   download_url: String,
   mod_name: String,
   source_name: String,
 ) -> Result<InstallStepOutput, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't download and extract mod".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
+  let install_path = {
+    let config_lock = config.lock().await;
+    config_lock.install_dir()?
   };
 
   // Download the file
-  let parent_path = &install_path
+  let destination_dir = install_path
     .join("features")
     .join(game_name.to_string())
     .join("mods")
     .join(&source_name)
     .join(&mod_name);
-  let download_path = &parent_path.join(format!("{mod_name}.zip"));
+  let download_path = &destination_dir.join(format!("{mod_name}.zip"));
 
-  delete_dir(parent_path)?;
-  create_dir(parent_path)?;
-  download_file(&download_url, download_path).await?;
-
-  if cfg!(windows) {
-    extract_and_delete_zip_file(download_path, parent_path, false).map_err(|err| {
-      log::error!("Unable to extract mod: {}", err);
-      CommandError::GameFeatures(format!("Unable to extract mod: {}", err))
-    })?;
-  } else if cfg!(unix) {
-    extract_and_delete_tar_ball(download_path, parent_path)?;
-  } else {
-    Err(CommandError::VersionManagement(
-      "Unknown operating system, unable to download and extract mod".to_owned(),
-    ))?;
-  }
+  delete_dir(&destination_dir)?;
+  create_dir(&destination_dir)?;
+  download_file(&download_url, &download_path).await?;
+  extract_and_delete_archive(&download_path, &destination_dir)?;
 
   // Persist the info about the mod to the disk in the event that the mod source is removed / etc
-  let mod_source_data = get_mod_sources_data(cache).await;
-  match mod_source_data {
-    Ok(mod_source_data) => {
-      let relevant_mod_source = mod_source_data
-        .iter()
-        .find(|(_mod_source_url, mod_source_data)| mod_source_data.source_name == source_name);
-      if let Some(found_mode_source) = relevant_mod_source {
-        if let Some(mod_info) = found_mode_source.1.mods.get(&mod_name) {
-          let metadata_path = parent_path.join("_metadata.json");
-          log::info!("saving mod info to: {metadata_path:?}");
-          create_dir(&metadata_path.parent().unwrap())?;
-          let file = fs::File::create(metadata_path)?;
-          if let Err(err) = serde_json::to_writer_pretty(file, mod_info) {
-            log::error!("Unable to save _metadata.json file: {err:?}")
-          }
-        }
-      }
-    }
-    Err(err) => {
-      log::error!(
-        "Unable to fetch mod source data, so unable to persist metadata to disk: {err:?}"
-      );
-    }
-  }
+  let mod_info = {
+    let cache_lock = cache.lock().await;
+    cache_lock
+      .mod_sources
+      .iter()
+      .find(|(_, data)| data.source_name == source_name)
+      .and_then(|(_, source)| source.mods.get(&mod_name))
+      .cloned()
+      .ok_or_else(|| anyhow::anyhow!("Unable to find mod {} in source {}", mod_name, source_name))?
+  };
+
+  let metadata_path = destination_dir.join("_metadata.json");
+  let parent = metadata_path
+    .parent()
+    .ok_or_else(|| anyhow::anyhow!("Unable to get parent directory for mod metadata"))?;
+
+  create_dir(parent)?;
+  let file = fs::File::create(&metadata_path)?;
+
+  log::info!("saving mod info to: {}", &metadata_path.display());
+  serde_json::to_writer_pretty(file, &mod_info)
+    .map_err(|e| anyhow::anyhow!("Unable to save mod metadata: {}", e))?;
 
   Ok(InstallStepOutput {
     success: true,
@@ -170,15 +124,11 @@ pub async fn get_locally_persisted_mod_info(
   mod_name: String,
   source_name: String,
 ) -> Result<ModInfo, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't find mod metadata".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
+  let install_path = {
+    let config_lock = config.lock().await;
+    config_lock.install_dir()?
   };
+
   let metadata_path = &install_path
     .join("features")
     .join(game_name.to_string())
@@ -186,16 +136,16 @@ pub async fn get_locally_persisted_mod_info(
     .join(&source_name)
     .join(&mod_name)
     .join("_metadata.json");
+
   if metadata_path.exists() {
     let file = fs::File::open(metadata_path)?;
-    let mod_info = serde_json::from_reader(file).map_err(|_| {
-      CommandError::GameFeatures("Unable to deserialize local mod metadata".to_string())
-    })?;
+    let mod_info = serde_json::from_reader(file)
+      .map_err(|e| anyhow::anyhow!("Unable to deserialize local mod metadata: {}", e))?;
     return Ok(mod_info);
   }
-  Err(CommandError::GameFeatures(
-    "Locally persisted mod metadata does not exist".to_string(),
-  ))
+  Err(anyhow::anyhow!(
+    "Locally persisted mod metadata does not exist"
+  ))?
 }
 
 #[tauri::command]
@@ -203,14 +153,9 @@ pub async fn base_game_iso_exists(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,
 ) -> Result<bool, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't extract mod".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
+  let install_path = {
+    let config_lock = config.lock().await;
+    config_lock.install_dir()?
   };
   Ok(
     install_path
@@ -224,41 +169,35 @@ pub async fn base_game_iso_exists(
 }
 
 fn get_mod_exec_location(
-  install_path: PathBuf,
+  install_path: &Path,
   executable_name: &str,
   game_name: SupportedGame,
   mod_name: &str,
   source_name: &str,
-) -> Result<ExecutableLocation, CommandError> {
+) -> anyhow::Result<ExecutableLocation> {
   let exec_dir = install_path
     .join("features")
     .join(game_name.to_string())
     .join("mods")
     .join(source_name)
     .join(mod_name);
-  let mut exec_path: PathBuf = exec_dir.join(executable_name);
-  if cfg!(windows) {
-    exec_path.set_extension("exe");
-  }
-  if !exec_path.exists() {
-    log::error!(
-      "Could not find the required binary '{}', can't perform operation",
-      exec_path.to_string_lossy()
-    );
-    return Err(CommandError::BinaryExecution(format!(
-      "Could not find the required binary '{}', can't perform operation",
-      exec_path.to_string_lossy()
-    )));
-  }
+
+  #[cfg(windows)]
+  let exec_path = exec_dir.join(executable_name).with_extension("exe");
+
+  #[cfg(not(windows))]
+  let exec_path = exec_dir.join(executable_name);
+
+  ensure!(
+    exec_path.exists(),
+    "Executable not found at expected path: {}",
+    exec_path.display()
+  );
+
   Ok(ExecutableLocation {
     executable_dir: exec_dir,
     executable_path: exec_path,
   })
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct LauncherErrorCode {
-  msg: String,
 }
 
 #[tauri::command]
@@ -270,28 +209,26 @@ pub async fn extract_iso_for_mod_install(
   source_name: String,
   path_to_iso: String,
 ) -> Result<InstallStepOutput, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't extract mod".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
+  let install_path = {
+    let config_lock = config.lock().await;
+    config_lock.install_dir()?
   };
+
   let exec_info = match get_mod_exec_location(
-    install_path.to_path_buf(),
+    &install_path,
     "extractor",
     game_name,
     &mod_name,
     &source_name,
   ) {
     Ok(exec_info) => exec_info,
-    Err(_) => {
-      log::error!("extractor executable not found");
+    Err(e) => {
       return Ok(InstallStepOutput {
         success: false,
-        msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
+        msg: Some(format!(
+          "Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again. {}",
+          e
+        )),
       });
     }
   };
@@ -300,13 +237,12 @@ pub async fn extract_iso_for_mod_install(
     .join("active")
     .join(game_name.to_string())
     .join("data")
-    .join("iso_data")
-    .to_path_buf();
+    .join("iso_data");
 
   create_dir(&iso_extraction_dir)?;
 
   let args = vec![
-    path_to_iso.clone(),
+    path_to_iso,
     "--extract".to_string(),
     "--validate".to_string(),
     "--extract-path".to_string(),
@@ -345,21 +281,15 @@ pub async fn extract_iso_for_mod_install(
       msg: None,
     });
   }
-  if let Some(code) = status.code() {
-    let default_error = LauncherErrorCode {
-      msg: format!("Unexpected error occured with code {code}"),
-    };
-    log::error!("extraction and validation was not successful. Code {code}");
-    return Ok(InstallStepOutput {
-      success: false,
-      msg: Some(default_error.msg.clone()),
-    });
-  }
 
-  log::error!("extraction and validation was not successful. No status code");
+  let msg = status
+    .code()
+    .map(|code| format!("Unexpected error occurred with code {code}"))
+    .unwrap_or_else(|| "Unexpected error occurred".to_owned());
+
   Ok(InstallStepOutput {
     success: false,
-    msg: Some("Unexpected error occurred".to_owned()),
+    msg: Some(msg),
   })
 }
 
@@ -371,28 +301,26 @@ pub async fn decompile_for_mod_install(
   mod_name: String,
   source_name: String,
 ) -> Result<InstallStepOutput, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't extract mod".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
+  let install_path = {
+    let config_lock = config.lock().await;
+    config_lock.install_dir()?
   };
+
   let exec_info = match get_mod_exec_location(
-    install_path.to_path_buf(),
+    &install_path,
     "extractor",
     game_name,
     &mod_name,
     &source_name,
   ) {
     Ok(exec_info) => exec_info,
-    Err(_) => {
-      log::error!("extractor executable not found");
+    Err(e) => {
       return Ok(InstallStepOutput {
         success: false,
-        msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
+        msg: Some(format!(
+          "Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again. {}",
+          e
+        )),
       });
     }
   };
@@ -402,8 +330,7 @@ pub async fn decompile_for_mod_install(
     .join(game_name.to_string())
     .join("data")
     .join("iso_data")
-    .join(game_name.to_string())
-    .to_path_buf();
+    .join(game_name.to_string());
 
   let args = vec![
     iso_dir.clone().to_string_lossy().into_owned(),
@@ -439,21 +366,14 @@ pub async fn decompile_for_mod_install(
     });
   }
 
-  if let Some(code) = status.code() {
-    let default_error = LauncherErrorCode {
-      msg: format!("Unexpected error occured with code {code}"),
-    };
-    log::error!("decompilation was not successful. Code {code}");
-    return Ok(InstallStepOutput {
-      success: false,
-      msg: Some(default_error.msg.clone()),
-    });
-  }
+  let msg = status
+    .code()
+    .map(|code| format!("Unexpected error occurred with code {code}"))
+    .unwrap_or_else(|| "Unexpected error occurred".to_owned());
 
-  log::error!("decompilation was not successful. No status code");
   Ok(InstallStepOutput {
     success: false,
-    msg: Some("Unexpected error occurred".to_owned()),
+    msg: Some(msg),
   })
 }
 
@@ -465,28 +385,26 @@ pub async fn compile_for_mod_install(
   mod_name: String,
   source_name: String,
 ) -> Result<InstallStepOutput, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't extract mod".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
+  let install_path = {
+    let config_lock = config.lock().await;
+    config_lock.install_dir()?
   };
   let exec_info = match get_mod_exec_location(
-    install_path.to_path_buf(),
+    &install_path,
     "extractor",
     game_name,
     &mod_name,
     &source_name,
   ) {
     Ok(exec_info) => exec_info,
-    Err(_) => {
+    Err(e) => {
       log::error!("extractor executable not found");
       return Ok(InstallStepOutput {
         success: false,
-        msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
+        msg: Some(format!(
+          "Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again. {}",
+          e
+        )),
       });
     }
   };
@@ -496,8 +414,7 @@ pub async fn compile_for_mod_install(
     .join(game_name.to_string())
     .join("data")
     .join("iso_data")
-    .join(game_name.to_string())
-    .to_path_buf();
+    .join(game_name.to_string());
 
   let args = vec![
     iso_dir.clone().to_string_lossy().into_owned(),
@@ -533,21 +450,14 @@ pub async fn compile_for_mod_install(
     });
   }
 
-  if let Some(code) = status.code() {
-    let default_error = LauncherErrorCode {
-      msg: format!("Unexpected error occured with code {code}"),
-    };
-    log::error!("compilation was not successful. Code {code}");
-    return Ok(InstallStepOutput {
-      success: false,
-      msg: Some(default_error.msg.clone()),
-    });
-  }
+  let msg = status
+    .code()
+    .map(|code| format!("Unexpected error occurred with code {code}"))
+    .unwrap_or_else(|| "Unexpected error occurred".to_owned());
 
-  log::error!("compilation was not successful. No status code");
   Ok(InstallStepOutput {
     success: false,
-    msg: Some("Unexpected error occurred".to_owned()),
+    msg: Some(msg),
   })
 }
 
@@ -624,14 +534,9 @@ pub async fn launch_mod(
   mod_name: String,
   source_name: String,
 ) -> Result<(), CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't extract mod".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
+  let install_path = {
+    let config_lock = config.lock().await;
+    config_lock.install_dir()?
   };
   let config_dir = install_path
     .join("features")
@@ -640,13 +545,7 @@ pub async fn launch_mod(
     .join(&source_name)
     .join("_settings")
     .join(&mod_name);
-  let exec_info = get_mod_exec_location(
-    install_path.to_path_buf(),
-    "gk",
-    game_name,
-    &mod_name,
-    &source_name,
-  )?;
+  let exec_info = get_mod_exec_location(&install_path, "gk", game_name, &mod_name, &source_name)?;
   let args = generate_launch_mod_args(game_name, in_debug, config_dir, false)?;
 
   log::info!("Launching gk args: {:?}", args);
@@ -680,10 +579,9 @@ pub async fn get_local_mod_thumbnail_base64(
   game_name: SupportedGame,
   mod_name: String,
 ) -> Result<String, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => return Ok("".to_string()),
-    Some(path) => Path::new(path),
+  let install_path = {
+    let config_lock = config.lock().await;
+    config_lock.install_dir()?
   };
 
   let cover_path = install_path
@@ -707,14 +605,7 @@ pub async fn uninstall_mod(
   source_name: String,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't extract mod".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
-  };
+  let install_path = config_lock.install_dir()?;
   let mod_dir = install_path
     .join("features")
     .join(game_name.to_string())
@@ -744,14 +635,9 @@ pub async fn reset_mod_settings(
   mod_name: String,
   source_name: String,
 ) -> Result<(), CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't reset mod settings".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
+  let install_path = {
+    let config_lock = config.lock().await;
+    config_lock.install_dir()?
   };
   let path_to_settings = install_path
     .join("features")
@@ -765,16 +651,16 @@ pub async fn reset_mod_settings(
     .join("settings")
     .join("pc-settings.gc");
 
-  if path_to_settings.exists() {
-    let mut backup_file = path_to_settings.clone();
-    backup_file.set_file_name("pc-settings.old.gc");
-    std::fs::rename(path_to_settings, backup_file)?;
-    Ok(())
-  } else {
-    Err(CommandError::GameFeatures(
+  if !path_to_settings.exists() {
+    return Err(CommandError::GameManagement(
       "Game config directory does not exist, cannot reset settings".to_owned(),
-    ))
+    ));
   }
+
+  let mut backup_file = path_to_settings.clone();
+  backup_file.set_file_name("pc-settings.old.gc");
+  std::fs::rename(path_to_settings, backup_file)?;
+  Ok(())
 }
 
 #[tauri::command]
@@ -784,22 +670,11 @@ pub async fn get_launch_mod_string(
   mod_name: String,
   source_name: String,
 ) -> Result<String, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't extract mod".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
+  let install_path = {
+    let config_lock = config.lock().await;
+    config_lock.install_dir()?
   };
-  let exec_info = get_mod_exec_location(
-    install_path.to_path_buf(),
-    "gk",
-    game_name,
-    &mod_name,
-    &source_name,
-  )?;
+  let exec_info = get_mod_exec_location(&install_path, "gk", game_name, &mod_name, &source_name)?;
   let config_dir = install_path
     .join("features")
     .join(game_name.to_string())
@@ -830,29 +705,19 @@ pub async fn open_repl_for_mod(
   mod_name: String,
   source_name: String,
 ) -> Result<(), CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't open REPL for mod".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
+  let install_path = {
+    let config_lock = config.lock().await;
+    config_lock.install_dir()?
   };
   let iso_dir = install_path
     .join("active")
     .join(game_name.to_string())
     .join("data")
     .join("iso_data")
-    .join(game_name.to_string())
-    .to_path_buf();
-  let exec_info = get_mod_exec_location(
-    install_path.to_path_buf(),
-    "goalc",
-    game_name,
-    &mod_name,
-    &source_name,
-  )?;
+    .join(game_name.to_string());
+
+  let exec_info =
+    get_mod_exec_location(&install_path, "goalc", game_name, &mod_name, &source_name)?;
   let mut command;
   #[cfg(windows)]
   {

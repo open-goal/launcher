@@ -165,7 +165,7 @@ fn main() {
         app.path().app_config_dir().ok(),
       ));
       app.manage(config);
-      let cache = tokio::sync::Mutex::new(cache::LauncherCache::default());
+      let cache = tokio::sync::Mutex::new(cache::ModCache::default());
       app.manage(cache);
       Ok(())
     })
