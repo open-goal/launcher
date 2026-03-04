@@ -1,93 +1,45 @@
 use crate::config::LauncherConfig;
 use crate::config::SupportedGame;
-use crate::util::file::delete_dir;
-use log::error;
-use std::path::Path;
+use anyhow::anyhow;
+use log::warn;
 use sysinfo::Disks;
 #[cfg(target_os = "macos")]
 use sysinfo::System;
-use tauri::Manager;
 
 use super::CommandError;
-
-#[tauri::command]
-pub async fn has_old_data_directory(app_handle: tauri::AppHandle) -> Result<bool, CommandError> {
-  match &app_handle.path().app_config_dir() {
-    Ok(dir) => Ok(dir.join("data").join("iso_data").exists()),
-    Err(_) => Ok(false),
-  }
-}
-
-#[tauri::command]
-pub async fn delete_old_data_directory(app_handle: tauri::AppHandle) -> Result<(), CommandError> {
-  match &app_handle.path().app_config_dir() {
-    Ok(dir) => Ok(delete_dir(dir.join("data"))?),
-    Err(_) => Ok(()),
-  }
-}
 
 #[tauri::command]
 pub async fn is_diskspace_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,
 ) -> Result<bool, CommandError> {
-  let config_lock = config.lock().await;
-  if config_lock.games[&game_name].is_installed {
-    return Ok(true);
-  }
-  if config_lock.requirements.bypass_requirements {
-    log::warn!("Bypassing the Disk Space requirements check!");
-    return Ok(true);
-  }
-
-  let install_dir = match &config_lock.installation_dir {
-    None => {
-      error!("Can't check disk space, no install directory has been choosen!");
-      return Err(CommandError::Configuration(
-        "Can't check disk space, no install directory has been choosen!".to_owned(),
-      ));
+  let install_dir = {
+    let config_lock = config.lock().await;
+    if config_lock.games[&game_name].is_installed {
+      return Ok(true);
     }
-    Some(dir) => Path::new(dir),
+    if config_lock.requirements.bypass_requirements {
+      warn!("Bypassing the Disk Space requirements check!");
+      return Ok(true);
+    }
+    config_lock.install_dir()?
   };
 
-  // Check the drive that the installation directory is set to
   let minimum_required_drive_space = game_name.required_diskspace();
 
-  let disks = Disks::new_with_refreshed_list();
-  let mut longest_matching_disk: Option<&sysinfo::Disk> = None;
-
-  for disk in disks.into_iter() {
-    if install_dir.starts_with(disk.mount_point()) {
-      if longest_matching_disk.is_none()
-        || disk.mount_point().as_os_str().len()
-          > longest_matching_disk
-            .unwrap()
-            .mount_point()
-            .as_os_str()
-            .len()
-      {
-        longest_matching_disk = Some(disk);
-      }
-    }
-  }
-  if let Some(disk) = longest_matching_disk {
-    if disk.available_space() < minimum_required_drive_space {
-      log::warn!(
-        "Not enough space ({:?} bytes) left on disk: {:?}, mount point: {:?}",
-        minimum_required_drive_space,
-        disk.name(),
-        disk.mount_point()
-      );
-      Ok(false)
-    } else {
-      Ok(true)
-    }
-  } else {
-    error!("Unable to find relevant drive to check for space");
-    Err(CommandError::Configuration(
-      "Unable to find relevant drive to check for space".to_owned(),
-    ))
-  }
+  Disks::new_with_refreshed_list()
+    .iter()
+    .filter(|d| install_dir.starts_with(d.mount_point()))
+    .max_by_key(|d| d.mount_point().as_os_str().len())
+    .map(|disk| disk.available_space() >= minimum_required_drive_space)
+    .ok_or_else(|| {
+      anyhow!(
+        "No disk found for install directory {}",
+        install_dir.display()
+      )
+    })
+    .map_err(|e| anyhow!("Failed to find relevant drive to check for space: {e}"))
+    .map_err(Into::into)
 }
 
 #[cfg(target_os = "windows")]

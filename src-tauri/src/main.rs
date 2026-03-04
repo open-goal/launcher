@@ -213,8 +213,6 @@ fn main() {
       commands::game::uninstall_game,
       commands::logging::frontend_log,
       commands::support::generate_support_package,
-      commands::util::delete_old_data_directory,
-      commands::util::has_old_data_directory,
       commands::util::is_diskspace_requirement_met,
       commands::util::is_macos_version_15_or_above,
       commands::util::is_minimum_vcc_runtime_installed,
