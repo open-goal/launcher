@@ -1,7 +1,6 @@
-use std::path::Path;
-
 use log::info;
 use serde_json::Value;
+use std::path::Path;
 
 use crate::{
   config::LauncherConfig,
@@ -192,33 +191,5 @@ pub async fn ensure_active_version_still_exists(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<bool, CommandError> {
   let mut config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::VersionManagement(
-        "Cannot install version, no installation directory set".to_owned(),
-      ));
-    }
-    Some(path) => Path::new(path),
-  };
-
-  match &config_lock.active_version {
-    Some(config_version) => {
-      let version_dir = install_path
-        .join("versions")
-        .join("official")
-        .join(config_version);
-      if !version_dir.exists() {
-        // Clear active version if it's no longer available
-        config_lock
-          .update_setting_value("active_version", Value::Null, None)
-          .map_err(|_| {
-            CommandError::VersionManagement(
-              "Unable to clear active version after it was found to be missing".to_owned(),
-            )
-          })?;
-      }
-      Ok(version_dir.exists())
-    }
-    _ => Ok(false),
-  }
+  Ok(config_lock.ensure_active_version_still_exists()?)
 }

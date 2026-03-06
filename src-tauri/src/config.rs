@@ -631,4 +631,23 @@ impl LauncherConfig {
       tooling_version,
     })
   }
+
+  pub fn ensure_active_version_still_exists(&mut self) -> anyhow::Result<bool> {
+    let Some(active_version) = &self.active_version else {
+      return Ok(false);
+    };
+
+    let version_dir = self
+      .install_dir()?
+      .join("versions")
+      .join("official")
+      .join(active_version);
+
+    if version_dir.exists() {
+      return Ok(true);
+    }
+
+    self.update_setting_value("active_version", serde_json::Value::Null, None)?;
+    Ok(false)
+  }
 }
