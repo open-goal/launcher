@@ -1,9 +1,6 @@
-use std::{
-  collections::HashMap,
-  path::{Path, PathBuf},
-};
-
+use anyhow::Result;
 use log::info;
+use std::{collections::HashMap, path::PathBuf};
 use tauri::{Emitter, Manager};
 use walkdir::WalkDir;
 
@@ -20,56 +17,26 @@ pub async fn uninstall_game(
   app_handle: tauri::AppHandle,
   game_name: SupportedGame,
 ) -> Result<bool, CommandError> {
-  let mut config_lock = config.lock().await;
-
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameManagement(
-        "No installation directory set, can't perform uninstallation".to_owned(),
-      ));
-    }
-    Some(path) => Path::new(path),
+  let data_folder = {
+    let config_lock = config.lock().await;
+    config_lock
+      .install_dir()?
+      .join("active")
+      .join(game_name.to_string())
+      .join("data")
   };
 
-  let data_folder = Path::new(install_path)
-    .join("active")
-    .join(game_name.to_string())
-    .join("data");
+  for dir in ["decompiler_out", "iso_data", "out"] {
+    let path = data_folder.join(dir);
+    std::fs::remove_dir_all(&path).map_err(|e| {
+      log::error!("Failed to delete directory {}: {}", path.display(), e);
+      CommandError::from(e)
+    })?;
+  }
 
-  match std::fs::remove_dir_all(data_folder.join("decompiler_out")) {
-    Ok(_) => Ok(false),
-    Err(e) => match e.kind() {
-      std::io::ErrorKind::NotFound => Ok(false),
-      _ => {
-        log::error!("Failed to delete directory: {:?}", e);
-        Err(e)
-      }
-    },
-  }?;
-
-  match std::fs::remove_dir_all(data_folder.join("iso_data")) {
-    Ok(_) => Ok(false),
-    Err(e) => match e.kind() {
-      std::io::ErrorKind::NotFound => Ok(false),
-      _ => {
-        log::error!("Failed to delete directory: {:?}", e);
-        Err(e)
-      }
-    },
-  }?;
-
-  match std::fs::remove_dir_all(data_folder.join("out")) {
-    Ok(_) => Ok(false),
-    Err(e) => match e.kind() {
-      std::io::ErrorKind::NotFound => Ok(false),
-      _ => {
-        log::error!("Failed to delete directory: {:?}", e);
-        Err(e)
-      }
-    },
-  }?;
-
-  config_lock
+  config
+    .lock()
+    .await
     .update_setting_value("installed", false.into(), Some(game_name))
     .map_err(|_| {
       CommandError::GameManagement("Unable to persist game installation status".to_owned())
@@ -83,30 +50,21 @@ pub async fn reset_game_settings(
   app_handle: tauri::AppHandle,
   game_name: SupportedGame,
 ) -> Result<(), CommandError> {
-  let config_dir = match app_handle.path().config_dir() {
-    Ok(path) => path,
-    Err(_) => {
-      return Err(CommandError::GameManagement(
-        "Could not determine game config directory".to_owned(),
-      ));
-    }
-  };
-
-  let path_to_settings = config_dir
+  let path_to_settings = app_handle
+    .path()
+    .config_dir()?
     .join("OpenGOAL")
     .join(game_name.to_string())
     .join("settings")
     .join("pc-settings.gc");
-  if path_to_settings.exists() {
-    let mut backup_file = path_to_settings.clone();
-    backup_file.set_file_name("pc-settings.old.gc");
-    std::fs::rename(path_to_settings, backup_file)?;
-    Ok(())
-  } else {
-    Err(CommandError::GameManagement(
-      "Game config directory does not exist, cannot reset settings".to_owned(),
-    ))
+
+  let backup_file = path_to_settings.with_file_name("pc-settings.old.gc");
+  if let Err(e) = std::fs::rename(&path_to_settings, &backup_file) {
+    if e.kind() != std::io::ErrorKind::NotFound {
+      return Err(e.into());
+    }
   }
+  Ok(())
 }
 
 fn get_saves_highest_milestone(
