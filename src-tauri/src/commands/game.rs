@@ -1,6 +1,6 @@
 use anyhow::Result;
 use log::info;
-use std::{collections::HashMap, path::PathBuf};
+use std::{collections::HashMap, path::Path};
 use tauri::{Emitter, Manager};
 use walkdir::WalkDir;
 
@@ -67,12 +67,35 @@ pub async fn reset_game_settings(
   Ok(())
 }
 
+/// Parses a save file and returns the highest milestone reached.
+///
+/// Save parsing overview:
+/// - Save files contain a tagged structure (`game-save`)
+/// - Tags are located by scanning 16-byte groups
+/// - The name tag appears first and ends with `00 01 00 64`
+/// - The task list (type 300) follows and specifies the number of tasks
+/// - Each task entry is 16 bytes
+///
+/// Task interpretation:
+/// - Byte 0–4: task-status
+/// (invalid 0)
+/// (unknown 1)
+/// (need-hint 2)
+/// (need-introduction 3)
+/// (need-reminder-a 4)
+/// (need-reminder 5)
+/// (need-reward-speech 6)
+/// (need-resolution 7)
+/// - Byte 11: task id
+///
+/// A task is considered:
+/// - introduced if its status is not 0, 1, 6, or 7
+/// - completed if its status is 7
 fn get_saves_highest_milestone(
-  path: &PathBuf,
+  path: impl AsRef<Path>,
   milestones: &[MilestoneCriteria],
 ) -> Option<(String, i32)> {
   // Read the file's bytes and generate a list of all completed tasks
-  let mut tasks: HashMap<u8, GameTaskStatus> = HashMap::new();
   let save_bytes = match std::fs::read(path) {
     Ok(bytes) => bytes,
     Err(err) => {
@@ -81,6 +104,7 @@ fn get_saves_highest_milestone(
     }
   };
 
+  let mut tasks: HashMap<u8, GameTaskStatus> = HashMap::new();
   let mut reading_tasks = false;
   let mut tasks_remaining = 0;
   // Iterate through bytes in 16 byte chunks
@@ -124,75 +148,43 @@ fn get_saves_highest_milestone(
   None
 }
 
-// Returns the most significant milestone in the game the user has achieved
-// this is determined by scanning the user's save files
-// and displaying a relevant screenshot in the frontend to reflect their progress
-//
-// Otherwise, it will default to a default picture (geyser)
+/// Returns the most significant milestone the player has reached.
+///
+/// The frontend uses this value to display a screenshot reflecting the player's progress.
+///
+/// If no saves are found or no milestones can be determined,
+/// the default milestone `"geyser"` is returned.
 #[tauri::command]
 pub async fn get_furthest_game_milestone(
   app_handle: tauri::AppHandle,
   game_name: SupportedGame,
 ) -> Result<String, CommandError> {
-  // TODO - currently only checking Jak 1
-  // Scan each save file, we inspect the `game-save`'s tag list.
-  // - to find the beginning of the tags, scan 16 bytes at a time, find the group that ends with `00 01 00 64` aka 1 element type 100 (name)
-  //  - the name tag always comes first
-  // - next, we continue to scan until we find type `300` which is the task-list
-  //  - this group also says how many tasks there are, each are 16 bytes as well
-  // - then it's just a matter of going through each task and seeing if it's completed or not, they are in order of the `game-task` enum
-  // - for each entity-perm, byte 0-4 corresponds with it's `task-status`:
-  // (invalid 0)
-  // (unknown 1)
-  // (need-hint 2)
-  // (need-introduction 3)
-  // (need-reminder-a 4)
-  // (need-reminder 5)
-  // (need-reward-speech 6)
-  // (need-resolution 7)
-  // - byte 11 corresponds with it's task id
-  // there is also a task status field but we don't really care about it, the task-status entry is sufficient
-  let game_save_dir = match app_handle.path().config_dir() {
-    Ok(config_dir) => {
-      let expected_dir = config_dir
-        .join("OpenGOAL")
-        .join(game_name.to_string())
-        .join("saves");
-      if !expected_dir.exists() {
-        return Ok("geyser".to_owned());
-      }
-      expected_dir
-    }
-    Err(_) => {
-      info!("Couldn't determine game save directory");
-      return Ok("geyser".to_owned());
-    }
-  };
+  // TODO: Support Jak 2 and Jak 3?
+  let game_save_dir = app_handle
+    .path()
+    .config_dir()?
+    .join("OpenGOAL")
+    .join(game_name.to_string())
+    .join("saves");
 
   let milestones = get_jak1_milestones();
 
-  // Scan the directory recursively for any `*.bin` files
-  // Check each save's contents, we don't assume save 0 is the only important one
-  let mut highest_milestone_idx = 0;
-  let mut furthest_milestone_name = "geyser".to_owned();
-  // TODO - a find all X in a dir function would be nice
-  for entry in WalkDir::new(&game_save_dir)
+  // Recursively scan save files and determine the furthest milestone reached.
+  let furthest_milestone_name = WalkDir::new(&game_save_dir)
     .into_iter()
-    .filter_map(|e| e.ok())
-  {
-    if let Some(ext) = entry.path().extension() {
-      if ext == "bin" {
-        info!("Scanning save {}", entry.path().display());
-        if let Some((name, idx)) = get_saves_highest_milestone(&entry.into_path(), &milestones) {
-          info!("Furthest milestone {} at index {}", name, idx);
-          if idx > highest_milestone_idx {
-            highest_milestone_idx = idx;
-            furthest_milestone_name = name.to_owned();
-          }
-        }
-      }
-    }
-  }
+    .filter_map(Result::ok)
+    .filter(|entry| entry.path().extension().is_some_and(|ext| ext == "bin"))
+    .filter_map(|entry| {
+      let path = entry.path();
+      info!("Scanning save {}", path.display());
+      get_saves_highest_milestone(path, &milestones).map(|(name, idx)| {
+        info!("Furthest milestone {} at index {}", name, idx);
+        (name.to_owned(), idx)
+      })
+    })
+    .max_by_key(|(_, idx)| *idx)
+    .map(|(name, _)| name)
+    .unwrap_or_else(|| "geyser".to_owned());
 
   Ok(furthest_milestone_name)
 }
