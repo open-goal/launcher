@@ -9,8 +9,8 @@
 //
 // serde does not support defaultLiterals yet - https://github.com/serde-rs/serde/issues/368
 
-use crate::commands::CommandError;
 use crate::util::file::create_dir;
+use crate::{commands::CommandError, util::file::delete_dir};
 use anyhow::Context;
 use semver::Version;
 use serde::{Deserialize, Serialize};
@@ -649,5 +649,21 @@ impl LauncherConfig {
 
     self.update_setting_value("active_version", serde_json::Value::Null, None)?;
     Ok(false)
+  }
+
+  pub fn remove_version(&mut self, version: &str) -> anyhow::Result<()> {
+    let version_dir = self
+      .install_dir()?
+      .join("versions")
+      .join("official")
+      .join(version);
+
+    delete_dir(&version_dir)?;
+
+    if self.active_version.as_deref() == Some(version) {
+      self.update_setting_value("active_version", serde_json::Value::Null, None)?;
+    }
+
+    Ok(())
   }
 }

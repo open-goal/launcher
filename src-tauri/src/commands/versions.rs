@@ -1,5 +1,3 @@
-use log::info;
-use serde_json::Value;
 use std::path::Path;
 
 use crate::{
@@ -153,37 +151,7 @@ pub async fn remove_version(
   version: String,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::VersionManagement(
-        "Cannot install version, no installation directory set".to_owned(),
-      ));
-    }
-    Some(path) => Path::new(path),
-  };
-
-  let version_dir = install_path
-    .join("versions")
-    .join("official")
-    .join(&version);
-
-  info!("Deleting Version: {} at {:?}", version, version_dir);
-  delete_dir(&version_dir)?;
-
-  // If it's the active version, we should clean that up in the settings file
-  if let Some(config_version) = &config_lock.active_version {
-    if version == *config_version {
-      config_lock
-        .update_setting_value("active_version", Value::Null, None)
-        .map_err(|_| {
-          CommandError::VersionManagement(
-            "Unable to clear active version after it was removed".to_owned(),
-          )
-        })?;
-    }
-  }
-
-  Ok(())
+  Ok(config_lock.remove_version(&version)?)
 }
 
 #[tauri::command]
