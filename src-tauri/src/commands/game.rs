@@ -1,5 +1,4 @@
 use anyhow::Result;
-use log::info;
 use std::{collections::HashMap, path::Path};
 use tauri::{Emitter, Manager};
 use walkdir::WalkDir;
@@ -126,7 +125,6 @@ fn get_saves_highest_milestone(
         // Retrieve the amount of tasks that we need to iterate through
         reading_tasks = true;
         tasks_remaining = i32::from_le_bytes([chunk[8], chunk[9], chunk[10], chunk[11]]);
-        info!("Found {} tasks", tasks_remaining);
       }
     }
   }
@@ -176,11 +174,7 @@ pub async fn get_furthest_game_milestone(
     .filter(|entry| entry.path().extension().is_some_and(|ext| ext == "bin"))
     .filter_map(|entry| {
       let path = entry.path();
-      info!("Scanning save {}", path.display());
-      get_saves_highest_milestone(path, &milestones).map(|(name, idx)| {
-        info!("Furthest milestone {} at index {}", name, idx);
-        (name.to_owned(), idx)
-      })
+      get_saves_highest_milestone(path, &milestones).map(|(name, idx)| (name.to_owned(), idx))
     })
     .max_by_key(|(_, idx)| *idx)
     .map(|(name, _)| name)
