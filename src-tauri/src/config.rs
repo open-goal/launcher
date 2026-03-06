@@ -666,4 +666,19 @@ impl LauncherConfig {
 
     Ok(())
   }
+
+  pub fn list_downloaded_versions(&self, folder: &str) -> anyhow::Result<Vec<String>> {
+    let dir = self.install_dir()?.join("versions").join(folder);
+
+    Ok(
+      std::fs::read_dir(&dir)
+        .ok()
+        .into_iter()
+        .flatten()
+        .flatten()
+        .filter(|e| e.path().is_dir())
+        .filter_map(|e| e.file_name().into_string().ok())
+        .collect(),
+    )
+  }
 }

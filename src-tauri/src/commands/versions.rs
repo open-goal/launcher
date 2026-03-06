@@ -15,47 +15,8 @@ pub async fn list_downloaded_versions(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   version_folder: String,
 ) -> Result<Vec<String>, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => return Ok(Vec::new()),
-    Some(path) => Path::new(path),
-  };
-
-  let expected_path = Path::new(install_path)
-    .join("versions")
-    .join(version_folder);
-  if !expected_path.exists() || !expected_path.is_dir() {
-    log::info!(
-      "No {} folder found, returning no releases",
-      expected_path.display()
-    );
-    return Ok(Vec::new());
-  }
-
-  let entries = std::fs::read_dir(&expected_path).map_err(|_| {
-    CommandError::VersionManagement(format!(
-      "Unable to read versions from {}",
-      expected_path.display()
-    ))
-  })?;
-  Ok(
-    entries
-      .filter_map(|e| {
-        e.ok().and_then(|d| {
-          let p = d.path();
-          if p.is_dir() {
-            Some(
-              p.file_name()
-                .map(|name| name.to_string_lossy().into_owned())
-                .unwrap_or("".into()),
-            )
-          } else {
-            None
-          }
-        })
-      })
-      .collect(),
-  )
+  let config = config.lock().await;
+  Ok(config.list_downloaded_versions(&version_folder)?)
 }
 
 #[tauri::command]
