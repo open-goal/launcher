@@ -29,34 +29,16 @@ pub async fn download_version(
     .join(&version_folder);
   let dest_dir = versions_dir.join(&version);
 
-  #[cfg(target_os = "windows")]
-  let (download_path, expected_extractor_path) = (
-    versions_dir.join(format!("{version}.zip")),
-    dest_dir.join("extractor.exe"),
-  );
+  #[cfg(windows)]
+  let download_path = versions_dir.join(format!("{version}.zip"));
 
   #[cfg(unix)]
-  let (download_path, expected_extractor_path) = (
-    versions_dir.join(format!("{version}.tar.gz")),
-    dest_dir.join("extractor"),
-  );
+  let download_path = versions_dir.join(format!("{version}.tar.gz"));
 
   delete_dir(&dest_dir)?;
   download_file(&url, &download_path).await?;
   extract_and_delete_archive(&download_path, &dest_dir, true)?;
-
-  if !expected_extractor_path.exists() {
-    log::error!(
-      "Version did not extract properly, {} is missing!",
-      expected_extractor_path.display()
-    );
-    delete_dir(&dest_dir)?;
-    return Err(CommandError::VersionManagement(
-    "Version did not extract properly, critical files are missing. An antivirus may have deleted the files!"
-      .to_owned(),
-  ));
-  }
-  return Ok(());
+  Ok(())
 }
 
 #[tauri::command]
