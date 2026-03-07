@@ -41,10 +41,10 @@ pub fn extract_archive(archive: &Path, dest: &Path) -> Result<()> {
   }
 }
 
-pub fn extract_and_delete_archive(archive: &Path, dest: &Path) -> Result<()> {
+pub fn extract_and_delete_archive(archive: &Path, dest: &Path, strip_top_dir: bool) -> Result<()> {
   std::fs::create_dir_all(dest)?;
   match archive.extension().and_then(|e| e.to_str()) {
-    Some("zip") => extract_and_delete_zip_file(archive, dest, false),
+    Some("zip") => extract_and_delete_zip_file(archive, dest, strip_top_dir),
     Some("gz") => extract_and_delete_tar_ball(archive, dest),
     _ => anyhow::bail!("Unsupported archive format (expected .zip or .tar.gz)"),
   }

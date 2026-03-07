@@ -83,7 +83,7 @@ pub async fn download_and_extract_new_mod(
 
   delete_dir(&destination_dir)?;
   download_file(&download_url, &download_path).await?;
-  extract_and_delete_archive(&download_path, &destination_dir)?;
+  extract_and_delete_archive(&download_path, &destination_dir, false)?;
 
   // Persist the info about the mod to the disk in the event that the mod source is removed / etc
   let mod_info = {

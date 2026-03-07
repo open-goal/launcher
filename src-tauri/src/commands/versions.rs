@@ -1,11 +1,6 @@
-use std::path::Path;
-
 use crate::{
   config::LauncherConfig,
-  util::{
-    file::delete_dir, network::download_file, tar::extract_and_delete_tar_ball,
-    zip::extract_and_delete_zip_file,
-  },
+  util::{file::delete_dir, network::download_file, tar::extract_and_delete_archive},
 };
 
 use super::CommandError;
@@ -26,84 +21,42 @@ pub async fn download_version(
   version_folder: String,
   url: String,
 ) -> Result<(), CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::VersionManagement(
-        "Cannot install version, no installation directory set".to_owned(),
-      ));
-    }
-    Some(path) => Path::new(path),
-  };
-
-  let dest_dir = install_path
+  let versions_dir = config
+    .lock()
+    .await
+    .install_dir()?
     .join("versions")
-    .join(&version_folder)
-    .join(&version);
+    .join(&version_folder);
+  let dest_dir = versions_dir.join(&version);
 
-  // Delete the directory if it exists
+  #[cfg(target_os = "windows")]
+  let (download_path, expected_extractor_path) = (
+    versions_dir.join(format!("{version}.zip")),
+    dest_dir.join("extractor.exe"),
+  );
+
+  #[cfg(unix)]
+  let (download_path, expected_extractor_path) = (
+    versions_dir.join(format!("{version}.tar.gz")),
+    dest_dir.join("extractor"),
+  );
+
   delete_dir(&dest_dir)?;
+  download_file(&url, &download_path).await?;
+  extract_and_delete_archive(&download_path, &dest_dir, true)?;
 
-  if cfg!(windows) {
-    let download_path = install_path
-      .join("versions")
-      .join(&version_folder)
-      .join(format!("{version}.zip"));
-
-    // Download the file
-    download_file(&url, &download_path).await?;
-
-    // Extract the zip file
-    extract_and_delete_zip_file(&download_path, &dest_dir, true).map_err(|_| {
-      CommandError::VersionManagement(
-        "Unable to successfully extract downloaded version".to_owned(),
-      )
-    })?;
-
-    // Verify that the extracted files seem correct (look for extractor.exe)
-    let expected_extractor_path = dest_dir.join("extractor.exe");
-    if !expected_extractor_path.exists() {
-      log::info!(
-        "Version did not extract properly, {} is missing!",
-        expected_extractor_path.display()
-      );
-      delete_dir(&dest_dir)?;
-      return Err(CommandError::VersionManagement(
-        "Version did not extract properly, critical files are missing. An antivirus may have deleted the files!"
-        .to_owned()
-      ));
-    }
-    return Ok(());
-  } else if cfg!(unix) {
-    let download_path = install_path
-      .join("versions")
-      .join(&version_folder)
-      .join(format!("{version}.tar.gz"));
-
-    // Download the file
-    download_file(&url, &download_path).await?;
-
-    // Extract the tar file
-    extract_and_delete_tar_ball(download_path, &dest_dir)?;
-
-    // Verify that the extracted files seem correct (look for extractor.exe)
-    let expected_extractor_path = dest_dir.join("extractor");
-    if !expected_extractor_path.exists() {
-      log::info!(
-        "Version did not extract properly, {} is missing!",
-        expected_extractor_path.display()
-      );
-      delete_dir(&dest_dir)?;
-      return Err(CommandError::VersionManagement(
-        "Version did not extract properly, critical files are missing. An antivirus may have deleted the files!"
-        .to_owned()
-      ));
-    }
-    return Ok(());
+  if !expected_extractor_path.exists() {
+    log::error!(
+      "Version did not extract properly, {} is missing!",
+      expected_extractor_path.display()
+    );
+    delete_dir(&dest_dir)?;
+    return Err(CommandError::VersionManagement(
+    "Version did not extract properly, critical files are missing. An antivirus may have deleted the files!"
+      .to_owned(),
+  ));
   }
-  Err(CommandError::VersionManagement(
-    "Unknown operating system, unable to download and extract correct release".to_owned(),
-  ))
+  return Ok(());
 }
 
 #[tauri::command]
