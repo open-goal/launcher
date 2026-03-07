@@ -9,8 +9,8 @@
 //
 // serde does not support defaultLiterals yet - https://github.com/serde-rs/serde/issues/368
 
-use crate::commands::CommandError;
 use crate::util::file::create_dir;
+use crate::{commands::CommandError, util::file::delete_dir};
 use anyhow::Context;
 use semver::Version;
 use serde::{Deserialize, Serialize};
@@ -630,5 +630,55 @@ impl LauncherConfig {
       active_version: active_version.clone(),
       tooling_version,
     })
+  }
+
+  pub fn ensure_active_version_still_exists(&mut self) -> anyhow::Result<bool> {
+    let Some(active_version) = &self.active_version else {
+      return Ok(false);
+    };
+
+    let version_dir = self
+      .install_dir()?
+      .join("versions")
+      .join("official")
+      .join(active_version);
+
+    if version_dir.exists() {
+      return Ok(true);
+    }
+
+    self.update_setting_value("active_version", serde_json::Value::Null, None)?;
+    Ok(false)
+  }
+
+  pub fn remove_version(&mut self, version: &str) -> anyhow::Result<()> {
+    let version_dir = self
+      .install_dir()?
+      .join("versions")
+      .join("official")
+      .join(version);
+
+    delete_dir(&version_dir)?;
+
+    if self.active_version.as_deref() == Some(version) {
+      self.update_setting_value("active_version", serde_json::Value::Null, None)?;
+    }
+
+    Ok(())
+  }
+
+  pub fn list_downloaded_versions(&self, folder: &str) -> anyhow::Result<Vec<String>> {
+    let dir = self.install_dir()?.join("versions").join(folder);
+
+    Ok(
+      std::fs::read_dir(&dir)
+        .ok()
+        .into_iter()
+        .flatten()
+        .flatten()
+        .filter(|e| e.path().is_dir())
+        .filter_map(|e| e.file_name().into_string().ok())
+        .collect(),
+    )
   }
 }

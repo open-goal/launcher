@@ -1,14 +1,6 @@
-use std::path::Path;
-
-use log::info;
-use serde_json::Value;
-
 use crate::{
   config::LauncherConfig,
-  util::{
-    file::delete_dir, network::download_file, tar::extract_and_delete_tar_ball,
-    zip::extract_and_delete_zip_file,
-  },
+  util::{file::delete_dir, network::download_file, tar::extract_and_delete_archive},
 };
 
 use super::CommandError;
@@ -18,47 +10,8 @@ pub async fn list_downloaded_versions(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   version_folder: String,
 ) -> Result<Vec<String>, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => return Ok(Vec::new()),
-    Some(path) => Path::new(path),
-  };
-
-  let expected_path = Path::new(install_path)
-    .join("versions")
-    .join(version_folder);
-  if !expected_path.exists() || !expected_path.is_dir() {
-    log::info!(
-      "No {} folder found, returning no releases",
-      expected_path.display()
-    );
-    return Ok(Vec::new());
-  }
-
-  let entries = std::fs::read_dir(&expected_path).map_err(|_| {
-    CommandError::VersionManagement(format!(
-      "Unable to read versions from {}",
-      expected_path.display()
-    ))
-  })?;
-  Ok(
-    entries
-      .filter_map(|e| {
-        e.ok().and_then(|d| {
-          let p = d.path();
-          if p.is_dir() {
-            Some(
-              p.file_name()
-                .map(|name| name.to_string_lossy().into_owned())
-                .unwrap_or("".into()),
-            )
-          } else {
-            None
-          }
-        })
-      })
-      .collect(),
-  )
+  let config = config.lock().await;
+  Ok(config.list_downloaded_versions(&version_folder)?)
 }
 
 #[tauri::command]
@@ -68,84 +21,42 @@ pub async fn download_version(
   version_folder: String,
   url: String,
 ) -> Result<(), CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::VersionManagement(
-        "Cannot install version, no installation directory set".to_owned(),
-      ));
-    }
-    Some(path) => Path::new(path),
-  };
-
-  let dest_dir = install_path
+  let versions_dir = config
+    .lock()
+    .await
+    .install_dir()?
     .join("versions")
-    .join(&version_folder)
-    .join(&version);
+    .join(&version_folder);
+  let dest_dir = versions_dir.join(&version);
 
-  // Delete the directory if it exists
+  #[cfg(target_os = "windows")]
+  let (download_path, expected_extractor_path) = (
+    versions_dir.join(format!("{version}.zip")),
+    dest_dir.join("extractor.exe"),
+  );
+
+  #[cfg(unix)]
+  let (download_path, expected_extractor_path) = (
+    versions_dir.join(format!("{version}.tar.gz")),
+    dest_dir.join("extractor"),
+  );
+
   delete_dir(&dest_dir)?;
+  download_file(&url, &download_path).await?;
+  extract_and_delete_archive(&download_path, &dest_dir, true)?;
 
-  if cfg!(windows) {
-    let download_path = install_path
-      .join("versions")
-      .join(&version_folder)
-      .join(format!("{version}.zip"));
-
-    // Download the file
-    download_file(&url, &download_path).await?;
-
-    // Extract the zip file
-    extract_and_delete_zip_file(&download_path, &dest_dir, true).map_err(|_| {
-      CommandError::VersionManagement(
-        "Unable to successfully extract downloaded version".to_owned(),
-      )
-    })?;
-
-    // Verify that the extracted files seem correct (look for extractor.exe)
-    let expected_extractor_path = dest_dir.join("extractor.exe");
-    if !expected_extractor_path.exists() {
-      log::info!(
-        "Version did not extract properly, {} is missing!",
-        expected_extractor_path.display()
-      );
-      delete_dir(&dest_dir)?;
-      return Err(CommandError::VersionManagement(
-        "Version did not extract properly, critical files are missing. An antivirus may have deleted the files!"
-        .to_owned()
-      ));
-    }
-    return Ok(());
-  } else if cfg!(unix) {
-    let download_path = install_path
-      .join("versions")
-      .join(&version_folder)
-      .join(format!("{version}.tar.gz"));
-
-    // Download the file
-    download_file(&url, &download_path).await?;
-
-    // Extract the tar file
-    extract_and_delete_tar_ball(download_path, &dest_dir)?;
-
-    // Verify that the extracted files seem correct (look for extractor.exe)
-    let expected_extractor_path = dest_dir.join("extractor");
-    if !expected_extractor_path.exists() {
-      log::info!(
-        "Version did not extract properly, {} is missing!",
-        expected_extractor_path.display()
-      );
-      delete_dir(&dest_dir)?;
-      return Err(CommandError::VersionManagement(
-        "Version did not extract properly, critical files are missing. An antivirus may have deleted the files!"
-        .to_owned()
-      ));
-    }
-    return Ok(());
+  if !expected_extractor_path.exists() {
+    log::error!(
+      "Version did not extract properly, {} is missing!",
+      expected_extractor_path.display()
+    );
+    delete_dir(&dest_dir)?;
+    return Err(CommandError::VersionManagement(
+    "Version did not extract properly, critical files are missing. An antivirus may have deleted the files!"
+      .to_owned(),
+  ));
   }
-  Err(CommandError::VersionManagement(
-    "Unknown operating system, unable to download and extract correct release".to_owned(),
-  ))
+  return Ok(());
 }
 
 #[tauri::command]
@@ -154,37 +65,7 @@ pub async fn remove_version(
   version: String,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::VersionManagement(
-        "Cannot install version, no installation directory set".to_owned(),
-      ));
-    }
-    Some(path) => Path::new(path),
-  };
-
-  let version_dir = install_path
-    .join("versions")
-    .join("official")
-    .join(&version);
-
-  info!("Deleting Version: {} at {:?}", version, version_dir);
-  delete_dir(&version_dir)?;
-
-  // If it's the active version, we should clean that up in the settings file
-  if let Some(config_version) = &config_lock.active_version {
-    if version == *config_version {
-      config_lock
-        .update_setting_value("active_version", Value::Null, None)
-        .map_err(|_| {
-          CommandError::VersionManagement(
-            "Unable to clear active version after it was removed".to_owned(),
-          )
-        })?;
-    }
-  }
-
-  Ok(())
+  Ok(config_lock.remove_version(&version)?)
 }
 
 #[tauri::command]
@@ -192,33 +73,5 @@ pub async fn ensure_active_version_still_exists(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<bool, CommandError> {
   let mut config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::VersionManagement(
-        "Cannot install version, no installation directory set".to_owned(),
-      ));
-    }
-    Some(path) => Path::new(path),
-  };
-
-  match &config_lock.active_version {
-    Some(config_version) => {
-      let version_dir = install_path
-        .join("versions")
-        .join("official")
-        .join(config_version);
-      if !version_dir.exists() {
-        // Clear active version if it's no longer available
-        config_lock
-          .update_setting_value("active_version", Value::Null, None)
-          .map_err(|_| {
-            CommandError::VersionManagement(
-              "Unable to clear active version after it was found to be missing".to_owned(),
-            )
-          })?;
-      }
-      Ok(version_dir.exists())
-    }
-    _ => Ok(false),
-  }
+  Ok(config_lock.ensure_active_version_still_exists()?)
 }
