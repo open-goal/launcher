@@ -561,7 +561,7 @@ pub async fn get_launch_game_string(
 
   Ok(format!(
     "{} {}",
-    exec_info.executable_path.display(),
+    format!("\"{}\"", exec_info.executable_path.display()),
     args.join(" ")
   ))
 }
