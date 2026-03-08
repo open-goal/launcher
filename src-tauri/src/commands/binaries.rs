@@ -5,12 +5,11 @@ use std::{
   io::ErrorKind,
   path::{Path, PathBuf},
   process::Stdio,
-  str::FromStr,
   time::Instant,
 };
 use tokio::process::Command;
 
-use log::{info, warn};
+use log::{error, info, warn};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, Manager};
@@ -42,6 +41,16 @@ struct LauncherErrorCode {
 pub struct InstallStepOutput {
   pub success: bool,
   pub msg: Option<String>,
+}
+
+#[cfg(windows)]
+fn format_exit_code(code: i32) -> String {
+  format!("{code} ({:#010X})", code as u32)
+}
+
+#[cfg(not(windows))]
+fn format_exit_code(code: i32) -> String {
+  code.to_string()
 }
 
 fn get_error_code_message(
@@ -147,7 +156,7 @@ pub async fn extract_and_validate_iso(
   let exec_info = match config_info.get_exec_location("extractor") {
     Ok(exec_info) => exec_info,
     Err(_) => {
-      log::error!("extractor executable not found");
+      error!("extractor executable not found");
       return Ok(InstallStepOutput {
         success: false,
         msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
@@ -200,14 +209,14 @@ pub async fn extract_and_validate_iso(
 
   if let Some(code) = status.code() {
     let message = get_error_code_message(&config_info, game_name, code);
-    log::error!("extraction and validation was not successful. Code {code}");
+    error!("extraction and validation was not successful. Code {code}");
     return Ok(InstallStepOutput {
       success: false,
       msg: Some(message),
     });
   }
 
-  log::error!("extraction and validation was not successful. No status code");
+  error!("extraction and validation was not successful. No status code");
   Ok(InstallStepOutput {
     success: false,
     msg: Some("Unexpected error occurred".to_owned()),
@@ -234,7 +243,7 @@ pub async fn run_decompiler(
   let exec_info = match config_info.get_exec_location("extractor") {
     Ok(exec_info) => exec_info,
     Err(_) => {
-      log::error!("extractor executable not found");
+      error!("extractor executable not found");
       return Ok(InstallStepOutput {
         success: false,
         msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
@@ -331,14 +340,14 @@ pub async fn run_decompiler(
 
   if let Some(code) = status.code() {
     let message = get_error_code_message(&config_info, game_name, code);
-    log::error!("decompilation was not successful. Code {code}");
+    error!("decompilation was not successful. Code {code}");
     return Ok(InstallStepOutput {
       success: false,
       msg: Some(message),
     });
   }
 
-  log::error!("decompilation was not successful. No status code");
+  error!("decompilation was not successful. No status code");
   Ok(InstallStepOutput {
     success: false,
     msg: Some("Unexpected error occurred".to_owned()),
@@ -423,14 +432,14 @@ pub async fn run_compiler(
 
   if let Some(code) = status.code() {
     let message = get_error_code_message(&config_info, game_name, code);
-    log::error!("compilation was not successful. Code {code}");
+    error!("compilation was not successful. Code {code}");
     return Ok(InstallStepOutput {
       success: false,
       msg: Some(message),
     });
   }
 
-  log::error!("compilation was not successful. No status code");
+  error!("compilation was not successful. No status code");
   Ok(InstallStepOutput {
     success: false,
     msg: Some("Unexpected error occurred".to_owned()),
@@ -572,34 +581,19 @@ pub async fn launch_game(
   app_handle: tauri::AppHandle,
   game_name: SupportedGame,
   in_debug: bool,
-  executable_location: Option<String>,
+  executable_location: Option<PathBuf>,
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
 
-  let mut exec_info = config_info.get_exec_location("gk")?;
-  if let Some(custom_exec_location) = executable_location {
-    match PathBuf::from_str(custom_exec_location.as_str()) {
-      Ok(exec_path) => {
-        let path_copy = exec_path.clone();
-        if path_copy.parent().is_none() {
-          return Err(CommandError::BinaryExecution(
-            "Failed to resolve custom binary parent directory".to_string(),
-          ));
-        }
-        exec_info = ExecutableLocation {
-          executable_dir: exec_path.clone().parent().unwrap().to_path_buf(),
-          executable_path: exec_path.clone(),
-        };
-      }
-      Err(err) => {
-        return Err(CommandError::BinaryExecution(format!(
-          "Failed to resolve custom binary location {}",
-          err
-        )));
-      }
+  let exec_info = if let Some(exec_path) = executable_location {
+    ExecutableLocation {
+      executable_dir: exec_path.parent().unwrap().to_path_buf(),
+      executable_path: exec_path,
     }
-  }
+  } else {
+    config_info.get_exec_location("gk")?
+  };
 
   let args = generate_launch_game_string(&config_info, game_name, in_debug, false)?;
 
@@ -625,32 +619,35 @@ pub async fn launch_game(
   {
     std::os::windows::process::CommandExt::creation_flags(&mut command, 0x08000000);
   }
-  // Start the process here so if there is an error, we can return immediately
   let mut child = command.spawn()?;
-  // if all goes well, we await the child to exit in the background (separate thread)
+  // wait for the child to exit in the background
   tokio::spawn(async move {
-    let start_time = Instant::now(); // get the start time of the game
-    // start waiting for the game to exit
-    match child.wait() {
-      Ok(status_code) => {
-        if status_code.code().is_none() || status_code.code().unwrap() != 0 {
-          let _ = app_handle.emit(
-            "toast_msg",
-            ToastPayload {
-              toast: "Game crashed unexpectedly!".to_string(),
-              level: "error".to_string(),
-            },
-          );
-        }
-      }
+    let start_time = Instant::now();
+    let status = match child.wait() {
+      Ok(status) => status,
       Err(err) => {
-        log::error!("Error occurred when waiting for game to exit: {}", err);
+        error!("Error occurred when waiting for game to exit: {err}");
         return;
       }
-    }
-    // once the game exits pass the time the game started to the track_playtine function
+    };
+
     if let Err(err) = track_playtime(start_time, game_name).await {
-      log::error!("Failed to track playtime: {err}");
+      error!("Failed to track playtime: {err}");
+    }
+
+    let Some(exit_code) = status.code() else {
+      return;
+    };
+
+    if exit_code != 0 {
+      error!("Game crashed with code: {}", format_exit_code(exit_code));
+      let _ = app_handle.emit(
+        "toast_msg",
+        ToastPayload {
+          toast: format!("Game crashed with code: {}", format_exit_code(exit_code)),
+          level: "error".to_string(),
+        },
+      );
     }
   });
   Ok(())
