@@ -56,7 +56,7 @@ export async function setupTexturePacks(
       status: "queued",
       label: $format("setup_decompile"),
       task: async () => {
-        let resp = await runDecompiler("", activeGame, true, false);
+        let resp = await runDecompiler(null, activeGame, true, false);
         if (!resp.success) {
           jobTracker.updateFailureReason(resp.msg);
           return false;

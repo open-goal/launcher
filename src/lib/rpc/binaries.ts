@@ -31,7 +31,7 @@ export async function extractAndValidateISO(
 }
 
 export async function runDecompiler(
-  pathToIso: string,
+  pathToIso: string | null,
   gameName: string,
   truncateLogs: boolean = false,
   useDecompSettings: boolean = false,
@@ -44,7 +44,7 @@ export async function runDecompiler(
 }
 
 export async function runCompiler(
-  pathToIso: string,
+  pathToIso: string | null,
   gameName: string,
   truncateLogs: boolean = false,
 ): Promise<InstallationOutput> {

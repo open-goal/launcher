@@ -218,7 +218,7 @@ pub async fn extract_and_validate_iso(
 pub async fn run_decompiler(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
-  path_to_iso: String,
+  path_to_iso: Option<String>,
   game_name: SupportedGame,
   truncate_logs: bool,
   use_decomp_settings: bool,
@@ -242,14 +242,13 @@ pub async fn run_decompiler(
     }
   };
 
-  let mut source_path = path_to_iso;
-  if source_path.is_empty() {
-    source_path = data_folder
+  let source_path = path_to_iso.unwrap_or_else(|| {
+    data_folder
       .join("iso_data")
       .join(game_name.to_string())
       .to_string_lossy()
-      .to_string();
-  }
+      .into_owned()
+  });
 
   let mut command = Command::new(exec_info.executable_path);
 
@@ -350,7 +349,7 @@ pub async fn run_decompiler(
 pub async fn run_compiler(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
-  path_to_iso: String,
+  path_to_iso: Option<String>,
   game_name: SupportedGame,
   truncate_logs: bool,
 ) -> Result<InstallStepOutput, CommandError> {
@@ -372,14 +371,13 @@ pub async fn run_compiler(
     }
   };
 
-  let mut source_path = path_to_iso;
-  if source_path.is_empty() {
-    source_path = data_folder
+  let source_path = path_to_iso.unwrap_or_else(|| {
+    data_folder
       .join("iso_data")
       .join(game_name.to_string())
       .to_string_lossy()
-      .to_string();
-  }
+      .into_owned()
+  });
 
   let mut args = vec![
     source_path,

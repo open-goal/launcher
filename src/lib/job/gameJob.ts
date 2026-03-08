@@ -76,7 +76,7 @@ export async function setupDecompileJob(activeGame: SupportedGame) {
       status: "queued",
       label: $format("setup_decompile"),
       task: async () => {
-        const resp = await runDecompiler("", activeGame, true, true);
+        const resp = await runDecompiler(null, activeGame, true, true);
         if (!resp.success) {
           jobTracker.updateFailureReason(resp.msg);
           return false;
@@ -100,7 +100,7 @@ export async function setupCompileJob(activeGame: SupportedGame) {
       status: "queued",
       label: $format("setup_compile"),
       task: async () => {
-        const resp = await runCompiler("", activeGame, true);
+        const resp = await runCompiler(null, activeGame, true);
         if (!resp.success) {
           jobTracker.updateFailureReason(resp.msg);
           return false;
@@ -136,7 +136,7 @@ export async function setupUpdateGameJob(activeGame: SupportedGame) {
       status: "queued",
       label: $format("setup_decompile"),
       task: async () => {
-        let resp = await runDecompiler("", activeGame, true, false);
+        let resp = await runDecompiler(null, activeGame, true, false);
         if (!resp.success) {
           jobTracker.updateFailureReason(resp.msg);
           return false;
@@ -148,7 +148,7 @@ export async function setupUpdateGameJob(activeGame: SupportedGame) {
       status: "queued",
       label: $format("setup_compile"),
       task: async () => {
-        let resp = await runCompiler("", activeGame);
+        let resp = await runCompiler(null, activeGame);
         if (!resp.success) {
           jobTracker.updateFailureReason(resp.msg);
           return false;
