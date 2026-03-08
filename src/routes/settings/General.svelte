@@ -182,24 +182,24 @@
     <Toggle
       bind:checked={currentBypassRequirementsVal}
       color="orange"
-      onchange={async (evt) => {
-        if (evt.currentTarget.checked) {
+      onchange={async () => {
+        const checked = currentBypassRequirementsVal;
+        if (checked) {
           const confirmed = await confirm(
             `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
               "requirements_button_bypass_warning_2",
             )}`,
             { title: "OpenGOAL Launcher", kind: "warning" },
           );
-          if (confirmed) {
-            await setBypassRequirements(evt.currentTarget.checked);
-            currentBypassRequirementsVal = await getBypassRequirements();
-          } else {
+
+          if (!confirmed) {
             currentBypassRequirementsVal = false;
+            return;
           }
-        } else {
-          await setBypassRequirements(evt.currentTarget.checked);
-          currentBypassRequirementsVal = await getBypassRequirements();
         }
+
+        await setBypassRequirements(checked);
+        currentBypassRequirementsVal = await getBypassRequirements();
       }}>{$_("settings_general_toggle_bypassRequirementsCheck")}</Toggle
     >
   </div>
