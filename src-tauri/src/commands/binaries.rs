@@ -650,7 +650,7 @@ pub async fn launch_game(
     }
     // once the game exits pass the time the game started to the track_playtine function
     if let Err(err) = track_playtime(start_time, game_name).await {
-      log::error!("Error occurred when tracking playtime: {}", err);
+      log::error!("Failed to track playtime: {err}");
     }
   });
   Ok(())
@@ -659,32 +659,18 @@ pub async fn launch_game(
 async fn track_playtime(
   start_time: std::time::Instant,
   game_name: SupportedGame,
-) -> Result<(), CommandError> {
+) -> anyhow::Result<()> {
   let app_handle = TAURI_APP
     .get()
-    .ok_or_else(|| {
-      CommandError::BinaryExecution("Cannot access global app state to persist playtime".to_owned())
-    })?
+    .expect("Can't access global app state")
     .app_handle();
+
+  let elapsed_seconds = start_time.elapsed().as_secs().into();
+
   let config = app_handle.state::<tokio::sync::Mutex<LauncherConfig>>();
   let mut config_lock = config.lock().await;
+  config_lock.update_setting_value("seconds_played", elapsed_seconds, Some(game_name))?;
 
-  // get the playtime of the session
-  let elapsed_time = start_time.elapsed().as_secs().into();
-  log::info!("elapsed time: {}", elapsed_time);
-
-  config_lock
-    .update_setting_value("seconds_played", elapsed_time, Some(game_name))
-    .map_err(|_| CommandError::Configuration("Unable to persist time played".to_owned()))?;
-
-  // send an event to the front end so that it can refresh the playtime on screen
-  if let Err(err) = app_handle.emit("playtimeUpdated", ()) {
-    log::error!("Failed to emit playtimeUpdated event: {}", err);
-    return Err(CommandError::BinaryExecution(format!(
-      "Failed to emit playtimeUpdated event: {}",
-      err
-    )));
-  }
-
+  app_handle.emit("playtimeUpdated", ())?;
   Ok(())
 }
