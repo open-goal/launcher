@@ -13,7 +13,6 @@ use tokio::process::Command;
 use log::{info, warn};
 use semver::Version;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use tauri::{Emitter, Manager};
 
 use crate::{
@@ -38,10 +37,18 @@ struct LauncherErrorCode {
   msg: String,
 }
 
-fn get_error_codes(
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstallStepOutput {
+  pub success: bool,
+  pub msg: Option<String>,
+}
+
+fn get_error_code_message(
   config: &CommonConfigData,
   game_name: SupportedGame,
-) -> HashMap<i32, LauncherErrorCode> {
+  code: i32,
+) -> String {
   let json_file = config
     .install_path
     .join("active")
@@ -49,45 +56,17 @@ fn get_error_codes(
     .join("data")
     .join("launcher")
     .join("error-code-metadata.json");
-  if !json_file.exists() {
-    warn!("couldn't locate error code file at {}", json_file.display());
-    return HashMap::new();
-  }
-  let file_contents = match std::fs::read_to_string(&json_file) {
-    Ok(content) => content,
-    Err(_err) => {
-      warn!("couldn't read error code file at {}", &json_file.display());
-      return HashMap::new();
-    }
-  };
-  let json: Value = match serde_json::from_str(&file_contents) {
-    Ok(json) => json,
-    Err(_err) => {
-      warn!("couldn't parse error code file at {}", &json_file.display());
-      return HashMap::new();
-    }
-  };
 
-  if let Value::Object(map) = json {
-    let mut result: HashMap<i32, LauncherErrorCode> = HashMap::new();
-    for (key, value) in map {
-      let Ok(error_code) = serde_json::from_value(value) else {
-        continue;
-      };
-      let Ok(code) = key.parse::<i32>() else {
-        continue;
-      };
-      result.insert(code, error_code);
-    }
-    return result;
-  }
-
-  warn!(
-    "couldn't convert error code file at {}",
-    &json_file.display()
-  );
-
-  HashMap::new()
+  std::fs::File::open(&json_file)
+    .inspect_err(|e| warn!("{}", e))
+    .ok()
+    .and_then(|file| {
+      serde_json::from_reader::<_, HashMap<i32, LauncherErrorCode>>(file)
+        .inspect_err(|e| warn!("{}", e))
+        .ok()
+    })
+    .and_then(|map| map.get(&code).map(|e| e.msg.clone()))
+    .unwrap_or_else(|| format!("Unexpected error occurred with code {code}"))
 }
 
 fn copy_data_dir(
@@ -132,13 +111,6 @@ fn get_data_dir(
     copy_data_dir(config_info, game_name)?;
   }
   Ok(data_folder)
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct InstallStepOutput {
-  pub success: bool,
-  pub msg: Option<String>,
 }
 
 #[tauri::command]
@@ -227,15 +199,11 @@ pub async fn extract_and_validate_iso(
   }
 
   if let Some(code) = status.code() {
-    let error_code_map = get_error_codes(&config_info, game_name);
-    let default_error = LauncherErrorCode {
-      msg: format!("Unexpected error occured with code {code}"),
-    };
-    let message = error_code_map.get(&code).unwrap_or(&default_error);
+    let message = get_error_code_message(&config_info, game_name, code);
     log::error!("extraction and validation was not successful. Code {code}");
     return Ok(InstallStepOutput {
       success: false,
-      msg: Some(message.msg.clone()),
+      msg: Some(message),
     });
   }
 
@@ -363,15 +331,11 @@ pub async fn run_decompiler(
   }
 
   if let Some(code) = status.code() {
-    let error_code_map = get_error_codes(&config_info, game_name);
-    let default_error = LauncherErrorCode {
-      msg: format!("Unexpected error occured with code {code}"),
-    };
-    let message = error_code_map.get(&code).unwrap_or(&default_error);
+    let message = get_error_code_message(&config_info, game_name, code);
     log::error!("decompilation was not successful. Code {code}");
     return Ok(InstallStepOutput {
       success: false,
-      msg: Some(message.msg.clone()),
+      msg: Some(message),
     });
   }
 
@@ -460,15 +424,11 @@ pub async fn run_compiler(
   }
 
   if let Some(code) = status.code() {
-    let error_code_map = get_error_codes(&config_info, game_name);
-    let default_error = LauncherErrorCode {
-      msg: format!("Unexpected error occured with code {code}"),
-    };
-    let message = error_code_map.get(&code).unwrap_or(&default_error);
+    let message = get_error_code_message(&config_info, game_name, code);
     log::error!("compilation was not successful. Code {code}");
     return Ok(InstallStepOutput {
       success: false,
-      msg: Some(message.msg.clone()),
+      msg: Some(message),
     });
   }
 
@@ -686,13 +646,13 @@ pub async fn launch_game(
         }
       }
       Err(err) => {
-        log::error!("Error occured when waiting for game to exit: {}", err);
+        log::error!("Error occurred when waiting for game to exit: {}", err);
         return;
       }
     }
     // once the game exits pass the time the game started to the track_playtine function
     if let Err(err) = track_playtime(start_time, game_name).await {
-      log::error!("Error occured when tracking playtime: {}", err);
+      log::error!("Error occurred when tracking playtime: {}", err);
     }
   });
   Ok(())
