@@ -3,7 +3,6 @@ use std::{
   path::{Path, PathBuf},
 };
 
-use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::{
@@ -214,46 +213,31 @@ pub async fn extract_new_texture_pack(
   Ok(true)
 }
 
-// TODO -  remove duplication
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct GameJobStepOutput {
-  pub success: bool,
-  pub msg: Option<String>,
-}
-
 #[tauri::command]
 pub async fn update_texture_pack_data(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,
-) -> Result<GameJobStepOutput, CommandError> {
+) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Ok(GameJobStepOutput {
-        success: false,
-        msg: Some("No installation directory set, can't extract texture pack".to_string()),
-      });
-    }
-    Some(path) => Path::new(path),
-  };
+  let install_dir = config_lock.install_dir()?;
 
-  let game_texture_pack_dir = install_path
+  let game_texture_pack_dir = install_dir
     .join("active")
-    .join(game_name.to_string())
+    .join(&game_name.to_string())
     .join("data")
     .join("custom_assets")
-    .join(game_name.to_string())
+    .join(&game_name.to_string())
     .join("texture_replacements");
   // Reset texture replacement directory
   delete_dir(&game_texture_pack_dir)?;
   create_dir(&game_texture_pack_dir)?;
 
+  // TODO: refactor this after the config refactor
   if let Ok(Value::Array(texture_packs)) =
     config_lock.get_setting_value("active_texture_packs", Some(game_name))
   {
     for pack in texture_packs.iter().filter_map(|pack| pack.as_str()).rev() {
-      let texture_pack_dir = install_path
+      let texture_pack_dir = install_dir
         .join("features")
         .join(game_name.to_string())
         .join("texture-packs")
@@ -263,26 +247,11 @@ pub async fn update_texture_pack_data(
         .join("texture_replacements");
 
       log::info!("Appending textures from: {}", texture_pack_dir.display());
-
-      // strange, but I can't worry about it right now.
-      if let Err(err) = overwrite_dir(&texture_pack_dir, &game_texture_pack_dir) {
-        log::error!("{:#}", err);
-        return Ok(GameJobStepOutput {
-          success: false,
-          msg: Some(err.to_string()),
-        });
-      }
+      overwrite_dir(&texture_pack_dir, &game_texture_pack_dir)?
     }
-
-    return Ok(GameJobStepOutput {
-      success: true,
-      msg: None,
-    });
+    return Ok(());
   }
-  Ok(GameJobStepOutput {
-    success: false,
-    msg: None,
-  })
+  return Err(CommandError::GameFeatures(format!("TODO: Some error")));
 }
 
 #[tauri::command]
@@ -290,39 +259,20 @@ pub async fn delete_texture_packs(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,
   packs: Vec<String>,
-) -> Result<GameJobStepOutput, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Ok(GameJobStepOutput {
-        success: false,
-        msg: Some("No installation directory set, can't extract texture pack".to_string()),
-      });
-    }
-    Some(path) => Path::new(path),
+) -> Result<(), CommandError> {
+  let texture_pack_dir = {
+    let config_lock = config.lock().await;
+    config_lock
+      .install_dir()?
+      .join("features")
+      .join(game_name.to_string())
+      .join("texture-packs")
   };
-
-  let texture_pack_dir = install_path
-    .join("features")
-    .join(game_name.to_string())
-    .join("texture-packs");
 
   for pack in packs {
     log::info!("Deleting texture pack: {}", pack);
-    match delete_dir(texture_pack_dir.join(&pack)) {
-      Ok(_) => (),
-      Err(err) => {
-        log::error!("Unable to delete texture pack: {}", err);
-        return Ok(GameJobStepOutput {
-          success: false,
-          msg: Some(format!("Unable to delete texture pack: {}", err)),
-        });
-      }
-    }
+    delete_dir(texture_pack_dir.join(&pack))?;
   }
 
-  Ok(GameJobStepOutput {
-    success: true,
-    msg: None,
-  })
+  Ok(())
 }
