@@ -36,13 +36,6 @@ struct LauncherErrorCode {
   msg: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct InstallStepOutput {
-  pub success: bool,
-  pub msg: Option<String>,
-}
-
 #[cfg(windows)]
 fn format_exit_code(code: i32) -> String {
   format!("{code} ({:#010X})", code as u32)
@@ -126,16 +119,11 @@ fn get_data_dir(
 pub async fn update_data_directory(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,
-) -> Result<InstallStepOutput, CommandError> {
+) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
-
   copy_data_dir(&config_info, game_name)?;
-
-  Ok(InstallStepOutput {
-    success: true,
-    msg: None,
-  })
+  Ok(())
 }
 
 #[tauri::command]
@@ -144,7 +132,7 @@ pub async fn extract_and_validate_iso(
   app_handle: tauri::AppHandle,
   path_to_iso: String,
   game_name: SupportedGame,
-) -> Result<InstallStepOutput, CommandError> {
+) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
 
@@ -157,10 +145,9 @@ pub async fn extract_and_validate_iso(
     Ok(exec_info) => exec_info,
     Err(_) => {
       error!("extractor executable not found");
-      return Ok(InstallStepOutput {
-        success: false,
-        msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
-      });
+      return Err(CommandError::BinaryExecution(format!(
+        "Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again."
+      )));
     }
   };
 
@@ -201,26 +188,19 @@ pub async fn extract_and_validate_iso(
   let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   if status.success() {
     log::info!("extraction and validation was successful");
-    return Ok(InstallStepOutput {
-      success: true,
-      msg: None,
-    });
+    return Ok(());
   }
 
   if let Some(code) = status.code() {
     let message = get_error_code_message(&config_info, game_name, code);
     error!("extraction and validation was not successful. Code {code}");
-    return Ok(InstallStepOutput {
-      success: false,
-      msg: Some(message),
-    });
+    return Err(CommandError::BinaryExecution(message));
   }
 
   error!("extraction and validation was not successful. No status code");
-  Ok(InstallStepOutput {
-    success: false,
-    msg: Some("Unexpected error occurred".to_owned()),
-  })
+  return Err(CommandError::BinaryExecution(
+    "Unexpected error occurred".to_owned(),
+  ));
 }
 
 #[tauri::command]
@@ -231,7 +211,7 @@ pub async fn run_decompiler(
   game_name: SupportedGame,
   truncate_logs: bool,
   use_decomp_settings: bool,
-) -> Result<InstallStepOutput, CommandError> {
+) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
 
@@ -244,10 +224,7 @@ pub async fn run_decompiler(
     Ok(exec_info) => exec_info,
     Err(_) => {
       error!("extractor executable not found");
-      return Ok(InstallStepOutput {
-        success: false,
-        msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
-      });
+      return Err(CommandError::BinaryExecution("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()));
     }
   };
 
@@ -332,26 +309,19 @@ pub async fn run_decompiler(
   let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   if status.success() {
     log::info!("decompilation was successful");
-    return Ok(InstallStepOutput {
-      success: true,
-      msg: None,
-    });
+    return Ok(());
   }
 
   if let Some(code) = status.code() {
     let message = get_error_code_message(&config_info, game_name, code);
     error!("decompilation was not successful. Code {code}");
-    return Ok(InstallStepOutput {
-      success: false,
-      msg: Some(message),
-    });
+    return Err(CommandError::BinaryExecution(message));
   }
 
   error!("decompilation was not successful. No status code");
-  Ok(InstallStepOutput {
-    success: false,
-    msg: Some("Unexpected error occurred".to_owned()),
-  })
+  return Err(CommandError::BinaryExecution(
+    "Unexpected error occurred".to_owned(),
+  ));
 }
 
 #[tauri::command]
@@ -361,7 +331,7 @@ pub async fn run_compiler(
   path_to_iso: Option<String>,
   game_name: SupportedGame,
   truncate_logs: bool,
-) -> Result<InstallStepOutput, CommandError> {
+) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
 
@@ -373,10 +343,9 @@ pub async fn run_compiler(
   let exec_info = match config_info.get_exec_location("extractor") {
     Ok(exec_info) => exec_info,
     Err(_) => {
-      return Ok(InstallStepOutput {
-        success: false,
-        msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
-      })
+      return Err(CommandError::BinaryExecution(format!(
+        "Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again."
+      )));
     }
   };
 
@@ -424,26 +393,19 @@ pub async fn run_compiler(
   let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   if status.success() {
     log::info!("compilation was successful");
-    return Ok(InstallStepOutput {
-      success: true,
-      msg: None,
-    });
+    return Ok(());
   }
 
   if let Some(code) = status.code() {
     let message = get_error_code_message(&config_info, game_name, code);
     error!("compilation was not successful. Code {code}");
-    return Ok(InstallStepOutput {
-      success: false,
-      msg: Some(message),
-    });
+    return Err(CommandError::BinaryExecution(message));
   }
 
   error!("compilation was not successful. No status code");
-  Ok(InstallStepOutput {
-    success: false,
-    msg: Some("Unexpected error occurred".to_owned()),
-  })
+  return Err(CommandError::BinaryExecution(
+    "Unexpected error occurred".to_owned(),
+  ));
 }
 
 #[tauri::command]

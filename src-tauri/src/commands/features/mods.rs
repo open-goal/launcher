@@ -8,12 +8,13 @@ use std::{
 };
 
 use anyhow::ensure;
+use serde::{Deserialize, Serialize};
 use tauri::Emitter;
 use tokio::process::Command;
 
 use crate::{
   cache::{ModCache, ModInfo},
-  commands::{CommandError, binaries::InstallStepOutput},
+  commands::CommandError,
   config::{ExecutableLocation, LauncherConfig, SupportedGame},
   util::{
     file::{delete_dir, to_image_base64},
@@ -22,6 +23,13 @@ use crate::{
     tar::{extract_and_delete_archive, extract_archive},
   },
 };
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstallStepOutput {
+  pub success: bool,
+  pub msg: Option<String>,
+}
 
 #[tauri::command]
 pub async fn extract_new_mod(
