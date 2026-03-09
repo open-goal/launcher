@@ -34,7 +34,7 @@
   let availablePacks: PackInfo[] = $state([]);
   let availablePacksOriginal: PackInfo[] = $state([]);
   let addingPack = $state(false);
-  let packAddingError = $state("");
+  // let packAddingError = $state("");
 
   onMount(async () => {
     await updatePackList();
@@ -98,34 +98,36 @@
       return;
     }
     addingPack = true;
-    packAddingError = "";
+    // packAddingError = "";
     const texturePackPath = await filePrompt(
       ["zip"],
       "ZIP",
       "Select a texture pack",
     );
     if (texturePackPath !== null) {
-      const success = await extractNewTexturePack(activeGame, texturePackPath);
-      if (success) {
-        // if the user made any changes, attempt to restore them after
-        let preexistingChanges = undefined;
-        if (areChangesPending(availablePacks, availablePacksOriginal)) {
-          preexistingChanges = JSON.parse(JSON.stringify(availablePacks));
-        }
-        await updatePackList();
-        if (preexistingChanges !== undefined) {
-          for (const preexisingPack of preexistingChanges) {
-            for (const pack of availablePacks) {
-              if (pack.name === preexisingPack.name) {
-                pack.enabled = preexisingPack.enabled;
-                pack.toBeDeleted = preexisingPack.toBeDeleted;
-              }
+      const error = await extractNewTexturePack(activeGame, texturePackPath);
+      if (error) {
+        // packAddingError = $_("features_textures_invalidPack");
+        addingPack = false;
+        return;
+      }
+
+      // if the user made any changes, attempt to restore them after
+      let preexistingChanges = undefined;
+      if (areChangesPending(availablePacks, availablePacksOriginal)) {
+        preexistingChanges = JSON.parse(JSON.stringify(availablePacks));
+      }
+      await updatePackList();
+      if (preexistingChanges !== undefined) {
+        for (const preexisingPack of preexistingChanges) {
+          for (const pack of availablePacks) {
+            if (pack.name === preexisingPack.name) {
+              pack.enabled = preexisingPack.enabled;
+              pack.toBeDeleted = preexisingPack.toBeDeleted;
             }
           }
-          availablePacks = availablePacks;
         }
-      } else {
-        packAddingError = $_("features_textures_invalidPack");
+        availablePacks = availablePacks;
       }
     }
     addingPack = false;
@@ -207,13 +209,13 @@
           >
         {/if}
       </div>
-      {#if packAddingError !== ""}
+      <!-- {#if packAddingError !== ""}
         <div class="flex flex-row font-bold mt-3">
           <Alert class="flex-grow text-red-400">
             {packAddingError}
           </Alert>
         </div>
-      {/if}
+      {/if} -->
       {#if availablePacks.length > 0}
         <div class="flex flex-row font-bold mt-3">
           <h2>{$_("features_textures_listHeading")}</h2>

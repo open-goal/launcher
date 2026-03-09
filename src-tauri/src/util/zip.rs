@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use log::info;
 use std::io::{BufReader, Cursor};
 use std::{
@@ -117,16 +117,23 @@ pub fn check_if_zip_contains_top_level_entry<P: AsRef<Path>>(
   path: P,
   expected: &str,
 ) -> Result<bool> {
-  let file = File::open(path)?;
+  let file = File::open(&path)
+    .with_context(|| format!("Unable to open zip file {}", path.as_ref().display()))?;
   let reader = BufReader::new(file);
-  let mut zip = zip::ZipArchive::new(reader)?;
+  let mut zip = zip::ZipArchive::new(reader).context("Failed to read zip archive")?;
 
   for i in 0..zip.len() {
-    let file = zip.by_index(i)?;
+    let file = zip
+      .by_index(i)
+      .context("Failed reading entry from zip archive")?;
     info!("{}", file.name());
     if file.name().starts_with(&expected) {
       return Ok(true);
     }
   }
-  Ok(false)
+  anyhow::bail!(
+    "Invalid zip, no top-level '{}' folder in: {}",
+    expected,
+    path.as_ref().display()
+  );
 }

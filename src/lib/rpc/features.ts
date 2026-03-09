@@ -18,10 +18,12 @@ export async function listExtractedTexturePackInfo(
 export async function extractNewTexturePack(
   gameName: string,
   pathToZip: string,
-): Promise<boolean | undefined> {
-  return await invoke_rpc("extract_new_texture_pack", {
-    gameName: gameName,
-    zipPath: pathToZip,
+): Promise<string | null> {
+  return await invoke_rpc2("extract_new_texture_pack", {
+    args: {
+      gameName: gameName,
+      zipPath: pathToZip,
+    },
   });
 }
 

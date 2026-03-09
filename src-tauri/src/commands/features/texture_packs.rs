@@ -3,6 +3,7 @@ use std::{
   path::{Path, PathBuf},
 };
 
+use anyhow::Context;
 use serde_json::Value;
 
 use crate::{
@@ -162,55 +163,32 @@ pub async fn list_extracted_texture_pack_info(
 pub async fn extract_new_texture_pack(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,
-  zip_path: String,
-) -> Result<bool, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::GameFeatures(
-        "No installation directory set, can't extract texture pack".to_string(),
-      ));
-    }
-    Some(path) => Path::new(path),
+  zip_path: PathBuf,
+) -> Result<(), CommandError> {
+  let install_dir = {
+    let config_lock = config.lock().await;
+    config_lock.install_dir()?
   };
 
   // First, we'll check the zip file to make sure it has a `custom_assets/<game>/texture_replacements` folder before extracting
-  let zip_path_buf = PathBuf::from(zip_path);
-  let texture_pack_name = match zip_path_buf.file_stem() {
-    Some(name) => name.to_string_lossy().to_string(),
-    None => {
-      return Err(CommandError::GameFeatures(
-        "Unable to get texture pack name from zip file path".to_string(),
-      ));
-    }
-  };
+  let texture_pack_name = zip_path
+    .file_stem()
+    .context("Unable to get texture pack name from zip file path")?
+    .to_string_lossy()
+    .into_owned();
   let expected_top_level_dir = format!("custom_assets/{game_name}/texture_replacements");
-  let valid_zip = check_if_zip_contains_top_level_entry(&zip_path_buf, &expected_top_level_dir)
-    .map_err(|err| {
-      log::error!("Unable to read texture replacement zip file: {}", err);
-      CommandError::GameFeatures(format!("Unable to read texture replacement pack: {}", err))
-    })?;
-  if !valid_zip {
-    log::error!(
-      "Invalid texture pack, no top-level `{}` folder in: {}",
-      &expected_top_level_dir,
-      zip_path_buf.display()
-    );
-    return Ok(false);
-  }
-  // It's valid, let's extract it.  The name of the zip becomes the folder, if one already exists it will be deleted!
-  let destination_dir = &install_path
+  check_if_zip_contains_top_level_entry(&zip_path, &expected_top_level_dir)?;
+
+  // The name of the zip becomes the folder, if one already exists it will be deleted!
+  let destination_dir = &install_dir
     .join("features")
     .join(game_name.to_string())
     .join("texture-packs")
     .join(&texture_pack_name);
   // TODO - delete it
   create_dir(destination_dir)?;
-  extract_zip_file(&zip_path_buf, destination_dir, false).map_err(|err| {
-    log::error!("Unable to extract replacement pack: {}", err);
-    CommandError::GameFeatures(format!("Unable to extract texture pack: {}", err))
-  })?;
-  Ok(true)
+  extract_zip_file(&zip_path, destination_dir, false).context("Unable to extract texture pack")?;
+  Ok(())
 }
 
 #[tauri::command]
