@@ -129,13 +129,13 @@ pub async fn extract_and_validate_iso(
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
-
   let data_folder = get_data_dir(&config_info, game_name, true)?;
+  let exec_info = config_info.get_exec_location("extractor")?;
+
   log::info!(
     "extracting using data folder: {}",
     data_folder.to_string_lossy()
   );
-  let exec_info = config_info.get_exec_location("extractor")?;
 
   let mut args = vec![
     path_to_iso.clone(),
@@ -218,35 +218,6 @@ pub async fn run_decompiler(
 
   let mut command = Command::new(exec_info.executable_path);
 
-  let mut decomp_config_overrides = vec![];
-  if use_decomp_settings {
-    let decomp_settings = &config_lock.decompiler_settings;
-    if decomp_settings.rip_levels_enabled {
-      decomp_config_overrides.push(format!(
-        "\"rip_levels\": {}",
-        decomp_settings.rip_levels_enabled
-      ));
-    }
-    if decomp_settings.rip_collision_enabled {
-      decomp_config_overrides.push(format!(
-        "\"rip_collision\": {}",
-        decomp_settings.rip_collision_enabled
-      ));
-    }
-    if decomp_settings.rip_textures_enabled {
-      decomp_config_overrides.push(format!(
-        "\"save_texture_pngs\": {}",
-        decomp_settings.rip_textures_enabled
-      ));
-    }
-    if decomp_settings.rip_streamed_audio_enabled {
-      decomp_config_overrides.push(format!(
-        "\"rip_streamed_audio\": {}",
-        decomp_settings.rip_streamed_audio_enabled
-      ));
-    }
-  }
-
   let mut args = vec![
     source_path,
     "--decompile".to_string(),
@@ -260,9 +231,25 @@ pub async fn run_decompiler(
     args.push(game_name.to_string());
   }
 
-  if !decomp_config_overrides.is_empty() {
-    args.push("--decomp-config-override".to_string());
-    args.push(format!("{{{}}}", decomp_config_overrides.join(", ")));
+  if use_decomp_settings {
+    let settings = &config_lock.decompiler_settings;
+    let mut overrides = serde_json::Map::new();
+
+    for (key, enabled) in [
+      ("rip_levels", settings.rip_levels_enabled),
+      ("rip_collision", settings.rip_collision_enabled),
+      ("save_texture_pngs", settings.rip_textures_enabled),
+      ("rip_streamed_audio", settings.rip_streamed_audio_enabled),
+    ] {
+      if enabled {
+        overrides.insert(key.to_string(), true.into());
+      }
+    }
+
+    if !overrides.is_empty() {
+      args.push("--decomp-config-override".to_string());
+      args.push(serde_json::Value::Object(overrides).to_string());
+    }
   }
 
   log::info!("Running extractor with args: {:?}", args);
