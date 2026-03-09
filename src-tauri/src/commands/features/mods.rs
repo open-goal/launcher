@@ -8,7 +8,6 @@ use std::{
 };
 
 use anyhow::ensure;
-use serde::{Deserialize, Serialize};
 use tauri::Emitter;
 use tokio::process::Command;
 
@@ -24,20 +23,13 @@ use crate::{
   },
 };
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct InstallStepOutput {
-  pub success: bool,
-  pub msg: Option<String>,
-}
-
 #[tauri::command]
 pub async fn extract_new_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,
   bundle_path: PathBuf,
   mod_source: String,
-) -> Result<InstallStepOutput, CommandError> {
+) -> Result<(), CommandError> {
   let install_path = {
     let config_lock = config.lock().await;
     config_lock.install_dir()?
@@ -60,10 +52,7 @@ pub async fn extract_new_mod(
   delete_dir(&destination_dir)?;
   extract_archive(&bundle_path, &destination_dir)?;
 
-  Ok(InstallStepOutput {
-    success: true,
-    msg: None,
-  })
+  Ok(())
 }
 
 #[tauri::command]
@@ -74,7 +63,7 @@ pub async fn download_and_extract_new_mod(
   download_url: String,
   mod_name: String,
   source_name: String,
-) -> Result<InstallStepOutput, CommandError> {
+) -> Result<(), CommandError> {
   let install_path = {
     let config_lock = config.lock().await;
     config_lock.install_dir()?
@@ -112,10 +101,7 @@ pub async fn download_and_extract_new_mod(
   serde_json::to_writer_pretty(file, &mod_info)
     .map_err(|e| anyhow::anyhow!("Unable to save mod metadata: {}", e))?;
 
-  Ok(InstallStepOutput {
-    success: true,
-    msg: None,
-  })
+  Ok(())
 }
 
 #[tauri::command]
@@ -209,7 +195,7 @@ pub async fn extract_iso_for_mod_install(
   mod_name: String,
   source_name: String,
   path_to_iso: String,
-) -> Result<InstallStepOutput, CommandError> {
+) -> Result<(), CommandError> {
   let install_path = {
     let config_lock = config.lock().await;
     config_lock.install_dir()?
@@ -224,13 +210,12 @@ pub async fn extract_iso_for_mod_install(
   ) {
     Ok(exec_info) => exec_info,
     Err(e) => {
-      return Ok(InstallStepOutput {
-        success: false,
-        msg: Some(format!(
+      return Err(CommandError::GameFeatures(
+        format!(
           "Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again. {}",
           e
-        )),
-      });
+        ),
+      ));
     }
   };
 
@@ -275,10 +260,7 @@ pub async fn extract_iso_for_mod_install(
   let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   if status.success() {
     log::info!("extraction and validation was successful");
-    return Ok(InstallStepOutput {
-      success: true,
-      msg: None,
-    });
+    return Ok(());
   }
 
   let msg = status
@@ -286,10 +268,7 @@ pub async fn extract_iso_for_mod_install(
     .map(|code| format!("Unexpected error occurred with code {code}"))
     .unwrap_or_else(|| "Unexpected error occurred".to_owned());
 
-  Ok(InstallStepOutput {
-    success: false,
-    msg: Some(msg),
-  })
+  return Err(CommandError::GameFeatures(msg));
 }
 
 #[tauri::command]
@@ -299,7 +278,7 @@ pub async fn decompile_for_mod_install(
   game_name: SupportedGame,
   mod_name: String,
   source_name: String,
-) -> Result<InstallStepOutput, CommandError> {
+) -> Result<(), CommandError> {
   let install_path = {
     let config_lock = config.lock().await;
     config_lock.install_dir()?
@@ -314,13 +293,10 @@ pub async fn decompile_for_mod_install(
   ) {
     Ok(exec_info) => exec_info,
     Err(e) => {
-      return Ok(InstallStepOutput {
-        success: false,
-        msg: Some(format!(
-          "Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again. {}",
-          e
-        )),
-      });
+      return Err(CommandError::GameFeatures(format!(
+        "Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again. {}",
+        e
+      )));
     }
   };
 
@@ -359,10 +335,7 @@ pub async fn decompile_for_mod_install(
   let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   if status.success() {
     log::info!("decompilation was successful");
-    return Ok(InstallStepOutput {
-      success: true,
-      msg: None,
-    });
+    return Ok(());
   }
 
   let msg = status
@@ -370,10 +343,7 @@ pub async fn decompile_for_mod_install(
     .map(|code| format!("Unexpected error occurred with code {code}"))
     .unwrap_or_else(|| "Unexpected error occurred".to_owned());
 
-  Ok(InstallStepOutput {
-    success: false,
-    msg: Some(msg),
-  })
+  return Err(CommandError::GameFeatures(msg));
 }
 
 #[tauri::command]
@@ -383,7 +353,7 @@ pub async fn compile_for_mod_install(
   game_name: SupportedGame,
   mod_name: String,
   source_name: String,
-) -> Result<InstallStepOutput, CommandError> {
+) -> Result<(), CommandError> {
   let install_path = {
     let config_lock = config.lock().await;
     config_lock.install_dir()?
@@ -398,13 +368,10 @@ pub async fn compile_for_mod_install(
     Ok(exec_info) => exec_info,
     Err(e) => {
       log::error!("extractor executable not found");
-      return Ok(InstallStepOutput {
-        success: false,
-        msg: Some(format!(
-          "Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again. {}",
-          e
-        )),
-      });
+      return Err(CommandError::GameFeatures(format!(
+        "Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again. {}",
+        e
+      )));
     }
   };
 
@@ -443,10 +410,7 @@ pub async fn compile_for_mod_install(
   let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   if status.success() {
     log::info!("compilation was successful");
-    return Ok(InstallStepOutput {
-      success: true,
-      msg: None,
-    });
+    return Ok(());
   }
 
   let msg = status
@@ -454,10 +418,7 @@ pub async fn compile_for_mod_install(
     .map(|code| format!("Unexpected error occurred with code {code}"))
     .unwrap_or_else(|| "Unexpected error occurred".to_owned());
 
-  Ok(InstallStepOutput {
-    success: false,
-    msg: Some(msg),
-  })
+  return Err(CommandError::GameFeatures(msg));
 }
 
 #[tauri::command]
@@ -467,7 +428,7 @@ pub async fn save_mod_install_info(
   mod_name: String,
   source_name: String,
   version_name: String,
-) -> Result<InstallStepOutput, CommandError> {
+) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   log::info!(
     "Saving mod install info {}, {}, {}, {}",
@@ -489,10 +450,7 @@ pub async fn save_mod_install_info(
       log::error!("Unable to remove mod source: {:?}", err);
       CommandError::Configuration("Unable to remove mod source".to_owned())
     })?;
-  Ok(InstallStepOutput {
-    success: true,
-    msg: None,
-  })
+  Ok(())
 }
 
 fn generate_launch_mod_args(
@@ -685,7 +643,7 @@ pub async fn get_launch_mod_string(
 
   Ok(format!(
     "{} {}",
-    exec_info.executable_path.display(),
+    format!("\"{}\"", exec_info.executable_path.display()),
     args.join(" ")
   ))
 }

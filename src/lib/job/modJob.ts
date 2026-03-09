@@ -32,14 +32,14 @@ export async function setupModInstallation(
             $format("setup_prompt_selectISO"),
           );
           if (sourcePath !== undefined) {
-            let resp = await extractIsoForModInstall(
+            let error = await extractIsoForModInstall(
               activeGame,
               modName,
               modSourceName,
               sourcePath,
             );
-            if (!resp.success) {
-              jobTracker.updateFailureReason(resp.msg);
+            if (error) {
+              jobTracker.updateFailureReason(error);
               return false;
             }
           } else {
@@ -55,15 +55,14 @@ export async function setupModInstallation(
       label: $format("setup_download"),
       task: async () => {
         if (modDownloadUrl) {
-          // extract the file into install_dir/features/<game>/<sourceName>/<modName>
-          let resp = await downloadAndExtractNewMod(
+          let error = await downloadAndExtractNewMod(
             activeGame,
             modDownloadUrl,
             modName,
             modSourceName,
           );
-          if (!resp.success) {
-            jobTracker.updateFailureReason(resp.msg);
+          if (error) {
+            jobTracker.updateFailureReason(error);
             return false;
           }
         }
@@ -74,13 +73,13 @@ export async function setupModInstallation(
       status: "queued",
       label: $format("setup_decompile"),
       task: async () => {
-        let resp = await decompileForModInstall(
+        let error = await decompileForModInstall(
           activeGame,
           modName,
           modSourceName,
         );
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;
@@ -90,13 +89,13 @@ export async function setupModInstallation(
       status: "queued",
       label: $format("setup_compile"),
       task: async () => {
-        let resp = await compileForModInstall(
+        let error = await compileForModInstall(
           activeGame,
           modName,
           modSourceName,
         );
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;
@@ -106,14 +105,14 @@ export async function setupModInstallation(
       status: "queued",
       label: $format("setup_done"),
       task: async () => {
-        let resp = await saveModInstallInfo(
+        let error = await saveModInstallInfo(
           activeGame,
           modName,
           modSourceName,
           modVersion,
         );
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;
@@ -133,13 +132,13 @@ export async function setupDecompileModJob(
       status: "queued",
       label: $format("setup_decompile"),
       task: async () => {
-        let resp = await decompileForModInstall(
+        let error = await decompileForModInstall(
           activeGame,
           modName,
           modSourceName,
         );
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;
@@ -166,13 +165,13 @@ export async function setupCompileModJob(
       status: "queued",
       label: $format("setup_compile"),
       task: async () => {
-        let resp = await compileForModInstall(
+        let error = await compileForModInstall(
           activeGame,
           modName,
           modSourceName,
         );
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;

@@ -2,7 +2,7 @@ import type { ModSourceData } from "./bindings/ModSourceData";
 import { invoke_rpc } from "./rpc";
 
 export async function refreshModSources(): Promise<void> {
-  return await invoke_rpc("refresh_mod_sources", {}, () => {});
+  return await invoke_rpc("refresh_mod_sources", {});
 }
 
 export async function getModSourcesData(): Promise<
