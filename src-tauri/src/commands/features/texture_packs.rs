@@ -1,7 +1,4 @@
-use std::{
-  collections::HashMap,
-  path::{Path, PathBuf},
-};
+use std::{collections::HashMap, fs, path::PathBuf};
 
 use anyhow::Context;
 use serde_json::Value;
@@ -38,23 +35,14 @@ pub async fn list_extracted_texture_pack_info(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,
 ) -> Result<HashMap<String, TexturePackInfo>, CommandError> {
-  let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => return Ok(HashMap::new()),
-    Some(path) => Path::new(path),
+  let expected_path = {
+    let config_lock = config.lock().await;
+    config_lock
+      .install_dir()?
+      .join("features")
+      .join(game_name.to_string())
+      .join("texture-packs")
   };
-
-  let expected_path = Path::new(install_path)
-    .join("features")
-    .join(game_name.to_string())
-    .join("texture-packs");
-  if !expected_path.exists() || !expected_path.is_dir() {
-    log::info!(
-      "No {} folder found, returning no texture packs",
-      expected_path.display()
-    );
-    return Ok(HashMap::new());
-  }
 
   let entries = std::fs::read_dir(&expected_path).map_err(|_| {
     CommandError::GameFeatures(format!(
@@ -68,92 +56,86 @@ pub async fn list_extracted_texture_pack_info(
   for entry in entries {
     let entry = entry?;
     let entry_path = entry.path();
-    if entry_path.is_dir() {
-      let directory_name = entry_path
-        .file_name()
-        .and_then(|os_str| os_str.to_str())
-        .map(String::from)
-        .ok_or_else(|| {
-          CommandError::GameFeatures(format!("Unable to get directory name for {:?}", entry_path))
-        })?;
-      // Get a list of all texture files for this pack
-      log::info!("Texture pack dir name: {}", directory_name);
-      let mut file_list = Vec::new();
-      for entry in glob::glob(
-        &entry_path
-          .join("custom_assets")
-          .join(game_name.to_string())
-          .join("texture_replacements/**/*.png")
-          .to_string_lossy(),
-      )
-      .expect("Failed to read glob pattern")
-      {
-        match entry {
-          Ok(path) => {
-            let relative_path = path
-              .strip_prefix(
-                entry_path
-                  .join("custom_assets")
-                  .join(game_name.to_string())
-                  .join("texture_replacements"),
-              )
-              .map_err(|_| {
-                CommandError::GameFeatures(format!(
-                  "Unable to read texture packs from {}",
-                  expected_path.display()
-                ))
-              })?;
-            file_list.push(relative_path.display().to_string().replace("\\", "/"));
-          }
-          Err(e) => println!("{:?}", e),
-        }
-      }
-      let cover_image_path = match entry_path.join("cover.png").exists() {
-        true => Some(entry_path.join("cover.png").to_string_lossy().to_string()),
-        false => None,
-      };
-      let mut pack_info = TexturePackInfo {
-        file_list,
-        has_metadata: false,
-        cover_image_path,
-        name: directory_name.to_owned(),
-        version: "Unknown Version".to_string(),
-        author: "Unknown Author".to_string(),
-        release_date: "Unknown Release Date".to_string(),
-        supported_games: vec![game_name], // if no info, assume it's supported
-        description: "Unknown Description".to_string(),
-        tags: vec![],
-      };
-      // Read metadata if it's available
-      if entry_path.join("metadata.json").exists() {
-        match std::fs::read_to_string(entry_path.join("metadata.json")) {
-          Ok(content) => {
-            // Serialize from json
-            match serde_json::from_str::<TexturePackInfo>(&content) {
-              Ok(pack_metadata) => {
-                pack_info.name = pack_metadata.name;
-                pack_info.version = pack_metadata.version;
-                pack_info.author = pack_metadata.author;
-                pack_info.release_date = pack_metadata.release_date;
-                pack_info.description = pack_metadata.description;
-                pack_info.tags = pack_metadata.tags;
-              }
-              Err(err) => {
-                log::error!("Unable to parse {}: {}", &content, err);
-              }
-            }
-          }
-          Err(err) => {
-            log::error!(
-              "Unable to read {}: {}",
-              entry_path.join("metadata.json").display(),
-              err
-            );
-          }
-        };
-      }
-      package_map.insert(directory_name, pack_info);
+    if !entry_path.is_dir() {
+      continue;
     }
+
+    let directory_name = entry_path
+      .file_name()
+      .and_then(|os_str| os_str.to_str())
+      .map(String::from)
+      .ok_or_else(|| {
+        CommandError::GameFeatures(format!(
+          "Unable to get directory name for {:?}",
+          entry_path.display()
+        ))
+      })?;
+
+    let mut file_list = Vec::new();
+
+    for entry in glob::glob(
+      &entry_path
+        .join("custom_assets")
+        .join(game_name.to_string())
+        .join("texture_replacements/**/*.png")
+        .to_string_lossy(),
+    )
+    .expect("Failed to read glob pattern")
+    {
+      match entry {
+        Ok(path) => {
+          let relative_path = path
+            .strip_prefix(
+              entry_path
+                .join("custom_assets")
+                .join(game_name.to_string())
+                .join("texture_replacements"),
+            )
+            .map_err(|_| {
+              CommandError::GameFeatures(format!(
+                "Unable to read texture packs from {}",
+                expected_path.display()
+              ))
+            })?;
+          file_list.push(relative_path.display().to_string().replace("\\", "/"));
+        }
+        Err(e) => println!("{:?}", e),
+      }
+    }
+    let cover_image_path = match entry_path.join("cover.png").exists() {
+      true => Some(entry_path.join("cover.png").to_string_lossy().to_string()),
+      false => None,
+    };
+    let mut pack_info = TexturePackInfo {
+      file_list,
+      has_metadata: false,
+      cover_image_path,
+      name: directory_name.to_owned(),
+      version: "Unknown Version".to_string(),
+      author: "Unknown Author".to_string(),
+      release_date: "Unknown Release Date".to_string(),
+      supported_games: vec![game_name], // if no info, assume it's supported
+      description: "Unknown Description".to_string(),
+      tags: vec![],
+    };
+
+    let metadata_path = entry_path.join("metadata.json");
+    if let Ok(metadata) = fs::File::open(&metadata_path)
+      .and_then(|f| serde_json::from_reader::<_, TexturePackInfo>(f).map_err(Into::into))
+    {
+      pack_info = TexturePackInfo {
+        has_metadata: true,
+        file_list: pack_info.file_list,
+        cover_image_path: pack_info.cover_image_path,
+        ..metadata
+      };
+    } else {
+      log::error!(
+        "Unable to load texture pack metadata {}",
+        metadata_path.display()
+      );
+    }
+    package_map.insert(directory_name, pack_info);
   }
 
   Ok(package_map)
