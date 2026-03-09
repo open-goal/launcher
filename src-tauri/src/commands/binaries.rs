@@ -1,8 +1,8 @@
+use anyhow::Context;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 use std::{
   collections::HashMap,
-  io::ErrorKind,
   path::{Path, PathBuf},
   process::Stdio,
   time::Instant,
@@ -24,12 +24,6 @@ use crate::{
 };
 
 use super::CommandError;
-
-#[derive(Clone, serde::Serialize)]
-struct ToastPayload {
-  toast: String,
-  level: String,
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 struct LauncherErrorCode {
@@ -141,15 +135,7 @@ pub async fn extract_and_validate_iso(
     "extracting using data folder: {}",
     data_folder.to_string_lossy()
   );
-  let exec_info = match config_info.get_exec_location("extractor") {
-    Ok(exec_info) => exec_info,
-    Err(_) => {
-      error!("extractor executable not found");
-      return Err(CommandError::BinaryExecution(format!(
-        "Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again."
-      )));
-    }
-  };
+  let exec_info = config_info.get_exec_location("extractor")?;
 
   let mut args = vec![
     path_to_iso.clone(),
@@ -214,19 +200,13 @@ pub async fn run_decompiler(
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
-
   let data_folder = get_data_dir(&config_info, game_name, false)?;
+  let exec_info = config_info.get_exec_location("extractor")?;
+
   log::info!(
     "decompiling using data folder: {}",
     data_folder.to_string_lossy()
   );
-  let exec_info = match config_info.get_exec_location("extractor") {
-    Ok(exec_info) => exec_info,
-    Err(_) => {
-      error!("extractor executable not found");
-      return Err(CommandError::BinaryExecution("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()));
-    }
-  };
 
   let source_path = path_to_iso.unwrap_or_else(|| {
     data_folder
@@ -334,20 +314,13 @@ pub async fn run_compiler(
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
-
+  let exec_info = config_info.get_exec_location("extractor")?;
   let data_folder = get_data_dir(&config_info, game_name, false)?;
+
   log::info!(
     "compiling using data folder: {}",
     data_folder.to_string_lossy()
   );
-  let exec_info = match config_info.get_exec_location("extractor") {
-    Ok(exec_info) => exec_info,
-    Err(_) => {
-      return Err(CommandError::BinaryExecution(format!(
-        "Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again."
-      )));
-    }
-  };
 
   let source_path = path_to_iso.unwrap_or_else(|| {
     data_folder
@@ -399,19 +372,16 @@ pub async fn run_compiler(
   if let Some(code) = status.code() {
     let message = get_error_code_message(&config_info, game_name, code);
     error!("compilation was not successful. Code {code}");
-    return Err(CommandError::BinaryExecution(message));
+    return Err(anyhow::anyhow!(message).into());
   }
 
   error!("compilation was not successful. No status code");
-  return Err(CommandError::BinaryExecution(
-    "Unexpected error occurred".to_owned(),
-  ));
+  return Err(anyhow::anyhow!("compilation was not successful. No status code").into());
 }
 
 #[tauri::command]
 pub async fn open_repl(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  app_handle: tauri::AppHandle,
   game_name: SupportedGame,
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
@@ -456,23 +426,9 @@ pub async fn open_repl(
       ])
       .current_dir(exec_info.executable_dir);
   }
-  match command.spawn() {
-    Ok(_) => Ok(()),
-    Err(e) => {
-      if let ErrorKind::NotFound = e.kind() {
-        let _ = app_handle.emit(
-          "toast_msg",
-          ToastPayload {
-            toast: format!("'{:?}' not found in PATH!", command.get_program()),
-            level: "error".to_string(),
-          },
-        );
-      }
-      Err(CommandError::BinaryExecution(
-        "Unable to launch REPL".to_owned(),
-      ))
-    }
-  }
+
+  command.spawn().context("Unable to launch REPL")?;
+  Ok(())
 }
 
 fn generate_launch_game_string(
@@ -526,7 +482,6 @@ pub async fn get_launch_game_string(
 ) -> Result<String, CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
-
   let exec_info = config_info.get_exec_location("gk")?;
   let args = generate_launch_game_string(&config_info, game_name, false, true)?;
 
@@ -571,47 +526,44 @@ pub async fn launch_game(
   let log_file = create_std_log_file(&app_handle, format!("game-{game_name}.log"), false)?;
   let log_file_err = log_file.try_clone()?;
 
-  let mut command = std::process::Command::new(exec_info.executable_path);
+  let mut command = tokio::process::Command::new(exec_info.executable_path);
   command
     .args(args)
     .stdout(log_file)
     .stderr(log_file_err)
     .current_dir(exec_info.executable_dir);
+
   #[cfg(windows)]
   {
-    std::os::windows::process::CommandExt::creation_flags(&mut command, 0x08000000);
+    const CREATE_NO_WINDOW: u32 = 0x08000000;
+    command.creation_flags(CREATE_NO_WINDOW);
   }
+  drop(config_lock);
   let mut child = command.spawn()?;
-  // wait for the child to exit in the background
-  tokio::spawn(async move {
+  let handle = tokio::spawn(async move {
     let start_time = Instant::now();
-    let status = match child.wait() {
+    let status = match child.wait().await {
       Ok(status) => status,
       Err(err) => {
         error!("Error occurred when waiting for game to exit: {err}");
-        return;
+        anyhow::bail!("Error occurred when waiting for game to exit: {err}");
       }
     };
 
-    if let Err(err) = track_playtime(start_time, game_name).await {
-      error!("Failed to track playtime: {err}");
-    }
+    track_playtime(start_time, game_name)
+      .await
+      .map_err(|err| anyhow::anyhow!("Failed to track playtime: {err}"))?;
 
-    let Some(exit_code) = status.code() else {
-      return;
-    };
-
-    if exit_code != 0 {
+    if let Some(exit_code) = status.code()
+      && exit_code != 0
+    {
       error!("Game crashed with code: {}", format_exit_code(exit_code));
-      let _ = app_handle.emit(
-        "toast_msg",
-        ToastPayload {
-          toast: format!("Game crashed with code: {}", format_exit_code(exit_code)),
-          level: "error".to_string(),
-        },
-      );
+      anyhow::bail!("Game crashed with code: {}", format_exit_code(exit_code));
     }
+    Ok(())
   });
+
+  handle.await.map_err(|e| anyhow::anyhow!("{:#?}", e))??;
   Ok(())
 }
 
