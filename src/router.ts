@@ -41,7 +41,7 @@ export const { p, navigate, isActive, route } = createRouter({
     beforeLoad({ pathname }) {
       if (pathname === "/") {
         // simple redirect to default game
-        throw navigate("/jak1" as any);
+        throw navigate("/:game_name/", { params: { game_name: "jak1" } });
       }
     },
   },
@@ -73,16 +73,16 @@ export const { p, navigate, isActive, route } = createRouter({
             return;
           }
 
-          const currentRequirements =
-            await requirementsStore.refresh(activeGame);
-          if (!currentRequirements.requirementsMet) {
-            throw navigate("/:game_name/requirements", {
+          if (!versionState.activeToolingVersion) {
+            throw navigate("/:game_name/tools-not-set", {
               params: { game_name: params.game_name },
             });
           }
 
-          if (versionState.activeToolingVersion === null) {
-            throw navigate("/:game_name/tools-not-set", {
+          const currentRequirements =
+            await requirementsStore.refresh(activeGame);
+          if (!currentRequirements.requirementsMet) {
+            throw navigate("/:game_name/requirements", {
               params: { game_name: params.game_name },
             });
           }
