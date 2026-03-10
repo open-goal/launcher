@@ -201,23 +201,13 @@ pub async fn extract_iso_for_mod_install(
     config_lock.install_dir()?
   };
 
-  let exec_info = match get_mod_exec_location(
+  let exec_info = get_mod_exec_location(
     &install_path,
     "extractor",
     game_name,
     &mod_name,
     &source_name,
-  ) {
-    Ok(exec_info) => exec_info,
-    Err(e) => {
-      return Err(CommandError::GameFeatures(
-        format!(
-          "Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again. {}",
-          e
-        ),
-      ));
-    }
-  };
+  )?;
 
   let iso_extraction_dir = install_path
     .join("active")
@@ -284,21 +274,13 @@ pub async fn decompile_for_mod_install(
     config_lock.install_dir()?
   };
 
-  let exec_info = match get_mod_exec_location(
+  let exec_info = get_mod_exec_location(
     &install_path,
     "extractor",
     game_name,
     &mod_name,
     &source_name,
-  ) {
-    Ok(exec_info) => exec_info,
-    Err(e) => {
-      return Err(CommandError::GameFeatures(format!(
-        "Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again. {}",
-        e
-      )));
-    }
-  };
+  )?;
 
   let iso_dir = install_path
     .join("active")
@@ -358,22 +340,13 @@ pub async fn compile_for_mod_install(
     let config_lock = config.lock().await;
     config_lock.install_dir()?
   };
-  let exec_info = match get_mod_exec_location(
+  let exec_info = get_mod_exec_location(
     &install_path,
     "extractor",
     game_name,
     &mod_name,
     &source_name,
-  ) {
-    Ok(exec_info) => exec_info,
-    Err(e) => {
-      log::error!("extractor executable not found");
-      return Err(CommandError::GameFeatures(format!(
-        "Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again. {}",
-        e
-      )));
-    }
-  };
+  )?;
 
   let iso_dir = install_path
     .join("active")
