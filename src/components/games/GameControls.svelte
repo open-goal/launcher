@@ -193,7 +193,7 @@
     <Dropdown
       simple
       trigger="hover"
-      placement="top"
+      placement="top-end"
       class="!bg-slate-900 dark:text-white **:w-full"
     >
       <!-- TODO - screenshot folder? how do we even configure where those go? -->
