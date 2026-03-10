@@ -62,7 +62,12 @@ fn get_error_code_message(
         .ok()
     })
     .and_then(|map| map.get(&code).map(|e| e.msg.clone()))
-    .unwrap_or_else(|| format!("Unexpected error occurred with code {code}"))
+    .unwrap_or_else(|| {
+      format!(
+        "Unexpected error occurred with code {}",
+        format_exit_code(code)
+      )
+    })
 }
 
 fn copy_data_dir(
