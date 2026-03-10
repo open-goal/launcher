@@ -13,7 +13,7 @@ use tokio::process::Command;
 
 use crate::{
   cache::{ModCache, ModInfo},
-  commands::CommandError,
+  commands::{CommandError, binaries::format_exit_code},
   config::{ExecutableLocation, LauncherConfig, SupportedGame},
   util::{
     file::{delete_dir, to_image_base64},
@@ -255,6 +255,7 @@ pub async fn extract_iso_for_mod_install(
 
   let msg = status
     .code()
+    .map(|code| format_exit_code(code))
     .map(|code| format!("Unexpected error occurred with code {code}"))
     .unwrap_or_else(|| "Unexpected error occurred".to_owned());
 
@@ -322,6 +323,7 @@ pub async fn decompile_for_mod_install(
 
   let msg = status
     .code()
+    .map(|code| format_exit_code(code))
     .map(|code| format!("Unexpected error occurred with code {code}"))
     .unwrap_or_else(|| "Unexpected error occurred".to_owned());
 
@@ -388,6 +390,7 @@ pub async fn compile_for_mod_install(
 
   let msg = status
     .code()
+    .map(|code| format_exit_code(code))
     .map(|code| format!("Unexpected error occurred with code {code}"))
     .unwrap_or_else(|| "Unexpected error occurred".to_owned());
 

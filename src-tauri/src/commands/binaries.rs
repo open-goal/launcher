@@ -31,12 +31,12 @@ struct LauncherErrorCode {
 }
 
 #[cfg(windows)]
-fn format_exit_code(code: i32) -> String {
+pub fn format_exit_code(code: i32) -> String {
   format!("{code} ({:#010X})", code as u32)
 }
 
 #[cfg(not(windows))]
-fn format_exit_code(code: i32) -> String {
+pub fn format_exit_code(code: i32) -> String {
   code.to_string()
 }
 
