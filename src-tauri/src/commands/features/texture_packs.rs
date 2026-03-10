@@ -44,12 +44,10 @@ pub async fn list_extracted_texture_pack_info(
       .join("texture-packs")
   };
 
-  let entries = std::fs::read_dir(&expected_path).map_err(|_| {
-    CommandError::GameFeatures(format!(
-      "Unable to read texture packs from {}",
-      expected_path.display()
-    ))
-  })?;
+  let entries = match std::fs::read_dir(&expected_path) {
+    Ok(entries) => entries,
+    Err(_) => return Ok(HashMap::new()),
+  };
 
   let mut package_map = HashMap::new();
 
