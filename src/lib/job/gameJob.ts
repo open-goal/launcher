@@ -22,9 +22,9 @@ export async function setupInstallGame(
       status: "queued",
       label: $format("setup_extractAndVerify"),
       task: async () => {
-        const resp = await extractAndValidateISO(sourcePath, activeGame);
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        const error = await extractAndValidateISO(sourcePath, activeGame);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;
@@ -34,9 +34,9 @@ export async function setupInstallGame(
       status: "queued",
       label: $format("setup_decompile"),
       task: async () => {
-        const resp = await runDecompiler(sourcePath, activeGame, false, false);
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        const error = await runDecompiler(sourcePath, activeGame, false, false);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;
@@ -46,9 +46,9 @@ export async function setupInstallGame(
       status: "queued",
       label: $format("setup_compile"),
       task: async () => {
-        const resp = await runCompiler(sourcePath, activeGame);
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        const error = await runCompiler(sourcePath, activeGame);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;
@@ -76,9 +76,9 @@ export async function setupDecompileJob(activeGame: SupportedGame) {
       status: "queued",
       label: $format("setup_decompile"),
       task: async () => {
-        const resp = await runDecompiler("", activeGame, true, true);
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        const error = await runDecompiler(null, activeGame, true, true);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;
@@ -100,9 +100,9 @@ export async function setupCompileJob(activeGame: SupportedGame) {
       status: "queued",
       label: $format("setup_compile"),
       task: async () => {
-        const resp = await runCompiler("", activeGame, true);
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        const error = await runCompiler(null, activeGame, true);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;
@@ -124,9 +124,9 @@ export async function setupUpdateGameJob(activeGame: SupportedGame) {
       status: "queued",
       label: $format("setup_copyFiles"),
       task: async () => {
-        let resp = await updateDataDirectory(activeGame);
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        let error = await updateDataDirectory(activeGame);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;
@@ -136,9 +136,9 @@ export async function setupUpdateGameJob(activeGame: SupportedGame) {
       status: "queued",
       label: $format("setup_decompile"),
       task: async () => {
-        let resp = await runDecompiler("", activeGame, true, false);
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        let error = await runDecompiler(null, activeGame, true, false);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;
@@ -148,9 +148,9 @@ export async function setupUpdateGameJob(activeGame: SupportedGame) {
       status: "queued",
       label: $format("setup_compile"),
       task: async () => {
-        let resp = await runCompiler("", activeGame);
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        let error = await runCompiler(null, activeGame);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;

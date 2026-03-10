@@ -17,20 +17,12 @@ export async function downloadOfficialVersion(
   return await invoke_rpc(
     "download_version",
     { version, url, versionFolder: "official" },
-    () => false,
-    "Unable to download official version",
     () => true,
   );
 }
 
 export async function removeVersion(version: String): Promise<boolean> {
-  return await invoke_rpc(
-    "remove_version",
-    { version },
-    () => false,
-    "Unable to remove version",
-    () => true,
-  );
+  return await invoke_rpc("remove_version", { version }, () => true);
 }
 
 export async function removeOldVersions(): Promise<boolean> {
@@ -50,18 +42,9 @@ export async function removeOldVersions(): Promise<boolean> {
 }
 
 export async function getActiveVersion(): Promise<string | undefined> {
-  return await invoke_rpc(
-    "get_setting_value",
-    { key: "active_version" },
-    () => undefined,
-  );
+  return await invoke_rpc("get_setting_value", { key: "active_version" });
 }
 
 export async function ensureActiveVersionStillExists(): Promise<boolean> {
-  return await invoke_rpc(
-    "ensure_active_version_still_exists",
-    {},
-    () => false,
-    "Error checking that active version exists",
-  );
+  return await invoke_rpc("ensure_active_version_still_exists", {});
 }

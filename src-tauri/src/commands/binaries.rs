@@ -1,19 +1,17 @@
+use anyhow::Context;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 use std::{
   collections::HashMap,
-  io::ErrorKind,
   path::{Path, PathBuf},
   process::Stdio,
-  str::FromStr,
   time::Instant,
 };
 use tokio::process::Command;
 
-use log::{info, warn};
+use log::{error, info, warn};
 use semver::Version;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use tauri::{Emitter, Manager};
 
 use crate::{
@@ -27,21 +25,26 @@ use crate::{
 
 use super::CommandError;
 
-#[derive(Clone, serde::Serialize)]
-struct ToastPayload {
-  toast: String,
-  level: String,
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 struct LauncherErrorCode {
   msg: String,
 }
 
-fn get_error_codes(
+#[cfg(windows)]
+pub fn format_exit_code(code: i32) -> String {
+  format!("{code} ({:#010X})", code as u32)
+}
+
+#[cfg(not(windows))]
+pub fn format_exit_code(code: i32) -> String {
+  code.to_string()
+}
+
+fn get_error_code_message(
   config: &CommonConfigData,
   game_name: SupportedGame,
-) -> HashMap<i32, LauncherErrorCode> {
+  code: i32,
+) -> String {
   let json_file = config
     .install_path
     .join("active")
@@ -49,45 +52,22 @@ fn get_error_codes(
     .join("data")
     .join("launcher")
     .join("error-code-metadata.json");
-  if !json_file.exists() {
-    warn!("couldn't locate error code file at {}", json_file.display());
-    return HashMap::new();
-  }
-  let file_contents = match std::fs::read_to_string(&json_file) {
-    Ok(content) => content,
-    Err(_err) => {
-      warn!("couldn't read error code file at {}", &json_file.display());
-      return HashMap::new();
-    }
-  };
-  let json: Value = match serde_json::from_str(&file_contents) {
-    Ok(json) => json,
-    Err(_err) => {
-      warn!("couldn't parse error code file at {}", &json_file.display());
-      return HashMap::new();
-    }
-  };
 
-  if let Value::Object(map) = json {
-    let mut result: HashMap<i32, LauncherErrorCode> = HashMap::new();
-    for (key, value) in map {
-      let Ok(error_code) = serde_json::from_value(value) else {
-        continue;
-      };
-      let Ok(code) = key.parse::<i32>() else {
-        continue;
-      };
-      result.insert(code, error_code);
-    }
-    return result;
-  }
-
-  warn!(
-    "couldn't convert error code file at {}",
-    &json_file.display()
-  );
-
-  HashMap::new()
+  std::fs::File::open(&json_file)
+    .inspect_err(|e| warn!("{}", e))
+    .ok()
+    .and_then(|file| {
+      serde_json::from_reader::<_, HashMap<i32, LauncherErrorCode>>(file)
+        .inspect_err(|e| warn!("{}", e))
+        .ok()
+    })
+    .and_then(|map| map.get(&code).map(|e| e.msg.clone()))
+    .unwrap_or_else(|| {
+      format!(
+        "Unexpected error occurred with code {}",
+        format_exit_code(code)
+      )
+    })
 }
 
 fn copy_data_dir(
@@ -134,27 +114,15 @@ fn get_data_dir(
   Ok(data_folder)
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct InstallStepOutput {
-  pub success: bool,
-  pub msg: Option<String>,
-}
-
 #[tauri::command]
 pub async fn update_data_directory(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,
-) -> Result<InstallStepOutput, CommandError> {
+) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
-
   copy_data_dir(&config_info, game_name)?;
-
-  Ok(InstallStepOutput {
-    success: true,
-    msg: None,
-  })
+  Ok(())
 }
 
 #[tauri::command]
@@ -163,25 +131,16 @@ pub async fn extract_and_validate_iso(
   app_handle: tauri::AppHandle,
   path_to_iso: String,
   game_name: SupportedGame,
-) -> Result<InstallStepOutput, CommandError> {
+) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
-
   let data_folder = get_data_dir(&config_info, game_name, true)?;
+  let exec_info = config_info.get_exec_location("extractor")?;
+
   log::info!(
     "extracting using data folder: {}",
     data_folder.to_string_lossy()
   );
-  let exec_info = match config_info.get_exec_location("extractor") {
-    Ok(exec_info) => exec_info,
-    Err(_) => {
-      log::error!("extractor executable not found");
-      return Ok(InstallStepOutput {
-        success: false,
-        msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
-      });
-    }
-  };
 
   let mut args = vec![
     path_to_iso.clone(),
@@ -220,99 +179,49 @@ pub async fn extract_and_validate_iso(
   let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   if status.success() {
     log::info!("extraction and validation was successful");
-    return Ok(InstallStepOutput {
-      success: true,
-      msg: None,
-    });
+    return Ok(());
   }
 
   if let Some(code) = status.code() {
-    let error_code_map = get_error_codes(&config_info, game_name);
-    let default_error = LauncherErrorCode {
-      msg: format!("Unexpected error occured with code {code}"),
-    };
-    let message = error_code_map.get(&code).unwrap_or(&default_error);
-    log::error!("extraction and validation was not successful. Code {code}");
-    return Ok(InstallStepOutput {
-      success: false,
-      msg: Some(message.msg.clone()),
-    });
+    let message = get_error_code_message(&config_info, game_name, code);
+    error!("extraction and validation was not successful. Code {code}");
+    return Err(CommandError::BinaryExecution(message));
   }
 
-  log::error!("extraction and validation was not successful. No status code");
-  Ok(InstallStepOutput {
-    success: false,
-    msg: Some("Unexpected error occurred".to_owned()),
-  })
+  error!("extraction and validation was not successful. No status code");
+  return Err(CommandError::BinaryExecution(
+    "Unexpected error occurred".to_owned(),
+  ));
 }
 
 #[tauri::command]
 pub async fn run_decompiler(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
-  path_to_iso: String,
+  path_to_iso: Option<String>,
   game_name: SupportedGame,
   truncate_logs: bool,
   use_decomp_settings: bool,
-) -> Result<InstallStepOutput, CommandError> {
+) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
-
   let data_folder = get_data_dir(&config_info, game_name, false)?;
+  let exec_info = config_info.get_exec_location("extractor")?;
+
   log::info!(
     "decompiling using data folder: {}",
     data_folder.to_string_lossy()
   );
-  let exec_info = match config_info.get_exec_location("extractor") {
-    Ok(exec_info) => exec_info,
-    Err(_) => {
-      log::error!("extractor executable not found");
-      return Ok(InstallStepOutput {
-        success: false,
-        msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
-      });
-    }
-  };
 
-  let mut source_path = path_to_iso;
-  if source_path.is_empty() {
-    source_path = data_folder
+  let source_path = path_to_iso.unwrap_or_else(|| {
+    data_folder
       .join("iso_data")
       .join(game_name.to_string())
       .to_string_lossy()
-      .to_string();
-  }
+      .into_owned()
+  });
 
   let mut command = Command::new(exec_info.executable_path);
-
-  let mut decomp_config_overrides = vec![];
-  if use_decomp_settings {
-    let decomp_settings = &config_lock.decompiler_settings;
-    if decomp_settings.rip_levels_enabled {
-      decomp_config_overrides.push(format!(
-        "\"rip_levels\": {}",
-        decomp_settings.rip_levels_enabled
-      ));
-    }
-    if decomp_settings.rip_collision_enabled {
-      decomp_config_overrides.push(format!(
-        "\"rip_collision\": {}",
-        decomp_settings.rip_collision_enabled
-      ));
-    }
-    if decomp_settings.rip_textures_enabled {
-      decomp_config_overrides.push(format!(
-        "\"save_texture_pngs\": {}",
-        decomp_settings.rip_textures_enabled
-      ));
-    }
-    if decomp_settings.rip_streamed_audio_enabled {
-      decomp_config_overrides.push(format!(
-        "\"rip_streamed_audio\": {}",
-        decomp_settings.rip_streamed_audio_enabled
-      ));
-    }
-  }
 
   let mut args = vec![
     source_path,
@@ -327,9 +236,25 @@ pub async fn run_decompiler(
     args.push(game_name.to_string());
   }
 
-  if !decomp_config_overrides.is_empty() {
-    args.push("--decomp-config-override".to_string());
-    args.push(format!("{{{}}}", decomp_config_overrides.join(", ")));
+  if use_decomp_settings {
+    let settings = &config_lock.decompiler_settings;
+    let mut overrides = serde_json::Map::new();
+
+    for (key, enabled) in [
+      ("rip_levels", settings.rip_levels_enabled),
+      ("rip_collision", settings.rip_collision_enabled),
+      ("save_texture_pngs", settings.rip_textures_enabled),
+      ("rip_streamed_audio", settings.rip_streamed_audio_enabled),
+    ] {
+      if enabled {
+        overrides.insert(key.to_string(), true.into());
+      }
+    }
+
+    if !overrides.is_empty() {
+      args.push("--decomp-config-override".to_string());
+      args.push(serde_json::Value::Object(overrides).to_string());
+    }
   }
 
   log::info!("Running extractor with args: {:?}", args);
@@ -356,66 +281,46 @@ pub async fn run_decompiler(
   let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   if status.success() {
     log::info!("decompilation was successful");
-    return Ok(InstallStepOutput {
-      success: true,
-      msg: None,
-    });
+    return Ok(());
   }
 
   if let Some(code) = status.code() {
-    let error_code_map = get_error_codes(&config_info, game_name);
-    let default_error = LauncherErrorCode {
-      msg: format!("Unexpected error occured with code {code}"),
-    };
-    let message = error_code_map.get(&code).unwrap_or(&default_error);
-    log::error!("decompilation was not successful. Code {code}");
-    return Ok(InstallStepOutput {
-      success: false,
-      msg: Some(message.msg.clone()),
-    });
+    let message = get_error_code_message(&config_info, game_name, code);
+    error!("decompilation was not successful. Code {code}");
+    return Err(CommandError::BinaryExecution(message));
   }
 
-  log::error!("decompilation was not successful. No status code");
-  Ok(InstallStepOutput {
-    success: false,
-    msg: Some("Unexpected error occurred".to_owned()),
-  })
+  error!("decompilation was not successful. No status code");
+  return Err(CommandError::BinaryExecution(
+    "Unexpected error occurred".to_owned(),
+  ));
 }
 
 #[tauri::command]
 pub async fn run_compiler(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   app_handle: tauri::AppHandle,
-  path_to_iso: String,
+  path_to_iso: Option<String>,
   game_name: SupportedGame,
   truncate_logs: bool,
-) -> Result<InstallStepOutput, CommandError> {
+) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
-
+  let exec_info = config_info.get_exec_location("extractor")?;
   let data_folder = get_data_dir(&config_info, game_name, false)?;
+
   log::info!(
     "compiling using data folder: {}",
     data_folder.to_string_lossy()
   );
-  let exec_info = match config_info.get_exec_location("extractor") {
-    Ok(exec_info) => exec_info,
-    Err(_) => {
-      return Ok(InstallStepOutput {
-        success: false,
-        msg: Some("Tooling appears to be missing critical files. This may be caused by antivirus software. You will need to redownload the version and try again.".to_string()),
-      })
-    }
-  };
 
-  let mut source_path = path_to_iso;
-  if source_path.is_empty() {
-    source_path = data_folder
+  let source_path = path_to_iso.unwrap_or_else(|| {
+    data_folder
       .join("iso_data")
       .join(game_name.to_string())
       .to_string_lossy()
-      .to_string();
-  }
+      .into_owned()
+  });
 
   let mut args = vec![
     source_path,
@@ -453,36 +358,22 @@ pub async fn run_compiler(
   let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   if status.success() {
     log::info!("compilation was successful");
-    return Ok(InstallStepOutput {
-      success: true,
-      msg: None,
-    });
+    return Ok(());
   }
 
   if let Some(code) = status.code() {
-    let error_code_map = get_error_codes(&config_info, game_name);
-    let default_error = LauncherErrorCode {
-      msg: format!("Unexpected error occured with code {code}"),
-    };
-    let message = error_code_map.get(&code).unwrap_or(&default_error);
-    log::error!("compilation was not successful. Code {code}");
-    return Ok(InstallStepOutput {
-      success: false,
-      msg: Some(message.msg.clone()),
-    });
+    let message = get_error_code_message(&config_info, game_name, code);
+    error!("compilation was not successful. Code {code}");
+    return Err(anyhow::anyhow!(message).into());
   }
 
-  log::error!("compilation was not successful. No status code");
-  Ok(InstallStepOutput {
-    success: false,
-    msg: Some("Unexpected error occurred".to_owned()),
-  })
+  error!("compilation was not successful. No status code");
+  return Err(anyhow::anyhow!("compilation was not successful. No status code").into());
 }
 
 #[tauri::command]
 pub async fn open_repl(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  app_handle: tauri::AppHandle,
   game_name: SupportedGame,
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
@@ -527,23 +418,9 @@ pub async fn open_repl(
       ])
       .current_dir(exec_info.executable_dir);
   }
-  match command.spawn() {
-    Ok(_) => Ok(()),
-    Err(e) => {
-      if let ErrorKind::NotFound = e.kind() {
-        let _ = app_handle.emit(
-          "toast_msg",
-          ToastPayload {
-            toast: format!("'{:?}' not found in PATH!", command.get_program()),
-            level: "error".to_string(),
-          },
-        );
-      }
-      Err(CommandError::BinaryExecution(
-        "Unable to launch REPL".to_owned(),
-      ))
-    }
-  }
+
+  command.spawn().context("Unable to launch REPL")?;
+  Ok(())
 }
 
 fn generate_launch_game_string(
@@ -597,13 +474,12 @@ pub async fn get_launch_game_string(
 ) -> Result<String, CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
-
   let exec_info = config_info.get_exec_location("gk")?;
   let args = generate_launch_game_string(&config_info, game_name, false, true)?;
 
   Ok(format!(
     "{} {}",
-    exec_info.executable_path.display(),
+    format!("\"{}\"", exec_info.executable_path.display()),
     args.join(" ")
   ))
 }
@@ -614,34 +490,19 @@ pub async fn launch_game(
   app_handle: tauri::AppHandle,
   game_name: SupportedGame,
   in_debug: bool,
-  executable_location: Option<String>,
+  executable_location: Option<PathBuf>,
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
 
-  let mut exec_info = config_info.get_exec_location("gk")?;
-  if let Some(custom_exec_location) = executable_location {
-    match PathBuf::from_str(custom_exec_location.as_str()) {
-      Ok(exec_path) => {
-        let path_copy = exec_path.clone();
-        if path_copy.parent().is_none() {
-          return Err(CommandError::BinaryExecution(
-            "Failed to resolve custom binary parent directory".to_string(),
-          ));
-        }
-        exec_info = ExecutableLocation {
-          executable_dir: exec_path.clone().parent().unwrap().to_path_buf(),
-          executable_path: exec_path.clone(),
-        };
-      }
-      Err(err) => {
-        return Err(CommandError::BinaryExecution(format!(
-          "Failed to resolve custom binary location {}",
-          err
-        )));
-      }
+  let exec_info = if let Some(exec_path) = executable_location {
+    ExecutableLocation {
+      executable_dir: exec_path.parent().unwrap().to_path_buf(),
+      executable_path: exec_path,
     }
-  }
+  } else {
+    config_info.get_exec_location("gk")?
+  };
 
   let args = generate_launch_game_string(&config_info, game_name, in_debug, false)?;
 
@@ -657,76 +518,62 @@ pub async fn launch_game(
   let log_file = create_std_log_file(&app_handle, format!("game-{game_name}.log"), false)?;
   let log_file_err = log_file.try_clone()?;
 
-  let mut command = std::process::Command::new(exec_info.executable_path);
+  let mut command = tokio::process::Command::new(exec_info.executable_path);
   command
     .args(args)
     .stdout(log_file)
     .stderr(log_file_err)
     .current_dir(exec_info.executable_dir);
+
   #[cfg(windows)]
   {
-    std::os::windows::process::CommandExt::creation_flags(&mut command, 0x08000000);
+    const CREATE_NO_WINDOW: u32 = 0x08000000;
+    command.creation_flags(CREATE_NO_WINDOW);
   }
-  // Start the process here so if there is an error, we can return immediately
+  drop(config_lock);
   let mut child = command.spawn()?;
-  // if all goes well, we await the child to exit in the background (separate thread)
-  tokio::spawn(async move {
-    let start_time = Instant::now(); // get the start time of the game
-    // start waiting for the game to exit
-    match child.wait() {
-      Ok(status_code) => {
-        if status_code.code().is_none() || status_code.code().unwrap() != 0 {
-          let _ = app_handle.emit(
-            "toast_msg",
-            ToastPayload {
-              toast: "Game crashed unexpectedly!".to_string(),
-              level: "error".to_string(),
-            },
-          );
-        }
-      }
+  let handle = tokio::spawn(async move {
+    let start_time = Instant::now();
+    let status = match child.wait().await {
+      Ok(status) => status,
       Err(err) => {
-        log::error!("Error occured when waiting for game to exit: {}", err);
-        return;
+        error!("Error occurred when waiting for game to exit: {err}");
+        anyhow::bail!("Error occurred when waiting for game to exit: {err}");
       }
+    };
+
+    track_playtime(start_time, game_name)
+      .await
+      .map_err(|err| anyhow::anyhow!("Failed to track playtime: {err}"))?;
+
+    if let Some(exit_code) = status.code()
+      && exit_code != 0
+    {
+      error!("Game crashed with code: {}", format_exit_code(exit_code));
+      anyhow::bail!("Game crashed with code: {}", format_exit_code(exit_code));
     }
-    // once the game exits pass the time the game started to the track_playtine function
-    if let Err(err) = track_playtime(start_time, game_name).await {
-      log::error!("Error occured when tracking playtime: {}", err);
-    }
+    Ok(())
   });
+
+  handle.await.map_err(|e| anyhow::anyhow!("{:#?}", e))??;
   Ok(())
 }
 
 async fn track_playtime(
   start_time: std::time::Instant,
   game_name: SupportedGame,
-) -> Result<(), CommandError> {
+) -> anyhow::Result<()> {
   let app_handle = TAURI_APP
     .get()
-    .ok_or_else(|| {
-      CommandError::BinaryExecution("Cannot access global app state to persist playtime".to_owned())
-    })?
+    .expect("Can't access global app state")
     .app_handle();
+
+  let elapsed_seconds = start_time.elapsed().as_secs().into();
+
   let config = app_handle.state::<tokio::sync::Mutex<LauncherConfig>>();
   let mut config_lock = config.lock().await;
+  config_lock.update_setting_value("seconds_played", elapsed_seconds, Some(game_name))?;
 
-  // get the playtime of the session
-  let elapsed_time = start_time.elapsed().as_secs().into();
-  log::info!("elapsed time: {}", elapsed_time);
-
-  config_lock
-    .update_setting_value("seconds_played", elapsed_time, Some(game_name))
-    .map_err(|_| CommandError::Configuration("Unable to persist time played".to_owned()))?;
-
-  // send an event to the front end so that it can refresh the playtime on screen
-  if let Err(err) = app_handle.emit("playtimeUpdated", ()) {
-    log::error!("Failed to emit playtimeUpdated event: {}", err);
-    return Err(CommandError::BinaryExecution(format!(
-      "Failed to emit playtimeUpdated event: {}",
-      err
-    )));
-  }
-
+  app_handle.emit("playtimeUpdated", ())?;
   Ok(())
 }

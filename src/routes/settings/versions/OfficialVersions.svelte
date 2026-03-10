@@ -103,8 +103,8 @@
   }
 
   async function saveOfficialVersionChange(version: string) {
-    const success = await saveActiveVersionChange(version);
-    if (success) {
+    const error = await saveActiveVersionChange(version);
+    if (!error) {
       toastStore.makeToast($_("toasts_savedToolingVersion"), "info");
     }
   }
@@ -116,27 +116,8 @@
         ? { ...release, pendingAction: true }
         : release,
     );
-    const success = await downloadOfficialVersion(version, downloadUrl);
-    if (success) {
-      versionState.activeToolingVersion = version;
-      // Then mark it as downloaded
-      releases = releases.map((release) => {
-        if (release.version !== version) return release;
-
-        const isLatest = version === releases[0]?.version;
-
-        if ($UpdateStore.selectedTooling.updateAvailable && isLatest) {
-          $UpdateStore.selectedTooling.updateAvailable = false;
-        }
-
-        return {
-          ...release,
-          pendingAction: false,
-          isDownloaded: success,
-        };
-      });
-      await saveActiveVersionChange(version);
-    } else {
+    const error = await downloadOfficialVersion(version, downloadUrl);
+    if (error) {
       // ensure the version folder is removed if it failed
       await onRemoveVersion(version);
       releases = releases.map((release) =>
@@ -144,7 +125,22 @@
           ? { ...release, pendingAction: false }
           : release,
       );
+      return;
     }
+
+    versionState.activeToolingVersion = version;
+    const isLatest = version === releases[0]?.version;
+
+    if ($UpdateStore.selectedTooling.updateAvailable && isLatest) {
+      $UpdateStore.selectedTooling.updateAvailable = false;
+    }
+
+    releases = releases.map((release) =>
+      release.version === version
+        ? { ...release, pendingAction: false, isDownloaded: true }
+        : release,
+    );
+    await saveOfficialVersionChange(version);
   }
 
   async function onRemoveVersion(version: string) {
@@ -154,26 +150,27 @@
         ? { ...release, pendingAction: true }
         : release,
     );
-    const success = await removeVersion(version);
-    if (success) {
-      // Update the store, if we removed the active version
-      if (versionState.activeToolingVersion === version) {
-        versionState.activeToolingVersion = undefined;
-      }
-
-      // Then mark it as not downloaded
-      releases = releases.map((release) =>
-        release.version === version
-          ? { ...release, pendingAction: false, isDownloaded: false }
-          : release,
-      );
-    } else {
+    const error = await removeVersion(version);
+    if (error) {
       releases = releases.map((release) =>
         release.version === version
           ? { ...release, pendingAction: false }
           : release,
       );
+      return;
     }
+
+    // Update the store, if we removed the active version
+    if (versionState.activeToolingVersion === version) {
+      versionState.activeToolingVersion = undefined;
+    }
+
+    // Then mark it as not downloaded
+    releases = releases.map((release) =>
+      release.version === version
+        ? { ...release, pendingAction: false, isDownloaded: false }
+        : release,
+    );
   }
 </script>
 

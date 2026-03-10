@@ -18,9 +18,9 @@ export async function setupTexturePacks(
       status: "queued",
       label: $format("gameJob_deleteTexturePacks"),
       task: async () => {
-        let resp = await deleteTexturePacks(activeGame, packsToDelete);
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        let error = await deleteTexturePacks(activeGame, packsToDelete);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;
@@ -32,9 +32,9 @@ export async function setupTexturePacks(
       status: "queued",
       label: $format("gameJob_enablingTexturePacks"),
       task: async () => {
-        let resp = await setEnabledTexturePacks(activeGame, enabledPacks);
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        let error = await setEnabledTexturePacks(activeGame, enabledPacks);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;
@@ -44,9 +44,9 @@ export async function setupTexturePacks(
       status: "queued",
       label: $format("gameJob_applyTexturePacks"),
       task: async () => {
-        let resp = await updateTexturePackData(activeGame);
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        let error = await updateTexturePackData(activeGame);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;
@@ -56,9 +56,9 @@ export async function setupTexturePacks(
       status: "queued",
       label: $format("setup_decompile"),
       task: async () => {
-        let resp = await runDecompiler("", activeGame, true, false);
-        if (!resp.success) {
-          jobTracker.updateFailureReason(resp.msg);
+        let error = await runDecompiler(null, activeGame, true, false);
+        if (error) {
+          jobTracker.updateFailureReason(error);
           return false;
         }
         return true;

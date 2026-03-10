@@ -2,6 +2,8 @@ import { toastStore } from "$lib/stores/ToastStore";
 import { invoke, type InvokeArgs } from "@tauri-apps/api/core";
 import { errorLog, exceptionLog } from "./logging";
 
+// TODO: make args optional, add optional object encapsulating the optional params, this makes the call sites easier to read
+
 /**
  * Wrapper around Tauri invoke that logs all errors.
  * If the error is a string, it is also displayed as a toast.
@@ -14,30 +16,51 @@ import { errorLog, exceptionLog } from "./logging";
 export async function invoke_rpc<T>(
   cmd: string,
   args: InvokeArgs,
-  handleError: (error: unknown) => T,
-  toastOnError?: string,
+  onError?: (error: unknown) => T,
   onSuccess?: (result: T) => T,
 ): Promise<T> {
   try {
     // this assumes the call is made in a way that does not trick the type inference
     const result: T = await invoke(cmd, args);
-    if (onSuccess) {
-      return onSuccess(result);
-    }
-    return result;
+    return onSuccess ? onSuccess(result) : result;
   } catch (e: any) {
     if (typeof e === "string") {
       errorLog(`Error calling '${cmd}': ${e}`);
     } else {
       exceptionLog(`Error calling '${cmd}'`, e);
     }
-    // TODO - this is a dumb hack but whatever for now
-    if (toastOnError === "_mirror_") {
-      toastStore.makeToast(e, "error");
+    toastStore.makeToast(String(e), "error");
+    return onError ? onError(e) : e;
+  }
+}
+
+// TODO: TEMPORARY SECOND INVOKE WRAPPER WHILE I EXPERIMENT WITH THE SYSTEM
+// used for any tauri::command with the return type: Result<(), Error>
+
+/**
+ * Wrapper around Tauri invoke that logs all errors.
+ * If the error is a string, it is also displayed as a toast.
+ *
+ * @param cmd The command to send to the backend
+ * @param args The arguments for the command
+ * @returns `null` on success, `string` on error
+ */
+export async function invoke_rpc2(
+  cmd: string,
+  options?: {
+    args?: InvokeArgs;
+  },
+): Promise<string | null> {
+  try {
+    await invoke(cmd, options?.args);
+    return null;
+  } catch (e: any) {
+    if (typeof e === "string") {
+      errorLog(`Error calling '${cmd}': ${e}`);
     } else {
-      const toastMessage = toastOnError ?? "An unexpected error occurred";
-      toastStore.makeToast(toastMessage, "error");
+      exceptionLog(`Error calling '${cmd}'`, e);
     }
-    return handleError(e);
+    toastStore.makeToast(String(e), "error");
+    return String(e);
   }
 }
