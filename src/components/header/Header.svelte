@@ -9,7 +9,6 @@
   import { isInDebugMode } from "$lib/utils/common";
   import {
     downloadOfficialVersion,
-    getActiveVersion,
     listDownloadedVersions,
     removeOldVersions,
   } from "$lib/rpc/versions";
@@ -49,7 +48,6 @@
   onMount(async () => {
     // Get current versions
     launcherVersion = `v${await getVersion()}`;
-    versionState.activeToolingVersion = await getActiveVersion();
 
     // Check for a launcher update
     if (!isInDebugMode()) {

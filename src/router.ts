@@ -29,7 +29,7 @@ import {
   getInstalledVersion,
   isGameInstalled,
 } from "$lib/rpc/config";
-import { ensureActiveVersionStillExists } from "$lib/rpc/versions";
+import { ensureActiveVersionStillExists, getActiveVersion } from "$lib/rpc/versions";
 import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
 import Requirements from "./components/job/Requirements.svelte";
 import { requirementsStore } from "./state/requirements-store";
@@ -73,6 +73,7 @@ export const { p, navigate, isActive, route } = createRouter({
             return;
           }
 
+          versionState.activeToolingVersion = await getActiveVersion();
           if (!versionState.activeToolingVersion) {
             throw navigate("/:game_name/tools-not-set", {
               params: { game_name: params.game_name },
