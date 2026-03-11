@@ -29,7 +29,10 @@ import {
   getInstalledVersion,
   isGameInstalled,
 } from "$lib/rpc/config";
-import { ensureActiveVersionStillExists, getActiveVersion } from "$lib/rpc/versions";
+import {
+  ensureActiveVersionStillExists,
+  getActiveVersion,
+} from "$lib/rpc/versions";
 import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
 import Requirements from "./components/job/Requirements.svelte";
 import { requirementsStore } from "./state/requirements-store";

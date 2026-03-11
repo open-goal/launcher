@@ -5,7 +5,7 @@
     getInstallationDirectory,
     getLocale,
     localeSpecificFontAvailableForDownload,
-    resetLauncherSettingsToDefaults,
+    resetLauncherSettings,
     setAutoUpdateGames,
     getAutoUpdateGames,
     setBypassRequirements,
@@ -211,7 +211,7 @@
           $_("settings_general_button_resetSettings_confirmation"),
         );
         if (confirmed) {
-          const error = await resetLauncherSettingsToDefaults();
+          const error = await resetLauncherSettings();
           versionState.activeToolingVersion = await getActiveVersion();
         }
       }}>{$_("settings_general_button_resetSettings")}</Button
