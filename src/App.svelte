@@ -20,8 +20,6 @@
 
   // Events
   onMount(async () => {
-    versionState.activeToolingVersion = await getActiveVersion();
-
     // Set locale from settings
     const locale = await getLocale();
     if (locale !== null) {

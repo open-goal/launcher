@@ -6,7 +6,7 @@ import { appDataDir, join } from "@tauri-apps/api/path";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import type { SupportedGame } from "./bindings/SupportedGame";
 
-export async function resetLauncherSettingsToDefaults(): Promise<boolean> {
+export async function resetLauncherSettings(): Promise<string | null> {
   return await invoke_rpc("reset_to_defaults", {});
 }
 
