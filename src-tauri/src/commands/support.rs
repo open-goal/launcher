@@ -67,6 +67,7 @@ impl PerGameInfo {
 #[derive(Default, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SupportPackage {
+  #[cfg(windows)]
   pub installed_vcc_runtime: Option<String>,
   pub total_memory_megabytes: u64,
   pub cpu_name: String,
@@ -308,7 +309,10 @@ pub async fn generate_support_package(
   // System Information
   let mut system_info = System::new_all();
   system_info.refresh_all();
-  package.installed_vcc_runtime = get_installed_vcc_runtime().ok().map(|v| v.to_string());
+  #[cfg(windows)]
+  {
+    package.installed_vcc_runtime = get_installed_vcc_runtime().ok().map(|v| v.to_string());
+  }
   package.total_memory_megabytes = system_info.total_memory() / 1024 / 1024;
   package.cpu_name = system_info.cpus()[0].name().to_string();
   package.cpu_vendor = system_info.cpus()[0].vendor_id().to_string();
