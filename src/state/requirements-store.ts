@@ -49,10 +49,7 @@ async function evaluateRequirements(
     if (osType !== "macos") {
       requirementsMet = false;
     } else {
-      requirementsMet =
-        Boolean(systemInfoState.isMinMacOSVersion) &&
-        Boolean(isOpenGLMet) &&
-        Boolean(isDiskSpaceMet);
+      requirementsMet = Boolean(isOpenGLMet) && Boolean(isDiskSpaceMet);
     }
   } else {
     if (osType === "windows") {

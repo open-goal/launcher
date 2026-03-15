@@ -10,7 +10,6 @@
   } from "$lib/rpc/config";
   import { listen } from "@tauri-apps/api/event";
   import { toastStore, type ToastLevel } from "$lib/stores/ToastStore";
-  import { isMacOSVersion15OrAbove } from "$lib/rpc/util";
   import { getActiveVersion } from "$lib/rpc/versions.ts";
   import { versionState } from "./state/VersionState.svelte.ts";
   import { systemInfoState } from "./state/SystemInfoState.svelte.ts";
@@ -28,7 +27,6 @@
 
     systemInfoState.isMinVCCRuntimeInstalled =
       await isMinimumVCCRuntimeInstalled();
-    systemInfoState.isMinMacOSVersion = await isMacOSVersion15OrAbove();
 
     toastListener = await listen(
       "toast_msg",
