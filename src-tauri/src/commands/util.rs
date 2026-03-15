@@ -3,8 +3,6 @@ use crate::config::SupportedGame;
 use anyhow::anyhow;
 use log::warn;
 use sysinfo::Disks;
-#[cfg(target_os = "macos")]
-use sysinfo::System;
 
 use super::CommandError;
 
@@ -71,21 +69,6 @@ pub async fn is_avx_supported() -> bool {
 #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
 pub async fn is_avx_supported() -> bool {
   false
-}
-
-#[cfg(not(target_os = "macos"))]
-#[tauri::command]
-pub async fn is_macos_version_15_or_above() -> bool {
-  false
-}
-
-#[cfg(target_os = "macos")]
-#[tauri::command]
-pub async fn is_macos_version_15_or_above() -> bool {
-  System::os_version()
-    .and_then(|v| v.split('.').next()?.parse::<u32>().ok())
-    .map(|major| major >= 15)
-    .unwrap_or(false)
 }
 
 #[tauri::command]

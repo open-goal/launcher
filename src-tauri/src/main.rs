@@ -214,7 +214,6 @@ fn main() {
       commands::support::generate_support_package,
       commands::util::frontend_log,
       commands::util::is_diskspace_requirement_met,
-      commands::util::is_macos_version_15_or_above,
       commands::util::is_minimum_vcc_runtime_installed,
       commands::versions::download_version,
       commands::versions::ensure_active_version_still_exists,
