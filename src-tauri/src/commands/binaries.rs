@@ -1,4 +1,6 @@
 use anyhow::Context;
+#[cfg(unix)]
+use std::os::unix::process::ExitStatusExt;
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 use std::{
@@ -188,6 +190,14 @@ pub async fn extract_and_validate_iso(
     return Err(CommandError::BinaryExecution(message));
   }
 
+  #[cfg(unix)]
+  if let Some(signal) = status.signal() {
+    error!("Extractor process terminated by signal {signal:?}");
+    return Err(CommandError::BinaryExecution(format!(
+      "Extractor process terminated by signal {signal:?}",
+    )));
+  }
+
   error!("extraction and validation was not successful. No status code");
   return Err(CommandError::BinaryExecution(
     "Unexpected error occurred".to_owned(),
@@ -290,7 +300,15 @@ pub async fn run_decompiler(
     return Err(CommandError::BinaryExecution(message));
   }
 
-  error!("decompilation was not successful. No status code");
+  #[cfg(unix)]
+  if let Some(signal) = status.signal() {
+    error!("Decompiler process terminated by signal {signal:?}");
+    return Err(CommandError::BinaryExecution(format!(
+      "Decompiler process terminated by signal {signal:?}",
+    )));
+  }
+
+  error!("decompilation was not successful. No status code.");
   return Err(CommandError::BinaryExecution(
     "Unexpected error occurred".to_owned(),
   ));
@@ -365,6 +383,14 @@ pub async fn run_compiler(
     let message = get_error_code_message(&config_info, game_name, code);
     error!("compilation was not successful. Code {code}");
     return Err(anyhow::anyhow!(message).into());
+  }
+
+  #[cfg(unix)]
+  if let Some(signal) = status.signal() {
+    error!("Compiler process terminated by signal {signal:?}");
+    return Err(CommandError::BinaryExecution(format!(
+      "Compiler process terminated by signal {signal:?}",
+    )));
   }
 
   error!("compilation was not successful. No status code");
