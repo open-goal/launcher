@@ -14,7 +14,8 @@
       "timestampUrl": ""
     },
     "macOS": {
-      "signingIdentity": "-"
+      "signingIdentity": "-",
+      "minimumSystemVersion": "15.0"
     },
     "icon": [
       "icons/32x32.png",
