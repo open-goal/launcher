@@ -73,22 +73,6 @@
           >{$_("requirements_armNotSupportedOutsideMacOS")}</span
         >
       </Alert>
-    {:else if !systemInfoState.isMinMacOSVersion}
-      <Alert
-        class="w-full text-start"
-        rounded={false}
-        color={alertColor(systemInfoState.isMinMacOSVersion)}
-      >
-        {#if systemInfoState.isMinMacOSVersion === undefined}
-          <span class="font-bold"
-            >{$_("requirements_macos_unableToCheckVersion")}</span
-          >
-        {:else}
-          <span class="font-bold"
-            >{$_("requirements_macos_notAtleastVersion15")}</span
-          >
-        {/if}
-      </Alert>
     {/if}
 
     {#if !$currentRequirements?.isOpenGLMet}
