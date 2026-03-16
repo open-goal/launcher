@@ -1,8 +1,3 @@
-#[cfg(not(target_os = "windows"))]
-pub fn get_installed_vcc_runtime() -> anyhow::Result<semver::Version> {
-  anyhow::bail!("VCC runtime is only available on Windows");
-}
-
 #[cfg(target_os = "windows")]
 pub fn get_installed_vcc_runtime() -> anyhow::Result<semver::Version> {
   use anyhow::Context;
