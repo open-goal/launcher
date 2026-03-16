@@ -12,8 +12,9 @@
   import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
 
-  const gameParam = $derived(route.params.game_name);
-  const activeGame: SupportedGame | undefined = toSupportedGame(gameParam);
+  const activeGame: SupportedGame | undefined = $derived(
+    toSupportedGame(route.params.game_name),
+  );
 
   function alertColor(val: boolean | undefined) {
     if (val === undefined) {
