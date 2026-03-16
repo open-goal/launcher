@@ -1,4 +1,8 @@
 version: 2
+multi-ecosystem-groups:
+  tauri:
+    schedule:
+      interval: "monthly"
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -14,9 +18,10 @@ updates:
           - "*"
         exclude-patterns:
           - "tauri*"
-      backend-deps-tauri:
-        patterns:
-          - "tauri*"
+    patterns:
+      - "tauri*"
+      - "tauri-plugin*"
+    multi-ecosystem-group: "tauri"
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -27,6 +32,6 @@ updates:
           - "*"
         exclude-patterns:
           - "@tauri*"
-      frontend-deps-tauri:
-        patterns:
-          - "@tauri*"
+    patterns:
+      - "@tauri-apps/*"
+    multi-ecosystem-group: "tauri"
