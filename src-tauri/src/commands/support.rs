@@ -12,11 +12,12 @@ use tempfile::NamedTempFile;
 use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
 
+#[cfg(windows)]
+use crate::util::os::get_installed_vcc_runtime;
 use crate::{
   config::{LauncherConfig, SupportedGame},
-  util::{
-    os::get_installed_vcc_runtime,
-    zip::{append_dir_contents_to_zip, append_file_to_zip, check_if_zip_contains_top_level_entry},
+  util::zip::{
+    append_dir_contents_to_zip, append_file_to_zip, check_if_zip_contains_top_level_entry,
   },
 };
 

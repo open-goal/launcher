@@ -8,8 +8,9 @@
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame.ts";
   import GameBetaAlert from "../components/games/GameBetaAlert.svelte";
 
-  const gameParam = $derived(route.params.game_name);
-  const activeGame: SupportedGame | undefined = toSupportedGame(gameParam);
+  const activeGame: SupportedGame | undefined = $derived(
+    toSupportedGame(route.params.game_name),
+  );
   let modName: string | undefined = $derived(route.params.mod_name);
   let modSource: string | undefined = $derived(route.params.source_name);
 </script>
