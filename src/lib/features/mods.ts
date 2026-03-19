@@ -5,9 +5,7 @@ import thumbnailPlaceholder from "$assets/images/mod-thumbnail-placeholder.webp"
 import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
 import { platform } from "@tauri-apps/plugin-os";
 
-export function getModAssetUrl(
-  version: ModVersion,
-): string | null | undefined {
+export function getModAssetUrl(version: ModVersion): string | null | undefined {
   return version.assets[platform()];
 }
 
