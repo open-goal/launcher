@@ -7,7 +7,7 @@ use std::{
   process::Stdio,
 };
 
-use anyhow::ensure;
+use anyhow::{Context, ensure};
 use tauri::Emitter;
 use tokio::process::Command;
 
@@ -76,7 +76,14 @@ pub async fn download_and_extract_new_mod(
     .join("mods")
     .join(&source_name)
     .join(&mod_name);
-  let download_path = &destination_dir.join(format!("{mod_name}.zip"));
+
+  let filename = download_url
+    .rsplit('/')
+    .next()
+    .filter(|s| !s.is_empty())
+    .context("Invalid URL: missing filename")?;
+
+  let download_path = &destination_dir.join(filename);
 
   delete_dir(&destination_dir)?;
   download_file(&download_url, &download_path).await?;
