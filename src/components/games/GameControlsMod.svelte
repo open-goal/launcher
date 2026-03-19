@@ -17,7 +17,6 @@
     Indicator,
     Tooltip,
   } from "flowbite-svelte";
-  import { platform } from "@tauri-apps/plugin-os";
   import {
     getInstallationDirectory,
     setCheckForLatestModVersion,
@@ -35,10 +34,7 @@
   } from "$lib/rpc/features";
   import { exists } from "@tauri-apps/plugin-fs";
   import { getModSourcesData } from "$lib/rpc/cache";
-  import {
-    getModAssetUrl,
-    isVersionSupportedOnPlatform,
-  } from "$lib/features/mods";
+  import { getModAssetUrl } from "$lib/features/mods";
   import { navigate, route } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
@@ -61,7 +57,6 @@
   let modAssetUrlsSorted: string[] = $state([]);
   let currentlyInstalledVersion: string = $state("");
   let numberOfVersionsOutOfDate = $state(0);
-  let userPlatform: string = platform();
   let checkForLatestModVersionChecked = $state(false);
   let modInfo: ModInfo | undefined = $state(undefined);
 
@@ -170,13 +165,12 @@
         });
         for (const version of versions) {
           if (
-            isVersionSupportedOnPlatform(userPlatform, version) &&
             version.supportedGames !== null &&
             version.supportedGames.includes(activeGame)
           ) {
             modVersionListSorted = [...modVersionListSorted, version.version];
-            const assetUrl = getModAssetUrl(userPlatform, version);
-            if (assetUrl !== undefined) {
+            const assetUrl = getModAssetUrl(version);
+            if (assetUrl) {
               modAssetUrlsSorted.push(assetUrl);
             }
           }
