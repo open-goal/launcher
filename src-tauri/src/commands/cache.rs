@@ -24,5 +24,5 @@ pub async fn get_mod_sources_data(
   cache: tauri::State<'_, tokio::sync::Mutex<ModCache>>,
 ) -> Result<HashMap<String, ModSourceData>, CommandError> {
   let cache_lock = cache.lock().await;
-  Ok(cache_lock.mod_sources.clone())
+  Ok(cache_lock.by_platform())
 }

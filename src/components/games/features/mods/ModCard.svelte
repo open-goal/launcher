@@ -3,8 +3,6 @@
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { Indicator, Tooltip } from "flowbite-svelte";
   import IconGlobe from "~icons/mdi/globe";
-  import { platform } from "@tauri-apps/plugin-os";
-  import { isLatestVersionOfModSupportedOnCurrentPlatform } from "$lib/features/mods";
   import { navigate } from "/src/router";
   import { _ } from "svelte-i18n";
 
@@ -29,8 +27,6 @@
     thumbnailUrl: string;
     href: string | null;
   } = $props();
-
-  const userPlatform = platform();
 </script>
 
 {#if href !== null}
@@ -51,8 +47,6 @@
   </a>
 {:else}
   <button
-    disabled={!isInstalled &&
-      !isLatestVersionOfModSupportedOnCurrentPlatform(userPlatform, modInfo)}
     class="h-[200px] max-w-[160px] bg-cover p-1 flex justify-center items-end relative"
     style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{thumbnailUrl}'); background-size: cover;"
     onclick={async () => {
@@ -78,11 +72,4 @@
       </Indicator>
     {/if}
   </button>
-  {#if !isInstalled && !isLatestVersionOfModSupportedOnCurrentPlatform(userPlatform, modInfo)}
-    <Tooltip placement="top"
-      >{$_("features_mods_not_supported_platform_1")} ({userPlatform})<br />{$_(
-        "features_mods_not_supported_platform_2",
-      )}</Tooltip
-    >
-  {/if}
 {/if}

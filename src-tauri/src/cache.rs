@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use anyhow::{Context, Result};
 use log::error;
 use serde::{Deserialize, Serialize};
+use tauri_plugin_os::platform;
 use ts_rs::TS;
 
 use crate::{config::SupportedGame, util::network::download_json};
@@ -15,6 +16,16 @@ pub struct ModVersion {
   pub published_date: String,
   pub assets: HashMap<String, Option<String>>,
   pub supported_games: Option<Vec<SupportedGame>>,
+}
+
+impl ModVersion {
+  pub fn supports_platform(&self) -> bool {
+    self
+      .assets
+      .get(platform())
+      .and_then(|url| url.as_ref())
+      .is_some()
+  }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, TS)]
@@ -113,6 +124,44 @@ pub struct ModSourceData {
   pub texture_packs: HashMap<String, ModInfo>,
 }
 
+impl ModSourceData {
+  pub fn by_platform(&self) -> Self {
+    Self {
+      schema_version: self.schema_version.clone(),
+      source_name: self.source_name.clone(),
+      last_updated: self.last_updated.clone(),
+      mods: self
+        .mods
+        .iter()
+        .filter_map(|(name, info)| {
+          let mut info = info.clone();
+          info.versions.retain(|v| v.supports_platform());
+          if info.versions.is_empty() {
+            None
+          } else {
+            Some((name.clone(), info))
+          }
+        })
+        .map(|(name, info)| (name.clone(), info.clone()))
+        .collect(),
+      texture_packs: self
+        .texture_packs
+        .iter()
+        .filter_map(|(name, info)| {
+          let mut info = info.clone();
+          info.versions.retain(|v| v.supports_platform());
+          if info.versions.is_empty() {
+            None
+          } else {
+            Some((name.clone(), info))
+          }
+        })
+        .map(|(name, info)| (name.clone(), info.clone()))
+        .collect(),
+    }
+  }
+}
+
 pub struct ModCache {
   pub mod_sources: HashMap<String, ModSourceData>,
 }
@@ -167,5 +216,13 @@ impl ModCache {
         .await
         .unwrap_or_else(|err| error!("{err:#}"));
     }
+  }
+
+  pub fn by_platform(&self) -> HashMap<String, ModSourceData> {
+    self
+      .mod_sources
+      .iter()
+      .map(|(url, source)| (url.clone(), source.by_platform()))
+      .collect()
   }
 }
