@@ -48,7 +48,7 @@ export async function runCompiler(
 }
 
 export async function getLaunchGameString(gameName: string): Promise<string> {
-  return await invoke_rpc("get_launch_game_string", { args: { gameName } });
+  return await invoke_rpc("get_launch_game_string", { gameName });
 }
 
 export async function launchGame(
