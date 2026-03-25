@@ -83,26 +83,23 @@ pub struct SupportPackage {
 }
 
 fn get_game_info_folder_diff_state(
-  base_data_dir: &std::path::PathBuf,
-  base_active_version_dir: &std::path::PathBuf,
+  base_data_dir: &Path,
+  base_active_version_dir: &Path,
   sub_dir: &str,
 ) -> String {
   // The data_dir is always guaranteed to be there (it's just the extracted tooling)
   // however, the active version folder may or may not exist (might not be installed)
   let active_version_dir = base_active_version_dir.join(sub_dir);
-  let data_dir = base_data_dir.join(sub_dir);
-  if active_version_dir.exists() {
-    let diff_result = dir_diff::is_different(active_version_dir, data_dir);
-    if diff_result.is_err() {
-      return "Unknown".to_string();
-    }
-    if diff_result.is_ok() && diff_result.unwrap() {
-      return "Different".to_string();
-    } else {
-      return "Match".to_string();
-    }
+  if !active_version_dir.exists() {
+    return "Not Installed".to_string();
   }
-  return "Not Installed".to_string();
+
+  let data_dir = base_data_dir.join(sub_dir);
+  match dir_diff::is_different(active_version_dir, data_dir) {
+    Ok(true) => "Different".to_string(),
+    Ok(false) => "Match".to_string(),
+    Err(_) => "Unknown".to_string(),
+  }
 }
 
 fn dump_per_game_info(
