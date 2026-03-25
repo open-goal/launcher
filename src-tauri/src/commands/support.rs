@@ -1,10 +1,6 @@
 use log::info;
 use serde::{Deserialize, Serialize};
-use std::{
-  fs,
-  io::{BufWriter, Write},
-  path::Path,
-};
+use std::{fs, path::Path};
 use strum::IntoEnumIterator;
 use sysinfo::{Disks, System};
 use tauri::Manager;
@@ -272,14 +268,7 @@ pub async fn generate_support_package(
 ) -> Result<(), CommandError> {
   let mut package = SupportPackage::default();
   let config_lock = config.lock().await;
-  let install_path = match &config_lock.installation_dir {
-    None => {
-      return Err(CommandError::Support(
-        "No installation directory set, can't generate the support package".to_owned(),
-      ));
-    }
-    Some(path) => Path::new(path),
-  };
+  let install_path = &config_lock.install_dir()?;
 
   // System Information
   let mut system_info = System::new_all();
@@ -292,26 +281,19 @@ pub async fn generate_support_package(
   package.cpu_name = system_info.cpus()[0].name().to_string();
   package.cpu_vendor = system_info.cpus()[0].vendor_id().to_string();
   package.cpu_brand = system_info.cpus()[0].brand().to_string();
-  package.os_name = System::os_version().unwrap_or("unknown".to_string());
-  package.os_name_long = System::long_os_version().unwrap_or("unknown".to_string());
-  package.os_kernel_ver = System::kernel_version().unwrap_or("unknown".to_string());
+  package.os_name = System::os_version().unwrap_or_else(|| "unknown".to_string());
+  package.os_name_long = System::long_os_version().unwrap_or_else(|| "unknown".to_string());
+  package.os_kernel_ver = System::kernel_version().unwrap_or_else(|| "unknown".to_string());
   package.launcher_version = app_handle.package_info().version.to_string();
   package.active_tooling_version = config_lock
     .active_version
     .clone()
     .unwrap_or("unset".to_string());
-  if config_lock.installation_dir.is_none() {
-    package.install_dir = "Not Set".to_string();
-  } else {
-    package.install_dir = config_lock
-      .installation_dir
-      .clone()
-      .unwrap()
-      .to_string_lossy()
-      .to_string();
-  }
+  package.install_dir = install_path.to_string_lossy().to_string();
+
   if let Some(active_version) = &config_lock.active_version {
-    if cfg!(windows) {
+    #[cfg(windows)]
+    {
       package.extractor_binary_exists = install_path
         .join("versions")
         .join("official")
@@ -324,7 +306,10 @@ pub async fn generate_support_package(
         .join(active_version)
         .join("gk.exe")
         .exists();
-    } else {
+    }
+
+    #[cfg(not(windows))]
+    {
       package.extractor_binary_exists = install_path
         .join("versions")
         .join("official")
@@ -370,45 +355,29 @@ pub async fn generate_support_package(
 
   // Create zip file
   let save_path = Path::new(&user_path);
-  let save_file = NamedTempFile::new().map_err(|_| {
-    CommandError::Support("Failed to create temp file and unable to create support file".to_owned())
+  let save_file = NamedTempFile::new().map_err(|e| {
+    CommandError::Support(format!(
+      "Failed to create temp file and unable to create support file: {e}"
+    ))
   })?;
   let mut zip_file = zip::ZipWriter::new(save_file.as_file());
 
   // Save Launcher config folder
-  let launcher_config_dir = match app_handle.path().app_config_dir() {
-    Ok(path) => path,
-    Err(_) => {
-      return Err(CommandError::Support(
-        "Couldn't determine launcher config directory".to_owned(),
-      ));
-    }
-  };
-  let launcher_log_dir = match app_handle.path().app_log_dir() {
-    Ok(path) => path,
-    Err(_) => {
-      return Err(CommandError::Support(
-        "Couldn't determine launcher log directory".to_owned(),
-      ));
-    }
-  };
+  let launcher_config_dir = app_handle.path().app_config_dir()?;
+  let launcher_log_dir = app_handle.path().app_log_dir()?;
+
   append_dir_contents_to_zip(
     &mut zip_file,
     &launcher_log_dir,
     "Launcher Settings and Logs/logs",
     vec!["log"],
-  )
-  .map_err(|_| {
-    CommandError::Support("Unable to append launcher logs to the support package".to_owned())
-  })?;
+  )?;
+
   append_file_to_zip(
     &mut zip_file,
     &launcher_config_dir.join("settings.json"),
     "Launcher Settings and Logs/settings.json",
-  )
-  .map_err(|_| {
-    CommandError::Support("Unable to append launcher settings to the support package".to_owned())
-  })?;
+  )?;
 
   // Per Game Info
   for game in SupportedGame::iter() {
@@ -419,12 +388,7 @@ pub async fn generate_support_package(
       &mut zip_file,
       install_path,
       game,
-    )
-    .map_err(|_| {
-      CommandError::Support(format!(
-        "Unable to dump per game info for {game} to the support package",
-      ))
-    })?;
+    )?;
   }
 
   // Dump High Level Info
@@ -432,31 +396,32 @@ pub async fn generate_support_package(
     .compression_method(zip::CompressionMethod::Deflated)
     .compression_level(Some(9))
     .unix_permissions(0o755);
+
   zip_file
     .start_file("support-info.json", options)
-    .map_err(|_| {
-      CommandError::Support("Create high level support info entry in support package".to_owned())
+    .map_err(|e| {
+      CommandError::Support(format!(
+        "Create high level support info entry in support package: {e}"
+      ))
     })?;
-  let mut json_buffer = Vec::new();
-  let json_writer = BufWriter::new(&mut json_buffer);
-  serde_json::to_writer_pretty(json_writer, &package).map_err(|_| {
-    CommandError::Support(
-      "Unable to write high-level support info to the support package".to_owned(),
-    )
+
+  serde_json::to_writer_pretty(&mut zip_file, &package).map_err(|e| {
+    CommandError::Support(format!(
+      "Unable to write high-level support info to the support package: {e}"
+    ))
   })?;
-  zip_file.write_all(&json_buffer).map_err(|_| {
-    CommandError::Support(
-      "Unable to write high-level support info to the support package".to_owned(),
-    )
-  })?;
+
   zip_file
     .finish()
-    .map_err(|_| CommandError::Support("Unable to finalize zip file".to_owned()))?;
+    .map_err(|e| CommandError::Support(format!("Unable to finalize zip file: {e}")))?;
 
   // Sanity check that the zip file was actually made correctly
+  // TODO: really hate Result<bool> get rid of it
   let info_found =
-    check_if_zip_contains_top_level_entry(&save_file, "support-info.json").map_err(|_| {
-      CommandError::Support("Support package was unable to be written properly".to_owned())
+    check_if_zip_contains_top_level_entry(&save_file, "support-info.json").map_err(|e| {
+      CommandError::Support(format!(
+        "Support package was unable to be written properly: {e}"
+      ))
     })?;
   if !info_found {
     return Err(CommandError::Support(
@@ -466,15 +431,13 @@ pub async fn generate_support_package(
   // Seems good, move it to the user's intended destination
   fs::copy(save_file.path(), save_path).map_err(|e| {
     CommandError::Support(format!(
-      "Support package was unable to be moved from its temporary file location: {:?}",
-      e
+      "Support package was unable to be moved from its temporary file location: {e}"
     ))
   })?;
 
   fs::remove_file(save_file.path()).map_err(|e| {
     CommandError::Support(format!(
-      "Support package was copied but the original file could not be removed: {:?}",
-      e
+      "Support package was copied but the original file could not be removed: {e}"
     ))
   })?;
   Ok(())
