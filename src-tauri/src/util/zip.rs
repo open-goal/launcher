@@ -14,9 +14,9 @@ pub fn append_dir_contents_to_zip(
   dir: &Path,
   internal_folder: &str,
   allowed_extensions: Vec<&str>,
-) -> zip::result::ZipResult<()> {
+) -> Result<()> {
   if !dir.exists() {
-    return Result::Ok(());
+    return Ok(());
   }
 
   let iter = WalkDir::new(dir).into_iter().filter_map(|e| e.ok());
@@ -62,14 +62,14 @@ pub fn append_dir_contents_to_zip(
       zip_file.add_directory_from_path(&name, options)?;
     }
   }
-  Result::Ok(())
+  Ok(())
 }
 
 pub fn append_file_to_zip(
   zip_file: &mut zip::ZipWriter<&File>,
   src: &Path,
   path_in_zip: &str,
-) -> zip::result::ZipResult<()> {
+) -> Result<()> {
   if !src.exists() || src.is_dir() {
     log::warn!("'{}', doesnt exist", src.display());
     return Ok(());

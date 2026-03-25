@@ -157,10 +157,7 @@ pub struct CommonConfigData {
 }
 
 impl CommonConfigData {
-  pub fn get_exec_location(
-    &self,
-    executable_name: &str,
-  ) -> Result<ExecutableLocation, CommandError> {
+  pub fn get_exec_location(&self, executable_name: &str) -> ExecutableLocation {
     let exec_dir = self
       .install_path
       .join("versions")
@@ -172,17 +169,10 @@ impl CommonConfigData {
       exec_path.set_extension("exe");
     }
 
-    if !exec_path.exists() {
-      return Err(CommandError::BinaryExecution(format!(
-        "Could not find the required binary '{}', can't perform operation",
-        exec_path.to_string_lossy()
-      )));
-    }
-
-    Ok(ExecutableLocation {
+    ExecutableLocation {
       executable_dir: exec_dir,
       executable_path: exec_path,
-    })
+    }
   }
 }
 
