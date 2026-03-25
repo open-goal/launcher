@@ -1,4 +1,4 @@
-use log::info;
+use log::{error, info};
 use serde::{Deserialize, Serialize};
 use std::{fs, path::Path};
 use strum::IntoEnumIterator;
@@ -378,14 +378,16 @@ pub async fn generate_support_package(
 
   // Per Game Info
   for game in SupportedGame::iter() {
-    dump_per_game_info(
+    if let Err(e) = dump_per_game_info(
       &config_lock,
       &app_handle,
       &mut package,
       &mut zip_file,
       install_path,
       game,
-    )?;
+    ) {
+      error!("Failed to dump support info for {game}: {e}");
+    }
   }
 
   // Dump High Level Info
