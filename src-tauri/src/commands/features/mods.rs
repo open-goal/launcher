@@ -131,15 +131,16 @@ pub async fn get_locally_persisted_mod_info(
     .join(&mod_name)
     .join("_metadata.json");
 
-  if metadata_path.exists() {
-    let file = fs::File::open(metadata_path)?;
-    let mod_info = serde_json::from_reader(file)
-      .map_err(|e| anyhow::anyhow!("Unable to deserialize local mod metadata: {}", e))?;
-    return Ok(mod_info);
-  }
-  Err(anyhow::anyhow!(
-    "Locally persisted mod metadata does not exist"
-  ))?
+  let file = fs::File::open(metadata_path).map_err(|e| {
+    anyhow::anyhow!(
+      "Unable to open local mod metadata at {}: {}",
+      metadata_path.display(),
+      e
+    )
+  })?;
+  let mod_info = serde_json::from_reader(file)
+    .map_err(|e| anyhow::anyhow!("Unable to deserialize local mod metadata: {}", e))?;
+  return Ok(mod_info);
 }
 
 #[tauri::command]
