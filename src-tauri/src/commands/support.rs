@@ -9,7 +9,6 @@ use strum::IntoEnumIterator;
 use sysinfo::{Disks, System};
 use tauri::Manager;
 use tempfile::NamedTempFile;
-use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
 
 #[cfg(windows)]
@@ -117,173 +116,148 @@ fn dump_per_game_info(
   zip_file: &mut zip::ZipWriter<&std::fs::File>,
   install_path: &Path,
   game_name: SupportedGame,
-) -> Result<(), CommandError> {
+) -> anyhow::Result<()> {
+  let game = game_name.to_string();
   // Save OpenGOAL config folder (this includes saves and settings)
-  let game_config_dir = match app_handle.path().config_dir() {
-    Ok(path) => path.join("OpenGOAL"),
-    Err(_) => {
-      return Err(CommandError::Support(
-        "Couldn't determine application config directory".to_owned(),
-      ));
-    }
-  };
+  let game_config_dir = app_handle.path().config_dir()?.join("OpenGOAL").join(&game);
+
   append_dir_contents_to_zip(
     zip_file,
-    &game_config_dir.join(game_name.to_string()).join("settings"),
-    format!("Game Settings and Saves/{game_name}/settings").as_str(),
+    &game_config_dir.join("settings"),
+    &format!("Game Settings and Saves/{game}/settings"),
     vec!["gc", "json"],
-  )
-  .map_err(|_| {
-    CommandError::Support("Unable to append game settings to the support package".to_owned())
-  })?;
+  )?;
+
   append_dir_contents_to_zip(
     zip_file,
-    &game_config_dir.join(game_name.to_string()).join("misc"),
-    format!("Game Settings and Saves/{game_name}/misc").as_str(),
+    &game_config_dir.join("misc"),
+    &format!("Game Settings and Saves/{game}/misc"),
     vec!["gc", "json"],
-  )
-  .map_err(|_| {
-    CommandError::Support("Unable to append game misc settings to the support package".to_owned())
-  })?;
+  )?;
+
   append_dir_contents_to_zip(
     zip_file,
-    &game_config_dir.join(game_name.to_string()).join("saves"),
-    format!("Game Settings and Saves/{game_name}/saves").as_str(),
+    &game_config_dir.join("saves"),
+    &format!("Game Settings and Saves/{game}/saves"),
     vec!["bin"],
-  )
-  .map_err(|_| {
-    CommandError::Support("Unable to append game saves to the support package".to_owned())
-  })?;
+  )?;
 
   // Save Logs
-  let active_version_dir = install_path.join("active");
-  let game_log_dir = active_version_dir
-    .join(game_name.to_string())
-    .join("data")
-    .join("log");
+  let active_game_data_dir = install_path.join("active").join(&game).join("data");
+  let game_log_dir = &active_game_data_dir.join("log");
+
   append_dir_contents_to_zip(
     zip_file,
     &game_log_dir,
-    format!("Game Logs and ISO Info/{game_name}").as_str(),
+    &format!("Game Logs and ISO Info/{game}"),
     vec!["log", "json", "txt"],
-  )
-  .map_err(|_| CommandError::Support("Unable to append game logs to support package".to_owned()))?;
+  )?;
 
-  let texture_repl_dir = active_version_dir
-    .join(game_name.to_string())
-    .join("data")
-    .join("texture_replacements");
-  package.game_info.get_game_info(game_name).has_texture_packs =
-    texture_repl_dir.exists() && texture_repl_dir.read_dir().unwrap().next().is_some();
-  let build_info_path = active_version_dir
-    .join(game_name.to_string())
-    .join("data")
+  let texture_repl_dir = active_game_data_dir.join("texture_replacements");
+
+  package.game_info.get_game_info(game_name).has_texture_packs = fs::read_dir(&texture_repl_dir)
+    .map(|mut it| it.next().is_some())
+    .unwrap_or(false);
+
+  let build_info_path = active_game_data_dir
     .join("iso_data")
-    .join(game_name.to_string())
+    .join(&game)
     .join("buildinfo.json");
+
   append_file_to_zip(
     zip_file,
     &build_info_path,
-    format!("Game Logs and ISO Info/{game_name}/buildinfo.json").as_str(),
-  )
-  .map_err(|_| {
-    CommandError::Support("Unable to append iso metadata to support package".to_owned())
-  })?;
+    &format!("Game Logs and ISO Info/{game}/buildinfo.json"),
+  )?;
 
-  if config_lock.active_version.is_some() {
-    let data_dir = active_version_dir.join(game_name.to_string()).join("data");
+  if let Some(active_version) = &config_lock.active_version {
     let version_data_dir = install_path
       .join("versions")
       .join("official")
-      .join(config_lock.active_version.as_ref().unwrap())
+      .join(active_version)
       .join("data");
-    package
-      .game_info
-      .get_game_info(game_name)
-      .release_integrity
-      .decompiler_folder_state =
-      get_game_info_folder_diff_state(&version_data_dir, &data_dir, "decompiler");
-    package
-      .game_info
-      .get_game_info(game_name)
-      .release_integrity
-      .game_folder_state = get_game_info_folder_diff_state(&version_data_dir, &data_dir, "game");
-    package
-      .game_info
-      .get_game_info(game_name)
-      .release_integrity
-      .goal_src_state = get_game_info_folder_diff_state(&version_data_dir, &data_dir, "goal_src");
+
+    let game_info = package.game_info.get_game_info(game_name);
+    game_info.release_integrity.decompiler_folder_state =
+      get_game_info_folder_diff_state(&version_data_dir, &active_game_data_dir, "decompiler");
+    game_info.release_integrity.game_folder_state =
+      get_game_info_folder_diff_state(&version_data_dir, &active_game_data_dir, "game");
+    game_info.release_integrity.goal_src_state =
+      get_game_info_folder_diff_state(&version_data_dir, &active_game_data_dir, "goal_src");
   }
 
   // Append mod settings and logs
-  let mod_directory = install_path
-    .join("features")
-    .join(game_name.to_string())
-    .join("mods");
-  info!("Scanning mod directory {mod_directory:?}");
-  if mod_directory.exists() {
-    let mod_source_iter = WalkDir::new(mod_directory)
-      .into_iter()
-      .filter_map(|e| e.ok());
-    for source_entry in mod_source_iter {
-      let mod_source_path = source_entry.path();
-      let mod_source_name = mod_source_path.file_name().unwrap().to_string_lossy(); // TODO
-      if mod_source_path.is_dir() {
-        let mod_iter = WalkDir::new(mod_source_path)
-          .max_depth(0)
-          .into_iter()
-          .filter_map(|e| e.ok());
-        for mod_entry in mod_iter {
-          let mod_path = mod_entry.path();
-          if mod_path.is_dir() {
-            let folder_name = mod_path.file_name().unwrap().to_string_lossy();
-            // Check for settings
-            if folder_name.eq("_settings") {
-              if mod_path.exists() {
-                append_dir_contents_to_zip(
-                  zip_file,
-                  mod_path,
-                  format!("Game Settings and Saves/{game_name}/mods/{mod_source_name}/settings")
-                    .as_str(),
-                  vec!["gc", "json"],
-                )
-                .map_err(|_| {
-                  CommandError::Support(
-                    "Unable to append mod settings to support package".to_owned(),
-                  )
-                })?;
-                append_dir_contents_to_zip(
-                  zip_file,
-                  mod_path,
-                  format!("Game Settings and Saves/{game_name}/mods/{mod_source_name}/saves")
-                    .as_str(),
-                  vec!["bin"],
-                )
-                .map_err(|_| {
-                  CommandError::Support("Unable to append mod saves to support package".to_owned())
-                })?;
-              }
-            } else {
-              // Get logs for each individual mod
-              let mod_log_folder = mod_path.join("data").join("log");
-              if mod_log_folder.exists() {
-                append_dir_contents_to_zip(
-                  zip_file,
-                  &mod_log_folder,
-                  format!(
-                    "Game Logs and ISO Info/{game_name}/mods/{mod_source_name}/{folder_name}/logs"
-                  )
-                  .as_str(),
-                  vec!["log", "json", "txt"],
-                )
-                .map_err(|_| {
-                  CommandError::Support("Unable to append mod logs to support package".to_owned())
-                })?;
-              }
-            }
-          }
-        }
+  let mods_dir = install_path.join("features").join(&game).join("mods");
+  info!("Scanning mod directory {mods_dir:?}");
+
+  let Ok(mod_sources) = fs::read_dir(&mods_dir) else {
+    return Ok(());
+  };
+
+  for source_entry in mod_sources {
+    let source_entry = match source_entry {
+      Ok(entry) => entry,
+      Err(_) => continue,
+    };
+
+    let source_path = source_entry.path();
+    if !source_path.is_dir() {
+      continue;
+    }
+
+    let source_name = source_path
+      .file_name()
+      .map(|s| s.to_string_lossy().into_owned())
+      .unwrap_or_else(|| "unknown".to_string());
+
+    let Ok(mods) = fs::read_dir(&source_path) else {
+      continue;
+    };
+
+    for mod_entry in mods {
+      let mod_entry = match mod_entry {
+        Ok(entry) => entry,
+        Err(_) => continue,
+      };
+
+      let mod_path = mod_entry.path();
+      if !mod_path.is_dir() {
+        continue;
       }
+
+      let folder_name = match mod_path.file_name() {
+        Some(name) => name.to_string_lossy().into_owned(),
+        None => continue,
+      };
+
+      if folder_name == "_settings" {
+        append_dir_contents_to_zip(
+          zip_file,
+          &mod_path,
+          &format!("Game Settings and Saves/{game}/mods/{source_name}/settings"),
+          vec!["gc", "json"],
+        )?;
+
+        append_dir_contents_to_zip(
+          zip_file,
+          &mod_path,
+          &format!("Game Settings and Saves/{game}/mods/{source_name}/saves"),
+          vec!["bin"],
+        )?;
+        continue;
+      }
+
+      let mod_log_dir = mod_path.join("data").join("log");
+      if !mod_log_dir.exists() {
+        continue;
+      }
+
+      append_dir_contents_to_zip(
+        zip_file,
+        &mod_log_dir,
+        &format!("Game Logs and ISO Info/{game}/mods/{source_name}/{folder_name}/logs"),
+        vec!["log", "json", "txt"],
+      )?;
     }
   }
 
