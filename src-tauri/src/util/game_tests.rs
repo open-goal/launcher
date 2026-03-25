@@ -22,7 +22,7 @@ pub async fn run_game_gpu_test(
 ) -> Result<GPUTestOutput> {
   let config_info = config_lock.common_prelude()?;
 
-  let exec_info = config_info.get_exec_location("gk")?;
+  let exec_info = config_info.get_exec_location("gk");
   let result_path = app_handle.path().app_data_dir()?;
   create_dir(&result_path)?;
   let result_path = result_path.join("gpu-test-result.json");

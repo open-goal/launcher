@@ -7,7 +7,7 @@ use std::{
   process::Stdio,
 };
 
-use anyhow::{Context, ensure};
+use anyhow::Context;
 use tauri::Emitter;
 use tokio::process::Command;
 
@@ -169,7 +169,7 @@ fn get_mod_exec_location(
   game_name: SupportedGame,
   mod_name: &str,
   source_name: &str,
-) -> anyhow::Result<ExecutableLocation> {
+) -> ExecutableLocation {
   let exec_dir = install_path
     .join("features")
     .join(game_name.to_string())
@@ -183,16 +183,10 @@ fn get_mod_exec_location(
   #[cfg(not(windows))]
   let exec_path = exec_dir.join(executable_name);
 
-  ensure!(
-    exec_path.exists(),
-    "Executable not found at expected path: {}",
-    exec_path.display()
-  );
-
-  Ok(ExecutableLocation {
+  ExecutableLocation {
     executable_dir: exec_dir,
     executable_path: exec_path,
-  })
+  }
 }
 
 #[tauri::command]
@@ -215,7 +209,7 @@ pub async fn extract_iso_for_mod_install(
     game_name,
     &mod_name,
     &source_name,
-  )?;
+  );
 
   let iso_extraction_dir = install_path
     .join("active")
@@ -289,7 +283,7 @@ pub async fn decompile_for_mod_install(
     game_name,
     &mod_name,
     &source_name,
-  )?;
+  );
 
   let iso_dir = install_path
     .join("active")
@@ -356,7 +350,7 @@ pub async fn compile_for_mod_install(
     game_name,
     &mod_name,
     &source_name,
-  )?;
+  );
 
   let iso_dir = install_path
     .join("active")
@@ -486,7 +480,7 @@ pub async fn launch_mod(
     .join(&source_name)
     .join("_settings")
     .join(&mod_name);
-  let exec_info = get_mod_exec_location(&install_path, "gk", game_name, &mod_name, &source_name)?;
+  let exec_info = get_mod_exec_location(&install_path, "gk", game_name, &mod_name, &source_name);
   let args = generate_launch_mod_args(game_name, in_debug, config_dir, false)?;
 
   log::info!("Launching gk args: {:?}", args);
@@ -615,7 +609,7 @@ pub async fn get_launch_mod_string(
     let config_lock = config.lock().await;
     config_lock.install_dir()?
   };
-  let exec_info = get_mod_exec_location(&install_path, "gk", game_name, &mod_name, &source_name)?;
+  let exec_info = get_mod_exec_location(&install_path, "gk", game_name, &mod_name, &source_name);
   let config_dir = install_path
     .join("features")
     .join(game_name.to_string())
@@ -657,8 +651,7 @@ pub async fn open_repl_for_mod(
     .join("iso_data")
     .join(game_name.to_string());
 
-  let exec_info =
-    get_mod_exec_location(&install_path, "goalc", game_name, &mod_name, &source_name)?;
+  let exec_info = get_mod_exec_location(&install_path, "goalc", game_name, &mod_name, &source_name);
   let mut command;
   #[cfg(windows)]
   {

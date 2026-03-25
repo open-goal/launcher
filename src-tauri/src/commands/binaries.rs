@@ -137,7 +137,7 @@ pub async fn extract_and_validate_iso(
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
   let data_folder = get_data_dir(&config_info, game_name, true)?;
-  let exec_info = config_info.get_exec_location("extractor")?;
+  let exec_info = config_info.get_exec_location("extractor");
 
   log::info!(
     "extracting using data folder: {}",
@@ -216,7 +216,7 @@ pub async fn run_decompiler(
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
   let data_folder = get_data_dir(&config_info, game_name, false)?;
-  let exec_info = config_info.get_exec_location("extractor")?;
+  let exec_info = config_info.get_exec_location("extractor");
 
   log::info!(
     "decompiling using data folder: {}",
@@ -324,7 +324,7 @@ pub async fn run_compiler(
 ) -> Result<(), CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
-  let exec_info = config_info.get_exec_location("extractor")?;
+  let exec_info = config_info.get_exec_location("extractor");
   let data_folder = get_data_dir(&config_info, game_name, false)?;
 
   log::info!(
@@ -405,7 +405,7 @@ pub async fn open_repl(
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
   let data_folder = get_data_dir(&config_info, game_name, false)?;
-  let exec_info = config_info.get_exec_location("goalc")?;
+  let exec_info = config_info.get_exec_location("goalc");
   let mut command;
   #[cfg(windows)]
   {
@@ -500,7 +500,7 @@ pub async fn get_launch_game_string(
 ) -> Result<String, CommandError> {
   let config_lock = config.lock().await;
   let config_info = config_lock.common_prelude()?;
-  let exec_info = config_info.get_exec_location("gk")?;
+  let exec_info = config_info.get_exec_location("gk");
   let args = generate_launch_game_string(&config_info, game_name, false, true)?;
 
   Ok(format!(
@@ -527,7 +527,7 @@ pub async fn launch_game(
       executable_path: exec_path,
     }
   } else {
-    config_info.get_exec_location("gk")?
+    config_info.get_exec_location("gk")
   };
 
   let args = generate_launch_game_string(&config_info, game_name, in_debug, false)?;
