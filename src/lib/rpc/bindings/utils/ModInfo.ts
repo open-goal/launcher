@@ -1,4 +1,4 @@
-import { getModSourcesData } from "$lib/rpc/cache";
+import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
 import { getLocallyPersistedModInfo } from "$lib/rpc/features";
 import type { ModInfo } from "../ModInfo";
 import type { SupportedGame } from "../SupportedGame";
@@ -8,6 +8,7 @@ export async function getModInfo(
   modName: string,
   modSource: string,
 ): Promise<ModInfo> {
+  await refreshModSources();
   const modSourceData = await getModSourcesData();
 
   const foundMod: ModInfo | undefined = Object.values(modSourceData).find(
@@ -16,6 +17,7 @@ export async function getModInfo(
   )?.mods[modName];
 
   if (foundMod) {
+    console.log("found mod:", foundMod);
     return { ...foundMod, name: modName, source: modSource };
   } else {
     // If we could not get the information from the live mod source, then we have two fallbacks paths
@@ -27,8 +29,15 @@ export async function getModInfo(
       modSource,
     );
     if (persistedMetadata) {
-      return { ...persistedMetadata, metadataOffline: true };
+      console.log("persisted metadata:", persistedMetadata);
+      return {
+        ...persistedMetadata,
+        name: modName,
+        source: modSource,
+        metadataOffline: true,
+      };
     }
+    console.log("neither foundmod nor persistend metadata successful oy");
     // - if not, return sensible defaults
     return {
       name: modName,
