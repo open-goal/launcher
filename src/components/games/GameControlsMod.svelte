@@ -254,13 +254,13 @@
           navigate(`/:game_name/mods`, { params: { game_name: activeGame } });
         }}><IconArrowLeft />&nbsp;{$_("features_mods_go_back")}</Button
       >
-      {#if currentlyInstalledVersion == "" && modVersionListSorted.length == 0}
+      {#if !currentlyInstalledVersion && modVersionListSorted.length == 0}
         <!-- show disabled Install button if no version installed and we have no version list (offline) -->
         <Button
           class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
           disabled>{$_("gameControls_button_install")}</Button
         >
-      {:else if currentlyInstalledVersion == ""}
+      {:else if !currentlyInstalledVersion}
         <!-- show Install button if no version installed but we're online -->
         <Button
           class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
@@ -335,7 +335,7 @@
           {/each}
         </Dropdown>
       {/if}
-      {#if currentlyInstalledVersion == ""}
+      {#if !currentlyInstalledVersion}
         <!-- Disabled "advanced" button if not installed -->
         <Button
           class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
@@ -424,7 +424,7 @@
           >
         </Dropdown>
       {/if}
-      {#if currentlyInstalledVersion == ""}
+      {#if !currentlyInstalledVersion}
         <!-- Disabled cog/settings button if not installed -->
         <Button
           class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
