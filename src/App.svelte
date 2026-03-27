@@ -43,7 +43,7 @@
   });
 
   if (!isInDebugMode()) {
-    revokeSpecificActions = false; // temporarily disable to help this user
+    revokeSpecificActions = true;
     // Disable Right Click
     document.addEventListener("contextmenu", (event) => {
       if (revokeSpecificActions) {

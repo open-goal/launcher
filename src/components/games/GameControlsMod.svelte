@@ -77,12 +77,8 @@
   }
 
   onMount(async () => {
-    console.log("game:", activeGame);
-    console.log("mod:", modName);
-    console.log("source:", modSource);
     checkForLatestModVersionChecked = await getCheckForLatestModVersion();
     modInfo = await getModInfo(activeGame, modName, modSource);
-    console.log(modInfo);
     await initDirectories(modInfo);
     await sortModVersions(modInfo);
   });
