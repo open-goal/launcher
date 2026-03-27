@@ -38,6 +38,9 @@
       "endpoints": [
         "https://raw.githubusercontent.com/open-goal/launcher/main/.tauri/latest-release-v2.json"
       ]
+    },
+    "fs": {
+      "requireLiteralLeadingDot": false
     }
   },
   "build": {
