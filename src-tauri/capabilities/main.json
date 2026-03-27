@@ -19,6 +19,7 @@
       "identifier": "fs:allow-exists",
       "allow": [
         {
+          "requireLiteralLeadingDot": false,
           "path": "**/*"
         }
       ]
