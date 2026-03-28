@@ -45,23 +45,19 @@ async function evaluateRequirements(
 
   let requirementsMet: boolean;
 
-  if (architecture === "aarch64") {
-    if (osType !== "macos") {
-      requirementsMet = false;
-    } else {
-      requirementsMet = Boolean(isOpenGLMet) && Boolean(isDiskSpaceMet);
-    }
+  if (architecture === "aarch64" && osType !== "macos") {
+    requirementsMet = false;
+  } else if (osType === "macos") {
+    requirementsMet = Boolean(isOpenGLMet && isDiskSpaceMet);
+  } else if (osType === "windows") {
+    requirementsMet = Boolean(
+      isAVXMet &&
+      isOpenGLMet &&
+      isDiskSpaceMet &&
+      systemInfoState.isMinVCCRuntimeInstalled,
+    );
   } else {
-    if (osType === "windows") {
-      requirementsMet = Boolean(
-        isAVXMet &&
-        isOpenGLMet &&
-        isDiskSpaceMet &&
-        systemInfoState.isMinVCCRuntimeInstalled,
-      );
-    } else {
-      requirementsMet = Boolean(isAVXMet && isOpenGLMet && isDiskSpaceMet);
-    }
+    requirementsMet = Boolean(isAVXMet && isOpenGLMet && isDiskSpaceMet);
   }
 
   return {
