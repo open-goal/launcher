@@ -163,6 +163,7 @@
   "setup_decompile": "Descompilando",
   "setup_done": "Concluído",
   "setup_extractAndVerify": "Extraindo e verificando",
+  "setup_download": "Download Mod",
   "setup_installationFailed": "Falha na instalação!",
   "setup_logs_header": "Registro de eventos",
   "setup_logs_truncation": "Últimos 250 registros",
