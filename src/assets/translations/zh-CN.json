@@ -163,6 +163,7 @@
   "setup_decompile": "反编译",
   "setup_done": "完成",
   "setup_extractAndVerify": "提取与验证",
+  "setup_download": "Download Mod",
   "setup_installationFailed": "安装失败！",
   "setup_logs_header": "日志",
   "setup_logs_truncation": "最后 250 行",
