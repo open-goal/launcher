@@ -163,6 +163,7 @@
   "setup_decompile": "Decompile",
   "setup_done": "סיום",
   "setup_extractAndVerify": "חילוץ ואימות",
+  "setup_download": "Download Mod",
   "setup_installationFailed": "ההתקנה נכשלה!",
   "setup_logs_header": "פלט",
   "setup_logs_truncation": "250 שורות אחרונות",
