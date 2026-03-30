@@ -163,6 +163,7 @@
   "setup_decompile": "Dekompilace",
   "setup_done": "Dokončeno",
   "setup_extractAndVerify": "Extrahovat a ověřit",
+  "setup_download": "Download Mod",
   "setup_installationFailed": "Instalace se nezdařila",
   "setup_logs_header": "Logy",
   "setup_logs_truncation": "Posledních 250 řádků",
