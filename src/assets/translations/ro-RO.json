@@ -163,6 +163,7 @@
   "setup_decompile": "Decompilare",
   "setup_done": "Finalizat",
   "setup_extractAndVerify": "Extrage și verifică",
+  "setup_download": "Download Mod",
   "setup_installationFailed": "Instalarea a eșuat!",
   "setup_logs_header": "Jurnale",
   "setup_logs_truncation": "Ultimele 250 de linii",
