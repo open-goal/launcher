@@ -163,6 +163,7 @@
   "setup_decompile": "Decompileren",
   "setup_done": "Klaar",
   "setup_extractAndVerify": "Uitpakken en verifiëren",
+  "setup_download": "Download Mod",
   "setup_installationFailed": "Installatie is mislukt!",
   "setup_logs_header": "Logboek",
   "setup_logs_truncation": "Laatste 250 lijnen",
