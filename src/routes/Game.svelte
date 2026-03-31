@@ -19,7 +19,7 @@
     <!-- Jak 2 & Jak 3 BETA warning -->
     <!-- Not shown on mod pages because mod bugs shouldn't be reported to the jak-projects repo -->
     {#if (activeGame === "jak2" || activeGame === "jak3") && !modName}
-      <GameBetaAlert></GameBetaAlert>
+      <GameBetaAlert {activeGame}></GameBetaAlert>
     {/if}
     {#if modName && modSource}
       <GameControlsMod {activeGame} {modName} {modSource} />
