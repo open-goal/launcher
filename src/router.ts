@@ -71,11 +71,6 @@ export const { p, navigate, isActive, route } = createRouter({
             return;
           }
 
-          // TODO: TEMPORARY REMOVE WHEN JAK3 RELEASED
-          if (activeGame === "jak3") {
-            return;
-          }
-
           versionState.activeToolingVersion = await getActiveVersion();
           if (!versionState.activeToolingVersion) {
             throw navigate("/:game_name/tools-not-set", {
