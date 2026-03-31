@@ -4,8 +4,7 @@
   import { listen, type UnlistenFn } from "@tauri-apps/api/event";
   import { getFurthestGameMilestone } from "$lib/rpc/game";
   import jak2Background from "$assets/images/background-jak2.webp";
-  import jak3InProgressVid from "$assets/videos/jak3-dev.mp4";
-  import jak3InProgressPoster from "$assets/videos/jak3-poster.png";
+  import jak3Background from "$assets/images/background-jak3.webp";
   import coverArtPlaceholder from "$assets/images/mod-coverart-placeholder.webp";
   import { getLocalModThumbnailBase64 } from "$lib/rpc/features";
   import { appDataDir, join } from "@tauri-apps/api/path";
@@ -139,47 +138,32 @@
       <!-- svelte-ignore a11y_missing_attribute -->
       <img class={style} src={modBackground} />
     {:else if activeGame === "jak1"}
-      {#if bgVideo}
-        <video
-          class={style}
-          poster={jak1Background}
-          src={bgVideo}
-          autoplay
-          muted
-          loop
-        ></video>
-      {:else}
-        <!-- svelte-ignore a11y_missing_attribute -->
-        <img class={style} src={jak1Background} />
-      {/if}
+      <video
+        class={style}
+        poster={jak1Background}
+        src={bgVideo}
+        autoplay
+        muted
+        loop
+      ></video>
     {:else if activeGame === "jak2"}
-      {#if bgVideo}
-        <video
-          class={style}
-          poster={jak2Background}
-          src={bgVideo}
-          autoplay
-          muted
-          loop
-        ></video>
-      {:else}
-        <!-- svelte-ignore a11y_missing_attribute -->
-        <img class={style} src={jak2Background} />
-      {/if}
+      <video
+        class={style}
+        poster={jak2Background}
+        src={bgVideo}
+        autoplay
+        muted
+        loop
+      ></video>
     {:else if activeGame === "jak3"}
-      {#if bgVideo}
-        <video
-          class={style}
-          poster={jak3InProgressPoster}
-          src={jak3InProgressVid}
-          autoplay
-          muted
-          loop
-        ></video>
-      {:else}
-        <!-- svelte-ignore a11y_missing_attribute -->
-        <img class={style} src={jak3InProgressPoster} />
-      {/if}
+      <video
+        class={style}
+        poster={jak3Background}
+        src={bgVideo}
+        autoplay
+        muted
+        loop
+      ></video>
     {/if}
   </div>
 {/if}
