@@ -74,6 +74,7 @@ pub struct SupportPackage {
   pub os_kernel_ver: String,
   pub disk_info: Vec<String>,
   pub gpu_info: Option<GPUInfo>,
+  pub kernel_uptime_days: u64,
   pub install_dir: String,
   pub game_info: PerGameInfo,
   pub launcher_version: String,
@@ -287,6 +288,7 @@ pub async fn generate_support_package(
     .clone()
     .unwrap_or("unset".to_string());
   package.install_dir = install_path.to_string_lossy().to_string();
+  package.kernel_uptime_days = System::uptime() / 86400;
 
   if let Some(active_version) = &config_lock.active_version {
     #[cfg(windows)]
