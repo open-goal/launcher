@@ -74,7 +74,7 @@ pub struct SupportPackage {
   pub os_kernel_ver: String,
   pub disk_info: Vec<String>,
   pub gpu_info: Option<GPUInfo>,
-  pub kernel_uptime_days: u64,
+  pub kernel_uptime: String,
   pub install_dir: String,
   pub game_info: PerGameInfo,
   pub launcher_version: String,
@@ -271,6 +271,7 @@ pub async fn generate_support_package(
   // System Information
   let mut system_info = System::new_all();
   system_info.refresh_all();
+  let uptime = System::uptime();
   #[cfg(windows)]
   {
     package.installed_vcc_runtime = get_installed_vcc_runtime().ok().map(|v| v.to_string());
@@ -288,7 +289,12 @@ pub async fn generate_support_package(
     .clone()
     .unwrap_or("unset".to_string());
   package.install_dir = install_path.to_string_lossy().to_string();
-  package.kernel_uptime_days = System::uptime() / 86400;
+  package.kernel_uptime = format!(
+    "{}d {:02}h {:02}m",
+    uptime / 86400,
+    (uptime / 3600) % 24,
+    (uptime / 60) % 60,
+  );
 
   if let Some(active_version) = &config_lock.active_version {
     #[cfg(windows)]
