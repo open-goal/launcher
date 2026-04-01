@@ -52,7 +52,7 @@ impl SupportedGame {
     match self {
       SupportedGame::Jak1 => 4 * 1024 * 1024 * 1024,  // 4 GB
       SupportedGame::Jak2 => 11 * 1024 * 1024 * 1024, // 11 GB
-      SupportedGame::Jak3 => 11 * 1024 * 1024 * 1024, // TODO
+      SupportedGame::Jak3 => 11 * 1024 * 1024 * 1024, // 11 GB
       SupportedGame::JakX => 11 * 1024 * 1024 * 1024, // TODO
     }
   }
