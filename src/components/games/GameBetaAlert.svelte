@@ -26,7 +26,7 @@
       {$_("gameControls_beta_bugReport_linkPreText")}
       <a
         class="text-blue-400"
-        href="https://github.com/open-goal/jak-project/issues/new?template=-bug-report.yml"
+        href="https://github.com/open-goal/jak-project/issues/new?template={activeGame}-bug-report.yml"
         target="_blank"
         rel="noopener noreferrer"
         >{$_("gameControls_beta_bugReport_linkText")}</a
