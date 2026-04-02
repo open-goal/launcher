@@ -239,7 +239,7 @@ pub async fn extract_iso_for_mod_install(
   {
     command.creation_flags(0x08000000);
   }
-  let mut child = command.spawn()?;
+  let mut child = command.spawn().context("Failed to spawn extractor")?;
 
   // This is the first install step, reset the file
   let mut log_file = create_log_file(
@@ -312,7 +312,7 @@ pub async fn decompile_for_mod_install(
   {
     command.creation_flags(0x08000000);
   }
-  let mut child = command.spawn()?;
+  let mut child = command.spawn().context("Failed to spawn decompiler")?;
 
   let mut log_file =
     create_log_file(&app_handle, format!("extractor-{game_name}.log"), false).await?;
@@ -379,7 +379,7 @@ pub async fn compile_for_mod_install(
   {
     command.creation_flags(0x08000000);
   }
-  let mut child = command.spawn()?;
+  let mut child = command.spawn().context("Failed to spawn compiler")?;
 
   let mut log_file =
     create_log_file(&app_handle, format!("extractor-{game_name}.log"), false).await?;
@@ -504,7 +504,7 @@ pub async fn launch_mod(
     command.creation_flags(0x08000000);
   }
   // Start the process here so if there is an error, we can return immediately
-  let _child = command.spawn()?;
+  let _child = command.spawn().context("Failed to spawn game")?;
   Ok(())
 }
 

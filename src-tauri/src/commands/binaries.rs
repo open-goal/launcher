@@ -172,7 +172,7 @@ pub async fn extract_and_validate_iso(
   {
     command.creation_flags(0x08000000);
   }
-  let mut child = command.spawn()?;
+  let mut child = command.spawn().context("Failed to spawn extractor")?;
 
   // This is the first install step, reset the file
   let mut log_file =
@@ -279,7 +279,7 @@ pub async fn run_decompiler(
     command.creation_flags(0x08000000);
   }
 
-  let mut child = command.spawn()?;
+  let mut child = command.spawn().context("Failed to spawn decompiler")?;
 
   let mut log_file = create_log_file(
     &app_handle,
@@ -364,7 +364,7 @@ pub async fn run_compiler(
   {
     command.creation_flags(0x08000000);
   }
-  let mut child = command.spawn()?;
+  let mut child = command.spawn().context("Failed to spawn compiler")?;
 
   let mut log_file = create_log_file(
     &app_handle,
@@ -557,7 +557,7 @@ pub async fn launch_game(
     command.creation_flags(CREATE_NO_WINDOW);
   }
   drop(config_lock);
-  let mut child = command.spawn()?;
+  let mut child = command.spawn().context("Failed to spawn game")?;
   let handle = tokio::spawn(async move {
     let start_time = Instant::now();
     let status = match child.wait().await {
