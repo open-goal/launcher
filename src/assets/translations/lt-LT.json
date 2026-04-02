@@ -163,6 +163,7 @@
   "setup_decompile": "Dekompiliuoti",
   "setup_done": "Atlikta",
   "setup_extractAndVerify": "Ištraukti ir patikrinti",
+  "setup_download": "Download Mod",
   "setup_installationFailed": "Įdiegimas nepavyko!",
   "setup_logs_header": "Žurnalai",
   "setup_logs_truncation": "Paskutinės 250 eilutės",

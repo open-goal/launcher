@@ -163,6 +163,7 @@
   "setup_decompile": "Декомпіляція",
   "setup_done": "Готово",
   "setup_extractAndVerify": "Витягнення та перевірка",
+  "setup_download": "Download Mod",
   "setup_installationFailed": "Установлення не вдалося!",
   "setup_logs_header": "Журнал",
   "setup_logs_truncation": "Останні 250 рядків",

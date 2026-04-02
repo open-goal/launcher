@@ -163,6 +163,7 @@
   "setup_decompile": "Dekompilálás",
   "setup_done": "Kész",
   "setup_extractAndVerify": "Kicsomagolás és Ellenőrzés",
+  "setup_download": "Download Mod",
   "setup_installationFailed": "Telepítés Sikertelen!",
   "setup_logs_header": "Napló",
   "setup_logs_truncation": "Utolsó 250 Sor",

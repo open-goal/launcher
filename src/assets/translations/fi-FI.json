@@ -163,6 +163,7 @@
   "setup_decompile": "Takaisinkäännetään",
   "setup_done": "Valmis",
   "setup_extractAndVerify": "Puretaan",
+  "setup_download": "Ladataan modia",
   "setup_installationFailed": "Asennus epäonnistui!",
   "setup_logs_header": "Loki",
   "setup_logs_truncation": "Viimeiset 250 riviä",

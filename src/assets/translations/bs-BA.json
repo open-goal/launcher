@@ -163,6 +163,7 @@
   "setup_decompile": "Dekompiliranje",
   "setup_done": "Završeno",
   "setup_extractAndVerify": "Raspakivanje",
+  "setup_download": "Download Mod",
   "setup_installationFailed": "Instalacija nije uspjela!",
   "setup_logs_header": "Logovi",
   "setup_logs_truncation": "Zadnjih 250 linija",

@@ -163,6 +163,7 @@
   "setup_decompile": "逆コンパイル",
   "setup_done": "完了",
   "setup_extractAndVerify": "抽出そして検証",
+  "setup_download": "Download Mod",
   "setup_installationFailed": "インストール失敗！",
   "setup_logs_header": "ログ",
   "setup_logs_truncation": "直近の250行",

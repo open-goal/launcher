@@ -163,6 +163,7 @@
   "setup_decompile": "Dekompiler",
   "setup_done": "Ferdig",
   "setup_extractAndVerify": "Pakk ut og Verifisere",
+  "setup_download": "Download Mod",
   "setup_installationFailed": "Installasjonen mislyktes!",
   "setup_logs_header": "Logg",
   "setup_logs_truncation": "Siste 250 Linjer",

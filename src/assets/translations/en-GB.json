@@ -163,6 +163,7 @@
   "setup_decompile": "Decompile",
   "setup_done": "Done",
   "setup_extractAndVerify": "Extract",
+  "setup_download": "Download Mod",
   "setup_installationFailed": "Installation has Failed!",
   "setup_logs_header": "Logs",
   "setup_logs_truncation": "Last 250 Lines",

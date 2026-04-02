@@ -163,6 +163,7 @@
   "setup_decompile": "Dekompilera",
   "setup_done": "Klar",
   "setup_extractAndVerify": "Extrahera och Verifiera",
+  "setup_download": "Download Mod",
   "setup_installationFailed": "Installationen har Misslyckats!",
   "setup_logs_header": "Loggar",
   "setup_logs_truncation": "Sista 250 Rader",

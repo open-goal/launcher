@@ -163,6 +163,7 @@
   "setup_decompile": "Geri Derle",
   "setup_done": "Bitti",
   "setup_extractAndVerify": "Çıkart ve Doğrula",
+  "setup_download": "Download Mod",
   "setup_installationFailed": "Kurulum başarısız oldu!",
   "setup_logs_header": "Kayıtlar",
   "setup_logs_truncation": "Son 250 Satır",
