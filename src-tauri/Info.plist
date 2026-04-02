@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>LSMinimumSystemVersionByArchitecture</key>
+    <dict>
+      <key>x86_64</key>
+      <string>10.13</string>
+      <key>arm64</key>
+      <string>15.0</string>
+    </dict>
+  </dict>
+</plist>
