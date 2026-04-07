@@ -50,7 +50,12 @@ pub async fn run_game_gpu_test(
 
   let output = command.output()?;
   if !output.status.success() {
-    anyhow::bail!("GPU test failed: exit status {}", output.status);
+    anyhow::bail!(
+      "GPU test failed: status={} stdout={} stderr={}",
+      output.status,
+      String::from_utf8_lossy(&output.stdout),
+      String::from_utf8_lossy(&output.stderr),
+    );
   }
 
   let context = tokio::fs::read_to_string(&result_path)
