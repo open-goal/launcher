@@ -239,9 +239,10 @@
     >
       {modInfo.description}
     </h1>
-    <p class="pb-2 text-outline">
+    <!-- hiding this because it's bloat -->
+    <!-- <p class="pb-2 text-outline">
       {$_("features_mods_tags")}: {modInfo.tags}
-    </p>
+    </p> -->
     <p class="text-outline">
       {$_("features_mods_authors")}: {modInfo.authors}
     </p>
@@ -249,7 +250,7 @@
   <div class="flex flex-col justify-end items-end mt-3">
     <div class="flex flex-row gap-2">
       <Button
-        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800 text-sm text-white font-semibold px-5 py-2"
         onclick={async () => {
           navigate(`/:game_name/mods`, { params: { game_name: activeGame } });
         }}><IconArrowLeft />&nbsp;{$_("features_mods_go_back")}</Button
@@ -257,13 +258,13 @@
       {#if !currentlyInstalledVersion && modVersionListSorted.length == 0}
         <!-- show disabled Install button if no version installed and we have no version list (offline) -->
         <Button
-          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800 text-sm text-white font-semibold px-5 py-2"
           disabled>{$_("gameControls_button_install")}</Button
         >
       {:else if !currentlyInstalledVersion}
         <!-- show Install button if no version installed but we're online -->
         <Button
-          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800 text-sm text-white font-semibold px-5 py-2"
           onclick={async () => {
             await addModFromUrl(modAssetUrlsSorted[0], modVersionListSorted[0]);
           }}>{$_("gameControls_button_install")}</Button
@@ -271,7 +272,7 @@
       {:else if modVersionListSorted.length == 0 || modVersionListSorted[0] === currentlyInstalledVersion || !checkForLatestModVersionChecked}
         <!-- show Play button if we have no version list (offline), if we're up to date, or we dont want forced updates -->
         <Button
-          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800 text-sm text-white font-semibold px-5 py-2"
           onclick={async () => {
             launchMod(activeGame, false, modName, modSource);
           }}>{$_("gameControls_button_play")}</Button
@@ -279,7 +280,7 @@
       {:else}
         <!-- otherwise show Update button -->
         <Button
-          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800 text-sm text-white font-semibold px-5 py-2"
           onclick={async () => {
             await addModFromUrl(modAssetUrlsSorted[0], modVersionListSorted[0]);
           }}>{$_("gameControls_update_mod")}</Button
@@ -287,7 +288,7 @@
       {/if}
       {#if modVersionListSorted.length > 0}
         <Button
-          class="relative text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+          class="relative text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800"
         >
           {$_("features_mods_versions")}
           {#if numberOfVersionsOutOfDate > 0}
@@ -300,7 +301,7 @@
           simple
           trigger="hover"
           placement="top-end"
-          class="!bg-slate-900 overflow-y-auto p-2 max-h-[300px] rounded-none"
+          class="dark:!bg-slate-900 overflow-y-auto p-2 max-h-[300px] rounded"
         >
           <!-- wrap checkbox in div so that both box and text get tooltip -->
           <div id="checkbox_always_use_newest">
@@ -338,14 +339,14 @@
       {#if !currentlyInstalledVersion}
         <!-- Disabled "advanced" button if not installed -->
         <Button
-          class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+          class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800"
           disabled
         >
           {$_("gameControls_button_advanced")}
         </Button>
       {:else}
         <Button
-          class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+          class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800"
         >
           {$_("gameControls_button_advanced")}
         </Button>
@@ -353,7 +354,7 @@
           simple
           trigger="hover"
           placement="top-end"
-          class="!bg-slate-900 rounded-none **:w-full"
+          class="dark:!bg-slate-900 rounded **:w-full"
         >
           <DropdownItem
             onclick={async () => {
@@ -382,7 +383,7 @@
             }}
             >{$_("gameControls_button_decompile")}
             <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-            <Helper class="!text-neutral-400 !text-xs"
+            <Helper class="dark:!text-neutral-400 !text-xs"
               >{$_("gameControls_button_decompile_helpText")}</Helper
             ></DropdownItem
           >
@@ -402,7 +403,7 @@
             }}
             >{$_("gameControls_button_compile")}
             <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-            <Helper class="!text-neutral-400 !text-xs"
+            <Helper class="dark:!text-neutral-400 !text-xs"
               >{$_("gameControls_button_compile_helpText")}
             </Helper></DropdownItem
           >
@@ -427,14 +428,14 @@
       {#if !currentlyInstalledVersion}
         <!-- Disabled cog/settings button if not installed -->
         <Button
-          class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+          class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800"
           disabled
         >
           <IconCog />
         </Button>
       {:else}
         <Button
-          class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+          class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800"
         >
           <IconCog />
         </Button>
@@ -442,7 +443,7 @@
           simple
           trigger="hover"
           placement="top-end"
-          class="!bg-slate-900 **:w-full"
+          class="dark:!bg-slate-900 **:w-full"
         >
           <!-- TODO - screenshot folder? how do we even configure where those go? -->
           {#if settingsDir}
@@ -477,7 +478,7 @@
               toastStore.makeToast($_("toasts_copiedToClipboard"), "info");
             }}
             >{$_("gameControls_button_copyExecutableCommand")}<Helper
-              class="!text-neutral-400 !text-xs"
+              class="dark:!text-neutral-400 !text-xs"
               >{$_("gameControls_button_copyExecutableCommand_helpText_1")}<br
               />{$_(
                 "gameControls_button_copyExecutableCommand_helpText_2",
@@ -506,7 +507,7 @@
               }
             }}
             >{$_("gameControls_button_uninstall")}<Helper
-              class="!text-neutral-400 !text-xs"
+              class="dark:!text-neutral-400 !text-xs"
               >{$_("gameControls_button_uninstall_helpText")}</Helper
             ></DropdownItem
           >

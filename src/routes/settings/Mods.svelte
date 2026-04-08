@@ -76,9 +76,9 @@
   <div class="mt-2">
     {#if pageLoaded && currentSources.length > 0}
       <Table>
-        <TableBody class="divide-y bg-slate-700">
+        <TableBody class="divide-y dark:bg-slate-700">
           {#each currentSources as source, i}
-            <TableBodyRow class="flex items-center bg-slate-700">
+            <TableBodyRow class="flex items-center dark:bg-slate-700">
               <TableBodyCell
                 class="px-4 whitespace-nowrap font-medium text-gray-900 dark:text-white text-wrap"
                 >{source}</TableBodyCell

@@ -76,20 +76,20 @@
   <Playtime {activeGame}></Playtime>
   <div class="flex flex-row gap-2">
     <Button
-      class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+      class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800 text-sm text-white font-semibold px-5 py-2"
       onclick={async () => {
         launchGame(activeGame, false);
       }}>{$_("gameControls_button_play")}</Button
     >
     <Button
-      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800"
       >{$_("gameControls_button_features")}</Button
     >
     <Dropdown
       simple
       trigger="hover"
       placement="top"
-      class="!bg-slate-900 dark:text-white **:w-full"
+      class="dark:!bg-slate-900 dark:text-white **:w-full"
     >
       <DropdownItem
         hidden={!textureSupportEnabled}
@@ -111,7 +111,7 @@
       </DropdownItem>
     </Dropdown>
     <Button
-      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800"
     >
       {$_("gameControls_button_advanced")}
     </Button>
@@ -119,7 +119,7 @@
       simple
       trigger="hover"
       placement="top"
-      class="!bg-slate-900 dark:text-white **:w-full"
+      class="dark:!bg-slate-900 dark:text-white **:w-full"
     >
       <DropdownItem
         onclick={async () => {
@@ -149,7 +149,7 @@
         }}
         >{$_("gameControls_button_decompile")}
         <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-        <Helper class="!text-neutral-400 !text-xs"
+        <Helper class="dark:!text-neutral-400 !text-xs"
           >{$_("gameControls_button_decompile_helpText")}</Helper
         ></DropdownItem
       >
@@ -165,7 +165,7 @@
         }}
         >{$_("gameControls_button_compile")}
         <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-        <Helper class="!text-neutral-400 !text-xs"
+        <Helper class="dark:!text-neutral-400 !text-xs"
           >{$_("gameControls_button_compile_helpText")}
         </Helper></DropdownItem
       >
@@ -186,7 +186,7 @@
       >
     </Dropdown>
     <Button
-      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800"
+      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800"
     >
       <IconCog />
     </Button>
@@ -194,7 +194,7 @@
       simple
       trigger="hover"
       placement="top-end"
-      class="!bg-slate-900 dark:text-white **:w-full"
+      class="dark:!bg-slate-900 dark:text-white **:w-full"
     >
       <!-- TODO - screenshot folder? how do we even configure where those go? -->
       <DropdownItem
@@ -219,7 +219,7 @@
           toastStore.makeToast($_("toasts_copiedToClipboard"), "info");
         }}
         >{$_("gameControls_button_copyExecutableCommand")}<Helper
-          class="!text-neutral-400 !text-xs"
+          class="dark:!text-neutral-400 !text-xs"
           >{$_("gameControls_button_copyExecutableCommand_helpText_1")}<br
           />{$_("gameControls_button_copyExecutableCommand_helpText_2")}</Helper
         ></DropdownItem
@@ -249,7 +249,7 @@
           }
         }}
         >{$_("gameControls_button_uninstall")}<Helper
-          class="!text-neutral-400 !text-xs"
+          class="dark:!text-neutral-400 !text-xs"
           >{$_("gameControls_button_uninstall_helpText")}</Helper
         ></DropdownItem
       >
