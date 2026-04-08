@@ -96,7 +96,7 @@
 </script>
 
 <header
-  class="flex flex-row grow-0 shrink-0 bg-[#101010] pl-2 pr-4 pt-1 pb-1 items-center z-10"
+  class="flex flex-row grow-0 shrink-0 bg-[#101010] pl-2 pr-4 pt-1 pb-2 items-center z-10"
   data-tauri-drag-region
 >
   <div
