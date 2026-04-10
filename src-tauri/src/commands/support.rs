@@ -1,10 +1,10 @@
-use log::{error, info};
 use serde::{Deserialize, Serialize};
 use std::{fs, path::Path};
 use strum::IntoEnumIterator;
 use sysinfo::{Disks, System};
 use tauri::Manager;
 use tempfile::NamedTempFile;
+use tracing::{error, info, instrument};
 use zip::write::SimpleFileOptions;
 
 #[cfg(windows)]
@@ -258,6 +258,7 @@ fn dump_per_game_info(
   Ok(())
 }
 
+#[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn generate_support_package(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,

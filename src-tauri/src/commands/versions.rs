@@ -1,3 +1,5 @@
+use tracing::instrument;
+
 use crate::{
   config::LauncherConfig,
   util::{file::delete_dir, network::download_file, tar::extract_and_delete_archive},
@@ -5,6 +7,7 @@ use crate::{
 
 use super::CommandError;
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn list_downloaded_versions(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -14,6 +17,7 @@ pub async fn list_downloaded_versions(
   Ok(config.list_downloaded_versions(&version_folder)?)
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn download_version(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -41,6 +45,7 @@ pub async fn download_version(
   Ok(())
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn remove_version(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -50,6 +55,7 @@ pub async fn remove_version(
   Ok(config_lock.remove_version(&version)?)
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn ensure_active_version_still_exists(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,

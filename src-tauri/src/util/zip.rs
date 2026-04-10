@@ -1,11 +1,11 @@
 use anyhow::{Context, Result};
-use log::info;
 use std::io::{BufReader, Cursor};
 use std::{
   fs::File,
   io::{Read, Write},
   path::Path,
 };
+use tracing::info;
 use walkdir::WalkDir;
 use zip::write::SimpleFileOptions;
 
@@ -42,11 +42,11 @@ pub fn append_dir_contents_to_zip(
 
       if !allowed_extensions.contains(&extension) {
         // Skip files that we don't care about
-        log::warn!("skipping {path:?} - extension {extension}");
+        tracing::warn!("skipping {path:?} - extension {extension}");
         continue;
       }
 
-      log::debug!("adding file {path:?} as {name:?} ...");
+      tracing::debug!("adding file {path:?} as {name:?} ...");
       #[allow(deprecated)]
       zip_file.start_file_from_path(&name, options)?;
       let mut f = File::open(path)?;
@@ -57,7 +57,7 @@ pub fn append_dir_contents_to_zip(
     } else if !name.as_os_str().is_empty() {
       // Only if not root! Avoids path spec / warning
       // and mapname conversion failed error on unzip
-      log::debug!("adding dir {path:?} as {name:?} ...");
+      tracing::debug!("adding dir {path:?} as {name:?} ...");
       #[allow(deprecated)]
       zip_file.add_directory_from_path(&name, options)?;
     }
@@ -71,7 +71,7 @@ pub fn append_file_to_zip(
   path_in_zip: &str,
 ) -> Result<()> {
   if !src.exists() || src.is_dir() {
-    log::warn!("'{}', doesnt exist", src.display());
+    tracing::warn!("'{}', doesnt exist", src.display());
     return Ok(());
   }
 

@@ -10,6 +10,7 @@ use std::{
 use anyhow::Context;
 use tauri::Emitter;
 use tokio::process::Command;
+use tracing::instrument;
 
 use crate::{
   cache::{ModCache, ModInfo},
@@ -23,6 +24,7 @@ use crate::{
   },
 };
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn extract_new_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -55,6 +57,7 @@ pub async fn extract_new_mod(
   Ok(())
 }
 
+#[instrument(skip(config, cache))]
 #[tauri::command]
 pub async fn download_and_extract_new_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -104,13 +107,14 @@ pub async fn download_and_extract_new_mod(
   let metadata_path = destination_dir.join("_metadata.json");
   let file = fs::File::create(&metadata_path)?;
 
-  log::info!("saving mod info to: {}", &metadata_path.display());
+  tracing::info!("saving mod info to: {}", &metadata_path.display());
   serde_json::to_writer_pretty(file, &mod_info)
     .map_err(|e| anyhow::anyhow!("Unable to save mod metadata: {}", e))?;
 
   Ok(())
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn get_locally_persisted_mod_info(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -143,6 +147,7 @@ pub async fn get_locally_persisted_mod_info(
   return Ok(mod_info);
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn base_game_iso_exists(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -189,6 +194,7 @@ fn get_mod_exec_location(
   }
 }
 
+#[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn extract_iso_for_mod_install(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -227,7 +233,7 @@ pub async fn extract_iso_for_mod_install(
     game_name.to_string(),
   ];
 
-  log::info!("Running extractor with args: {:?}", args);
+  tracing::info!("Running extractor with args: {:?}", args);
 
   let mut command = Command::new(exec_info.executable_path);
   command
@@ -251,7 +257,7 @@ pub async fn extract_iso_for_mod_install(
 
   let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   if status.success() {
-    log::info!("extraction and validation was successful");
+    tracing::info!("extraction and validation was successful");
     return Ok(());
   }
 
@@ -264,6 +270,7 @@ pub async fn extract_iso_for_mod_install(
   return Err(CommandError::GameFeatures(msg));
 }
 
+#[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn decompile_for_mod_install(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -300,7 +307,7 @@ pub async fn decompile_for_mod_install(
     game_name.to_string(),
   ];
 
-  log::info!("Running extractor with args: {:?}", args);
+  tracing::info!("Running extractor with args: {:?}", args);
 
   let mut command = Command::new(exec_info.executable_path);
   command
@@ -319,7 +326,7 @@ pub async fn decompile_for_mod_install(
 
   let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   if status.success() {
-    log::info!("decompilation was successful");
+    tracing::info!("decompilation was successful");
     return Ok(());
   }
 
@@ -332,6 +339,7 @@ pub async fn decompile_for_mod_install(
   return Err(CommandError::GameFeatures(msg));
 }
 
+#[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn compile_for_mod_install(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -367,7 +375,7 @@ pub async fn compile_for_mod_install(
     game_name.to_string(),
   ];
 
-  log::info!("Running extractor with args: {:?}", args);
+  tracing::info!("Running extractor with args: {:?}", args);
 
   let mut command = Command::new(exec_info.executable_path);
   command
@@ -386,7 +394,7 @@ pub async fn compile_for_mod_install(
 
   let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   if status.success() {
-    log::info!("compilation was successful");
+    tracing::info!("compilation was successful");
     return Ok(());
   }
 
@@ -399,6 +407,7 @@ pub async fn compile_for_mod_install(
   return Err(CommandError::GameFeatures(msg));
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn save_mod_install_info(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -408,7 +417,7 @@ pub async fn save_mod_install_info(
   version_name: String,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
-  log::info!(
+  tracing::info!(
     "Saving mod install info {}, {}, {}, {}",
     game_name.to_string(),
     mod_name,
@@ -425,7 +434,7 @@ pub async fn save_mod_install_info(
       None,
     )
     .map_err(|err| {
-      log::error!("Unable to remove mod source: {:?}", err);
+      tracing::error!("Unable to remove mod source: {:?}", err);
       CommandError::Configuration("Unable to remove mod source".to_owned())
     })?;
   Ok(())
@@ -460,6 +469,7 @@ fn generate_launch_mod_args(
   Ok(args)
 }
 
+#[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn launch_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -483,7 +493,7 @@ pub async fn launch_mod(
   let exec_info = get_mod_exec_location(&install_path, "gk", game_name, &mod_name, &source_name);
   let args = generate_launch_mod_args(game_name, in_debug, config_dir, false)?;
 
-  log::info!("Launching gk args: {:?}", args);
+  tracing::info!("Launching gk args: {:?}", args);
 
   let log_file = create_std_log_file(
     &app_handle,
@@ -508,6 +518,7 @@ pub async fn launch_mod(
   Ok(())
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn get_local_mod_thumbnail_base64(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -532,6 +543,7 @@ pub async fn get_local_mod_thumbnail_base64(
   Ok("".to_string())
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn uninstall_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -563,6 +575,7 @@ pub async fn uninstall_mod(
   Ok(())
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn reset_mod_settings(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -598,6 +611,7 @@ pub async fn reset_mod_settings(
   Ok(())
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn get_launch_mod_string(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -632,6 +646,7 @@ struct ToastPayload {
   level: String,
 }
 
+#[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn open_repl_for_mod(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,

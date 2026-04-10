@@ -1,9 +1,11 @@
 use tauri::Manager;
+use tracing::instrument;
 
 use super::CommandError;
 
+#[instrument(skip(app_handle))]
 #[tauri::command]
-pub async fn open_main_window(handle: tauri::AppHandle) -> Result<(), CommandError> {
+pub async fn open_main_window(app_handle: tauri::AppHandle) -> Result<(), CommandError> {
   // NOTE:
   // When you create multiple static windows (inside the conf file)
   // they are actually all running in the background
@@ -16,9 +18,9 @@ pub async fn open_main_window(handle: tauri::AppHandle) -> Result<(), CommandErr
   // TODO LATER - consider removing the multi-window setup and just integrate the splash
   // into the main app.  This would probably make for a better experience on things like
   // the steamdeck
-  log::info!("Creating main window");
+  tracing::info!("Creating main window");
   tauri::WebviewWindowBuilder::new(
-    &handle,
+    &app_handle,
     "main", /* the unique window label */
     tauri::WebviewUrl::App("index.html".parse().unwrap()),
   )
@@ -34,9 +36,9 @@ pub async fn open_main_window(handle: tauri::AppHandle) -> Result<(), CommandErr
   .map_err(|_| {
     CommandError::WindowManagement("Unable to create main launcher window".to_owned())
   })?;
-  log::info!("Closing splash window");
+  tracing::info!("Closing splash window");
   // Close splashscreen
-  if let Some(splashscreen) = handle.app_handle().get_webview_window("splashscreen") {
+  if let Some(splashscreen) = app_handle.app_handle().get_webview_window("splashscreen") {
     splashscreen
       .close()
       .map_err(|_| CommandError::WindowManagement("Unable to close splash window".to_owned()))?;
