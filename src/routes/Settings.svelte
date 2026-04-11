@@ -6,6 +6,8 @@
   import Mods from "./settings/Mods.svelte";
   import Decompiler from "./settings/Decompiler.svelte";
   import { route } from "../router";
+  import Backgrounds from "./settings/Backgrounds.svelte";
+  import { type } from "@tauri-apps/plugin-os"; // TODO: temporary while convertFileSrc is broken on linux
 
   let tab = route.params.tab;
 
@@ -55,5 +57,16 @@
     >
       <Mods />
     </TabItem>
+    <!-- TODO: temporary while convertFileSrc is broken on linux -->
+    {#if type() !== "linux"}
+      <TabItem
+        {activeClass}
+        {inactiveClass}
+        open={tab == "backgrounds"}
+        title={$_("settings_tabs_backgrounds")}
+      >
+        <Backgrounds />
+      </TabItem>
+    {/if}
   </Tabs>
 </div>

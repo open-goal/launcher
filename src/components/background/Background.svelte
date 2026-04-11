@@ -20,11 +20,11 @@
   const gameParam = $derived(route.params.game_name);
   let activeGame: SupportedGame | undefined = $state(undefined);
   let loading = $state(false);
-  let grayscale = $state(false);
+  let isInstalled = $state(false);
   let bgVideo: string | null = $state(null);
   let jak1Background: string | undefined = $state(undefined);
   let modBackground: string | undefined = $state(undefined);
-  let style = "absolute object-fill h-full w-full -z-10";
+  const style = "absolute object-fill h-full w-full -z-10";
 
   let installedListener: UnlistenFn | undefined = undefined;
   let uninstalledListener: UnlistenFn | undefined = undefined;
@@ -63,31 +63,31 @@
         activeGameFromRoute = toSupportedGame(param.toString());
       }
     }
-    if (activeGameFromRoute) {
-      activeGame = activeGameFromRoute;
-      if (route.params.mod_name && route.params.source_name) {
-        getModInfo(
-          activeGame,
-          route.params.mod_name,
-          route.params.source_name,
-        ).then((modInfo) => {
-          if (activeGame) {
-            updateModBackground(activeGame, modInfo).then(() => {
-              loading = false;
-            });
-          }
-        });
-      } else {
-        updateBackground(activeGame).then(() => {
-          loading = false;
-        });
-      }
+
+    if (!activeGameFromRoute) return;
+
+    activeGame = activeGameFromRoute;
+    if (route.params.mod_name && route.params.source_name) {
+      getModInfo(
+        activeGame,
+        route.params.mod_name,
+        route.params.source_name,
+      ).then((modInfo) => {
+        if (activeGame) {
+          updateModBackground(activeGame, modInfo).then(() => {
+            loading = false;
+          });
+        }
+      });
+    } else {
+      updateBackground(activeGame);
+      loading = false;
     }
   });
 
   async function updateBackground(activeGame: SupportedGame): Promise<void> {
     bgVideo = null;
-    grayscale = !(await isGameInstalled(activeGame));
+    isInstalled = await isGameInstalled(activeGame);
 
     const appDataDirPath = await appDataDir();
     const filePath = await join(
@@ -131,39 +131,40 @@
   }
 </script>
 
-<!-- TODO: the three else if statements can go away once 1. the milestone code is finished and 2. jak3 is released -->
+<!-- TODO: the three else if statements can go away once the milestone code is finished -->
 {#if !loading}
-  <div class:grayscale>
-    {#if modBackground && route.pathname.includes("mods")}
-      <!-- svelte-ignore a11y_missing_attribute -->
-      <img class={style} src={modBackground} />
-    {:else if activeGame === "jak1"}
-      <video
-        class={style}
-        poster={jak1Background}
-        src={bgVideo}
-        autoplay
-        muted
-        loop
-      ></video>
-    {:else if activeGame === "jak2"}
-      <video
-        class={style}
-        poster={jak2Background}
-        src={bgVideo}
-        autoplay
-        muted
-        loop
-      ></video>
-    {:else if activeGame === "jak3"}
-      <video
-        class={style}
-        poster={jak3Background}
-        src={bgVideo}
-        autoplay
-        muted
-        loop
-      ></video>
-    {/if}
-  </div>
+  {#if modBackground && route.pathname.includes("mods")}
+    <!-- svelte-ignore a11y_missing_attribute -->
+    <img class={style} src={modBackground} />
+  {:else if activeGame === "jak1"}
+    <video
+      class={style}
+      class:grayscale={!isInstalled}
+      poster={jak1Background}
+      src={bgVideo}
+      autoplay
+      muted
+      loop
+    ></video>
+  {:else if activeGame === "jak2"}
+    <video
+      class={style}
+      class:grayscale={!isInstalled}
+      poster={jak2Background}
+      src={bgVideo}
+      autoplay
+      muted
+      loop
+    ></video>
+  {:else if activeGame === "jak3"}
+    <video
+      class={style}
+      class:grayscale={!isInstalled}
+      poster={jak3Background}
+      src={bgVideo}
+      autoplay
+      muted
+      loop
+    ></video>
+  {/if}
 {/if}
