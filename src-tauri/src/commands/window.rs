@@ -30,7 +30,8 @@ pub async fn open_main_window(app_handle: tauri::AppHandle) -> Result<(), Comman
   .visible(true)
   .center()
   .decorations(false)
-  .inner_size(800.0, 600.0)
+  .inner_size(1024.0, 640.0)
+  .min_inner_size(900.0, 600.0)
   .focused(true)
   .build()
   .map_err(|_| {
