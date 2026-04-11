@@ -10,15 +10,29 @@
 
   onMount(() => {
     refreshPlaytime();
+
+    const unlistenPromise = listen("playtimeUpdated", async () => {
+      await refreshPlaytime();
+    });
+
+    return () => {
+      unlistenPromise.then((unlisten) => unlisten());
+    };
   });
 
-  listen<string>("playtimeUpdated", async (e) => {
-    await refreshPlaytime();
-  });
+  function formatPlaytime(totalSeconds: number): string {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return [hours, minutes, seconds]
+      .map((value) => value.toString().padStart(2, "0"))
+      .join(":");
+  }
 
   async function refreshPlaytime() {
-    let playtimeSec = await getPlaytime(activeGame);
-    playtime = new Date(playtimeSec * 1000).toISOString().slice(11, 19);
+    const playtimeSec = await getPlaytime(activeGame);
+    playtime = formatPlaytime(playtimeSec);
   }
 </script>
 
