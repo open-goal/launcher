@@ -2,6 +2,9 @@
   import { Button, Spinner } from "flowbite-svelte";
   import IconDiscord from "~icons/mdi/discord";
   import IconGitHub from "~icons/mdi/github";
+  import IconFolderOpen from "~icons/mdi/folder-open";
+  import IconPackageDown from "~icons/mdi/package-down";
+  import IconKeyboard from "~icons/mdi/keyboard";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { revealItemInDir } from "@tauri-apps/plugin-opener";
   import { onMount } from "svelte";
@@ -34,6 +37,8 @@
       {#if downloadingPackage}
         <Spinner class="text-sm mb-0.5 mr-1" size="4" color="yellow" />
       {/if}
+      <IconPackageDown />
+      &nbsp;
       {$_("help_button_downloadPackage")}</Button
     >
     {#if appLogDirPath}
@@ -41,14 +46,15 @@
         class="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
         onclick={() => {
           revealItemInDir(appLogDirPath);
-        }}>{$_("help_button_openLogFolder")}</Button
+        }}><IconFolderOpen /> &nbsp;{$_("help_button_openLogFolder")}</Button
       >
     {/if}
     <Button
       class="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
       href="https://raw.githubusercontent.com/open-goal/launcher/refs/heads/main/docs/default-keybinds.png"
       target="_blank"
-      rel="noreferrer noopener">{$_("help_button_defaultKeybinds")}</Button
+      rel="noreferrer noopener"
+      ><IconKeyboard />&nbsp;{$_("help_button_defaultKeybinds")}</Button
     >
   </div>
   <p class="mt-3 text-sm">
