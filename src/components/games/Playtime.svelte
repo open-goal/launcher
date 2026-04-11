@@ -38,7 +38,7 @@
 
 <!-- add an option to disable this -->
 {#if playtime}
-  <h1 class="pb-4 text-xl text-outline tracking-tighter font-extrabold">
+  <p class="text-sm font-normal tracking-wide text-gray-400">
     {`${$_(`gameControls_timePlayed_label`)} ${playtime}`}
-  </h1>
+  </p>
 {/if}
