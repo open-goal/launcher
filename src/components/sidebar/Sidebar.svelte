@@ -3,7 +3,6 @@
   import logoJak2 from "$assets/images/jak-2.webp";
   import logoJak3 from "$assets/images/jak-3.webp";
   import IconCog from "~icons/mdi/cog";
-  import IconChatQuestion from "~icons/mdi/chat-question";
   import { Tooltip } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { jobTracker } from "$lib/stores/JobStore";
@@ -16,7 +15,6 @@
     const isOpaque =
       pathName.startsWith("/settings") ||
       pathName.startsWith("/update") ||
-      pathName.startsWith("/faq") ||
       pathName.endsWith("/mods") ||
       pathName.endsWith("/texture_packs");
     return isOpaque
@@ -106,22 +104,6 @@
       </button>
       <Tooltip triggeredBy="#settings" placement="right" type="dark"
         >{$_("sidebar_settings")}</Tooltip
-      >
-    </li>
-
-    <li>
-      <button
-        id="faq"
-        class={getNavItemStyle("faq", route.pathname)}
-        onclick={async () => {
-          navigate(`/faq`);
-        }}
-        {disabled}
-      >
-        <IconChatQuestion style="font-size: 36px" />
-      </button>
-      <Tooltip triggeredBy="#faq" placement="right" type="dark"
-        >{$_("sidebar_help")}</Tooltip
       >
     </li>
   </ul>
