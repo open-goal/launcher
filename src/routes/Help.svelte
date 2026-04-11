@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, Spinner } from "flowbite-svelte";
+  import { Button, Spinner, Modal } from "flowbite-svelte";
   import IconDiscord from "~icons/mdi/discord";
   import IconGitHub from "~icons/mdi/github";
   import IconFolderOpen from "~icons/mdi/folder-open";
@@ -10,9 +10,11 @@
   import { onMount } from "svelte";
   import { appLogDir } from "@tauri-apps/api/path";
   import { _ } from "svelte-i18n";
+  import keybinds from "$assets/images/keybinds.webp";
 
-  let appLogDirPath: string;
-  let downloadingPackage = false;
+  let appLogDirPath: string = $state("");
+  let downloadingPackage = $state(false);
+  let modalOpen = $state(false);
 
   onMount(async () => {
     appLogDirPath = await appLogDir();
@@ -51,9 +53,7 @@
     {/if}
     <Button
       class="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
-      href="https://raw.githubusercontent.com/open-goal/launcher/refs/heads/main/docs/default-keybinds.png"
-      target="_blank"
-      rel="noreferrer noopener"
+      onclick={() => (modalOpen = true)}
       ><IconKeyboard />&nbsp;{$_("help_button_defaultKeybinds")}</Button
     >
   </div>
@@ -101,3 +101,11 @@
     </p>
   </div>
 </div>
+
+<Modal bind:open={modalOpen} class="min-w-[95vw]">
+  <img
+    src={keybinds}
+    alt="Default keybinds"
+    class="w-full h-auto p-5 rounded-md"
+  />
+</Modal>
