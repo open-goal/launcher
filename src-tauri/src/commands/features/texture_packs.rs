@@ -2,6 +2,7 @@ use std::{collections::HashMap, fs, path::PathBuf};
 
 use anyhow::Context;
 use serde_json::Value;
+use tracing::instrument;
 
 use crate::{
   commands::CommandError,
@@ -30,6 +31,7 @@ pub struct TexturePackInfo {
   tags: Vec<String>,
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn list_extracted_texture_pack_info(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -128,7 +130,7 @@ pub async fn list_extracted_texture_pack_info(
         ..metadata
       };
     } else {
-      log::error!(
+      tracing::error!(
         "Unable to load texture pack metadata {}",
         metadata_path.display()
       );
@@ -139,6 +141,7 @@ pub async fn list_extracted_texture_pack_info(
   Ok(package_map)
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn extract_new_texture_pack(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -171,6 +174,7 @@ pub async fn extract_new_texture_pack(
   Ok(())
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn update_texture_pack_data(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -204,7 +208,7 @@ pub async fn update_texture_pack_data(
         .join(game_name.to_string())
         .join("texture_replacements");
 
-      log::info!("Appending textures from: {}", texture_pack_dir.display());
+      tracing::info!("Appending textures from: {}", texture_pack_dir.display());
       overwrite_dir(&texture_pack_dir, &game_texture_pack_dir)?
     }
     return Ok(());
@@ -212,6 +216,7 @@ pub async fn update_texture_pack_data(
   return Err(CommandError::GameFeatures(format!("TODO: Some error")));
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn delete_texture_packs(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -228,7 +233,7 @@ pub async fn delete_texture_packs(
   };
 
   for pack in packs {
-    log::info!("Deleting texture pack: {}", pack);
+    tracing::info!("Deleting texture pack: {}", pack);
     delete_dir(texture_pack_dir.join(&pack))?;
   }
 

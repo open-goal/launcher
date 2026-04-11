@@ -1,6 +1,6 @@
 [package]
 name = "opengoal-launcher"
-version = "2.8.18" # APP_VERSION
+version = "2.8.18"                                   # APP_VERSION
 description = "A frontend for the OpenGOAL project"
 authors = ["OpenGOAL"]
 license = "ISC"
@@ -16,20 +16,17 @@ tauri-build = { version = "2.5.1", features = [] }
 
 [dependencies]
 anyhow = "1.0.102"
-plist = "1.7.4"                                                          # ensuring a bug fix for newer rustc versions
-notify-rust = "4.12.0"                                                   # ensuring a bug fix for newer rustc versions
-cmake = "0.1.57"                                                         # VS2026 causes issues
+plist = "1.7.4"                                                               # ensuring a bug fix for newer rustc versions
+notify-rust = "4.12.0"                                                        # ensuring a bug fix for newer rustc versions
+cmake = "0.1.57"                                                              # VS2026 causes issues
 backtrace = "0.3.74"
-chrono = "0.4.44"
 dir-diff = "0.3.3"
 directories = "6.0.0"
 rustc-serialize = "0.3"
-fern = { version = "0.7.1", features = ["date-based", "colored"] }
 flate2 = "1.1.9"
 fs_extra = "1.3.0"
 futures-util = "0.3.32"
 glob = "0.3.3"
-log = "0.4.29"
 reqwest = { version = "0.13", features = ["json"] }
 rev_buf_reader = "0.3.0"
 semver = "1.0.24"
@@ -60,6 +57,9 @@ tauri-plugin-notification = "2.3.3"
 tauri-plugin-process = "2.3.1"
 tauri-plugin-opener = "2.5.3"
 strum_macros = "0.28.0"
+tracing = { version = "0.1.44", features = ["attributes"] }
+tracing-subscriber = { version = "0.3.23", features = ["fmt", "env-filter"] }
+tracing-appender = "0.2.4"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 sysctl = "0.7.1"

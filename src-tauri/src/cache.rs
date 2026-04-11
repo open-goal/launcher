@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 use anyhow::{Context, Result};
-use log::error;
 use serde::{Deserialize, Serialize};
 use tauri_plugin_os::platform;
+use tracing::error;
 use ts_rs::TS;
 
 use crate::{config::SupportedGame, util::network::download_json};

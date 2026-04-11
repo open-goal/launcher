@@ -1,11 +1,13 @@
 use crate::config::LauncherConfig;
 use crate::config::SupportedGame;
 use anyhow::anyhow;
-use log::warn;
 use sysinfo::Disks;
+use tracing::instrument;
+use tracing::warn;
 
 use super::CommandError;
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn is_diskspace_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -41,6 +43,7 @@ pub async fn is_diskspace_requirement_met(
 }
 
 #[cfg(target_os = "windows")]
+#[instrument]
 #[tauri::command]
 pub async fn is_minimum_vcc_runtime_installed() -> Result<bool, CommandError> {
   use crate::util::os::get_installed_vcc_runtime;
@@ -56,6 +59,7 @@ pub async fn is_minimum_vcc_runtime_installed() -> Result<bool, CommandError> {
 }
 
 #[cfg(not(target_os = "windows"))]
+#[instrument]
 #[tauri::command]
 pub async fn is_minimum_vcc_runtime_installed() -> Result<bool, CommandError> {
   return Ok(false);
@@ -71,14 +75,15 @@ pub async fn is_avx_supported() -> bool {
   false
 }
 
+#[instrument]
 #[tauri::command]
 pub async fn frontend_log(level: String, log: String) -> Result<(), ()> {
   match level.as_str() {
-    "debug" => log::debug!("{}", log),
-    "info" => log::info!("{}", log),
-    "warn" => log::warn!("{}", log),
-    "error" => log::error!("{}", log),
-    _ => log::info!("{}", log),
+    "debug" => tracing::debug!("{}", log),
+    "info" => tracing::info!("{}", log),
+    "warn" => tracing::warn!("{}", log),
+    "error" => tracing::error!("{}", log),
+    _ => tracing::info!("{}", log),
   }
   Ok(())
 }

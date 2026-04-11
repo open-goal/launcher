@@ -1,6 +1,7 @@
 use anyhow::Result;
 use std::{collections::HashMap, path::Path};
 use tauri::{Emitter, Manager};
+use tracing::instrument;
 use walkdir::WalkDir;
 
 use crate::{
@@ -10,6 +11,7 @@ use crate::{
 
 use super::CommandError;
 
+#[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn uninstall_game(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -28,7 +30,7 @@ pub async fn uninstall_game(
   for dir in ["decompiler_out", "iso_data", "out"] {
     let path = data_folder.join(dir);
     std::fs::remove_dir_all(&path).map_err(|e| {
-      log::error!("Failed to delete directory {}: {}", path.display(), e);
+      tracing::error!("Failed to delete directory {}: {}", path.display(), e);
       CommandError::from(e)
     })?;
   }
@@ -44,6 +46,7 @@ pub async fn uninstall_game(
   Ok(true)
 }
 
+#[instrument(skip(app_handle))]
 #[tauri::command]
 pub async fn reset_game_settings(
   app_handle: tauri::AppHandle,
@@ -98,7 +101,7 @@ fn get_saves_highest_milestone(
   let save_bytes = match std::fs::read(path) {
     Ok(bytes) => bytes,
     Err(err) => {
-      log::error!("Failed to read save file: {:?}", err);
+      tracing::error!("Failed to read save file: {:?}", err);
       return None;
     }
   };
@@ -152,6 +155,7 @@ fn get_saves_highest_milestone(
 ///
 /// If no saves are found or no milestones can be determined,
 /// the default milestone `"geyser"` is returned.
+#[instrument(skip(app_handle))]
 #[tauri::command]
 pub async fn get_furthest_game_milestone(
   app_handle: tauri::AppHandle,

@@ -27,7 +27,7 @@ pub async fn run_game_gpu_test(
   create_dir(&result_path)?;
   let result_path = result_path.join("gpu-test-result.json");
 
-  log::info!(
+  tracing::info!(
     "Running GPU test on game version {} and storing in {}",
     &config_info.active_version,
     result_path.display()

@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use tracing::instrument;
+
 use crate::{
   cache::{ModCache, ModSourceData},
   config::LauncherConfig,
@@ -7,6 +9,7 @@ use crate::{
 
 use super::CommandError;
 
+#[instrument(skip(config, cache))]
 #[tauri::command]
 pub async fn refresh_mod_sources(
   cache: tauri::State<'_, tokio::sync::Mutex<ModCache>>,
@@ -19,6 +22,7 @@ pub async fn refresh_mod_sources(
   Ok(())
 }
 
+#[instrument(skip(cache))]
 #[tauri::command]
 pub async fn get_mod_sources_data(
   cache: tauri::State<'_, tokio::sync::Mutex<ModCache>>,

@@ -4,9 +4,10 @@
 )]
 
 use directories::UserDirs;
-use fern::colors::{Color, ColoredLevelConfig};
 use tauri::{Manager, RunEvent};
 use tokio::sync::OnceCell;
+use tracing_appender::non_blocking::WorkerGuard;
+use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 use util::file::create_dir;
 
 use backtrace::Backtrace;
@@ -18,6 +19,8 @@ mod commands;
 mod config;
 mod util;
 
+static LOG_GUARD: OnceCell<WorkerGuard> = OnceCell::const_new();
+
 fn log_crash(panic_info: Option<&std::panic::PanicHookInfo>, error: Option<tauri::Error>) {
   let backtrace = Backtrace::new();
   let log_contents;
@@ -28,16 +31,16 @@ fn log_crash(panic_info: Option<&std::panic::PanicHookInfo>, error: Option<tauri
   } else {
     log_contents = format!("unexpected error occurred: {backtrace:?}");
   }
-  log::error!("{}", log_contents);
+  tracing::error!("{}", log_contents);
   if let Some(user_dirs) = UserDirs::new() {
     if let Some(desktop_dir) = user_dirs.desktop_dir() {
       match std::fs::File::create(desktop_dir.join("og-launcher-crash.log")) {
         Ok(mut file) => {
           if let Err(err) = file.write_all(log_contents.as_bytes()) {
-            log::error!("unable to log crash report to a file - {:?}", err)
+            tracing::error!("unable to log crash report to a file - {:?}", err)
           }
         }
-        Err(err) => log::error!("unable to log crash report to a file - {:?}", err),
+        Err(err) => tracing::error!("unable to log crash report to a file - {:?}", err),
       }
     }
   }
@@ -70,7 +73,7 @@ fn main() {
     std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
   }
   // In the event that some catastrophic happens, atleast log it out
-  // the panic_hook will log to a file in the folder of the executable
+  // the panic_hook will log to a file on the desktop
   std::panic::set_hook(Box::new(panic_hook));
 
   let tauri_setup = tauri::Builder::default()
@@ -96,63 +99,35 @@ fn main() {
         .join("app");
       create_dir(&log_path)?;
 
-      // configure colors for the whole line
-      let colors_line = ColoredLevelConfig::new()
-        .error(Color::Red)
-        .warn(Color::Yellow)
-        .info(Color::Cyan)
-        .debug(Color::Green)
-        .trace(Color::White);
+      let file_appender = tracing_appender::rolling::daily(&log_path, "launcher.log");
+      let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
+      let _ = LOG_GUARD.set(guard);
 
-      // configure colors for the name of the level.
-      // since almost all of them are the same as the color for the whole line, we
-      // just copy `colors_line` and overwrite our changes
-      let colors_level = colors_line.info(Color::Cyan);
+      tracing_subscriber::registry()
+        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()))
+        .with(tracing_subscriber::fmt::layer()) // stdout
+        .with(
+          tracing_subscriber::fmt::layer()
+            .pretty()
+            .with_ansi(false)
+            .with_file(false)
+            .with_line_number(false)
+            .with_writer(non_blocking)
+            .compact(),
+        ) // file
+        .init();
 
-      let log_setup_ok = fern::Dispatch::new()
-        // Perform allocation-free log formatting
-        .format(move |out, message, record| {
-          out.finish(format_args!(
-            "{color_line}[{date}][{target}][{level}{color_line}] {message}\x1B[0m",
-            color_line = format_args!(
-              "\x1B[{}m",
-              colors_line.get_color(&record.level()).to_fg_str()
-            ),
-            date = chrono::Local::now().format("%H:%M:%S"),
-            target = record.target(),
-            level = colors_level.color(record.level()),
-            message = message,
-          ));
-        })
-        // Add blanket level filter -
-        .level(log::LevelFilter::Debug)
-        .filter(|metadata| metadata.target() != "tao::platform_impl::platform::event_loop::runner") // suppress tauri log spam (windows only)
-        // - and per-module overrides
-        .level_for("tauri_plugin_updater::updater", log::LevelFilter::Info) // filter updater log spam
-        // .level_for("opengoal-launcher", log::LevelFilter::Debug)
-        // Output to stdout, files, and other Dispatch configurations
-        .chain(std::io::stdout())
-        .chain(fern::DateBased::new(&log_path, "/%Y-%m-%d.log"))
-        // Apply globally
-        .apply();
-      match log_setup_ok {
-        Ok(_) => {
-          log::info!("Logging Initialized");
-          // Truncate rotated log files to '5'
-          let mut paths: Vec<_> = std::fs::read_dir(&log_path)?.map(|r| r.unwrap()).collect();
-          paths.sort_by_key(|dir| dir.path());
-          paths.reverse();
-          let mut i = 0;
-          for path in paths {
-            i += 1;
-            if i > 5 {
-              log::info!("deleting - {}", path.path().display());
-              std::fs::remove_file(path.path())?;
-            }
-          }
-        }
-        Err(err) => log::error!("Could not initialize logging {:?}", err),
-      };
+      // Truncate rotated log files to '10'
+      let mut paths: Vec<_> = std::fs::read_dir(&log_path)?
+        .filter_map(Result::ok)
+        .collect();
+
+      paths.sort_by_key(|entry| std::cmp::Reverse(entry.path()));
+
+      for entry in paths.into_iter().skip(10) {
+        tracing::info!("deleting - {}", entry.path().display());
+        std::fs::remove_file(entry.path())?;
+      }
 
       // Load the config (or initialize it with defaults)
       //
@@ -227,16 +202,16 @@ fn main() {
     });
   match tauri_setup {
     Ok(app) => {
-      log::info!("application starting up");
+      tracing::info!("application starting up");
       app.run(|_app_handle, event| {
         if let RunEvent::ExitRequested { .. } = event {
-          log::info!("Exit requested, exiting!");
+          tracing::info!("Exit requested, exiting!");
           std::process::exit(0);
         }
       })
     }
     Err(err) => {
-      log::error!("Could not setup tauri application {:?}, exiting", err);
+      tracing::error!("Could not setup tauri application {:?}, exiting", err);
       std::process::exit(1);
     }
   };

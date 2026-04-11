@@ -11,10 +11,10 @@ use std::{
 };
 use tokio::process::Command;
 
-use log::{error, info, warn};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use tauri::{Emitter, Manager};
+use tracing::{error, info, instrument, warn};
 
 use crate::{
   TAURI_APP,
@@ -116,6 +116,7 @@ fn get_data_dir(
   Ok(data_folder)
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn update_data_directory(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -127,6 +128,7 @@ pub async fn update_data_directory(
   Ok(())
 }
 
+#[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn extract_and_validate_iso(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -139,7 +141,7 @@ pub async fn extract_and_validate_iso(
   let data_folder = get_data_dir(&config_info, game_name, true)?;
   let exec_info = config_info.get_exec_location("extractor");
 
-  log::info!(
+  info!(
     "extracting using data folder: {}",
     data_folder.to_string_lossy()
   );
@@ -160,7 +162,7 @@ pub async fn extract_and_validate_iso(
     args.push(game_name.to_string());
   }
 
-  log::info!("Running extractor with args: {:?}", args);
+  info!("Running extractor with args: {:?}", args);
 
   let mut command = Command::new(exec_info.executable_path);
   command
@@ -180,7 +182,7 @@ pub async fn extract_and_validate_iso(
 
   let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   if status.success() {
-    log::info!("extraction and validation was successful");
+    info!("extraction and validation was successful");
     return Ok(());
   }
 
@@ -204,6 +206,7 @@ pub async fn extract_and_validate_iso(
   ));
 }
 
+#[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn run_decompiler(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -218,7 +221,7 @@ pub async fn run_decompiler(
   let data_folder = get_data_dir(&config_info, game_name, false)?;
   let exec_info = config_info.get_exec_location("extractor");
 
-  log::info!(
+  info!(
     "decompiling using data folder: {}",
     data_folder.to_string_lossy()
   );
@@ -267,7 +270,7 @@ pub async fn run_decompiler(
     }
   }
 
-  log::info!("Running extractor with args: {:?}", args);
+  info!("Running extractor with args: {:?}", args);
 
   command
     .args(args)
@@ -290,7 +293,7 @@ pub async fn run_decompiler(
 
   let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   if status.success() {
-    log::info!("decompilation was successful");
+    info!("decompilation was successful");
     return Ok(());
   }
 
@@ -314,6 +317,7 @@ pub async fn run_decompiler(
   ));
 }
 
+#[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn run_compiler(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -327,7 +331,7 @@ pub async fn run_compiler(
   let exec_info = config_info.get_exec_location("extractor");
   let data_folder = get_data_dir(&config_info, game_name, false)?;
 
-  log::info!(
+  info!(
     "compiling using data folder: {}",
     data_folder.to_string_lossy()
   );
@@ -352,7 +356,7 @@ pub async fn run_compiler(
     args.push(game_name.to_string());
   }
 
-  log::info!("Running compiler with args: {:?}", args);
+  info!("Running compiler with args: {:?}", args);
 
   let mut command = Command::new(exec_info.executable_path);
   command
@@ -375,7 +379,7 @@ pub async fn run_compiler(
 
   let status = watch_process(&mut log_file, &mut child, &app_handle).await?;
   if status.success() {
-    log::info!("compilation was successful");
+    info!("compilation was successful");
     return Ok(());
   }
 
@@ -397,6 +401,7 @@ pub async fn run_compiler(
   return Err(anyhow::anyhow!("compilation was not successful. No status code").into());
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn open_repl(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -493,6 +498,7 @@ fn generate_launch_game_string(
   Ok(args)
 }
 
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn get_launch_game_string(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -510,6 +516,7 @@ pub async fn get_launch_game_string(
   ))
 }
 
+#[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn launch_game(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -532,7 +539,7 @@ pub async fn launch_game(
 
   let args = generate_launch_game_string(&config_info, game_name, in_debug, false)?;
 
-  log::info!(
+  info!(
     "Launching game version {:?} -> {:?} with args: {:?}. Working Directory: {:?}, Path: {:?}",
     &config_info.active_version,
     &config_info.tooling_version,
