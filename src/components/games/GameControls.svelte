@@ -65,194 +65,215 @@
       );
     }
   }
+
+  let name = $_(`gameName_${activeGame}`);
+  console.log(name);
+  // this doesnt work for the following languages: ja-JP, he-IL
+  let [title, subtitle] = name.split(":");
+  subtitle = subtitle?.trimStart();
+  console.log(title);
+  console.log(subtitle);
 </script>
 
-<div class="flex flex-col justify-end items-end mt-auto">
-  <h1
-    class="tracking-tighter text-2xl font-bold pb-3 text-orange-500 text-outline pointer-events-none"
-  >
-    {$_(`gameName_${activeGame}`)}
-  </h1>
-  <Playtime {activeGame}></Playtime>
-  <div class="flex flex-row gap-2">
-    <Button
-      class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800 text-sm text-white font-semibold px-5 py-2"
-      onclick={async () => {
-        launchGame(activeGame, false);
-      }}>{$_("gameControls_button_play")}</Button
+<div class="flex flex-col items-end mt-auto ml-auto">
+  <div class="flex flex-col pb-2 items-end text-shadow-lg">
+    <p
+      class="text-3xl font-semibold tracking-wider text-gray-100 pointer-events-none uppercase"
     >
-    <Button
-      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800"
-      >{$_("gameControls_button_features")}</Button
-    >
-    <Dropdown
-      simple
-      trigger="hover"
-      placement="top"
-      class="dark:!bg-slate-900 dark:text-white **:w-full"
-    >
-      <DropdownItem
-        hidden={!textureSupportEnabled}
-        disabled={!textureSupportEnabled}
+      {title}
+    </p>
+    <p class="text-2xl font-medium text-amber-500">{subtitle}</p>
+    <Playtime {activeGame}></Playtime>
+  </div>
+
+  <div class="flex flex-col mt-auto ml-auto">
+    <div class="flex flex-col gap-2 w-[320px]">
+      <Button
+        class="font-semibold text-gray-200 h-[48px] text-3xl border-solid border border-[#1e3a66] rounded bg-[#13294b] hover:bg-[#183763] hover:border-[#2a4a7c] hover:text-white"
         onclick={async () => {
-          navigate(`/:game_name/texture_packs`, {
-            params: { game_name: activeGame },
-          });
-        }}
+          launchGame(activeGame, false);
+        }}>{$_("gameControls_button_play")}</Button
       >
-        {$_("gameControls_button_features_textures")}
-      </DropdownItem>
-      <DropdownItem
-        onclick={async () => {
-          navigate(`/:game_name/mods`, { params: { game_name: activeGame } });
-        }}
-      >
-        {$_("gameControls_button_features_mods")}
-      </DropdownItem>
-    </Dropdown>
-    <Button
-      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800"
-    >
-      {$_("gameControls_button_advanced")}
-    </Button>
-    <Dropdown
-      simple
-      trigger="hover"
-      placement="top"
-      class="dark:!bg-slate-900 dark:text-white **:w-full"
-    >
-      <DropdownItem
-        onclick={async () => {
-          launchGame(activeGame, true);
-        }}>{$_("gameControls_button_playInDebug")}</DropdownItem
-      >
-      <DropdownItem
-        onclick={async () => {
-          launchGameWithCustomExecutable(activeGame);
-        }}>{$_("gameControls_button_customExe")}</DropdownItem
-      >
-      <DropdownItem
-        onclick={async () => {
-          openREPL(activeGame);
-        }}>{$_("gameControls_button_openREPL")}</DropdownItem
-      >
-      <DropdownDivider />
-      <DropdownItem
-        onclick={async () => {
-          navigate("/job/:job_type", {
-            params: { job_type: asJobType("decompile") },
-            search: {
-              activeGame: activeGame,
-              returnTo: route.pathname,
-            },
-          });
-        }}
-        >{$_("gameControls_button_decompile")}
-        <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-        <Helper class="dark:!text-neutral-400 !text-xs"
-          >{$_("gameControls_button_decompile_helpText")}</Helper
-        ></DropdownItem
-      >
-      <DropdownItem
-        onclick={async () => {
-          navigate("/job/:job_type", {
-            params: { job_type: asJobType("compile") },
-            search: {
-              activeGame: activeGame,
-              returnTo: route.pathname,
-            },
-          });
-        }}
-        >{$_("gameControls_button_compile")}
-        <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-        <Helper class="dark:!text-neutral-400 !text-xs"
-          >{$_("gameControls_button_compile_helpText")}
-        </Helper></DropdownItem
-      >
-      <DropdownDivider />
-      <DropdownItem
-        onclick={async () => {
-          if (gameDataDir) {
-            await revealItemInDir(gameDataDir);
-          }
-        }}>{$_("gameControls_button_openGameFolder")}</DropdownItem
-      >
-      <DropdownItem
-        onclick={async () => {
-          if (extractedAssetsDir) {
-            await revealItemInDir(extractedAssetsDir);
-          }
-        }}>{$_("gameControls_button_openExtractedAssetsFolder")}</DropdownItem
-      >
-    </Dropdown>
-    <Button
-      class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800"
-    >
-      <IconCog />
-    </Button>
-    <Dropdown
-      simple
-      trigger="hover"
-      placement="top-end"
-      class="dark:!bg-slate-900 dark:text-white **:w-full"
-    >
-      <!-- TODO - screenshot folder? how do we even configure where those go? -->
-      <DropdownItem
-        onclick={async () => {
-          if (settingsDir) {
-            await revealItemInDir(settingsDir);
-          }
-        }}>{$_("gameControls_button_openSettingsFolder")}</DropdownItem
-      >
-      <DropdownItem
-        onclick={async () => {
-          if (savesDir) {
-            await revealItemInDir(savesDir);
-          }
-        }}>{$_("gameControls_button_openSavesFolder")}</DropdownItem
-      >
-      <DropdownDivider />
-      <DropdownItem
-        onclick={async () => {
-          const launchString = await getLaunchGameString(activeGame);
-          await writeText(launchString);
-          toastStore.makeToast($_("toasts_copiedToClipboard"), "info");
-        }}
-        >{$_("gameControls_button_copyExecutableCommand")}<Helper
-          class="dark:!text-neutral-400 !text-xs"
-          >{$_("gameControls_button_copyExecutableCommand_helpText_1")}<br
-          />{$_("gameControls_button_copyExecutableCommand_helpText_2")}</Helper
-        ></DropdownItem
-      >
-      <DropdownDivider />
-      <!-- TODO - clicking this button provides zero feedback -->
-      <DropdownItem
-        onclick={async () => {
-          await resetGameSettings(activeGame);
-        }}>{$_("gameControls_button_resetSettings")}</DropdownItem
-      >
-      <DropdownItem
-        onclick={async () => {
-          // Get confirmation
-          // TODO - probably move these confirms into the actual launcher itself
-          const confirmed = await confirm(
-            $_("gameControls_button_uninstall_confirmation"),
-            { title: "OpenGOAL Launcher", kind: "warning" },
-          );
-          if (confirmed) {
-            const successfulUninstall = await uninstallGame(activeGame);
-            if (successfulUninstall) {
-              navigate("/:game_name/", {
+      <div class="grid grid-cols-[1fr_1fr_40px] gap-2">
+        <Button
+          class="font-medium text-gray-200 h-[40px] text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
+          >{$_("gameControls_button_features")}</Button
+        >
+        <Dropdown
+          simple
+          trigger="hover"
+          placement="top"
+          class="dark:!bg-slate-900 dark:text-white **:w-full"
+        >
+          <DropdownItem
+            hidden={!textureSupportEnabled}
+            disabled={!textureSupportEnabled}
+            onclick={async () => {
+              navigate(`/:game_name/texture_packs`, {
                 params: { game_name: activeGame },
               });
-            }
-          }
-        }}
-        >{$_("gameControls_button_uninstall")}<Helper
-          class="dark:!text-neutral-400 !text-xs"
-          >{$_("gameControls_button_uninstall_helpText")}</Helper
-        ></DropdownItem
-      >
-    </Dropdown>
+            }}
+          >
+            {$_("gameControls_button_features_textures")}
+          </DropdownItem>
+          <DropdownItem
+            onclick={async () => {
+              navigate(`/:game_name/mods`, {
+                params: { game_name: activeGame },
+              });
+            }}
+          >
+            {$_("gameControls_button_features_mods")}
+          </DropdownItem>
+        </Dropdown>
+        <Button
+          class="font-medium text-gray-200 h-[40px] text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
+        >
+          {$_("gameControls_button_advanced")}
+        </Button>
+        <Dropdown
+          simple
+          trigger="hover"
+          placement="top"
+          class="dark:!bg-slate-900 dark:text-white **:w-full"
+        >
+          <DropdownItem
+            onclick={async () => {
+              launchGame(activeGame, true);
+            }}>{$_("gameControls_button_playInDebug")}</DropdownItem
+          >
+          <DropdownItem
+            onclick={async () => {
+              launchGameWithCustomExecutable(activeGame);
+            }}>{$_("gameControls_button_customExe")}</DropdownItem
+          >
+          <DropdownItem
+            onclick={async () => {
+              openREPL(activeGame);
+            }}>{$_("gameControls_button_openREPL")}</DropdownItem
+          >
+          <DropdownDivider />
+          <DropdownItem
+            onclick={async () => {
+              navigate("/job/:job_type", {
+                params: { job_type: asJobType("decompile") },
+                search: {
+                  activeGame: activeGame,
+                  returnTo: route.pathname,
+                },
+              });
+            }}
+            >{$_("gameControls_button_decompile")}
+            <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
+            <Helper class="dark:!text-neutral-400 !text-xs"
+              >{$_("gameControls_button_decompile_helpText")}</Helper
+            ></DropdownItem
+          >
+          <DropdownItem
+            onclick={async () => {
+              navigate("/job/:job_type", {
+                params: { job_type: asJobType("compile") },
+                search: {
+                  activeGame: activeGame,
+                  returnTo: route.pathname,
+                },
+              });
+            }}
+            >{$_("gameControls_button_compile")}
+            <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
+            <Helper class="dark:!text-neutral-400 !text-xs"
+              >{$_("gameControls_button_compile_helpText")}
+            </Helper></DropdownItem
+          >
+          <DropdownDivider />
+          <DropdownItem
+            onclick={async () => {
+              if (gameDataDir) {
+                await revealItemInDir(gameDataDir);
+              }
+            }}>{$_("gameControls_button_openGameFolder")}</DropdownItem
+          >
+          <DropdownItem
+            onclick={async () => {
+              if (extractedAssetsDir) {
+                await revealItemInDir(extractedAssetsDir);
+              }
+            }}
+            >{$_("gameControls_button_openExtractedAssetsFolder")}</DropdownItem
+          >
+        </Dropdown>
+        <Button
+          class="text-gray-200 h-[40px] w-[40px] p-0 focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
+        >
+          <IconCog />
+        </Button>
+        <Dropdown
+          simple
+          trigger="hover"
+          placement="top-end"
+          class="dark:!bg-slate-900 dark:text-white **:w-full"
+        >
+          <!-- TODO - screenshot folder? how do we even configure where those go? -->
+          <DropdownItem
+            onclick={async () => {
+              if (settingsDir) {
+                await revealItemInDir(settingsDir);
+              }
+            }}>{$_("gameControls_button_openSettingsFolder")}</DropdownItem
+          >
+          <DropdownItem
+            onclick={async () => {
+              if (savesDir) {
+                await revealItemInDir(savesDir);
+              }
+            }}>{$_("gameControls_button_openSavesFolder")}</DropdownItem
+          >
+          <DropdownDivider />
+          <DropdownItem
+            onclick={async () => {
+              const launchString = await getLaunchGameString(activeGame);
+              await writeText(launchString);
+              toastStore.makeToast($_("toasts_copiedToClipboard"), "info");
+            }}
+            >{$_("gameControls_button_copyExecutableCommand")}<Helper
+              class="dark:!text-neutral-400 !text-xs"
+              >{$_("gameControls_button_copyExecutableCommand_helpText_1")}<br
+              />{$_(
+                "gameControls_button_copyExecutableCommand_helpText_2",
+              )}</Helper
+            ></DropdownItem
+          >
+          <DropdownDivider />
+          <!-- TODO - clicking this button provides zero feedback -->
+          <DropdownItem
+            onclick={async () => {
+              await resetGameSettings(activeGame);
+            }}>{$_("gameControls_button_resetSettings")}</DropdownItem
+          >
+          <DropdownItem
+            onclick={async () => {
+              // Get confirmation
+              // TODO - probably move these confirms into the actual launcher itself
+              const confirmed = await confirm(
+                $_("gameControls_button_uninstall_confirmation"),
+                { title: "OpenGOAL Launcher", kind: "warning" },
+              );
+              if (confirmed) {
+                const successfulUninstall = await uninstallGame(activeGame);
+                if (successfulUninstall) {
+                  navigate("/:game_name/", {
+                    params: { game_name: activeGame },
+                  });
+                }
+              }
+            }}
+            >{$_("gameControls_button_uninstall")}<Helper
+              class="dark:!text-neutral-400 !text-xs"
+              >{$_("gameControls_button_uninstall_helpText")}</Helper
+            ></DropdownItem
+          >
+        </Dropdown>
+      </div>
+    </div>
   </div>
 </div>

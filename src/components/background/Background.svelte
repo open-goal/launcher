@@ -133,6 +133,10 @@
 
 <!-- TODO: the three else if statements can go away once the milestone code is finished -->
 {#if !loading}
+  <!-- bottom right gradient -->
+  <div
+    class="pointer-events-none absolute inset-0 -z-9 bg-[radial-gradient(ellipse_at_bottom_right,rgba(0,0,0,0.9)_0%,rgba(0,0,0,0.58)_24%,rgba(0,0,0,0.28)_44%,rgba(0,0,0,0.08)_58%,rgba(0,0,0,0)_70%)]"
+  ></div>
   {#if modBackground && route.pathname.includes("mods")}
     <!-- svelte-ignore a11y_missing_attribute -->
     <img class={style} src={modBackground} />
