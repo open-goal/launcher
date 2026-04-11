@@ -1,10 +1,18 @@
 :root {
   --launcher-font-family: "Noto Sans";
+  --launcher-font-mono-family: "Noto Sans Mono";
 }
 
 * {
   -webkit-user-drag: none;
+}
+
+html,
+body {
   font-family: "Twemoji Country Flags", var(--launcher-font-family), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
