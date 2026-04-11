@@ -4,7 +4,9 @@
   import { onMount } from "svelte";
   import { getVersion } from "@tauri-apps/api/app";
   import IconWindowMinimize from "~icons/mdi/window-minimize";
+  import IconHelpCircle from "~icons/mdi/help-circle";
   import IconWindowClose from "~icons/mdi/window-close";
+  import IconUpArrowThick from "~icons/mdi/arrow-up-thick";
   import { UpdateStore } from "$lib/stores/AppStore";
   import { isInDebugMode } from "$lib/utils/common";
   import {
@@ -19,6 +21,8 @@
   import { check } from "@tauri-apps/plugin-updater";
   import { warnLog } from "$lib/rpc/logging";
   import { versionState } from "/src/state/VersionState.svelte";
+  import { navigate } from "/src/router";
+  import { Tooltip } from "flowbite-svelte";
 
   let launcherVersion: string | null = null;
   let launcherUpdateAvailable = false;
@@ -96,72 +100,106 @@
 </script>
 
 <header
-  class="flex flex-row grow-0 shrink-0 bg-[#101010] pl-2 pr-4 pt-1 pb-2 items-center z-10"
+  class="flex shrink-0 h-8 items-center bg-[#101010] pl-2 z-10"
   data-tauri-drag-region
 >
-  <div
-    class="flex flex-row shrink-0 items-center space-x-2 pointer-events-none"
-  >
+  <div class="flex shrink-0 items-center gap-2 pointer-events-none">
     <img
-      class="h-8"
+      class="h-6"
       src={logo}
       alt="OpenGOAL logo"
       aria-label="OpenGOAL logo"
     />
-    <p class="font-black text-white tracking-tight text-lg">OpenGOAL</p>
+    <p class="text-base font-black tracking-tight text-white">OpenGOAL</p>
   </div>
-  <div class="border-l shrink-0 border-[#9f9f9f] h-8 m-2"></div>
-  <div class="flex flex-col shrink-0 text-neutral-500 mr-2 pointer-events-none">
-    <p class="font-mono text-sm">{$_("header_launcherVersionLabel")}</p>
-    <p class="font-mono text-sm">
-      {#if versionState.displayModVersion}
-        {$_("header_modVersionLabel")}
-      {:else}
-        {$_("header_toolingVersionLabel")}
+
+  <div class="mx-2 h-6 shrink-0 border-l border-neutral-800"></div>
+
+  <div class="flex min-w-0 items-center gap-2 pointer-events-none">
+    <div class="flex items-center gap-1 font-mono text-sm whitespace-nowrap">
+      <span class="text-neutral-400">{$_("header_launcherVersionLabel")}</span>
+      <span class="text-neutral-500">{launcherVersion}</span>
+      {#if launcherUpdateAvailable}
+        <a
+          class="pointer-events-auto text-orange-500 hover:text-orange-300 animate-pulse relative -top-[1px]"
+          href="/update/launcher"
+        >
+          <IconUpArrowThick />
+        </a>
+        <Tooltip type="auto" trigger="hover">
+          {$_("header_updateAvailable")}
+        </Tooltip>
       {/if}
-    </p>
-  </div>
-  <div
-    class="flex flex-col text-neutral-300 mr-2 pointer-events-none max-w-[250px]"
-  >
-    <p class="font-mono text-sm">
-      {launcherVersion}
-    </p>
-    <p class="font-mono text-sm">
-      {#if versionState.displayModVersion}
-        {#if !versionState.activeModVersionInfo.installed}
-          {$_("header_modNotInstalled")}
-        {:else if versionState.activeModVersionInfo.installedVersion}
-          {versionState.activeModVersionInfo.installedVersion}
+    </div>
+
+    <div class="h-6 shrink-0 border-l border-neutral-800"></div>
+
+    <div class="flex items-center gap-1 font-mono text-sm whitespace-nowrap">
+      <span class="text-neutral-400">
+        {#if versionState.displayModVersion}
+          {$_("header_modVersionLabel")}
         {:else}
-          <span>&nbsp;</span>
+          {$_("header_toolingVersionLabel")}
         {/if}
-      {:else}
-        {!versionState.activeToolingVersion
-          ? $_("header_toolingNotSet")
-          : versionState.activeToolingVersion}
+      </span>
+
+      <span class="text-neutral-500">
+        {#if versionState.displayModVersion}
+          {#if !versionState.activeModVersionInfo.installed}
+            {$_("header_modNotInstalled")}
+          {:else if versionState.activeModVersionInfo.installedVersion}
+            {versionState.activeModVersionInfo.installedVersion}
+          {:else}
+            <span>&nbsp;</span>
+          {/if}
+        {:else}
+          {!versionState.activeToolingVersion
+            ? $_("header_toolingNotSet")
+            : versionState.activeToolingVersion}
+        {/if}
+      </span>
+
+      {#if $UpdateStore.selectedTooling.updateAvailable}
+        <a
+          class="pointer-events-auto text-orange-500 hover:text-orange-300 animate-pulse relative -top-[1px]"
+          href="/settings/versions"
+        >
+          <IconUpArrowThick />
+        </a>
+        <Tooltip type="auto" trigger="hover">
+          {$_("header_updateAvailable")}
+        </Tooltip>
       {/if}
-    </p>
+    </div>
   </div>
-  <div
-    class="flex flex-col text-neutral-300 mr-2 pointer-events-none max-w-[250px]"
-  >
-    <a
-      class={`font-mono text-sm text-orange-500 hover:text-orange-300 ${launcherUpdateAvailable ? "pointer-events-auto" : "invisible pointer-events-none"}`}
-      href="/update/launcher"
-      >&gt;&nbsp;{$_("header_updateAvailable")}
-    </a>
-    <a
-      class={`font-mono text-sm text-orange-500 hover:text-orange-300  ${$UpdateStore.selectedTooling.updateAvailable ? "pointer-events-auto" : "invisible pointer-events-none"}`}
-      href="/settings/versions"
-      >&gt;&nbsp;{$_("header_updateAvailable")}
-    </a>
-  </div>
-  <div class="flex shrink-0 space-x-4 text-xl ml-auto">
-    <button class="hover:text-amber-600" on:click={() => appWindow.minimize()}>
+
+  <div class="ml-auto flex shrink-0 self-stretch">
+    <button
+      class="flex h-full w-12 items-center justify-center text-neutral-200 hover:bg-white/10"
+      on:click={() => navigate("/help")}
+      aria-label="Help"
+    >
+      <IconHelpCircle />
+    </button>
+    <Tooltip placement="bottom" type="auto" trigger="hover"
+      >{$_("sidebar_help")}</Tooltip
+    >
+
+    <div class="h-6 my-auto shrink-0 border-l border-neutral-800"></div>
+
+    <button
+      class="flex h-full w-12 items-center justify-center hover:bg-white/10"
+      on:click={() => appWindow.minimize()}
+      aria-label="Minimize"
+    >
       <IconWindowMinimize />
     </button>
-    <button class="hover:text-red-600" on:click={() => appWindow.close()}>
+
+    <button
+      class="flex h-full w-12 items-center justify-center hover:bg-red-600"
+      on:click={() => appWindow.close()}
+      aria-label="Close"
+    >
       <IconWindowClose />
     </button>
   </div>

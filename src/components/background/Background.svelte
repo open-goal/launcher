@@ -24,7 +24,7 @@
   let bgVideo: string | null = $state(null);
   let jak1Background: string | undefined = $state(undefined);
   let modBackground: string | undefined = $state(undefined);
-  let style = "absolute object-fill h-screen brightness-75 pt-[60px] w-full";
+  let style = "absolute object-fill h-screen brightness-75 pt-6 w-full";
 
   let installedListener: UnlistenFn | undefined = undefined;
   let uninstalledListener: UnlistenFn | undefined = undefined;

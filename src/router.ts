@@ -49,7 +49,7 @@ export const { p, navigate, isActive, route } = createRouter({
     },
   },
   "/update/launcher": UpdateLauncher,
-  "/faq": Help,
+  "/help": Help,
   "/job/:job_type": Job,
   "/settings": {
     "/": Settings,
