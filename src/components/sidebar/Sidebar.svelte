@@ -10,31 +10,36 @@
 
   $: disabled = $jobTracker.overallStatus == "pending";
 
-  function getNavStyle(pathName: string): string {
-    const baseStyle = "grow-0 shrink-0 size-20 h-full bg-[#101010] px-1 z-10";
-    const isOpaque =
-      pathName.startsWith("/settings") ||
-      pathName.startsWith("/update") ||
-      pathName.endsWith("/mods") ||
-      pathName.endsWith("/texture_packs");
-    return isOpaque
-      ? baseStyle
-      : `${baseStyle} opacity-50 hover:opacity-100 duration-500`;
+  function isActive(itemName: string, pathName: string): boolean {
+    return (
+      pathName.startsWith(`/${itemName}`) ||
+      (itemName === "jak1" && pathName === "/")
+    );
   }
 
   function getNavItemStyle(itemName: string, pathName: string): string {
-    const baseStyle =
-      "hover:grayscale-0 hover:opacity-100 duration-500 text-orange-400 select-none";
-    const isActive =
-      pathName.startsWith(`/${itemName}`) ||
-      (itemName === "jak1" && pathName === "/");
-    return isActive ? baseStyle : `${baseStyle} grayscale`;
+    const active = isActive(itemName, pathName);
+
+    return [
+      "relative flex h-12 w-12 items-center justify-center rounded-lg",
+      "transition-all duration-200 select-none",
+      active
+        ? "opacity-100"
+        : "opacity-45 grayscale hover:opacity-80 hover:grayscale-0",
+    ].join(" ");
   }
 </script>
 
-<div class={getNavStyle(route.pathname)}>
-  <ul class="flex flex-col h-full space-y-10 px-1 py-5 items-center">
-    <li>
+<div
+  class="z-10 flex w-[72px] shrink-0 flex-col border-r border-white/5 bg-[#0b0b0b]"
+>
+  <ul class="flex h-full flex-col items-center gap-10 px-2 py-4">
+    <li class="relative flex w-full justify-center">
+      {#if isActive("jak1", route.pathname)}
+        <div
+          class="absolute left-[-8px] top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-r bg-orange-500"
+        ></div>
+      {/if}
       <button
         id="jak1"
         class={getNavItemStyle("jak1", route.pathname)}
@@ -51,11 +56,17 @@
           aria-label="Jak - The Precursor Legacy"
         />
       </button>
-      <Tooltip triggeredBy="#jak1" placement="right" type="dark"
-        >{$_("gameName_jak1")}</Tooltip
-      >
+      <Tooltip triggeredBy="#jak1" placement="right" type="dark">
+        {$_("gameName_jak1")}
+      </Tooltip>
     </li>
-    <li>
+
+    <li class="relative flex w-full justify-center">
+      {#if isActive("jak2", route.pathname)}
+        <div
+          class="absolute left-[-8px] top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-r bg-orange-500"
+        ></div>
+      {/if}
       <button
         id="jak2"
         class={getNavItemStyle("jak2", route.pathname)}
@@ -68,11 +79,17 @@
       >
         <img src={logoJak2} alt="Jak 2" aria-label="Jak 2" />
       </button>
-      <Tooltip triggeredBy="#jak2" placement="right" type="dark"
-        >{$_("gameName_jak2")}</Tooltip
-      >
+      <Tooltip triggeredBy="#jak2" placement="right" type="dark">
+        {$_("gameName_jak2")}
+      </Tooltip>
     </li>
-    <li>
+
+    <li class="relative flex w-full justify-center">
+      {#if isActive("jak3", route.pathname)}
+        <div
+          class="absolute left-[-8px] top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-r bg-orange-500"
+        ></div>
+      {/if}
       <button
         id="jak3"
         class={getNavItemStyle("jak3", route.pathname)}
@@ -85,26 +102,34 @@
       >
         <img src={logoJak3} alt="Jak 3" aria-label="Jak 3" />
       </button>
-      <Tooltip triggeredBy="#jak3" placement="right" type="dark"
-        >{$_("gameName_jak3")}</Tooltip
-      >
+      <Tooltip triggeredBy="#jak3" placement="right" type="dark">
+        {$_("gameName_jak3")}
+      </Tooltip>
     </li>
-    <li class="!mt-auto">
-      <button
-        id="settings"
-        class={getNavItemStyle("settings", route.pathname)}
-        onclick={async () => {
-          navigate(`/settings/:tab`, {
-            params: { tab: "general" },
-          });
-        }}
-        {disabled}
-      >
-        <IconCog style="font-size: 36px" />
-      </button>
-      <Tooltip triggeredBy="#settings" placement="right" type="dark"
-        >{$_("sidebar_settings")}</Tooltip
-      >
+
+    <li class="mt-auto w-full border-t border-white/5 pt-4">
+      <div class="relative flex justify-center">
+        {#if isActive("settings", route.pathname)}
+          <div
+            class="absolute left-[-8px] top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-r bg-orange-500"
+          ></div>
+        {/if}
+        <button
+          id="settings"
+          class={getNavItemStyle("settings", route.pathname)}
+          onclick={() => {
+            navigate(`/settings/:tab`, {
+              params: { tab: "general" },
+            });
+          }}
+          {disabled}
+        >
+          <IconCog class="text-[30px]" />
+        </button>
+      </div>
+      <Tooltip triggeredBy="#settings" placement="right" type="dark">
+        {$_("sidebar_settings")}
+      </Tooltip>
     </li>
   </ul>
 </div>

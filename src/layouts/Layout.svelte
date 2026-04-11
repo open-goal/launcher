@@ -10,14 +10,14 @@
   let { children }: { children: Snippet } = $props();
 </script>
 
-<div class={`container h-screen max-w-none flex flex-col bg-black`}>
+<div class="relative flex h-screen max-w-none flex-col overflow-hidden">
   {#if !$isLoading}
-    <Background />
     <Header />
-    <div class="flex flex-row grow shrink h-[90%] z-10">
+    <div class="z-10 flex min-h-0 flex-1">
       <Sidebar />
       {#key route.params.game_name}
-        <main id="content" class="overflow-y-auto grow shrink">
+        <main id="content" class="min-w-0 flex-1 overflow-y-auto">
+          <Background />
           {@render children()}
         </main>
       {/key}
