@@ -60,42 +60,43 @@
         launcherUpdateAvailable = true;
       }
     }
-    await checkIfLatestVersionInstalled();
+    await checkForToolingUpdate();
   });
 
-  async function checkIfLatestVersionInstalled() {
+  async function checkForToolingUpdate() {
     const latestToolingVersion = await getLatestOfficialRelease();
-    if (
-      latestToolingVersion !== undefined &&
-      versionState.activeToolingVersion !== latestToolingVersion.version
-    ) {
-      // Check that we havn't already downloaded it
-      let alreadyHaveRelease = false;
-      const downloadedOfficialVersions = await listDownloadedVersions();
-      for (const releaseVersion of downloadedOfficialVersions) {
-        if (releaseVersion === latestToolingVersion.version) {
-          alreadyHaveRelease = true;
-          break;
-        }
-      }
-      if (!alreadyHaveRelease) {
-        let shouldAutoUpdate = await getAutoUpdateGames();
-        if (shouldAutoUpdate) {
-          await downloadLatestVersion(
-            latestToolingVersion.version,
-            latestToolingVersion.downloadUrl,
-          );
-          await removeOldVersions();
+    const latestVersion = latestToolingVersion?.version;
 
-          location.reload(); // TODO! this is hacky, when i refactor this will be done automatically
-        }
+    if (!latestVersion) return;
+    if (versionState.activeToolingVersion === latestVersion) return;
 
-        $UpdateStore.selectedTooling = {
-          updateAvailable: true,
-          versionNumber: latestToolingVersion.version,
-        };
-      }
-    }
+    // Check that we havn't already downloaded it
+    const downloadedOfficialVersions = await listDownloadedVersions();
+    if (downloadedOfficialVersions.includes(latestVersion)) return;
+
+    $UpdateStore.selectedTooling = {
+      updateAvailable: true,
+      versionNumber: latestVersion,
+    };
+  }
+
+  // TODO: handle this in the new startup route
+  // download the latest `jak-project` binaries
+  async function autoUpdateTooling() {
+    const shouldAutoUpdate = await getAutoUpdateGames();
+    if (!shouldAutoUpdate) return;
+
+    const latestToolingVersion = await getLatestOfficialRelease();
+    const latestVersion = latestToolingVersion?.version;
+
+    if (!latestVersion) return;
+
+    await downloadLatestVersion(
+      latestToolingVersion.version,
+      latestToolingVersion.downloadUrl,
+    );
+    // delete the existing `jak-project` binaries
+    await removeOldVersions();
   }
 </script>
 

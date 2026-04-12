@@ -32,7 +32,7 @@
   let availableUpdateChangelog: Changelog = {
     changes: [],
   };
-  let showChanges = false;
+  let showChanges = true;
   let showDependencyChanges = false;
 
   // TODO - add the timestamp, tauri doesn't use an ISO timestamp!
