@@ -38,6 +38,9 @@
         "https://raw.githubusercontent.com/open-goal/launcher/main/.tauri/latest-release-v2.json"
       ]
     },
+    "opener": {
+      "requireLiteralLeadingDot": false
+    },
     "fs": {
       "requireLiteralLeadingDot": false
     }
