@@ -117,9 +117,8 @@
       preexistingChanges = JSON.parse(JSON.stringify(availablePacks));
     }
 
+    await updatePackList();
     if (preexistingChanges) {
-      await updatePackList();
-
       for (const preexisingPack of preexistingChanges) {
         for (const pack of availablePacks) {
           if (pack.name === preexisingPack.name) {
@@ -165,9 +164,26 @@
     availablePacks[src] = temp;
     availablePacks = availablePacks;
   }
+
+  function setPackEnabled(packName: string, enabled: boolean) {
+    const pack = availablePacks.find((p) => p.name === packName);
+    if (!pack) return;
+
+    pack.enabled = enabled;
+    availablePacks = availablePacks;
+  }
+
+  function markPackForDeletion(packName: string) {
+    const pack = availablePacks.find((p) => p.name === packName);
+    if (!pack) return;
+
+    pack.toBeDeleted = true;
+    pack.enabled = false;
+    availablePacks = availablePacks;
+  }
 </script>
 
-<div class="flex flex-col flex-1 bg-[#1e1e1e] p-4 gap-2">
+<div class="flex flex-col min-h-full flex-1 bg-[#1e1e1e] p-4 gap-2">
   {#if !loaded || !activeGame}
     <Spinner color="yellow" size={"12"} />
   {/if}
@@ -197,15 +213,16 @@
       {/if}
       {$_("features_textures_addNewPack")}</Button
     >
-    {#if areChangesPending(availablePacks, availablePacksOriginal)}
-      <Button
-        disabled={addingPack}
-        class="border-solid rounded bg-green-400 hover:bg-green-500 text-sm text-slate-900 font-semibold px-5 py-2"
-        onclick={applyTexturePacks}
-        aria-label={$_("features_textures_applyChanges_buttonAlt")}
-        >{$_("features_textures_applyChanges")}</Button
-      >
-    {/if}
+
+    <Button
+      disabled={addingPack ||
+        !areChangesPending(availablePacks, availablePacksOriginal)}
+      hidden={!areChangesPending(availablePacks, availablePacksOriginal)}
+      class="border-solid rounded bg-green-400 hover:bg-green-500 text-sm text-slate-900 font-semibold px-5 py-2"
+      onclick={applyTexturePacks}
+      aria-label={$_("features_textures_applyChanges_buttonAlt")}
+      >{$_("features_textures_applyChanges")}</Button
+    >
   </div>
 
   {#if availablePacks.length > 0}
@@ -215,7 +232,7 @@
     </p>
   {/if}
 
-  {#each availablePacks as pack, packIndex}
+  {#each availablePacks as pack, packIndex (pack.name)}
     {#if !pack.toBeDeleted && extractedPackInfo && extractedPackInfo[pack.name] !== undefined}
       <TexturePackCard
         {packIndex}
@@ -224,6 +241,8 @@
         allPackMetadata={extractedPackInfo}
         allPackInfo={availablePacks}
         onMovePack={moveTexturePack}
+        onToggleEnabled={setPackEnabled}
+        onDeletePack={markPackForDeletion}
       ></TexturePackCard>
     {/if}
   {/each}

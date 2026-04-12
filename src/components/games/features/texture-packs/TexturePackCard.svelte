@@ -7,7 +7,7 @@
     Button,
     Accordion,
     AccordionItem,
-    Toggle,
+    Checkbox,
   } from "flowbite-svelte";
   import IconArrowUp from "~icons/mdi/arrow-up";
   import IconArrowDown from "~icons/mdi/arrow-down";
@@ -23,6 +23,8 @@
     allPackMetadata,
     allPackInfo,
     onMovePack,
+    onToggleEnabled,
+    onDeletePack,
   }: {
     packIndex: number;
     packInfo: PackInfo;
@@ -30,6 +32,8 @@
     allPackMetadata: Record<string, PackMetadata>;
     allPackInfo: PackInfo[];
     onMovePack: (dst: number, src: number) => void;
+    onToggleEnabled: (packName: string, enabled: boolean) => void;
+    onDeletePack: (packName: string) => void;
   } = $props();
 
   let packConflicts: Set<string> = $state(new Set());
@@ -97,7 +101,7 @@
   size="xl"
   class="flex flex-row flow-grow flex-1"
 >
-  <div class="flex flex-col flex-grow flex-1 m-4">
+  <div class="flex flex-col flex-1 mx-4 my-2">
     <h2 class="text-xl font-bold tracking-tight text-white">
       {packMetadata.name}
       <span class="text-xs text-gray-500"></span>
@@ -116,7 +120,7 @@
     </p>
 
     {#if packMetadata.tags}
-      <div class="flex flex-row gap-2">
+      <div class="flex flex-row gap-2 pb-4">
         {#each packMetadata.tags as tag}
           <Badge border color={tagNameToColor(tag)}>{tag}</Badge>
         {/each}
@@ -155,18 +159,24 @@
         class="rounded-md border-red-500 text-red-500 hover:bg-red-600"
         aria-label={$_("features_textures_deletePack_buttonAlt")}
         onclick={() => {
-          packInfo.toBeDeleted = true;
-          packInfo.enabled = false;
+          onDeletePack(packInfo.name);
         }}
       >
         <IconDelete />
       </Button>
 
-      <Toggle color="orange" bind:checked={packInfo.enabled}>
+      <Checkbox
+        color="orange"
+        class="h-full w-14"
+        checked={packInfo.enabled}
+        onchange={() => {
+          onToggleEnabled(packInfo.name, !packInfo.enabled);
+        }}
+      >
         {packInfo.enabled
           ? $_("features_textures_enabled")
           : $_("features_textures_disabled")}
-      </Toggle>
+      </Checkbox>
     </div>
 
     {#if packConflicts?.size > 0}
