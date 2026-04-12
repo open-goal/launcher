@@ -7,7 +7,7 @@
     Button,
     Accordion,
     AccordionItem,
-    Toggle,
+    Checkbox,
   } from "flowbite-svelte";
   import IconArrowUp from "~icons/mdi/arrow-up";
   import IconArrowDown from "~icons/mdi/arrow-down";
@@ -23,6 +23,8 @@
     allPackMetadata,
     allPackInfo,
     onMovePack,
+    onToggleEnabled,
+    onDeletePack,
   }: {
     packIndex: number;
     packInfo: PackInfo;
@@ -30,16 +32,18 @@
     allPackMetadata: Record<string, PackMetadata>;
     allPackInfo: PackInfo[];
     onMovePack: (dst: number, src: number) => void;
+    onToggleEnabled: (packName: string, enabled: boolean) => void;
+    onDeletePack: (packName: string) => void;
   } = $props();
 
-  let packConflicts: Set<String> = $state(new Set());
+  let packConflicts: Set<string> = $state(new Set());
 
   onMount(() => {
     packConflicts = findPackConflicts();
   });
 
-  function findPackConflicts(): Set<String> {
-    let conflicts: Set<String> = new Set();
+  function findPackConflicts(): Set<string> {
+    let conflicts: Set<string> = new Set();
     for (const filePath of packMetadata.fileList) {
       for (const [packName, packMetadata] of Object.entries(allPackMetadata)) {
         if (packName === packInfo.name) {
@@ -51,10 +55,6 @@
       }
     }
     return conflicts;
-  }
-
-  function numTexturesInPack(): number {
-    return packMetadata.fileList.length;
   }
 
   function tagNameToColor(
@@ -90,10 +90,18 @@
       ? convertFileSrc(packMetadata.coverImagePath)
       : placeholder,
   );
+
+  const numTexturesInPack = $derived(packMetadata?.fileList.length);
+  const index = $derived(packIndex);
 </script>
 
-<Card horizontal={true} img={coverImg} size="xl">
-  <div class="w-full pl-4 py-2">
+<Card
+  horizontal={true}
+  img={coverImg}
+  size="xl"
+  class="flex flex-row flow-grow flex-1"
+>
+  <div class="flex flex-col flex-1 mx-4 my-2">
     <h2 class="text-xl font-bold tracking-tight text-white">
       {packMetadata.name}
       <span class="text-xs text-gray-500"></span>
@@ -105,71 +113,79 @@
       {packMetadata.releaseDate}
     </p>
     <p class="font-bold text-gray-500 text-xs">
-      {$_("features_textures_replacedCount")} - {numTexturesInPack()}
+      {$_("features_textures_replacedCount")} - {numTexturesInPack}
     </p>
     <p class="mt-2 mb-4 font-normal text-gray-400 leading-tight">
       {packMetadata.description}
     </p>
-    {#if packMetadata.tags.length > 0}
-      <div class="flex flex-row gap-2">
+
+    {#if packMetadata.tags}
+      <div class="flex flex-row gap-2 pb-4">
         {#each packMetadata.tags as tag}
           <Badge border color={tagNameToColor(tag)}>{tag}</Badge>
         {/each}
       </div>
     {/if}
-    <div class="mt-2 flex flex-row gap-2">
-      <Toggle color="orange" bind:checked={packInfo.enabled}
-        >{packInfo.enabled
-          ? $_("features_textures_enabled")
-          : $_("features_textures_disabled")}</Toggle
-      >
-    </div>
-    <div class="mt-2 flex flex-row gap-2">
-      {#if packInfo.enabled}
-        {#if packIndex !== 0}
-          <Button
-            outline
-            class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
-            aria-label={$_("features_textures_moveUp_buttonAlt")}
-            onclick={() => {
-              onMovePack(packIndex - 1, packIndex);
-            }}
-          >
-            <IconArrowUp />
-          </Button>
-        {/if}
-        {#if packIndex !== allPackInfo.length - 1}
-          <Button
-            outline
-            class="!p-1.5 rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
-            aria-label={$_("features_textures_moveDown_buttonAlt")}
-            onclick={() => {
-              onMovePack(packIndex + 1, packIndex);
-            }}
-          >
-            <IconArrowDown />
-          </Button>
-        {/if}
-      {/if}
+
+    <div class="flex flex-row gap-2">
       <Button
         outline
-        class="!p-1.5 rounded-md border-red-500 text-red-500 hover:bg-red-600"
+        class="rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
+        aria-label={$_("features_textures_moveUp_buttonAlt")}
+        onclick={() => {
+          onMovePack(index - 1, index);
+        }}
+        disabled={!packInfo.enabled || allPackInfo.length <= 1 || index == 0}
+      >
+        <IconArrowUp />
+      </Button>
+
+      <Button
+        outline
+        class="rounded-md border-blue-500 text-blue-500 hover:bg-blue-600"
+        aria-label={$_("features_textures_moveDown_buttonAlt")}
+        onclick={() => {
+          onMovePack(index + 1, index);
+        }}
+        disabled={!packInfo.enabled ||
+          allPackInfo.length <= 1 ||
+          index == allPackInfo.length - 1}
+      >
+        <IconArrowDown />
+      </Button>
+
+      <Button
+        outline
+        class="rounded-md border-red-500 text-red-500 hover:bg-red-600"
         aria-label={$_("features_textures_deletePack_buttonAlt")}
         onclick={() => {
-          packInfo.toBeDeleted = true;
-          packInfo.enabled = false;
+          onDeletePack(packInfo.name);
         }}
       >
         <IconDelete />
       </Button>
+
+      <Checkbox
+        color="orange"
+        class="h-full w-14"
+        checked={packInfo.enabled}
+        onchange={() => {
+          onToggleEnabled(packInfo.name, !packInfo.enabled);
+        }}
+      >
+        {packInfo.enabled
+          ? $_("features_textures_enabled")
+          : $_("features_textures_disabled")}
+      </Checkbox>
     </div>
-    {#if packConflicts.size > 0}
-      <Accordion flush class="mt-2">
-        <AccordionItem class="p-2">
-          {#snippet header()}{$_(
-              "features_textures_conflictsDetected",
-            )}{/snippet}
-          <p class="mb-2 text-gray-500 dark:text-gray-400 text-xs">
+
+    {#if packConflicts?.size > 0}
+      <Accordion flush>
+        <AccordionItem>
+          {#snippet header()}
+            {$_("features_textures_conflictsDetected")}
+          {/snippet}
+          <p class="text-gray-500 dark:text-gray-400 text-xs">
             {[...packConflicts].join("\n").trim()}
           </p>
         </AccordionItem>

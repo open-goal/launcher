@@ -34,7 +34,6 @@
   let availablePacks: PackInfo[] = $state([]);
   let availablePacksOriginal: PackInfo[] = $state([]);
   let addingPack = $state(false);
-  // let packAddingError = $state("");
 
   onMount(async () => {
     await updatePackList();
@@ -97,38 +96,38 @@
     if (!activeGame) {
       return;
     }
-    addingPack = true;
-    // packAddingError = "";
     const texturePackPath = await filePrompt(
       ["zip"],
       "ZIP",
       "Select a texture pack",
     );
-    if (texturePackPath !== null) {
-      const error = await extractNewTexturePack(activeGame, texturePackPath);
-      if (error) {
-        // packAddingError = $_("features_textures_invalidPack");
-        addingPack = false;
-        return;
-      }
 
-      // if the user made any changes, attempt to restore them after
-      let preexistingChanges = undefined;
-      if (areChangesPending(availablePacks, availablePacksOriginal)) {
-        preexistingChanges = JSON.parse(JSON.stringify(availablePacks));
-      }
-      await updatePackList();
-      if (preexistingChanges !== undefined) {
-        for (const preexisingPack of preexistingChanges) {
-          for (const pack of availablePacks) {
-            if (pack.name === preexisingPack.name) {
-              pack.enabled = preexisingPack.enabled;
-              pack.toBeDeleted = preexisingPack.toBeDeleted;
-            }
+    if (!texturePackPath) return;
+    addingPack = true;
+
+    const error = await extractNewTexturePack(activeGame, texturePackPath);
+    if (error) {
+      addingPack = false;
+      return;
+    }
+
+    // if the user made any changes, attempt to restore them after
+    let preexistingChanges = undefined;
+    if (areChangesPending(availablePacks, availablePacksOriginal)) {
+      preexistingChanges = JSON.parse(JSON.stringify(availablePacks));
+    }
+
+    await updatePackList();
+    if (preexistingChanges) {
+      for (const preexisingPack of preexistingChanges) {
+        for (const pack of availablePacks) {
+          if (pack.name === preexisingPack.name) {
+            pack.enabled = preexisingPack.enabled;
+            pack.toBeDeleted = preexisingPack.toBeDeleted;
           }
         }
-        availablePacks = availablePacks;
       }
+      availablePacks = availablePacks;
     }
     addingPack = false;
   }
@@ -165,86 +164,90 @@
     availablePacks[src] = temp;
     availablePacks = availablePacks;
   }
+
+  function setPackEnabled(packName: string, enabled: boolean) {
+    const pack = availablePacks.find((p) => p.name === packName);
+    if (!pack) return;
+
+    pack.enabled = enabled;
+    availablePacks = availablePacks;
+  }
+
+  function markPackForDeletion(packName: string) {
+    const pack = availablePacks.find((p) => p.name === packName);
+    if (!pack) return;
+
+    pack.toBeDeleted = true;
+    pack.enabled = false;
+    availablePacks = availablePacks;
+  }
 </script>
 
-<div class="flex flex-col h-full bg-[#1e1e1e]">
+<div class="flex flex-col min-h-full flex-1 bg-[#1e1e1e] p-4 gap-2">
   {#if !loaded || !activeGame}
-    <div class="flex flex-col h-full justify-center items-center">
-      <Spinner color="yellow" size={"12"} />
-    </div>
-  {:else}
-    <div class="pb-20 overflow-y-auto p-4">
-      <div class="flex flex-row gap-2">
-        <Button
-          disabled={addingPack}
-          outline
-          class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
-          onclick={async () => {
-            if (activeGame) {
-              navigate(`/:game_name/`, { params: { game_name: activeGame } });
-            }
-          }}
-          aria-label={$_("features_backToGamePage_buttonAlt")}
-        >
-          <IconArrowLeft />
-        </Button>
-        <Button
-          class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
-          onclick={addNewTexturePack}
-          aria-label={$_("features_textures_addNewPack_buttonAlt")}
-          disabled={addingPack}
-        >
-          {#if addingPack}
-            <Spinner class="mr-3" size="4" color="yellow" />
-          {/if}
-          {$_("features_textures_addNewPack")}</Button
-        >
-        {#if areChangesPending(availablePacks, availablePacksOriginal)}
-          <Button
-            disabled={addingPack}
-            class="flex-shrink border-solid rounded bg-green-400 hover:bg-green-500 text-sm text-slate-900 font-semibold px-5 py-2"
-            onclick={applyTexturePacks}
-            aria-label={$_("features_textures_applyChanges_buttonAlt")}
-            >{$_("features_textures_applyChanges")}</Button
-          >
-        {/if}
-      </div>
-      <!-- {#if packAddingError !== ""}
-        <div class="flex flex-row font-bold mt-3">
-          <Alert class="flex-grow text-red-400">
-            {packAddingError}
-          </Alert>
-        </div>
-      {/if} -->
-      {#if availablePacks.length > 0}
-        <div class="flex flex-row font-bold mt-3">
-          <h2>{$_("features_textures_listHeading")}</h2>
-        </div>
-        <div class="flex flex-row text-sm">
-          <p>
-            {$_("features_textures_description")}
-          </p>
-        </div>
-      {/if}
-      {#each availablePacks as pack, packIndex}
-        {#if !pack.toBeDeleted && extractedPackInfo && extractedPackInfo[pack.name] !== undefined}
-          <div class="flex flex-row gap-2 mt-3">
-            <TexturePackCard
-              {packIndex}
-              packInfo={pack}
-              packMetadata={extractedPackInfo[pack.name]}
-              allPackMetadata={extractedPackInfo}
-              allPackInfo={availablePacks}
-              onMovePack={moveTexturePack}
-            ></TexturePackCard>
-          </div>
-        {/if}
-      {/each}
-      <div class="flex flex-row font-bold mt-3">
-        <Alert class="flex-grow text-red-400">
-          {$_("features_textures_largePackWarning")}
-        </Alert>
-      </div>
-    </div>
+    <Spinner color="yellow" size={"12"} />
   {/if}
+
+  <div class="flex flex-row gap-2">
+    <Button
+      disabled={addingPack}
+      outline
+      class="border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
+      onclick={async () => {
+        if (activeGame) {
+          navigate(`/:game_name/`, { params: { game_name: activeGame } });
+        }
+      }}
+      aria-label={$_("features_backToGamePage_buttonAlt")}
+    >
+      <IconArrowLeft />
+    </Button>
+    <Button
+      class="border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
+      onclick={addNewTexturePack}
+      aria-label={$_("features_textures_addNewPack_buttonAlt")}
+      disabled={addingPack}
+    >
+      {#if addingPack}
+        <Spinner class="mr-3" size="4" color="yellow" />
+      {/if}
+      {$_("features_textures_addNewPack")}</Button
+    >
+
+    <Button
+      disabled={addingPack ||
+        !areChangesPending(availablePacks, availablePacksOriginal)}
+      hidden={!areChangesPending(availablePacks, availablePacksOriginal)}
+      class="border-solid rounded bg-green-400 hover:bg-green-500 text-sm text-slate-900 font-semibold px-5 py-2"
+      onclick={applyTexturePacks}
+      aria-label={$_("features_textures_applyChanges_buttonAlt")}
+      >{$_("features_textures_applyChanges")}</Button
+    >
+  </div>
+
+  {#if availablePacks.length > 0}
+    <h2 class="font-bold">{$_("features_textures_listHeading")}</h2>
+    <p class="text-sm">
+      {$_("features_textures_description")}
+    </p>
+  {/if}
+
+  {#each availablePacks as pack, packIndex (pack.name)}
+    {#if !pack.toBeDeleted && extractedPackInfo && extractedPackInfo[pack.name] !== undefined}
+      <TexturePackCard
+        {packIndex}
+        packInfo={pack}
+        packMetadata={extractedPackInfo[pack.name]}
+        allPackMetadata={extractedPackInfo}
+        allPackInfo={availablePacks}
+        onMovePack={moveTexturePack}
+        onToggleEnabled={setPackEnabled}
+        onDeletePack={markPackForDeletion}
+      ></TexturePackCard>
+    {/if}
+  {/each}
+
+  <Alert class="font-bold text-red-400">
+    {$_("features_textures_largePackWarning")}
+  </Alert>
 </div>
