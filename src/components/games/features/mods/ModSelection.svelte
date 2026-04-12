@@ -82,17 +82,17 @@
   }
 </script>
 
-<div class="flex flex-col h-full bg-[#1e1e1e]">
+<div class="flex flex-col h-full bg-neutral-900">
   {#if !loaded || !activeGame}
     <div class="flex flex-col h-full justify-center items-center">
       <Spinner color="yellow" size={"12"} />
     </div>
   {:else}
     <div class="pb-20 overflow-y-auto p-4">
-      <div class="flex flex-row gap-2 items-center">
+      <div class="flex flex-row items-stretch gap-2 h-10 mb-4">
         <Button
           outline
-          class="shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
+          class="w-10 rounded text-white hover:text-slate-900 hover:bg-white font-semibold p-2 text-lg"
           onclick={async () => {
             if (activeGame) {
               navigate(`/:game_name/`, { params: { game_name: activeGame } });
@@ -103,7 +103,7 @@
           <IconArrowLeft />
         </Button>
         <Button
-          class="shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
+          class="font-semibold text-sm rounded bg-orange-500 border border-orange-400 hover:bg-orange-400 hover:border-orange-300 text-slate-900 hover:text-slate-800 whitespace-nowrap"
           onclick={() => {
             if (activeGame) {
               addModFromFile(activeGame);
@@ -117,9 +117,8 @@
           {/if}
           {$_("features_mods_addFromFile")}</Button
         >
-      </div>
-      <div class="mt-4">
         <Input
+          class="font-normal rounded-sm text-gray-200 bg-neutral-800! border border-neutral-600! focus:border-orange-400!"
           placeholder={$_("features_mods_filter_placeholder")}
           bind:value={modFilter}
         />
