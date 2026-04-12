@@ -1,10 +1,8 @@
 <script lang="ts">
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
-  import { Indicator, Tooltip } from "flowbite-svelte";
-  import IconGlobe from "~icons/mdi/globe";
+  import AlertCircleOutline from "~icons/mdi/alert-circle-outline";
   import { navigate } from "/src/router";
-  import { _ } from "svelte-i18n";
 
   let {
     activeGame,
@@ -40,10 +38,6 @@
     <h3 class="text-outline">
       {modDisplayName}
     </h3>
-    <div class="absolute top-0 right-0 m-2 flex gap-1">
-      <IconGlobe />
-      <Tooltip placement="bottom">{modSourceName}</Tooltip>
-    </div>
   </a>
 {:else}
   <button
@@ -62,14 +56,12 @@
     <h3 class="text-outline">
       {modDisplayName}
     </h3>
-    <div class="absolute top-0 right-0 m-2 flex gap-1">
-      <IconGlobe />
-      <Tooltip placement="bottom">{modSourceName}</Tooltip>
+    <div class="absolute top-0 right-0 m-1 flex gap-1">
+      {#if !isInstalled && showNewIndicator}
+        <AlertCircleOutline
+          class="text-green-400 text-lg bg-neutral-800 rounded border border-neutral-700"
+        />
+      {/if}
     </div>
-    {#if !isInstalled && showNewIndicator}
-      <Indicator color="green" border size="xl" placement="top-right">
-        <span class="text-white text-xs font-bold">!</span>
-      </Indicator>
-    {/if}
   </button>
 {/if}
