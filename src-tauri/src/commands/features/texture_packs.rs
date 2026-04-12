@@ -2,7 +2,7 @@ use std::{collections::HashMap, fs, path::PathBuf};
 
 use anyhow::Context;
 use serde_json::Value;
-use tracing::instrument;
+use tracing::{info, instrument, warn};
 
 use crate::{
   commands::CommandError,
@@ -130,7 +130,7 @@ pub async fn list_extracted_texture_pack_info(
         ..metadata
       };
     } else {
-      tracing::error!(
+      warn!(
         "Unable to load texture pack metadata {}",
         metadata_path.display()
       );
@@ -208,7 +208,7 @@ pub async fn update_texture_pack_data(
         .join(game_name.to_string())
         .join("texture_replacements");
 
-      tracing::info!("Appending textures from: {}", texture_pack_dir.display());
+      info!("Appending textures from: {}", texture_pack_dir.display());
       overwrite_dir(&texture_pack_dir, &game_texture_pack_dir)?
     }
     return Ok(());
@@ -233,7 +233,7 @@ pub async fn delete_texture_packs(
   };
 
   for pack in packs {
-    tracing::info!("Deleting texture pack: {}", pack);
+    info!("Deleting texture pack: {}", pack);
     delete_dir(texture_pack_dir.join(&pack))?;
   }
 

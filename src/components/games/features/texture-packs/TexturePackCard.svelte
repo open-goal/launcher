@@ -14,6 +14,7 @@
   import IconDelete from "~icons/mdi/delete";
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
+  import placeholder from "$assets/images/mod-thumbnail-placeholder.webp";
 
   let {
     packIndex,
@@ -83,13 +84,15 @@
       return "gray";
     }
   }
+
+  const coverImg = $derived(
+    packMetadata?.coverImagePath
+      ? convertFileSrc(packMetadata.coverImagePath)
+      : placeholder,
+  );
 </script>
 
-<Card
-  horizontal={true}
-  img={convertFileSrc(packMetadata.coverImagePath)}
-  size="xl"
->
+<Card horizontal={true} img={coverImg} size="xl">
   <div class="w-full pl-4 py-2">
     <h2 class="text-xl font-bold tracking-tight text-white">
       {packMetadata.name}
