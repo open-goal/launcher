@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { revealItemInDir } from "@tauri-apps/plugin-opener";
+  import { openPath } from "@tauri-apps/plugin-opener";
   import IconArrowLeft from "~icons/mdi/arrow-left";
   import OpenInNew from "~icons/mdi/open-in-new";
   import IconCog from "~icons/mdi/cog";
@@ -411,14 +411,14 @@
           <DropdownItem
             onclick={async () => {
               if (gameDataDir) {
-                await revealItemInDir(gameDataDir);
+                await openPath(gameDataDir);
               }
             }}>{$_("gameControls_button_openGameFolder")}</DropdownItem
           >
           <DropdownItem
             onclick={async () => {
               if (extractedAssetsDir) {
-                await revealItemInDir(extractedAssetsDir);
+                await openPath(extractedAssetsDir);
               }
             }}
             >{$_("gameControls_button_openExtractedAssetsFolder")}</DropdownItem
@@ -450,7 +450,7 @@
             <DropdownItem
               onclick={async () => {
                 if (settingsDir) {
-                  await revealItemInDir(settingsDir);
+                  await openPath(settingsDir);
                 }
               }}>{$_("gameControls_button_openSettingsFolder")}</DropdownItem
             >
@@ -459,7 +459,7 @@
             <DropdownItem
               onclick={async () => {
                 if (savesDir) {
-                  await revealItemInDir(savesDir);
+                  await openPath(savesDir);
                 }
               }}>{$_("gameControls_button_openSavesFolder")}</DropdownItem
             >

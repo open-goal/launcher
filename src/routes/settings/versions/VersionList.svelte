@@ -18,7 +18,7 @@
     TableHeadCell,
   } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
-  import { revealItemInDir } from "@tauri-apps/plugin-opener";
+  import { openPath } from "@tauri-apps/plugin-opener";
   import { getInstallationDirectory } from "$lib/rpc/config";
   import { versionState } from "/src/state/VersionState.svelte";
 
@@ -79,9 +79,7 @@
       <Button
         class="!p-2 rounded-md bg-orange-500 hover:bg-orange-600 text-slate-900"
         onclick={async () =>
-          revealItemInDir(
-            (await getInstallationDirectory()) + "/versions/official/",
-          )}
+          openPath((await getInstallationDirectory()) + "/versions/official/")}
       >
         <IconFolderOpen
           aria-label={$_("settings_versions_icon_openFolder_altText")}

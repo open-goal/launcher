@@ -6,7 +6,7 @@
   import IconPackageDown from "~icons/mdi/package-down";
   import IconKeyboard from "~icons/mdi/keyboard";
   import { generateSupportPackage } from "$lib/rpc/support";
-  import { revealItemInDir } from "@tauri-apps/plugin-opener";
+  import { openPath } from "@tauri-apps/plugin-opener";
   import { onMount } from "svelte";
   import { appLogDir } from "@tauri-apps/api/path";
   import { _ } from "svelte-i18n";
@@ -47,7 +47,7 @@
       <Button
         class="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
         onclick={() => {
-          revealItemInDir(appLogDirPath);
+          openPath(appLogDirPath);
         }}><IconFolderOpen /> &nbsp;{$_("help_button_openLogFolder")}</Button
       >
     {/if}

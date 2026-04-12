@@ -1,7 +1,7 @@
 <script lang="ts">
   import IconCog from "~icons/mdi/cog";
   import { configDir, join } from "@tauri-apps/api/path";
-  import { revealItemInDir } from "@tauri-apps/plugin-opener";
+  import { openPath } from "@tauri-apps/plugin-opener";
   import { onMount } from "svelte";
   import { writeText } from "@tauri-apps/plugin-clipboard-manager";
   import { confirm } from "@tauri-apps/plugin-dialog";
@@ -67,12 +67,9 @@
   }
 
   let name = $_(`gameName_${activeGame}`);
-  console.log(name);
   // this doesnt work for the following languages: ja-JP, he-IL
   let [title, subtitle] = name.split(":");
   subtitle = subtitle?.trimStart();
-  console.log(title);
-  console.log(subtitle);
 </script>
 
 <div class="flex flex-col items-end mt-auto ml-auto">
@@ -189,14 +186,14 @@
           <DropdownItem
             onclick={async () => {
               if (gameDataDir) {
-                await revealItemInDir(gameDataDir);
+                await openPath(gameDataDir);
               }
             }}>{$_("gameControls_button_openGameFolder")}</DropdownItem
           >
           <DropdownItem
             onclick={async () => {
               if (extractedAssetsDir) {
-                await revealItemInDir(extractedAssetsDir);
+                await openPath(extractedAssetsDir);
               }
             }}
             >{$_("gameControls_button_openExtractedAssetsFolder")}</DropdownItem
@@ -217,14 +214,14 @@
           <DropdownItem
             onclick={async () => {
               if (settingsDir) {
-                await revealItemInDir(settingsDir);
+                await openPath(settingsDir);
               }
             }}>{$_("gameControls_button_openSettingsFolder")}</DropdownItem
           >
           <DropdownItem
             onclick={async () => {
               if (savesDir) {
-                await revealItemInDir(savesDir);
+                await openPath(savesDir);
               }
             }}>{$_("gameControls_button_openSavesFolder")}</DropdownItem
           >
