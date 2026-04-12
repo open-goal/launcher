@@ -3,8 +3,8 @@
   import { onMount } from "svelte";
   import IconFolderOpen from "~icons/mdi/folder-open";
   // import IconDownload from "~icons/mdi/download";
-  import { Button, Label, Alert, Li, List } from "flowbite-svelte";
-  import { revealItemInDir } from "@tauri-apps/plugin-opener";
+  import { Button, Alert } from "flowbite-svelte";
+  import { openPath } from "@tauri-apps/plugin-opener";
   import { exists, mkdir } from "@tauri-apps/plugin-fs";
   import { _ } from "svelte-i18n";
 
@@ -35,7 +35,7 @@
     <Button
       class="flex items-center border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-4 py-2"
       onclick={() => {
-        revealItemInDir(appBackgroundsDir);
+        openPath(appBackgroundsDir);
       }}
       ><IconFolderOpen /> &nbsp; {$_(
         "settings_backgrounds_button_openBackgroundsDir",
