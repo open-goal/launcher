@@ -19,23 +19,17 @@
   import { toastStore } from "$lib/stores/ToastStore";
   import { getAutoUpdateGames, saveActiveVersionChange } from "$lib/rpc/config";
   import { check } from "@tauri-apps/plugin-updater";
-  import { warnLog } from "$lib/rpc/logging";
   import { versionState } from "/src/state/VersionState.svelte";
   import { navigate } from "/src/router";
+  import { route } from "../../router";
   import { Tooltip } from "flowbite-svelte";
 
-  let launcherVersion: string | null = null;
-  let launcherUpdateAvailable = false;
+  let launcherVersion: string | null = $state(null);
+  let launcherUpdateAvailable = $state(false);
+  let checkedToolingUpdate = $state(false);
   const appWindow = getCurrentWebviewWindow();
 
-  async function downloadLatestVersion(
-    version: string,
-    url: String | undefined,
-  ) {
-    if (url === undefined) {
-      warnLog("can't download latest version with an undefined url");
-      return;
-    }
+  async function downloadLatestVersion(version: string, url: string) {
     await downloadOfficialVersion(version, url);
     $UpdateStore.selectedTooling.updateAvailable = false;
     await saveOfficialVersionChange(version);
@@ -60,7 +54,13 @@
         launcherUpdateAvailable = true;
       }
     }
-    await checkForToolingUpdate();
+  });
+
+  $effect(() => {
+    if (checkedToolingUpdate) return;
+    if (route.pathname === "/startup") return;
+    checkedToolingUpdate = true;
+    checkForToolingUpdate();
   });
 
   async function checkForToolingUpdate() {
@@ -88,13 +88,12 @@
 
     const latestToolingVersion = await getLatestOfficialRelease();
     const latestVersion = latestToolingVersion?.version;
+    const url = latestToolingVersion?.downloadUrl;
 
     if (!latestVersion) return;
+    if (!url) return;
 
-    await downloadLatestVersion(
-      latestToolingVersion.version,
-      latestToolingVersion.downloadUrl,
-    );
+    await downloadLatestVersion(latestVersion, url);
     // delete the existing `jak-project` binaries
     await removeOldVersions();
   }
@@ -177,7 +176,7 @@
   <div class="ml-auto flex shrink-0 self-stretch">
     <button
       class="flex h-full w-12 items-center justify-center text-neutral-200 hover:bg-white/10"
-      on:click={() => navigate("/help")}
+      onclick={() => navigate("/help")}
       aria-label="Help"
     >
       <IconHelpCircle />
@@ -190,7 +189,7 @@
 
     <button
       class="flex h-full w-12 items-center justify-center hover:bg-white/10"
-      on:click={() => appWindow.minimize()}
+      onclick={() => appWindow.minimize()}
       aria-label="Minimize"
     >
       <IconWindowMinimize />
@@ -198,7 +197,7 @@
 
     <button
       class="flex h-full w-12 items-center justify-center hover:bg-red-600"
-      on:click={() => appWindow.close()}
+      onclick={() => appWindow.close()}
       aria-label="Close"
     >
       <IconWindowClose />
