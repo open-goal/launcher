@@ -7,6 +7,7 @@ use directories::UserDirs;
 use tauri::{Manager, RunEvent};
 use tokio::sync::OnceCell;
 use tracing_appender::non_blocking::WorkerGuard;
+use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 use util::file::create_dir;
 
@@ -99,7 +100,12 @@ fn main() {
         .join("app");
       create_dir(&log_path)?;
 
-      let file_appender = tracing_appender::rolling::daily(&log_path, "launcher.log");
+      let file_appender = RollingFileAppender::builder()
+        .rotation(Rotation::DAILY)
+        .filename_prefix("launcher")
+        .filename_suffix("log")
+        .max_log_files(10)
+        .build(&log_path)?;
       let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
       let _ = LOG_GUARD.set(guard);
 
@@ -116,18 +122,6 @@ fn main() {
             .compact(),
         ) // file
         .init();
-
-      // Truncate rotated log files to '10'
-      let mut paths: Vec<_> = std::fs::read_dir(&log_path)?
-        .filter_map(Result::ok)
-        .collect();
-
-      paths.sort_by_key(|entry| std::cmp::Reverse(entry.path()));
-
-      for entry in paths.into_iter().skip(10) {
-        tracing::info!("deleting - {}", entry.path().display());
-        std::fs::remove_file(entry.path())?;
-      }
 
       // Load the config (or initialize it with defaults)
       //
