@@ -102,7 +102,6 @@ fn main() {
 
       let file_appender = RollingFileAppender::builder()
         .rotation(Rotation::DAILY)
-        .filename_prefix("launcher")
         .filename_suffix("log")
         .max_log_files(10)
         .build(&log_path)?;
