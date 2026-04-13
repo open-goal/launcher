@@ -46,11 +46,10 @@ tempfile = "3.26.0"
 native-dialog = "0.9.6"
 tokio-util = "0.7.18"
 tauri-codegen = "2.5.0"
-tauri-plugin = "2.5.4"
-tauri-plugin-fs = "2.4.5"
+tauri-plugin-fs = "2.5.0"
 tauri-plugin-shell = "2.3.5"
-tauri-plugin-dialog = "2.6.0"
-tauri-plugin-http = "2.5.7"
+tauri-plugin-dialog = "2.7.0"
+tauri-plugin-http = "2.5.8"
 tauri-plugin-clipboard-manager = "2.3.2"
 tauri-plugin-os = "2.3.2"
 tauri-plugin-notification = "2.3.3"
@@ -69,7 +68,7 @@ winreg = "0.55.0"
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
 tauri-plugin-global-shortcut = "2.3.1"
-tauri-plugin-updater = "2.10.0"
+tauri-plugin-updater = "2.10.1"
 
 [features]
 # by default Tauri runs in production mode
