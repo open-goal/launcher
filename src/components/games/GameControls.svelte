@@ -66,10 +66,12 @@
     }
   }
 
-  let name = $_(`gameName_${activeGame}`);
   // this doesnt work for the following languages: ja-JP, he-IL
-  let [title, subtitle] = name.split(":");
-  subtitle = subtitle?.trimStart();
+  let [title, subtitle] = $derived.by(() => {
+    const name = $_(`gameName_${activeGame}`);
+    const [t, s] = name.split(":");
+    return [t, s?.trimStart()];
+  });
 </script>
 
 <div class="flex flex-col items-end mt-auto ml-auto">
