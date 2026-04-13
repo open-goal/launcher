@@ -3137,7 +3137,6 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-codegen",
- "tauri-plugin",
  "tauri-plugin-clipboard-manager",
  "tauri-plugin-dialog",
  "tauri-plugin-fs",
