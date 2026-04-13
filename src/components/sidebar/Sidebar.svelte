@@ -6,19 +6,12 @@
   import { Tooltip } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { jobTracker } from "$lib/stores/JobStore";
-  import { navigate, route } from "../../router";
+  import { route, isActive, navigate } from "../../router";
 
-  $: disabled = $jobTracker.overallStatus == "pending";
+  let disabled = $derived($jobTracker?.overallStatus === "pending");
 
-  function isActive(itemName: string, pathName: string): boolean {
-    return (
-      pathName.startsWith(`/${itemName}`) ||
-      (itemName === "jak1" && pathName === "/")
-    );
-  }
-
-  function getNavItemStyle(itemName: string, pathName: string): string {
-    const active = isActive(itemName, pathName);
+  function getNavItemStyle(itemName: any): string {
+    const active = isActive.startsWith(itemName);
 
     return [
       "relative flex h-12 w-12 items-center justify-center rounded-lg",
@@ -31,18 +24,18 @@
 </script>
 
 <div
-  class="z-10 flex w-[72px] shrink-0 flex-col border-r border-white/5 bg-[#0b0b0b]"
+  class="z-10 flex w-[72px] shrink-0 flex-col border border-white/5 bg-[#0b0b0b]"
 >
   <ul class="flex h-full flex-col items-center gap-10 px-2 py-4">
     <li class="relative flex w-full justify-center">
-      {#if isActive("jak1", route.pathname)}
+      {#if route.pathname.startsWith("/jak1")}
         <div
           class="absolute left-[-8px] top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-r bg-orange-500"
         ></div>
       {/if}
       <button
         id="jak1"
-        class={getNavItemStyle("jak1", route.pathname)}
+        class={getNavItemStyle("/jak1")}
         onclick={async () => {
           navigate(`/:game_name/`, {
             params: { game_name: "jak1" },
@@ -62,14 +55,14 @@
     </li>
 
     <li class="relative flex w-full justify-center">
-      {#if isActive("jak2", route.pathname)}
+      {#if route.pathname.startsWith("/jak2")}
         <div
           class="absolute left-[-8px] top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-r bg-orange-500"
         ></div>
       {/if}
       <button
         id="jak2"
-        class={getNavItemStyle("jak2", route.pathname)}
+        class={getNavItemStyle("/jak2")}
         onclick={async () => {
           navigate(`/:game_name/`, {
             params: { game_name: "jak2" },
@@ -85,14 +78,14 @@
     </li>
 
     <li class="relative flex w-full justify-center">
-      {#if isActive("jak3", route.pathname)}
+      {#if route.pathname.startsWith("/jak3")}
         <div
           class="absolute left-[-8px] top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-r bg-orange-500"
         ></div>
       {/if}
       <button
         id="jak3"
-        class={getNavItemStyle("jak3", route.pathname)}
+        class={getNavItemStyle("/jak3")}
         onclick={async () => {
           navigate(`/:game_name/`, {
             params: { game_name: "jak3" },
@@ -109,14 +102,14 @@
 
     <li class="mt-auto w-full border-t border-white/5 pt-4">
       <div class="relative flex justify-center">
-        {#if isActive("settings", route.pathname)}
+        {#if route.pathname.startsWith("/settings")}
           <div
             class="absolute left-[-8px] top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-r bg-orange-500"
           ></div>
         {/if}
         <button
           id="settings"
-          class={getNavItemStyle("settings", route.pathname)}
+          class={getNavItemStyle("/settings")}
           onclick={() => {
             navigate(`/settings/:tab`, {
               params: { tab: "general" },
