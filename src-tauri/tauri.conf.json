@@ -81,7 +81,7 @@
         "transparent": false,
         "resizable": true,
         "fullscreen": false,
-        "url": "index.html",
+        "url": "/",
         "visible": true,
         "focus": true,
         "useHttpsScheme": true
