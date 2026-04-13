@@ -100,7 +100,7 @@
 </script>
 
 <header
-  class="flex shrink-0 h-8 items-center bg-[#101010] pl-2 z-10"
+  class="flex shrink-0 h-8 items-center bg-[#101010] pl-2 z-5"
   data-tauri-drag-region
 >
   <div class="flex shrink-0 items-center gap-2 pointer-events-none">
@@ -121,7 +121,7 @@
       <span class="text-neutral-500">{launcherVersion}</span>
       {#if launcherUpdateAvailable}
         <a
-          class="pointer-events-auto text-orange-500 hover:text-orange-300 animate-pulse relative -top-[1px]"
+          class="pointer-events-auto text-orange-500 hover:text-orange-300 animate-pulse relative -top-px"
           href="/update/launcher"
         >
           <IconUpArrowThick />
@@ -161,7 +161,7 @@
 
       {#if $UpdateStore.selectedTooling.updateAvailable}
         <a
-          class="pointer-events-auto text-orange-500 hover:text-orange-300 animate-pulse relative -top-[1px]"
+          class="pointer-events-auto text-orange-500 hover:text-orange-300 animate-pulse relative -top-px"
           href="/settings/versions"
         >
           <IconUpArrowThick />

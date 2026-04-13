@@ -37,7 +37,7 @@
 {#if $jobTracker.logs.length > 0}
   <div
     bind:this={logContainer}
-    class="rounded bg-[#141414] text-[11px] max-h-[300px] overflow-auto font-mono px-2 py-2"
+    class="rounded bg-[#141414] text-[11px] max-h-75 overflow-auto font-mono px-2 py-2"
   >
     {#each $jobTracker.logs as log}
       <div>{@html log}</div>

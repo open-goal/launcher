@@ -211,7 +211,7 @@
 
 {#if modInfo && modInfo.name !== undefined && modInfo.source !== undefined}
   <div
-    class="[margin-left:35%] p-3 rounded-lg flex flex-col justify-end items-end mt-auto [background-color:rgba(0,0,0,.5)]"
+    class="ml-[35%] p-3 rounded-lg flex flex-col justify-end items-end mt-auto bg-[rgba(0,0,0,.5)]"
   >
     {#if modInfo && modInfo.websiteUrl != undefined}
       <!-- Have website, make name a link and show icon -->
@@ -301,7 +301,7 @@
           simple
           trigger="hover"
           placement="top-end"
-          class="dark:!bg-slate-900 overflow-y-auto p-2 max-h-[300px] rounded"
+          class="dark:bg-slate-900! overflow-y-auto p-2 max-h-75 rounded"
         >
           <!-- wrap checkbox in div so that both box and text get tooltip -->
           <div id="checkbox_always_use_newest">
@@ -313,9 +313,7 @@
               {$_("gameControls_always_use_newest")}
             </Checkbox>
           </div>
-          <Tooltip
-            triggeredBy="#checkbox_always_use_newest"
-            class="max-w-[300px]"
+          <Tooltip triggeredBy="#checkbox_always_use_newest" class="max-w-75"
             >{$_("gameControls_always_use_newest_tooltip")}</Tooltip
           >
           <DropdownDivider />
@@ -354,7 +352,7 @@
           simple
           trigger="hover"
           placement="top-end"
-          class="dark:!bg-slate-900 rounded **:w-full"
+          class="dark:bg-slate-900! rounded **:w-full"
         >
           <DropdownItem
             onclick={async () => {
@@ -383,7 +381,7 @@
             }}
             >{$_("gameControls_button_decompile")}
             <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-            <Helper class="dark:!text-neutral-400 !text-xs"
+            <Helper class="dark:text-neutral-400! text-xs!"
               >{$_("gameControls_button_decompile_helpText")}</Helper
             ></DropdownItem
           >
@@ -403,7 +401,7 @@
             }}
             >{$_("gameControls_button_compile")}
             <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-            <Helper class="dark:!text-neutral-400 !text-xs"
+            <Helper class="dark:text-neutral-400! text-xs!"
               >{$_("gameControls_button_compile_helpText")}
             </Helper></DropdownItem
           >
@@ -443,7 +441,7 @@
           simple
           trigger="hover"
           placement="top-end"
-          class="dark:!bg-slate-900 **:w-full"
+          class="dark:bg-slate-900! **:w-full"
         >
           <!-- TODO - screenshot folder? how do we even configure where those go? -->
           {#if settingsDir}
@@ -478,7 +476,7 @@
               toastStore.makeToast($_("toasts_copiedToClipboard"), "info");
             }}
             >{$_("gameControls_button_copyExecutableCommand")}<Helper
-              class="dark:!text-neutral-400 !text-xs"
+              class="dark:text-neutral-400! text-xs!"
               >{$_("gameControls_button_copyExecutableCommand_helpText_1")}<br
               />{$_(
                 "gameControls_button_copyExecutableCommand_helpText_2",
@@ -507,7 +505,7 @@
               }
             }}
             >{$_("gameControls_button_uninstall")}<Helper
-              class="dark:!text-neutral-400 !text-xs"
+              class="dark:text-neutral-400! text-xs!"
               >{$_("gameControls_button_uninstall_helpText")}</Helper
             ></DropdownItem
           >

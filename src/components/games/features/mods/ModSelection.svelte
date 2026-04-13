@@ -92,7 +92,7 @@
       <div class="flex flex-row gap-2 items-center">
         <Button
           outline
-          class="flex-shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
+          class="shrink border-solid rounded text-white hover:dark:text-slate-900 hover:bg-white font-semibold px-2 py-2"
           onclick={async () => {
             if (activeGame) {
               navigate(`/:game_name/`, { params: { game_name: activeGame } });
@@ -103,7 +103,7 @@
           <IconArrowLeft />
         </Button>
         <Button
-          class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
+          class="shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
           onclick={() => {
             if (activeGame) {
               addModFromFile(activeGame);

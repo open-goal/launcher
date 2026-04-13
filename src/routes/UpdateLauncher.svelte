@@ -94,7 +94,7 @@
         {$_("update_button_doUpdate")}
       </Button>
       <Button
-        class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
+        class="shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
         onclick={() => (showChanges = !showChanges)}
         >{$_("update_button_viewChangelog")}</Button
       >
@@ -132,7 +132,7 @@
                 >{note.contributor}</TableBodyCell
               >
               <TableBodyCell
-                class="px-6 py-2 max-w-80 whitespace-normal break-words"
+                class="px-6 py-2 max-w-80 whitespace-normal wrap-break-word"
                 >{note.description}</TableBodyCell
               >
               <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">

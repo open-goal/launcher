@@ -88,21 +88,21 @@
   <div class="flex flex-col mt-auto ml-auto">
     <div class="flex flex-col gap-2 w-[320px]">
       <Button
-        class="font-semibold text-gray-200 h-[48px] text-3xl border-solid border border-[#1e3a66] rounded bg-[#13294b] hover:bg-[#183763] hover:border-[#2a4a7c] hover:text-white"
+        class="font-semibold text-gray-200 h-12 text-3xl border-solid border border-[#1e3a66] rounded bg-[#13294b] hover:bg-[#183763] hover:border-[#2a4a7c] hover:text-white"
         onclick={async () => {
           launchGame(activeGame, false);
         }}>{$_("gameControls_button_play")}</Button
       >
       <div class="grid grid-cols-[1fr_1fr_40px] gap-2">
         <Button
-          class="font-medium text-gray-200 h-[40px] text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
+          class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
           >{$_("gameControls_button_features")}</Button
         >
         <Dropdown
           simple
           trigger="hover"
           placement="top"
-          class="dark:!bg-slate-900 dark:text-white **:w-full"
+          class="dark:bg-slate-900! dark:text-white **:w-full"
         >
           <DropdownItem
             hidden={!textureSupportEnabled}
@@ -126,7 +126,7 @@
           </DropdownItem>
         </Dropdown>
         <Button
-          class="font-medium text-gray-200 h-[40px] text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
+          class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
         >
           {$_("gameControls_button_advanced")}
         </Button>
@@ -134,7 +134,7 @@
           simple
           trigger="hover"
           placement="top"
-          class="dark:!bg-slate-900 dark:text-white **:w-full"
+          class="dark:bg-slate-900! dark:text-white **:w-full"
         >
           <DropdownItem
             onclick={async () => {
@@ -164,7 +164,7 @@
             }}
             >{$_("gameControls_button_decompile")}
             <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-            <Helper class="dark:!text-neutral-400 !text-xs"
+            <Helper class="dark:text-neutral-400! text-xs!"
               >{$_("gameControls_button_decompile_helpText")}</Helper
             ></DropdownItem
           >
@@ -180,7 +180,7 @@
             }}
             >{$_("gameControls_button_compile")}
             <!-- NOTE - this is a bug in flowbite-svelte, it's not replacing the default class but just appending -->
-            <Helper class="dark:!text-neutral-400 !text-xs"
+            <Helper class="dark:text-neutral-400! text-xs!"
               >{$_("gameControls_button_compile_helpText")}
             </Helper></DropdownItem
           >
@@ -202,7 +202,7 @@
           >
         </Dropdown>
         <Button
-          class="text-gray-200 h-[40px] w-[40px] p-0 focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
+          class="text-gray-200 h-10 w-10 p-0 focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
         >
           <IconCog />
         </Button>
@@ -210,7 +210,7 @@
           simple
           trigger="hover"
           placement="top-end"
-          class="dark:!bg-slate-900 dark:text-white **:w-full"
+          class="dark:bg-slate-900! dark:text-white **:w-full"
         >
           <!-- TODO - screenshot folder? how do we even configure where those go? -->
           <DropdownItem
@@ -235,7 +235,7 @@
               toastStore.makeToast($_("toasts_copiedToClipboard"), "info");
             }}
             >{$_("gameControls_button_copyExecutableCommand")}<Helper
-              class="dark:!text-neutral-400 !text-xs"
+              class="dark:text-neutral-400! text-xs!"
               >{$_("gameControls_button_copyExecutableCommand_helpText_1")}<br
               />{$_(
                 "gameControls_button_copyExecutableCommand_helpText_2",
@@ -267,7 +267,7 @@
               }
             }}
             >{$_("gameControls_button_uninstall")}<Helper
-              class="dark:!text-neutral-400 !text-xs"
+              class="dark:text-neutral-400! text-xs!"
               >{$_("gameControls_button_uninstall_helpText")}</Helper
             ></DropdownItem
           >

@@ -24,13 +24,13 @@
 </script>
 
 <div
-  class="z-10 flex w-[72px] shrink-0 flex-col border border-white/5 bg-[#0b0b0b]"
+  class="z-10 flex w-18 shrink-0 flex-col border border-white/5 bg-[#0b0b0b]"
 >
   <ul class="flex h-full flex-col items-center gap-10 px-2 py-4">
     <li class="relative flex w-full justify-center">
       {#if route.pathname.startsWith("/jak1")}
         <div
-          class="absolute left-[-8px] top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-r bg-orange-500"
+          class="absolute -left-2 top-1/2 h-8 w-0.75 -translate-y-1/2 rounded-r bg-orange-500"
         ></div>
       {/if}
       <button
@@ -57,7 +57,7 @@
     <li class="relative flex w-full justify-center">
       {#if route.pathname.startsWith("/jak2")}
         <div
-          class="absolute left-[-8px] top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-r bg-orange-500"
+          class="absolute -left-2 top-1/2 h-8 w-0.75 -translate-y-1/2 rounded-r bg-orange-500"
         ></div>
       {/if}
       <button
@@ -80,7 +80,7 @@
     <li class="relative flex w-full justify-center">
       {#if route.pathname.startsWith("/jak3")}
         <div
-          class="absolute left-[-8px] top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-r bg-orange-500"
+          class="absolute -left-2 top-1/2 h-8 w-0.75 -translate-y-1/2 rounded-r bg-orange-500"
         ></div>
       {/if}
       <button
@@ -104,7 +104,7 @@
       <div class="relative flex justify-center">
         {#if route.pathname.startsWith("/settings")}
           <div
-            class="absolute left-[-8px] top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-r bg-orange-500"
+            class="absolute -left-2 top-1/2 h-8 w-0.75 -translate-y-1/2 rounded-r bg-orange-500"
           ></div>
         {/if}
         <button
