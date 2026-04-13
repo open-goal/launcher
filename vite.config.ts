@@ -10,11 +10,7 @@ export default defineConfig({
     port: 3000, // The port the server will listen on.
   },
   plugins: [
-    svelte({
-      compilerOptions: {
-        hmr: !process.env.VITEST,
-      },
-    }),
+    svelte(),
     Icons({
       compiler: "svelte",
     }),
@@ -24,16 +20,6 @@ export default defineConfig({
     alias: {
       $lib: fileURLToPath(new URL("./src/lib", import.meta.url)),
       $assets: fileURLToPath(new URL("./src/assets", import.meta.url)),
-    },
-  },
-  build: {
-    rollupOptions: {
-      input: {
-        main: fileURLToPath(new URL("./index.html", import.meta.url)),
-        splash: fileURLToPath(
-          new URL("./src/splash/index.html", import.meta.url),
-        ),
-      },
     },
   },
 });
