@@ -37,13 +37,10 @@
     "@types/node": "^25.3.3",
     "@vitest/coverage-v8": "^4.0.18",
     "ansi-to-span": "^0.0.1",
-    "autoprefixer": "^10.4.27",
     "escape-html": "^1.0.3",
     "flowbite": "^4.0.1",
     "flowbite-svelte": "1.31.0",
     "jsdom": "^28.1.0",
-    "postcss": "^8.5.6",
-    "postcss-load-config": "^6.0.1",
     "prettier": "^3.8.1",
     "prettier-plugin-svelte": "^3.5.0",
     "sv-router": "^0.14.0",
@@ -58,7 +55,6 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
-    "@tailwindcss/postcss": "^4.2.1",
     "@tauri-apps/api": "^2.10.1",
     "@tauri-apps/plugin-clipboard-manager": "^2.3.2",
     "@tauri-apps/plugin-dialog": "^2.7.0",
