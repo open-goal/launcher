@@ -8,6 +8,7 @@
   import { route } from "../router";
   import Backgrounds from "./settings/Backgrounds.svelte";
   import { type } from "@tauri-apps/plugin-os"; // TODO: temporary while convertFileSrc is broken on linux
+  import { isInDebugMode } from "$lib/utils/common";
 
   let tab = route.params.tab;
 
@@ -58,7 +59,7 @@
       <Mods />
     </TabItem>
     <!-- TODO: temporary while convertFileSrc is broken on linux -->
-    {#if type() !== "linux"}
+    {#if type() !== "linux" || isInDebugMode()}
       <TabItem
         {activeClass}
         {inactiveClass}
