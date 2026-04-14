@@ -10,17 +10,20 @@
   let { children }: { children: Snippet } = $props();
 </script>
 
+<div class="fixed inset-0 bg-[#141414] -z-11"></div>
 <div class="relative flex h-screen max-w-none flex-col overflow-hidden">
   {#if !$isLoading}
     <Header />
     <div class="z-10 flex min-h-0 flex-1">
       <Sidebar />
-      {#key route.params.game_name}
-        <main id="content" class="min-w-0 flex-1 overflow-y-auto">
+      <main id="content" class="min-w-0 flex-1 overflow-hidden">
+        {#key route.params.game_name}
           <Background />
-          {@render children()}
-        </main>
-      {/key}
+          <div class="relative h-full overflow-hidden">
+            {@render children()}
+          </div>
+        {/key}
+      </main>
     </div>
     <Toast />
   {/if}
