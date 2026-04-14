@@ -10,6 +10,7 @@
   import ChooseInstallFolder from "../components/startup/ChooseInstallFolder.svelte";
   import { navigate } from "../router";
   import { initLocales } from "$lib/i18n/i18n";
+  import { Button } from "flowbite-svelte";
 
   let locale = $state("");
   let installDir = $state("");
@@ -30,12 +31,6 @@
     if (!installDir) return;
     setInstallationDirectory(installDir);
   });
-
-  $effect(() => {
-    if (locale && installDir) {
-      navigate("/:game_name/", { params: { game_name: "jak1" } });
-    }
-  });
 </script>
 
 <div
@@ -43,7 +38,11 @@
 >
   <LocaleSelector bind:locale />
 
-  {#if !installDir}
-    <ChooseInstallFolder bind:installDir />
-  {/if}
+  <ChooseInstallFolder bind:installDir />
+
+  <Button
+    disabled={!locale || !installDir}
+    onclick={() => navigate("/:game_name/", { params: { game_name: "jak1" } })}
+    >Finish setup</Button
+  >
 </div>
