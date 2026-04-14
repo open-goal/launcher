@@ -1,4 +1,4 @@
-import { addMessages, init, register } from "svelte-i18n";
+import { getLocaleFromNavigator, init, register } from "svelte-i18n";
 
 export interface Locale {
   id: string;
@@ -198,29 +198,16 @@ export const AVAILABLE_LOCALES: Locale[] = [
   },
 ];
 
-export async function initLocales(async: boolean) {
-  if (async) {
-    for (const locale of AVAILABLE_LOCALES) {
-      register(
-        locale.id,
-        () => import(`../../assets/translations/${locale.id}.json`),
-      );
-    }
-  } else {
-    for (const locale of AVAILABLE_LOCALES) {
-      addMessages(
-        locale.id,
-        await import(`../../assets/translations/${locale.id}.json`),
-      );
-    }
-  }
-  const initPromise = init({
-    fallbackLocale: "en-US",
-    initialLocale: "en-US",
+export async function initLocales() {
+  AVAILABLE_LOCALES.forEach((locale) => {
+    register(
+      locale.id,
+      () => import(`../../assets/translations/${locale.id}.json`),
+    );
   });
-  if (!async) {
-    await initPromise;
-  } else {
-    return initPromise;
-  }
+
+  await init({
+    fallbackLocale: "en-US",
+    initialLocale: getLocaleFromNavigator(),
+  });
 }
