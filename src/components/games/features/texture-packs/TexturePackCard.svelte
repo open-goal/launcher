@@ -167,7 +167,7 @@
 
       <Checkbox
         color="orange"
-        class="h-full w-14"
+        class="h-full w-14 cursor-pointer"
         checked={packInfo.enabled}
         onchange={() => {
           onToggleEnabled(packInfo.name, !packInfo.enabled);
