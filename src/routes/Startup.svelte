@@ -9,21 +9,15 @@
   import LocaleSelector from "../components/startup/LocaleSelector.svelte";
   import ChooseInstallFolder from "../components/startup/ChooseInstallFolder.svelte";
   import { navigate } from "../router";
-  import { blockNavigation } from "sv-router";
   import { initLocales } from "$lib/i18n/i18n";
 
   let locale = $state("");
   let installDir = $state("");
-  let navigationBlocked = $state(true);
 
   onMount(async () => {
     await svelteLocale.set("en-US");
-    await initLocales(false);
+    await initLocales();
     installDir = (await getInstallationDirectory()) || "";
-  });
-
-  $effect(() => {
-    blockNavigation(() => !navigationBlocked);
   });
 
   $effect(() => {
@@ -39,7 +33,6 @@
 
   $effect(() => {
     if (locale && installDir) {
-      navigationBlocked = false;
       navigate("/:game_name/", { params: { game_name: "jak1" } });
     }
   });

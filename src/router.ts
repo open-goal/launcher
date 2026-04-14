@@ -39,6 +39,7 @@ import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
 import Requirements from "./components/job/Requirements.svelte";
 import { requirementsStore } from "./state/requirements-store";
 import Startup from "./routes/Startup.svelte";
+import StartupLayout from "./layouts/StartupLayout.svelte";
 
 export const { p, navigate, isActive, route } = createRouter({
   "/": {
@@ -58,7 +59,10 @@ export const { p, navigate, isActive, route } = createRouter({
       },
     },
   },
-  "/startup": Startup,
+  "/(startup)": {
+    "/": Startup,
+    layout: StartupLayout,
+  },
   "/update/launcher": UpdateLauncher,
   "/help": Help,
   "/job/:job_type": Job,
