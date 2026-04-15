@@ -151,7 +151,7 @@
       ></video>
     {:else}
       <!-- svelte-ignore a11y_missing_attribute -->
-      <img src={jak1Background} />
+      <img class={style} src={jak1Background} />
     {/if}
   {:else if activeGame === "jak2"}
     {#if bgVideo}
@@ -165,7 +165,7 @@
       ></video>
     {:else}
       <!-- svelte-ignore a11y_missing_attribute -->
-      <img src={jak2Background} />
+      <img class={style} src={jak2Background} />
     {/if}
   {:else if activeGame === "jak3"}
     {#if bgVideo}
@@ -179,7 +179,7 @@
       ></video>
     {:else}
       <!-- svelte-ignore a11y_missing_attribute -->
-      <img src={jak3Background} />
+      <img class={style} src={jak3Background} />
     {/if}
   {/if}
 {/if}
