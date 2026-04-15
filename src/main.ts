@@ -5,7 +5,7 @@ import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
 
 export default (async () => {
   polyfillCountryFlagEmojis();
-  await initLocales(false);
+  await initLocales();
   const elem = document.getElementById("app");
   if (elem) {
     return mount(App, {

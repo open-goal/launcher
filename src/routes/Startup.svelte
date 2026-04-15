@@ -9,7 +9,6 @@
   import LocaleSelector from "../components/startup/LocaleSelector.svelte";
   import ChooseInstallFolder from "../components/startup/ChooseInstallFolder.svelte";
   import { navigate } from "../router";
-  import { initLocales } from "$lib/i18n/i18n";
   import { Button } from "flowbite-svelte";
 
   let locale = $state("");
@@ -17,7 +16,6 @@
 
   onMount(async () => {
     await svelteLocale.set("en-US");
-    await initLocales();
     installDir = (await getInstallationDirectory()) || "";
   });
 
