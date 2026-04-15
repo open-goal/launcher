@@ -1,18 +1,20 @@
 <script lang="ts">
   import { AVAILABLE_LOCALES } from "$lib/i18n/i18n";
-  import { Label } from "flowbite-svelte";
+  import { Label, Select } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
 
   let { locale = $bindable() }: { locale: string } = $props();
 </script>
 
-<div class="flex flex-row gap-2 items-center">
-  <Label for="locales" class="">{$_("splash_selectLocale")}:</Label>
-  <select
+<div class="flex flex-col w-full space-y-2">
+  <Label for="locales" class="text-gray-200 font-semibold"
+    >{$_("splash_selectLocale")}</Label
+  >
+  <Select
     data-testId="locale-select"
     name="locales"
     id="locales"
-    class="pointer-events-auto p-0 pl-1 text-xs bg-gray-700 mt-1"
+    class="pointer-events-auto rounded-lg bg-gray-700"
     bind:value={locale}
   >
     <option disabled selected value hidden></option>
@@ -21,7 +23,7 @@
         >{LOCALE.flag}&nbsp;{LOCALE.localizedName}</option
       >
     {/each}
-  </select>
+  </Select>
 </div>
 
 <style>
