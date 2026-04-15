@@ -63,13 +63,13 @@
 {:else}
   <div class="flex items-center mb-2">
     <div class="grow">
-      <p class="text-sm text-gray-400 text-gray-300">
+      <p class="text-sm text-gray-300">
         {description}
       </p>
     </div>
     <div class="flex">
       <Button
-        class="!p-2 mr-2 rounded-md bg-orange-500 hover:bg-orange-600 text-slate-900"
+        class="p-2! mr-2 rounded-md bg-orange-500 hover:bg-orange-600 text-slate-900"
         onclick={() => onRefreshVersions()}
       >
         <IconRefresh
@@ -77,7 +77,7 @@
         />
       </Button>
       <Button
-        class="!p-2 rounded-md bg-orange-500 hover:bg-orange-600 text-slate-900"
+        class="p-2! rounded-md bg-orange-500 hover:bg-orange-600 text-slate-900"
         onclick={async () =>
           openPath((await getInstallationDirectory()) + "/versions/official/")}
       >
@@ -89,7 +89,7 @@
   </div>
 
   {#if releaseList.length === 0}
-    <Alert class="bg-slate-900 flex-grow text-red-400">
+    <Alert class="bg-slate-900 grow text-red-400">
       {$_("settings_versions_noReleasesFound")}
     </Alert>
   {:else}
