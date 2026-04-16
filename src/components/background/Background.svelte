@@ -81,12 +81,10 @@
       });
     } else {
       updateBackground(activeGame);
-      loading = false;
     }
   });
 
   async function updateBackground(activeGame: SupportedGame): Promise<void> {
-    bgVideo = null;
     isInstalled = await isGameInstalled(activeGame);
 
     const appDataDirPath = await appDataDir();
@@ -103,6 +101,7 @@
     const milestoneImage = await getFurthestGameMilestone(activeGame);
     jak1Background = `/images/${activeGame}/${milestoneImage}.jpg`;
     // TODO - do jak 2 milestones
+    loading = false;
   }
 
   async function updateModBackground(
@@ -141,34 +140,46 @@
     <!-- svelte-ignore a11y_missing_attribute -->
     <img class={style} src={modBackground} />
   {:else if activeGame === "jak1"}
-    <video
-      class={style}
-      class:grayscale={!isInstalled}
-      poster={jak1Background}
-      src={bgVideo}
-      autoplay
-      muted
-      loop
-    ></video>
+    {#if bgVideo}
+      <video
+        class={style}
+        class:grayscale={!isInstalled}
+        src={bgVideo}
+        autoplay
+        muted
+        loop
+      ></video>
+    {:else}
+      <!-- svelte-ignore a11y_missing_attribute -->
+      <img class={style} src={jak1Background} />
+    {/if}
   {:else if activeGame === "jak2"}
-    <video
-      class={style}
-      class:grayscale={!isInstalled}
-      poster={jak2Background}
-      src={bgVideo}
-      autoplay
-      muted
-      loop
-    ></video>
+    {#if bgVideo}
+      <video
+        class={style}
+        class:grayscale={!isInstalled}
+        src={bgVideo}
+        autoplay
+        muted
+        loop
+      ></video>
+    {:else}
+      <!-- svelte-ignore a11y_missing_attribute -->
+      <img class={style} src={jak2Background} />
+    {/if}
   {:else if activeGame === "jak3"}
-    <video
-      class={style}
-      class:grayscale={!isInstalled}
-      poster={jak3Background}
-      src={bgVideo}
-      autoplay
-      muted
-      loop
-    ></video>
+    {#if bgVideo}
+      <video
+        class={style}
+        class:grayscale={!isInstalled}
+        src={bgVideo}
+        autoplay
+        muted
+        loop
+      ></video>
+    {:else}
+      <!-- svelte-ignore a11y_missing_attribute -->
+      <img class={style} src={jak3Background} />
+    {/if}
   {/if}
 {/if}

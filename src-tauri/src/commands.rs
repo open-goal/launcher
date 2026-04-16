@@ -9,7 +9,6 @@ pub mod game;
 pub mod support;
 pub mod util;
 pub mod versions;
-pub mod window;
 
 #[derive(Debug, thiserror::Error)]
 pub enum CommandError {
@@ -25,8 +24,6 @@ pub enum CommandError {
   TauriEvent(#[from] tauri::Error),
   #[error("{0}")]
   GameManagement(String),
-  #[error("{0}")]
-  WindowManagement(String),
   #[error("{0}")]
   BinaryExecution(String),
   #[error("{0}")]

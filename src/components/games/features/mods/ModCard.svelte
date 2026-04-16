@@ -34,7 +34,7 @@
     {href}
     target="_blank"
     rel="noreferrer noopener"
-    class="h-[200px] max-w-[160px] bg-cover p-1 flex justify-center items-end relative grayscale"
+    class="h-50 max-w-40 bg-cover p-1 flex justify-center items-end relative grayscale"
     style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{thumbnailUrl}'); background-size: cover;"
   >
     <h3 class="text-outline">
@@ -47,7 +47,7 @@
   </a>
 {:else}
   <button
-    class="h-[200px] max-w-[160px] bg-cover p-1 flex justify-center items-end relative"
+    class="h-50 max-w-40 bg-cover p-1 flex justify-center items-end relative"
     style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{thumbnailUrl}'); background-size: cover;"
     onclick={async () => {
       navigate(`/:game_name/mods/:source_name/:mod_name`, {

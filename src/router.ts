@@ -28,6 +28,8 @@ import {
   doesActiveToolingVersionSupportGame,
   getInstalledVersion,
   isGameInstalled,
+  getLocale,
+  getInstallationDirectory,
 } from "$lib/rpc/config";
 import {
   ensureActiveVersionStillExists,
@@ -36,17 +38,30 @@ import {
 import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
 import Requirements from "./components/job/Requirements.svelte";
 import { requirementsStore } from "./state/requirements-store";
+import Startup from "./routes/Startup.svelte";
+import StartupLayout from "./layouts/StartupLayout.svelte";
 
 export const { p, navigate, isActive, route } = createRouter({
-  "/": Game,
-  hooks: {
-    // simplify things -- stop having to worry about treating '/' differently
-    beforeLoad({ pathname }) {
-      if (pathname === "/") {
-        // simple redirect to default game
+  "/": {
+    "/": Startup,
+    hooks: {
+      async beforeLoad() {
+        const [locale, installDir] = await Promise.all([
+          getLocale(),
+          getInstallationDirectory(),
+        ]);
+
+        if (!locale || !installDir) {
+          throw navigate("/startup");
+        }
+
         throw navigate("/:game_name/", { params: { game_name: "jak1" } });
-      }
+      },
     },
+  },
+  "/(startup)": {
+    "/": Startup,
+    layout: StartupLayout,
   },
   "/update/launcher": UpdateLauncher,
   "/help": Help,

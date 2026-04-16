@@ -55,7 +55,7 @@
       {$_("features_mods_no_sources")}
     </p>
     <Button
-      class="flex-shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
+      class="shrink border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
       onclick={async () => {
         navigate(`/settings/:tab`, {
           params: { tab: "mod" },

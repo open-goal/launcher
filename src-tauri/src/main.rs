@@ -70,7 +70,9 @@ fn panic_hook(info: &std::panic::PanicHookInfo) {
 static TAURI_APP: OnceCell<tauri::AppHandle> = OnceCell::const_new();
 
 fn main() {
+  #[cfg(target_os = "linux")]
   unsafe {
+    // temporary fix for: https://github.com/tauri-apps/tauri/issues/5143
     std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
   }
   // In the event that some catastrophic happens, atleast log it out
@@ -187,7 +189,6 @@ fn main() {
       commands::versions::ensure_active_version_still_exists,
       commands::versions::list_downloaded_versions,
       commands::versions::remove_version,
-      commands::window::open_main_window,
     ])
     .build(tauri::generate_context!())
     .map_err(|err| {

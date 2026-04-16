@@ -87,11 +87,11 @@ export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
 
   while (urlToHit !== undefined) {
     const resp: Response = await fetch(urlToHit);
-    if (resp.status === 403 || resp.status === 429) {
+    if (resp.status === 429) {
       toastStore.makeToast($format("toasts_githubRateLimit"), "error");
       return [];
     } else if (!resp.ok) {
-      toastStore.makeToast($format("toasts_githubUnexpectedError"), "error");
+      toastStore.makeToast(resp.statusText, "error");
       return [];
     }
 
@@ -129,11 +129,11 @@ export async function getLatestOfficialRelease(): Promise<
   const resp = await fetch(
     "https://api.github.com/repos/open-goal/jak-project/releases/latest",
   );
-  if (resp.status === 403 || resp.status === 429) {
+  if (resp.status === 429) {
     toastStore.makeToast($format("toasts_githubRateLimit"), "error");
     return undefined;
   } else if (!resp.ok) {
-    toastStore.makeToast($format("toasts_githubUnexpectedError"), "error");
+    toastStore.makeToast(resp.statusText, "error");
     return undefined;
   }
   const githubRelease = await resp.json();

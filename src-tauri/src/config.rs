@@ -338,7 +338,7 @@ impl LauncherConfig {
           config.settings_path = Some(path.to_path_buf());
           return config;
         }
-        None => tracing::error!("Failed to load or parse settings file, using defaults"),
+        None => tracing::warn!("Failed to load or parse settings file, using defaults"),
       }
     } else {
       tracing::warn!("No configuration directory provided, using defaults");

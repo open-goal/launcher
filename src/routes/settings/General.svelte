@@ -98,7 +98,7 @@
     >
     {#if localeFontForDownload !== undefined}
       <Button
-        class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
+        class="shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
         disabled={localeFontDownloading}
         onclick={async () => {
           if (
@@ -205,7 +205,7 @@
   </div>
   <div>
     <Button
-      class="flex-shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
+      class="shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
       onclick={async () => {
         const confirmed = await confirm(
           $_("settings_general_button_resetSettings_confirmation"),
