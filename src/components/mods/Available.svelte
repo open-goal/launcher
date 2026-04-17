@@ -11,7 +11,7 @@
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import type { ModSourceData } from "$lib/rpc/bindings/ModSourceData";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
-  import ModCard from "./ModCard.svelte";
+  import ModCard from "./Card.svelte";
 
   let {
     activeGame,

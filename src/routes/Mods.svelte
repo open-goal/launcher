@@ -13,8 +13,8 @@
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
   import { asJobType } from "$lib/job/jobs";
-  import InstalledModList from "./InstalledModList.svelte";
-  import UninstalledModList from "./UninstalledModList.svelte";
+  import InstalledMods from "../components/mods/Installed.svelte";
+  import AvailableMods from "../components/mods/Available.svelte";
 
   let activeGame: SupportedGame | undefined = $state(undefined);
   let loaded = $state(false);
@@ -123,20 +123,22 @@
           bind:value={modFilter}
         />
       </div>
-      <h2 class="font-bold mt-2">{$_("features_mods_installed_header")}</h2>
-      <InstalledModList
-        {activeGame}
-        modList={installedMods}
-        {modFilter}
-        modSourceData={sourceData}
-      ></InstalledModList>
+      {#if Object.keys(installedMods).length}
+        <h2 class="font-bold mt-2">{$_("features_mods_installed_header")}</h2>
+        <InstalledMods
+          {activeGame}
+          modList={installedMods}
+          {modFilter}
+          modSourceData={sourceData}
+        ></InstalledMods>
+      {/if}
       <h2 class="font-bold mt-5">{$_("features_mods_available_header")}</h2>
-      <UninstalledModList
+      <AvailableMods
         {activeGame}
         installedModList={installedMods}
         {modFilter}
         modSourceData={sourceData}
-      ></UninstalledModList>
+      ></AvailableMods>
     </div>
   {/if}
 </div>
