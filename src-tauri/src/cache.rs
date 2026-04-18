@@ -225,4 +225,60 @@ impl ModCache {
       .map(|(url, source)| (url.clone(), source.by_platform()))
       .collect()
   }
+
+  fn mods_for_game(&self, game: SupportedGame) -> Vec<ModInfo> {
+    let mut mods: Vec<ModInfo> = self
+      .mod_sources
+      .values()
+      .flat_map(|source| source.mods.values())
+      .filter_map(|info| {
+        if !info.supported_games.contains(&game) {
+          return None;
+        }
+
+        let mut info = info.clone();
+
+        info.versions.retain(|version| {
+          if !version.supports_platform() {
+            return false;
+          }
+
+          version
+            .supported_games
+            .as_ref()
+            .is_none_or(|games| games.contains(&game))
+        });
+
+        if info.versions.is_empty() {
+          None
+        } else {
+          Some(info)
+        }
+      })
+      .collect();
+
+    mods.sort_by(|a, b| {
+      a.display_name
+        .to_lowercase()
+        .cmp(&b.display_name.to_lowercase())
+    });
+    mods
+  }
+
+  pub fn available_mods(&self) -> AvailableModsByGame {
+    AvailableModsByGame {
+      jak1: self.mods_for_game(SupportedGame::Jak1),
+      jak2: self.mods_for_game(SupportedGame::Jak2),
+      jak3: self.mods_for_game(SupportedGame::Jak3),
+    }
+  }
+}
+
+#[derive(Debug, Serialize, Clone, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct AvailableModsByGame {
+  pub jak1: Vec<ModInfo>,
+  pub jak2: Vec<ModInfo>,
+  pub jak3: Vec<ModInfo>,
 }

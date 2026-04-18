@@ -25,7 +25,7 @@
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
   import {
-    getInstalledMods,
+    getInstalledModsByGame,
     getLaunchModString,
     launchMod,
     openREPLForMod,
@@ -179,7 +179,7 @@
     }
 
     // get current installed version
-    let installedMods = await getInstalledMods(activeGame);
+    let installedMods = await getInstalledModsByGame(activeGame);
     if (
       Object.keys(installedMods).includes(modInfo.source) &&
       Object.keys(installedMods[modInfo.source]).includes(modInfo.name)

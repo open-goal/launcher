@@ -37,15 +37,12 @@
     return Math.round((Date.now() - releaseTime) / (1000 * 3600 * 24));
   }
 
-  function isModAlreadyInstalled(sourceName: string, modName: string): boolean {
+  function isInstalled(sourceName: string, modName: string): boolean {
     return installedModList[sourceName]?.hasOwnProperty(modName) ?? false;
   }
 
   function isModSupportedByCurrentGame(modInfo: ModInfo): boolean {
-    if (modInfo.supportedGames.includes(activeGame)) {
-      return true;
-    }
-    return false;
+    return modInfo.supportedGames.includes(activeGame);
   }
 </script>
 
@@ -83,7 +80,7 @@
             sourceInfo.sourceName,
             modSourceData,
           )}
-          {#if isModSupportedByCurrentGame(modInfo) && !isModAlreadyInstalled(sourceInfo.sourceName, modName)}
+          {#if isModSupportedByCurrentGame(modInfo) && !isInstalled(sourceInfo.sourceName, modName)}
             {#if isModNotFiltered(modDisplayName, modTags, modFilter)}
               <ModCard
                 {activeGame}

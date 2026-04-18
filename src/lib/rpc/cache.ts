@@ -10,3 +10,7 @@ export async function getModSourcesData(): Promise<
 > {
   return await invoke_rpc("get_mod_sources_data", {});
 }
+
+export async function getAvailableMods() {
+  return await invoke_rpc("get_available_mods", {});
+}

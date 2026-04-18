@@ -5,31 +5,38 @@
   import { navigate } from "/src/router";
 
   let {
+    mod,
     activeGame,
-    modInternalName,
-    modDisplayName,
-    modSourceName,
-    modInfo,
-    showNewIndicator,
-    isInstalled,
-    thumbnailUrl,
-    href,
   }: {
+    mod: ModInfo;
     activeGame: SupportedGame;
-    modInternalName: string;
-    modDisplayName: string;
-    modSourceName: string;
-    modInfo: ModInfo | undefined;
-    showNewIndicator: boolean;
-    isInstalled: boolean;
-    thumbnailUrl: string;
-    href: string | null;
   } = $props();
+
+  const {
+    name: modInternalName,
+    displayName: modDisplayName,
+    source: modSourceName,
+    thumbnailArtUrl,
+    externalLink,
+    perGameConfig,
+  } = mod;
+
+  function showNewIndicator(): boolean {
+    const releaseDate = perGameConfig?.[activeGame]?.releaseDate;
+    if (!releaseDate) return false;
+    const releaseTime = Date.parse(releaseDate);
+    const daysSinceRelease = (Date.now() - releaseTime) / (1000 * 3600 * 24);
+    return daysSinceRelease < 30;
+  }
+
+  let isInstalled = false; // TODO!
+  let thumbnailUrl =
+    thumbnailArtUrl || perGameConfig?.[activeGame]?.thumbnailArtUrl;
 </script>
 
-{#if href !== null}
+{#if externalLink}
   <a
-    {href}
+    href={externalLink}
     target="_blank"
     rel="noreferrer noopener"
     class="h-50 max-w-40 bg-cover p-1 flex justify-center items-end relative grayscale"
@@ -57,7 +64,7 @@
       {modDisplayName}
     </h3>
     <div class="absolute top-0 right-0 m-1 flex gap-1">
-      {#if !isInstalled && showNewIndicator}
+      {#if !isInstalled && showNewIndicator()}
         <AlertCircleOutline
           class="text-green-400 text-lg bg-neutral-800 rounded border border-neutral-700"
         />
