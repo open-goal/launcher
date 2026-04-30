@@ -219,7 +219,12 @@
     </div>
   </div>
 
-  <Latest latest={releases[0]} {onRemoveVersion} {onDownloadVersion} {isPending}
+  <Latest
+    latest={releases[0]}
+    onVersionChange={saveOfficialVersionChange}
+    {onRemoveVersion}
+    {onDownloadVersion}
+    {isPending}
   ></Latest>
 
   <VersionList

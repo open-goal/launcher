@@ -2,6 +2,7 @@
   import { Button, Badge } from "flowbite-svelte";
   import type { ReleaseInfo } from "$lib/utils/github";
   import { versionState } from "/src/state/VersionState.svelte";
+  import IconArrowUp from "~icons/mdi/arrow-up-circle-outline";
   import IconDeleteForever from "~icons/mdi/delete-forever";
   import IconDownload from "~icons/mdi/download";
   import IconCalendar from "~icons/mdi/CalendarMonth";
@@ -22,11 +23,13 @@
 
   let {
     latest,
+    onVersionChange,
     onRemoveVersion,
     onDownloadVersion,
     isPending,
   }: {
     latest: ReleaseInfo;
+    onVersionChange: (version: string) => Promise<void>;
     onRemoveVersion: (version: string) => Promise<void>;
     onDownloadVersion: (version: string, downloadUrl: string) => Promise<void>;
     isPending: boolean;
@@ -43,7 +46,7 @@
     });
   });
 
-  const installed = $derived.by(() => {
+  const isActive = $derived.by(() => {
     if (!latest?.version) return false;
     return latest.version === versionState.activeToolingVersion;
   });
@@ -63,14 +66,19 @@
     if (!latest.downloadUrl) return;
     await onDownloadVersion(latest.version, latest.downloadUrl);
   };
+
+  const handleVersionChange = async () => {
+    await onVersionChange(latest.version);
+    versionState.activeToolingVersion = latest.version;
+  };
 </script>
 
 <div
-  class="flex items-center justify-between my-4 p-6 min-h-48 border border-green-500/40 rounded-md bg-green-800/15"
+  class="flex items-end justify-between my-4 p-6 min-h-48 border border-green-500/40 rounded-md bg-green-800/15"
 >
   <div class="flex flex-col gap-4">
     <Badge color="green" class="w-fit gap-1 tracking-wide">
-      {#if installed}
+      {#if isActive}
         <IconCheck /> {$_("settings_versions_active_version")}
       {:else}
         <IconStar /> {$_("settings_versions_latest_release")}
@@ -97,7 +105,7 @@
   </div>
 
   <div class="flex flex-col items-end gap-2">
-    {#if installed || latest.pendingAction}
+    {#if isActive || latest.pendingAction}
       <div class="flex flex-col gap-4">
         <Button
           class="gap-1 capitalize text-md font-semibold rounded-sm bg-white/10 border border-white/15 hover:bg-white/15"
@@ -123,9 +131,20 @@
           />{$_("settings_versions_icon_removeVersion_altText")}
         </Button>
       </div>
+    {:else if latest.isDownloaded}
+      <Button
+        class="px-8 py-3 text-lg gap-1 font-semibold rounded-sm text-gray-200 bg-green-600 hover:bg-green-700"
+        onclick={handleVersionChange}
+        disabled={isPending}
+      >
+        <IconArrowUp />
+        <span>
+          {$_("settings_versions_set_active_version")}
+        </span>
+      </Button>
     {:else}
       <Button
-        class="px-8 py-3 text-lg gap-1 font-semibold rounded-sm text-gray-200 bg-green-500 hover:bg-green-600"
+        class="px-8 py-3 text-lg gap-1 font-semibold rounded-sm text-gray-200 bg-green-600 hover:bg-green-700"
         onclick={handleDownload}
         disabled={isPending}
       >
