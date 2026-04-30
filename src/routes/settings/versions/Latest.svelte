@@ -90,7 +90,9 @@
     </h1>
 
     <p class="flex items-center gap-1 tracking-wide text-gray-300 text-sm">
-      <IconCalendar /> Released {cleanDate}
+      <IconCalendar />
+      {$_("settings_versions_released")}
+      {cleanDate}
     </p>
 
     <a
