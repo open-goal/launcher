@@ -70,7 +70,7 @@
   <TableBody class="divide-y divide-zinc-700/70!">
     {#each releaseList as release (release.version)}
       <TableBodyRow
-        class="bg-zinc-800/80! text-white transition-colors hover:bg-zinc-700/80! border!"
+        class="bg-zinc-800/80! text-white transition-colors hover:bg-zinc-700/80! border-y!"
       >
         <TableBodyCell class="px-6 py-3">
           <Radio
