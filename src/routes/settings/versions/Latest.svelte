@@ -97,7 +97,7 @@
   </div>
 
   <div class="flex flex-col items-end gap-2">
-    {#if installed || isPending}
+    {#if installed || latest.pendingAction}
       <div class="flex flex-col gap-4">
         <Button
           class="gap-1 capitalize text-md font-semibold rounded-sm bg-white/10 border border-white/15 hover:bg-white/15"
