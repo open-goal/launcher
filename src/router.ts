@@ -81,6 +81,15 @@ export const { p, navigate, isActive, route } = createRouter({
             return;
           }
 
+          const [locale, installDir] = await Promise.all([
+            getLocale(),
+            getInstallationDirectory(),
+          ]);
+
+          if (!locale || !installDir) {
+            throw navigate("/startup");
+          }
+
           const activeGame = toSupportedGame(params.game_name);
           if (!activeGame) {
             return;

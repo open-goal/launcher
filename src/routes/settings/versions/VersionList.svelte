@@ -81,7 +81,7 @@
             }}
             disabled={!release.isDownloaded}
             color="green"
-            class="p-0 disabled:cursor-not-allowed"
+            class="p-0 cursor-pointer disabled:cursor-not-allowed"
           />
         </TableBodyCell>
 

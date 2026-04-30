@@ -32,7 +32,7 @@
 </script>
 
 <div class="flex flex-col items-center justify-center h-full bg-[#141414]">
-  <div class="w-full max-w-xl space-y-8">
+  <div class="w-full max-w-[90vw] space-y-8">
     <LocaleSelector bind:locale />
 
     <ChooseInstallFolder bind:installDir />
