@@ -23,7 +23,7 @@
     dismissable={false}
     position="top-right"
     class="z-50 top-12 right-4 text-wrap"
-    contentClass="w-full text-sm font-normal overflow-hidden"
+    classes={{ content: "w-full text-sm font-normal overflow-hidden" }}
     transition={fly}
     params={{ y: 200 }}
   >
