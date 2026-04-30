@@ -106,9 +106,9 @@
 
   <div class="flex flex-col items-end gap-2">
     {#if isActive || latest.pendingAction}
-      <div class="flex flex-col gap-4">
+      <div class="flex flex-col items-stretch gap-4">
         <Button
-          class="gap-1 capitalize text-md font-semibold rounded-sm bg-white/10 border border-white/15 hover:bg-white/15"
+          class="gap-1 capitalize text-lg font-semibold rounded-sm bg-white/10 border border-white/15 hover:bg-white/15"
           onclick={handleRedownload}
           disabled={isPending}
         >
@@ -120,7 +120,7 @@
         </Button>
 
         <Button
-          class="gap-1 capitalize text-md font-semibold rounded-sm border border-white/15 bg-red-600/60 hover:bg-red-700"
+          class="gap-1 capitalize text-lg font-semibold rounded-sm border border-white/15 bg-red-600/60 hover:bg-red-700"
           onclick={handleRemove}
           disabled={isPending}
         >
@@ -132,28 +132,44 @@
         </Button>
       </div>
     {:else if latest.isDownloaded}
-      <Button
-        class="px-8 py-3 text-lg gap-1 font-semibold rounded-sm text-gray-200 bg-green-600 hover:bg-green-700"
-        onclick={handleVersionChange}
-        disabled={isPending}
-      >
-        <IconArrowUp />
-        <span>
-          {$_("settings_versions_set_active_version")}
-        </span>
-      </Button>
+      <div class="flex flex-col items-stretch gap-4">
+        <Button
+          class="gap-1 text-lg font-semibold rounded-sm text-gray-200 bg-green-600 hover:bg-green-700"
+          onclick={handleVersionChange}
+          disabled={isPending}
+        >
+          <IconArrowUp />
+          <span>
+            {$_("settings_versions_set_active_version")}
+          </span>
+        </Button>
+
+        <Button
+          class="gap-1 text-lg capitalize font-semibold rounded-sm border border-white/15 bg-red-600/60 hover:bg-red-700"
+          onclick={handleRemove}
+          disabled={isPending}
+        >
+          <IconDeleteForever
+            class="text-xl"
+            color="white"
+            aria-label={$_("settings_versions_icon_removeVersion_altText")}
+          />{$_("settings_versions_icon_removeVersion_altText")}
+        </Button>
+      </div>
     {:else}
-      <Button
-        class="px-8 py-3 text-lg gap-1 font-semibold rounded-sm text-gray-200 bg-green-600 hover:bg-green-700"
-        onclick={handleDownload}
-        disabled={isPending}
-      >
-        <IconDownload />
-        <span class="capitalize">
-          {$_("settings_versions_icon_downloadVersion_altText")}
-        </span>
-        {latest?.version}
-      </Button>
+      <div class="flex flex-col items-stretch gap-4">
+        <Button
+          class="gap-1 text-lg font-semibold rounded-sm text-gray-200 bg-green-600 hover:bg-green-700"
+          onclick={handleDownload}
+          disabled={isPending}
+        >
+          <IconDownload />
+          <span class="capitalize">
+            {$_("settings_versions_icon_downloadVersion_altText")}
+          </span>
+          {latest?.version}
+        </Button>
+      </div>
     {/if}
   </div>
 </div>
