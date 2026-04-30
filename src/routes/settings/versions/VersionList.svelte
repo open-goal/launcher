@@ -48,20 +48,22 @@
   };
 </script>
 
-<Table>
-  <TableHead class="bg-slate-400">
-    <TableHeadCell></TableHeadCell>
-    <TableHeadCell></TableHeadCell>
+<Table divClass="pt-2 rounded-md bg-zinc-800 border border-zinc-600/70">
+  <TableHead class="bg-zinc-800! text-zinc-200!">
+    <TableHeadCell class="w-12"></TableHeadCell>
+    <TableHeadCell class="w-28"></TableHeadCell>
     <TableHeadCell>{$_("settings_versions_table_header_version")}</TableHeadCell
     >
     <TableHeadCell>{$_("settings_versions_table_header_date")}</TableHeadCell>
     <TableHeadCell>{$_("settings_versions_table_header_changes")}</TableHeadCell
     >
   </TableHead>
-  <TableBody class="divide-y *:text-white">
+  <TableBody class="divide-y divide-zinc-700/70!">
     {#each releaseList as release (release.version)}
-      <TableBodyRow class="bg-slate-700">
-        <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
+      <TableBodyRow
+        class="bg-zinc-800/80! text-white transition-colors hover:bg-zinc-700/80! border!"
+      >
+        <TableBodyCell class="px-6 py-3">
           <Radio
             bind:group={versionState.activeToolingVersion}
             value={release.version}
@@ -69,65 +71,68 @@
               onVersionChange(release.version);
             }}
             disabled={!release.isDownloaded}
-            color="orange"
-            class="disabled:cursor-not-allowed p-0"
+            color="green"
+            class="p-0 disabled:cursor-not-allowed"
           />
         </TableBodyCell>
-        <TableBodyCell
-          class="px-6 py-2 whitespace-nowrap font-medium"
-          style="line-height: 0;"
-        >
-          <Button
-            class="py-0 bg-transparent focus:ring-0 disabled:opacity-50"
-            disabled={isPending}
-            onclick={async () => handleAction(release)}
-          >
-            {#if release.isDownloaded}
-              <IconDeleteForever
-                class="text-xl"
-                color="red"
-                aria-label={$_("settings_versions_icon_removeVersion_altText")}
-              />
-            {:else if release.pendingAction}
-              <Spinner color="yellow" size="6" />
-            {:else}
-              <IconDownload
-                class="text-xl"
-                color="#00d500"
-                aria-label={$_(
-                  "settings_versions_icon_downloadVersion_altText",
-                )}
-              />
-            {/if}
-          </Button>
-          {#if release.isDownloaded}
+
+        <TableBodyCell class="px-6 py-2">
+          <div class="flex items-center gap-4">
             <Button
-              class="py-0 bg-transparent focus:ring-0 disabled:opacity-50"
+              class="p-0 bg-transparent focus:ring-0 disabled:opacity-50"
               disabled={isPending}
-              onclick={() => handleRedownload(release)}
+              onclick={async () => handleAction(release)}
             >
-              {#if release.pendingAction}
+              {#if release.isDownloaded}
+                <IconDeleteForever
+                  class="text-xl text-red-500"
+                  aria-label={$_(
+                    "settings_versions_icon_removeVersion_altText",
+                  )}
+                />
+              {:else if release.pendingAction}
                 <Spinner color="yellow" size="6" />
               {:else}
-                <IconRefresh
-                  class="text-xl"
+                <IconDownload
+                  class="text-xl text-green-500"
                   aria-label={$_(
-                    "settings_versions_icon_redownloadVersion_altText",
+                    "settings_versions_icon_downloadVersion_altText",
                   )}
                 />
               {/if}
             </Button>
-          {/if}
+
+            {#if release.isDownloaded}
+              <Button
+                class="py-0 bg-transparent focus:ring-0 disabled:opacity-50"
+                disabled={isPending}
+                onclick={() => handleRedownload(release)}
+              >
+                {#if release.pendingAction}
+                  <Spinner color="yellow" size="6" />
+                {:else}
+                  <IconRefresh
+                    class="text-xl"
+                    aria-label={$_(
+                      "settings_versions_icon_redownloadVersion_altText",
+                    )}
+                  />
+                {/if}
+              </Button>
+            {/if}
+          </div>
         </TableBodyCell>
-        <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
+
+        <TableBodyCell class="px-6 py-3 whitespace-nowrap font-bold">
           {release.version}
         </TableBodyCell>
-        <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
+        <TableBodyCell class="px-6 py-3 whitespace-nowrap font-medium">
           {#if release.date}
             {new Date(release.date).toLocaleDateString()}
           {/if}
         </TableBodyCell>
-        <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
+
+        <TableBodyCell class="px-6 py-3">
           {#if release.githubLink}
             <a href={release.githubLink} target="_blank" rel="noreferrer">
               <IconGitHub
