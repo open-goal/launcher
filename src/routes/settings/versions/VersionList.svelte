@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { ReleaseInfo } from "$lib/utils/github";
   import IconRefresh from "~icons/mdi/refresh";
-  import IconFolderOpen from "~icons/mdi/folder-open";
   import IconGitHub from "~icons/mdi/github";
   import IconDownload from "~icons/mdi/download";
   import IconDeleteForever from "~icons/mdi/delete-forever";
@@ -17,24 +16,20 @@
     TableHeadCell,
   } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
-  import { openPath } from "@tauri-apps/plugin-opener";
-  import { getInstallationDirectory } from "$lib/rpc/config";
   import { versionState } from "/src/state/VersionState.svelte";
 
   let {
-    description,
     releaseList,
     onVersionChange,
     onRemoveVersion,
-    onRefreshVersions,
     onDownloadVersion,
+    isPending,
   }: {
-    description: string;
     releaseList: ReleaseInfo[];
     onVersionChange: (version: string) => Promise<void>;
     onRemoveVersion: (version: string) => Promise<void>;
-    onRefreshVersions: () => Promise<void>;
     onDownloadVersion: (version: string, downloadUrl: string) => Promise<void>;
+    isPending: boolean;
   } = $props();
 
   const handleAction = async (release: ReleaseInfo) => {
@@ -52,31 +47,6 @@
     }
   };
 </script>
-
-<div class="flex items-center mb-2">
-  <div class="grow">
-    <p class="text-sm text-gray-300">
-      {description}
-    </p>
-  </div>
-  <div class="flex">
-    <Button
-      class="p-2! mr-2 rounded-md bg-orange-500 hover:bg-orange-600 text-slate-900"
-      onclick={() => onRefreshVersions()}
-    >
-      <IconRefresh aria-label={$_("settings_versions_icon_refresh_altText")} />
-    </Button>
-    <Button
-      class="p-2! rounded-md bg-orange-500 hover:bg-orange-600 text-slate-900"
-      onclick={async () =>
-        openPath((await getInstallationDirectory()) + "/versions/official/")}
-    >
-      <IconFolderOpen
-        aria-label={$_("settings_versions_icon_openFolder_altText")}
-      />
-    </Button>
-  </div>
-</div>
 
 <Table>
   <TableHead class="bg-slate-400">
@@ -111,7 +81,7 @@
         >
           <Button
             class="py-0 bg-transparent focus:ring-0 disabled:opacity-50"
-            disabled={release.pendingAction}
+            disabled={isPending}
             onclick={async () => handleAction(release)}
           >
             {#if release.isDownloaded}
@@ -135,7 +105,7 @@
           {#if release.isDownloaded}
             <Button
               class="py-0 bg-transparent focus:ring-0 disabled:opacity-50"
-              disabled={release.pendingAction}
+              disabled={isPending}
               onclick={() => handleRedownload(release)}
             >
               {#if release.pendingAction}

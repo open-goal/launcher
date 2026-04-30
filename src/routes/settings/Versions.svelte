@@ -9,11 +9,18 @@
   import { listOfficialReleases, type ReleaseInfo } from "$lib/utils/github";
   import VersionList from "./versions/VersionList.svelte";
   import { UpdateStore } from "$lib/stores/AppStore";
-  import { saveActiveVersionChange } from "$lib/rpc/config";
+  import {
+    getInstallationDirectory,
+    saveActiveVersionChange,
+  } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
   import { versionState } from "/src/state/VersionState.svelte";
-  import { Alert, Spinner } from "flowbite-svelte";
+  import { Alert, Button, Spinner } from "flowbite-svelte";
+  import Latest from "./versions/Latest.svelte";
+  import { openPath } from "@tauri-apps/plugin-opener";
+  import IconFolderOpen from "~icons/mdi/folder-open";
+  import IconRefresh from "~icons/mdi/refresh";
 
   let loading = $state(true);
   let releases: ReleaseInfo[] = $state([]);
@@ -174,6 +181,8 @@
         : release,
     );
   }
+
+  const isPending = $derived(releases.some((r) => r.pendingAction));
 </script>
 
 <p class="text-sm mt-2 mb-2">{$_("settings_versions_header")}</p>
@@ -182,13 +191,43 @@
     <Spinner color="yellow" size="12" />
   </div>
 {:else if releases.length > 0}
+  <div class="flex items-center mb-2">
+    <div class="grow">
+      <p class="text-sm text-gray-300">
+        {$_("settings_versions_official_description")}
+      </p>
+    </div>
+    <div class="flex">
+      <Button
+        class="p-2! mr-2 rounded-md bg-orange-500 hover:bg-orange-600 text-slate-900"
+        onclick={refreshVersionList}
+        disabled={isPending}
+      >
+        <IconRefresh
+          aria-label={$_("settings_versions_icon_refresh_altText")}
+        />
+      </Button>
+      <Button
+        class="p-2! rounded-md bg-orange-500 hover:bg-orange-600 text-slate-900"
+        onclick={async () =>
+          openPath((await getInstallationDirectory()) + "/versions/official/")}
+      >
+        <IconFolderOpen
+          aria-label={$_("settings_versions_icon_openFolder_altText")}
+        />
+      </Button>
+    </div>
+  </div>
+
+  <Latest latest={releases[0]} {onRemoveVersion} {onDownloadVersion} {isPending}
+  ></Latest>
+
   <VersionList
-    description={$_("settings_versions_official_description")}
-    releaseList={releases}
+    releaseList={releases.slice(1)}
     onVersionChange={saveOfficialVersionChange}
     {onRemoveVersion}
-    onRefreshVersions={refreshVersionList}
     {onDownloadVersion}
+    {isPending}
   />
 {:else}
   <Alert class="bg-slate-900 grow text-red-400">
