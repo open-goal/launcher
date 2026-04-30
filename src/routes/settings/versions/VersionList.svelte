@@ -17,6 +17,15 @@
   } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { versionState } from "/src/state/VersionState.svelte";
+  import { onMount } from "svelte";
+  import { getLocale } from "$lib/rpc/config";
+
+  let locale = $state("en-US");
+
+  onMount(async () => {
+    const res = await getLocale();
+    if (res) locale = res;
+  });
 
   let {
     releaseList,
@@ -128,7 +137,11 @@
         </TableBodyCell>
         <TableBodyCell class="px-6 py-3 whitespace-nowrap font-medium">
           {#if release.date}
-            {new Date(release.date).toLocaleDateString()}
+            {new Date(release.date).toLocaleString(locale, {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
           {/if}
         </TableBodyCell>
 
