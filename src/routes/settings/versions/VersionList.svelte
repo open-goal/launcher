@@ -62,18 +62,16 @@
     {#each releaseList as release (release.version)}
       <TableBodyRow class="bg-slate-700">
         <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
-          {#if release.isDownloaded}
-            <Radio
-              bind:group={versionState.activeToolingVersion}
-              value={release.version}
-              onchange={() => {
-                onVersionChange(release.version);
-              }}
-              disabled={!release.isDownloaded}
-              color="orange"
-              class="disabled:cursor-not-allowed p-0"
-            />
-          {/if}
+          <Radio
+            bind:group={versionState.activeToolingVersion}
+            value={release.version}
+            onchange={() => {
+              onVersionChange(release.version);
+            }}
+            disabled={!release.isDownloaded}
+            color="orange"
+            class="disabled:cursor-not-allowed p-0"
+          />
         </TableBodyCell>
         <TableBodyCell
           class="px-6 py-2 whitespace-nowrap font-medium"
