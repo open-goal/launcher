@@ -2,6 +2,7 @@
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import IconDownload from "~icons/mdi/tray-arrow-down";
+  import IconAlert from "~icons/mdi/alert-circle";
   import { navigate } from "/src/router";
 
   let {
@@ -27,7 +28,7 @@
     return daysSinceRelease < 30;
   }
 
-  let thumbnailUrl = $derived(
+  const thumbnailUrl = $derived(
     thumbnailArtUrl || perGameConfig?.[activeGame]?.thumbnailArtUrl,
   );
 
@@ -70,7 +71,7 @@
     />
   </div>
 
-  <div class="flex flex-1 flex-col py-2">
+  <div class="flex flex-1 flex-col py-2 overflow-hidden">
     <div class="flex flex-col gap-2">
       <h2 class="text-lg font-bold text-white">
         {modDisplayName}
@@ -88,6 +89,9 @@
     <div class="mt-auto flex items-center gap-2 pt-2 text-sm text-zinc-400">
       <IconDownload class="text-base" />
       {downloadCount}
+      {#if showNewIndicator()}
+        <IconAlert class="text-base text-green-400 ml-auto"></IconAlert>
+      {/if}
     </div>
   </div>
 </div>
