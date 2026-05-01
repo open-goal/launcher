@@ -31,6 +31,7 @@
     "popularity",
   );
 
+  // TODO: this is gross
   const filteredMods = $derived.by(() => {
     if (!mods) return {};
 
