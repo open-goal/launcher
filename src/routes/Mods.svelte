@@ -13,6 +13,7 @@
   import { extractNewMod } from "$lib/rpc/features";
   import { basename } from "@tauri-apps/api/path";
   import { asJobType } from "$lib/job/jobs";
+  import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
 
   let loaded = $state(false);
   let mods = $state();
@@ -48,12 +49,12 @@
 
         const processed = mods
           .filter(
-            (m) =>
+            (m: ModInfo) =>
               !search ||
               m.displayName.toLowerCase().includes(search) ||
               m.authors?.some((a) => a.toLowerCase().includes(search)),
           )
-          .toSorted((a, b) => {
+          .toSorted((a: ModInfo, b: ModInfo) => {
             switch (sort) {
               case "name":
                 return a.displayName.localeCompare(b.displayName);
@@ -67,17 +68,7 @@
                   Date.parse(a.perGameConfig?.[gameKey]?.releaseDate ?? "0")
                 );
               case "popularity":
-                const getSum = (m) =>
-                  m.versions?.reduce(
-                    (t, v) =>
-                      t +
-                      Object.values(v.assetDownloadCounts ?? {}).reduce(
-                        (s, n) => s + n,
-                        0,
-                      ),
-                    0,
-                  ) ?? 0;
-                return getSum(b) - getSum(a);
+                return b.downloadCount - a.downloadCount;
               case "updated":
                 return (
                   Date.parse(b.versions?.[0]?.publishedDate ?? "0") -
@@ -95,16 +86,19 @@
 
   const installedMods = $derived.by(() => {
     if (!filteredMods) return {};
+    $inspect(filteredMods);
 
     return Object.entries(filteredMods).flatMap(([game, mods]) =>
-      mods
+      (mods as ModInfo[])
         .filter((mod) => mod.installed)
         .map((mod) => ({
           ...mod,
-          game: game,
+          game: game as SupportedGame,
         })),
     );
   });
+
+  $inspect(typeof installedMods);
 
   // const onWindows = platform() === "windows";
 

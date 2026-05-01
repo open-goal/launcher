@@ -3,4 +3,4 @@ import type { ModPerGameConfig } from "./ModPerGameConfig";
 import type { ModVersion } from "./ModVersion";
 import type { SupportedGame } from "./SupportedGame";
 
-export type ModInfo = { name: string, source: string, displayName: string, description: string, authors: Array<string>, tags: Array<string>, supportedGames: Array<SupportedGame>, websiteUrl: string | null, versions: Array<ModVersion>, perGameConfig: { [key in string]: ModPerGameConfig } | null, coverArtUrl: string | null, thumbnailArtUrl: string | null, externalLink: string | null, installed: boolean, };
+export type ModInfo = { name: string, source: string, displayName: string, description: string, authors: Array<string>, tags: Array<string>, supportedGames: Array<SupportedGame>, websiteUrl: string | null, versions: Array<ModVersion>, perGameConfig: { [key in string]: ModPerGameConfig } | null, coverArtUrl: string | null, thumbnailArtUrl: string | null, externalLink: string | null, installed: boolean, downloadCount: bigint, };

@@ -85,10 +85,18 @@ pub struct ModInfo {
   pub thumbnail_art_url: Option<String>,
   pub external_link: Option<String>,
   pub installed: bool,
+  pub download_count: u64,
 }
 
 impl From<ModInfoSchema> for ModInfo {
   fn from(schema: ModInfoSchema) -> Self {
+    let download_count = schema
+    .versions
+    .iter()
+    .filter_map(|version| version.asset_download_counts.as_ref())
+    .flat_map(|counts| counts.values())
+    .sum();
+
     Self {
       display_name: schema.display_name,
       description: schema.description,
@@ -105,6 +113,7 @@ impl From<ModInfoSchema> for ModInfo {
       name: String::new(),
       source: String::new(),
       installed: false,
+      download_count: download_count,
     }
   }
 }

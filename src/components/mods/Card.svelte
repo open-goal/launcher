@@ -3,6 +3,7 @@
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import IconDownload from "~icons/mdi/tray-arrow-down";
   import IconAlert from "~icons/mdi/alert-circle";
+  import IconDots from "~icons/mdi/dots-horizontal";
   import { navigate } from "/src/router";
 
   let {
@@ -19,6 +20,7 @@
   const modSourceName = $derived(mod.source);
   const thumbnailArtUrl = $derived(mod.thumbnailArtUrl);
   const perGameConfig = $derived(mod.perGameConfig);
+  const downloadCount = $derived(mod.downloadCount);
 
   function showNewIndicator(): boolean {
     const releaseDate = perGameConfig?.[activeGame]?.releaseDate;
@@ -30,15 +32,6 @@
 
   const thumbnailUrl = $derived(
     thumbnailArtUrl || perGameConfig?.[activeGame]?.thumbnailArtUrl,
-  );
-
-  const downloadCount = $derived(
-    mod?.versions?.reduce(
-      (total, v) =>
-        total +
-        Object.values(v.assetDownloadCounts).reduce((sum, n) => sum + n, 0),
-      0,
-    ) ?? 0,
   );
 
   async function gotoMod(modName: string) {
@@ -90,8 +83,10 @@
       <IconDownload class="text-base" />
       {downloadCount}
       {#if showNewIndicator()}
-        <IconAlert class="text-base text-green-400 ml-auto"></IconAlert>
+        <IconAlert class="text-base text-green-400"></IconAlert>
       {/if}
+      <!-- TODO: ADD TINY SETTINGS POPUP WITH WEBSITE AND UNINSTALL BUTTON -->
+      <!-- <IconDots class="text-base ml-auto"></IconDots> -->
     </div>
   </div>
 </div>
