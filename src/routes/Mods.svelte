@@ -91,7 +91,7 @@
     );
   });
 
-  // const onWindows = platform() === "windows";
+  const onWindows = platform() === "windows";
 
   onMount(async () => {
     await refreshModSources();
@@ -99,43 +99,46 @@
     loaded = true;
   });
 
-  // async function addModFromFile(activeGame: SupportedGame) {
-  //   addingMod = true;
-  //   addingFromFile = true;
-  //   let modArchivePath;
-  //   if (onWindows) {
-  //     modArchivePath = await filePrompt(["zip"], "ZIP", "Select a mod");
-  //   } else {
-  //     modArchivePath = await filePrompt(["gz"], "TAR", "Select a mod");
-  //   }
-  //   if (modArchivePath === null) {
-  //     addingMod = false;
-  //     addingFromFile = false;
-  //     return;
-  //   }
-  //   // extract the file into install_dir/features/<game>/_local/zip-name
-  //   await extractNewMod(activeGame, modArchivePath, "_local");
-  //   let modName = await basename(
-  //     modArchivePath,
-  //     onWindows ? ".zip" : ".tar.gz",
-  //   );
-  //   if (!onWindows && modName.endsWith(".tar")) {
-  //     modName = modName.substring(0, modName.indexOf(".tar"));
-  //   }
-  //   // install it
-  //   navigate("/job/:job_type", {
-  //     params: {
-  //       job_type: asJobType("installModLocally"),
-  //     },
-  //     search: {
-  //       activeGame: activeGame,
-  //       modName: modName,
-  //       modSourceName: "_local",
-  //       modVersion: "local",
-  //       returnTo: route.pathname,
-  //     },
-  //   });
-  // }
+  async function addModFromFile() {
+    addingMod = true;
+    addingFromFile = true;
+    let modArchivePath;
+
+    if (!activeGame) return;
+
+    if (onWindows) {
+      modArchivePath = await filePrompt(["zip"], "ZIP", "Select a mod");
+    } else {
+      modArchivePath = await filePrompt(["gz"], "TAR", "Select a mod");
+    }
+    if (modArchivePath === null) {
+      addingMod = false;
+      addingFromFile = false;
+      return;
+    }
+    // extract the file into install_dir/features/<game>/_local/zip-name
+    await extractNewMod(activeGame, modArchivePath, "_local");
+    let modName = await basename(
+      modArchivePath,
+      onWindows ? ".zip" : ".tar.gz",
+    );
+    if (!onWindows && modName.endsWith(".tar")) {
+      modName = modName.substring(0, modName.indexOf(".tar"));
+    }
+    // install it
+    navigate("/job/:job_type", {
+      params: {
+        job_type: asJobType("installModLocally"),
+      },
+      search: {
+        activeGame: activeGame,
+        modName: modName,
+        modSourceName: "_local",
+        modVersion: "local",
+        returnTo: route.pathname,
+      },
+    });
+  }
 </script>
 
 <div class="flex flex-col h-full bg-neutral-900">
@@ -154,21 +157,20 @@
         >
           <IconArrowLeft />
         </Button> -->
-        <Button
-          class="font-semibold text-sm rounded bg-orange-500 border border-orange-400 hover:bg-orange-400 hover:border-orange-300 text-slate-900 hover:text-slate-800 whitespace-nowrap"
-          onclick={() => {
-            // if (activeGame) {
-            //   addModFromFile(activeGame);
-            // }
-          }}
-          aria-label={$_("features_mods_addFromFile_buttonAlt")}
-          disabled={addingMod}
-        >
-          {#if addingFromFile}
-            <Spinner class="mr-3" size="4" color="yellow" />
-          {/if}
-          {$_("features_mods_addFromFile")}</Button
-        >
+        <!-- TODO: Implement add mod from file for the generic mod route (no activeGame) -->
+        {#if activeGame}
+          <Button
+            class="font-semibold text-sm rounded bg-orange-500 border border-orange-400 hover:bg-orange-400 hover:border-orange-300 text-slate-900 hover:text-slate-800 whitespace-nowrap"
+            onclick={() => addModFromFile()}
+            aria-label={$_("features_mods_addFromFile_buttonAlt")}
+            disabled={addingMod}
+          >
+            {#if addingFromFile}
+              <Spinner class="mr-3" size="4" color="yellow" />
+            {/if}
+            {$_("features_mods_addFromFile")}</Button
+          >
+        {/if}
         <Input
           class="font-normal rounded-sm text-gray-200 bg-neutral-800! border border-neutral-600! focus:border-orange-400!"
           placeholder={$_("features_mods_filter_placeholder")}
@@ -202,6 +204,7 @@
         <h2 class="font-bold mt-2">{$_("features_mods_installed_header")}</h2>
         <div class="grid grid-cols-2 gap-6 mt-2">
           {#each installedMods as mod}
+            <!-- TODO: this part here is rough and i need to fix it, but it works... -->
             <ModCard {mod} activeGame={toSupportedGame(mod.game)!} />
           {/each}
         </div>
@@ -211,7 +214,7 @@
           {$_("features_mods_available_header")}
         </h1>
         {#each Object.entries(filteredMods) as [game, gameMods]}
-          <div hidden={gameMods.length === 0} class="py-2 mt-8">
+          <div hidden={gameMods.length === 0} class="py-2">
             <h2 hidden={activeGame !== undefined}>
               {$_(`gameName_${game}`)}
             </h2>
