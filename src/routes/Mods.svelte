@@ -14,19 +14,13 @@
   import { basename } from "@tauri-apps/api/path";
   import { asJobType } from "$lib/job/jobs";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
+  import type { AvailableModsByGame } from "$lib/rpc/bindings/AvailableModsByGame";
 
   let loaded = $state(false);
-  let mods = $state();
+  let mods = $state<AvailableModsByGame | undefined>();
   let query = $state("");
   let addingMod = $state(false);
   let addingFromFile = $state(false);
-
-  // const allAuthors = $derived.by(() => {
-  //   if (!mods) return [];
-  //   const allMods = Object.values(mods).flat();
-  //   const uniqueList = new Set(allMods.flatMap((mod) => mod.authors ?? []));
-  //   return [...uniqueList].sort((a, b) => a.localeCompare(b));
-  // });
 
   const activeGame = $derived.by(() => {
     return toSupportedGame(route.params.game_name);
@@ -84,9 +78,8 @@
     );
   });
 
-  const installedMods = $derived.by(() => {
-    if (!filteredMods) return {};
-    $inspect(filteredMods);
+  const installedMods: ModInfo[] = $derived.by(() => {
+    if (!filteredMods) return [];
 
     return Object.entries(filteredMods).flatMap(([game, mods]) =>
       (mods as ModInfo[])
@@ -97,8 +90,6 @@
         })),
     );
   });
-
-  $inspect(typeof installedMods);
 
   // const onWindows = platform() === "windows";
 
@@ -220,8 +211,8 @@
           {$_("features_mods_available_header")}
         </h1>
         {#each Object.entries(filteredMods) as [game, gameMods]}
-          <div hidden={filteredMods[game].length === 0} class="py-2">
-            <h2 hidden={activeGame}>
+          <div hidden={gameMods.length === 0} class="py-2">
+            <h2 hidden={activeGame !== undefined}>
               {$_(`gameName_${game}`)}
             </h2>
 
