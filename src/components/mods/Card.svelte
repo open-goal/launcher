@@ -27,7 +27,7 @@
     if (!releaseDate) return false;
     const releaseTime = Date.parse(releaseDate);
     const daysSinceRelease = (Date.now() - releaseTime) / (1000 * 3600 * 24);
-    return daysSinceRelease < 30;
+    return daysSinceRelease < 30 && !mod.installed;
   }
 
   const thumbnailUrl = $derived(
