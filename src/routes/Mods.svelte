@@ -211,7 +211,7 @@
           {$_("features_mods_available_header")}
         </h1>
         {#each Object.entries(filteredMods) as [game, gameMods]}
-          <div hidden={gameMods.length === 0} class="py-2">
+          <div hidden={gameMods.length === 0} class="py-2 mt-8">
             <h2 hidden={activeGame !== undefined}>
               {$_(`gameName_${game}`)}
             </h2>

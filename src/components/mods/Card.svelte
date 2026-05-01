@@ -2,8 +2,8 @@
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import IconDownload from "~icons/mdi/tray-arrow-down";
-  import IconAlert from "~icons/mdi/alert-circle";
-  import IconDots from "~icons/mdi/dots-horizontal";
+  import IconNew from "~icons/mdi/creation";
+  // import IconDots from "~icons/mdi/dots-horizontal";
   import { navigate } from "/src/router";
 
   let {
@@ -83,7 +83,8 @@
       <IconDownload class="text-base" />
       {downloadCount}
       {#if showNewIndicator()}
-        <IconAlert class="text-base text-green-400"></IconAlert>
+        <IconNew class="text-base text-green-400 ml-auto animate-pulse"
+        ></IconNew>
       {/if}
       <!-- TODO: ADD TINY SETTINGS POPUP WITH WEBSITE AND UNINSTALL BUTTON -->
       <!-- <IconDots class="text-base ml-auto"></IconDots> -->
