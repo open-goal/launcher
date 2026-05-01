@@ -35,7 +35,9 @@ pub async fn get_mod_sources_data(
 #[tauri::command]
 pub async fn get_available_mods(
   cache: tauri::State<'_, tokio::sync::Mutex<ModCache>>,
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<AvailableModsByGame, CommandError> {
   let cache_lock = cache.lock().await;
-  Ok(cache_lock.available_mods())
+  let config_lock = config.lock().await;
+  Ok(cache_lock.available_mods(&config_lock))
 }

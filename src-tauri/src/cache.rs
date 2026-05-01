@@ -6,7 +6,10 @@ use tauri_plugin_os::platform;
 use tracing::error;
 use ts_rs::TS;
 
-use crate::{config::SupportedGame, util::network::download_json};
+use crate::{
+  config::{LauncherConfig, SupportedGame},
+  util::network::download_json,
+};
 
 #[derive(Debug, Serialize, Deserialize, Clone, TS)]
 #[serde(rename_all = "camelCase")]
@@ -81,6 +84,7 @@ pub struct ModInfo {
   pub cover_art_url: Option<String>,
   pub thumbnail_art_url: Option<String>,
   pub external_link: Option<String>,
+  pub installed: bool,
 }
 
 impl From<ModInfoSchema> for ModInfo {
@@ -100,6 +104,7 @@ impl From<ModInfoSchema> for ModInfo {
       // name + source filled later
       name: String::new(),
       source: String::new(),
+      installed: false,
     }
   }
 }
@@ -227,7 +232,7 @@ impl ModCache {
       .collect()
   }
 
-  fn mods_for_game(&self, game: SupportedGame) -> Vec<ModInfo> {
+  fn mods_for_game(&self, game: SupportedGame, config: &LauncherConfig) -> Vec<ModInfo> {
     let mut mods: Vec<ModInfo> = self
       .mod_sources
       .values()
@@ -251,10 +256,11 @@ impl ModCache {
         });
 
         if info.versions.is_empty() {
-          None
-        } else {
-          Some(info)
+          return None;
         }
+
+        info.installed = config.is_mod_installed(game, &info.source, &info.name);
+        Some(info)
       })
       .collect();
 
@@ -266,11 +272,11 @@ impl ModCache {
     mods
   }
 
-  pub fn available_mods(&self) -> AvailableModsByGame {
+  pub fn available_mods(&self, config: &LauncherConfig) -> AvailableModsByGame {
     AvailableModsByGame {
-      jak1: self.mods_for_game(SupportedGame::Jak1),
-      jak2: self.mods_for_game(SupportedGame::Jak2),
-      jak3: self.mods_for_game(SupportedGame::Jak3),
+      jak1: self.mods_for_game(SupportedGame::Jak1, config),
+      jak2: self.mods_for_game(SupportedGame::Jak2, config),
+      jak3: self.mods_for_game(SupportedGame::Jak3, config),
     }
   }
 }
