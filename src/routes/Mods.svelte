@@ -92,6 +92,11 @@
     );
   });
 
+  const isModsEmpty = $derived(() => {
+    if (!filteredMods) return true;
+    return !Object.values(filteredMods).some((mods) => mods.length > 0);
+  });
+
   const onWindows = platform() === "windows";
 
   onMount(async () => {
@@ -201,6 +206,21 @@
           <option value="updated">Last Updated</option>
         </select>
       </div>
+
+      {#if isModsEmpty()}
+        <div
+          class="flex flex-col items-center justify-center gap-4 p-4 border rounded-md border-zinc-700/60 bg-zinc-900/60 text-center"
+        >
+          <p class="text-slate-400 font-bold">
+            {$_("features_mods_no_sources")}
+          </p>
+          <Button
+            class="border-solid rounded-sm bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2 mt-2"
+            href="/settings/mod">{$_("features_mods_go_to_settings")}</Button
+          >
+        </div>
+      {/if}
+
       {#if Object.keys(installedMods).length}
         <h2 class="font-bold mt-2">{$_("features_mods_installed_header")}</h2>
         <div class="grid grid-cols-2 gap-6 mt-2">
@@ -210,7 +230,7 @@
           {/each}
         </div>
       {/if}
-      {#if filteredMods}
+      {#if !isModsEmpty()}
         <h1 hidden={!activeGame} class="font-bold mt-5">
           {$_("features_mods_available_header")}
         </h1>
