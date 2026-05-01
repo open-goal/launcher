@@ -1,42 +1,37 @@
 <script lang="ts">
-  import { platform } from "@tauri-apps/plugin-os";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import { Button, Input, Spinner } from "flowbite-svelte";
   import IconArrowLeft from "~icons/mdi/arrow-left";
-  import {
-    getModSourcesData,
-    refreshModSources,
-    getAvailableMods,
-  } from "$lib/rpc/cache";
-  import type { ModSourceData } from "$lib/rpc/bindings/ModSourceData";
-  import { filePrompt } from "$lib/utils/file-dialogs";
-  import { extractNewMod, getInstalledModsByGame } from "$lib/rpc/features";
-  import { basename } from "@tauri-apps/api/path";
+  import { refreshModSources, getAvailableMods } from "$lib/rpc/cache";
   import { navigate, route } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
-  import { asJobType } from "$lib/job/jobs";
-  import InstalledMods from "../components/mods/Installed.svelte";
-  import AvailableMods from "../components/mods/Available.svelte";
   import ModCard from "../components/mods/Card.svelte";
+  import { platform } from "@tauri-apps/plugin-os";
+  import { filePrompt } from "$lib/utils/file-dialogs";
+  import { extractNewMod } from "$lib/rpc/features";
+  import { basename } from "@tauri-apps/api/path";
+  import { asJobType } from "$lib/job/jobs";
 
-  // let activeGame: SupportedGame | undefined = $state(undefined);
   let loaded = $state(false);
   let mods = $state();
   let query = $state("");
   let addingMod = $state(false);
   let addingFromFile = $state(false);
-  let installedMods: Record<string, Record<string, string>> = $state({});
-  let sourceData: Record<string, ModSourceData> = $state({});
-  const allAuthors = $derived.by(() => {
-    if (!mods) return [];
-    const allMods = Object.values(mods).flat();
-    const uniqueList = new Set(allMods.flatMap((mod) => mod.authors ?? []));
-    return [...uniqueList].sort((a, b) => a.localeCompare(b));
+
+  // const allAuthors = $derived.by(() => {
+  //   if (!mods) return [];
+  //   const allMods = Object.values(mods).flat();
+  //   const uniqueList = new Set(allMods.flatMap((mod) => mod.authors ?? []));
+  //   return [...uniqueList].sort((a, b) => a.localeCompare(b));
+  // });
+
+  const activeGame = $derived.by(() => {
+    return toSupportedGame(route.params.game_name);
   });
 
-  let game = $state<SupportedGame | "all">("all");
+  let game = $state<SupportedGame | "all">(activeGame || "all");
   let sort = $state<"name" | "popularity" | "release" | "author" | "updated">(
     "popularity",
   );
@@ -98,28 +93,26 @@
     );
   });
 
-  $inspect(filteredMods);
+  const installedMods = $derived.by(() => {
+    if (!filteredMods) return {};
 
-  const onWindows = platform() === "windows";
+    return Object.entries(filteredMods).flatMap(([game, mods]) =>
+      mods
+        .filter((mod) => mod.installed)
+        .map((mod) => ({
+          ...mod,
+          game: game,
+        })),
+    );
+  });
+
+  // const onWindows = platform() === "windows";
 
   onMount(async () => {
     await refreshModSources();
-    sourceData = await getModSourcesData();
     mods = await getAvailableMods();
     loaded = true;
   });
-
-  // const gameParam = $derived(route.params.game_name);
-  // $effect(() => {
-  //   console.log(gameParam);
-  //   const activeGameFromParam = toSupportedGame(gameParam);
-  //   if (activeGameFromParam) {
-  //     activeGame = activeGameFromParam;
-  //     getInstalledModsByGame(activeGame).then((val) => {
-  //       installedMods = val;
-  //     });
-  //   }
-  // });
 
   // async function addModFromFile(activeGame: SupportedGame) {
   //   addingMod = true;
@@ -171,11 +164,7 @@
         <Button
           outline
           class="w-10 rounded text-white hover:text-slate-900 hover:bg-white font-semibold p-2 text-lg"
-          onclick={async () => {
-            // if (activeGame) {
-            //   navigate(`/:game_name/`, { params: { game_name: activeGame } });
-            // }
-          }}
+          onclick={() => navigate(-1)}
           aria-label={$_("features_backToGamePage_buttonAlt")}
         >
           <IconArrowLeft />
@@ -201,6 +190,18 @@
           bind:value={query}
         />
 
+        {#if !activeGame}
+          <select
+            class="w-56 font-normal text-sm rounded-sm text-gray-200 bg-neutral-800 border border-neutral-600 cursor-pointer"
+            bind:value={game}
+          >
+            <option value="all">All Games</option>
+            <option value="jak1">Jak 1</option>
+            <option value="jak2">Jak 2</option>
+            <option value="jak3">Jak 3</option>
+          </select>
+        {/if}
+
         <select
           class="w-56 font-normal text-sm rounded-sm text-gray-200 bg-neutral-800 border border-neutral-600 cursor-pointer"
           bind:value={sort}
@@ -211,25 +212,14 @@
           <option value="popularity">Popularity</option>
           <option value="updated">Last Updated</option>
         </select>
-
-        <select
-          class="w-56 font-normal text-sm rounded-sm text-gray-200 bg-neutral-800 border border-neutral-600 cursor-pointer"
-          bind:value={game}
-        >
-          <option value="all">All Games</option>
-          <option value="jak1">Jak 1</option>
-          <option value="jak2">Jak 2</option>
-          <option value="jak3">Jak 3</option>
-        </select>
       </div>
       {#if Object.keys(installedMods).length}
         <h2 class="font-bold mt-2">{$_("features_mods_installed_header")}</h2>
-        <!-- <InstalledMods
-          {activeGame}
-          modList={installedMods}
-          {query}
-          modSourceData={sourceData}
-        ></InstalledMods> -->
+        <div class="grid grid-cols-2 gap-6 mt-2">
+          {#each installedMods as mod}
+            <ModCard {mod} activeGame={toSupportedGame(mod.game)!} />
+          {/each}
+        </div>
       {/if}
       {#if filteredMods}
         <!-- <h1 class="font-bold mt-5">{$_("features_mods_available_header")}</h1> -->
@@ -241,17 +231,13 @@
 
             <div id={game} class="grid grid-cols-2 gap-6 mt-2">
               {#each gameMods as mod}
-                <ModCard {mod} activeGame={toSupportedGame(game)!} />
+                {#if !mod.installed}
+                  <ModCard {mod} activeGame={toSupportedGame(game)!} />
+                {/if}
               {/each}
             </div>
           </div>
         {/each}
-        <!-- <AvailableMods
-        {activeGame}
-        installedModList={installedMods}
-        {query}
-        modSourceData={sourceData}
-      ></AvailableMods> -->
       {/if}
     </div>
   {/if}

@@ -19,6 +19,7 @@
   const modSourceName = $derived(mod.source);
   const thumbnailArtUrl = $derived(mod.thumbnailArtUrl);
   const perGameConfig = $derived(mod.perGameConfig);
+  const installed = $derived(mod.installed);
 
   function showNewIndicator(): boolean {
     const releaseDate = perGameConfig?.[activeGame]?.releaseDate;
@@ -28,7 +29,6 @@
     return daysSinceRelease < 30;
   }
 
-  let isInstalled = false; // TODO!
   let thumbnailUrl = $derived(
     thumbnailArtUrl || perGameConfig?.[activeGame]?.thumbnailArtUrl,
   );
@@ -58,7 +58,7 @@
   tabindex="0"
   onclick={async () => gotoMod(modInternalName)}
   onkeydown={(e) => e.key === "Enter" && gotoMod(modInternalName)}
-  class="flex gap-4 rounded-xl border border-zinc-700/60 bg-zinc-900/60 pr-4 transition-all duration-200
+  class="flex gap-4 rounded-xl border h-56 border-zinc-700/60 bg-zinc-900/60 pr-4 transition-all duration-200
   shadow-[0_8px_24px_rgba(0,0,0,0.6)]
   hover:border-zinc-500/60
   hover:bg-zinc-900/80
@@ -70,14 +70,6 @@
       alt={modDisplayName}
       class="h-full w-full object-cover rounded-l-lg"
     />
-
-    {#if isInstalled}
-      <div
-        class="absolute left-0 top-0 h-0 w-0 border-l-40 border-t-40 border-l-green-500 border-t-transparent"
-      >
-        <IconCheck class="absolute left-1 top-1 text-white text-sm" />
-      </div>
-    {/if}
   </div>
 
   <div class="flex flex-1 flex-col py-2">
@@ -89,16 +81,6 @@
       <p class="text-sm text-zinc-400">
         by {mod.authors.join(", ")}
       </p>
-
-      <span
-        class={`w-fit rounded-sm px-2 py-0.5 text-xs font-medium ${
-          isInstalled
-            ? "bg-green-600/80 text-green-100"
-            : "bg-zinc-700 text-zinc-300"
-        }`}
-      >
-        {isInstalled ? "Installed" : "Not Installed"}
-      </span>
     </div>
 
     <p class="mt-2 line-clamp-3 text-sm text-zinc-300">
