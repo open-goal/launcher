@@ -2,7 +2,6 @@
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import IconDownload from "~icons/mdi/tray-arrow-down";
-  import IconCheck from "~icons/mdi/check";
   import { navigate } from "/src/router";
 
   let {
@@ -19,7 +18,6 @@
   const modSourceName = $derived(mod.source);
   const thumbnailArtUrl = $derived(mod.thumbnailArtUrl);
   const perGameConfig = $derived(mod.perGameConfig);
-  const installed = $derived(mod.installed);
 
   function showNewIndicator(): boolean {
     const releaseDate = perGameConfig?.[activeGame]?.releaseDate;
