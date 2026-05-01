@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
   import { Button, Input, Spinner } from "flowbite-svelte";
-  import IconArrowLeft from "~icons/mdi/arrow-left";
+  // import IconArrowLeft from "~icons/mdi/arrow-left";
   import { refreshModSources, getAvailableMods } from "$lib/rpc/cache";
   import { navigate, route } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
@@ -161,14 +161,14 @@
   {:else}
     <div class="pb-20 p-4 overflow-y-auto">
       <div class="flex flex-row items-stretch gap-2 h-10 mb-4">
-        <Button
+        <!-- <Button
           outline
           class="w-10 rounded text-white hover:text-slate-900 hover:bg-white font-semibold p-2 text-lg"
           onclick={() => navigate(-1)}
           aria-label={$_("features_backToGamePage_buttonAlt")}
         >
           <IconArrowLeft />
-        </Button>
+        </Button> -->
         <Button
           class="font-semibold text-sm rounded bg-orange-500 border border-orange-400 hover:bg-orange-400 hover:border-orange-300 text-slate-900 hover:text-slate-800 whitespace-nowrap"
           onclick={() => {
