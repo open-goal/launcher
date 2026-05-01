@@ -16,6 +16,7 @@ pub struct ModVersion {
   pub published_date: String,
   pub assets: HashMap<String, Option<String>>,
   pub supported_games: Option<Vec<SupportedGame>>,
+  pub asset_download_counts: Option<HashMap<String, u64>>,
 }
 
 impl ModVersion {
