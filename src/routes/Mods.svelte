@@ -222,10 +222,12 @@
         </div>
       {/if}
       {#if filteredMods}
-        <!-- <h1 class="font-bold mt-5">{$_("features_mods_available_header")}</h1> -->
+        <h1 hidden={!activeGame} class="font-bold mt-5">
+          {$_("features_mods_available_header")}
+        </h1>
         {#each Object.entries(filteredMods) as [game, gameMods]}
           <div hidden={filteredMods[game].length === 0} class="py-2">
-            <h2>
+            <h2 hidden={activeGame}>
               {$_(`gameName_${game}`)}
             </h2>
 
