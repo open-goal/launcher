@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
-  import AlertCircleOutline from "~icons/mdi/alert-circle-outline";
+  import IconDownload from "~icons/mdi/tray-arrow-down";
+  import IconCheck from "~icons/mdi/check";
   import { navigate } from "/src/router";
 
   let {
@@ -12,14 +13,12 @@
     activeGame: SupportedGame;
   } = $props();
 
-  const {
-    name: modInternalName,
-    displayName: modDisplayName,
-    source: modSourceName,
-    thumbnailArtUrl,
-    externalLink,
-    perGameConfig,
-  } = mod;
+  const modInternalName = $derived(mod.name);
+  const description = $derived(mod.description);
+  const modDisplayName = $derived(mod.displayName);
+  const modSourceName = $derived(mod.source);
+  const thumbnailArtUrl = $derived(mod.thumbnailArtUrl);
+  const perGameConfig = $derived(mod.perGameConfig);
 
   function showNewIndicator(): boolean {
     const releaseDate = perGameConfig?.[activeGame]?.releaseDate;
@@ -30,45 +29,85 @@
   }
 
   let isInstalled = false; // TODO!
-  let thumbnailUrl =
-    thumbnailArtUrl || perGameConfig?.[activeGame]?.thumbnailArtUrl;
+  let thumbnailUrl = $derived(
+    thumbnailArtUrl || perGameConfig?.[activeGame]?.thumbnailArtUrl,
+  );
+
+  const downloadCount = $derived(
+    mod?.versions?.reduce(
+      (total, v) =>
+        total +
+        Object.values(v.assetDownloadCounts).reduce((sum, n) => sum + n, 0),
+      0,
+    ) ?? 0,
+  );
+
+  async function gotoMod(modName: string) {
+    await navigate(`/:game_name/mods/:source_name/:mod_name`, {
+      params: {
+        game_name: activeGame,
+        source_name: encodeURI(modSourceName),
+        mod_name: encodeURI(modName),
+      },
+    });
+  }
 </script>
 
-{#if externalLink}
-  <a
-    href={externalLink}
-    target="_blank"
-    rel="noreferrer noopener"
-    class="h-50 max-w-40 bg-cover p-1 flex justify-center items-end relative grayscale"
-    style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{thumbnailUrl}'); background-size: cover;"
-  >
-    <h3 class="text-outline">
-      {modDisplayName}
-    </h3>
-  </a>
-{:else}
-  <button
-    class="h-50 max-w-40 bg-cover p-1 flex justify-center items-end relative"
-    style="background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)), url('{thumbnailUrl}'); background-size: cover;"
-    onclick={async () => {
-      navigate(`/:game_name/mods/:source_name/:mod_name`, {
-        params: {
-          game_name: activeGame,
-          source_name: encodeURI(modSourceName),
-          mod_name: encodeURI(modInternalName),
-        },
-      });
-    }}
-  >
-    <h3 class="text-outline">
-      {modDisplayName}
-    </h3>
-    <div class="absolute top-0 right-0 m-1 flex gap-1">
-      {#if !isInstalled && showNewIndicator()}
-        <AlertCircleOutline
-          class="text-green-400 text-lg bg-neutral-800 rounded border border-neutral-700"
-        />
-      {/if}
+<div
+  role="button"
+  tabindex="0"
+  onclick={async () => gotoMod(modInternalName)}
+  onkeydown={(e) => e.key === "Enter" && gotoMod(modInternalName)}
+  class="flex gap-4 rounded-xl border border-zinc-700/60 bg-zinc-900/60 pr-4 transition-all duration-200
+  shadow-[0_8px_24px_rgba(0,0,0,0.6)]
+  hover:border-zinc-500/60
+  hover:bg-zinc-900/80
+  hover:scale-[1.01]"
+>
+  <div dir="ltr" class="relative w-42 shrink-0 overflow-hidden">
+    <img
+      src={thumbnailUrl}
+      alt={modDisplayName}
+      class="h-full w-full object-cover rounded-l-lg"
+    />
+
+    {#if isInstalled}
+      <div
+        class="absolute left-0 top-0 h-0 w-0 border-l-40 border-t-40 border-l-green-500 border-t-transparent"
+      >
+        <IconCheck class="absolute left-1 top-1 text-white text-sm" />
+      </div>
+    {/if}
+  </div>
+
+  <div class="flex flex-1 flex-col py-2">
+    <div class="flex flex-col gap-2">
+      <h2 class="text-lg font-bold text-white">
+        {modDisplayName}
+      </h2>
+
+      <p class="text-sm text-zinc-400">
+        by {mod.authors.join(", ")}
+      </p>
+
+      <span
+        class={`w-fit rounded-sm px-2 py-0.5 text-xs font-medium ${
+          isInstalled
+            ? "bg-green-600/80 text-green-100"
+            : "bg-zinc-700 text-zinc-300"
+        }`}
+      >
+        {isInstalled ? "Installed" : "Not Installed"}
+      </span>
     </div>
-  </button>
-{/if}
+
+    <p class="mt-2 line-clamp-3 text-sm text-zinc-300">
+      {description}
+    </p>
+
+    <div class="mt-auto flex items-center gap-2 pt-2 text-sm text-zinc-400">
+      <IconDownload class="text-base" />
+      {downloadCount}
+    </div>
+  </div>
+</div>

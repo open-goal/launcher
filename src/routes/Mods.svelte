@@ -24,11 +24,81 @@
   // let activeGame: SupportedGame | undefined = $state(undefined);
   let loaded = $state(false);
   let mods = $state();
-  let modFilter = $state("");
+  let query = $state("");
   let addingMod = $state(false);
   let addingFromFile = $state(false);
   let installedMods: Record<string, Record<string, string>> = $state({});
   let sourceData: Record<string, ModSourceData> = $state({});
+  const allAuthors = $derived.by(() => {
+    if (!mods) return [];
+    const allMods = Object.values(mods).flat();
+    const uniqueList = new Set(allMods.flatMap((mod) => mod.authors ?? []));
+    return [...uniqueList].sort((a, b) => a.localeCompare(b));
+  });
+
+  let game = $state<SupportedGame | "all">("all");
+  let sort = $state<"name" | "popularity" | "release" | "author" | "updated">(
+    "popularity",
+  );
+
+  const filteredMods = $derived.by(() => {
+    if (!mods) return {};
+
+    const entries =
+      game === "all" ? Object.entries(mods) : [[game, mods[game] ?? []]];
+
+    return Object.fromEntries(
+      entries.map(([gameKey, mods]) => {
+        const search = query.toLowerCase().trim();
+
+        const processed = mods
+          .filter(
+            (m) =>
+              !search ||
+              m.displayName.toLowerCase().includes(search) ||
+              m.authors?.some((a) => a.toLowerCase().includes(search)),
+          )
+          .toSorted((a, b) => {
+            switch (sort) {
+              case "name":
+                return a.displayName.localeCompare(b.displayName);
+              case "author":
+                return (a.authors?.[0] ?? "").localeCompare(
+                  b.authors?.[0] ?? "",
+                );
+              case "release":
+                return (
+                  Date.parse(b.perGameConfig?.[gameKey]?.releaseDate ?? "0") -
+                  Date.parse(a.perGameConfig?.[gameKey]?.releaseDate ?? "0")
+                );
+              case "popularity":
+                const getSum = (m) =>
+                  m.versions?.reduce(
+                    (t, v) =>
+                      t +
+                      Object.values(v.assetDownloadCounts ?? {}).reduce(
+                        (s, n) => s + n,
+                        0,
+                      ),
+                    0,
+                  ) ?? 0;
+                return getSum(b) - getSum(a);
+              case "updated":
+                return (
+                  Date.parse(b.versions?.[0]?.publishedDate ?? "0") -
+                  Date.parse(a.versions?.[0]?.publishedDate ?? "0")
+                );
+              default:
+                return a.displayName.localeCompare(b.displayName);
+            }
+          });
+
+        return [gameKey, processed];
+      }),
+    );
+  });
+
+  $inspect(filteredMods);
 
   const onWindows = platform() === "windows";
 
@@ -128,25 +198,48 @@
         <Input
           class="font-normal rounded-sm text-gray-200 bg-neutral-800! border border-neutral-600! focus:border-orange-400!"
           placeholder={$_("features_mods_filter_placeholder")}
-          bind:value={modFilter}
+          bind:value={query}
         />
+
+        <select
+          class="w-56 font-normal text-sm rounded-sm text-gray-200 bg-neutral-800 border border-neutral-600 cursor-pointer"
+          bind:value={sort}
+        >
+          <option value="author">Author(s)</option>
+          <option value="name">Name</option>
+          <option value="release">Release Date</option>
+          <option value="popularity">Popularity</option>
+          <option value="updated">Last Updated</option>
+        </select>
+
+        <select
+          class="w-56 font-normal text-sm rounded-sm text-gray-200 bg-neutral-800 border border-neutral-600 cursor-pointer"
+          bind:value={game}
+        >
+          <option value="all">All Games</option>
+          <option value="jak1">Jak 1</option>
+          <option value="jak2">Jak 2</option>
+          <option value="jak3">Jak 3</option>
+        </select>
       </div>
       {#if Object.keys(installedMods).length}
         <h2 class="font-bold mt-2">{$_("features_mods_installed_header")}</h2>
         <!-- <InstalledMods
           {activeGame}
           modList={installedMods}
-          {modFilter}
+          {query}
           modSourceData={sourceData}
         ></InstalledMods> -->
       {/if}
-      {#if mods}
-        <h1 class="font-bold mt-5">{$_("features_mods_available_header")}</h1>
-        {#each Object.entries(mods) as [game, gameMods]}
-          <div class="py-2">
-            <h2>{$_(`gameName_${game}`)}</h2>
+      {#if filteredMods}
+        <!-- <h1 class="font-bold mt-5">{$_("features_mods_available_header")}</h1> -->
+        {#each Object.entries(filteredMods) as [game, gameMods]}
+          <div hidden={filteredMods[game].length === 0} class="py-2">
+            <h2>
+              {$_(`gameName_${game}`)}
+            </h2>
 
-            <div id={game} class="grid grid-cols-4 gap-4 mt-2">
+            <div id={game} class="grid grid-cols-2 gap-6 mt-2">
               {#each gameMods as mod}
                 <ModCard {mod} activeGame={toSupportedGame(game)!} />
               {/each}
@@ -156,7 +249,7 @@
         <!-- <AvailableMods
         {activeGame}
         installedModList={installedMods}
-        {modFilter}
+        {query}
         modSourceData={sourceData}
       ></AvailableMods> -->
       {/if}
