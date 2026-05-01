@@ -13,9 +13,10 @@ export type ModInfo = {
   supportedGames: Array<SupportedGame>;
   websiteUrl: string | null;
   versions: Array<ModVersion>;
-  perGameConfig: { [key in string]?: ModPerGameConfig } | null;
+  perGameConfig: { [key in string]: ModPerGameConfig } | null;
   coverArtUrl: string | null;
   thumbnailArtUrl: string | null;
   externalLink: string | null;
-  metadataOffline?: boolean;
+  installed: boolean;
+  downloadCount: bigint;
 };
