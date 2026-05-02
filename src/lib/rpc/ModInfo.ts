@@ -44,6 +44,8 @@ export async function getModInfo(
       coverArtUrl: null,
       thumbnailArtUrl: null,
       externalLink: null,
+      installed: false,
+      downloadCount: BigInt(0),
       metadataOffline: true,
     };
   }

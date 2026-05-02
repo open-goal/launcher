@@ -19,4 +19,5 @@ export type ModInfo = {
   externalLink: string | null;
   installed: boolean;
   downloadCount: bigint;
+  metadataOffline: boolean;
 };

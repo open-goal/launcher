@@ -86,6 +86,7 @@ pub struct ModInfo {
   pub external_link: Option<String>,
   pub installed: bool,
   pub download_count: u64,
+  pub metadata_offline: bool,
 }
 
 impl From<ModInfoSchema> for ModInfo {
@@ -114,6 +115,7 @@ impl From<ModInfoSchema> for ModInfo {
       source: String::new(),
       installed: false,
       download_count: download_count,
+      metadata_offline: false,
     }
   }
 }
