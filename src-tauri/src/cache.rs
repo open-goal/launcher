@@ -67,8 +67,8 @@ pub struct ModSourceDataSchema {
   pub texture_packs: HashMap<String, ModInfoSchema>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, TS)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Serialize, Deserialize, Clone, TS, Default)]
+#[serde(rename_all = "camelCase", default)]
 #[ts(export)]
 pub struct ModInfo {
   pub name: String,
@@ -91,11 +91,11 @@ pub struct ModInfo {
 impl From<ModInfoSchema> for ModInfo {
   fn from(schema: ModInfoSchema) -> Self {
     let download_count = schema
-    .versions
-    .iter()
-    .filter_map(|version| version.asset_download_counts.as_ref())
-    .flat_map(|counts| counts.values())
-    .sum();
+      .versions
+      .iter()
+      .filter_map(|version| version.asset_download_counts.as_ref())
+      .flat_map(|counts| counts.values())
+      .sum();
 
     Self {
       display_name: schema.display_name,
@@ -282,10 +282,48 @@ impl ModCache {
   }
 
   pub fn available_mods(&self, config: &LauncherConfig) -> AvailableModsByGame {
+    self
+      .available_remote_mods(config)
+      .combine(self.installed_local_mods(config))
+  }
+
+  pub fn available_remote_mods(&self, config: &LauncherConfig) -> AvailableModsByGame {
     AvailableModsByGame {
       jak1: self.mods_for_game(SupportedGame::Jak1, config),
       jak2: self.mods_for_game(SupportedGame::Jak2, config),
       jak3: self.mods_for_game(SupportedGame::Jak3, config),
+      jakx: self.mods_for_game(SupportedGame::JakX, config),
+    }
+  }
+
+  pub fn installed_local_mods(&self, config: &LauncherConfig) -> AvailableModsByGame {
+    let mods_for = |game| {
+      config
+        .games
+        .get(&game)
+        .and_then(|game_config| game_config.mods_installed_version.get("_local"))
+        .map(|mods| {
+          mods
+            .keys()
+            .map(|mod_name| ModInfo {
+              name: mod_name.clone(),
+              display_name: mod_name.clone(),
+              source: "_local".to_string(),
+              installed: true,
+              supported_games: vec![game],
+              tags: vec!["local".to_string()],
+              ..Default::default()
+            })
+            .collect()
+        })
+        .unwrap_or_default()
+    };
+
+    AvailableModsByGame {
+      jak1: mods_for(SupportedGame::Jak1),
+      jak2: mods_for(SupportedGame::Jak2),
+      jak3: mods_for(SupportedGame::Jak3),
+      jakx: mods_for(SupportedGame::JakX),
     }
   }
 }
@@ -297,4 +335,16 @@ pub struct AvailableModsByGame {
   pub jak1: Vec<ModInfo>,
   pub jak2: Vec<ModInfo>,
   pub jak3: Vec<ModInfo>,
+  pub jakx: Vec<ModInfo>,
+}
+
+impl AvailableModsByGame {
+  pub fn combine(self, other: Self) -> Self {
+    Self {
+      jak1: [self.jak1, other.jak1].concat(),
+      jak2: [self.jak2, other.jak2].concat(),
+      jak3: [self.jak3, other.jak3].concat(),
+      jakx: [self.jakx, other.jakx].concat(),
+    }
+  }
 }

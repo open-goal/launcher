@@ -1,7 +1,7 @@
 import { getModSourcesData } from "$lib/rpc/cache";
 import { getLocallyPersistedModInfo } from "$lib/rpc/features";
-import type { ModInfo } from "../ModInfo";
-import type { SupportedGame } from "../SupportedGame";
+import type { ModInfo } from "./bindings/ModInfo";
+import type { SupportedGame } from "./bindings/SupportedGame";
 
 export async function getModInfo(
   activeGame: SupportedGame,

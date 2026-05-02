@@ -22,7 +22,7 @@
   import Progress from "../components/job/Progress.svelte";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { searchParams } from "sv-router";
-  import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
+  import { toSupportedGame } from "$lib/rpc/SupportedGame";
   import { setupTexturePacks } from "$lib/job/texturePackJob";
   import { infoLog } from "$lib/rpc/logging";
 

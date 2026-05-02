@@ -122,6 +122,18 @@ pub async fn get_locally_persisted_mod_info(
   mod_name: String,
   source_name: String,
 ) -> Result<ModInfo, CommandError> {
+  if source_name == "_local" {
+    return Ok(ModInfo {
+      name: mod_name.clone(),
+      display_name: mod_name,
+      source: source_name,
+      installed: true,
+      supported_games: vec![game_name],
+      tags: vec!["local".to_string()],
+      ..Default::default()
+    });
+  }
+
   let install_path = {
     let config_lock = config.lock().await;
     config_lock.install_dir()?

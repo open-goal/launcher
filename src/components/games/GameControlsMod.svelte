@@ -38,7 +38,7 @@
   import { navigate, route } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
-  import { getModInfo } from "$lib/rpc/bindings/utils/ModInfo";
+  import { getModInfo } from "$lib/rpc/ModInfo";
   import { asJobType } from "$lib/job/jobs";
   import { versionState } from "/src/state/VersionState.svelte";
 

@@ -6,7 +6,7 @@
   import { refreshModSources, getAvailableMods } from "$lib/rpc/cache";
   import { navigate, route } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
-  import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
+  import { toSupportedGame } from "$lib/rpc/SupportedGame";
   import ModCard from "../components/mods/Card.svelte";
   import { platform } from "@tauri-apps/plugin-os";
   import { filePrompt } from "$lib/utils/file-dialogs";

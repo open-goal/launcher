@@ -5,4 +5,5 @@ export type AvailableModsByGame = {
   jak1: Array<ModInfo>;
   jak2: Array<ModInfo>;
   jak3: Array<ModInfo>;
+  jakx: Array<ModInfo>;
 };

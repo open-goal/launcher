@@ -9,7 +9,7 @@
   import { confirm } from "@tauri-apps/plugin-dialog";
   import { systemInfoState } from "/src/state/SystemInfoState.svelte";
   import { route } from "/src/router";
-  import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
+  import { toSupportedGame } from "$lib/rpc/SupportedGame";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
 
   const activeGame: SupportedGame | undefined = $derived(

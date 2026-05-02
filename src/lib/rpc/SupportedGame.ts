@@ -1,4 +1,4 @@
-import type { SupportedGame } from "../SupportedGame";
+import type { SupportedGame } from "./bindings/SupportedGame";
 
 const GAME_MAP: Record<SupportedGame, true> = {
   jak1: true,

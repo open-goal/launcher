@@ -14,7 +14,7 @@
   import { _ } from "svelte-i18n";
   import { navigate, route } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
-  import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
+  import { toSupportedGame } from "$lib/rpc/SupportedGame";
   import { asJobType } from "$lib/job/jobs";
   import type { PackInfo } from "$lib/features/texture-packs";
   import TexturePackCard from "./TexturePackCard.svelte";

@@ -35,7 +35,7 @@ import {
   ensureActiveVersionStillExists,
   getActiveVersion,
 } from "$lib/rpc/versions";
-import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
+import { toSupportedGame } from "$lib/rpc/SupportedGame";
 import Requirements from "./components/job/Requirements.svelte";
 import { requirementsStore } from "./state/requirements-store";
 import Startup from "./routes/Startup.svelte";

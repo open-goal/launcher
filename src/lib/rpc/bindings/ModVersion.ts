@@ -4,6 +4,7 @@ import type { SupportedGame } from "./SupportedGame";
 export type ModVersion = {
   version: string;
   publishedDate: string;
-  assets: { [key in string]?: string | null };
+  assets: { [key in string]: string | null };
   supportedGames: Array<SupportedGame> | null;
+  assetDownloadCounts: { [key in string]: bigint } | null;
 };
