@@ -111,7 +111,7 @@
         id="mods"
         class={getNavItemStyle("/mods")}
         onclick={async () => {
-          navigate("/mods/");
+          navigate("/mods");
         }}
         {disabled}
       >
