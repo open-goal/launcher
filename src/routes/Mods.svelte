@@ -188,10 +188,10 @@
             class="w-56 font-normal text-sm rounded-sm text-gray-200 bg-neutral-800 border border-neutral-600 cursor-pointer"
             bind:value={game}
           >
-            <option value="all">All Games</option>
-            <option value="jak1">Jak 1</option>
-            <option value="jak2">Jak 2</option>
-            <option value="jak3">Jak 3</option>
+            <option value="all">{$_("features_mods_all_games")}</option>
+            <option value="jak1">{$_("gameName_jak1")}</option>
+            <option value="jak2">{$_("gameName_jak2")}</option>
+            <option value="jak3">{$_("gameName_jak3")}</option>
           </select>
         {/if}
 
@@ -199,11 +199,11 @@
           class="w-56 font-normal text-sm rounded-sm text-gray-200 bg-neutral-800 border border-neutral-600 cursor-pointer"
           bind:value={sort}
         >
-          <option value="author">Author(s)</option>
-          <option value="name">Name</option>
-          <option value="release">Release Date</option>
-          <option value="popularity">Popularity</option>
-          <option value="updated">Last Updated</option>
+          <option value="author">{$_("features_mods_authors")}</option>
+          <option value="name">{$_("features_mods_name")}</option>
+          <option value="release">{$_("features_mods_release_date")}</option>
+          <option value="popularity">{$_("features_mods_popularity")}</option>
+          <option value="updated">{$_("features_mods_last_updated")}</option>
         </select>
       </div>
 
