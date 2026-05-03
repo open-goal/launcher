@@ -53,7 +53,7 @@
   },
   "productName": "OpenGOAL-Launcher",
   "mainBinaryName": "OpenGOAL-Launcher",
-  "version": "2.10.0",
+  "version": "2.10.1",
   "identifier": "OpenGOAL-Launcher",
   "app": {
     "security": {
