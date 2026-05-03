@@ -15,10 +15,7 @@
   } = $props();
 
   const modInternalName = $derived(mod.name);
-  const description = $derived(mod.description);
-  const modDisplayName = $derived(mod.displayName);
   const modSourceName = $derived(mod.source);
-  const thumbnailArtUrl = $derived(mod.thumbnailArtUrl);
   const perGameConfig = $derived(mod.perGameConfig);
   const downloadCount = $derived(mod.downloadCount);
 
@@ -31,7 +28,13 @@
   }
 
   const thumbnailUrl = $derived(
-    thumbnailArtUrl || perGameConfig?.[activeGame]?.thumbnailArtUrl,
+    perGameConfig?.[activeGame]?.thumbnailArtUrl || mod.thumbnailArtUrl,
+  );
+  const description = $derived(
+    perGameConfig?.[activeGame]?.description || mod.description,
+  );
+  const modDisplayName = $derived(
+    perGameConfig?.[activeGame]?.displayName || mod.displayName,
   );
 
   async function gotoMod(modName: string) {

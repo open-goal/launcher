@@ -16,7 +16,7 @@
     <Header />
     <div class="z-10 flex min-h-0 flex-1">
       <Sidebar />
-      <main id="content" class="min-w-0 flex-1 overflow-hidden">
+      <main id="content" class="relative min-w-0 flex-1 overflow-hidden">
         {#key route.params.game_name}
           <Background />
           <div class="relative h-full overflow-y-auto">

@@ -34,7 +34,7 @@
   } from "$lib/rpc/features";
   import { exists } from "@tauri-apps/plugin-fs";
   import { getModSourcesData } from "$lib/rpc/cache";
-  import { getModAssetUrl } from "$lib/features/mods";
+  import { platform } from "@tauri-apps/plugin-os";
   import { navigate, route } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
@@ -59,6 +59,8 @@
   let numberOfVersionsOutOfDate = $state(0);
   let checkForLatestModVersionChecked = $state(false);
   let modInfo: ModInfo | undefined = $state(undefined);
+  let displayName: string | undefined = $state(undefined);
+  let description: string | undefined = $state(undefined);
 
   async function addModFromUrl(url: string, modVersion: string) {
     navigate("/job/:job_type", {
@@ -79,6 +81,10 @@
   onMount(async () => {
     checkForLatestModVersionChecked = await getCheckForLatestModVersion();
     modInfo = await getModInfo(activeGame, modName, modSource);
+    displayName =
+      modInfo.perGameConfig?.[activeGame]?.displayName || modInfo.displayName;
+    description =
+      modInfo.perGameConfig?.[activeGame]?.description || modInfo.description;
     await initDirectories(modInfo);
     await sortModVersions(modInfo);
   });
@@ -169,7 +175,7 @@
             version.supportedGames.includes(activeGame)
           ) {
             modVersionListSorted = [...modVersionListSorted, version.version];
-            const assetUrl = getModAssetUrl(version);
+            const assetUrl = version.assets[platform()];
             if (assetUrl) {
               modAssetUrlsSorted.push(assetUrl);
             }
@@ -222,7 +228,7 @@
         href={modInfo.websiteUrl}
       >
         <h1 class="text-2xl">
-          {modInfo.displayName}
+          {displayName}
         </h1>
         &nbsp;<OpenInNew />
       </a>
@@ -231,13 +237,13 @@
       <h1
         class="tracking-tighter text-2xl font-bold pb-2 text-orange-500 text-outline pointer-events-none"
       >
-        {modInfo.displayName}
+        {displayName}
       </h1>
     {/if}
     <h1
       class="tracking-tighter pb-2 font-bold text-outline text-justify [text-align-last:right]"
     >
-      {modInfo.description}
+      {description}
     </h1>
     <!-- hiding this because it's bloat -->
     <!-- <p class="pb-2 text-outline">

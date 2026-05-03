@@ -56,12 +56,16 @@
         "jak1": {
           "coverArtUrl": "https://raw.githubusercontent.com/example/example/main/ModImage.png",
           "thumbnailArtUrl": "https://raw.githubusercontent.com/example/example/main/ModImage.png",
-          "releaseDate": "2022-10-23"
+          "releaseDate": "2022-10-23",
+          "displayName": "Awesome Mod (Jak 1)",
+          "description": "test description 1"
         },
         "jak2": {
           "coverArtUrl": "https://raw.githubusercontent.com/example/example/main/ModImage2.jpeg",
           "thumbnailArtUrl": "https://raw.githubusercontent.com/example/example/main/ModImage2.jpeg",
-          "releaseDate": "2023-12-11"
+          "releaseDate": "2023-12-11",
+          "displayName": "Awesome Mod (Jak 2)",
+          "description": "test description 2"
         }
       },
       "externalLink": null

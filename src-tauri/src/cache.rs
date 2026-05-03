@@ -39,6 +39,8 @@ pub struct ModPerGameConfig {
   pub cover_art_url: Option<String>,
   pub thumbnail_art_url: Option<String>,
   pub release_date: Option<String>,
+  pub display_name: Option<String>,
+  pub description: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, TS)]
