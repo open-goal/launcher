@@ -81,8 +81,10 @@
   onMount(async () => {
     checkForLatestModVersionChecked = await getCheckForLatestModVersion();
     modInfo = await getModInfo(activeGame, modName, modSource);
-    displayName = modInfo.perGameConfig?.[activeGame]?.displayName || modInfo.displayName;
-    description = modInfo.perGameConfig?.[activeGame]?.description || modInfo.description;
+    displayName =
+      modInfo.perGameConfig?.[activeGame]?.displayName || modInfo.displayName;
+    description =
+      modInfo.perGameConfig?.[activeGame]?.description || modInfo.description;
     await initDirectories(modInfo);
     await sortModVersions(modInfo);
   });

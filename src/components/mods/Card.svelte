@@ -28,13 +28,13 @@
   }
 
   const thumbnailUrl = $derived(
-    perGameConfig?.[activeGame]?.thumbnailArtUrl || mod.thumbnailArtUrl
+    perGameConfig?.[activeGame]?.thumbnailArtUrl || mod.thumbnailArtUrl,
   );
   const description = $derived(
-    perGameConfig?.[activeGame]?.description || mod.description
+    perGameConfig?.[activeGame]?.description || mod.description,
   );
   const modDisplayName = $derived(
-    perGameConfig?.[activeGame]?.displayName || mod.displayName
+    perGameConfig?.[activeGame]?.displayName || mod.displayName,
   );
 
   async function gotoMod(modName: string) {
