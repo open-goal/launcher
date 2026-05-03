@@ -60,7 +60,7 @@
     <img
       src={thumbnailUrl}
       alt={modDisplayName}
-      class="h-full w-full object-cover rounded-l-lg"
+      class="h-full w-full rounded-l-lg"
     />
   </div>
 
