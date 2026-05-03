@@ -171,7 +171,7 @@
       <Spinner color="yellow" size={"12"} />
     </div>
   {:else}
-    <div class="pb-20 p-4 overflow-y-auto">
+    <div class="p-4 overflow-y-auto">
       <div class="flex flex-row items-stretch gap-2 h-10 mb-4">
         <!-- <Button
           outline
