@@ -19,7 +19,7 @@
       <main id="content" class="min-w-0 flex-1 overflow-hidden">
         {#key route.params.game_name}
           <Background />
-          <div class="relative h-full overflow-hidden">
+          <div class="relative h-full overflow-y-auto">
             {@render children()}
           </div>
         {/key}

@@ -159,12 +159,6 @@ export const { p, navigate, isActive, route } = createRouter({
   },
   "/mods": {
     "/": Mods,
-    hooks: {
-      beforeLoad() {
-        versionState.displayModVersion = true;
-        // TODO!
-      },
-    },
   },
   layout: Layout,
 });
