@@ -13,8 +13,8 @@
   import { route } from "../../router";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo.ts";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
-  import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
-  import { getModInfo } from "$lib/rpc/bindings/utils/ModInfo";
+  import { toSupportedGame } from "$lib/rpc/SupportedGame";
+  import { getModInfo } from "$lib/rpc/ModInfo";
   import { searchParams } from "sv-router";
 
   const gameParam = $derived(route.params.game_name);

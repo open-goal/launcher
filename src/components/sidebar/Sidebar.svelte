@@ -2,6 +2,7 @@
   import logoJak1 from "$assets/images/jak-tpl.webp";
   import logoJak2 from "$assets/images/jak-2.webp";
   import logoJak3 from "$assets/images/jak-3.webp";
+  import logoMods from "$assets/images/mods.webp";
   import IconCog from "~icons/mdi/cog";
   import { Tooltip } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
@@ -97,6 +98,27 @@
       </button>
       <Tooltip triggeredBy="#jak3" placement="right" type="dark">
         {$_("gameName_jak3")}
+      </Tooltip>
+    </li>
+
+    <li class="relative flex w-full justify-center">
+      {#if route.pathname.startsWith("/mods")}
+        <div
+          class="absolute -left-2 top-1/2 h-8 w-0.75 -translate-y-1/2 rounded-r bg-orange-500"
+        ></div>
+      {/if}
+      <button
+        id="mods"
+        class={getNavItemStyle("/mods")}
+        onclick={async () => {
+          navigate("/mods");
+        }}
+        {disabled}
+      >
+        <img src={logoMods} alt="Mods" aria-label="Mods" />
+      </button>
+      <Tooltip triggeredBy="#mods" placement="right" type="dark">
+        {$_("settings_tabs_mods")}
       </Tooltip>
     </li>
 

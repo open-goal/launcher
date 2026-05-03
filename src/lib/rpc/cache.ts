@@ -1,3 +1,4 @@
+import type { AvailableModsByGame } from "./bindings/AvailableModsByGame";
 import type { ModSourceData } from "./bindings/ModSourceData";
 import { invoke_rpc } from "./rpc";
 
@@ -9,4 +10,8 @@ export async function getModSourcesData(): Promise<
   Record<string, ModSourceData>
 > {
   return await invoke_rpc("get_mod_sources_data", {});
+}
+
+export async function getAvailableMods(): Promise<AvailableModsByGame> {
+  return await invoke_rpc("get_available_mods", {});
 }

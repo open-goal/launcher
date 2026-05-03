@@ -87,6 +87,13 @@ impl GameConfig {
   pub fn version(&self) -> Option<String> {
     self.version.clone()
   }
+
+  pub fn has_installed_mod(&self, source: &str, mod_name: &str) -> bool {
+    self
+      .mods_installed_version
+      .get(source)
+      .is_some_and(|mods| mods.contains_key(mod_name))
+  }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -670,5 +677,12 @@ impl LauncherConfig {
         .filter_map(|e| e.file_name().into_string().ok())
         .collect(),
     )
+  }
+
+  pub fn is_mod_installed(&self, game: SupportedGame, source: &str, mod_name: &str) -> bool {
+    self
+      .games
+      .get(&game)
+      .is_some_and(|config| config.has_installed_mod(source, mod_name))
   }
 }

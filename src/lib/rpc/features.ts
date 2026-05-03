@@ -169,17 +169,13 @@ export async function saveModInstallInfo(
   });
 }
 
-export async function getInstalledMods(
+export async function getInstalledModsByGame(
   gameName: string,
 ): Promise<Record<string, Record<string, string>>> {
-  return await invoke_rpc(
-    "get_setting_value",
-    { key: "installed_mods", gameName },
-    // () => {
-    //   let ret: Record<string, Record<string, string>> = {};
-    //   return ret;
-    // },
-  );
+  return await invoke_rpc("get_setting_value", {
+    key: "installed_mods",
+    gameName,
+  });
 }
 
 export async function launchMod(

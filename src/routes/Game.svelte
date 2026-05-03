@@ -3,7 +3,7 @@
   import { _ } from "svelte-i18n";
   import GameControlsMod from "../components/games/GameControlsMod.svelte";
   import { route } from "../router";
-  import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
+  import { toSupportedGame } from "$lib/rpc/SupportedGame";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame.ts";
   import GameBetaAlert from "../components/games/GameBetaAlert.svelte";
   import { isInDebugMode } from "$lib/utils/common";

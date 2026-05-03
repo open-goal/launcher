@@ -12,7 +12,7 @@
   import { versionState } from "/src/state/VersionState.svelte";
   import { asJobType } from "$lib/job/jobs";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
-  import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
+  import { toSupportedGame } from "$lib/rpc/SupportedGame";
   import { exists } from "@tauri-apps/plugin-fs";
   import { join } from "@tauri-apps/api/path";
 

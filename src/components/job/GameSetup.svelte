@@ -9,7 +9,7 @@
   import { asJobType } from "$lib/job/jobs";
 
   import { route } from "/src/router";
-  import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
+  import { toSupportedGame } from "$lib/rpc/SupportedGame";
 
   const gameParam = $derived(route.params.game_name);
   let activeGame: SupportedGame | undefined = $state(undefined);

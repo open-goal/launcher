@@ -6,7 +6,7 @@ import Settings from "./routes/Settings.svelte";
 // @ts-ignore
 import Help from "./routes/Help.svelte";
 // @ts-ignore
-import ModSelection from "./components/games/features/mods/ModSelection.svelte";
+import Mods from "./routes/Mods.svelte";
 // @ts-ignore
 import TexturePacks from "./components/games/features/texture-packs/TexturePacks.svelte";
 // @ts-ignore
@@ -35,7 +35,7 @@ import {
   ensureActiveVersionStillExists,
   getActiveVersion,
 } from "$lib/rpc/versions";
-import { toSupportedGame } from "$lib/rpc/bindings/utils/SupportedGame";
+import { toSupportedGame } from "$lib/rpc/SupportedGame";
 import Requirements from "./components/job/Requirements.svelte";
 import { requirementsStore } from "./state/requirements-store";
 import Startup from "./routes/Startup.svelte";
@@ -143,7 +143,7 @@ export const { p, navigate, isActive, route } = createRouter({
     "/update": GameUpdate,
     "/requirements": Requirements,
     "/mods": {
-      "/": ModSelection,
+      "/": Mods,
       "/:source_name/:mod_name": {
         "/": Game,
         hooks: {
@@ -155,6 +155,15 @@ export const { p, navigate, isActive, route } = createRouter({
     },
     "/texture_packs": {
       "/": TexturePacks,
+    },
+  },
+  "/mods": {
+    "/": Mods,
+    hooks: {
+      beforeLoad() {
+        versionState.displayModVersion = true;
+        // TODO!
+      },
     },
   },
   layout: Layout,

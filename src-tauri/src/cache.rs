@@ -6,7 +6,10 @@ use tauri_plugin_os::platform;
 use tracing::error;
 use ts_rs::TS;
 
-use crate::{config::SupportedGame, util::network::download_json};
+use crate::{
+  config::{LauncherConfig, SupportedGame},
+  util::network::download_json,
+};
 
 #[derive(Debug, Serialize, Deserialize, Clone, TS)]
 #[serde(rename_all = "camelCase")]
@@ -16,6 +19,7 @@ pub struct ModVersion {
   pub published_date: String,
   pub assets: HashMap<String, Option<String>>,
   pub supported_games: Option<Vec<SupportedGame>>,
+  pub asset_download_counts: Option<HashMap<String, u64>>,
 }
 
 impl ModVersion {
@@ -63,8 +67,8 @@ pub struct ModSourceDataSchema {
   pub texture_packs: HashMap<String, ModInfoSchema>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, TS)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Serialize, Deserialize, Clone, TS, Default)]
+#[serde(rename_all = "camelCase", default)]
 #[ts(export)]
 pub struct ModInfo {
   pub name: String,
@@ -80,10 +84,20 @@ pub struct ModInfo {
   pub cover_art_url: Option<String>,
   pub thumbnail_art_url: Option<String>,
   pub external_link: Option<String>,
+  pub installed: bool,
+  pub download_count: u64,
+  pub metadata_offline: bool,
 }
 
 impl From<ModInfoSchema> for ModInfo {
   fn from(schema: ModInfoSchema) -> Self {
+    let download_count = schema
+      .versions
+      .iter()
+      .filter_map(|version| version.asset_download_counts.as_ref())
+      .flat_map(|counts| counts.values())
+      .sum();
+
     Self {
       display_name: schema.display_name,
       description: schema.description,
@@ -99,6 +113,9 @@ impl From<ModInfoSchema> for ModInfo {
       // name + source filled later
       name: String::new(),
       source: String::new(),
+      installed: false,
+      download_count: download_count,
+      metadata_offline: false,
     }
   }
 }
@@ -224,5 +241,132 @@ impl ModCache {
       .iter()
       .map(|(url, source)| (url.clone(), source.by_platform()))
       .collect()
+  }
+
+  fn mods_for_game(&self, game: SupportedGame, config: &LauncherConfig) -> Vec<ModInfo> {
+    let mut mods: Vec<ModInfo> = self
+      .mod_sources
+      .values()
+      .flat_map(|source| source.mods.values())
+      .filter_map(|info| {
+        if !info.supported_games.contains(&game) {
+          return None;
+        }
+
+        let mut info = info.clone();
+
+        info.versions.retain(|version| {
+          if !version.supports_platform() {
+            return false;
+          }
+
+          version
+            .supported_games
+            .as_ref()
+            .is_none_or(|games| games.contains(&game))
+        });
+
+        if info.versions.is_empty() {
+          return None;
+        }
+
+        info.installed = config.is_mod_installed(game, &info.source, &info.name);
+        Some(info)
+      })
+      .collect();
+
+    mods.sort_by(|a, b| {
+      a.display_name
+        .to_lowercase()
+        .cmp(&b.display_name.to_lowercase())
+    });
+    mods
+  }
+
+  pub fn available_mods(&self, config: &LauncherConfig) -> AvailableModsByGame {
+    self
+      .available_remote_mods(config)
+      .combine(self.installed_local_mods(config))
+  }
+
+  pub fn available_remote_mods(&self, config: &LauncherConfig) -> AvailableModsByGame {
+    AvailableModsByGame {
+      jak1: self.mods_for_game(SupportedGame::Jak1, config),
+      jak2: self.mods_for_game(SupportedGame::Jak2, config),
+      jak3: self.mods_for_game(SupportedGame::Jak3, config),
+      jakx: self.mods_for_game(SupportedGame::JakX, config),
+    }
+  }
+
+  pub fn installed_local_mods(&self, config: &LauncherConfig) -> AvailableModsByGame {
+    let mods_for = |game| {
+      config
+        .games
+        .get(&game)
+        .map(|game_config| {
+          game_config
+            .mods_installed_version
+            .iter()
+            .flat_map(|(source_name, mods)| {
+              mods.keys().map(move |mod_name| ModInfo {
+                name: mod_name.clone(),
+                display_name: mod_name.clone(),
+                source: source_name.clone(),
+                installed: true,
+                supported_games: vec![game],
+                tags: vec!["local".to_string()],
+                ..Default::default()
+              })
+            })
+            .collect()
+        })
+        .unwrap_or_default()
+    };
+
+    AvailableModsByGame {
+      jak1: mods_for(SupportedGame::Jak1),
+      jak2: mods_for(SupportedGame::Jak2),
+      jak3: mods_for(SupportedGame::Jak3),
+      jakx: mods_for(SupportedGame::JakX),
+    }
+  }
+}
+
+#[derive(Debug, Serialize, Clone, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct AvailableModsByGame {
+  pub jak1: Vec<ModInfo>,
+  pub jak2: Vec<ModInfo>,
+  pub jak3: Vec<ModInfo>,
+  pub jakx: Vec<ModInfo>,
+}
+
+impl AvailableModsByGame {
+  fn combine_mods(remote: Vec<ModInfo>, local: Vec<ModInfo>) -> Vec<ModInfo> {
+    let mut map: HashMap<(String, String), ModInfo> = HashMap::new();
+
+    // Add all remote mods first
+    for mod_info in remote {
+      map.insert((mod_info.source.clone(), mod_info.name.clone()), mod_info);
+    }
+
+    // Add local mods only if they don't already exist in remote
+    for mod_info in local {
+      map
+        .entry((mod_info.source.clone(), mod_info.name.clone()))
+        .or_insert(mod_info);
+    }
+
+    map.into_values().collect()
+  }
+
+  pub fn combine(self, other: Self) -> Self {
+    Self {
+      jak1: Self::combine_mods(self.jak1, other.jak1),
+      jak2: Self::combine_mods(self.jak2, other.jak2),
+      jak3: Self::combine_mods(self.jak3, other.jak3),
+      jakx: Self::combine_mods(self.jakx, other.jakx),
+    }
   }
 }
