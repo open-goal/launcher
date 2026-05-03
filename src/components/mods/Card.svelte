@@ -56,7 +56,7 @@
   hover:bg-zinc-900/80
   hover:scale-[1.01]"
 >
-  <div dir="ltr" class="relative w-42 shrink-0 overflow-hidden">
+  <div dir="ltr" class="relative aspect-4/5 shrink-0 overflow-hidden">
     <img
       src={thumbnailUrl}
       alt={modDisplayName}
