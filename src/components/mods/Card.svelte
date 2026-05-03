@@ -5,6 +5,7 @@
   import IconNew from "~icons/mdi/creation";
   // import IconDots from "~icons/mdi/dots-horizontal";
   import { navigate } from "/src/router";
+  import { _ } from "svelte-i18n";
 
   let {
     mod,
@@ -74,7 +75,7 @@
       </h2>
 
       <p class="text-sm text-zinc-400">
-        by {mod.authors.join(", ")}
+        {$_("features_mods_by")}: {mod.authors.join(", ")}
       </p>
     </div>
 

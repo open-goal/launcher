@@ -250,7 +250,7 @@
       {$_("features_mods_tags")}: {modInfo.tags}
     </p> -->
     <p class="text-outline">
-      {$_("features_mods_authors")}: {modInfo.authors}
+      {$_("features_mods_by")}: {modInfo.authors}
     </p>
   </div>
   <div class="flex flex-col justify-end items-end mt-3">
