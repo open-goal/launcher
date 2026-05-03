@@ -17,6 +17,8 @@ interface ModPerGameConfig {
   coverArtUrl?: string;
   thumbnailArtUrl?: string;
   releaseDate?: string;
+  displayName?: string;
+  description?: string;
 }
 
 interface ModInfo {

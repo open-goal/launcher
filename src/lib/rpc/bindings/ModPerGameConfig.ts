@@ -4,4 +4,6 @@ export type ModPerGameConfig = {
   coverArtUrl: string | null;
   thumbnailArtUrl: string | null;
   releaseDate: string | null;
+  displayName: string | null;
+  description: string | null;
 };

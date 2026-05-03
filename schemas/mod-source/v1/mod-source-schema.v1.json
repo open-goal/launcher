@@ -42,6 +42,12 @@
                     },
                     "thumbnailArtUrl": {
                       "type": "string"
+                    },
+                    "displayName": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
                     }
                   },
                   "type": "object"
@@ -150,6 +156,12 @@
                       "type": "string"
                     },
                     "thumbnailArtUrl": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "displayName": {
                       "type": "string"
                     }
                   },
