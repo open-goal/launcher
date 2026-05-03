@@ -303,18 +303,20 @@ impl ModCache {
       config
         .games
         .get(&game)
-        .and_then(|game_config| game_config.mods_installed_version.get("_local"))
-        .map(|mods| {
-          mods
-            .keys()
-            .map(|mod_name| ModInfo {
-              name: mod_name.clone(),
-              display_name: mod_name.clone(),
-              source: "_local".to_string(),
-              installed: true,
-              supported_games: vec![game],
-              tags: vec!["local".to_string()],
-              ..Default::default()
+        .map(|game_config| {
+          game_config
+            .mods_installed_version
+            .iter()
+            .flat_map(|(source_name, mods)| {
+              mods.keys().map(move |mod_name| ModInfo {
+                name: mod_name.clone(),
+                display_name: mod_name.clone(),
+                source: source_name.clone(),
+                installed: true,
+                supported_games: vec![game],
+                tags: vec!["local".to_string()],
+                ..Default::default()
+              })
             })
             .collect()
         })
@@ -341,12 +343,30 @@ pub struct AvailableModsByGame {
 }
 
 impl AvailableModsByGame {
+  fn combine_mods(remote: Vec<ModInfo>, local: Vec<ModInfo>) -> Vec<ModInfo> {
+    let mut map: HashMap<(String, String), ModInfo> = HashMap::new();
+
+    // Add all remote mods first
+    for mod_info in remote {
+      map.insert((mod_info.source.clone(), mod_info.name.clone()), mod_info);
+    }
+
+    // Add local mods only if they don't already exist in remote
+    for mod_info in local {
+      map
+        .entry((mod_info.source.clone(), mod_info.name.clone()))
+        .or_insert(mod_info);
+    }
+
+    map.into_values().collect()
+  }
+
   pub fn combine(self, other: Self) -> Self {
     Self {
-      jak1: [self.jak1, other.jak1].concat(),
-      jak2: [self.jak2, other.jak2].concat(),
-      jak3: [self.jak3, other.jak3].concat(),
-      jakx: [self.jakx, other.jakx].concat(),
+      jak1: Self::combine_mods(self.jak1, other.jak1),
+      jak2: Self::combine_mods(self.jak2, other.jak2),
+      jak3: Self::combine_mods(self.jak3, other.jak3),
+      jakx: Self::combine_mods(self.jakx, other.jakx),
     }
   }
 }
