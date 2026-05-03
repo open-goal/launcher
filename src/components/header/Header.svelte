@@ -6,7 +6,7 @@
   import IconWindowMinimize from "~icons/mdi/window-minimize";
   import IconHelpCircle from "~icons/mdi/help-circle";
   import IconWindowClose from "~icons/mdi/window-close";
-  import IconUpArrowThick from "~icons/mdi/arrow-up-thick";
+  import IconDownload from "~icons/mdi/tray-arrow-down";
   import { UpdateStore } from "$lib/stores/AppStore";
   import { isInDebugMode } from "$lib/utils/common";
   import {
@@ -116,15 +116,15 @@
   <div class="mx-2 h-6 shrink-0 border-l border-neutral-800"></div>
 
   <div class="flex min-w-0 items-center gap-2 pointer-events-none">
-    <div class="flex items-center gap-1 font-mono text-sm whitespace-nowrap">
+    <div class="flex items-center gap-2 font-mono text-sm whitespace-nowrap">
       <span class="text-neutral-400">{$_("header_launcherVersionLabel")}</span>
       <span class="text-neutral-500">{launcherVersion}</span>
       {#if launcherUpdateAvailable}
         <a
-          class="pointer-events-auto text-orange-500 hover:text-orange-300 animate-pulse relative -top-px"
+          class="pointer-events-auto text-green-500 hover:text-green-300 animate-pulse relative"
           href="/update/launcher"
         >
-          <IconUpArrowThick />
+          <IconDownload />
         </a>
         <Tooltip type="auto" trigger="hover">
           {$_("header_updateAvailable")}
@@ -134,7 +134,7 @@
 
     <div class="h-6 shrink-0 border-l border-neutral-800"></div>
 
-    <div class="flex items-center gap-1 font-mono text-sm whitespace-nowrap">
+    <div class="flex items-center gap-2 font-mono text-sm whitespace-nowrap">
       <span class="text-neutral-400">
         {#if versionState.displayModVersion}
           {$_("header_modVersionLabel")}
@@ -161,10 +161,10 @@
 
       {#if $UpdateStore.selectedTooling.updateAvailable}
         <a
-          class="pointer-events-auto text-orange-500 hover:text-orange-300 animate-pulse relative -top-px"
+          class="pointer-events-auto text-green-500 hover:text-green-300 animate-pulse relative"
           href="/settings/versions"
         >
-          <IconUpArrowThick />
+          <IconDownload />
         </a>
         <Tooltip type="auto" trigger="hover">
           {$_("header_updateAvailable")}
