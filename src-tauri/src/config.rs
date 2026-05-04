@@ -58,8 +58,8 @@ impl SupportedGame {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[serde(rename_all = "camelCase", default)]
 pub struct GameConfig {
   pub is_installed: bool,
   pub version: Option<String>,
@@ -70,16 +70,6 @@ pub struct GameConfig {
 }
 
 impl GameConfig {
-  fn default() -> Self {
-    Self {
-      is_installed: false,
-      version: None,
-      texture_packs: vec![],
-      seconds_played: 0,
-      mods_installed_version: HashMap::new(),
-    }
-  }
-
   pub fn active_texture_packs(&self) -> Vec<String> {
     self.texture_packs.clone()
   }
@@ -96,8 +86,8 @@ impl GameConfig {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase", default)]
 pub struct Requirements {
   pub bypass_requirements: bool,
   pub avx: bool,
@@ -105,18 +95,8 @@ pub struct Requirements {
   pub opengl: bool,
 }
 
-impl Requirements {
-  fn default() -> Self {
-    Self {
-      bypass_requirements: false,
-      avx: false,
-      opengl: false,
-    }
-  }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase", default)]
 pub struct DecompilerSettings {
   pub rip_levels_enabled: bool,
   pub rip_collision_enabled: bool,
@@ -124,19 +104,8 @@ pub struct DecompilerSettings {
   pub rip_streamed_audio_enabled: bool,
 }
 
-impl DecompilerSettings {
-  fn default() -> Self {
-    Self {
-      rip_levels_enabled: false,
-      rip_collision_enabled: false,
-      rip_textures_enabled: false,
-      rip_streamed_audio_enabled: false,
-    }
-  }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase", default)]
 pub struct LauncherConfig {
   #[serde(skip_serializing)]
   #[serde(skip_deserializing)]
@@ -202,7 +171,7 @@ fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> 
   // Migrate requirements
   if let Some(requirements) = json_value.get("requirements") {
     new_config.requirements =
-      serde_json::from_value(requirements.clone()).unwrap_or_else(|_| Requirements::default());
+      serde_json::from_value(requirements.clone()).unwrap_or_default();
   }
 
   // Migrate games
@@ -264,30 +233,8 @@ fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> 
 
   // Migrate decompiler settings
   if let Some(decompiler_settings) = json_value.get("decompilerSettings") {
-    new_config.decompiler_settings = serde_json::from_value(decompiler_settings.clone())
-      .unwrap_or_else(|_| DecompilerSettings::default());
+    new_config.decompiler_settings = serde_json::from_value(decompiler_settings.clone()).unwrap_or_default();
   }
-
-  // Default values for fields not in old config
-  new_config.check_for_latest_mod_version = json_value
-    .get("checkForLatestModVersion")
-    .and_then(|v| v.as_bool())
-    .unwrap_or(true);
-
-  new_config.proceed_after_successful_operation = json_value
-    .get("proceedAfterSuccessfulOperation")
-    .and_then(|v| v.as_bool())
-    .unwrap_or(true);
-
-  new_config.auto_update_games = json_value
-    .get("autoUpdateGames")
-    .and_then(|v| v.as_bool())
-    .unwrap_or(false);
-
-  new_config.delete_previous_versions = json_value
-    .get("deletePreviousVersions")
-    .and_then(|v| v.as_bool())
-    .unwrap_or(false);
 
   tracing::info!("Migration complete. New configuration ready.");
   new_config
