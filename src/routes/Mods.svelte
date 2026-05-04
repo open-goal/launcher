@@ -15,6 +15,7 @@
   import { asJobType } from "$lib/job/jobs";
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import type { AvailableModsByGame } from "$lib/rpc/bindings/AvailableModsByGame";
+  import { searchParams } from "sv-router";
 
   let loaded = $state(false);
   let mods = $state<AvailableModsByGame | undefined>();
@@ -26,10 +27,11 @@
     return toSupportedGame(route.params.game_name);
   });
 
-  let gameFilter = $state<SupportedGame | "all">("all");
-  let sort = $state<"name" | "popularity" | "release" | "author" | "updated">(
-    "popularity",
-  );
+  let gameFilter = $derived(searchParams.get("game") ?? "all");
+  let sort = $derived(searchParams.get("sort") ?? "popularity");
+
+  $effect(() => searchParams.set("sort", sort, { replace: true }));
+  $effect(() => searchParams.set("game", gameFilter, { replace: true }));
 
   const game = $derived(activeGame || gameFilter);
 
