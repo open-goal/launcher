@@ -107,12 +107,12 @@ pub struct DecompilerSettings {
 #[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase", default)]
 pub struct LauncherConfig {
-  #[serde(skip_serializing)]
-  #[serde(skip_deserializing)]
-  settings_path: Option<PathBuf>,
+  #[serde(skip_serializing, skip_deserializing)]
+  settings_path: PathBuf,
   #[serde(default = "default_version")]
   pub version: String,
   pub requirements: Requirements,
+  #[serde(default = "default_games")]
   pub games: HashMap<SupportedGame, GameConfig>,
   pub installation_dir: Option<PathBuf>,
   pub active_version: Option<String>,
@@ -161,97 +161,22 @@ fn default_version() -> String {
   "3.0".to_owned()
 }
 
-fn migrate_old_config(json_value: serde_json::Value, settings_path: PathBuf) -> LauncherConfig {
-  tracing::warn!("Outdated config detected. Migrating to the latest version.");
-  tracing::warn!("Creating a backup copy of existing settings before migrating to latest.");
-  let to = settings_path.with_file_name("settings.backup.json");
-  let _ = fs::copy(settings_path.clone(), to);
-  let mut new_config = LauncherConfig::default(Some(settings_path));
-
-  // Migrate requirements
-  if let Some(requirements) = json_value.get("requirements") {
-    new_config.requirements =
-      serde_json::from_value(requirements.clone()).unwrap_or_default();
-  }
-
-  // Migrate games
-  if let Some(games) = json_value.get("games").and_then(|v| v.as_object()) {
-    for (key, value) in games {
-      if let Ok(supported_game) = serde_json::from_str::<SupportedGame>(
-        &format!("\"{}\"", key.replace(" ", "")).to_lowercase(),
-      ) {
-        // Start with default values
-        let mut game_config = GameConfig::default();
-
-        // Deserialize fields manually
-        if let Some(is_installed) = value.get("isInstalled").and_then(|v| v.as_bool()) {
-          game_config.is_installed = is_installed;
-        }
-        if let Some(version) = value.get("version").and_then(|v| v.as_str()) {
-          game_config.version = Some(version.to_string());
-        }
-        if let Some(features) = value.get("features") {
-          game_config.texture_packs =
-            serde_json::from_value(features.clone()["texturePacks"].take())
-              .unwrap_or_else(|_| vec![]);
-        }
-        if let Some(seconds_played) = value.get("secondsPlayed").and_then(|v| v.as_u64()) {
-          game_config.seconds_played = seconds_played;
-        }
-        if let Some(mods) = value.get("modsInstalledVersion") {
-          game_config.mods_installed_version =
-            serde_json::from_value(mods.clone()).unwrap_or_default();
-        }
-
-        new_config.games.insert(supported_game, game_config);
-      }
-    }
-  }
-
-  // Migrate other fields
-  new_config.installation_dir = json_value
-    .get("installationDir")
-    .and_then(|v| v.as_str())
-    .map(PathBuf::from);
-
-  new_config.active_version = json_value
-    .get("activeVersion")
-    .and_then(|v| v.as_str())
-    .map(String::from);
-
-  new_config.locale = json_value
-    .get("locale")
-    .and_then(|v| v.as_str())
-    .map(String::from);
-
-  if let Some(mod_sources) = json_value.get("modSources").and_then(|v| v.as_array()) {
-    new_config.mod_sources = mod_sources
-      .iter()
-      .filter_map(|v| v.as_str().map(String::from))
-      .collect();
-  }
-
-  // Migrate decompiler settings
-  if let Some(decompiler_settings) = json_value.get("decompilerSettings") {
-    new_config.decompiler_settings = serde_json::from_value(decompiler_settings.clone()).unwrap_or_default();
-  }
-
-  tracing::info!("Migration complete. New configuration ready.");
-  new_config
+fn default_games() -> HashMap<SupportedGame, GameConfig> {
+  HashMap::from([
+    (SupportedGame::Jak1, GameConfig::default()),
+    (SupportedGame::Jak2, GameConfig::default()),
+    (SupportedGame::Jak3, GameConfig::default()),
+    (SupportedGame::JakX, GameConfig::default()),
+  ])
 }
 
 impl LauncherConfig {
-  fn default(_settings_path: Option<PathBuf>) -> Self {
-    let mut default_games = HashMap::new();
-    default_games.insert(SupportedGame::Jak1, GameConfig::default());
-    default_games.insert(SupportedGame::Jak2, GameConfig::default());
-    default_games.insert(SupportedGame::Jak3, GameConfig::default());
-    default_games.insert(SupportedGame::JakX, GameConfig::default());
+  fn default_with_path(_settings_path: PathBuf) -> Self {
     Self {
       settings_path: _settings_path,
       version: default_version(),
       requirements: Requirements::default(),
-      games: default_games,
+      games: default_games(),
       installation_dir: None,
       active_version: None,
       locale: None,
@@ -264,6 +189,12 @@ impl LauncherConfig {
     }
   }
 
+  fn backup(settings_path: &PathBuf) {
+    tracing::warn!("Creating a backup copy of existing settings.");
+    let dest = settings_path.with_file_name("settings.backup.json");
+    let _ = fs::copy(settings_path.clone(), dest);
+  }
+
   fn get_supported_game_config_mut(
     &mut self,
     game_name: SupportedGame,
@@ -274,42 +205,27 @@ impl LauncherConfig {
     })
   }
 
-  pub fn load_config(config_dir: Option<std::path::PathBuf>) -> LauncherConfig {
-    let settings_path = config_dir.map(|dir| dir.join("settings.json"));
+  pub fn load_config(config_dir: std::path::PathBuf) -> LauncherConfig {
+    let settings_path = config_dir.join("settings.json");
+    tracing::info!("Loading configuration at path: {}", settings_path.display());
 
-    if let Some(path) = &settings_path {
-      tracing::info!("Loading configuration at path: {}", path.display());
+    let file = std::fs::File::open(&settings_path);
+    let mut config: LauncherConfig = match file {
+      Ok(file) => serde_json::from_reader(file).unwrap_or_else(|_| {
+        tracing::warn!("Failed to load or parse settings file, using defaults");
+        LauncherConfig::backup(&settings_path);
+        LauncherConfig::default_with_path(settings_path.clone())
+      }),
+      Err(_) => LauncherConfig::default_with_path(settings_path.clone()),
+    };
 
-      match fs::read_to_string(path)
-        .ok()
-        .and_then(|content| serde_json::from_str::<serde_json::Value>(&content).ok())
-      {
-        Some(json_value) => {
-          // Try to deserialize into LauncherConfig, or migrate if necessary
-          let mut config: LauncherConfig = serde_json::from_value(json_value.clone())
-            .unwrap_or_else(|_| migrate_old_config(json_value, path.to_path_buf()));
-
-          config.settings_path = Some(path.to_path_buf());
-          return config;
-        }
-        None => tracing::warn!("Failed to load or parse settings file, using defaults"),
-      }
-    } else {
-      tracing::warn!("No configuration directory provided, using defaults");
-    }
-    LauncherConfig::default(settings_path)
+    config.settings_path = settings_path;
+    return config;
   }
 
   pub fn save_config(&self) -> Result<(), ConfigError> {
-    let settings_path = match &self.settings_path {
-      None => {
-        tracing::warn!("Can't save the settings file, as no path was initialized!");
-        return Err(ConfigError::Configuration(
-          "No settings path defined, unable to save settings!".to_owned(),
-        ));
-      }
-      Some(path) => path,
-    };
+    let settings_path = &self.settings_path;
+
     // Ensure the directory exists
     create_dir(&settings_path.parent().unwrap())?;
     let file = fs::File::create(settings_path)?;
@@ -319,7 +235,7 @@ impl LauncherConfig {
 
   pub fn reset_to_defaults(&mut self) -> Result<(), ConfigError> {
     let original_installation_dir = self.installation_dir.clone();
-    *self = Self::default(self.settings_path.clone());
+    *self = Self::default_with_path(self.settings_path.clone());
     self.installation_dir = original_installation_dir;
     Self::save_config(self)?;
     Ok(())

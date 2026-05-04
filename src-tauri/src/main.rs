@@ -132,7 +132,10 @@ fn main() {
       // This allows us to avoid hacky globals, and pass around information (in this case, the config)
       // to the relevant places
       let config = tokio::sync::Mutex::new(config::LauncherConfig::load_config(
-        app.path().app_config_dir().ok(),
+        app
+          .path()
+          .app_config_dir()
+          .expect("Failed to resolve app config directory"),
       ));
       app.manage(config);
       let cache = tokio::sync::Mutex::new(cache::ModCache::default());
