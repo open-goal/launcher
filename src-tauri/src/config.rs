@@ -58,7 +58,7 @@ impl SupportedGame {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default, TS)]
 #[serde(rename_all = "camelCase", default)]
 pub struct GameConfig {
   pub is_installed: bool,
@@ -86,7 +86,7 @@ impl GameConfig {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone, TS)]
 #[serde(rename_all = "camelCase", default)]
 pub struct Requirements {
   pub bypass_requirements: bool,
@@ -95,7 +95,7 @@ pub struct Requirements {
   pub opengl: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone, TS)]
 #[serde(rename_all = "camelCase", default)]
 pub struct DecompilerSettings {
   pub rip_levels_enabled: bool,
@@ -104,10 +104,12 @@ pub struct DecompilerSettings {
   pub rip_streamed_audio_enabled: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone, TS)]
 #[serde(rename_all = "camelCase", default)]
+#[ts(export)]
 pub struct LauncherConfig {
-  #[serde(skip_serializing, skip_deserializing)]
+  #[serde(skip)]
+  #[ts(skip)]
   settings_path: PathBuf,
   #[serde(default = "default_version")]
   pub version: String,
