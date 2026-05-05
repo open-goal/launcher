@@ -372,12 +372,6 @@ impl LauncherConfig {
       match key {
         "opengl_requirements_met" => Ok(Value::Bool(self.requirements.opengl)),
         "mod_sources" => Ok(json!(self.mod_sources)),
-        "rip_levels" => Ok(Value::Bool(self.decompiler_settings.rip_levels_enabled)),
-        "rip_collision" => Ok(Value::Bool(self.decompiler_settings.rip_collision_enabled)),
-        "rip_textures" => Ok(Value::Bool(self.decompiler_settings.rip_textures_enabled)),
-        "rip_streamed_audio" => Ok(Value::Bool(
-          self.decompiler_settings.rip_streamed_audio_enabled,
-        )),
         _ => {
           tracing::error!("Key '{}' not recognized", key);
           Err(ConfigError::Configuration("Invalid key".to_owned()))

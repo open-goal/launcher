@@ -236,19 +236,11 @@ export async function doesActiveToolingVersionMeetMinimum(
   });
 }
 
-export async function isRipLevelsEnabled(): Promise<boolean> {
-  return await invoke_rpc("get_setting_value", { key: "rip_levels" });
-}
-
 export async function setRipLevelsEnabled(enabled: boolean): Promise<void> {
   return await invoke_rpc("update_setting_value", {
     key: "rip_levels",
     val: enabled,
   });
-}
-
-export async function isRipCollisionEnabled(): Promise<boolean> {
-  return await invoke_rpc("get_setting_value", { key: "rip_collision" });
 }
 
 export async function setRipCollisionEnabled(enabled: boolean): Promise<void> {
@@ -257,20 +249,11 @@ export async function setRipCollisionEnabled(enabled: boolean): Promise<void> {
     val: enabled,
   });
 }
-
-export async function isRipTexturesEnabled(): Promise<boolean> {
-  return await invoke_rpc("get_setting_value", { key: "rip_textures" });
-}
-
 export async function setRipTexturesEnabled(enabled: boolean): Promise<void> {
   return await invoke_rpc("update_setting_value", {
     key: "rip_textures",
     val: enabled,
   });
-}
-
-export async function isRipStreamedAudioEnabled(): Promise<boolean> {
-  return await invoke_rpc("get_setting_value", { key: "rip_streamed_audio" });
 }
 
 export async function setRipStreamedAudioEnabled(
