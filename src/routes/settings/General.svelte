@@ -9,7 +9,6 @@
     setInstallationDirectory,
     setLocale,
     setAutoUninstallOldVersions,
-    getAutoUninstallOldVersions,
   } from "$lib/rpc/config";
   import {
     Button,
@@ -34,7 +33,7 @@
     config?.installationDir,
   );
   let keepGamesUpdated: boolean = $state(config?.autoUpdateGames!);
-  let uninstallOldVersions: boolean = $state(false);
+  let uninstallOldVersions: boolean = $state(config?.deletePreviousVersions!);
   let currentBypassRequirementsVal = $state(false);
   let availableLocales: LocaleOption[] = $state([]);
   let localeFontForDownload: Locale | undefined = $state(undefined);
@@ -45,7 +44,6 @@
   }
 
   onMount(async () => {
-    uninstallOldVersions = await getAutoUninstallOldVersions();
     currentBypassRequirementsVal = await getBypassRequirements();
 
     for (const locale of AVAILABLE_LOCALES) {

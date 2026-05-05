@@ -168,12 +168,6 @@ export async function setAutoUninstallOldVersions(
   });
 }
 
-export async function getAutoUninstallOldVersions(): Promise<boolean> {
-  return await invoke_rpc("get_setting_value", {
-    key: "delete_previous_versions",
-  });
-}
-
 export async function setBypassRequirements(bypass: boolean): Promise<void> {
   return await invoke_rpc("update_setting_value", {
     key: "bypass_requirements",
