@@ -373,7 +373,6 @@ impl LauncherConfig {
       match key {
         "opengl_requirements_met" => Ok(Value::Bool(self.requirements.opengl)),
         "mod_sources" => Ok(json!(self.mod_sources)),
-        "check_for_latest_mod_version" => Ok(Value::Bool(self.check_for_latest_mod_version)),
         "rip_levels" => Ok(Value::Bool(self.decompiler_settings.rip_levels_enabled)),
         "rip_collision" => Ok(Value::Bool(self.decompiler_settings.rip_collision_enabled)),
         "rip_textures" => Ok(Value::Bool(self.decompiler_settings.rip_textures_enabled)),

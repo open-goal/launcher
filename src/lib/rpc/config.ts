@@ -175,22 +175,12 @@ export async function setBypassRequirements(bypass: boolean): Promise<void> {
   });
 }
 
-export async function getBypassRequirements(): Promise<boolean> {
-  return await invoke_rpc("get_setting_value", { key: "bypass_requirements" });
-}
-
 export async function setCheckForLatestModVersion(
   check_for_latest_mod_version: boolean,
 ): Promise<void> {
   return await invoke_rpc("update_setting_value", {
     key: "check_for_latest_mod_version",
     val: check_for_latest_mod_version,
-  });
-}
-
-export async function getCheckForLatestModVersion(): Promise<boolean> {
-  return await invoke_rpc("get_setting_value", {
-    key: "check_for_latest_mod_version",
   });
 }
 
