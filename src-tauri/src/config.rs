@@ -372,7 +372,6 @@ impl LauncherConfig {
     } else {
       match key {
         "opengl_requirements_met" => Ok(Value::Bool(self.requirements.opengl)),
-        "bypass_requirements" => Ok(Value::Bool(self.requirements.bypass_requirements)),
         "mod_sources" => Ok(json!(self.mod_sources)),
         "check_for_latest_mod_version" => Ok(Value::Bool(self.check_for_latest_mod_version)),
         "rip_levels" => Ok(Value::Bool(self.decompiler_settings.rip_levels_enabled)),

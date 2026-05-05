@@ -1,7 +1,6 @@
 <script lang="ts">
   import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
   import {
-    getBypassRequirements,
     localeSpecificFontAvailableForDownload,
     resetLauncherSettings,
     setAutoUpdateGames,
@@ -34,7 +33,7 @@
   );
   let keepGamesUpdated: boolean = $state(config?.autoUpdateGames!);
   let uninstallOldVersions: boolean = $state(config?.deletePreviousVersions!);
-  let currentBypassRequirementsVal = $state(false);
+  let bypassRequirements = $state(config?.requirements?.bypassRequirements!);
   let availableLocales: LocaleOption[] = $state([]);
   let localeFontForDownload: Locale | undefined = $state(undefined);
   let localeFontDownloading = $state(false);
@@ -44,8 +43,6 @@
   }
 
   onMount(async () => {
-    currentBypassRequirementsVal = await getBypassRequirements();
-
     for (const locale of AVAILABLE_LOCALES) {
       availableLocales = [
         ...availableLocales,
@@ -174,10 +171,10 @@
       >
     {/if}
     <Toggle
-      bind:checked={currentBypassRequirementsVal}
+      bind:checked={bypassRequirements}
       color="orange"
       onchange={async () => {
-        const checked = currentBypassRequirementsVal;
+        const checked = bypassRequirements;
         if (checked) {
           const confirmed = await confirm(
             `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
@@ -187,13 +184,12 @@
           );
 
           if (!confirmed) {
-            currentBypassRequirementsVal = false;
+            bypassRequirements = false;
             return;
           }
         }
 
         await setBypassRequirements(checked);
-        currentBypassRequirementsVal = await getBypassRequirements();
       }}>{$_("settings_general_toggle_bypassRequirementsCheck")}</Toggle
     >
   </div>
