@@ -85,10 +85,6 @@ export async function removeModSource(modSource: string): Promise<void> {
   });
 }
 
-export async function getModSourceUrls(): Promise<string[]> {
-  return await invoke_rpc("get_setting_value", { key: "mod_sources" });
-}
-
 export async function extractNewMod(
   gameName: string,
   bundlePath: string,
