@@ -1,6 +1,5 @@
 <script lang="ts">
   import {
-    getAutoUpdateGames,
     getInstalledVersion,
     saveActiveVersionChange,
   } from "$lib/rpc/config";
@@ -49,7 +48,7 @@
   });
 
   async function autoUpdate() {
-    const shouldAutoUpdate = await getAutoUpdateGames();
+    const shouldAutoUpdate = config?.autoUpdateGames;
     if (!shouldAutoUpdate) return;
 
     navigate("/job/:job_type", {

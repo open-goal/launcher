@@ -5,7 +5,6 @@
     localeSpecificFontAvailableForDownload,
     resetLauncherSettings,
     setAutoUpdateGames,
-    getAutoUpdateGames,
     setBypassRequirements,
     setInstallationDirectory,
     setLocale,
@@ -34,7 +33,7 @@
   let currentInstallationDirectory: string | null | undefined = $derived(
     config?.installationDir,
   );
-  let keepGamesUpdated: boolean = $state(false);
+  let keepGamesUpdated: boolean = $state(config?.autoUpdateGames!);
   let uninstallOldVersions: boolean = $state(false);
   let currentBypassRequirementsVal = $state(false);
   let availableLocales: LocaleOption[] = $state([]);
@@ -46,7 +45,6 @@
   }
 
   onMount(async () => {
-    keepGamesUpdated = await getAutoUpdateGames();
     uninstallOldVersions = await getAutoUninstallOldVersions();
     currentBypassRequirementsVal = await getBypassRequirements();
 

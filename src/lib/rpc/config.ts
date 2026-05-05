@@ -159,10 +159,6 @@ export async function setAutoUpdateGames(value: boolean): Promise<void> {
   });
 }
 
-export async function getAutoUpdateGames(): Promise<boolean> {
-  return await invoke_rpc("get_setting_value", { key: "auto_update_games" });
-}
-
 export async function setAutoUninstallOldVersions(
   value: boolean,
 ): Promise<void> {
