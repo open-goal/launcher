@@ -1,7 +1,6 @@
 use std::{collections::HashMap, fs, path::PathBuf};
 
 use anyhow::Context;
-use serde_json::Value;
 use tracing::{info, instrument, warn};
 
 use crate::{
@@ -183,6 +182,12 @@ pub async fn update_texture_pack_data(
   let config_lock = config.lock().await;
   let install_dir = config_lock.install_dir()?;
 
+  let texture_packs = config_lock
+    .games
+    .get(&game_name)
+    .ok_or_else(|| CommandError::Configuration(format!("Missing config for game: {game_name}")))?
+    .active_texture_packs();
+
   let game_texture_pack_dir = install_dir
     .join("active")
     .join(&game_name.to_string())
@@ -194,26 +199,22 @@ pub async fn update_texture_pack_data(
   delete_dir(&game_texture_pack_dir)?;
   create_dir(&game_texture_pack_dir)?;
 
-  // TODO: refactor this after the config refactor
-  if let Ok(Value::Array(texture_packs)) =
-    config_lock.get_setting_value("active_texture_packs", Some(game_name))
-  {
-    for pack in texture_packs.iter().filter_map(|pack| pack.as_str()).rev() {
-      let texture_pack_dir = install_dir
-        .join("features")
-        .join(game_name.to_string())
-        .join("texture-packs")
-        .join(pack)
-        .join("custom_assets")
-        .join(game_name.to_string())
-        .join("texture_replacements");
+  drop(config_lock);
 
-      info!("Appending textures from: {}", texture_pack_dir.display());
-      overwrite_dir(&texture_pack_dir, &game_texture_pack_dir)?
-    }
-    return Ok(());
+  for pack in texture_packs.iter().rev() {
+    let texture_pack_dir = install_dir
+      .join("features")
+      .join(game_name.to_string())
+      .join("texture-packs")
+      .join(pack)
+      .join("custom_assets")
+      .join(game_name.to_string())
+      .join("texture_replacements");
+
+    info!("Appending textures from: {}", texture_pack_dir.display());
+    overwrite_dir(&texture_pack_dir, &game_texture_pack_dir)?;
   }
-  return Err(CommandError::GameFeatures(format!("TODO: Some error")));
+  return Ok(());
 }
 
 #[instrument(skip(config))]

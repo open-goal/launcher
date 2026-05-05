@@ -184,15 +184,6 @@ export async function setCheckForLatestModVersion(
   });
 }
 
-export async function getEnabledTexturePacks(
-  gameName: string,
-): Promise<string[]> {
-  return await invoke_rpc("get_setting_value", {
-    key: "active_texture_packs",
-    gameName: gameName,
-  });
-}
-
 export async function cleanupEnabledTexturePacks(
   gameName: string,
   cleanupList: string[],

@@ -361,7 +361,6 @@ impl LauncherConfig {
       match key {
         "installed" => Ok(Value::Bool(game_config.is_installed)),
         "installed_version" => Ok(json!(game_config.version())),
-        "active_texture_packs" => Ok(json!(game_config.active_texture_packs())),
         "installed_mods" => Ok(json!(game_config.mods_installed_version)),
         _ => {
           tracing::error!("Key '{}' not recognized in game config", key);
@@ -370,7 +369,6 @@ impl LauncherConfig {
       }
     } else {
       match key {
-        "opengl_requirements_met" => Ok(Value::Bool(self.requirements.opengl)),
         "mod_sources" => Ok(json!(self.mod_sources)),
         _ => {
           tracing::error!("Key '{}' not recognized", key);

@@ -1,8 +1,5 @@
 <script lang="ts">
-  import {
-    cleanupEnabledTexturePacks,
-    getEnabledTexturePacks,
-  } from "$lib/rpc/config";
+  import { cleanupEnabledTexturePacks } from "$lib/rpc/config";
   import {
     extractNewTexturePack,
     listExtractedTexturePackInfo,
@@ -18,6 +15,7 @@
   import { asJobType } from "$lib/job/jobs";
   import type { PackInfo } from "$lib/features/texture-packs";
   import TexturePackCard from "./TexturePackCard.svelte";
+  import { config } from "/src/state/config.svelte";
 
   const gameParam = $derived(route.params.game_name);
   let activeGame: SupportedGame | undefined = $state(undefined);
@@ -46,7 +44,7 @@
     }
     availablePacks = [];
     availablePacksOriginal = [];
-    let currentlyEnabledPacks = await getEnabledTexturePacks(activeGame);
+    let currentlyEnabledPacks = config?.games?.[activeGame]?.texturePacks!;
     extractedPackInfo = await listExtractedTexturePackInfo(activeGame);
     if (extractedPackInfo === undefined) {
       return;
