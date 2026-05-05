@@ -17,7 +17,7 @@
   let ripTextures: boolean = $state(decompilerSettings?.ripTexturesEnabled!);
   let ripAudio: boolean = $state(decompilerSettings?.ripStreamedAudioEnabled!);
 
-  let decompilerOptionsAllowed = true;
+  let decompilerOptionsAllowed = $state(true);
 
   onMount(async () => {
     decompilerOptionsAllowed = await doesActiveToolingVersionMeetMinimum(
