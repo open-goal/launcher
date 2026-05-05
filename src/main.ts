@@ -5,6 +5,7 @@ import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
 import { initConfig } from "./state/config.svelte";
 
 export default (async () => {
+  // Initialize config before anything else so that we can use it in the rest of the app
   await initConfig();
   polyfillCountryFlagEmojis();
   await initLocales();
