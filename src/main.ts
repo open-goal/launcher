@@ -2,8 +2,10 @@ import { initLocales } from "$lib/i18n/i18n";
 import { mount } from "svelte";
 import App from "./App.svelte";
 import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
+import { initConfig } from "./state/config.svelte";
 
 export default (async () => {
+  await initConfig();
   polyfillCountryFlagEmojis();
   await initLocales();
   const elem = document.getElementById("app");

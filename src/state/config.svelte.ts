@@ -2,7 +2,7 @@ import { getLauncherConfig } from "$lib/rpc/config";
 import type { LauncherConfig } from "$lib/rpc/bindings/LauncherConfig";
 import { listen } from "@tauri-apps/api/event";
 
-export const config = $state<LauncherConfig>({} as LauncherConfig);
+export const config = $state<Partial<LauncherConfig>>({});
 
 async function refresh() {
   const next = await getLauncherConfig();
