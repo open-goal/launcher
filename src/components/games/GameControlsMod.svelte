@@ -37,6 +37,7 @@
   import { asJobType } from "$lib/job/jobs";
   import { versionState } from "/src/state/VersionState.svelte";
   import { config } from "/src/state/config.svelte";
+  import { searchParams } from "sv-router";
 
   let {
     activeGame,
@@ -246,7 +247,7 @@
       {$_("features_mods_tags")}: {modInfo.tags}
     </p> -->
     <p class="text-outline">
-      {$_("features_mods_authors")}: {modInfo.authors}
+      {$_("features_mods_by")}: {modInfo.authors}
     </p>
   </div>
   <div class="flex flex-col justify-end items-end mt-3">
@@ -254,7 +255,13 @@
       <Button
         class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800 text-sm text-white font-semibold px-5 py-2"
         onclick={async () => {
-          navigate(`/:game_name/mods`, { params: { game_name: activeGame } });
+          navigate((route.search.from as any) ?? "/:game_name/mods", {
+            params: { game_name: activeGame },
+            search: {
+              sort: searchParams.get("sort") ?? "popularity",
+              game: searchParams.get("game") ?? "all",
+            },
+          });
         }}><IconArrowLeft />&nbsp;{$_("features_mods_go_back")}</Button
       >
       {#if !currentlyInstalledVersion && modVersionListSorted.length == 0}
