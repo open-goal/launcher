@@ -7,13 +7,14 @@
   import { listen } from "@tauri-apps/api/event";
   import { toastStore, type ToastLevel } from "$lib/stores/ToastStore";
   import { systemInfoState } from "./state/SystemInfoState.svelte.ts";
-  import { config } from "./state/config.svelte.ts";
+  import { config, initConfig } from "./state/config.svelte.ts";
 
   let revokeSpecificActions = false;
   let toastListener: any = undefined;
 
   // Events
   onMount(async () => {
+    await initConfig();
     // Set locale from settings
     const locale = config?.locale;
     if (locale) {
