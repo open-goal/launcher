@@ -41,10 +41,6 @@ export async function removeOldVersions(): Promise<boolean> {
   return false;
 }
 
-export async function getActiveVersion(): Promise<string | undefined> {
-  return await invoke_rpc("get_setting_value", { key: "active_version" });
-}
-
 export async function ensureActiveVersionStillExists(): Promise<boolean> {
   return await invoke_rpc("ensure_active_version_still_exists", {});
 }

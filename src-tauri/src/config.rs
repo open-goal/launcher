@@ -373,12 +373,6 @@ impl LauncherConfig {
       match key {
         "opengl_requirements_met" => Ok(Value::Bool(self.requirements.opengl)),
         "bypass_requirements" => Ok(Value::Bool(self.requirements.bypass_requirements)),
-        "active_version" => Ok(
-          self
-            .active_version
-            .as_ref()
-            .map_or(Value::Null, |v| Value::String(v.clone())),
-        ),
         "locale" => Ok(
           self
             .locale

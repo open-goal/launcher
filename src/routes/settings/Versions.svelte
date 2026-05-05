@@ -2,7 +2,6 @@
   import { onMount } from "svelte";
   import {
     downloadOfficialVersion,
-    getActiveVersion,
     listDownloadedVersions,
     removeVersion,
   } from "$lib/rpc/versions";
@@ -30,7 +29,7 @@
 
   async function refreshVersionList() {
     loading = true;
-    versionState.activeToolingVersion = await getActiveVersion();
+    versionState.activeToolingVersion = config?.activeVersion;
     // Check the backend to see if the folder has any versions
     const installedVersions = await listDownloadedVersions();
     releases = [];

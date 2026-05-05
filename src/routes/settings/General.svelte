@@ -13,7 +13,6 @@
     setAutoUninstallOldVersions,
     getAutoUninstallOldVersions,
   } from "$lib/rpc/config";
-  import { getActiveVersion } from "$lib/rpc/versions";
   import {
     Button,
     Helper,
@@ -213,7 +212,7 @@
         );
         if (confirmed) {
           const error = await resetLauncherSettings();
-          versionState.activeToolingVersion = await getActiveVersion();
+          versionState.activeToolingVersion = config?.activeVersion;
         }
       }}>{$_("settings_general_button_resetSettings")}</Button
     >
