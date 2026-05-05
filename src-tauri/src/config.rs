@@ -362,7 +362,6 @@ impl LauncherConfig {
         "installed" => Ok(Value::Bool(game_config.is_installed)),
         "installed_version" => Ok(json!(game_config.version())),
         "active_texture_packs" => Ok(json!(game_config.active_texture_packs())),
-        "seconds_played" => Ok(json!(game_config.seconds_played)),
         "installed_mods" => Ok(json!(game_config.mods_installed_version)),
         _ => {
           tracing::error!("Key '{}' not recognized in game config", key);

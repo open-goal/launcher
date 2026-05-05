@@ -224,13 +224,6 @@ export async function doesActiveToolingVersionSupportGame(
   });
 }
 
-export async function getPlaytime(gameName: string): Promise<number> {
-  return await invoke_rpc("get_setting_value", {
-    key: "seconds_played",
-    gameName: gameName,
-  });
-}
-
 export async function doesActiveToolingVersionMeetMinimum(
   minimumMajor: number,
   minimumMinor: number,

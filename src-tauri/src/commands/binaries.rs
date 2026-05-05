@@ -607,6 +607,6 @@ async fn track_playtime(
   let mut config_lock = config.lock().await;
   config_lock.update_setting_value("seconds_played", elapsed_seconds, Some(game_name))?;
 
-  app_handle.emit("playtimeUpdated", ())?;
+  app_handle.emit("config:saved", ())?;
   Ok(())
 }
