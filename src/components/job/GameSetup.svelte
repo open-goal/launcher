@@ -1,8 +1,6 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import { Button } from "flowbite-svelte";
   import { folderPrompt, isoPrompt } from "$lib/utils/file-dialogs";
-  import { getProceedAfterSuccessfulOperation } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { navigate } from "/src/router";
@@ -17,13 +15,6 @@
   $effect(() => {
     const g = toSupportedGame(gameParam);
     if (g) activeGame = g;
-  });
-
-  let proceedAfterSuccessfulOperation = $state(true);
-
-  onMount(async () => {
-    proceedAfterSuccessfulOperation =
-      await getProceedAfterSuccessfulOperation();
   });
 
   async function install(viaFolder: boolean) {

@@ -381,9 +381,6 @@ impl LauncherConfig {
         ),
         "mod_sources" => Ok(json!(self.mod_sources)),
         "check_for_latest_mod_version" => Ok(Value::Bool(self.check_for_latest_mod_version)),
-        "proceed_after_successful_operation" => {
-          Ok(Value::Bool(self.proceed_after_successful_operation))
-        }
         "auto_update_games" => Ok(Value::Bool(self.auto_update_games)),
         "delete_previous_versions" => Ok(Value::Bool(self.delete_previous_versions)),
         "rip_levels" => Ok(Value::Bool(self.decompiler_settings.rip_levels_enabled)),
