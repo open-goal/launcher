@@ -359,8 +359,6 @@ impl LauncherConfig {
   ) -> Result<Value, ConfigError> {
     if let Some(game_config) = game_name.and_then(|game| self.games.get(&game)) {
       match key {
-        "installed" => Ok(Value::Bool(game_config.is_installed)),
-        "installed_version" => Ok(json!(game_config.version())),
         "installed_mods" => Ok(json!(game_config.mods_installed_version)),
         _ => {
           tracing::error!("Key '{}' not recognized in game config", key);

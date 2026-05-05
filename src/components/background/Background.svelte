@@ -1,7 +1,4 @@
 <script lang="ts">
-  import { isGameInstalled } from "$lib/rpc/config";
-  import { onDestroy, onMount } from "svelte";
-  import { listen, type UnlistenFn } from "@tauri-apps/api/event";
   import { getFurthestGameMilestone } from "$lib/rpc/game";
   import jak2Background from "$assets/images/background-jak2.webp";
   import jak3Background from "$assets/images/background-jak3.webp";
@@ -16,42 +13,16 @@
   import { toSupportedGame } from "$lib/rpc/SupportedGame";
   import { getModInfo } from "$lib/rpc/ModInfo";
   import { searchParams } from "sv-router";
+  import { config } from "/src/state/config.svelte";
 
   const gameParam = $derived(route.params.game_name);
   let activeGame: SupportedGame | undefined = $state(undefined);
   let loading = $state(false);
-  let isInstalled = $state(false);
+  let isInstalled = $derived(config?.games?.[activeGame!]?.isInstalled!);
   let bgVideo: string | null = $state(null);
   let jak1Background: string | undefined = $state(undefined);
   let modBackground: string | undefined = $state(undefined);
   const style = "absolute object-fill h-full w-full -z-10";
-
-  let installedListener: UnlistenFn | undefined = undefined;
-  let uninstalledListener: UnlistenFn | undefined = undefined;
-
-  onMount(async () => {
-    loading = true;
-    installedListener = await listen("gameInstalled", (event) => {
-      if (activeGame) {
-        updateBackground(activeGame);
-      }
-    }); // TODO - refactor this out
-    uninstalledListener = await listen("gameUninstalled", (event) => {
-      if (activeGame) {
-        updateBackground(activeGame);
-      }
-    }); // TODO - refactor this out
-    loading = false;
-  });
-
-  onDestroy(() => {
-    if (installedListener) {
-      installedListener();
-    }
-    if (uninstalledListener) {
-      uninstalledListener();
-    }
-  });
 
   $effect(() => {
     loading = true;
@@ -85,8 +56,6 @@
   });
 
   async function updateBackground(activeGame: SupportedGame): Promise<void> {
-    isInstalled = await isGameInstalled(activeGame);
-
     const appDataDirPath = await appDataDir();
     const filePath = await join(
       appDataDirPath,
@@ -100,7 +69,6 @@
     // TODO - call this when the game is closed
     const milestoneImage = await getFurthestGameMilestone(activeGame);
     jak1Background = `/images/${activeGame}/${milestoneImage}.jpg`;
-    // TODO - do jak 2 milestones
     loading = false;
   }
 

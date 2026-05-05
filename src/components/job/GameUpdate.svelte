@@ -1,8 +1,5 @@
 <script lang="ts">
-  import {
-    getInstalledVersion,
-    saveActiveVersionChange,
-  } from "$lib/rpc/config";
+  import { saveActiveVersionChange } from "$lib/rpc/config";
   import { Button, Card } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
@@ -17,7 +14,9 @@
 
   const gameParam = $derived(route.params.game_name);
   let activeGame: SupportedGame | undefined = $state(undefined);
-  let installedVersion: String | undefined = $state(undefined);
+  let installedVersion: String | undefined = $derived(
+    config?.games?.[activeGame!]?.version!,
+  );
   let isoDataExists = $state(false);
 
   $effect(() => {
@@ -25,7 +24,7 @@
       const g = toSupportedGame(gameParam);
       if (g) {
         activeGame = g;
-        installedVersion = await getInstalledVersion(activeGame);
+        installedVersion = config?.games?.[activeGame]?.version!;
       }
     })();
   });

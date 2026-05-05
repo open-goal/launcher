@@ -42,7 +42,7 @@ pub async fn uninstall_game(
     .map_err(|_| {
       CommandError::GameManagement("Unable to persist game installation status".to_owned())
     })?;
-  app_handle.emit("gameUninstalled", {})?;
+  app_handle.emit("config:saved", {})?;
   Ok(true)
 }
 

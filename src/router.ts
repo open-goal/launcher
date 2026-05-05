@@ -24,11 +24,7 @@ import GameSetup from "./components/job/GameSetup.svelte";
 // @ts-ignore
 import GameUpdate from "./components/job/GameUpdate.svelte";
 import { versionState } from "./state/VersionState.svelte";
-import {
-  doesActiveToolingVersionSupportGame,
-  getInstalledVersion,
-  isGameInstalled,
-} from "$lib/rpc/config";
+import { doesActiveToolingVersionSupportGame } from "$lib/rpc/config";
 import { ensureActiveVersionStillExists } from "$lib/rpc/versions";
 import { toSupportedGame } from "$lib/rpc/SupportedGame";
 import Requirements from "./components/job/Requirements.svelte";
@@ -107,14 +103,14 @@ export const { p, navigate, isActive, route } = createRouter({
             }
           }
 
-          const installed = await isGameInstalled(activeGame);
+          const installed = config?.games?.[activeGame]?.isInstalled;
           if (!installed) {
             throw navigate("/:game_name/setup", {
               params: { game_name: params.game_name },
             });
           }
 
-          const installedVersion = await getInstalledVersion(activeGame);
+          const installedVersion = config?.games?.[activeGame]?.version;
           if (installedVersion !== versionState.activeToolingVersion) {
             throw navigate("/:game_name/update", {
               params: { game_name: params.game_name },

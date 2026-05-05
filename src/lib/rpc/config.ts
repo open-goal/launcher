@@ -52,21 +52,6 @@ export async function finalizeInstallation(
   });
 }
 
-export async function isGameInstalled(
-  gameName: SupportedGame | string,
-): Promise<boolean> {
-  return await invoke_rpc("get_setting_value", { key: "installed", gameName });
-}
-
-export async function getInstalledVersion(
-  gameName: string,
-): Promise<String | undefined> {
-  return invoke_rpc("get_setting_value", {
-    key: "installed_version",
-    gameName: gameName,
-  });
-}
-
 export async function saveActiveVersionChange(
   newActiveVersion: String,
 ): Promise<boolean> {
