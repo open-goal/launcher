@@ -2,7 +2,6 @@
   import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
   import {
     getBypassRequirements,
-    getInstallationDirectory,
     getLocale,
     localeSpecificFontAvailableForDownload,
     resetLauncherSettings,
@@ -31,9 +30,12 @@
   import { appDataDir, join } from "@tauri-apps/api/path";
   import { folderPrompt } from "$lib/utils/file-dialogs";
   import { versionState } from "/src/state/VersionState.svelte";
+  import { config } from "/src/state/config.svelte";
 
   let currentLocale: string | null = $state(null);
-  let currentInstallationDirectory: string | null = $state(null);
+  let currentInstallationDirectory: string | null | undefined = $derived(
+    config?.installationDir,
+  );
   let keepGamesUpdated: boolean = $state(false);
   let uninstallOldVersions: boolean = $state(false);
   let currentBypassRequirementsVal = $state(false);
@@ -47,7 +49,6 @@
 
   onMount(async () => {
     currentLocale = await getLocale();
-    currentInstallationDirectory = await getInstallationDirectory();
     keepGamesUpdated = await getAutoUpdateGames();
     uninstallOldVersions = await getAutoUninstallOldVersions();
     currentBypassRequirementsVal = await getBypassRequirements();

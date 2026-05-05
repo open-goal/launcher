@@ -1,7 +1,6 @@
 <script lang="ts">
   import {
     getAutoUpdateGames,
-    getInstallationDirectory,
     getInstalledVersion,
     saveActiveVersionChange,
   } from "$lib/rpc/config";
@@ -15,6 +14,7 @@
   import { toSupportedGame } from "$lib/rpc/SupportedGame";
   import { exists } from "@tauri-apps/plugin-fs";
   import { join } from "@tauri-apps/api/path";
+  import { config } from "/src/state/config.svelte";
 
   const gameParam = $derived(route.params.game_name);
   let activeGame: SupportedGame | undefined = $state(undefined);
@@ -32,7 +32,7 @@
   });
 
   onMount(async () => {
-    const installDir = await getInstallationDirectory();
+    const installDir = config?.installationDir;
     if (!installDir) return;
     if (!activeGame) return;
 

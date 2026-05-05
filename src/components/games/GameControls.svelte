@@ -20,16 +20,14 @@
     launchGameWithCustomExecutable,
     openREPL,
   } from "$lib/rpc/binaries";
-  import {
-    doesActiveToolingVersionMeetMinimum,
-    getInstallationDirectory,
-  } from "$lib/rpc/config";
+  import { doesActiveToolingVersionMeetMinimum } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
   import Playtime from "./Playtime.svelte";
   import { navigate } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { asJobType } from "$lib/job/jobs";
+  import { config } from "/src/state/config.svelte";
 
   let {
     activeGame,
@@ -55,8 +53,8 @@
       activeGame,
       "settings",
     );
-    let installationDir = await getInstallationDirectory();
-    if (installationDir !== null) {
+    let installationDir = config?.installationDir;
+    if (installationDir) {
       gameDataDir = await join(installationDir, "active", activeGame, "data");
       extractedAssetsDir = await join(
         gameDataDir,

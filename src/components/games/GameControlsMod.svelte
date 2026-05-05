@@ -18,7 +18,6 @@
     Tooltip,
   } from "flowbite-svelte";
   import {
-    getInstallationDirectory,
     setCheckForLatestModVersion,
     getCheckForLatestModVersion,
   } from "$lib/rpc/config";
@@ -41,6 +40,7 @@
   import { getModInfo } from "$lib/rpc/ModInfo";
   import { asJobType } from "$lib/job/jobs";
   import { versionState } from "/src/state/VersionState.svelte";
+  import { config } from "/src/state/config.svelte";
 
   let {
     activeGame,
@@ -96,8 +96,8 @@
   });
 
   async function initDirectories(modInfo: ModInfo) {
-    let installationDir = await getInstallationDirectory();
-    if (installationDir !== null) {
+    let installationDir = config?.installationDir;
+    if (installationDir) {
       gameDataDir = await join(
         installationDir,
         "features",

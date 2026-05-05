@@ -4,7 +4,7 @@ interface VersionInfo {
 }
 
 interface VersionState {
-  activeToolingVersion: string | undefined;
+  activeToolingVersion: string | undefined | null;
   activeModVersionInfo: VersionInfo;
   displayModVersion: boolean;
 }

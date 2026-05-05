@@ -15,10 +15,6 @@ export async function getLauncherConfig(): Promise<LauncherConfig | null> {
   return await invoke_rpc("get_launcher_config", {});
 }
 
-export async function getInstallationDirectory(): Promise<string | null> {
-  return await invoke_rpc("get_setting_value", { key: "install_directory" });
-}
-
 export async function setInstallationDirectory(
   newDir: string,
 ): Promise<string | null> {

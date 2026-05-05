@@ -1,22 +1,19 @@
 <script>
   import { onMount } from "svelte";
-  import {
-    getInstallationDirectory,
-    setInstallationDirectory,
-    setLocale,
-  } from "$lib/rpc/config";
+  import { setInstallationDirectory, setLocale } from "$lib/rpc/config";
   import { locale as svelteLocale, _ } from "svelte-i18n";
   import LocaleSelector from "../components/startup/LocaleSelector.svelte";
   import ChooseInstallFolder from "../components/startup/ChooseInstallFolder.svelte";
   import { navigate } from "../router";
   import { Button } from "flowbite-svelte";
+  import { config } from "../state/config.svelte";
 
   let locale = $state("");
   let installDir = $state("");
 
   onMount(async () => {
     await svelteLocale.set("en-US");
-    installDir = (await getInstallationDirectory()) || "";
+    installDir = config?.installationDir || "";
   });
 
   $effect(() => {

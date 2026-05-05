@@ -373,9 +373,6 @@ impl LauncherConfig {
       match key {
         "opengl_requirements_met" => Ok(Value::Bool(self.requirements.opengl)),
         "bypass_requirements" => Ok(Value::Bool(self.requirements.bypass_requirements)),
-        "install_directory" => Ok(self.installation_dir.as_ref().map_or(Value::Null, |v| {
-          Value::String(v.to_string_lossy().into_owned())
-        })),
         "active_version" => Ok(
           self
             .active_version
