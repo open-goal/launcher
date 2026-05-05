@@ -4,8 +4,9 @@
   import IconDownload from "~icons/mdi/tray-arrow-down";
   import IconNew from "~icons/mdi/creation";
   // import IconDots from "~icons/mdi/dots-horizontal";
-  import { navigate } from "/src/router";
   import { _ } from "svelte-i18n";
+  import { navigate, route } from "/src/router";
+  import { searchParams } from "sv-router";
 
   let {
     mod,
@@ -44,6 +45,11 @@
         game_name: activeGame,
         source_name: encodeURI(modSourceName),
         mod_name: encodeURI(modName),
+      },
+      search: {
+        from: route.pathname,
+        sort: searchParams.get("sort") ?? "popularity",
+        game: searchParams.get("game") ?? "all",
       },
     });
   }
