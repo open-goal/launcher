@@ -77,10 +77,6 @@ export async function saveActiveVersionChange(
   );
 }
 
-export async function getLocale(): Promise<string | null> {
-  return await invoke_rpc("get_setting_value", { key: "locale" });
-}
-
 export async function localeSpecificFontAvailableForDownload(
   localeId: string,
 ): Promise<Locale | undefined> {

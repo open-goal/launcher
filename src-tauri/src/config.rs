@@ -373,12 +373,6 @@ impl LauncherConfig {
       match key {
         "opengl_requirements_met" => Ok(Value::Bool(self.requirements.opengl)),
         "bypass_requirements" => Ok(Value::Bool(self.requirements.bypass_requirements)),
-        "locale" => Ok(
-          self
-            .locale
-            .as_ref()
-            .map_or(Value::Null, |v| Value::String(v.clone())),
-        ),
         "mod_sources" => Ok(json!(self.mod_sources)),
         "check_for_latest_mod_version" => Ok(Value::Bool(self.check_for_latest_mod_version)),
         "auto_update_games" => Ok(Value::Bool(self.auto_update_games)),

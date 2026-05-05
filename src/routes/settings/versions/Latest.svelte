@@ -11,15 +11,9 @@
   import IconCheck from "~icons/mdi/CheckBold";
   import IconStar from "~icons/mdi/Star";
   import { _ } from "svelte-i18n";
-  import { getLocale } from "$lib/rpc/config";
-  import { onMount } from "svelte";
+  import { config } from "/src/state/config.svelte";
 
-  let locale = $state("en-US");
-
-  onMount(async () => {
-    const res = await getLocale();
-    if (res) locale = res;
-  });
+  let locale = $state(config?.locale || "en-US");
 
   let {
     latest,

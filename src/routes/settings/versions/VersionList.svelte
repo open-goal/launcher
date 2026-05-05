@@ -17,15 +17,9 @@
   } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   import { versionState } from "/src/state/VersionState.svelte";
-  import { onMount } from "svelte";
-  import { getLocale } from "$lib/rpc/config";
+  import { config } from "/src/state/config.svelte";
 
-  let locale = $state("en-US");
-
-  onMount(async () => {
-    const res = await getLocale();
-    if (res) locale = res;
-  });
+  let locale = $state(config?.locale || "en-US");
 
   let {
     releaseList,

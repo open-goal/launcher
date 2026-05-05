@@ -2,7 +2,6 @@
   import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
   import {
     getBypassRequirements,
-    getLocale,
     localeSpecificFontAvailableForDownload,
     resetLauncherSettings,
     setAutoUpdateGames,
@@ -31,7 +30,7 @@
   import { versionState } from "/src/state/VersionState.svelte";
   import { config } from "/src/state/config.svelte";
 
-  let currentLocale: string | null = $state(null);
+  let currentLocale: string | null | undefined = $derived(config?.locale);
   let currentInstallationDirectory: string | null | undefined = $derived(
     config?.installationDir,
   );
@@ -47,7 +46,6 @@
   }
 
   onMount(async () => {
-    currentLocale = await getLocale();
     keepGamesUpdated = await getAutoUpdateGames();
     uninstallOldVersions = await getAutoUninstallOldVersions();
     currentBypassRequirementsVal = await getBypassRequirements();
@@ -62,7 +60,7 @@
       ];
     }
 
-    if (currentLocale !== null) {
+    if (currentLocale) {
       localeFontForDownload =
         await localeSpecificFontAvailableForDownload(currentLocale);
     }
@@ -78,7 +76,7 @@
         items={availableLocales}
         bind:value={currentLocale}
         onchange={async () => {
-          if (currentLocale !== null) {
+          if (currentLocale) {
             await setLocale(currentLocale);
             localeFontForDownload =
               await localeSpecificFontAvailableForDownload(currentLocale);
@@ -105,7 +103,7 @@
             localeFontForDownload !== undefined &&
             localeFontForDownload.fontDownloadUrl !== undefined &&
             localeFontForDownload.fontFileName !== undefined &&
-            currentLocale !== null
+            currentLocale
           ) {
             localeFontDownloading = true;
             const fontPath = await join(
