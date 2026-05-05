@@ -40,6 +40,14 @@ pub async fn update_setting_value(
 
 #[instrument(skip(config))]
 #[tauri::command]
+pub async fn get_launcher_config(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+) -> Result<LauncherConfig, CommandError> {
+  Ok(config.lock().await.clone())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
 pub async fn get_setting_value(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   key: String,
