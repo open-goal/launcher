@@ -5,9 +5,14 @@ import { exists } from "@tauri-apps/plugin-fs";
 import { appDataDir, join } from "@tauri-apps/api/path";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import type { SupportedGame } from "./bindings/SupportedGame";
+import type { LauncherConfig } from "./bindings/LauncherConfig";
 
 export async function resetLauncherSettings(): Promise<string | null> {
   return await invoke_rpc("reset_to_defaults", {});
+}
+
+export async function getLauncherConfig(): Promise<LauncherConfig | null> {
+  return await invoke_rpc("get_launcher_config", {});
 }
 
 export async function getInstallationDirectory(): Promise<string | null> {
