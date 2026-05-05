@@ -14,7 +14,7 @@ use crate::{commands::CommandError, util::file::delete_dir};
 use anyhow::Context;
 use semver::Version;
 use serde::{Deserialize, Serialize};
-use serde_json::{Value, json};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
@@ -72,10 +72,6 @@ pub struct GameConfig {
 impl GameConfig {
   pub fn active_texture_packs(&self) -> Vec<String> {
     self.texture_packs.clone()
-  }
-
-  pub fn version(&self) -> Option<String> {
-    self.version.clone()
   }
 
   pub fn has_installed_mod(&self, source: &str, mod_name: &str) -> bool {
@@ -350,30 +346,6 @@ impl LauncherConfig {
     }
     self.save_config()?;
     Ok(())
-  }
-
-  pub fn get_setting_value(
-    &self,
-    key: &str,
-    game_name: Option<SupportedGame>,
-  ) -> Result<Value, ConfigError> {
-    if let Some(game_config) = game_name.and_then(|game| self.games.get(&game)) {
-      match key {
-        "installed_mods" => Ok(json!(game_config.mods_installed_version)),
-        _ => {
-          tracing::error!("Key '{}' not recognized in game config", key);
-          Err(ConfigError::Configuration("Invalid key".to_owned()))
-        }
-      }
-    } else {
-      match key {
-        "mod_sources" => Ok(json!(self.mod_sources)),
-        _ => {
-          tracing::error!("Key '{}' not recognized", key);
-          Err(ConfigError::Configuration("Invalid key".to_owned()))
-        }
-      }
-    }
   }
 
   pub fn update_mods_setting_value(

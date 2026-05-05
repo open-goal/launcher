@@ -156,7 +156,6 @@ fn main() {
       commands::config::cleanup_enabled_texture_packs,
       commands::config::does_active_tooling_version_meet_minimum,
       commands::config::does_active_tooling_version_support_game,
-      commands::config::get_setting_value,
       commands::config::is_avx_requirement_met,
       commands::config::is_opengl_requirement_met,
       commands::config::reset_to_defaults,
