@@ -25,11 +25,10 @@ pub async fn update_setting_value(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   key: String,
   val: Value,
-  game_name: Option<SupportedGame>,
   app_handle: tauri::AppHandle,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
-  match &config_lock.update_setting_value(&key, val, game_name) {
+  match &config_lock.update_setting_value(&key, val) {
     Ok(()) => {
       app_handle.emit("config:saved", ())?;
       Ok(())
@@ -102,7 +101,7 @@ pub async fn is_avx_requirement_met(
     tracing::warn!("Bypassing the AVX requirements check!");
     Ok(true)
   } else {
-    let _ = config_lock.update_setting_value("avx", is_avx_supported().await.into(), None);
+    let _ = config_lock.update_setting_value("avx", is_avx_supported().await.into());
     Ok(config_lock.requirements.avx)
   }
 }
@@ -152,7 +151,7 @@ pub async fn is_opengl_requirement_met(
   // what looks like a GPU test failure is actually just the game not launching
   let test_result = crate::util::game_tests::run_game_gpu_test(&config_lock, &app_handle).await?;
   config_lock
-    .update_setting_value("opengl_requirements_met", test_result.success.into(), None)
+    .update_setting_value("opengl_requirements_met", test_result.success.into())
     .map_err(|_| {
       CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
     })?;

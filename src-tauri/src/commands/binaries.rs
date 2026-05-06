@@ -605,7 +605,7 @@ async fn track_playtime(
 
   let config = app_handle.state::<tokio::sync::Mutex<LauncherConfig>>();
   let mut config_lock = config.lock().await;
-  config_lock.update_setting_value("seconds_played", elapsed_seconds, Some(game_name))?;
+  config_lock.update_seconds_played(game_name, elapsed_seconds)?;
 
   app_handle.emit("config:saved", ())?;
   Ok(())

@@ -101,6 +101,11 @@ impl GameConfig {
     self.version = version;
     self
   }
+
+  pub fn update_seconds_played(&mut self, seconds: u64) -> &mut Self {
+    self.seconds_played += seconds;
+    self
+  }
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, TS)]
@@ -305,62 +310,55 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn update_setting_value(
+  pub fn update_seconds_played(
     &mut self,
-    key: &str,
-    val: Value,
-    game_name: Option<SupportedGame>,
-  ) -> Result<(), ConfigError> {
-    if let Some(game_config) = game_name.and_then(|game| self.games.get_mut(&game)) {
-      match key {
-        "seconds_played" => game_config.seconds_played += val.as_u64().unwrap_or(0),
-        _ => {
-          tracing::error!("Key '{}' not recognized", key);
-          return Err(ConfigError::Configuration("Invalid key".to_owned()));
+    game_name: SupportedGame,
+    seconds: u64,
+  ) -> anyhow::Result<()> {
+    self
+      .get_supported_game_config_mut(game_name)
+      .update_seconds_played(seconds);
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn update_setting_value(&mut self, key: &str, val: Value) -> Result<(), ConfigError> {
+    match key {
+      "opengl_requirements_met" => self.requirements.opengl = val.as_bool().unwrap_or(false),
+      "avx" => self.requirements.avx = val.as_bool().unwrap_or(false),
+      "bypass_requirements" => {
+        self.requirements.bypass_requirements = val.as_bool().unwrap_or(false)
+      }
+      "active_version" => self.active_version = val.as_str().map(|s| s.to_string()),
+      "locale" => self.locale = val.as_str().map(|s| s.to_string()),
+      "check_for_latest_mod_version" => {
+        self.check_for_latest_mod_version = val.as_bool().unwrap_or(true)
+      }
+      "auto_update_games" => self.auto_update_games = val.as_bool().unwrap_or(false),
+      "delete_previous_versions" => self.delete_previous_versions = val.as_bool().unwrap_or(false),
+      "rip_levels" => self.decompiler_settings.rip_levels_enabled = val.as_bool().unwrap_or(false),
+      "rip_collision" => {
+        self.decompiler_settings.rip_collision_enabled = val.as_bool().unwrap_or(false)
+      }
+      "rip_textures" => {
+        self.decompiler_settings.rip_textures_enabled = val.as_bool().unwrap_or(false)
+      }
+      "rip_streamed_audio" => {
+        self.decompiler_settings.rip_streamed_audio_enabled = val.as_bool().unwrap_or(false)
+      }
+      "add_mod_source" => {
+        let mod_source = val.as_str().map(|s| s.to_string()).unwrap_or("".to_owned());
+        if !self.mod_sources.contains(&mod_source) {
+          self.mod_sources.push(mod_source);
         }
       }
-    } else {
-      match key {
-        "opengl_requirements_met" => self.requirements.opengl = val.as_bool().unwrap_or(false),
-        "avx" => self.requirements.avx = val.as_bool().unwrap_or(false),
-        "bypass_requirements" => {
-          self.requirements.bypass_requirements = val.as_bool().unwrap_or(false)
-        }
-        "active_version" => self.active_version = val.as_str().map(|s| s.to_string()),
-        "locale" => self.locale = val.as_str().map(|s| s.to_string()),
-        "check_for_latest_mod_version" => {
-          self.check_for_latest_mod_version = val.as_bool().unwrap_or(true)
-        }
-        "auto_update_games" => self.auto_update_games = val.as_bool().unwrap_or(false),
-        "delete_previous_versions" => {
-          self.delete_previous_versions = val.as_bool().unwrap_or(false)
-        }
-        "rip_levels" => {
-          self.decompiler_settings.rip_levels_enabled = val.as_bool().unwrap_or(false)
-        }
-        "rip_collision" => {
-          self.decompiler_settings.rip_collision_enabled = val.as_bool().unwrap_or(false)
-        }
-        "rip_textures" => {
-          self.decompiler_settings.rip_textures_enabled = val.as_bool().unwrap_or(false)
-        }
-        "rip_streamed_audio" => {
-          self.decompiler_settings.rip_streamed_audio_enabled = val.as_bool().unwrap_or(false)
-        }
-        "add_mod_source" => {
-          let mod_source = val.as_str().map(|s| s.to_string()).unwrap_or("".to_owned());
-          if !self.mod_sources.contains(&mod_source) {
-            self.mod_sources.push(mod_source);
-          }
-        }
-        "remove_mod_source" => {
-          let mod_source = val.as_str().map(|s| s.to_string()).unwrap_or("".to_owned());
-          self.mod_sources.retain(|source| source != &mod_source);
-        }
-        _ => {
-          tracing::error!("Key '{}' not recognized", key);
-          return Err(ConfigError::Configuration("Invalid key".to_owned()));
-        }
+      "remove_mod_source" => {
+        let mod_source = val.as_str().map(|s| s.to_string()).unwrap_or("".to_owned());
+        self.mod_sources.retain(|source| source != &mod_source);
+      }
+      _ => {
+        tracing::error!("Key '{}' not recognized", key);
+        return Err(ConfigError::Configuration("Invalid key".to_owned()));
       }
     }
     self.save_config()?;
@@ -472,7 +470,7 @@ impl LauncherConfig {
       return Ok(true);
     }
 
-    self.update_setting_value("active_version", serde_json::Value::Null, None)?;
+    self.update_setting_value("active_version", serde_json::Value::Null)?;
     Ok(false)
   }
 
@@ -486,7 +484,7 @@ impl LauncherConfig {
     delete_dir(&version_dir)?;
 
     if self.active_version.as_deref() == Some(version) {
-      self.update_setting_value("active_version", serde_json::Value::Null, None)?;
+      self.update_setting_value("active_version", serde_json::Value::Null)?;
     }
 
     Ok(())
