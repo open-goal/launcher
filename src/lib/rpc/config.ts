@@ -183,9 +183,8 @@ export async function setEnabledTexturePacks(
   gameName: string,
   packs: string[],
 ): Promise<string | null> {
-  return await invoke_rpc2("update_mods_setting_value", {
+  return await invoke_rpc2("set_texture_packs", {
     args: {
-      key: "add_texture_packs",
       gameName: gameName,
       texturePacks: packs,
     },

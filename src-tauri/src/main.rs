@@ -161,6 +161,7 @@ fn main() {
       commands::config::reset_to_defaults,
       commands::config::set_install_directory,
       commands::config::update_mods_setting_value,
+      commands::config::set_texture_packs,
       commands::config::update_setting_value,
       commands::config::get_launcher_config,
       commands::download::download_file,

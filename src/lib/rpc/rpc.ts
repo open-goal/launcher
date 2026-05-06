@@ -1,6 +1,7 @@
 import { toastStore } from "$lib/stores/ToastStore";
 import { invoke, type InvokeArgs } from "@tauri-apps/api/core";
 import { errorLog, exceptionLog } from "./logging";
+import { emit } from "@tauri-apps/api/event";
 
 // TODO: make args optional, add optional object encapsulating the optional params, this makes the call sites easier to read
 
@@ -53,6 +54,7 @@ export async function invoke_rpc2(
 ): Promise<string | null> {
   try {
     await invoke(cmd, options?.args);
+    emit("config:saved");
     return null;
   } catch (e: any) {
     if (typeof e === "string") {
