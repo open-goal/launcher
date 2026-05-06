@@ -163,6 +163,7 @@ fn main() {
       commands::config::set_texture_packs,
       commands::config::update_setting_value,
       commands::config::set_game_installed,
+      commands::config::set_active_version,
       commands::config::get_launcher_config,
       commands::download::download_file,
       commands::features::mods::base_game_iso_exists,

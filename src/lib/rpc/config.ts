@@ -51,14 +51,8 @@ export async function finalizeInstallation(
   });
 }
 
-export async function saveActiveVersionChange(
-  newActiveVersion: String,
-): Promise<boolean> {
-  return invoke_rpc(
-    "update_setting_value",
-    { key: "active_version", val: newActiveVersion },
-    () => true,
-  );
+export async function setActiveVersion(version: String): Promise<boolean> {
+  return invoke_rpc("set_active_version", { version: version }, () => true);
 }
 
 export async function localeSpecificFontAvailableForDownload(

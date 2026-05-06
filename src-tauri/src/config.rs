@@ -322,6 +322,12 @@ impl LauncherConfig {
     Ok(())
   }
 
+  pub fn set_active_version(&mut self, version: String) -> anyhow::Result<()> {
+    self.active_version = Some(version);
+    self.save_config()?;
+    Ok(())
+  }
+
   pub fn update_setting_value(&mut self, key: &str, val: Value) -> Result<(), ConfigError> {
     match key {
       "opengl_requirements_met" => self.requirements.opengl = val.as_bool().unwrap_or(false),
@@ -329,7 +335,6 @@ impl LauncherConfig {
       "bypass_requirements" => {
         self.requirements.bypass_requirements = val.as_bool().unwrap_or(false)
       }
-      "active_version" => self.active_version = val.as_str().map(|s| s.to_string()),
       "locale" => self.locale = val.as_str().map(|s| s.to_string()),
       "check_for_latest_mod_version" => {
         self.check_for_latest_mod_version = val.as_bool().unwrap_or(true)

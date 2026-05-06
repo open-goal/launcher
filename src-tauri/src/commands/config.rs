@@ -56,6 +56,17 @@ pub async fn set_game_installed(
 
 #[instrument(skip(config))]
 #[tauri::command]
+pub async fn set_active_version(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  version: String,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_active_version(version)?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
 pub async fn get_launcher_config(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<LauncherConfig, CommandError> {

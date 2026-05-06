@@ -8,7 +8,7 @@
   import { listOfficialReleases, type ReleaseInfo } from "$lib/utils/github";
   import VersionList from "./versions/VersionList.svelte";
   import { UpdateStore } from "$lib/stores/AppStore";
-  import { saveActiveVersionChange } from "$lib/rpc/config";
+  import { setActiveVersion } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
   import { versionState } from "/src/state/VersionState.svelte";
@@ -109,7 +109,7 @@
   }
 
   async function saveOfficialVersionChange(version: string) {
-    const error = await saveActiveVersionChange(version);
+    const error = await setActiveVersion(version);
     if (!error) {
       toastStore.makeToast($_("toasts_savedToolingVersion"), "info");
     }
