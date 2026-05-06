@@ -186,6 +186,62 @@ pub async fn set_delete_previous_versions(
   Ok(())
 }
 
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_rip_levels(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .decompiler_settings
+    .set_rip_levels_enabled(enabled);
+  config_lock.save_config()?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_rip_collision(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .decompiler_settings
+    .set_rip_collision_enabled(enabled);
+  config_lock.save_config()?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_rip_textures(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .decompiler_settings
+    .set_rip_textures_enabled(enabled);
+  config_lock.save_config()?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_rip_streamed_audio(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .decompiler_settings
+    .set_rip_streamed_audio_enabled(enabled);
+  config_lock.save_config()?;
+  Ok(())
+}
+
 #[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn is_opengl_requirement_met(

@@ -132,6 +132,24 @@ pub struct DecompilerSettings {
   pub rip_streamed_audio_enabled: bool,
 }
 
+impl DecompilerSettings {
+  pub fn set_rip_levels_enabled(&mut self, enabled: bool) {
+    self.rip_levels_enabled = enabled;
+  }
+
+  pub fn set_rip_collision_enabled(&mut self, enabled: bool) {
+    self.rip_collision_enabled = enabled;
+  }
+
+  pub fn set_rip_textures_enabled(&mut self, enabled: bool) {
+    self.rip_textures_enabled = enabled;
+  }
+
+  pub fn set_rip_streamed_audio_enabled(&mut self, enabled: bool) {
+    self.rip_streamed_audio_enabled = enabled;
+  }
+}
+
 #[derive(Debug, Serialize, Deserialize, Default, Clone, TS)]
 #[serde(rename_all = "camelCase", default)]
 #[ts(export)]
@@ -377,16 +395,6 @@ impl LauncherConfig {
       "avx" => self.requirements.avx = val.as_bool().unwrap_or(false),
       "check_for_latest_mod_version" => {
         self.check_for_latest_mod_version = val.as_bool().unwrap_or(true)
-      }
-      "rip_levels" => self.decompiler_settings.rip_levels_enabled = val.as_bool().unwrap_or(false),
-      "rip_collision" => {
-        self.decompiler_settings.rip_collision_enabled = val.as_bool().unwrap_or(false)
-      }
-      "rip_textures" => {
-        self.decompiler_settings.rip_textures_enabled = val.as_bool().unwrap_or(false)
-      }
-      "rip_streamed_audio" => {
-        self.decompiler_settings.rip_streamed_audio_enabled = val.as_bool().unwrap_or(false)
       }
       _ => {
         tracing::error!("Key '{}' not recognized", key);
