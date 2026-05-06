@@ -17,4 +17,5 @@ export type LauncherConfig = {
   proceedAfterSuccessfulOperation: boolean;
   autoUpdateGames: boolean;
   deletePreviousVersions: boolean;
+  hideBetaAlerts: boolean;
 };

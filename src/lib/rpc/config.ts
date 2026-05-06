@@ -77,6 +77,12 @@ export async function localeSpecificFontAvailableForDownload(
   return undefined;
 }
 
+export async function setHideBetaAlerts(hide: boolean): Promise<void> {
+  return await invoke_rpc("set_hide_beta_alerts", {
+    hide: hide,
+  });
+}
+
 export async function setLocale(localeId: string): Promise<void> {
   return await invoke_rpc(
     "set_locale",

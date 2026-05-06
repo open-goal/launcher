@@ -7,6 +7,7 @@
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame.ts";
   import GameBetaAlert from "../components/games/GameBetaAlert.svelte";
   import { isInDebugMode } from "$lib/utils/common";
+  import { config } from "../state/config.svelte";
 
   const activeGame: SupportedGame | undefined = $derived(
     toSupportedGame(route.params.game_name),
@@ -19,7 +20,7 @@
   <div class="flex flex-col h-full p-5">
     <!-- Jak 2 & Jak 3 BETA warning -->
     <!-- Not shown on mod pages because mod bugs shouldn't be reported to the jak-projects repo -->
-    {#if (activeGame === "jak2" || activeGame === "jak3") && !modName && !isInDebugMode()}
+    {#if (activeGame === "jak2" || activeGame === "jak3") && !modName && !isInDebugMode() && !config?.hideBetaAlerts}
       <GameBetaAlert {activeGame}></GameBetaAlert>
     {/if}
     {#if modName && modSource}

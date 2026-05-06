@@ -8,6 +8,7 @@
     setInstallationDirectory,
     setLocale,
     setAutoUninstallOldVersions,
+    setHideBetaAlerts,
   } from "$lib/rpc/config";
   import {
     Button,
@@ -34,6 +35,7 @@
   let keepGamesUpdated: boolean = $state(config?.autoUpdateGames!);
   let uninstallOldVersions: boolean = $state(config?.deletePreviousVersions!);
   let bypassRequirements = $state(config?.requirements?.bypassRequirements!);
+  let hideBetaAlerts = $state(config?.hideBetaAlerts);
   let availableLocales: LocaleOption[] = $state([]);
   let localeFontForDownload: Locale | undefined = $state(undefined);
   let localeFontDownloading = $state(false);
@@ -148,7 +150,7 @@
       >{$_("settings_general_installationDir_helper")}</Helper
     >
   </div>
-  <div class="*:text-gray-200">
+  <div class="flex flex-col gap-3 *:text-gray-200">
     <Toggle
       color="orange"
       bind:checked={keepGamesUpdated}
@@ -157,8 +159,7 @@
           uninstallOldVersions = false;
         }
         setAutoUpdateGames(keepGamesUpdated);
-      }}
-      class="mb-2">{$_("settings_general_keep_updated")}</Toggle
+      }}>{$_("settings_general_keep_updated")}</Toggle
     >
     {#if keepGamesUpdated}
       <Toggle
@@ -167,7 +168,7 @@
         onchange={async () => {
           setAutoUninstallOldVersions(uninstallOldVersions);
         }}
-        class="ml-14 mb-2">{$_("settings_general_uninstall_old")}</Toggle
+        class="ml-14">{$_("settings_general_uninstall_old")}</Toggle
       >
     {/if}
     <Toggle
@@ -192,6 +193,15 @@
         await setBypassRequirements(checked);
       }}>{$_("settings_general_toggle_bypassRequirementsCheck")}</Toggle
     >
+    <Toggle
+      bind:checked={hideBetaAlerts}
+      color="orange"
+      onchange={async () => {
+        await setHideBetaAlerts(hideBetaAlerts!);
+      }}
+    >
+      {$_("settings_general_hide_beta_alerts")}
+    </Toggle>
   </div>
   <div>
     <Button

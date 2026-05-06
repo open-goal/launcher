@@ -179,6 +179,7 @@ pub struct LauncherConfig {
   pub proceed_after_successful_operation: bool,
   pub auto_update_games: bool,
   pub delete_previous_versions: bool,
+  pub hide_beta_alerts: bool,
 }
 
 pub struct CommonConfigData {
@@ -242,6 +243,7 @@ impl LauncherConfig {
       proceed_after_successful_operation: true,
       auto_update_games: false,
       delete_previous_versions: false,
+      hide_beta_alerts: false,
     }
   }
 
@@ -394,6 +396,12 @@ impl LauncherConfig {
 
   pub fn set_delete_previous_versions(&mut self, delete: bool) -> anyhow::Result<()> {
     self.delete_previous_versions = delete;
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_hide_beta_alerts(&mut self, hide: bool) -> anyhow::Result<()> {
+    self.hide_beta_alerts = hide;
     self.save_config()?;
     Ok(())
   }

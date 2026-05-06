@@ -282,6 +282,17 @@ pub async fn cleanup_enabled_texture_packs(
 
 #[instrument(skip(config))]
 #[tauri::command]
+pub async fn set_hide_beta_alerts(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  hide: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_hide_beta_alerts(hide)?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
 pub async fn does_active_tooling_version_support_game(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,
