@@ -4,7 +4,6 @@ import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
 import { exists } from "@tauri-apps/plugin-fs";
 import { appDataDir, join } from "@tauri-apps/api/path";
 import { convertFileSrc } from "@tauri-apps/api/core";
-import type { SupportedGame } from "./bindings/SupportedGame";
 import type { LauncherConfig } from "./bindings/LauncherConfig";
 
 export async function resetLauncherSettings(): Promise<string | null> {
