@@ -33,6 +33,7 @@
     },
     "shell:default",
     "dialog:default",
+    "dialog:allow-message",
     "http:default",
     "clipboard-manager:default",
     "os:default",
