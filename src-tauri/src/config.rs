@@ -328,14 +328,27 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn set_active_version(&mut self, version: String) -> anyhow::Result<()> {
-    self.active_version = Some(version);
+  pub fn set_active_version(&mut self, version: Option<String>) -> anyhow::Result<()> {
+    self.active_version = version;
     self.save_config()?;
     Ok(())
   }
 
   pub fn set_locale(&mut self, locale: String) -> anyhow::Result<()> {
     self.locale = locale;
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn update_mod_sources(&mut self, source: String, add: bool) -> anyhow::Result<()> {
+    if add {
+      if !self.mod_sources.contains(&source) {
+        self.mod_sources.push(source);
+      }
+    } else {
+      self.mod_sources.retain(|s| s != &source);
+    }
+
     self.save_config()?;
     Ok(())
   }
@@ -358,16 +371,6 @@ impl LauncherConfig {
       }
       "rip_streamed_audio" => {
         self.decompiler_settings.rip_streamed_audio_enabled = val.as_bool().unwrap_or(false)
-      }
-      "add_mod_source" => {
-        let mod_source = val.as_str().map(|s| s.to_string()).unwrap_or("".to_owned());
-        if !self.mod_sources.contains(&mod_source) {
-          self.mod_sources.push(mod_source);
-        }
-      }
-      "remove_mod_source" => {
-        let mod_source = val.as_str().map(|s| s.to_string()).unwrap_or("".to_owned());
-        self.mod_sources.retain(|source| source != &mod_source);
       }
       _ => {
         tracing::error!("Key '{}' not recognized", key);
@@ -483,7 +486,7 @@ impl LauncherConfig {
       return Ok(true);
     }
 
-    self.update_setting_value("active_version", serde_json::Value::Null)?;
+    self.set_active_version(None)?;
     Ok(false)
   }
 

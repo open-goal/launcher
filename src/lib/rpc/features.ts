@@ -50,10 +50,7 @@ export async function deleteTexturePacks(
 }
 
 // TODO: refactor, this function is doing too much we CAN and SHOULD handle the verification on the backend.
-export async function addModSource(
-  url: string,
-  currentSources: Record<string, ModSourceData>,
-): Promise<string | null> {
+export async function addModSource(url: string): Promise<string | null> {
   // Check that the URL is valid, easiest to do this on the client-side
   try {
     const sourceResp = await fetch(url);
@@ -70,18 +67,20 @@ export async function addModSource(
     return "Unable to add mod source";
   }
 
-  return await invoke_rpc2("update_setting_value", {
+  return await invoke_rpc2("update_mod_sources", {
     args: {
-      key: "add_mod_source",
-      val: url,
+      source: url,
+      add: true,
     },
   });
 }
 
-export async function removeModSource(modSource: string): Promise<void> {
-  await invoke_rpc("update_setting_value", {
-    key: "remove_mod_source",
-    val: modSource,
+export async function removeModSource(url: string): Promise<void> {
+  await invoke_rpc2("update_mod_sources", {
+    args: {
+      source: url,
+      add: false,
+    },
   });
 }
 

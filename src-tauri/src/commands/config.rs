@@ -61,7 +61,7 @@ pub async fn set_active_version(
   version: String,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
-  config_lock.set_active_version(version)?;
+  config_lock.set_active_version(Some(version))?;
   Ok(())
 }
 
@@ -138,6 +138,18 @@ pub async fn set_locale(
   let mut config_lock = config.lock().await;
   config_lock.set_locale(locale)?;
   config_lock.save_config()?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn update_mod_sources(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  source: String,
+  add: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.update_mod_sources(source, add)?;
   Ok(())
 }
 
