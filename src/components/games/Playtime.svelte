@@ -1,26 +1,15 @@
 <script lang="ts">
-  import { getPlaytime } from "$lib/rpc/config";
-  import { listen } from "@tauri-apps/api/event";
   import { _ } from "svelte-i18n";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
-  import { onMount } from "svelte";
+  import { config } from "/src/state/config.svelte";
 
   let { activeGame }: { activeGame: SupportedGame } = $props();
-  let playtime = $state("");
-
-  onMount(() => {
-    refreshPlaytime();
-
-    const unlistenPromise = listen("playtimeUpdated", async () => {
-      await refreshPlaytime();
-    });
-
-    return () => {
-      unlistenPromise.then((unlisten) => unlisten());
-    };
+  const playtime = $derived.by(() => {
+    const playtimeSec = config?.games?.[activeGame]?.secondsPlayed!;
+    return formatPlaytime(playtimeSec);
   });
 
-  function formatPlaytime(totalSeconds: number): string {
+  function formatPlaytime(totalSeconds: any): string {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
@@ -29,14 +18,9 @@
       .map((value) => value.toString().padStart(2, "0"))
       .join(":");
   }
-
-  async function refreshPlaytime() {
-    const playtimeSec = await getPlaytime(activeGame);
-    playtime = formatPlaytime(playtimeSec);
-  }
 </script>
 
-<!-- add an option to disable this -->
+<!-- TODO: add an option to disable this -->
 {#if playtime}
   <p class="text-sm font-normal tracking-wide text-gray-400">
     {`${$_(`gameControls_timePlayed_label`)} ${playtime}`}

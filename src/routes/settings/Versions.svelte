@@ -2,17 +2,13 @@
   import { onMount } from "svelte";
   import {
     downloadOfficialVersion,
-    getActiveVersion,
     listDownloadedVersions,
     removeVersion,
   } from "$lib/rpc/versions";
   import { listOfficialReleases, type ReleaseInfo } from "$lib/utils/github";
   import VersionList from "./versions/VersionList.svelte";
   import { UpdateStore } from "$lib/stores/AppStore";
-  import {
-    getInstallationDirectory,
-    saveActiveVersionChange,
-  } from "$lib/rpc/config";
+  import { saveActiveVersionChange } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
   import { versionState } from "/src/state/VersionState.svelte";
@@ -21,6 +17,7 @@
   import { openPath } from "@tauri-apps/plugin-opener";
   import IconFolderOpen from "~icons/mdi/folder-open";
   import IconRefresh from "~icons/mdi/refresh";
+  import { config } from "/src/state/config.svelte";
 
   let loading = $state(true);
   let releases: ReleaseInfo[] = $state([]);
@@ -32,7 +29,7 @@
 
   async function refreshVersionList() {
     loading = true;
-    versionState.activeToolingVersion = await getActiveVersion();
+    versionState.activeToolingVersion = config?.activeVersion;
     // Check the backend to see if the folder has any versions
     const installedVersions = await listDownloadedVersions();
     releases = [];
@@ -210,7 +207,7 @@
       <Button
         class="p-2! rounded-md bg-orange-500 hover:bg-orange-600 text-slate-900"
         onclick={async () =>
-          openPath((await getInstallationDirectory()) + "/versions/official/")}
+          openPath(config?.installationDir + "/versions/official/")}
       >
         <IconFolderOpen
           aria-label={$_("settings_versions_icon_openFolder_altText")}

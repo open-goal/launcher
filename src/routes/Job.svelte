@@ -2,7 +2,6 @@
   import { onDestroy, onMount } from "svelte";
   import { Alert, Button } from "flowbite-svelte";
   import { jobTracker } from "$lib/stores/JobStore";
-  import { getProceedAfterSuccessfulOperation } from "$lib/rpc/config";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { _ } from "svelte-i18n";
   import { navigate, route } from "../router";
@@ -25,14 +24,13 @@
   import { toSupportedGame } from "$lib/rpc/SupportedGame";
   import { setupTexturePacks } from "$lib/job/texturePackJob";
   import { infoLog } from "$lib/rpc/logging";
+  import { config } from "../state/config.svelte";
 
-  let proceedAfterSuccessfulOperation = $state(true);
+  const proceedAfterSuccess = config?.proceedAfterSuccessfulOperation;
+
   let invalidJobDefinition = $state(false);
 
   onMount(async () => {
-    proceedAfterSuccessfulOperation =
-      await getProceedAfterSuccessfulOperation();
-
     const jobType = toJobType(route.params.job_type);
     if (!jobType) {
       invalidJobDefinition = true;
@@ -172,10 +170,7 @@
   });
 
   $effect(() => {
-    if (
-      $jobTracker.overallStatus === "success" &&
-      proceedAfterSuccessfulOperation
-    ) {
+    if ($jobTracker.overallStatus === "success" && proceedAfterSuccess) {
       jobTracker.clear();
       const returnTo = searchParams.get("returnTo")?.toString();
       if (returnTo) {
@@ -195,7 +190,7 @@
       <Progress />
       <LogViewer />
     </div>
-    {#if $jobTracker.overallStatus === "success" && !proceedAfterSuccessfulOperation}
+    {#if $jobTracker.overallStatus === "success" && !proceedAfterSuccess}
       <div class="flex flex-col justify-end items-end mt-auto">
         <div class="flex flex-row gap-2">
           <Button

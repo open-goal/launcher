@@ -1,20 +1,14 @@
 <script lang="ts">
   import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
   import {
-    getBypassRequirements,
-    getInstallationDirectory,
-    getLocale,
     localeSpecificFontAvailableForDownload,
     resetLauncherSettings,
     setAutoUpdateGames,
-    getAutoUpdateGames,
     setBypassRequirements,
     setInstallationDirectory,
     setLocale,
     setAutoUninstallOldVersions,
-    getAutoUninstallOldVersions,
   } from "$lib/rpc/config";
-  import { getActiveVersion } from "$lib/rpc/versions";
   import {
     Button,
     Helper,
@@ -31,12 +25,15 @@
   import { appDataDir, join } from "@tauri-apps/api/path";
   import { folderPrompt } from "$lib/utils/file-dialogs";
   import { versionState } from "/src/state/VersionState.svelte";
+  import { config } from "/src/state/config.svelte";
 
-  let currentLocale: string | null = $state(null);
-  let currentInstallationDirectory: string | null = $state(null);
-  let keepGamesUpdated: boolean = $state(false);
-  let uninstallOldVersions: boolean = $state(false);
-  let currentBypassRequirementsVal = $state(false);
+  let currentLocale: string | null | undefined = $derived(config?.locale);
+  let currentInstallationDirectory: string | null | undefined = $derived(
+    config?.installationDir,
+  );
+  let keepGamesUpdated: boolean = $state(config?.autoUpdateGames!);
+  let uninstallOldVersions: boolean = $state(config?.deletePreviousVersions!);
+  let bypassRequirements = $state(config?.requirements?.bypassRequirements!);
   let availableLocales: LocaleOption[] = $state([]);
   let localeFontForDownload: Locale | undefined = $state(undefined);
   let localeFontDownloading = $state(false);
@@ -46,12 +43,6 @@
   }
 
   onMount(async () => {
-    currentLocale = await getLocale();
-    currentInstallationDirectory = await getInstallationDirectory();
-    keepGamesUpdated = await getAutoUpdateGames();
-    uninstallOldVersions = await getAutoUninstallOldVersions();
-    currentBypassRequirementsVal = await getBypassRequirements();
-
     for (const locale of AVAILABLE_LOCALES) {
       availableLocales = [
         ...availableLocales,
@@ -62,7 +53,7 @@
       ];
     }
 
-    if (currentLocale !== null) {
+    if (currentLocale) {
       localeFontForDownload =
         await localeSpecificFontAvailableForDownload(currentLocale);
     }
@@ -78,7 +69,7 @@
         items={availableLocales}
         bind:value={currentLocale}
         onchange={async () => {
-          if (currentLocale !== null) {
+          if (currentLocale) {
             await setLocale(currentLocale);
             localeFontForDownload =
               await localeSpecificFontAvailableForDownload(currentLocale);
@@ -105,7 +96,7 @@
             localeFontForDownload !== undefined &&
             localeFontForDownload.fontDownloadUrl !== undefined &&
             localeFontForDownload.fontFileName !== undefined &&
-            currentLocale !== null
+            currentLocale
           ) {
             localeFontDownloading = true;
             const fontPath = await join(
@@ -180,10 +171,10 @@
       >
     {/if}
     <Toggle
-      bind:checked={currentBypassRequirementsVal}
+      bind:checked={bypassRequirements}
       color="orange"
       onchange={async () => {
-        const checked = currentBypassRequirementsVal;
+        const checked = bypassRequirements;
         if (checked) {
           const confirmed = await confirm(
             `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
@@ -193,13 +184,12 @@
           );
 
           if (!confirmed) {
-            currentBypassRequirementsVal = false;
+            bypassRequirements = false;
             return;
           }
         }
 
         await setBypassRequirements(checked);
-        currentBypassRequirementsVal = await getBypassRequirements();
       }}>{$_("settings_general_toggle_bypassRequirementsCheck")}</Toggle
     >
   </div>
@@ -212,7 +202,7 @@
         );
         if (confirmed) {
           const error = await resetLauncherSettings();
-          versionState.activeToolingVersion = await getActiveVersion();
+          versionState.activeToolingVersion = config?.activeVersion;
         }
       }}>{$_("settings_general_button_resetSettings")}</Button
     >

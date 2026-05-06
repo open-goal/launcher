@@ -1,11 +1,7 @@
 <script lang="ts">
   import type { ModSourceData } from "$lib/rpc/bindings/ModSourceData";
   import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
-  import {
-    addModSource,
-    getModSourceUrls,
-    removeModSource,
-  } from "$lib/rpc/features";
+  import { addModSource, removeModSource } from "$lib/rpc/features";
   import {
     Label,
     Input,
@@ -20,15 +16,15 @@
   import { _ } from "svelte-i18n";
   import IconDeleteForever from "~icons/mdi/delete-forever";
   import IconPlus from "~icons/mdi/plus";
+  import { config } from "/src/state/config.svelte";
 
-  let newSourceURL = "";
-  let currentSources: string[] = [];
+  let newSourceURL = $state("");
+  const currentSources: string[] = $derived(config?.modSources!);
   let currentSourceData: Record<string, ModSourceData> = {};
 
-  let pageLoaded = false;
+  let pageLoaded = $state(false);
 
   async function refreshModSourceData() {
-    currentSources = await getModSourceUrls();
     await refreshModSources();
     currentSourceData = await getModSourcesData();
   }

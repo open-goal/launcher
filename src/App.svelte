@@ -3,14 +3,11 @@
   import { Router } from "sv-router";
   import "./router.ts";
   import { isInDebugMode } from "$lib/utils/common";
-  import {
-    getLocale,
-    isMinimumVCCRuntimeInstalled,
-    setLocale,
-  } from "$lib/rpc/config";
+  import { isMinimumVCCRuntimeInstalled, setLocale } from "$lib/rpc/config";
   import { listen } from "@tauri-apps/api/event";
   import { toastStore, type ToastLevel } from "$lib/stores/ToastStore";
   import { systemInfoState } from "./state/SystemInfoState.svelte.ts";
+  import { config } from "./state/config.svelte.ts";
 
   let revokeSpecificActions = false;
   let toastListener: any = undefined;
@@ -18,8 +15,8 @@
   // Events
   onMount(async () => {
     // Set locale from settings
-    const locale = await getLocale();
-    if (locale !== null) {
+    const locale = config?.locale;
+    if (locale) {
       setLocale(locale);
     }
 

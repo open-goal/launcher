@@ -3,7 +3,8 @@ use std::path::PathBuf;
 use super::{CommandError, util::is_avx_supported};
 use crate::config::{LauncherConfig, SupportedGame};
 use semver::Version;
-use serde_json::{Value, json};
+use serde_json::Value;
+use tauri::Emitter;
 use tracing::instrument;
 
 #[instrument(skip(config))]
@@ -25,10 +26,14 @@ pub async fn update_setting_value(
   key: String,
   val: Value,
   game_name: Option<SupportedGame>,
+  app_handle: tauri::AppHandle,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   match &config_lock.update_setting_value(&key, val, game_name) {
-    Ok(()) => Ok(()),
+    Ok(()) => {
+      app_handle.emit("config:saved", ())?;
+      Ok(())
+    }
     Err(e) => {
       tracing::error!("Unable to get setting directory: {:?}", e);
       Err(CommandError::Configuration(
@@ -40,21 +45,10 @@ pub async fn update_setting_value(
 
 #[instrument(skip(config))]
 #[tauri::command]
-pub async fn get_setting_value(
+pub async fn get_launcher_config(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  key: String,
-  game_name: Option<SupportedGame>,
-) -> Result<Value, CommandError> {
-  let config_lock = config.lock().await;
-  match &config_lock.get_setting_value(&key, game_name) {
-    Ok(value) => Ok(json!(value)),
-    Err(e) => {
-      tracing::error!("Unable to get setting directory: {:?}", e);
-      Err(CommandError::Configuration(
-        "Unable to get setting".to_owned(),
-      ))
-    }
-  }
+) -> Result<LauncherConfig, CommandError> {
+  Ok(config.lock().await.clone())
 }
 
 #[instrument(skip(config))]

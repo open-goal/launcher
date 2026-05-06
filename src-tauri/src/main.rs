@@ -132,7 +132,10 @@ fn main() {
       // This allows us to avoid hacky globals, and pass around information (in this case, the config)
       // to the relevant places
       let config = tokio::sync::Mutex::new(config::LauncherConfig::load_config(
-        app.path().app_config_dir().ok(),
+        app
+          .path()
+          .app_config_dir()
+          .expect("Failed to resolve app config directory"),
       ));
       app.manage(config);
       let cache = tokio::sync::Mutex::new(cache::ModCache::default());
@@ -153,13 +156,13 @@ fn main() {
       commands::config::cleanup_enabled_texture_packs,
       commands::config::does_active_tooling_version_meet_minimum,
       commands::config::does_active_tooling_version_support_game,
-      commands::config::get_setting_value,
       commands::config::is_avx_requirement_met,
       commands::config::is_opengl_requirement_met,
       commands::config::reset_to_defaults,
       commands::config::set_install_directory,
       commands::config::update_mods_setting_value,
       commands::config::update_setting_value,
+      commands::config::get_launcher_config,
       commands::download::download_file,
       commands::features::mods::base_game_iso_exists,
       commands::features::mods::compile_for_mod_install,

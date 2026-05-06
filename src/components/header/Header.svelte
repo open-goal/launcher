@@ -17,12 +17,13 @@
   import { getLatestOfficialRelease } from "$lib/utils/github";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
-  import { getAutoUpdateGames, saveActiveVersionChange } from "$lib/rpc/config";
+  import { saveActiveVersionChange } from "$lib/rpc/config";
   import { check } from "@tauri-apps/plugin-updater";
   import { versionState } from "/src/state/VersionState.svelte";
   import { navigate } from "/src/router";
   import { route } from "../../router";
   import { Tooltip } from "flowbite-svelte";
+  import { config } from "/src/state/config.svelte";
 
   let launcherVersion: string | null = $state(null);
   let launcherUpdateAvailable = $state(false);
@@ -83,7 +84,7 @@
   // TODO: handle this in the new startup route
   // download the latest `jak-project` binaries
   async function autoUpdateTooling() {
-    const shouldAutoUpdate = await getAutoUpdateGames();
+    const shouldAutoUpdate = config?.autoUpdateGames;
     if (!shouldAutoUpdate) return;
 
     const latestToolingVersion = await getLatestOfficialRelease();

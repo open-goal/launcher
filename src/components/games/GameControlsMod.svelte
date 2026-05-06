@@ -17,15 +17,10 @@
     Indicator,
     Tooltip,
   } from "flowbite-svelte";
-  import {
-    getInstallationDirectory,
-    setCheckForLatestModVersion,
-    getCheckForLatestModVersion,
-  } from "$lib/rpc/config";
+  import { setCheckForLatestModVersion } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
   import {
-    getInstalledModsByGame,
     getLaunchModString,
     launchMod,
     openREPLForMod,
@@ -41,6 +36,7 @@
   import { getModInfo } from "$lib/rpc/ModInfo";
   import { asJobType } from "$lib/job/jobs";
   import { versionState } from "/src/state/VersionState.svelte";
+  import { config } from "/src/state/config.svelte";
   import { searchParams } from "sv-router";
 
   let {
@@ -58,7 +54,7 @@
   let modAssetUrlsSorted: string[] = $state([]);
   let currentlyInstalledVersion: string = $state("");
   let numberOfVersionsOutOfDate = $state(0);
-  let checkForLatestModVersionChecked = $state(false);
+  let updateCheckEnabled = $state(config?.checkForLatestModVersion);
   let modInfo: ModInfo | undefined = $state(undefined);
   let displayName: string | undefined = $state(undefined);
   let description: string | undefined = $state(undefined);
@@ -80,7 +76,6 @@
   }
 
   onMount(async () => {
-    checkForLatestModVersionChecked = await getCheckForLatestModVersion();
     modInfo = await getModInfo(activeGame, modName, modSource);
     displayName =
       modInfo.perGameConfig?.[activeGame]?.displayName || modInfo.displayName;
@@ -97,8 +92,8 @@
   });
 
   async function initDirectories(modInfo: ModInfo) {
-    let installationDir = await getInstallationDirectory();
-    if (installationDir !== null) {
+    let installationDir = config?.installationDir;
+    if (installationDir) {
       gameDataDir = await join(
         installationDir,
         "features",
@@ -186,7 +181,8 @@
     }
 
     // get current installed version
-    let installedMods = await getInstalledModsByGame(activeGame);
+    // TODO: refactor this because it's doing way too much...
+    let installedMods = config?.games?.[activeGame]?.mods!;
     if (
       Object.keys(installedMods).includes(modInfo.source) &&
       Object.keys(installedMods[modInfo.source]).includes(modInfo.name)
@@ -211,8 +207,8 @@
   }
 
   async function toggleCheckForLatestModVersion() {
-    checkForLatestModVersionChecked = !checkForLatestModVersionChecked;
-    await setCheckForLatestModVersion(checkForLatestModVersionChecked);
+    updateCheckEnabled = !updateCheckEnabled;
+    await setCheckForLatestModVersion(updateCheckEnabled);
   }
 </script>
 
@@ -282,7 +278,7 @@
             await addModFromUrl(modAssetUrlsSorted[0], modVersionListSorted[0]);
           }}>{$_("gameControls_button_install")}</Button
         >
-      {:else if modVersionListSorted.length == 0 || modVersionListSorted[0] === currentlyInstalledVersion || !checkForLatestModVersionChecked}
+      {:else if modVersionListSorted.length == 0 || modVersionListSorted[0] === currentlyInstalledVersion || !updateCheckEnabled}
         <!-- show Play button if we have no version list (offline), if we're up to date, or we dont want forced updates -->
         <Button
           class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800 text-sm text-white font-semibold px-5 py-2"
@@ -320,7 +316,7 @@
           <div id="checkbox_always_use_newest">
             <Checkbox
               color="orange"
-              checked={checkForLatestModVersionChecked}
+              checked={updateCheckEnabled}
               onchange={toggleCheckForLatestModVersion}
             >
               {$_("gameControls_always_use_newest")}

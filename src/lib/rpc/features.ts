@@ -85,10 +85,6 @@ export async function removeModSource(modSource: string): Promise<void> {
   });
 }
 
-export async function getModSourceUrls(): Promise<string[]> {
-  return await invoke_rpc("get_setting_value", { key: "mod_sources" });
-}
-
 export async function extractNewMod(
   gameName: string,
   bundlePath: string,
@@ -166,15 +162,6 @@ export async function saveModInstallInfo(
 ): Promise<string | null> {
   return await invoke_rpc2("save_mod_install_info", {
     args: { gameName, modName, sourceName, versionName },
-  });
-}
-
-export async function getInstalledModsByGame(
-  gameName: string,
-): Promise<Record<string, Record<string, string>>> {
-  return await invoke_rpc("get_setting_value", {
-    key: "installed_mods",
-    gameName,
   });
 }
 

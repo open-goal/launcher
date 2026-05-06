@@ -1,6 +1,6 @@
 import { getLatestOfficialRelease } from "$lib/utils/github";
-import { getAutoUninstallOldVersions } from "./config";
 import { invoke_rpc } from "./rpc";
+import { config } from "/src/state/config.svelte";
 
 export async function listDownloadedVersions(): Promise<string[]> {
   return await invoke_rpc(
@@ -26,7 +26,7 @@ export async function removeVersion(version: String): Promise<boolean> {
 }
 
 export async function removeOldVersions(): Promise<boolean> {
-  let shouldRemove = await getAutoUninstallOldVersions();
+  const shouldRemove = config?.deletePreviousVersions;
   if (shouldRemove) {
     let downloadedVersions = await listDownloadedVersions();
     let latestRelease = await getLatestOfficialRelease();
@@ -39,10 +39,6 @@ export async function removeOldVersions(): Promise<boolean> {
     return false;
   }
   return false;
-}
-
-export async function getActiveVersion(): Promise<string | undefined> {
-  return await invoke_rpc("get_setting_value", { key: "active_version" });
 }
 
 export async function ensureActiveVersionStillExists(): Promise<boolean> {

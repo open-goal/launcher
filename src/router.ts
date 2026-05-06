@@ -24,34 +24,21 @@ import GameSetup from "./components/job/GameSetup.svelte";
 // @ts-ignore
 import GameUpdate from "./components/job/GameUpdate.svelte";
 import { versionState } from "./state/VersionState.svelte";
-import {
-  doesActiveToolingVersionSupportGame,
-  getInstalledVersion,
-  isGameInstalled,
-  getLocale,
-  getInstallationDirectory,
-} from "$lib/rpc/config";
-import {
-  ensureActiveVersionStillExists,
-  getActiveVersion,
-} from "$lib/rpc/versions";
+import { doesActiveToolingVersionSupportGame } from "$lib/rpc/config";
+import { ensureActiveVersionStillExists } from "$lib/rpc/versions";
 import { toSupportedGame } from "$lib/rpc/SupportedGame";
 import Requirements from "./components/job/Requirements.svelte";
 import { requirementsStore } from "./state/requirements-store";
 import Startup from "./routes/Startup.svelte";
 import StartupLayout from "./layouts/StartupLayout.svelte";
+import { config } from "./state/config.svelte";
 
 export const { p, navigate, isActive, route } = createRouter({
   "/": {
     "/": Startup,
     hooks: {
       async beforeLoad() {
-        const [locale, installDir] = await Promise.all([
-          getLocale(),
-          getInstallationDirectory(),
-        ]);
-
-        if (!locale || !installDir) {
+        if (!config || !config.locale || !config.installationDir) {
           throw navigate("/startup");
         }
 
@@ -81,12 +68,7 @@ export const { p, navigate, isActive, route } = createRouter({
             return;
           }
 
-          const [locale, installDir] = await Promise.all([
-            getLocale(),
-            getInstallationDirectory(),
-          ]);
-
-          if (!locale || !installDir) {
+          if (!config || !config.locale || !config.installationDir) {
             throw navigate("/startup");
           }
 
@@ -95,8 +77,8 @@ export const { p, navigate, isActive, route } = createRouter({
             return;
           }
 
-          versionState.activeToolingVersion = await getActiveVersion();
-          if (!versionState.activeToolingVersion) {
+          versionState.activeToolingVersion = config.activeVersion;
+          if (!config.activeVersion) {
             throw navigate("/:game_name/tools-not-set", {
               params: { game_name: params.game_name },
             });
@@ -121,14 +103,14 @@ export const { p, navigate, isActive, route } = createRouter({
             }
           }
 
-          const installed = await isGameInstalled(activeGame);
+          const installed = config?.games?.[activeGame]?.isInstalled;
           if (!installed) {
             throw navigate("/:game_name/setup", {
               params: { game_name: params.game_name },
             });
           }
 
-          const installedVersion = await getInstalledVersion(activeGame);
+          const installedVersion = config?.games?.[activeGame]?.version;
           if (installedVersion !== versionState.activeToolingVersion) {
             throw navigate("/:game_name/update", {
               params: { game_name: params.game_name },
