@@ -359,6 +359,12 @@ impl LauncherConfig {
     Ok(())
   }
 
+  pub fn set_check_for_latest_mod_version(&mut self, check: bool) -> anyhow::Result<()> {
+    self.check_for_latest_mod_version = check;
+    self.save_config()?;
+    Ok(())
+  }
+
   pub fn update_setting_value(&mut self, key: &str, val: Value) -> Result<(), ConfigError> {
     match key {
       "opengl_requirements_met" => self.requirements.opengl = val.as_bool().unwrap_or(false),
