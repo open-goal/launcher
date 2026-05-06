@@ -365,6 +365,12 @@ impl LauncherConfig {
     Ok(())
   }
 
+  pub fn set_delete_previous_versions(&mut self, delete: bool) -> anyhow::Result<()> {
+    self.delete_previous_versions = delete;
+    self.save_config()?;
+    Ok(())
+  }
+
   pub fn update_setting_value(&mut self, key: &str, val: Value) -> Result<(), ConfigError> {
     match key {
       "opengl_requirements_met" => self.requirements.opengl = val.as_bool().unwrap_or(false),
@@ -372,7 +378,6 @@ impl LauncherConfig {
       "check_for_latest_mod_version" => {
         self.check_for_latest_mod_version = val.as_bool().unwrap_or(true)
       }
-      "delete_previous_versions" => self.delete_previous_versions = val.as_bool().unwrap_or(false),
       "rip_levels" => self.decompiler_settings.rip_levels_enabled = val.as_bool().unwrap_or(false),
       "rip_collision" => {
         self.decompiler_settings.rip_collision_enabled = val.as_bool().unwrap_or(false)

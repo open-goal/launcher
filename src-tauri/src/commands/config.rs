@@ -175,6 +175,17 @@ pub async fn set_check_for_latest_mod_version(
   Ok(())
 }
 
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_delete_previous_versions(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  delete: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_delete_previous_versions(delete)?;
+  Ok(())
+}
+
 #[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn is_opengl_requirement_met(

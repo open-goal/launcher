@@ -139,9 +139,8 @@ export async function setAutoUpdateGames(value: boolean): Promise<void> {
 export async function setAutoUninstallOldVersions(
   value: boolean,
 ): Promise<void> {
-  return await invoke_rpc("update_setting_value", {
-    key: "delete_previous_versions",
-    val: value,
+  return await invoke_rpc("set_delete_previous_versions", {
+    delete: value,
   });
 }
 

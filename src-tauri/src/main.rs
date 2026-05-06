@@ -168,6 +168,7 @@ fn main() {
       commands::config::set_locale,
       commands::config::set_auto_update_games,
       commands::config::set_check_for_latest_mod_version,
+      commands::config::set_delete_previous_versions,
       commands::config::update_mod_sources,
       commands::config::get_launcher_config,
       commands::download::download_file,
