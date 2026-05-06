@@ -156,9 +156,9 @@ export async function compileForModInstall(
 
 export async function saveModInstallInfo(
   gameName: string,
-  modName: string | undefined,
-  sourceName: string | undefined,
-  versionName: string | undefined,
+  modName: string,
+  sourceName: string,
+  versionName: string,
 ): Promise<string | null> {
   return await invoke_rpc2("save_mod_install_info", {
     args: { gameName, modName, sourceName, versionName },

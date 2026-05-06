@@ -352,40 +352,6 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn update_mods_setting_value(
-    &mut self,
-    key: &str,
-    game_name: SupportedGame,
-    source_name: Option<String>,
-    version_name: Option<String>,
-    mod_name: Option<String>,
-  ) -> Result<(), ConfigError> {
-    let game_config = self.get_supported_game_config_mut(game_name)?;
-    let source = source_name.unwrap_or("".to_owned());
-    let version = version_name.unwrap_or("".to_owned());
-    let mod_name = mod_name.unwrap_or("".to_owned());
-
-    match key {
-      "add_mod" => {
-        game_config
-          .mods_installed_version
-          .entry(source)
-          .or_insert_with(HashMap::new)
-          .insert(mod_name, version);
-      }
-      "uninstall_mod" => {
-        game_config
-          .mods_installed_version
-          .get_mut(&source)
-          .map(|mods| mods.remove(&mod_name));
-      }
-      _ => todo!(),
-    }
-
-    self.save_config()?;
-    Ok(())
-  }
-
   pub fn set_texture_packs(
     &mut self,
     game_name: SupportedGame,
@@ -394,6 +360,38 @@ impl LauncherConfig {
     self
       .get_supported_game_config_mut(game_name)?
       .set_texture_packs(texture_packs);
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn add_mod(
+    &mut self,
+    game_name: SupportedGame,
+    source: String,
+    version: String,
+    mod_name: String,
+  ) -> Result<(), ConfigError> {
+    self
+      .get_supported_game_config_mut(game_name)?
+      .mods_installed_version
+      .entry(source)
+      .or_insert_with(HashMap::new)
+      .insert(mod_name, version);
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn uninstall_mod(
+    &mut self,
+    game_name: SupportedGame,
+    source: String,
+    mod_name: String,
+  ) -> Result<(), ConfigError> {
+    self
+      .get_supported_game_config_mut(game_name)?
+      .mods_installed_version
+      .get_mut(&source)
+      .map(|mods| mods.remove(&mod_name));
     self.save_config()?;
     Ok(())
   }

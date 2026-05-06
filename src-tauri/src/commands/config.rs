@@ -53,29 +53,6 @@ pub async fn get_launcher_config(
 
 #[instrument(skip(config))]
 #[tauri::command]
-pub async fn update_mods_setting_value(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  key: String,
-  game_name: SupportedGame,
-  source_name: Option<String>,
-  version_name: Option<String>,
-  mod_name: Option<String>,
-) -> Result<(), CommandError> {
-  let mut config_lock = config.lock().await;
-  match &config_lock.update_mods_setting_value(&key, game_name, source_name, version_name, mod_name)
-  {
-    Ok(()) => Ok(()),
-    Err(e) => {
-      tracing::error!("Unable to get setting directory: {:?}", e);
-      Err(CommandError::Configuration(
-        "Unable to update setting".to_owned(),
-      ))
-    }
-  }
-}
-
-#[instrument(skip(config))]
-#[tauri::command]
 pub async fn set_texture_packs(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,

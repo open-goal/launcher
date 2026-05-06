@@ -438,13 +438,7 @@ pub async fn save_mod_install_info(
     version_name
   );
   config_lock
-    .update_mods_setting_value(
-      "add_mod",
-      game_name,
-      Some(source_name),
-      Some(version_name),
-      Some(mod_name),
-    )
+    .add_mod(game_name, source_name, version_name, mod_name)
     .map_err(|err| {
       tracing::error!("Unable to remove mod source: {:?}", err);
       CommandError::Configuration("Unable to remove mod source".to_owned())
@@ -576,14 +570,8 @@ pub async fn uninstall_mod(
     std::fs::remove_dir_all(mod_dir)?;
   }
   config_lock
-    .update_mods_setting_value(
-      "uninstall_mod",
-      game_name,
-      Some(source_name),
-      None,
-      Some(mod_name),
-    )
-    .map_err(|_| CommandError::GameFeatures("Unable to uninstall mod".to_owned()))?;
+    .uninstall_mod(game_name, source_name, mod_name)
+    .map_err(|err| CommandError::GameFeatures(format!("Unable to uninstall mod: {}", err)))?;
   Ok(())
 }
 
