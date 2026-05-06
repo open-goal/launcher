@@ -117,6 +117,12 @@ pub struct Requirements {
   pub opengl: bool,
 }
 
+impl Requirements {
+  pub fn set_bypass_requirements(&mut self, bypass: bool) {
+    self.bypass_requirements = bypass;
+  }
+}
+
 #[derive(Debug, Serialize, Deserialize, Default, Clone, TS)]
 #[serde(rename_all = "camelCase", default)]
 pub struct DecompilerSettings {
@@ -241,7 +247,7 @@ impl LauncherConfig {
     return config;
   }
 
-  pub fn save_config(&self) -> Result<(), ConfigError> {
+  pub fn save_config(&self) -> anyhow::Result<()> {
     let settings_path = &self.settings_path;
 
     // Ensure the directory exists
@@ -332,9 +338,6 @@ impl LauncherConfig {
     match key {
       "opengl_requirements_met" => self.requirements.opengl = val.as_bool().unwrap_or(false),
       "avx" => self.requirements.avx = val.as_bool().unwrap_or(false),
-      "bypass_requirements" => {
-        self.requirements.bypass_requirements = val.as_bool().unwrap_or(false)
-      }
       "locale" => self.locale = val.as_str().map(|s| s.to_string()),
       "check_for_latest_mod_version" => {
         self.check_for_latest_mod_version = val.as_bool().unwrap_or(true)

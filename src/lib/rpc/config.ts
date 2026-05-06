@@ -147,9 +147,8 @@ export async function setAutoUninstallOldVersions(
 }
 
 export async function setBypassRequirements(bypass: boolean): Promise<void> {
-  return await invoke_rpc("update_setting_value", {
-    key: "bypass_requirements",
-    val: bypass,
+  return await invoke_rpc("set_bypass_requirements", {
+    bypass: bypass,
   });
 }
 

@@ -117,6 +117,18 @@ pub async fn is_avx_requirement_met(
   }
 }
 
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_bypass_requirements(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  bypass: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.requirements.set_bypass_requirements(bypass);
+  config_lock.save_config()?;
+  Ok(())
+}
+
 #[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn is_opengl_requirement_met(
