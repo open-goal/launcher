@@ -253,7 +253,7 @@ impl LauncherConfig {
     let _ = fs::copy(settings_path.clone(), dest);
   }
 
-  fn get_supported_game_config_mut(&mut self, game_name: SupportedGame) -> &mut GameConfig {
+  pub fn get_supported_game_config_mut(&mut self, game_name: SupportedGame) -> &mut GameConfig {
     self.games.entry(game_name).or_default()
   }
 
@@ -402,18 +402,6 @@ impl LauncherConfig {
 
   pub fn set_hide_beta_alerts(&mut self, hide: bool) -> anyhow::Result<()> {
     self.hide_beta_alerts = hide;
-    self.save_config()?;
-    Ok(())
-  }
-
-  pub fn set_texture_packs(
-    &mut self,
-    game_name: SupportedGame,
-    texture_packs: Vec<String>,
-  ) -> Result<(), ConfigError> {
-    self
-      .get_supported_game_config_mut(game_name)
-      .set_texture_packs(texture_packs);
     self.save_config()?;
     Ok(())
   }

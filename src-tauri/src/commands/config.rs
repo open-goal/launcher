@@ -57,8 +57,10 @@ pub async fn set_texture_packs(
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   config_lock
-    .set_texture_packs(game_name, texture_packs)
-    .map_err(|err| CommandError::Configuration(format!("Unable to set texture packs: {}", err)))
+    .get_supported_game_config_mut(game_name)
+    .set_texture_packs(texture_packs);
+  config_lock.save_config()?;
+  Ok(())
 }
 
 #[instrument(skip(config))]
@@ -87,6 +89,7 @@ pub async fn is_avx_requirement_met(
   } else {
     let avx_supported = is_avx_supported().await;
     config_lock.requirements.set_avx(avx_supported);
+    config_lock.save_config()?;
     Ok(avx_supported)
   }
 }
