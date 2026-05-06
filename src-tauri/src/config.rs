@@ -353,6 +353,12 @@ impl LauncherConfig {
     Ok(())
   }
 
+  pub fn set_auto_update_games(&mut self, auto_update: bool) -> anyhow::Result<()> {
+    self.auto_update_games = auto_update;
+    self.save_config()?;
+    Ok(())
+  }
+
   pub fn update_setting_value(&mut self, key: &str, val: Value) -> Result<(), ConfigError> {
     match key {
       "opengl_requirements_met" => self.requirements.opengl = val.as_bool().unwrap_or(false),
@@ -360,7 +366,6 @@ impl LauncherConfig {
       "check_for_latest_mod_version" => {
         self.check_for_latest_mod_version = val.as_bool().unwrap_or(true)
       }
-      "auto_update_games" => self.auto_update_games = val.as_bool().unwrap_or(false),
       "delete_previous_versions" => self.delete_previous_versions = val.as_bool().unwrap_or(false),
       "rip_levels" => self.decompiler_settings.rip_levels_enabled = val.as_bool().unwrap_or(false),
       "rip_collision" => {

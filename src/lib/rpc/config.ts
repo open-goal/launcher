@@ -131,9 +131,8 @@ export async function setLocale(localeId: string): Promise<void> {
 }
 
 export async function setAutoUpdateGames(value: boolean): Promise<void> {
-  return await invoke_rpc("update_setting_value", {
-    key: "auto_update_games",
-    val: value,
+  return await invoke_rpc("set_auto_update_games", {
+    auto_update: value,
   });
 }
 

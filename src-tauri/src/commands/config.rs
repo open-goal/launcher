@@ -153,6 +153,17 @@ pub async fn update_mod_sources(
   Ok(())
 }
 
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_auto_update_games(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  auto_update: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_auto_update_games(auto_update)?;
+  Ok(())
+}
+
 #[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn is_opengl_requirement_met(
