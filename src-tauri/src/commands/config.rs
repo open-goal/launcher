@@ -129,6 +129,18 @@ pub async fn set_bypass_requirements(
   Ok(())
 }
 
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_locale(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  locale: String,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_locale(locale)?;
+  config_lock.save_config()?;
+  Ok(())
+}
+
 #[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn is_opengl_requirement_met(

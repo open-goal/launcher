@@ -165,6 +165,7 @@ fn main() {
       commands::config::set_game_installed,
       commands::config::set_active_version,
       commands::config::set_bypass_requirements,
+      commands::config::set_locale,
       commands::config::get_launcher_config,
       commands::download::download_file,
       commands::features::mods::base_game_iso_exists,

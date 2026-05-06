@@ -80,8 +80,8 @@ export async function localeSpecificFontAvailableForDownload(
 
 export async function setLocale(localeId: string): Promise<void> {
   return await invoke_rpc(
-    "update_setting_value",
-    { key: "locale", val: localeId },
+    "set_locale",
+    { locale: localeId },
     undefined,
     async () => {
       svelteLocale.set(localeId);

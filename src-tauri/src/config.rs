@@ -146,7 +146,7 @@ pub struct LauncherConfig {
   pub games: HashMap<SupportedGame, GameConfig>,
   pub installation_dir: Option<PathBuf>,
   pub active_version: Option<String>,
-  pub locale: Option<String>,
+  pub locale: String,
   pub mod_sources: Vec<String>,
   pub decompiler_settings: DecompilerSettings,
   pub check_for_latest_mod_version: bool,
@@ -209,7 +209,7 @@ impl LauncherConfig {
       games: default_games(),
       installation_dir: None,
       active_version: None,
-      locale: None,
+      locale: "en-US".to_owned(),
       mod_sources: Vec::new(),
       decompiler_settings: DecompilerSettings::default(),
       check_for_latest_mod_version: true,
@@ -334,11 +334,16 @@ impl LauncherConfig {
     Ok(())
   }
 
+  pub fn set_locale(&mut self, locale: String) -> anyhow::Result<()> {
+    self.locale = locale;
+    self.save_config()?;
+    Ok(())
+  }
+
   pub fn update_setting_value(&mut self, key: &str, val: Value) -> Result<(), ConfigError> {
     match key {
       "opengl_requirements_met" => self.requirements.opengl = val.as_bool().unwrap_or(false),
       "avx" => self.requirements.avx = val.as_bool().unwrap_or(false),
-      "locale" => self.locale = val.as_str().map(|s| s.to_string()),
       "check_for_latest_mod_version" => {
         self.check_for_latest_mod_version = val.as_bool().unwrap_or(true)
       }
