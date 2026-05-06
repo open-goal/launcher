@@ -3,7 +3,6 @@ use std::path::PathBuf;
 use super::{CommandError, util::is_avx_supported};
 use crate::config::{LauncherConfig, SupportedGame};
 use semver::Version;
-use serde_json::Value;
 use tauri::Emitter;
 use tracing::instrument;
 
@@ -17,29 +16,6 @@ pub async fn reset_to_defaults(
     CommandError::Configuration("Unable to reset configuration to defaults".to_owned())
   })?;
   Ok(())
-}
-
-#[instrument(skip(config))]
-#[tauri::command]
-pub async fn update_setting_value(
-  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  key: String,
-  val: Value,
-  app_handle: tauri::AppHandle,
-) -> Result<(), CommandError> {
-  let mut config_lock = config.lock().await;
-  match &config_lock.update_setting_value(&key, val) {
-    Ok(()) => {
-      app_handle.emit("config:saved", ())?;
-      Ok(())
-    }
-    Err(e) => {
-      tracing::error!("Unable to get setting directory: {:?}", e);
-      Err(CommandError::Configuration(
-        "Unable to update setting".to_owned(),
-      ))
-    }
-  }
 }
 
 #[instrument(skip(config))]
@@ -112,8 +88,9 @@ pub async fn is_avx_requirement_met(
     tracing::warn!("Bypassing the AVX requirements check!");
     Ok(true)
   } else {
-    let _ = config_lock.update_setting_value("avx", is_avx_supported().await.into());
-    Ok(config_lock.requirements.avx)
+    let avx_supported = is_avx_supported().await;
+    config_lock.requirements.set_avx(avx_supported);
+    Ok(avx_supported)
   }
 }
 
@@ -286,11 +263,7 @@ pub async fn is_opengl_requirement_met(
   // Note: if the minimum vcc runtime requirement (windows only) isn't met then run_game_gpu_test will fail right here with a non zero error code
   // what looks like a GPU test failure is actually just the game not launching
   let test_result = crate::util::game_tests::run_game_gpu_test(&config_lock, &app_handle).await?;
-  config_lock
-    .update_setting_value("opengl_requirements_met", test_result.success.into())
-    .map_err(|_| {
-      CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
-    })?;
+  config_lock.requirements.set_opengl(test_result.success);
   Ok(test_result.success)
 }
 

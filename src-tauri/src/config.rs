@@ -14,7 +14,6 @@ use crate::{commands::CommandError, util::file::delete_dir};
 use anyhow::Context;
 use semver::Version;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
@@ -120,6 +119,14 @@ pub struct Requirements {
 impl Requirements {
   pub fn set_bypass_requirements(&mut self, bypass: bool) {
     self.bypass_requirements = bypass;
+  }
+
+  pub fn set_avx(&mut self, met: bool) {
+    self.avx = met;
+  }
+
+  pub fn set_opengl(&mut self, met: bool) {
+    self.opengl = met;
   }
 }
 
@@ -389,22 +396,6 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn update_setting_value(&mut self, key: &str, val: Value) -> Result<(), ConfigError> {
-    match key {
-      "opengl_requirements_met" => self.requirements.opengl = val.as_bool().unwrap_or(false),
-      "avx" => self.requirements.avx = val.as_bool().unwrap_or(false),
-      "check_for_latest_mod_version" => {
-        self.check_for_latest_mod_version = val.as_bool().unwrap_or(true)
-      }
-      _ => {
-        tracing::error!("Key '{}' not recognized", key);
-        return Err(ConfigError::Configuration("Invalid key".to_owned()));
-      }
-    }
-    self.save_config()?;
-    Ok(())
-  }
-
   pub fn set_texture_packs(
     &mut self,
     game_name: SupportedGame,
@@ -524,7 +515,7 @@ impl LauncherConfig {
     delete_dir(&version_dir)?;
 
     if self.active_version.as_deref() == Some(version) {
-      self.update_setting_value("active_version", serde_json::Value::Null)?;
+      self.set_active_version(None)?;
     }
 
     Ok(())
