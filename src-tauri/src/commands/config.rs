@@ -264,6 +264,7 @@ pub async fn is_opengl_requirement_met(
   // what looks like a GPU test failure is actually just the game not launching
   let test_result = crate::util::game_tests::run_game_gpu_test(&config_lock, &app_handle).await?;
   config_lock.requirements.set_opengl(test_result.success);
+  config_lock.save_config()?;
   Ok(test_result.success)
 }
 
