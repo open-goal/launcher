@@ -84,6 +84,23 @@ impl GameConfig {
       .get(source)
       .is_some_and(|mods| mods.contains_key(mod_name))
   }
+
+  pub fn clear_installation(&mut self) {
+    self.is_installed = false;
+    self.version = None;
+    self.texture_packs.clear();
+    self.mods_installed_version.clear();
+  }
+
+  pub fn set_installed(&mut self, installed: bool) -> &mut Self {
+    self.is_installed = installed;
+    self
+  }
+
+  pub fn set_version(&mut self, version: Option<String>) -> &mut Self {
+    self.version = version;
+    self
+  }
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, TS)]
@@ -197,14 +214,8 @@ impl LauncherConfig {
     let _ = fs::copy(settings_path.clone(), dest);
   }
 
-  fn get_supported_game_config_mut(
-    &mut self,
-    game_name: SupportedGame,
-  ) -> Result<&mut GameConfig, ConfigError> {
-    self.games.get_mut(&game_name).ok_or_else(|| {
-      tracing::error!("Game not found or unsupported: {}", game_name);
-      ConfigError::Configuration(format!("Game not found or unsupported: {game_name}"))
-    })
+  fn get_supported_game_config_mut(&mut self, game_name: SupportedGame) -> &mut GameConfig {
+    self.games.entry(game_name).or_default()
   }
 
   pub fn load_config(config_dir: std::path::PathBuf) -> LauncherConfig {
@@ -268,14 +279,28 @@ impl LauncherConfig {
     if let Some(old_dir) = &self.installation_dir {
       if *old_dir != path {
         self.active_version = None;
-        self.update_setting_value("installed", false.into(), Some(SupportedGame::Jak1))?;
-        self.update_setting_value("installed", false.into(), Some(SupportedGame::Jak2))?;
-        self.update_setting_value("installed", false.into(), Some(SupportedGame::Jak3))?;
-        self.update_setting_value("installed", false.into(), Some(SupportedGame::JakX))?;
+        self
+          .games
+          .values_mut()
+          .for_each(GameConfig::clear_installation);
       }
     }
 
     self.installation_dir = Some(path);
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_game_installed(
+    &mut self,
+    game_name: SupportedGame,
+    installed: bool,
+  ) -> anyhow::Result<()> {
+    let version = installed.then(|| self.active_version.clone()).flatten();
+    self
+      .get_supported_game_config_mut(game_name)
+      .set_installed(installed)
+      .set_version(version);
     self.save_config()?;
     Ok(())
   }
@@ -288,16 +313,6 @@ impl LauncherConfig {
   ) -> Result<(), ConfigError> {
     if let Some(game_config) = game_name.and_then(|game| self.games.get_mut(&game)) {
       match key {
-        "installed" => {
-          let installed = val.as_bool().unwrap_or(false);
-          game_config.is_installed = installed;
-          if installed {
-            game_config.version = self.active_version.clone();
-          } else {
-            game_config.version = None;
-          }
-        }
-        "installed_version" => game_config.version = val.as_str().map(|s| s.to_string()),
         "seconds_played" => game_config.seconds_played += val.as_u64().unwrap_or(0),
         _ => {
           tracing::error!("Key '{}' not recognized", key);
@@ -358,7 +373,7 @@ impl LauncherConfig {
     texture_packs: Vec<String>,
   ) -> Result<(), ConfigError> {
     self
-      .get_supported_game_config_mut(game_name)?
+      .get_supported_game_config_mut(game_name)
       .set_texture_packs(texture_packs);
     self.save_config()?;
     Ok(())
@@ -372,7 +387,7 @@ impl LauncherConfig {
     mod_name: String,
   ) -> Result<(), ConfigError> {
     self
-      .get_supported_game_config_mut(game_name)?
+      .get_supported_game_config_mut(game_name)
       .mods_installed_version
       .entry(source)
       .or_insert_with(HashMap::new)
@@ -388,7 +403,7 @@ impl LauncherConfig {
     mod_name: String,
   ) -> Result<(), ConfigError> {
     self
-      .get_supported_game_config_mut(game_name)?
+      .get_supported_game_config_mut(game_name)
       .mods_installed_version
       .get_mut(&source)
       .map(|mods| mods.remove(&mod_name));
@@ -404,8 +419,8 @@ impl LauncherConfig {
     if !cleanup_list.is_empty() {
       return Ok(());
     }
-    let game_config = self.get_supported_game_config_mut(game_name)?;
-    game_config
+    self
+      .get_supported_game_config_mut(game_name)
       .texture_packs
       .retain(|pack| !cleanup_list.contains(pack));
     self.save_config()?;

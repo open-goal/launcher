@@ -45,6 +45,18 @@ pub async fn update_setting_value(
 
 #[instrument(skip(config))]
 #[tauri::command]
+pub async fn set_game_installed(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  game_name: SupportedGame,
+  installed: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_game_installed(game_name, installed)?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
 pub async fn get_launcher_config(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<LauncherConfig, CommandError> {
@@ -64,17 +76,20 @@ pub async fn set_texture_packs(
     .map_err(|err| CommandError::Configuration(format!("Unable to set texture packs: {}", err)))
 }
 
-#[instrument(skip(config))]
+#[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn set_install_directory(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   new_dir: PathBuf,
+  app_handle: tauri::AppHandle,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   config_lock.set_install_directory(new_dir).map_err(|err| {
     tracing::error!("Unable to persist installation directory: {:?}", err);
     CommandError::Configuration("Unable to persist installation directory".to_owned())
-  })
+  })?;
+  app_handle.emit("config:saved", ())?;
+  Ok(())
 }
 
 #[instrument(skip(config))]

@@ -45,10 +45,9 @@ export async function finalizeInstallation(
   gameName: string,
   installed = true,
 ): Promise<void> {
-  return await invoke_rpc("update_setting_value", {
-    key: "installed",
-    val: installed,
+  return await invoke_rpc("set_game_installed", {
     gameName,
+    installed,
   });
 }
 
