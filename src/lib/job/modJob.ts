@@ -23,6 +23,25 @@ export async function setupModInstallation(
   jobTracker.init([
     {
       status: "queued",
+      label: $format("setup_download"),
+      task: async () => {
+        if (modDownloadUrl) {
+          let error = await downloadAndExtractNewMod(
+            activeGame,
+            modDownloadUrl,
+            modName,
+            modSourceName,
+          );
+          if (error) {
+            jobTracker.updateFailureReason(error);
+            return false;
+          }
+        }
+        return true;
+      },
+    },
+    {
+      status: "queued",
       label: $format("setup_extractAndVerify"),
       task: async () => {
         const isoAlreadyExtracted = await baseGameIsoExists(activeGame);
@@ -44,25 +63,6 @@ export async function setupModInstallation(
             }
           } else {
             jobTracker.updateFailureReason($format("setup_error_noISO"));
-            return false;
-          }
-        }
-        return true;
-      },
-    },
-    {
-      status: "queued",
-      label: $format("setup_download"),
-      task: async () => {
-        if (modDownloadUrl) {
-          let error = await downloadAndExtractNewMod(
-            activeGame,
-            modDownloadUrl,
-            modName,
-            modSourceName,
-          );
-          if (error) {
-            jobTracker.updateFailureReason(error);
             return false;
           }
         }
