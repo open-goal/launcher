@@ -419,7 +419,7 @@ pub async fn compile_for_mod_install(
   return Err(CommandError::GameFeatures(msg));
 }
 
-#[instrument(skip(config, app_handle))]
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn save_mod_install_info(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -427,7 +427,6 @@ pub async fn save_mod_install_info(
   mod_name: String,
   source_name: String,
   version_name: String,
-  app_handle: tauri::AppHandle,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   tracing::info!(
@@ -443,7 +442,6 @@ pub async fn save_mod_install_info(
       tracing::error!("Unable to remove mod source: {:?}", err);
       CommandError::Configuration("Unable to remove mod source".to_owned())
     })?;
-  app_handle.emit("config:saved", ())?;
   Ok(())
 }
 

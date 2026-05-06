@@ -1,6 +1,6 @@
 use anyhow::Result;
 use std::{collections::HashMap, path::Path};
-use tauri::{Emitter, Manager};
+use tauri::Manager;
 use tracing::instrument;
 use walkdir::WalkDir;
 
@@ -11,11 +11,10 @@ use crate::{
 
 use super::CommandError;
 
-#[instrument(skip(config, app_handle))]
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn uninstall_game(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  app_handle: tauri::AppHandle,
   game_name: SupportedGame,
 ) -> Result<bool, CommandError> {
   let data_folder = {
@@ -42,7 +41,6 @@ pub async fn uninstall_game(
     .map_err(|err| {
       CommandError::GameManagement(format!("Unable to persist game installation status {err}"))
     })?;
-  app_handle.emit("config:saved", {})?;
   Ok(true)
 }
 

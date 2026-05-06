@@ -9,6 +9,7 @@
 //
 // serde does not support defaultLiterals yet - https://github.com/serde-rs/serde/issues/368
 
+use crate::util::emit_config_saved;
 use crate::util::file::create_dir;
 use crate::{commands::CommandError, util::file::delete_dir};
 use anyhow::Context;
@@ -279,6 +280,7 @@ impl LauncherConfig {
     create_dir(&settings_path.parent().unwrap())?;
     let file = fs::File::create(settings_path)?;
     serde_json::to_writer_pretty(file, &self)?;
+    emit_config_saved()?;
     Ok(())
   }
 

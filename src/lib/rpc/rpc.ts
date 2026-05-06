@@ -54,7 +54,6 @@ export async function invoke_rpc2(
 ): Promise<string | null> {
   try {
     await invoke(cmd, options?.args);
-    emit("config:saved");
     return null;
   } catch (e: any) {
     if (typeof e === "string") {

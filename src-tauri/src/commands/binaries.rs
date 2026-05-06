@@ -13,7 +13,7 @@ use tokio::process::Command;
 
 use semver::Version;
 use serde::{Deserialize, Serialize};
-use tauri::{Emitter, Manager};
+use tauri::Manager;
 use tracing::{error, info, instrument, warn};
 
 use crate::{
@@ -606,7 +606,5 @@ async fn track_playtime(
   let config = app_handle.state::<tokio::sync::Mutex<LauncherConfig>>();
   let mut config_lock = config.lock().await;
   config_lock.update_seconds_played(game_name, elapsed_seconds)?;
-
-  app_handle.emit("config:saved", ())?;
   Ok(())
 }

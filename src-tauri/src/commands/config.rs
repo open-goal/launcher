@@ -3,7 +3,6 @@ use std::path::PathBuf;
 use super::{CommandError, util::is_avx_supported};
 use crate::config::{LauncherConfig, SupportedGame};
 use semver::Version;
-use tauri::Emitter;
 use tracing::instrument;
 
 #[instrument(skip(config))]
@@ -62,19 +61,17 @@ pub async fn set_texture_packs(
     .map_err(|err| CommandError::Configuration(format!("Unable to set texture packs: {}", err)))
 }
 
-#[instrument(skip(config, app_handle))]
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn set_install_directory(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   new_dir: PathBuf,
-  app_handle: tauri::AppHandle,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   config_lock.set_install_directory(new_dir).map_err(|err| {
     tracing::error!("Unable to persist installation directory: {:?}", err);
     CommandError::Configuration("Unable to persist installation directory".to_owned())
   })?;
-  app_handle.emit("config:saved", ())?;
   Ok(())
 }
 
