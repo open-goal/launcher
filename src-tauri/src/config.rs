@@ -9,31 +9,20 @@
 //
 // serde does not support defaultLiterals yet - https://github.com/serde-rs/serde/issues/368
 
+use crate::util::emit_config_saved;
 use crate::util::file::create_dir;
 use crate::{commands::CommandError, util::file::delete_dir};
-use anyhow::Context;
+use anyhow::{Context, Result};
 use semver::Version;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use std::collections::HashMap;
 use std::fs;
+use std::path::Path;
 use std::path::PathBuf;
 use strum_macros::{Display, EnumIter};
 use ts_rs::TS;
 
 use crate::util::file::touch_file;
-
-#[derive(Debug, thiserror::Error)]
-pub enum ConfigError {
-  #[error(transparent)]
-  Anyhow(#[from] anyhow::Error),
-  #[error(transparent)]
-  IO(#[from] std::io::Error),
-  #[error(transparent)]
-  JSONError(#[from] serde_json::Error),
-  #[error("{0}")]
-  Configuration(String),
-}
 
 #[derive(
   Debug, Eq, PartialEq, Hash, Clone, Copy, Serialize, Deserialize, Display, EnumIter, TS,
@@ -74,11 +63,37 @@ impl GameConfig {
     self.texture_packs.clone()
   }
 
+  pub fn set_texture_packs(&mut self, texture_packs: Vec<String>) {
+    self.texture_packs = texture_packs;
+  }
+
   pub fn has_installed_mod(&self, source: &str, mod_name: &str) -> bool {
     self
       .mods_installed_version
       .get(source)
       .is_some_and(|mods| mods.contains_key(mod_name))
+  }
+
+  pub fn clear_installation(&mut self) {
+    self.is_installed = false;
+    self.version = None;
+    self.texture_packs.clear();
+    self.mods_installed_version.clear();
+  }
+
+  pub fn set_installed(&mut self, installed: bool) -> &mut Self {
+    self.is_installed = installed;
+    self
+  }
+
+  pub fn set_version(&mut self, version: Option<String>) -> &mut Self {
+    self.version = version;
+    self
+  }
+
+  pub fn update_seconds_played(&mut self, seconds: u64) -> &mut Self {
+    self.seconds_played += seconds;
+    self
   }
 }
 
@@ -91,6 +106,20 @@ pub struct Requirements {
   pub opengl: bool,
 }
 
+impl Requirements {
+  pub fn set_bypass_requirements(&mut self, bypass: bool) {
+    self.bypass_requirements = bypass;
+  }
+
+  pub fn set_avx(&mut self, met: bool) {
+    self.avx = met;
+  }
+
+  pub fn set_opengl(&mut self, met: bool) {
+    self.opengl = met;
+  }
+}
+
 #[derive(Debug, Serialize, Deserialize, Default, Clone, TS)]
 #[serde(rename_all = "camelCase", default)]
 pub struct DecompilerSettings {
@@ -98,6 +127,24 @@ pub struct DecompilerSettings {
   pub rip_collision_enabled: bool,
   pub rip_textures_enabled: bool,
   pub rip_streamed_audio_enabled: bool,
+}
+
+impl DecompilerSettings {
+  pub fn set_rip_levels_enabled(&mut self, enabled: bool) {
+    self.rip_levels_enabled = enabled;
+  }
+
+  pub fn set_rip_collision_enabled(&mut self, enabled: bool) {
+    self.rip_collision_enabled = enabled;
+  }
+
+  pub fn set_rip_textures_enabled(&mut self, enabled: bool) {
+    self.rip_textures_enabled = enabled;
+  }
+
+  pub fn set_rip_streamed_audio_enabled(&mut self, enabled: bool) {
+    self.rip_streamed_audio_enabled = enabled;
+  }
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, TS)]
@@ -114,13 +161,14 @@ pub struct LauncherConfig {
   pub games: HashMap<SupportedGame, GameConfig>,
   pub installation_dir: Option<PathBuf>,
   pub active_version: Option<String>,
-  pub locale: Option<String>,
+  pub locale: String,
   pub mod_sources: Vec<String>,
   pub decompiler_settings: DecompilerSettings,
   pub check_for_latest_mod_version: bool,
   pub proceed_after_successful_operation: bool,
   pub auto_update_games: bool,
   pub delete_previous_versions: bool,
+  pub hide_beta_alerts: bool,
 }
 
 pub struct CommonConfigData {
@@ -177,30 +225,25 @@ impl LauncherConfig {
       games: default_games(),
       installation_dir: None,
       active_version: None,
-      locale: None,
+      locale: "en-US".to_owned(),
       mod_sources: Vec::new(),
       decompiler_settings: DecompilerSettings::default(),
       check_for_latest_mod_version: true,
       proceed_after_successful_operation: true,
       auto_update_games: false,
       delete_previous_versions: false,
+      hide_beta_alerts: false,
     }
   }
 
-  fn backup(settings_path: &PathBuf) {
+  fn backup(settings_path: &Path) {
     tracing::warn!("Creating a backup copy of existing settings.");
     let dest = settings_path.with_file_name("settings.backup.json");
-    let _ = fs::copy(settings_path.clone(), dest);
+    let _ = fs::copy(settings_path.to_path_buf(), dest);
   }
 
-  fn get_supported_game_config_mut(
-    &mut self,
-    game_name: SupportedGame,
-  ) -> Result<&mut GameConfig, ConfigError> {
-    self.games.get_mut(&game_name).ok_or_else(|| {
-      tracing::error!("Game not found or unsupported: {}", game_name);
-      ConfigError::Configuration(format!("Game not found or unsupported: {game_name}"))
-    })
+  pub fn get_supported_game_config_mut(&mut self, game_name: SupportedGame) -> &mut GameConfig {
+    self.games.entry(game_name).or_default()
   }
 
   pub fn load_config(config_dir: std::path::PathBuf) -> LauncherConfig {
@@ -218,20 +261,21 @@ impl LauncherConfig {
     };
 
     config.settings_path = settings_path;
-    return config;
+    config
   }
 
-  pub fn save_config(&self) -> Result<(), ConfigError> {
+  pub fn save_config(&self) -> Result<()> {
     let settings_path = &self.settings_path;
 
     // Ensure the directory exists
-    create_dir(&settings_path.parent().unwrap())?;
+    create_dir(settings_path.parent().unwrap())?;
     let file = fs::File::create(settings_path)?;
     serde_json::to_writer_pretty(file, &self)?;
+    emit_config_saved()?;
     Ok(())
   }
 
-  pub fn reset_to_defaults(&mut self) -> Result<(), ConfigError> {
+  pub fn reset_to_defaults(&mut self) -> Result<()> {
     let original_installation_dir = self.installation_dir.clone();
     *self = Self::default_with_path(self.settings_path.clone());
     self.installation_dir = original_installation_dir;
@@ -239,36 +283,21 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn set_install_directory(&mut self, path: PathBuf) -> Result<(), ConfigError> {
-    // Do some tests on this folder, if they fail, return a decent error
-    if !path.exists() {
-      return Err(ConfigError::Configuration(
-        "Provided folder does not exist".to_owned(),
-      ));
-    }
-
-    if !path.is_dir() {
-      return Err(ConfigError::Configuration(
-        "Provided folder is not a folder".to_owned(),
-      ));
-    }
-
+  pub fn set_install_directory(&mut self, path: PathBuf) -> Result<()> {
     // Check our permissions on the folder by touching a file (and deleting it)
     let test_file = path.join(".perm-test.tmp");
-    touch_file(&test_file)
-      .with_context(|| format!("Provided installation folder could not be written to."))?;
+    touch_file(&test_file).context("Provided installation folder could not be written to.")?;
+    let _ = fs::remove_file(&test_file);
 
     // If the directory changes (it's not a no-op), we need to:
     // - wipe any installed games (make them reinstall)
     // - wipe the active version/version types
-    if let Some(old_dir) = &self.installation_dir {
-      if *old_dir != path {
-        self.active_version = None;
-        self.update_setting_value("installed", false.into(), Some(SupportedGame::Jak1))?;
-        self.update_setting_value("installed", false.into(), Some(SupportedGame::Jak2))?;
-        self.update_setting_value("installed", false.into(), Some(SupportedGame::Jak3))?;
-        self.update_setting_value("installed", false.into(), Some(SupportedGame::JakX))?;
-      }
+    if self.installation_dir.as_ref() != Some(&path) {
+      self.active_version = None;
+      self
+        .games
+        .values_mut()
+        .for_each(GameConfig::clear_installation);
     }
 
     self.installation_dir = Some(path);
@@ -276,113 +305,101 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn update_setting_value(
-    &mut self,
-    key: &str,
-    val: Value,
-    game_name: Option<SupportedGame>,
-  ) -> Result<(), ConfigError> {
-    if let Some(game_config) = game_name.and_then(|game| self.games.get_mut(&game)) {
-      match key {
-        "installed" => {
-          let installed = val.as_bool().unwrap_or(false);
-          game_config.is_installed = installed;
-          if installed {
-            game_config.version = self.active_version.clone();
-          } else {
-            game_config.version = None;
-          }
-        }
-        "installed_version" => game_config.version = val.as_str().map(|s| s.to_string()),
-        "seconds_played" => game_config.seconds_played += val.as_u64().unwrap_or(0),
-        _ => {
-          tracing::error!("Key '{}' not recognized", key);
-          return Err(ConfigError::Configuration("Invalid key".to_owned()));
-        }
-      }
-    } else {
-      match key {
-        "opengl_requirements_met" => self.requirements.opengl = val.as_bool().unwrap_or(false),
-        "avx" => self.requirements.avx = val.as_bool().unwrap_or(false),
-        "bypass_requirements" => {
-          self.requirements.bypass_requirements = val.as_bool().unwrap_or(false)
-        }
-        "active_version" => self.active_version = val.as_str().map(|s| s.to_string()),
-        "locale" => self.locale = val.as_str().map(|s| s.to_string()),
-        "check_for_latest_mod_version" => {
-          self.check_for_latest_mod_version = val.as_bool().unwrap_or(true)
-        }
-        "auto_update_games" => self.auto_update_games = val.as_bool().unwrap_or(false),
-        "delete_previous_versions" => {
-          self.delete_previous_versions = val.as_bool().unwrap_or(false)
-        }
-        "rip_levels" => {
-          self.decompiler_settings.rip_levels_enabled = val.as_bool().unwrap_or(false)
-        }
-        "rip_collision" => {
-          self.decompiler_settings.rip_collision_enabled = val.as_bool().unwrap_or(false)
-        }
-        "rip_textures" => {
-          self.decompiler_settings.rip_textures_enabled = val.as_bool().unwrap_or(false)
-        }
-        "rip_streamed_audio" => {
-          self.decompiler_settings.rip_streamed_audio_enabled = val.as_bool().unwrap_or(false)
-        }
-        "add_mod_source" => {
-          let mod_source = val.as_str().map(|s| s.to_string()).unwrap_or("".to_owned());
-          if !self.mod_sources.contains(&mod_source) {
-            self.mod_sources.push(mod_source);
-          }
-        }
-        "remove_mod_source" => {
-          let mod_source = val.as_str().map(|s| s.to_string()).unwrap_or("".to_owned());
-          self.mod_sources.retain(|source| source != &mod_source);
-        }
-        _ => {
-          tracing::error!("Key '{}' not recognized", key);
-          return Err(ConfigError::Configuration("Invalid key".to_owned()));
-        }
-      }
-    }
+  pub fn set_game_installed(&mut self, game_name: SupportedGame, installed: bool) -> Result<()> {
+    let version = installed.then(|| self.active_version.clone()).flatten();
+    self
+      .get_supported_game_config_mut(game_name)
+      .set_installed(installed)
+      .set_version(version);
     self.save_config()?;
     Ok(())
   }
 
-  pub fn update_mods_setting_value(
-    &mut self,
-    key: &str,
-    game_name: SupportedGame,
-    source_name: Option<String>,
-    version_name: Option<String>,
-    mod_name: Option<String>,
-    texture_packs: Option<Vec<String>>,
-  ) -> Result<(), ConfigError> {
-    let game_config = self.get_supported_game_config_mut(game_name)?;
-    let source = source_name.unwrap_or("".to_owned());
-    let version = version_name.unwrap_or("".to_owned());
-    let mod_name = mod_name.unwrap_or("".to_owned());
-    let texture_packs = texture_packs.unwrap_or_default();
+  pub fn update_seconds_played(&mut self, game_name: SupportedGame, seconds: u64) -> Result<()> {
+    self
+      .get_supported_game_config_mut(game_name)
+      .update_seconds_played(seconds);
+    self.save_config()?;
+    Ok(())
+  }
 
-    match key {
-      "add_texture_packs" => {
-        game_config.texture_packs = texture_packs;
+  pub fn set_active_version(&mut self, version: Option<String>) -> Result<()> {
+    self.active_version = version;
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_locale(&mut self, locale: String) -> Result<()> {
+    self.locale = locale;
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn update_mod_sources(&mut self, source: String, add: bool) -> Result<()> {
+    if add {
+      if !self.mod_sources.contains(&source) {
+        self.mod_sources.push(source);
       }
-      "add_mod" => {
-        game_config
-          .mods_installed_version
-          .entry(source)
-          .or_insert_with(HashMap::new)
-          .insert(mod_name, version);
-      }
-      "uninstall_mod" => {
-        game_config
-          .mods_installed_version
-          .get_mut(&source)
-          .map(|mods| mods.remove(&mod_name));
-      }
-      _ => todo!(),
+    } else {
+      self.mod_sources.retain(|s| s != &source);
     }
 
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_auto_update_games(&mut self, auto_update: bool) -> Result<()> {
+    self.auto_update_games = auto_update;
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_check_for_latest_mod_version(&mut self, check: bool) -> Result<()> {
+    self.check_for_latest_mod_version = check;
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_delete_previous_versions(&mut self, delete: bool) -> Result<()> {
+    self.delete_previous_versions = delete;
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_hide_beta_alerts(&mut self, hide: bool) -> Result<()> {
+    self.hide_beta_alerts = hide;
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn add_mod(
+    &mut self,
+    game_name: SupportedGame,
+    source: String,
+    version: String,
+    mod_name: String,
+  ) -> Result<()> {
+    self
+      .get_supported_game_config_mut(game_name)
+      .mods_installed_version
+      .entry(source)
+      .or_default()
+      .insert(mod_name, version);
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn uninstall_mod(
+    &mut self,
+    game_name: SupportedGame,
+    source: String,
+    mod_name: String,
+  ) -> Result<()> {
+    self
+      .get_supported_game_config_mut(game_name)
+      .mods_installed_version
+      .get_mut(&source)
+      .map(|mods| mods.remove(&mod_name));
     self.save_config()?;
     Ok(())
   }
@@ -391,19 +408,19 @@ impl LauncherConfig {
     &mut self,
     game_name: SupportedGame,
     cleanup_list: Vec<String>,
-  ) -> Result<(), ConfigError> {
+  ) -> Result<()> {
     if !cleanup_list.is_empty() {
       return Ok(());
     }
-    let game_config = self.get_supported_game_config_mut(game_name)?;
-    game_config
+    self
+      .get_supported_game_config_mut(game_name)
       .texture_packs
       .retain(|pack| !cleanup_list.contains(pack));
     self.save_config()?;
     Ok(())
   }
 
-  pub fn install_dir(&self) -> anyhow::Result<PathBuf> {
+  pub fn install_dir(&self) -> Result<PathBuf> {
     self
       .installation_dir
       .as_ref()
@@ -433,7 +450,7 @@ impl LauncherConfig {
     })
   }
 
-  pub fn ensure_active_version_still_exists(&mut self) -> anyhow::Result<bool> {
+  pub fn ensure_active_version_still_exists(&mut self) -> Result<bool> {
     let Some(active_version) = &self.active_version else {
       return Ok(false);
     };
@@ -448,11 +465,11 @@ impl LauncherConfig {
       return Ok(true);
     }
 
-    self.update_setting_value("active_version", serde_json::Value::Null, None)?;
+    self.set_active_version(None)?;
     Ok(false)
   }
 
-  pub fn remove_version(&mut self, version: &str) -> anyhow::Result<()> {
+  pub fn remove_version(&mut self, version: &str) -> Result<()> {
     let version_dir = self
       .install_dir()?
       .join("versions")
@@ -462,13 +479,13 @@ impl LauncherConfig {
     delete_dir(&version_dir)?;
 
     if self.active_version.as_deref() == Some(version) {
-      self.update_setting_value("active_version", serde_json::Value::Null, None)?;
+      self.set_active_version(None)?;
     }
 
     Ok(())
   }
 
-  pub fn list_downloaded_versions(&self, folder: &str) -> anyhow::Result<Vec<String>> {
+  pub fn list_downloaded_versions(&self, folder: &str) -> Result<Vec<String>> {
     let dir = self.install_dir()?.join("versions").join(folder);
 
     Ok(

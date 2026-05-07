@@ -1,6 +1,6 @@
 use anyhow::Result;
 use std::{collections::HashMap, path::Path};
-use tauri::{Emitter, Manager};
+use tauri::Manager;
 use tracing::instrument;
 use walkdir::WalkDir;
 
@@ -11,11 +11,10 @@ use crate::{
 
 use super::CommandError;
 
-#[instrument(skip(config, app_handle))]
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn uninstall_game(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  app_handle: tauri::AppHandle,
   game_name: SupportedGame,
 ) -> Result<bool, CommandError> {
   let data_folder = {
@@ -38,11 +37,10 @@ pub async fn uninstall_game(
   config
     .lock()
     .await
-    .update_setting_value("installed", false.into(), Some(game_name))
-    .map_err(|_| {
-      CommandError::GameManagement("Unable to persist game installation status".to_owned())
+    .set_game_installed(game_name, false)
+    .map_err(|err| {
+      CommandError::GameManagement(format!("Unable to persist game installation status {err}"))
     })?;
-  app_handle.emit("config:saved", {})?;
   Ok(true)
 }
 
@@ -80,14 +78,14 @@ pub async fn reset_game_settings(
 ///
 /// Task interpretation:
 /// - Byte 0–4: task-status
-/// (invalid 0)
-/// (unknown 1)
-/// (need-hint 2)
-/// (need-introduction 3)
-/// (need-reminder-a 4)
-/// (need-reminder 5)
-/// (need-reward-speech 6)
-/// (need-resolution 7)
+///   (invalid 0)
+///   (unknown 1)
+///   (need-hint 2)
+///   (need-introduction 3)
+///   (need-reminder-a 4)
+///   (need-reminder 5)
+///   (need-reward-speech 6)
+///   (need-resolution 7)
 /// - Byte 11: task id
 ///
 /// A task is considered:

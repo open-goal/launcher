@@ -127,7 +127,7 @@ pub fn check_if_zip_contains_top_level_entry<P: AsRef<Path>>(
       .by_index(i)
       .context("Failed reading entry from zip archive")?;
     info!("{}", file.name());
-    if file.name().starts_with(&expected) {
+    if file.name().starts_with(expected) {
       return Ok(true);
     }
   }

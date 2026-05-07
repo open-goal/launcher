@@ -59,7 +59,7 @@
       class="shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-3 py-2 ml-2"
       disabled={newSourceURL === ""}
       onclick={async () => {
-        await addModSource(newSourceURL, currentSourceData);
+        await addModSource(newSourceURL);
         await refreshModSourceData();
       }}
       ><IconPlus

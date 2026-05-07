@@ -10,11 +10,12 @@ export type LauncherConfig = {
   games: { [key in SupportedGame]?: GameConfig };
   installationDir: string | null;
   activeVersion: string | null;
-  locale: string | null;
+  locale: string;
   modSources: Array<string>;
   decompilerSettings: DecompilerSettings;
   checkForLatestModVersion: boolean;
   proceedAfterSuccessfulOperation: boolean;
   autoUpdateGames: boolean;
   deletePreviousVersions: boolean;
+  hideBetaAlerts: boolean;
 };

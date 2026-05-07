@@ -17,7 +17,7 @@
   import { getLatestOfficialRelease } from "$lib/utils/github";
   import { _ } from "svelte-i18n";
   import { toastStore } from "$lib/stores/ToastStore";
-  import { saveActiveVersionChange } from "$lib/rpc/config";
+  import { setActiveVersion } from "$lib/rpc/config";
   import { check } from "@tauri-apps/plugin-updater";
   import { versionState } from "/src/state/VersionState.svelte";
   import { navigate } from "/src/router";
@@ -37,7 +37,7 @@
   }
 
   async function saveOfficialVersionChange(version: string) {
-    const success = await saveActiveVersionChange(version);
+    const success = await setActiveVersion(version);
     if (success) {
       versionState.activeToolingVersion = version;
       toastStore.makeToast($_("toasts_savedToolingVersion"), "info");

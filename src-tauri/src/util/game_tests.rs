@@ -67,10 +67,10 @@ pub async fn run_game_gpu_test(
       )
     })?;
 
-  return serde_json::from_str::<GPUTestOutput>(&context).with_context(|| {
+  serde_json::from_str::<GPUTestOutput>(&context).with_context(|| {
     format!(
       "Failed to parse GPU test result file: {}",
       result_path.display()
     )
-  });
+  })
 }

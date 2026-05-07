@@ -3,8 +3,6 @@ use std::path::PathBuf;
 use super::{CommandError, util::is_avx_supported};
 use crate::config::{LauncherConfig, SupportedGame};
 use semver::Version;
-use serde_json::Value;
-use tauri::Emitter;
 use tracing::instrument;
 
 #[instrument(skip(config))]
@@ -21,26 +19,25 @@ pub async fn reset_to_defaults(
 
 #[instrument(skip(config))]
 #[tauri::command]
-pub async fn update_setting_value(
+pub async fn set_game_installed(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  key: String,
-  val: Value,
-  game_name: Option<SupportedGame>,
-  app_handle: tauri::AppHandle,
+  game_name: SupportedGame,
+  installed: bool,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
-  match &config_lock.update_setting_value(&key, val, game_name) {
-    Ok(()) => {
-      app_handle.emit("config:saved", ())?;
-      Ok(())
-    }
-    Err(e) => {
-      tracing::error!("Unable to get setting directory: {:?}", e);
-      Err(CommandError::Configuration(
-        "Unable to update setting".to_owned(),
-      ))
-    }
-  }
+  config_lock.set_game_installed(game_name, installed)?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_active_version(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  version: String,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_active_version(Some(version))?;
+  Ok(())
 }
 
 #[instrument(skip(config))]
@@ -53,32 +50,17 @@ pub async fn get_launcher_config(
 
 #[instrument(skip(config))]
 #[tauri::command]
-pub async fn update_mods_setting_value(
+pub async fn set_texture_packs(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
-  key: String,
   game_name: SupportedGame,
-  source_name: Option<String>,
-  version_name: Option<String>,
-  mod_name: Option<String>,
-  texture_packs: Option<Vec<String>>,
+  texture_packs: Vec<String>,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
-  match &config_lock.update_mods_setting_value(
-    &key,
-    game_name,
-    source_name,
-    version_name,
-    mod_name,
-    texture_packs,
-  ) {
-    Ok(()) => Ok(()),
-    Err(e) => {
-      tracing::error!("Unable to get setting directory: {:?}", e);
-      Err(CommandError::Configuration(
-        "Unable to update setting".to_owned(),
-      ))
-    }
-  }
+  config_lock
+    .get_supported_game_config_mut(game_name)
+    .set_texture_packs(texture_packs);
+  config_lock.save_config()?;
+  Ok(())
 }
 
 #[instrument(skip(config))]
@@ -91,7 +73,8 @@ pub async fn set_install_directory(
   config_lock.set_install_directory(new_dir).map_err(|err| {
     tracing::error!("Unable to persist installation directory: {:?}", err);
     CommandError::Configuration("Unable to persist installation directory".to_owned())
-  })
+  })?;
+  Ok(())
 }
 
 #[instrument(skip(config))]
@@ -104,9 +87,136 @@ pub async fn is_avx_requirement_met(
     tracing::warn!("Bypassing the AVX requirements check!");
     Ok(true)
   } else {
-    let _ = config_lock.update_setting_value("avx", is_avx_supported().await.into(), None);
-    Ok(config_lock.requirements.avx)
+    let avx_supported = is_avx_supported().await;
+    config_lock.requirements.set_avx(avx_supported);
+    config_lock.save_config()?;
+    Ok(avx_supported)
   }
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_bypass_requirements(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  bypass: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.requirements.set_bypass_requirements(bypass);
+  config_lock.save_config()?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_locale(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  locale: String,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_locale(locale)?;
+  config_lock.save_config()?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn update_mod_sources(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  source: String,
+  add: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.update_mod_sources(source, add)?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_auto_update_games(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  auto_update: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_auto_update_games(auto_update)?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_check_for_latest_mod_version(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  check: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_check_for_latest_mod_version(check)?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_delete_previous_versions(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  delete: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_delete_previous_versions(delete)?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_rip_levels(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .decompiler_settings
+    .set_rip_levels_enabled(enabled);
+  config_lock.save_config()?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_rip_collision(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .decompiler_settings
+    .set_rip_collision_enabled(enabled);
+  config_lock.save_config()?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_rip_textures(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .decompiler_settings
+    .set_rip_textures_enabled(enabled);
+  config_lock.save_config()?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_rip_streamed_audio(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .decompiler_settings
+    .set_rip_streamed_audio_enabled(enabled);
+  config_lock.save_config()?;
+  Ok(())
 }
 
 #[instrument(skip(config, app_handle))]
@@ -153,11 +263,8 @@ pub async fn is_opengl_requirement_met(
   // Note: if the minimum vcc runtime requirement (windows only) isn't met then run_game_gpu_test will fail right here with a non zero error code
   // what looks like a GPU test failure is actually just the game not launching
   let test_result = crate::util::game_tests::run_game_gpu_test(&config_lock, &app_handle).await?;
-  config_lock
-    .update_setting_value("opengl_requirements_met", test_result.success.into(), None)
-    .map_err(|_| {
-      CommandError::Configuration("Unable to persist opengl requirement change".to_owned())
-    })?;
+  config_lock.requirements.set_opengl(test_result.success);
+  config_lock.save_config()?;
   Ok(test_result.success)
 }
 
@@ -174,6 +281,17 @@ pub async fn cleanup_enabled_texture_packs(
     .map_err(|_| {
       CommandError::Configuration("Unable to cleanup enabled texture packs".to_owned())
     })?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_hide_beta_alerts(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  hide: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_hide_beta_alerts(hide)?;
   Ok(())
 }
 

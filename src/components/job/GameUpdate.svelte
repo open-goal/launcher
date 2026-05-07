@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { saveActiveVersionChange } from "$lib/rpc/config";
+  import { setActiveVersion } from "$lib/rpc/config";
   import { Button, Card } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { _ } from "svelte-i18n";
@@ -122,7 +122,7 @@
       <Button
         class="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         onclick={async () => {
-          const error = await saveActiveVersionChange(installedVersion!);
+          const error = await setActiveVersion(installedVersion!);
           if (!error) {
             navigate("/:game_name/", { params: { game_name: activeGame! } });
           }

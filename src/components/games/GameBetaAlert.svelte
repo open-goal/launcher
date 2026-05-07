@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { setHideBetaAlerts } from "$lib/rpc/config";
   import { Alert } from "flowbite-svelte";
   import { _ } from "svelte-i18n";
   let { activeGame } = $props();
@@ -7,6 +8,8 @@
 <Alert
   rounded={false}
   class="bg-white dark:bg-slate-900 border-t-4 text-red-400"
+  dismissable
+  onclick={() => setHideBetaAlerts(true)}
 >
   {#if activeGame === "jak2"}
     <span class="font-bold">{$_("gameControls_beta_headerA")}</span>

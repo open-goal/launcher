@@ -4,7 +4,6 @@ import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
 import { exists } from "@tauri-apps/plugin-fs";
 import { appDataDir, join } from "@tauri-apps/api/path";
 import { convertFileSrc } from "@tauri-apps/api/core";
-import type { SupportedGame } from "./bindings/SupportedGame";
 import type { LauncherConfig } from "./bindings/LauncherConfig";
 
 export async function resetLauncherSettings(): Promise<string | null> {
@@ -45,21 +44,14 @@ export async function finalizeInstallation(
   gameName: string,
   installed = true,
 ): Promise<void> {
-  return await invoke_rpc("update_setting_value", {
-    key: "installed",
-    val: installed,
+  return await invoke_rpc("set_game_installed", {
     gameName,
+    installed,
   });
 }
 
-export async function saveActiveVersionChange(
-  newActiveVersion: String,
-): Promise<boolean> {
-  return invoke_rpc(
-    "update_setting_value",
-    { key: "active_version", val: newActiveVersion },
-    () => true,
-  );
+export async function setActiveVersion(version: String): Promise<boolean> {
+  return invoke_rpc("set_active_version", { version: version }, () => true);
 }
 
 export async function localeSpecificFontAvailableForDownload(
@@ -85,10 +77,16 @@ export async function localeSpecificFontAvailableForDownload(
   return undefined;
 }
 
+export async function setHideBetaAlerts(hide: boolean): Promise<void> {
+  return await invoke_rpc("set_hide_beta_alerts", {
+    hide: hide,
+  });
+}
+
 export async function setLocale(localeId: string): Promise<void> {
   return await invoke_rpc(
-    "update_setting_value",
-    { key: "locale", val: localeId },
+    "set_locale",
+    { locale: localeId },
     undefined,
     async () => {
       svelteLocale.set(localeId);
@@ -138,34 +136,30 @@ export async function setLocale(localeId: string): Promise<void> {
 }
 
 export async function setAutoUpdateGames(value: boolean): Promise<void> {
-  return await invoke_rpc("update_setting_value", {
-    key: "auto_update_games",
-    val: value,
+  return await invoke_rpc("set_auto_update_games", {
+    auto_update: value,
   });
 }
 
 export async function setAutoUninstallOldVersions(
   value: boolean,
 ): Promise<void> {
-  return await invoke_rpc("update_setting_value", {
-    key: "delete_previous_versions",
-    val: value,
+  return await invoke_rpc("set_delete_previous_versions", {
+    delete: value,
   });
 }
 
 export async function setBypassRequirements(bypass: boolean): Promise<void> {
-  return await invoke_rpc("update_setting_value", {
-    key: "bypass_requirements",
-    val: bypass,
+  return await invoke_rpc("set_bypass_requirements", {
+    bypass: bypass,
   });
 }
 
 export async function setCheckForLatestModVersion(
-  check_for_latest_mod_version: boolean,
+  check: boolean,
 ): Promise<void> {
-  return await invoke_rpc("update_setting_value", {
-    key: "check_for_latest_mod_version",
-    val: check_for_latest_mod_version,
+  return await invoke_rpc("set_check_for_latest_mod_version", {
+    check: check,
   });
 }
 
@@ -183,9 +177,8 @@ export async function setEnabledTexturePacks(
   gameName: string,
   packs: string[],
 ): Promise<string | null> {
-  return await invoke_rpc2("update_mods_setting_value", {
+  return await invoke_rpc2("set_texture_packs", {
     args: {
-      key: "add_texture_packs",
       gameName: gameName,
       texturePacks: packs,
     },
@@ -213,30 +206,26 @@ export async function doesActiveToolingVersionMeetMinimum(
 }
 
 export async function setRipLevelsEnabled(enabled: boolean): Promise<void> {
-  return await invoke_rpc("update_setting_value", {
-    key: "rip_levels",
-    val: enabled,
+  return await invoke_rpc("set_rip_levels", {
+    enabled: enabled,
   });
 }
 
 export async function setRipCollisionEnabled(enabled: boolean): Promise<void> {
-  return await invoke_rpc("update_setting_value", {
-    key: "rip_collision",
-    val: enabled,
+  return await invoke_rpc("set_rip_collision", {
+    enabled: enabled,
   });
 }
 export async function setRipTexturesEnabled(enabled: boolean): Promise<void> {
-  return await invoke_rpc("update_setting_value", {
-    key: "rip_textures",
-    val: enabled,
+  return await invoke_rpc("set_rip_textures", {
+    enabled: enabled,
   });
 }
 
 export async function setRipStreamedAudioEnabled(
   enabled: boolean,
 ): Promise<void> {
-  return await invoke_rpc("update_setting_value", {
-    key: "rip_streamed_audio",
-    val: enabled,
+  return await invoke_rpc("set_rip_streamed_audio", {
+    enabled: enabled,
   });
 }

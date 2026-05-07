@@ -60,7 +60,6 @@ export async function setupInstallGame(
       task: async () => {
         try {
           await finalizeInstallation(activeGame);
-          await emit("config:saved");
           return true;
         } catch (e) {
           return false;
@@ -162,7 +161,6 @@ export async function setupUpdateGameJob(activeGame: SupportedGame) {
       task: async () => {
         try {
           await finalizeInstallation(activeGame);
-          await emit("config:saved");
           return true;
         } catch (e) {
           return false;

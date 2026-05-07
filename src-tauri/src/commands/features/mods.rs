@@ -49,7 +49,7 @@ pub async fn extract_new_mod(
     .join(game_name.to_string())
     .join("mods")
     .join(mod_source)
-    .join(&mod_name);
+    .join(mod_name);
 
   delete_dir(&destination_dir)?;
   extract_archive(&bundle_path, &destination_dir)?;
@@ -89,8 +89,8 @@ pub async fn download_and_extract_new_mod(
   let download_path = &destination_dir.join(filename);
 
   delete_dir(&destination_dir)?;
-  download_file(&download_url, &download_path).await?;
-  extract_and_delete_archive(&download_path, &destination_dir, false)?;
+  download_file(&download_url, download_path).await?;
+  extract_and_delete_archive(download_path, &destination_dir, false)?;
 
   // Persist the info about the mod to the disk in the event that the mod source is removed / etc
   let mod_info = {
@@ -275,7 +275,7 @@ pub async fn extract_iso_for_mod_install(
 
   let msg = status
     .code()
-    .map(|code| format_exit_code(code))
+    .map(format_exit_code)
     .map(|code| format!("Unexpected error occurred with code {code}"))
     .unwrap_or_else(|| "Unexpected error occurred".to_owned());
 
@@ -344,7 +344,7 @@ pub async fn decompile_for_mod_install(
 
   let msg = status
     .code()
-    .map(|code| format_exit_code(code))
+    .map(format_exit_code)
     .map(|code| format!("Unexpected error occurred with code {code}"))
     .unwrap_or_else(|| "Unexpected error occurred".to_owned());
 
@@ -412,14 +412,14 @@ pub async fn compile_for_mod_install(
 
   let msg = status
     .code()
-    .map(|code| format_exit_code(code))
+    .map(format_exit_code)
     .map(|code| format!("Unexpected error occurred with code {code}"))
     .unwrap_or_else(|| "Unexpected error occurred".to_owned());
 
   return Err(CommandError::GameFeatures(msg));
 }
 
-#[instrument(skip(config, app_handle))]
+#[instrument(skip(config))]
 #[tauri::command]
 pub async fn save_mod_install_info(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
@@ -427,7 +427,6 @@ pub async fn save_mod_install_info(
   mod_name: String,
   source_name: String,
   version_name: String,
-  app_handle: tauri::AppHandle,
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   tracing::info!(
@@ -438,19 +437,11 @@ pub async fn save_mod_install_info(
     version_name
   );
   config_lock
-    .update_mods_setting_value(
-      "add_mod",
-      game_name,
-      Some(source_name),
-      Some(version_name),
-      Some(mod_name),
-      None,
-    )
+    .add_mod(game_name, source_name, version_name, mod_name)
     .map_err(|err| {
       tracing::error!("Unable to remove mod source: {:?}", err);
       CommandError::Configuration("Unable to remove mod source".to_owned())
     })?;
-  app_handle.emit("config:saved", ())?;
   Ok(())
 }
 
@@ -577,15 +568,8 @@ pub async fn uninstall_mod(
     std::fs::remove_dir_all(mod_dir)?;
   }
   config_lock
-    .update_mods_setting_value(
-      "uninstall_mod",
-      game_name,
-      Some(source_name),
-      None,
-      Some(mod_name),
-      None,
-    )
-    .map_err(|_| CommandError::GameFeatures("Unable to uninstall mod".to_owned()))?;
+    .uninstall_mod(game_name, source_name, mod_name)
+    .map_err(|err| CommandError::GameFeatures(format!("Unable to uninstall mod: {}", err)))?;
   Ok(())
 }
 

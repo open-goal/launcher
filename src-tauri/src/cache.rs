@@ -116,7 +116,7 @@ impl From<ModInfoSchema> for ModInfo {
       name: String::new(),
       source: String::new(),
       installed: false,
-      download_count: download_count,
+      download_count,
       metadata_offline: false,
     }
   }
