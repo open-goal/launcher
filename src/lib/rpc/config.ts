@@ -83,6 +83,18 @@ export async function setHideBetaAlerts(hide: boolean): Promise<void> {
   });
 }
 
+export async function setHideGamename(hide: boolean): Promise<void> {
+  return await invoke_rpc("set_hide_gamename", {
+    hide: hide,
+  });
+}
+
+export async function setHidePlaytime(hide: boolean): Promise<void> {
+  return await invoke_rpc("set_hide_playtime", {
+    hide: hide,
+  });
+}
+
 export async function setLocale(localeId: string): Promise<void> {
   return await invoke_rpc(
     "set_locale",

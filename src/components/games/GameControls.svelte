@@ -74,13 +74,17 @@
 
 <div class="flex flex-col items-end mt-auto ml-auto">
   <div class="flex flex-col pb-2 items-end text-shadow-lg">
-    <p
-      class="text-3xl font-semibold tracking-wider text-gray-100 pointer-events-none uppercase"
-    >
-      {title}
-    </p>
-    <p class="text-2xl font-medium text-amber-500">{subtitle}</p>
-    <Playtime {activeGame}></Playtime>
+    {#if !config?.ui?.hideGamename}
+      <p
+        class="text-3xl font-semibold tracking-wider text-gray-100 pointer-events-none uppercase"
+      >
+        {title}
+      </p>
+      <p class="text-2xl font-medium text-amber-500">{subtitle}</p>
+    {/if}
+    {#if !config?.ui?.hidePlaytime}
+      <Playtime {activeGame}></Playtime>
+    {/if}
   </div>
 
   <div class="flex flex-col mt-auto ml-auto">
