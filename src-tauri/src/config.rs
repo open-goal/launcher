@@ -168,7 +168,10 @@ pub struct LauncherConfig {
   pub proceed_after_successful_operation: bool,
   pub auto_update_games: bool,
   pub delete_previous_versions: bool,
-  pub hide_beta_alerts: bool,
+  // pub hide_beta_alerts: bool,
+  // pub hide_gamename: bool,
+  // pub hide_playtime: bool,
+  pub ui: UISettings,
 }
 
 pub struct CommonConfigData {
@@ -216,6 +219,15 @@ fn default_games() -> HashMap<SupportedGame, GameConfig> {
   ])
 }
 
+#[derive(Debug, Serialize, Deserialize, Default, Clone, TS)]
+#[serde(rename_all = "camelCase", default)]
+#[ts(export)]
+pub struct UISettings {
+  pub hide_beta_alerts: bool,
+  pub hide_gamename: bool,
+  pub hide_playtime: bool,
+}
+
 impl LauncherConfig {
   fn default_with_path(_settings_path: PathBuf) -> Self {
     Self {
@@ -232,7 +244,7 @@ impl LauncherConfig {
       proceed_after_successful_operation: true,
       auto_update_games: false,
       delete_previous_versions: false,
-      hide_beta_alerts: false,
+      ui: UISettings::default(),
     }
   }
 
@@ -367,7 +379,19 @@ impl LauncherConfig {
   }
 
   pub fn set_hide_beta_alerts(&mut self, hide: bool) -> Result<()> {
-    self.hide_beta_alerts = hide;
+    self.ui.hide_beta_alerts = hide;
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_hide_gamename(&mut self, hide: bool) -> Result<()> {
+    self.ui.hide_gamename = hide;
+    self.save_config()?;
+    Ok(())
+  }
+
+  pub fn set_hide_playtime(&mut self, hide: bool) -> Result<()> {
+    self.ui.hide_playtime = hide;
     self.save_config()?;
     Ok(())
   }

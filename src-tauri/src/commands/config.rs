@@ -297,6 +297,28 @@ pub async fn set_hide_beta_alerts(
 
 #[instrument(skip(config))]
 #[tauri::command]
+pub async fn set_hide_gamename(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  hide: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_hide_gamename(hide)?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_hide_playtime(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  hide: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock.set_hide_playtime(hide)?;
+  Ok(())
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
 pub async fn does_active_tooling_version_support_game(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
   game_name: SupportedGame,

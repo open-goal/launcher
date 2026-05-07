@@ -175,6 +175,8 @@ fn main() {
       commands::config::update_mod_sources,
       commands::config::get_launcher_config,
       commands::config::set_hide_beta_alerts,
+      commands::config::set_hide_gamename,
+      commands::config::set_hide_playtime,
       commands::download::download_file,
       commands::features::mods::base_game_iso_exists,
       commands::features::mods::compile_for_mod_install,

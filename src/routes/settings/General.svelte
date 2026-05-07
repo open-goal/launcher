@@ -9,6 +9,8 @@
     setLocale,
     setAutoUninstallOldVersions,
     setHideBetaAlerts,
+    setHideGamename,
+    setHidePlaytime,
   } from "$lib/rpc/config";
   import {
     Button,
@@ -35,7 +37,9 @@
   let keepGamesUpdated: boolean = $state(config?.autoUpdateGames!);
   let uninstallOldVersions: boolean = $state(config?.deletePreviousVersions!);
   let bypassRequirements = $state(config?.requirements?.bypassRequirements!);
-  let hideBetaAlerts = $state(config?.hideBetaAlerts);
+  let hideBetaAlerts = $state(config?.ui?.hideBetaAlerts);
+  let hideGamename = $state(config?.ui?.hideGamename);
+  let hidePlaytime = $state(config?.ui?.hidePlaytime);
   let availableLocales: LocaleOption[] = $state([]);
   let localeFontForDownload: Locale | undefined = $state(undefined);
   let localeFontDownloading = $state(false);
@@ -201,6 +205,24 @@
       }}
     >
       {$_("settings_general_hide_beta_alerts")}
+    </Toggle>
+    <Toggle
+      bind:checked={hideGamename}
+      color="orange"
+      onchange={async () => {
+        await setHideGamename(hideGamename!);
+      }}
+    >
+      {$_("settings_general_hide_gamename")}
+    </Toggle>
+    <Toggle
+      bind:checked={hidePlaytime}
+      color="orange"
+      onchange={async () => {
+        await setHidePlaytime(hidePlaytime!);
+      }}
+    >
+      {$_("settings_general_hide_playtime")}
     </Toggle>
   </div>
   <div>

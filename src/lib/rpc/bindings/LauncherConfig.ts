@@ -3,6 +3,7 @@ import type { DecompilerSettings } from "./DecompilerSettings";
 import type { GameConfig } from "./GameConfig";
 import type { Requirements } from "./Requirements";
 import type { SupportedGame } from "./SupportedGame";
+import type { UISettings } from "./UISettings";
 
 export type LauncherConfig = {
   version: string;
@@ -17,5 +18,5 @@ export type LauncherConfig = {
   proceedAfterSuccessfulOperation: boolean;
   autoUpdateGames: boolean;
   deletePreviousVersions: boolean;
-  hideBetaAlerts: boolean;
+  ui: UISettings;
 };
