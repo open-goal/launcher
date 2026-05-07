@@ -383,7 +383,7 @@ impl LauncherConfig {
     self.save_config()?;
     Ok(())
   }
-  
+
   pub fn set_hide_gamename(&mut self, hide: bool) -> Result<()> {
     self.ui.hide_gamename = hide;
     self.save_config()?;
