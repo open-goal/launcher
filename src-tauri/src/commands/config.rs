@@ -83,15 +83,10 @@ pub async fn is_avx_requirement_met(
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<bool, CommandError> {
   let mut config_lock = config.lock().await;
-  if config_lock.requirements.bypass_requirements {
-    tracing::warn!("Bypassing the AVX requirements check!");
-    Ok(true)
-  } else {
-    let avx_supported = is_avx_supported().await;
-    config_lock.requirements.set_avx(avx_supported);
-    config_lock.save_config()?;
-    Ok(avx_supported)
-  }
+  let avx_supported = is_avx_supported().await;
+  config_lock.requirements.set_avx(avx_supported);
+  config_lock.save_config()?;
+  Ok(avx_supported)
 }
 
 #[instrument(skip(config))]
