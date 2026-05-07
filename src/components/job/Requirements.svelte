@@ -22,6 +22,20 @@
     }
     return val ? "green" : "red";
   }
+
+  const showBypassButton = $derived.by(() => {
+    const requirements = $currentRequirements;
+    if (!requirements) return false;
+
+    // show bypass button if:
+    // (vcc is irrelevant or met) AND (avx is irrelevant or met)
+    // if avx isn't supported or met then theres no use in allowing the user to bypass requirements
+    return (
+      (!requirements.isVCCRelevant ||
+        systemInfoState.isMinVCCRuntimeInstalled) &&
+      (!requirements.isAVXRelevant || requirements.isAVXMet)
+    );
+  });
 </script>
 
 {#if activeGame}
@@ -169,23 +183,23 @@
           await requirementsStore.refresh(activeGame, true);
         }}>{$_("requirements_button_recheck")}</Button
       >
-      <Button
-        hidden={$currentRequirements?.isVCCRelevant &&
-          !systemInfoState.isMinVCCRuntimeInstalled}
-        class="border-solid border-2 border-slate-900 rounded bg-orange-800 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-        onclick={async () => {
-          const confirmed = await confirm(
-            `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
-              "requirements_button_bypass_warning_2",
-            )}`,
-            { title: "OpenGOAL Launcher", kind: "warning" },
-          );
-          if (confirmed) {
-            await setBypassRequirements(true);
-            await requirementsStore.refresh(activeGame, false);
-          }
-        }}>{$_("requirements_button_bypass")}</Button
-      >
+      {#if showBypassButton}
+        <Button
+          class="border-solid border-2 border-slate-900 rounded bg-orange-800 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+          onclick={async () => {
+            const confirmed = await confirm(
+              `${$_("requirements_button_bypass_warning_1")}\n\n${$_(
+                "requirements_button_bypass_warning_2",
+              )}`,
+              { title: "OpenGOAL Launcher", kind: "warning" },
+            );
+            if (confirmed) {
+              await setBypassRequirements(true);
+              await requirementsStore.refresh(activeGame, false);
+            }
+          }}>{$_("requirements_button_bypass")}</Button
+        >
+      {/if}
     </div>
   </div>
 {/if}
