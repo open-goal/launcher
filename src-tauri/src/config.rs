@@ -12,7 +12,7 @@
 use crate::util::emit_config_saved;
 use crate::util::file::create_dir;
 use crate::{commands::CommandError, util::file::delete_dir};
-use anyhow::Context;
+use anyhow::{Context, Result};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -23,18 +23,6 @@ use strum_macros::{Display, EnumIter};
 use ts_rs::TS;
 
 use crate::util::file::touch_file;
-
-#[derive(Debug, thiserror::Error)]
-pub enum ConfigError {
-  #[error(transparent)]
-  Anyhow(#[from] anyhow::Error),
-  #[error(transparent)]
-  IO(#[from] std::io::Error),
-  #[error(transparent)]
-  JSONError(#[from] serde_json::Error),
-  #[error("{0}")]
-  Configuration(String),
-}
 
 #[derive(
   Debug, Eq, PartialEq, Hash, Clone, Copy, Serialize, Deserialize, Display, EnumIter, TS,
@@ -276,7 +264,7 @@ impl LauncherConfig {
     config
   }
 
-  pub fn save_config(&self) -> anyhow::Result<()> {
+  pub fn save_config(&self) -> Result<()> {
     let settings_path = &self.settings_path;
 
     // Ensure the directory exists
@@ -287,7 +275,7 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn reset_to_defaults(&mut self) -> Result<(), ConfigError> {
+  pub fn reset_to_defaults(&mut self) -> Result<()> {
     let original_installation_dir = self.installation_dir.clone();
     *self = Self::default_with_path(self.settings_path.clone());
     self.installation_dir = original_installation_dir;
@@ -295,24 +283,11 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn set_install_directory(&mut self, path: PathBuf) -> Result<(), ConfigError> {
-    // Do some tests on this folder, if they fail, return a decent error
-    if !path.exists() {
-      return Err(ConfigError::Configuration(
-        "Provided folder does not exist".to_owned(),
-      ));
-    }
-
-    if !path.is_dir() {
-      return Err(ConfigError::Configuration(
-        "Provided folder is not a folder".to_owned(),
-      ));
-    }
-
+  pub fn set_install_directory(&mut self, path: PathBuf) -> Result<()> {
     // Check our permissions on the folder by touching a file (and deleting it)
     let test_file = path.join(".perm-test.tmp");
-    touch_file(&test_file)
-      .with_context(|| "Provided installation folder could not be written to.".to_string())?;
+    touch_file(&test_file).context("Provided installation folder could not be written to.")?;
+    let _ = fs::remove_file(&test_file);
 
     // If the directory changes (it's not a no-op), we need to:
     // - wipe any installed games (make them reinstall)
@@ -330,11 +305,7 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn set_game_installed(
-    &mut self,
-    game_name: SupportedGame,
-    installed: bool,
-  ) -> anyhow::Result<()> {
+  pub fn set_game_installed(&mut self, game_name: SupportedGame, installed: bool) -> Result<()> {
     let version = installed.then(|| self.active_version.clone()).flatten();
     self
       .get_supported_game_config_mut(game_name)
@@ -344,11 +315,7 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn update_seconds_played(
-    &mut self,
-    game_name: SupportedGame,
-    seconds: u64,
-  ) -> anyhow::Result<()> {
+  pub fn update_seconds_played(&mut self, game_name: SupportedGame, seconds: u64) -> Result<()> {
     self
       .get_supported_game_config_mut(game_name)
       .update_seconds_played(seconds);
@@ -356,19 +323,19 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn set_active_version(&mut self, version: Option<String>) -> anyhow::Result<()> {
+  pub fn set_active_version(&mut self, version: Option<String>) -> Result<()> {
     self.active_version = version;
     self.save_config()?;
     Ok(())
   }
 
-  pub fn set_locale(&mut self, locale: String) -> anyhow::Result<()> {
+  pub fn set_locale(&mut self, locale: String) -> Result<()> {
     self.locale = locale;
     self.save_config()?;
     Ok(())
   }
 
-  pub fn update_mod_sources(&mut self, source: String, add: bool) -> anyhow::Result<()> {
+  pub fn update_mod_sources(&mut self, source: String, add: bool) -> Result<()> {
     if add {
       if !self.mod_sources.contains(&source) {
         self.mod_sources.push(source);
@@ -381,25 +348,25 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn set_auto_update_games(&mut self, auto_update: bool) -> anyhow::Result<()> {
+  pub fn set_auto_update_games(&mut self, auto_update: bool) -> Result<()> {
     self.auto_update_games = auto_update;
     self.save_config()?;
     Ok(())
   }
 
-  pub fn set_check_for_latest_mod_version(&mut self, check: bool) -> anyhow::Result<()> {
+  pub fn set_check_for_latest_mod_version(&mut self, check: bool) -> Result<()> {
     self.check_for_latest_mod_version = check;
     self.save_config()?;
     Ok(())
   }
 
-  pub fn set_delete_previous_versions(&mut self, delete: bool) -> anyhow::Result<()> {
+  pub fn set_delete_previous_versions(&mut self, delete: bool) -> Result<()> {
     self.delete_previous_versions = delete;
     self.save_config()?;
     Ok(())
   }
 
-  pub fn set_hide_beta_alerts(&mut self, hide: bool) -> anyhow::Result<()> {
+  pub fn set_hide_beta_alerts(&mut self, hide: bool) -> Result<()> {
     self.hide_beta_alerts = hide;
     self.save_config()?;
     Ok(())
@@ -411,7 +378,7 @@ impl LauncherConfig {
     source: String,
     version: String,
     mod_name: String,
-  ) -> Result<(), ConfigError> {
+  ) -> Result<()> {
     self
       .get_supported_game_config_mut(game_name)
       .mods_installed_version
@@ -427,7 +394,7 @@ impl LauncherConfig {
     game_name: SupportedGame,
     source: String,
     mod_name: String,
-  ) -> Result<(), ConfigError> {
+  ) -> Result<()> {
     self
       .get_supported_game_config_mut(game_name)
       .mods_installed_version
@@ -441,7 +408,7 @@ impl LauncherConfig {
     &mut self,
     game_name: SupportedGame,
     cleanup_list: Vec<String>,
-  ) -> Result<(), ConfigError> {
+  ) -> Result<()> {
     if !cleanup_list.is_empty() {
       return Ok(());
     }
@@ -453,7 +420,7 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn install_dir(&self) -> anyhow::Result<PathBuf> {
+  pub fn install_dir(&self) -> Result<PathBuf> {
     self
       .installation_dir
       .as_ref()
@@ -483,7 +450,7 @@ impl LauncherConfig {
     })
   }
 
-  pub fn ensure_active_version_still_exists(&mut self) -> anyhow::Result<bool> {
+  pub fn ensure_active_version_still_exists(&mut self) -> Result<bool> {
     let Some(active_version) = &self.active_version else {
       return Ok(false);
     };
@@ -502,7 +469,7 @@ impl LauncherConfig {
     Ok(false)
   }
 
-  pub fn remove_version(&mut self, version: &str) -> anyhow::Result<()> {
+  pub fn remove_version(&mut self, version: &str) -> Result<()> {
     let version_dir = self
       .install_dir()?
       .join("versions")
@@ -518,7 +485,7 @@ impl LauncherConfig {
     Ok(())
   }
 
-  pub fn list_downloaded_versions(&self, folder: &str) -> anyhow::Result<Vec<String>> {
+  pub fn list_downloaded_versions(&self, folder: &str) -> Result<Vec<String>> {
     let dir = self.install_dir()?.join("versions").join(folder);
 
     Ok(
