@@ -142,7 +142,7 @@ fn dump_per_game_info(
 
   append_dir_contents_to_zip(
     zip_file,
-    &game_log_dir,
+    game_log_dir,
     &format!("Game Logs and ISO Info/{game}"),
     vec!["log", "json", "txt"],
   )?;

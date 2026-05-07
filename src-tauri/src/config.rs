@@ -10,6 +10,7 @@
 // serde does not support defaultLiterals yet - https://github.com/serde-rs/serde/issues/368
 
 use crate::util::emit_config_saved;
+use std::path::Path;
 use crate::util::file::create_dir;
 use crate::{commands::CommandError, util::file::delete_dir};
 use anyhow::Context;
@@ -247,10 +248,10 @@ impl LauncherConfig {
     }
   }
 
-  fn backup(settings_path: &PathBuf) {
+  fn backup(settings_path: &Path) {
     tracing::warn!("Creating a backup copy of existing settings.");
     let dest = settings_path.with_file_name("settings.backup.json");
-    let _ = fs::copy(settings_path.clone(), dest);
+    let _ = fs::copy(settings_path.to_path_buf(), dest);
   }
 
   pub fn get_supported_game_config_mut(&mut self, game_name: SupportedGame) -> &mut GameConfig {
@@ -272,14 +273,14 @@ impl LauncherConfig {
     };
 
     config.settings_path = settings_path;
-    return config;
+    config
   }
 
   pub fn save_config(&self) -> anyhow::Result<()> {
     let settings_path = &self.settings_path;
 
     // Ensure the directory exists
-    create_dir(&settings_path.parent().unwrap())?;
+    create_dir(settings_path.parent().unwrap())?;
     let file = fs::File::create(settings_path)?;
     serde_json::to_writer_pretty(file, &self)?;
     emit_config_saved()?;
@@ -311,19 +312,17 @@ impl LauncherConfig {
     // Check our permissions on the folder by touching a file (and deleting it)
     let test_file = path.join(".perm-test.tmp");
     touch_file(&test_file)
-      .with_context(|| format!("Provided installation folder could not be written to."))?;
+      .with_context(|| "Provided installation folder could not be written to.".to_string())?;
 
     // If the directory changes (it's not a no-op), we need to:
     // - wipe any installed games (make them reinstall)
     // - wipe the active version/version types
-    if let Some(old_dir) = &self.installation_dir {
-      if *old_dir != path {
-        self.active_version = None;
-        self
-          .games
-          .values_mut()
-          .for_each(GameConfig::clear_installation);
-      }
+    if self.installation_dir.as_ref() != Some(&path) {
+      self.active_version = None;
+      self
+        .games
+        .values_mut()
+        .for_each(GameConfig::clear_installation);
     }
 
     self.installation_dir = Some(path);
@@ -417,7 +416,7 @@ impl LauncherConfig {
       .get_supported_game_config_mut(game_name)
       .mods_installed_version
       .entry(source)
-      .or_insert_with(HashMap::new)
+      .or_default()
       .insert(mod_name, version);
     self.save_config()?;
     Ok(())

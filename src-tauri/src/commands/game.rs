@@ -78,14 +78,14 @@ pub async fn reset_game_settings(
 ///
 /// Task interpretation:
 /// - Byte 0–4: task-status
-/// (invalid 0)
-/// (unknown 1)
-/// (need-hint 2)
-/// (need-introduction 3)
-/// (need-reminder-a 4)
-/// (need-reminder 5)
-/// (need-reward-speech 6)
-/// (need-resolution 7)
+///   (invalid 0)
+///   (unknown 1)
+///   (need-hint 2)
+///   (need-introduction 3)
+///   (need-reminder-a 4)
+///   (need-reminder 5)
+///   (need-reward-speech 6)
+///   (need-resolution 7)
 /// - Byte 11: task id
 ///
 /// A task is considered:

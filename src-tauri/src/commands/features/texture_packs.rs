@@ -190,10 +190,10 @@ pub async fn update_texture_pack_data(
 
   let game_texture_pack_dir = install_dir
     .join("active")
-    .join(&game_name.to_string())
+    .join(game_name.to_string())
     .join("data")
     .join("custom_assets")
-    .join(&game_name.to_string())
+    .join(game_name.to_string())
     .join("texture_replacements");
   // Reset texture replacement directory
   delete_dir(&game_texture_pack_dir)?;

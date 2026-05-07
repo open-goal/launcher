@@ -601,7 +601,7 @@ async fn track_playtime(
     .expect("Can't access global app state")
     .app_handle();
 
-  let elapsed_seconds = start_time.elapsed().as_secs().into();
+  let elapsed_seconds = start_time.elapsed().as_secs();
 
   let config = app_handle.state::<tokio::sync::Mutex<LauncherConfig>>();
   let mut config_lock = config.lock().await;

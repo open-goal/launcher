@@ -68,7 +68,7 @@ pub async fn watch_process(
       status = child.wait() => {
         drop(tx);
         log_file.flush().await.context("Failed flushing log file")?;
-        return Ok(status.context("Failed waiting for child process")?);
+        return status.context("Failed waiting for child process");
       }
     }
   }

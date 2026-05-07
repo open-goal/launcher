@@ -49,7 +49,7 @@ pub async fn extract_new_mod(
     .join(game_name.to_string())
     .join("mods")
     .join(mod_source)
-    .join(&mod_name);
+    .join(mod_name);
 
   delete_dir(&destination_dir)?;
   extract_archive(&bundle_path, &destination_dir)?;
@@ -89,8 +89,8 @@ pub async fn download_and_extract_new_mod(
   let download_path = &destination_dir.join(filename);
 
   delete_dir(&destination_dir)?;
-  download_file(&download_url, &download_path).await?;
-  extract_and_delete_archive(&download_path, &destination_dir, false)?;
+  download_file(&download_url, download_path).await?;
+  extract_and_delete_archive(download_path, &destination_dir, false)?;
 
   // Persist the info about the mod to the disk in the event that the mod source is removed / etc
   let mod_info = {
@@ -275,7 +275,7 @@ pub async fn extract_iso_for_mod_install(
 
   let msg = status
     .code()
-    .map(|code| format_exit_code(code))
+    .map(format_exit_code)
     .map(|code| format!("Unexpected error occurred with code {code}"))
     .unwrap_or_else(|| "Unexpected error occurred".to_owned());
 
@@ -344,7 +344,7 @@ pub async fn decompile_for_mod_install(
 
   let msg = status
     .code()
-    .map(|code| format_exit_code(code))
+    .map(format_exit_code)
     .map(|code| format!("Unexpected error occurred with code {code}"))
     .unwrap_or_else(|| "Unexpected error occurred".to_owned());
 
@@ -412,7 +412,7 @@ pub async fn compile_for_mod_install(
 
   let msg = status
     .code()
-    .map(|code| format_exit_code(code))
+    .map(format_exit_code)
     .map(|code| format!("Unexpected error occurred with code {code}"))
     .unwrap_or_else(|| "Unexpected error occurred".to_owned());
 
