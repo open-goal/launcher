@@ -10,7 +10,6 @@
 // serde does not support defaultLiterals yet - https://github.com/serde-rs/serde/issues/368
 
 use crate::util::emit_config_saved;
-use std::path::Path;
 use crate::util::file::create_dir;
 use crate::{commands::CommandError, util::file::delete_dir};
 use anyhow::Context;
@@ -18,6 +17,7 @@ use semver::Version;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
+use std::path::Path;
 use std::path::PathBuf;
 use strum_macros::{Display, EnumIter};
 use ts_rs::TS;
