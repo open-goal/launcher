@@ -213,7 +213,7 @@
         await setHideGamename(hideGamename!);
       }}
     >
-      {$_("settings_general_gamename")}
+      {$_("settings_general_hide_gamename")}
     </Toggle>
     <Toggle
       bind:checked={hidePlaytime}

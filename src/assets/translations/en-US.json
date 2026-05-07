@@ -139,7 +139,7 @@
   "settings_tabs_backgrounds": "Backgrounds",
   "settings_general_keep_updated": "Automatically keep games updated",
   "settings_general_hide_beta_alerts": "Hide Beta Alerts",
-  "settings_general_gamename": "Hide Games Titles",
+  "settings_general_hide_gamename": "Hide Game Titles",
   "settings_general_hide_playtime": "Hide Playtime",
   "settings_general_uninstall_old": "Automatically uninstall old versions",
   "settings_versions_header": "Configure your active tooling version",
