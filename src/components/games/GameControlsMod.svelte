@@ -213,7 +213,7 @@
 
 {#if modInfo && modInfo.name !== undefined && modInfo.source !== undefined}
   <div
-    class="mt-auto ml-auto mb-2 pr-4 max-w-xl text-right border-r-2 border-orange-500/80 bg-linear-to-l from-black/75 via-black/40 to-transparent"
+    class="mt-auto ml-auto mb-2 pr-4 max-w-xl text-right border-r-2 border-orange-500/80 bg-linear-to-l from-black/75 via-black/40 to-transparent mask-y-from-95%"
   >
     <div class="flex flex-col items-end z-10">
       {#if modInfo?.websiteUrl}
