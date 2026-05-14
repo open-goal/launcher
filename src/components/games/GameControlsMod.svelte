@@ -1,7 +1,6 @@
 <script lang="ts">
   import { openPath } from "@tauri-apps/plugin-opener";
   import IconArrowLeft from "~icons/mdi/arrow-left";
-  import OpenInNew from "~icons/mdi/open-in-new";
   import IconCog from "~icons/mdi/cog";
   import { join } from "@tauri-apps/api/path";
   import { onDestroy, onMount } from "svelte";
@@ -214,46 +213,61 @@
 
 {#if modInfo && modInfo.name !== undefined && modInfo.source !== undefined}
   <div
-    class="ml-[35%] p-3 rounded-lg flex flex-col justify-end items-end mt-auto bg-[rgba(0,0,0,.5)]"
+    class="mt-auto ml-auto mb-2 pr-4 max-w-xl text-right border-r-2 border-orange-500/80 bg-linear-to-l from-black/75 via-black/40 via-90% to-transparent mask-y-from-95%"
   >
-    {#if modInfo && modInfo.websiteUrl != undefined}
-      <!-- Have website, make name a link and show icon -->
-      <a
-        class="inline-flex tracking-tighter font-bold pb-2 text-outline text-orange-500 hover:text-orange-600 items-center"
-        target="_blank"
-        rel="noreferrer"
-        href={modInfo.websiteUrl}
-      >
-        <h1 class="text-2xl">
+    <div class="flex flex-col items-end pl-2 z-10">
+      {#if modInfo?.websiteUrl}
+        <a
+          class="mt-2 gap-2 text-3xl font-semibold tracking-tight text-orange-500 hover:text-orange-600 drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
+          target="_blank"
+          rel="noreferrer"
+          href={modInfo.websiteUrl}
+        >
+          {displayName}
+        </a>
+      {:else}
+        <h1
+          class="mt-2 text-3xl font-semibold tracking-tight text-orange-500 pointer-events-none drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
+        >
           {displayName}
         </h1>
-        &nbsp;<OpenInNew />
-      </a>
-    {:else}
-      <!-- No website, just show name -->
-      <h1
-        class="tracking-tighter text-2xl font-bold pb-2 text-orange-500 text-outline pointer-events-none"
+      {/if}
+
+      <p
+        class="mt-2 max-w-150 text-[1.05rem] font-light tracking-tight leading-6 text-white/88 pointer-events-none drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
       >
-        {displayName}
-      </h1>
-    {/if}
-    <h1
-      class="tracking-tighter pb-2 font-bold text-outline text-justify [text-align-last:right]"
-    >
-      {description}
-    </h1>
-    <!-- hiding this because it's bloat -->
-    <!-- <p class="pb-2 text-outline">
-      {$_("features_mods_tags")}: {modInfo.tags}
-    </p> -->
-    <p class="text-outline">
-      {$_("features_mods_by")}: {modInfo.authors}
-    </p>
+        {description}
+      </p>
+
+      <div class="mt-2 h-px w-full bg-white/10"></div>
+
+      <div
+        class="my-2 flex items-center justify-end gap-4 text-sm font-light tracking-wide text-white/75 pointer-events-none"
+      >
+        <span>
+          {$_("features_mods_by")}: {Array.isArray(modInfo.authors)
+            ? modInfo.authors.join(", ")
+            : modInfo.authors}
+        </span>
+
+        {#if modInfo.tags?.length}
+          <span class="h-5 w-px bg-white/30"></span>
+
+          <span
+            class="rounded-full border border-white/15 bg-black/20 px-3 py-1"
+          >
+            {Array.isArray(modInfo.tags)
+              ? modInfo.tags.slice(0, 2).join(" / ")
+              : modInfo.tags}
+          </span>
+        {/if}
+      </div>
+    </div>
   </div>
   <div class="flex flex-col justify-end items-end mt-3">
     <div class="flex flex-row gap-2">
       <Button
-        class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800 text-sm text-white font-semibold px-5 py-2"
+        class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
         onclick={async () => {
           navigate((route.search.from as any) ?? "/:game_name/mods", {
             params: { game_name: activeGame },
@@ -267,13 +281,13 @@
       {#if !currentlyInstalledVersion && modVersionListSorted.length == 0}
         <!-- show disabled Install button if no version installed and we have no version list (offline) -->
         <Button
-          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800 text-sm text-white font-semibold px-5 py-2"
+          class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
           disabled>{$_("gameControls_button_install")}</Button
         >
       {:else if !currentlyInstalledVersion}
         <!-- show Install button if no version installed but we're online -->
         <Button
-          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800 text-sm text-white font-semibold px-5 py-2"
+          class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
           onclick={async () => {
             await addModFromUrl(modAssetUrlsSorted[0], modVersionListSorted[0]);
           }}>{$_("gameControls_button_install")}</Button
@@ -281,7 +295,7 @@
       {:else if modVersionListSorted.length == 0 || modVersionListSorted[0] === currentlyInstalledVersion || !updateCheckEnabled}
         <!-- show Play button if we have no version list (offline), if we're up to date, or we dont want forced updates -->
         <Button
-          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800 text-sm text-white font-semibold px-5 py-2"
+          class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
           onclick={async () => {
             launchMod(activeGame, false, modName, modSource);
           }}>{$_("gameControls_button_play")}</Button
@@ -289,7 +303,7 @@
       {:else}
         <!-- otherwise show Update button -->
         <Button
-          class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800 text-sm text-white font-semibold px-5 py-2"
+          class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
           onclick={async () => {
             await addModFromUrl(modAssetUrlsSorted[0], modVersionListSorted[0]);
           }}>{$_("gameControls_update_mod")}</Button
@@ -297,7 +311,7 @@
       {/if}
       {#if modVersionListSorted.length > 0}
         <Button
-          class="relative text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800"
+          class="relative font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
         >
           {$_("features_mods_versions")}
           {#if numberOfVersionsOutOfDate > 0}
@@ -346,14 +360,13 @@
       {#if !currentlyInstalledVersion}
         <!-- Disabled "advanced" button if not installed -->
         <Button
-          class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800"
-          disabled
+          class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
         >
           {$_("gameControls_button_advanced")}
         </Button>
       {:else}
         <Button
-          class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800"
+          class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
         >
           {$_("gameControls_button_advanced")}
         </Button>
@@ -435,14 +448,14 @@
       {#if !currentlyInstalledVersion}
         <!-- Disabled cog/settings button if not installed -->
         <Button
-          class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800"
+          class="text-gray-200 h-10 w-10 p-0 focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
           disabled
         >
           <IconCog />
         </Button>
       {:else}
         <Button
-          class="text-center font-semibold focus:ring-0 focus:outline-none inline-flex items-center justify-center px-2 py-2 text-sm text-white border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 hover:border-slate-800"
+          class="text-gray-200 h-10 w-10 p-0 focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
         >
           <IconCog />
         </Button>
