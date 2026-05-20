@@ -251,7 +251,6 @@ impl ModCache {
       .collect()
   }
 
-  // pub fn get_external(&self) -> HashMap<String, ModSourceData> {
   pub fn external_mods(&self) -> Vec<ModInfo> {
     self
       .mod_sources
