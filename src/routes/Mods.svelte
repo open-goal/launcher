@@ -189,7 +189,7 @@
     const mods = Object.values(filteredMods).flat();
     const mod = mods[Math.floor(Math.random() * mods.length)];
     const games = Object.keys(mod.perGameConfig!).filter(
-      (g) => g == gameFilter,
+      (g) => gameFilter === "all" || g == gameFilter,
     );
     const game = games[Math.floor(Math.random() * games.length)];
     navigate(`/:game_name/mods/:source_name/:mod_name`, {
