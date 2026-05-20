@@ -3,7 +3,11 @@
   import { _ } from "svelte-i18n";
   import { Button, Input, Spinner } from "flowbite-svelte";
   // import IconArrowLeft from "~icons/mdi/arrow-left";
-  import { refreshModSources, getAvailableMods } from "$lib/rpc/cache";
+  import {
+    refreshModSources,
+    getAvailableMods,
+    getExternalMods,
+  } from "$lib/rpc/cache";
   import { navigate, route } from "/src/router";
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { toSupportedGame } from "$lib/rpc/SupportedGame";
@@ -16,9 +20,11 @@
   import type { ModInfo } from "$lib/rpc/bindings/ModInfo";
   import type { AvailableModsByGame } from "$lib/rpc/bindings/AvailableModsByGame";
   import { searchParams } from "sv-router";
+  import ExternalCard from "../components/mods/ExternalCard.svelte";
 
   let loaded = $state(false);
   let mods = $state<AvailableModsByGame | undefined>();
+  let externalMods = $state<Array<ModInfo>>();
   let query = $state("");
   let addingMod = $state(false);
   let addingFromFile = $state(false);
@@ -34,6 +40,16 @@
   $effect(() => searchParams.set("game", gameFilter, { replace: true }));
 
   const game = $derived(activeGame || gameFilter);
+
+  const filteredExternal = $derived.by(() => {
+    if (!externalMods) return null;
+    if (gameFilter == "all") return externalMods;
+    const result = externalMods.filter((mod) =>
+      mod.supportedGames.includes(gameFilter as SupportedGame),
+    );
+    if (result.length === 0) return null;
+    return result;
+  });
 
   // TODO: this is gross
   const filteredMods = $derived.by(() => {
@@ -122,6 +138,7 @@
   onMount(async () => {
     await refreshModSources();
     mods = await getAvailableMods();
+    externalMods = await getExternalMods();
     loaded = true;
   });
 
@@ -246,17 +263,20 @@
         <div class="grid grid-cols-2 gap-6 mt-2">
           {#each installedMods as mod}
             <!-- TODO: this part here is rough and i need to fix it, but it works... -->
-            <ModCard {mod} activeGame={toSupportedGame(mod.game)!} />
+            <div class="last:odd:col-span-2">
+              <ModCard {mod} activeGame={toSupportedGame(mod.game)!} />
+            </div>
           {/each}
         </div>
       {/if}
+
       {#if !isModsEmpty()}
         <h1 hidden={!activeGame} class="font-bold mt-5">
           {$_("features_mods_available_header")}
         </h1>
         {#each Object.entries(filteredMods) as [gameKey, gameMods] (gameKey)}
           <div hidden={gameMods.length === 0} class="py-2">
-            <h2 hidden={activeGame !== undefined}>
+            <h2 hidden={activeGame !== undefined} class="font-semibold">
               {$_(`gameName_${gameKey}`)}
             </h2>
 
@@ -269,6 +289,24 @@
             </div>
           </div>
         {/each}
+
+        {#if filteredExternal}
+          <div class="py-2">
+            <h1 class="font-semibold">
+              {$_(`features_mods_external_mods_header`)}
+            </h1>
+            <p class="font-light">
+              {$_(`features_mods_external_mods_subtitle`)}
+            </p>
+            <div class="grid grid-cols-2 gap-6 mt-2">
+              <div class="last:odd:col-span-2">
+                {#each filteredExternal as mod}
+                  <ExternalCard {mod} />
+                {/each}
+              </div>
+            </div>
+          </div>
+        {/if}
       {/if}
     </div>
   {/if}

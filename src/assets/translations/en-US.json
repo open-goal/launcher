@@ -249,6 +249,8 @@
   "features_mods_popularity": "Popularity",
   "features_mods_last_updated": "Last Updated",
   "features_mods_all_games": "All Games",
+  "features_mods_external_mods_header": "External Mods",
+  "features_mods_external_mods_subtitle": "Opens a third-party website requiring manual download and installation",
   "toasts_copiedToClipboard": "Copied to clipboard",
   "toasts_savedToolingVersion": "Saved tooling version",
   "toasts_modSourceUnreachable": "Mod source unreachable",

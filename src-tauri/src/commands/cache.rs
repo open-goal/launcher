@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use tracing::instrument;
 
 use crate::{
-  cache::{AvailableModsByGame, ModCache, ModSourceData},
+  cache::{AvailableModsByGame, ModCache, ModInfo, ModSourceData},
   config::LauncherConfig,
 };
 
@@ -29,6 +29,15 @@ pub async fn get_mod_sources_data(
 ) -> Result<HashMap<String, ModSourceData>, CommandError> {
   let cache_lock = cache.lock().await;
   Ok(cache_lock.by_platform())
+}
+
+#[instrument(skip(cache))]
+#[tauri::command]
+pub async fn get_external_mods(
+  cache: tauri::State<'_, tokio::sync::Mutex<ModCache>>,
+) -> Result<Vec<ModInfo>, CommandError> {
+  let cache_lock = cache.lock().await;
+  Ok(cache_lock.external_mods())
 }
 
 #[instrument(skip(cache))]
