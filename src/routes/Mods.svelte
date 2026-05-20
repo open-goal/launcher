@@ -3,6 +3,7 @@
   import { _ } from "svelte-i18n";
   import { Button, Input, Spinner } from "flowbite-svelte";
   // import IconArrowLeft from "~icons/mdi/arrow-left";
+  import IconDice from "~icons/mdi/dice-6";
   import {
     refreshModSources,
     getAvailableMods,
@@ -182,6 +183,28 @@
       },
     });
   }
+
+  async function navigateToRandomMod() {
+    if (!filteredMods) return null;
+    const mods = Object.values(filteredMods).flat();
+    const mod = mods[Math.floor(Math.random() * mods.length)];
+    const games = Object.keys(mod.perGameConfig!).filter(
+      (g) => g == gameFilter,
+    );
+    const game = games[Math.floor(Math.random() * games.length)];
+    navigate(`/:game_name/mods/:source_name/:mod_name`, {
+      params: {
+        game_name: game,
+        source_name: encodeURI(mod.source),
+        mod_name: encodeURI(mod.name),
+      },
+      search: {
+        from: route.pathname,
+        sort: searchParams.get("sort") ?? "popularity",
+        game: searchParams.get("game") ?? "all",
+      },
+    });
+  }
 </script>
 
 <div class="flex flex-col h-full bg-neutral-900">
@@ -219,6 +242,15 @@
           placeholder={$_("features_mods_filter_placeholder")}
           bind:value={query}
         />
+
+        <Button
+          outline
+          class="w-10 rounded text-gray-200 hover:text-white bg-neutral-800!  border border-neutral-600! hover:bg-white font-semibold p-2 text-lg group"
+          onclick={navigateToRandomMod}
+          aria-label={$_("features_backToGamePage_buttonAlt")}
+        >
+          <IconDice class="group-hover:animate-[spin_0.5s_ease-in-out]" />
+        </Button>
 
         {#if !activeGame}
           <select
