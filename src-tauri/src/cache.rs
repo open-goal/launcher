@@ -91,6 +91,12 @@ pub struct ModInfo {
   pub metadata_offline: bool,
 }
 
+impl ModInfo {
+  pub fn is_external(&self) -> bool {
+    self.external_link.is_some()
+  }
+}
+
 impl From<ModInfoSchema> for ModInfo {
   fn from(schema: ModInfoSchema) -> Self {
     let download_count = schema
@@ -242,6 +248,16 @@ impl ModCache {
       .mod_sources
       .iter()
       .map(|(url, source)| (url.clone(), source.by_platform()))
+      .collect()
+  }
+
+  pub fn external_mods(&self) -> Vec<ModInfo> {
+    self
+      .mod_sources
+      .values()
+      .flat_map(|source| source.mods.values())
+      .filter(|mod_info| mod_info.is_external())
+      .cloned()
       .collect()
   }
 

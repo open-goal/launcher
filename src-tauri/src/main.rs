@@ -151,6 +151,7 @@ fn main() {
       commands::binaries::run_decompiler,
       commands::binaries::update_data_directory,
       commands::cache::get_mod_sources_data,
+      commands::cache::get_external_mods,
       commands::cache::get_available_mods,
       commands::cache::refresh_mod_sources,
       commands::config::cleanup_enabled_texture_packs,
