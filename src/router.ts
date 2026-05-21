@@ -133,6 +133,9 @@ export const { p, navigate, isActive, route } = createRouter({
             versionState.displayModVersion = true;
           },
         },
+        "/texture_packs": {
+          "/": TexturePacks,
+        },
       },
     },
     "/texture_packs": {
