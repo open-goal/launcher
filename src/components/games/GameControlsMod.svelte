@@ -281,7 +281,7 @@
       {#if !currentlyInstalledVersion && modVersionListSorted.length == 0}
         <!-- show disabled Install button if no version installed and we have no version list (offline) -->
         <Button
-          class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
+          class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] disabled"
           disabled>{$_("gameControls_button_install")}</Button
         >
       {:else if !currentlyInstalledVersion}
@@ -373,7 +373,8 @@
       {#if !currentlyInstalledVersion}
         <!-- Disabled "advanced" button if not installed -->
         <Button
-          class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
+          class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] disabled cursor-not-allowed"
+          disabled
         >
           {$_("gameControls_button_advanced")}
         </Button>
@@ -461,7 +462,7 @@
       {#if !currentlyInstalledVersion}
         <!-- Disabled cog/settings button if not installed -->
         <Button
-          class="text-gray-200 h-10 w-10 p-0 focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
+          class="text-gray-200 h-10 w-10 p-0 focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b]"
           disabled
         >
           <IconCog />
