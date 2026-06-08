@@ -168,9 +168,6 @@ pub struct LauncherConfig {
   pub proceed_after_successful_operation: bool,
   pub auto_update_games: bool,
   pub delete_previous_versions: bool,
-  // pub hide_beta_alerts: bool,
-  // pub hide_gamename: bool,
-  // pub hide_playtime: bool,
   pub ui: UISettings,
 }
 
