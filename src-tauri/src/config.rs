@@ -183,11 +183,7 @@ pub struct CommonConfigData {
 
 impl CommonConfigData {
   pub fn get_exec_location(&self, executable_name: &str) -> ExecutableLocation {
-    let exec_dir = self
-      .install_path
-      .join("versions")
-      .join("official")
-      .join(&self.active_version);
+    let exec_dir = self.install_path.join("active").join("bin");
 
     let mut exec_path: PathBuf = exec_dir.join(executable_name);
     if cfg!(windows) {
@@ -452,6 +448,14 @@ impl LauncherConfig {
       .ok_or_else(|| anyhow::anyhow!("No installation directory set"))
   }
 
+  pub fn active_version(&self) -> Result<String> {
+    self
+      .active_version
+      .as_ref()
+      .cloned()
+      .ok_or_else(|| anyhow::anyhow!("No active version set"))
+  }
+
   pub fn common_prelude(&self) -> Result<CommonConfigData, CommandError> {
     let install_path = self.installation_dir.as_ref().ok_or_else(|| {
       CommandError::BinaryExecution(
@@ -529,5 +533,26 @@ impl LauncherConfig {
       .games
       .get(&game)
       .is_some_and(|config| config.has_installed_mod(source, mod_name))
+  }
+
+  pub fn copy_active_binaries(&self) -> anyhow::Result<()> {
+    let install_dir = self.install_dir()?;
+    let version = self.active_version()?;
+
+    let src_dir = install_dir.join("versions").join("official").join(version);
+    let dst_dir = install_dir.join("active").join("bin");
+    create_dir(&dst_dir)?;
+
+    for binary in ["gk", "extractor", "goalc"] {
+      let binary = if cfg!(windows) {
+        format!("{binary}.exe")
+      } else {
+        binary.to_string()
+      };
+
+      std::fs::copy(src_dir.join(&binary), dst_dir.join(&binary))?;
+    }
+
+    Ok(())
   }
 }
