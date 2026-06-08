@@ -505,6 +505,7 @@ impl LauncherConfig {
 
     if self.active_version.as_deref() == Some(version) {
       self.set_active_version(None)?;
+      delete_dir(&self.install_dir()?.join("active").join("bin"))?;
     }
 
     Ok(())
