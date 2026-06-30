@@ -24,7 +24,7 @@
       "icons/icon.ico"
     ],
     "copyright": "",
-    "category": "DeveloperTool",
+    "category": "Game",
     "shortDescription": "",
     "longDescription": "",
     "createUpdaterArtifacts": false
@@ -53,7 +53,7 @@
   },
   "productName": "OpenGOAL-Launcher",
   "mainBinaryName": "OpenGOAL-Launcher",
-  "version": "2.10.4",
+  "version": "2.11.0",
   "identifier": "OpenGOAL-Launcher",
   "app": {
     "security": {

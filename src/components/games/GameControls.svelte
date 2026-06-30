@@ -76,7 +76,7 @@
   <div class="flex flex-col pb-2 items-end text-shadow-lg">
     {#if !config?.ui?.hideGamename}
       <p
-        class="text-3xl font-semibold tracking-wider text-gray-100 pointer-events-none uppercase"
+        class="font-title text-3xl font-semibold tracking-wider text-gray-100 pointer-events-none uppercase"
       >
         {title}
       </p>

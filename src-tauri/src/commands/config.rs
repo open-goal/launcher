@@ -37,6 +37,7 @@ pub async fn set_active_version(
 ) -> Result<(), CommandError> {
   let mut config_lock = config.lock().await;
   config_lock.set_active_version(Some(version))?;
+  config_lock.copy_active_binaries()?;
   Ok(())
 }
 

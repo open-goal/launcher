@@ -1,4 +1,12 @@
 @font-face {
+  font-family: "Inter";
+  src: url("/src/assets/fonts/inter/Inter-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: "Noto Sans Mono";
   src: url("/src/assets/fonts/noto-sans/NotoSansMono-VariableFont.woff2")
     format("woff2");
@@ -14,6 +22,10 @@
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
+}
+
+.font-title {
+  font-family: "Inter", "Noto Sans", sans-serif;
 }
 
 .font-mono {
