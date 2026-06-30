@@ -1,6 +1,7 @@
 <script lang="ts">
   import { openPath } from "@tauri-apps/plugin-opener";
   import IconArrowLeft from "~icons/mdi/arrow-left";
+  import OpenInNew from "~icons/mdi/open-in-new";
   import IconCog from "~icons/mdi/cog";
   import { join } from "@tauri-apps/api/path";
   import { onDestroy, onMount } from "svelte";
@@ -218,12 +219,12 @@
     <div class="flex flex-col items-end pl-2 z-10">
       {#if modInfo?.websiteUrl}
         <a
-          class="mt-2 gap-2 text-3xl font-semibold tracking-tight text-orange-500 hover:text-orange-600 drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
+          class="inline-flex mt-2 gap-2 text-3xl font-semibold tracking-tight text-orange-500 hover:text-orange-600 drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
           target="_blank"
           rel="noreferrer"
           href={modInfo.websiteUrl}
         >
-          {displayName}
+          {displayName}<OpenInNew />
         </a>
       {:else}
         <h1
