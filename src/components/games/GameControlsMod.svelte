@@ -186,7 +186,8 @@
       Object.keys(installedMods).includes(modInfo.source) &&
       Object.keys(installedMods[modInfo.source]).includes(modInfo.name)
     ) {
-      currentlyInstalledVersion = installedMods[modInfo.source][modInfo.name];
+      currentlyInstalledVersion =
+        installedMods[modInfo.source][modInfo.name].version;
       versionState.displayModVersion = true;
       versionState.activeModVersionInfo.installedVersion =
         currentlyInstalledVersion;
