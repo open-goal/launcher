@@ -66,6 +66,8 @@ pub struct SupportPackage {
   #[cfg(windows)]
   pub installed_vcc_runtime: Option<String>,
   pub total_memory_megabytes: u64,
+  pub total_swap: u64,
+  pub free_swap: u64,
   pub cpu_name: String,
   pub cpu_vendor: String,
   pub cpu_brand: String,
@@ -278,6 +280,8 @@ pub async fn generate_support_package(
     package.installed_vcc_runtime = get_installed_vcc_runtime().ok().map(|v| v.to_string());
   }
   package.total_memory_megabytes = system_info.total_memory() / 1024 / 1024;
+  package.total_swap = system_info.total_swap() / 1024 / 1024;
+  package.free_swap = system_info.free_swap() / 1024 / 1024;
   package.cpu_name = system_info.cpus()[0].name().to_string();
   package.cpu_vendor = system_info.cpus()[0].vendor_id().to_string();
   package.cpu_brand = system_info.cpus()[0].brand().to_string();
