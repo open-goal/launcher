@@ -54,7 +54,7 @@ pub struct InstalledMod {
   #[serde(default)]
   pub texture_packs: Vec<String>,
   #[serde(default)]
-  pub playtime_seconds: u64,
+  pub seconds_played: u64,
 }
 
 type InstalledMods = HashMap<String, HashMap<String, InstalledMod>>;
