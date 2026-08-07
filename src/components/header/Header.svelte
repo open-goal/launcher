@@ -160,7 +160,7 @@
         {/if}
       </span>
 
-      {#if $UpdateStore.selectedTooling.updateAvailable}
+      {#if $UpdateStore.selectedTooling.updateAvailable && !versionState.displayModVersion}
         <a
           class="pointer-events-auto text-green-500 hover:text-green-300 animate-pulse relative"
           href="/settings/versions"
