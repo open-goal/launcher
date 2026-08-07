@@ -14,7 +14,7 @@ use crate::util::file::create_dir;
 use crate::{commands::CommandError, util::file::delete_dir};
 use anyhow::{Context, Result};
 use semver::Version;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
@@ -47,6 +47,18 @@ impl SupportedGame {
   }
 }
 
+#[derive(Debug, Clone, Default, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct InstalledMod {
+  pub version: String,
+  #[serde(default)]
+  pub texture_packs: Vec<String>,
+  #[serde(default)]
+  pub seconds_played: u64,
+}
+
+type InstalledMods = HashMap<String, HashMap<String, InstalledMod>>;
+
 #[derive(Debug, Serialize, Deserialize, Clone, Default, TS)]
 #[serde(rename_all = "camelCase", default)]
 pub struct GameConfig {
@@ -54,8 +66,35 @@ pub struct GameConfig {
   pub version: Option<String>,
   pub texture_packs: Vec<String>,
   pub seconds_played: u64,
-  #[serde(rename = "mods")]
-  pub mods_installed_version: HashMap<String, HashMap<String, String>>,
+  #[serde(
+    rename = "mods",
+    default,
+    deserialize_with = "deserialize_installed_mods"
+  )]
+  pub installed_mods: InstalledMods,
+}
+
+/// This is a temporary migration step to future proof the config, allowing for more metadata to be stored about installed mods.
+///
+/// Anyone who doesn't update their launcher in a year will have to reinstall their game and or mods
+///
+/// TODO: Remove 1 year after merging, (~July 2027.)
+fn deserialize_installed_mods<'de, D>(deserializer: D) -> Result<InstalledMods, D::Error>
+where
+  D: Deserializer<'de>,
+{
+  let mut sources =
+    HashMap::<String, HashMap<String, serde_json::Value>>::deserialize(deserializer)?;
+
+  for mods in sources.values_mut() {
+    for value in mods.values_mut() {
+      if let Some(version) = value.as_str() {
+        *value = serde_json::json!({ "version": version });
+      }
+    }
+  }
+
+  serde_json::from_value(serde_json::to_value(sources).unwrap()).map_err(serde::de::Error::custom)
 }
 
 impl GameConfig {
@@ -69,7 +108,7 @@ impl GameConfig {
 
   pub fn has_installed_mod(&self, source: &str, mod_name: &str) -> bool {
     self
-      .mods_installed_version
+      .installed_mods
       .get(source)
       .is_some_and(|mods| mods.contains_key(mod_name))
   }
@@ -78,7 +117,7 @@ impl GameConfig {
     self.is_installed = false;
     self.version = None;
     self.texture_packs.clear();
-    self.mods_installed_version.clear();
+    self.installed_mods.clear();
   }
 
   pub fn set_installed(&mut self, installed: bool) -> &mut Self {
@@ -398,10 +437,16 @@ impl LauncherConfig {
   ) -> Result<()> {
     self
       .get_supported_game_config_mut(game_name)
-      .mods_installed_version
+      .installed_mods
       .entry(source)
       .or_default()
-      .insert(mod_name, version);
+      .insert(
+        mod_name,
+        InstalledMod {
+          version,
+          ..Default::default()
+        },
+      );
     self.save_config()?;
     Ok(())
   }
@@ -414,7 +459,7 @@ impl LauncherConfig {
   ) -> Result<()> {
     self
       .get_supported_game_config_mut(game_name)
-      .mods_installed_version
+      .installed_mods
       .get_mut(&source)
       .map(|mods| mods.remove(&mod_name));
     self.save_config()?;

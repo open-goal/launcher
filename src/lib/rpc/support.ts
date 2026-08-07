@@ -7,5 +7,6 @@ export async function generateSupportPackage(): Promise<void> {
     ["zip"],
     "opengoal-support-package.zip",
   );
+  if (!userPath) return;
   return await invoke_rpc("generate_support_package", { userPath });
 }

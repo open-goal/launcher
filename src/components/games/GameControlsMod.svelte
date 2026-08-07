@@ -186,7 +186,8 @@
       Object.keys(installedMods).includes(modInfo.source) &&
       Object.keys(installedMods[modInfo.source]).includes(modInfo.name)
     ) {
-      currentlyInstalledVersion = installedMods[modInfo.source][modInfo.name];
+      currentlyInstalledVersion =
+        installedMods[modInfo.source][modInfo.name].version;
       versionState.displayModVersion = true;
       versionState.activeModVersionInfo.installedVersion =
         currentlyInstalledVersion;
@@ -281,7 +282,7 @@
       {#if !currentlyInstalledVersion && modVersionListSorted.length == 0}
         <!-- show disabled Install button if no version installed and we have no version list (offline) -->
         <Button
-          class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
+          class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] disabled"
           disabled>{$_("gameControls_button_install")}</Button
         >
       {:else if !currentlyInstalledVersion}
@@ -309,6 +310,20 @@
           }}>{$_("gameControls_update_mod")}</Button
         >
       {/if}
+      <!-- TODO: Uncomment after I finish mods texture support -->
+      <!-- <Button
+        onclick={async () => {
+          navigate(`/:game_name/mods/:source_name/:mod_name/texture_packs`, {
+            params: {
+              game_name: activeGame,
+              source_name: modSource,
+              mod_name: modName,
+            },
+          });
+        }}
+        class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
+        >{$_("gameControls_button_features_textures")}
+      </Button> -->
       {#if modVersionListSorted.length > 0}
         <Button
           class="relative font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
@@ -360,7 +375,8 @@
       {#if !currentlyInstalledVersion}
         <!-- Disabled "advanced" button if not installed -->
         <Button
-          class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
+          class="font-medium text-gray-200 h-10 text-center focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] disabled cursor-not-allowed"
+          disabled
         >
           {$_("gameControls_button_advanced")}
         </Button>
@@ -448,7 +464,7 @@
       {#if !currentlyInstalledVersion}
         <!-- Disabled cog/settings button if not installed -->
         <Button
-          class="text-gray-200 h-10 w-10 p-0 focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b] hover:bg-[#141414] hover:border-[#3a3a3a] hover:text-white"
+          class="text-gray-200 h-10 w-10 p-0 focus:ring-0 focus:outline-none border-solid border border-[#2a2a2a] rounded bg-[#0b0b0b]"
           disabled
         >
           <IconCog />

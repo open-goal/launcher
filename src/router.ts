@@ -8,7 +8,7 @@ import Help from "./routes/Help.svelte";
 // @ts-ignore
 import Mods from "./routes/Mods.svelte";
 // @ts-ignore
-import TexturePacks from "./components/games/features/texture-packs/TexturePacks.svelte";
+import TexturePacks from "./components/texture-packs/TexturePacks.svelte";
 // @ts-ignore
 import UpdateLauncher from "./routes/UpdateLauncher.svelte";
 // @ts-ignore
@@ -132,6 +132,9 @@ export const { p, navigate, isActive, route } = createRouter({
           beforeLoad() {
             versionState.displayModVersion = true;
           },
+        },
+        "/texture_packs": {
+          "/": TexturePacks,
         },
       },
     },

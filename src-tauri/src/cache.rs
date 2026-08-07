@@ -323,7 +323,7 @@ impl ModCache {
         .get(&game)
         .map(|game_config| {
           game_config
-            .mods_installed_version
+            .installed_mods
             .iter()
             .flat_map(|(source_name, mods)| {
               mods.keys().map(move |mod_name| ModInfo {
