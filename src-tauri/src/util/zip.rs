@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use std::io::{BufReader, Cursor};
+use std::io::BufReader;
 use std::{
   fs::File,
   io::{Read, Write},
@@ -7,7 +7,7 @@ use std::{
 };
 use tracing::info;
 use walkdir::WalkDir;
-use zip::write::SimpleFileOptions;
+use zip::{ZipArchive, read::root_dir_common_filter, write::SimpleFileOptions};
 
 pub fn append_dir_contents_to_zip(
   zip_file: &mut zip::ZipWriter<&File>,
@@ -98,8 +98,12 @@ pub fn extract_zip_file(
   extract_dir: &Path,
   strip_top_dir: bool,
 ) -> Result<()> {
-  let archive: Vec<u8> = std::fs::read(zip_path)?;
-  zip_extract::extract(Cursor::new(archive), extract_dir, strip_top_dir)?;
+  let mut archive = ZipArchive::new(File::open(zip_path)?)?;
+  if strip_top_dir {
+    archive.extract_unwrapped_root_dir(extract_dir, root_dir_common_filter)?;
+  } else {
+    archive.extract(extract_dir)?;
+  }
   Ok(())
 }
 
@@ -120,7 +124,7 @@ pub fn check_if_zip_contains_top_level_entry<P: AsRef<Path>>(
   let file = File::open(&path)
     .with_context(|| format!("Unable to open zip file {}", path.as_ref().display()))?;
   let reader = BufReader::new(file);
-  let mut zip = zip::ZipArchive::new(reader).context("Failed to read zip archive")?;
+  let mut zip = ZipArchive::new(reader).context("Failed to read zip archive")?;
 
   for i in 0..zip.len() {
     let file = zip
