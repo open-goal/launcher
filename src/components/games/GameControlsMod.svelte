@@ -2,6 +2,7 @@
   import { openPath } from "@tauri-apps/plugin-opener";
   import IconArrowLeft from "~icons/mdi/arrow-left";
   import IconCog from "~icons/mdi/cog";
+  import OpenInNew from "~icons/mdi/open-in-new";
   import { join } from "@tauri-apps/api/path";
   import { onDestroy, onMount } from "svelte";
   import { writeText } from "@tauri-apps/plugin-clipboard-manager";
@@ -250,6 +251,17 @@
               : modInfo.tags}
           </span>
         {/if}
+        {#if modInfo?.websiteUrl}
+          <span class="h-5 w-px bg-white/30"></span>
+          <a
+            class="pointer-events-auto hover:*:text-orange-300"
+            target="_blank"
+            rel="noreferrer"
+            title={$_("gameControls_button_openModWebsite")}
+            href={modInfo.websiteUrl}
+            ><OpenInNew />
+          </a>
+        {/if}
       </div>
     </div>
   </div>
@@ -494,14 +506,6 @@
               )}</Helper
             ></DropdownItem
           >
-          {#if modInfo?.websiteUrl}
-            <DropdownItem
-              href={modInfo.websiteUrl}
-              target="_blank"
-              rel="noreferrer"
-              >{$_("gameControls_button_openModWebsite")}
-            </DropdownItem>
-          {/if}
           <DropdownDivider />
           <DropdownItem
             onclick={async () => {
