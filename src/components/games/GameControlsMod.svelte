@@ -1,7 +1,6 @@
 <script lang="ts">
   import { openPath } from "@tauri-apps/plugin-opener";
   import IconArrowLeft from "~icons/mdi/arrow-left";
-  import OpenInNew from "~icons/mdi/open-in-new";
   import IconCog from "~icons/mdi/cog";
   import { join } from "@tauri-apps/api/path";
   import { onDestroy, onMount } from "svelte";
@@ -217,22 +216,11 @@
     class="mt-auto ml-auto mb-2 pr-4 max-w-xl text-right border-r-2 border-orange-500/80 bg-linear-to-l from-black/75 via-black/40 via-90% to-transparent mask-y-from-95%"
   >
     <div class="flex flex-col items-end pl-2 z-10">
-      {#if modInfo?.websiteUrl}
-        <a
-          class="inline-flex mt-2 gap-2 text-3xl font-semibold tracking-tight text-orange-500 hover:text-orange-600 drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
-          target="_blank"
-          rel="noreferrer"
-          href={modInfo.websiteUrl}
-        >
-          {displayName}<OpenInNew />
-        </a>
-      {:else}
-        <h1
-          class="mt-2 text-3xl font-semibold tracking-tight text-orange-500 pointer-events-none drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
-        >
-          {displayName}
-        </h1>
-      {/if}
+      <h1
+        class="mt-2 text-3xl font-semibold tracking-tight text-orange-500 pointer-events-none drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
+      >
+        {displayName}
+      </h1>
 
       <p
         class="mt-2 max-w-150 text-[1.05rem] font-light tracking-tight leading-6 text-white/88 pointer-events-none drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
@@ -506,6 +494,14 @@
               )}</Helper
             ></DropdownItem
           >
+          {#if modInfo?.websiteUrl}
+            <DropdownItem
+              href={modInfo.websiteUrl}
+              target="_blank"
+              rel="noreferrer"
+              >{$_("gameControls_button_openModWebsite")}
+            </DropdownItem>
+          {/if}
           <DropdownDivider />
           <DropdownItem
             onclick={async () => {

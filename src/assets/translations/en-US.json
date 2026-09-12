@@ -43,6 +43,7 @@
   "gameControls_button_uninstall_confirmation": "Are you sure you want to uninstall?",
   "gameControls_button_uninstall_helpText": "This will not delete any saves or settings",
   "gameControls_button_uninstall": "Uninstall",
+  "gameControls_button_openModWebsite": "Open Mod Website",
   "gameControls_noToolingSet_button_setVersion": "Set Version",
   "gameControls_noToolingSet_header": "No Tooling Version Configured!",
   "gameControls_noToolingSet_subheader": "Head over to the following settings page to download the latest release",
