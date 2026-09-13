@@ -1,43 +1,43 @@
 {
-  "version": "2.11.0",
-  "notes": "{\"changes\":[{\"description\":\"add external mods section to the mods route\",\"contributor\":\"trippjoe\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1009\"},{\"description\":\"add random mod button to mods route\",\"contributor\":\"trippjoe\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1010\"},{\"description\":\"change bundle category to \\\"Game\\\"\",\"contributor\":\"trippjoe\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1017\"},{\"description\":\"Decouple external launch string from game version\",\"contributor\":\"trippjoe\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1018\"},{\"description\":\"Change title to use inter-semibold\",\"contributor\":\"Zedb0T\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1021\"},{\"description\":\"Bump the \\\"tauri\\\" group with 2 updates across multiple ecosystems\",\"contributor\":\"dependabot[bot]\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1013\"},{\"description\":\"revert version from 2.12.0 to 2.10.4\",\"contributor\":\"trippjoe\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1022\"},{\"description\":\"support: add swap space metric to support package\",\"contributor\":\"trippjoe\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1027\"},{\"description\":\"update config representation for installed mods\",\"contributor\":\"trippjoe\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1030\"},{\"description\":\"fix: Launcher displays a incorrect Mod Version update bar\",\"contributor\":\"trippjoe\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1032\"},{\"description\":\"bump zip dependency version\",\"contributor\":\"trippjoe\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1033\"},{\"description\":\"Bump the \\\"tauri\\\" group with 2 updates across multiple ecosystems\",\"contributor\":\"dependabot[bot]\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1036\"},{\"description\":\"build(deps): bump tauri-apps/tauri-action from 0 to 1\",\"contributor\":\"dependabot[bot]\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1025\"},{\"description\":\"build(deps): bump actions/checkout from 6 to 7\",\"contributor\":\"dependabot[bot]\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1024\"},{\"description\":\"build(deps): bump actions/setup-node from 6 to 7\",\"contributor\":\"dependabot[bot]\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1028\"},{\"description\":\"build(deps): bump EndBug/add-and-commit from 10 to 11\",\"contributor\":\"dependabot[bot]\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1034\"},{\"description\":\"Add back icon for external link for mod sites\",\"contributor\":\"dallmeyer\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1023\"}]}",
-  "pub_date": "2026-09-13T18:52:25.444Z",
+  "version": "2.11.1",
+  "notes": "{\"changes\":[{\"description\":\"fix: binary migration bug\",\"contributor\":\"trippjoe\",\"pullRequestUrl\":\"https://github.com/open-goal/launcher/pull/1037\"}]}",
+  "pub_date": "2026-09-13T20:13:15.794Z",
   "platforms": {
-    "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1NPRFJqNHFvalZRcTdROHVQbnhlR0JMNUJ1aGhpUkgxcEZmTEVIeXBOeXpMcVVPcFlZemgzbElkVXQ2T3UrL1FYalRUMDM3Tm0zOHhBUU9MTHlDYVFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzI0NTQzCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpCNTJySjc0M2swd3BuZDhOSjFZZnd1VEphckNndTlSUXZnM3JqNDBzWE1YeHovQ09Pb0RZei93bzlZOUVmcFR5emhEd0I1NGd1cnBIZ0Y1OHA1N2FCQT09Cg==",
-      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561718175"
-    },
-    "darwin-aarch64-app": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1NPRFJqNHFvalZRcTdROHVQbnhlR0JMNUJ1aGhpUkgxcEZmTEVIeXBOeXpMcVVPcFlZemgzbElkVXQ2T3UrL1FYalRUMDM3Tm0zOHhBUU9MTHlDYVFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzI0NTQzCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpCNTJySjc0M2swd3BuZDhOSjFZZnd1VEphckNndTlSUXZnM3JqNDBzWE1YeHovQ09Pb0RZei93bzlZOUVmcFR5emhEd0I1NGd1cnBIZ0Y1OHA1N2FCQT09Cg==",
-      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561718175"
-    },
-    "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2V2bDJFY3hmc2pXRi82MnJvVVJqWUZkWFVucGtDTVR4WWZ2QkpBaWZVR3lyaGxsdUMwNjIzRnBXcjgzL2ZHa0ludG9nSjBjWEU0eGdkWXAvZ2xGcGc4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzI0NzY2CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4xMS4wX2FtZDY0LkFwcEltYWdlLnRhci5negpINjU5VFB3TlZPWGc2Wk1YQ0VOeUp2TjRJL201anlMb3RTT09JTjhLR05raVI1OVFkWUdlN0UxUUFqVVFFaHk2ZHdOQ1BrYlg3YVFMaXNaUWFoTzdEZz09Cg==",
-      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561723275"
-    },
-    "linux-x86_64-appimage": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1hnNkowc3EwVysrSFlwUHFlYjNTMjdhaVp4WlNMZHdyc29VRitEeDVWZHBzWlc2RHZ0RDVRcFJ3dk9RS1JVQTY2cGVpZXVPRm5EYXAxb0xqeXpJdFFzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzI0NzY2CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4xMS4wX2FtZDY0LkFwcEltYWdlCmR4WWZwajhlekgwWkZkZzVwSDBGQ0FwVW8rWWhhNFExdCt6Y2V5cFZML1RGTmx5WXRDaXVNU1V6UnRoQlVPVnBRMVFGVjE2MWF2Q0JWclRPOUtEc0J3PT0K",
-      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561723174"
-    },
-    "linux-x86_64-deb": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2JGSEZEZ3JGU3FRQktBVDVkK1pkSmU3RHpHaEFER2dWZXZlSUxzY3dVY204WnRuM2RudnV2TmFMcHJFMUJuNkUramFQT1ljUzJPYW80UFErQmUzaEFVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzI0NzY2CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4xMS4wX2FtZDY0LmRlYgo1TzIrbUNIVUpVVDZqNTJkOHJPd2FmRE05Qk83N3NrVHBXU25JTHBtNCtvbyszUnIxM28yTXhLb1FGR096YUhqS3IxRUpDcy9EdXBLcWVrVHhLUm5DUT09Cg==",
-      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561723136"
-    },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2VDWEZkaVFwckhVTzErQmp6Ti9sYmNIUUg4QWEvcDRmajRSRFhONlBkUWoxY2Q4UHd1ZGt4MVdDZkFzYlNWNFpzbk02YVE1b3pEb1BtVnBManFsU3dZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzI0OTM3CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4xMS4wX3g2NF9lbi1VUy5tc2kuemlwCkd2bGpLc28wQkIySWRUQ1d0TEhlaGFBNzlubkRhN09yMjVKdk5FOVp6Tk9iaThDVFE4NUhyTVJOS2E4ajkvTkxCeXROakpJNmE1Q2tpbnNQdUNwaEJnPT0K",
-      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561726969"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1RKNDlGclhxSXpRdW5yeGlySHVtQkd5UE9hQ2VLVlE1L0FkRjM3MzlXbW56TnQ1Y3E4cUJTeTdpZ05aNXBBS2N3T3BJSDZ0NmYyb1NtcTVGd1N6NWdZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzI5Njg1CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4xMS4xX3g2NF9lbi1VUy5tc2kuemlwCk1LSzhlNUdSWWNYY002ZWExY3A0WFFIK20vRis0RjBPTmp1ZkxScEZhSndINFJwWWY1OWVaK3B3T1NIUUtDMWFOVkhrVWdPdG42M096ZXlqVk1xY0J3PT0K",
+      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561837900"
     },
     "windows-x86_64-msi": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2ZZRGpJWUN3QnNDeWZnZmppS1RrRVBaeDh4WElsTFlHVDBIZEhGSmhmMVhIU0NhalN6UjdFNDFpUHM3MkwzQUZZajIwR2tCVnNDeEEvcXB5WCtjYVF3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzI0OTM3CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4xMS4wX3g2NF9lbi1VUy5tc2kKc1Y5ZWIwVC9QMnNvQnE5RDAvaXVKemVLam01Y1B4QkN1VVJaczJPS2ZoZmpvS3hhcUpSOGtQSkhCWUw4K0NGMUFrbU5VQXAzOUNROGxGMWlzZXhjQ3c9PQo=",
-      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561726928"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1dkK2FOSitBSzF2c0FqaXMzOWlqR2ZNUjRvSzdtSGcyVzZIWkN5T1B3UUZUUlVLWlJyMS9xM2VqckhZVVpnY3VRdXgrb2hkTmw5akZmUTRaNTdPb3djPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzI5Njg1CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4xMS4xX3g2NF9lbi1VUy5tc2kKY05uZXYvWTJNOGV0NUh2OXNCNk1XUE1TSWlmbWJ6WWw5VWh4ZzkrWWl0YUgzV2hJYXJSUHVwcUJTWXo2Sit3eEpSenk2UVQ1VjA0NmtyTDhaKys0QWc9PQo=",
+      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561837863"
+    },
+    "linux-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1hiRFdhWkFQNmZnVURVZmZUWUs5NGMzOFcvR3VndEJYcDFra0paM2NXL0k0ZmgwcTFzLzVyTzRYNWVuRUZQbW4wd09nU0lHSU5MZXU0L3N5ZDJNQ1FNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzI5Nzc4CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4xMS4xX2FtZDY0LkFwcEltYWdlLnRhci5nego5Z3BWTkdnTlAydEI5TzVLVWRzZklWakRkRjlMUFJrTE1LeG1FTUJ5OVo3bWg5cHBSTytPMERSeElESUdUa1pvSzM0cXhZeGs4SkVvaGxVWklmU3NEdz09Cg==",
+      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561840153"
+    },
+    "linux-x86_64-appimage": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2I5ME93TTFZT2tTdldraFZkcTdJVy8rN0g0SFd1K1grbWg1TXB1aWNaVGFlZHJkWm5pYSt1L2hzREJnUXQ5OWxYVmFWaWI1ZVhuQVRQd2NHVkg1dXd3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzI5Nzc4CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4xMS4xX2FtZDY0LkFwcEltYWdlClZmcjBlcWF2NlNES3hiMytnTzJMNHZoYjJZNTZnZ2trWm5nRDdjUnJ5Y3hlKzdEc1dpVW5pbUtSZlEwS29Wb3RuMW9Yc1VVREVIQVVlSmFrcCtkYURBPT0K",
+      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561840044"
+    },
+    "linux-x86_64-deb": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1dEblFULzQzR0lRTXQzcFZCbExoTUlmcFdGRFovbDgyUjVEcWtoMnBXWm5VWks0WWhSbE5WYjJtOE14T29LME92Z0hKejJBWXJxNEh3OTA5L2JnYXdnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzI5Nzc4CWZpbGU6T3BlbkdPQUwtTGF1bmNoZXJfMi4xMS4xX2FtZDY0LmRlYgp2V01tYWFCNzg3Mlp3R2tJWkhxQm1id2o5OTNoOGFzSlBZYjh2MnZlTDB0WktoSktyV0R4SGhGUnRoUXF4S0NIZ1BPRHM1MzMxbVRpR1dNSHFmeHVDQT09Cg==",
+      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561840002"
+    },
+    "darwin-aarch64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1laQ040bFV4OUdzN3p6NFpmWlpCVHRuR1NObHFwMm84eVhDTUY3Wnpwb3FhekJabWI3SEhuQ1VxeHFzTSsvS2IvOGNYNDk3Tm9nTHJ5NUxyVk1DK0FBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzI5OTgxCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpGNGJaL2ZtYWRsS0E4RThzcVlDa2ZIanRWc0ZTV3BJRVR4SHBhenY1RTk1YkZlWnJtZW9RRHNoM1A2ekVCek1FWitRdXl3S3B4bGFQM0xTbGhkRnNDQT09Cg==",
+      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561844701"
+    },
+    "darwin-aarch64-app": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT1laQ040bFV4OUdzN3p6NFpmWlpCVHRuR1NObHFwMm84eVhDTUY3Wnpwb3FhekJabWI3SEhuQ1VxeHFzTSsvS2IvOGNYNDk3Tm9nTHJ5NUxyVk1DK0FBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzI5OTgxCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpGNGJaL2ZtYWRsS0E4RThzcVlDa2ZIanRWc0ZTV3BJRVR4SHBhenY1RTk1YkZlWnJtZW9RRHNoM1A2ekVCek1FWitRdXl3S3B4bGFQM0xTbGhkRnNDQT09Cg==",
+      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561844701"
     },
     "darwin-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2FQdFZSMDYzd0ZBUkQwVVF0eXBvaVFqOHpydUdQZGNKNnNZdi9jL3p1cmloMUMvU05QT3NFWHFoK3J3ejJ6YVJTYlhsc0NtcTU3Ym02cXlSYlBCMGc0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzI1NTQxCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negozaHRVQ3JtZXJ4SG9kMUM3MG9OM21yMUM5TGZZaVZzMmpMdkNXemkyQ1Q5NGpxY0xCOHMvVkpubDBMalBvemlSclpya3g2cytMWFN3UmV0cVI0eVBDZz09Cg==",
-      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561741387"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2VPbUpYdUN1TUtrYk16cG5rbFNrbkJnWUh5YzB3U1Z6bGllVjk2S2tiTXZuZGNnalhNVVE4Y2NxeUtzdGhtTzZiQzdwQjVYY3BTWHI0bWw2T3g1MkFzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzMwMzkxCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpQVkc0Vkw1eEY3Wm41UzBJU2xlMnVJL2l3YUdaTFUzMkFTL3FNYThmZDFNb0pFR2hVSG1Jb1pPc2l6SkNySGlIUGprNExtK1ZhK0NQNk04bjZQT1lBdz09Cg==",
+      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561857234"
     },
     "darwin-x86_64-app": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2FQdFZSMDYzd0ZBUkQwVVF0eXBvaVFqOHpydUdQZGNKNnNZdi9jL3p1cmloMUMvU05QT3NFWHFoK3J3ejJ6YVJTYlhsc0NtcTU3Ym02cXlSYlBCMGc0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzI1NTQxCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negozaHRVQ3JtZXJ4SG9kMUM3MG9OM21yMUM5TGZZaVZzMmpMdkNXemkyQ1Q5NGpxY0xCOHMvVkpubDBMalBvemlSclpya3g2cytMWFN3UmV0cVI0eVBDZz09Cg==",
-      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561741387"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTU1FRci9NckROT2VPbUpYdUN1TUtrYk16cG5rbFNrbkJnWUh5YzB3U1Z6bGllVjk2S2tiTXZuZGNnalhNVVE4Y2NxeUtzdGhtTzZiQzdwQjVYY3BTWHI0bWw2T3g1MkFzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg5MzMwMzkxCWZpbGU6T3BlbkdPQUwtTGF1bmNoZXIuYXBwLnRhci5negpQVkc0Vkw1eEY3Wm41UzBJU2xlMnVJL2l3YUdaTFUzMkFTL3FNYThmZDFNb0pFR2hVSG1Jb1pPc2l6SkNySGlIUGprNExtK1ZhK0NQNk04bjZQT1lBdz09Cg==",
+      "url": "https://api.github.com/repos/open-goal/launcher/releases/assets/561857234"
     }
   }
 }
