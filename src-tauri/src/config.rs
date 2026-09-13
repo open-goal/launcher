@@ -539,6 +539,25 @@ impl LauncherConfig {
     Ok(false)
   }
 
+  pub fn ensure_active_binaries_exist(&self) -> Result<()> {
+    let install_dir = self.install_dir()?;
+    let dst_dir = install_dir.join("active").join("bin");
+
+    let binaries = ["gk", "extractor", "goalc"].map(|binary| {
+      if cfg!(windows) {
+        format!("{binary}.exe")
+      } else {
+        binary.to_string()
+      }
+    });
+
+    if binaries.iter().all(|binary| dst_dir.join(binary).exists()) {
+      return Ok(());
+    }
+
+    self.copy_active_binaries()
+  }
+
   pub fn remove_version(&mut self, version: &str) -> Result<()> {
     let version_dir = self
       .install_dir()?
