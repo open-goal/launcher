@@ -6,6 +6,7 @@
 use directories::UserDirs;
 use tauri::{Manager, RunEvent};
 use tokio::sync::OnceCell;
+use tracing::warn;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
@@ -131,13 +132,20 @@ fn main() {
       //
       // This allows us to avoid hacky globals, and pass around information (in this case, the config)
       // to the relevant places
-      let config = tokio::sync::Mutex::new(config::LauncherConfig::load_config(
+      let config = config::LauncherConfig::load_config(
         app
           .path()
           .app_config_dir()
           .expect("Failed to resolve app config directory"),
-      ));
-      app.manage(config);
+      );
+
+      if config.active_version.is_some() {
+        if let Err(err) = config.ensure_active_binaries_exist() {
+          warn!("Failed to ensure active binaries exist: {err}");
+        }
+      }
+
+      app.manage(tokio::sync::Mutex::new(config));
       let cache = tokio::sync::Mutex::new(cache::ModCache::default());
       app.manage(cache);
       Ok(())
