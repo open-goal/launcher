@@ -181,6 +181,7 @@ fn main() {
       commands::config::set_rip_collision,
       commands::config::set_rip_textures,
       commands::config::set_rip_streamed_audio,
+      commands::config::set_rip_music,
       commands::config::update_mod_sources,
       commands::config::get_launcher_config,
       commands::config::set_hide_beta_alerts,

@@ -5,4 +5,5 @@ export type DecompilerSettings = {
   ripCollisionEnabled: boolean;
   ripTexturesEnabled: boolean;
   ripStreamedAudioEnabled: boolean;
+  ripMusicEnabled: boolean;
 };

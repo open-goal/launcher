@@ -166,6 +166,7 @@ pub struct DecompilerSettings {
   pub rip_collision_enabled: bool,
   pub rip_textures_enabled: bool,
   pub rip_streamed_audio_enabled: bool,
+  pub rip_music_enabled: bool,
 }
 
 impl DecompilerSettings {
@@ -183,6 +184,10 @@ impl DecompilerSettings {
 
   pub fn set_rip_streamed_audio_enabled(&mut self, enabled: bool) {
     self.rip_streamed_audio_enabled = enabled;
+  }
+
+  pub fn set_rip_music_enabled(&mut self, enabled: bool) {
+    self.rip_music_enabled = enabled;
   }
 }
 

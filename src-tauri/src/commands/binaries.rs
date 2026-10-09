@@ -258,6 +258,7 @@ pub async fn run_decompiler(
       ("rip_collision", settings.rip_collision_enabled),
       ("save_texture_pngs", settings.rip_textures_enabled),
       ("rip_streamed_audio", settings.rip_streamed_audio_enabled),
+      ("rip_music", settings.rip_music_enabled),
     ] {
       if enabled {
         overrides.insert(key.to_string(), true.into());

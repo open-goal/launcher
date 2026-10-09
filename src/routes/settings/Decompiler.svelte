@@ -5,6 +5,7 @@
     setRipLevelsEnabled,
     setRipStreamedAudioEnabled,
     setRipTexturesEnabled,
+    setRipMusicEnabled,
   } from "$lib/rpc/config";
   import { Toggle, Label } from "flowbite-svelte";
   import { onMount } from "svelte";
@@ -16,8 +17,10 @@
   let ripCollision: boolean = $state(decompilerSettings?.ripCollisionEnabled!);
   let ripTextures: boolean = $state(decompilerSettings?.ripTexturesEnabled!);
   let ripAudio: boolean = $state(decompilerSettings?.ripStreamedAudioEnabled!);
+  let ripMusic: boolean = $state(decompilerSettings?.ripMusicEnabled!);
 
   let decompilerOptionsAllowed = $state(true);
+  let musicExtractionAllowed = $state(true);
 
   onMount(async () => {
     decompilerOptionsAllowed = await doesActiveToolingVersionMeetMinimum(
@@ -25,6 +28,8 @@
       2,
       14,
     );
+
+    musicExtractionAllowed = await doesActiveToolingVersionMeetMinimum(0, 3, 8);
   });
 </script>
 
@@ -62,6 +67,14 @@
       onchange={async (evt) => {
         await setRipStreamedAudioEnabled(evt.currentTarget.checked);
       }}>{$_("settings_decompiler_ripStreamedAudio")}</Toggle
+    >
+    <Toggle
+      disabled={!musicExtractionAllowed}
+      checked={ripMusic}
+      color="orange"
+      onchange={async (evt) => {
+        await setRipMusicEnabled(evt.currentTarget.checked);
+      }}>{$_("settings_decompiler_ripMusic")}</Toggle
     >
   {/if}
 </div>

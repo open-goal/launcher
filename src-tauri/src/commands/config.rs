@@ -215,6 +215,20 @@ pub async fn set_rip_streamed_audio(
   Ok(())
 }
 
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn set_rip_music(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  enabled: bool,
+) -> Result<(), CommandError> {
+  let mut config_lock = config.lock().await;
+  config_lock
+    .decompiler_settings
+    .set_rip_music_enabled(enabled);
+  config_lock.save_config()?;
+  Ok(())
+}
+
 #[instrument(skip(config, app_handle))]
 #[tauri::command]
 pub async fn is_opengl_requirement_met(
