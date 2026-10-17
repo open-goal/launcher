@@ -4,7 +4,7 @@
 )]
 
 use directories::UserDirs;
-use tauri::{Manager, RunEvent};
+use tauri::Manager;
 use tokio::sync::OnceCell;
 use tracing::warn;
 use tracing_appender::non_blocking::WorkerGuard;
@@ -222,19 +222,23 @@ fn main() {
     .map_err(|err| {
       log_crash(None, Some(err));
     });
-  match tauri_setup {
-    Ok(app) => {
-      tracing::info!("application starting up");
-      app.run(|_app_handle, event| {
-        if let RunEvent::ExitRequested { .. } = event {
-          tracing::info!("Exit requested, exiting!");
-          std::process::exit(0);
-        }
-      })
+
+  let app = tauri_setup.unwrap_or_else(|err| {
+    tracing::error!("Could not setup tauri application {:?}, exiting", err);
+    std::process::exit(1);
+  });
+
+  app.run(|_app_handle, event| match event {
+    tauri::RunEvent::Ready => {
+      tracing::info!(
+        "Launcher version {version:?} starting up!",
+        version = env!("CARGO_PKG_VERSION")
+      );
     }
-    Err(err) => {
-      tracing::error!("Could not setup tauri application {:?}, exiting", err);
-      std::process::exit(1);
+    tauri::RunEvent::ExitRequested { .. } => {
+      tracing::info!("Exit requested, exiting!");
+      std::process::exit(0);
     }
-  };
+    _ => {}
+  });
 }
