@@ -2,69 +2,47 @@
 
 [![Crowdin](https://badges.crowdin.net/opengoal-launcher/localized.svg)](https://crowdin.com/project/opengoal-launcher)
 
-Our attempt at distributing the [OpenGOAL](https://github.com/open-goal/jak-project) releases in a cross-platform and easy to use and update way. It also is a place for features involving the games, such as texture pack or mod management.
+A cross-platform launcher for [OpenGOAL](https://github.com/open-goal/jak-project) that makes installing and updating games simple, with built-in support for mods and texture packs.
 
-The launcher uses the [Tauri](https://tauri.app/) framework.
-
-- [OpenGOAL Launcher](#opengoal-launcher)
-  - [Usage](#usage)
-  - [Asking for help](#asking-for-help)
-  - [Development](#development)
-    - [Windows](#windows)
-    - [Linux (Ubuntu 22.04)](#linux-ubuntu-2204)
-    - [macOS](#macos)
-    - [Building and Running](#building-and-running)
+- [Usage](#usage)
+- [Getting help](#getting-help)
+- [Development](#development)
+  - [Prerequisites](#prerequisites)
+  - [Building and Running Locally](#building-and-running-locally)
 
 ## Usage
 
-See the [documentation on our website](https://opengoal.dev/docs/usage/installation/) for hopefully up to date instructions on how to use it.
+Follow the [installation and usage guide](https://opengoal.dev/docs/usage/installation/) to get started.
 
-## Asking for help
+## Getting Help
 
-When asking for help, please download the support package which includes logs to help someone diagnose the problem.
+When reporting a problem, describe what happened and include a support package. The support package contains logs that help us diagnose the issue.
 
 ![](./docs/support-package.png)
 
-If you cannot do this (for example, the bug relates to making the package / the application won't launch) then you can find the application logs in the following folders:
+If the launcher will not open or cannot create a support package, attach the logs from the folder for your operating system. These paths include folders that are hidden by default.
 
-- Windows `C://Users/<YOUR_USER_NAME>/AppData/Roaming/OpenGOAL-Launcher/logs`
-- Linux `/home/<YOUR_USER_NAME>/.config/OpenGOAL-Launcher/logs`
-- macOS `/Users/<YOUR_USER_NAME>/Library/Logs/OpenGOAL-Launcher/app/logs`
-
-Note that both `AppData` and `.config` are hidden folders, and `Library` is hidden by default.
+| Operating System | Log Directory |
+| ----- | ----- |
+| Windows | C://Users/<YOUR_USER_NAME>/AppData/Roaming/OpenGOAL-Launcher/logs |
+| Linux | /home/<YOUR_USER_NAME>/.config/OpenGOAL-Launcher/logs |
+| macOS | /Users/<YOUR_USER_NAME>/Library/Logs/OpenGOAL-Launcher/app/logs |
 
 ## Development
 
-Tauri requires a valid Rust installation, as well as a valid NodeJS installation.
+The launcher is built with [Tauri v2](https://tauri.app/) and [Svelte 5](https://svelte.dev/).
 
-For installing Rust, it's recommended to follow the instructions here https://www.rust-lang.org/tools/install
+### Prerequisites
 
-### Windows
+Install the following:
+- [Rust](https://www.rust-lang.org/tools/install)
+- [Node.js (LTS)](https://nodejs.org/)
+- [Tauri system dependencies](https://v2.tauri.app/start/prerequisites/#system-dependencies) for your operating system
+- Yarn: `npm install -g yarn`
 
-```bash
-scoop install nodejs
-npm install -g yarn
-```
+### Building and Running Locally
 
-### Linux (Ubuntu 22.04)
-
-```bash
-sudo apt install libwebkit2gtk-4.0-dev build-essential curl wget libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev # tauri deps, see - https://tauri.app/v1/guides/getting-started/prerequisites#setting-up-linux
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash # installs Node Version Manager (ubuntus package is woefully out of date)
-source ~/.bashrc
-nvm install lts/hydrogen # installs latest nodejs 18.X
-npm install -g yarn
-```
-
-### macOS
-
-```bash
-npm install -g yarn
-```
-
-### Building and Running
-
-To build and run the application locally, all you have to do is run:
+From the repository root, install dependencies and start the launcher:
 
 ```bash
 yarn install
