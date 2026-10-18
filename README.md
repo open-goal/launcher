@@ -22,11 +22,11 @@ When reporting a problem, describe what happened and include a support package. 
 
 If the launcher will not open or cannot create a support package, attach the logs from the folder for your operating system. These paths include folders that are hidden by default.
 
-| Operating System | Log Directory |
-| ----- | ----- |
-| Windows | C://Users/<YOUR_USER_NAME>/AppData/Roaming/OpenGOAL-Launcher/logs |
-| Linux | /home/<YOUR_USER_NAME>/.config/OpenGOAL-Launcher/logs |
-| macOS | /Users/<YOUR_USER_NAME>/Library/Logs/OpenGOAL-Launcher/app/logs |
+| Operating System | Log Directory                                                     |
+| ---------------- | ----------------------------------------------------------------- |
+| Windows          | C://Users/<YOUR_USER_NAME>/AppData/Roaming/OpenGOAL-Launcher/logs |
+| Linux            | /home/<YOUR_USER_NAME>/.config/OpenGOAL-Launcher/logs             |
+| macOS            | /Users/<YOUR_USER_NAME>/Library/Logs/OpenGOAL-Launcher/app/logs   |
 
 ## Development
 
@@ -35,6 +35,7 @@ The launcher is built with [Tauri v2](https://tauri.app/) and [Svelte 5](https:/
 ### Prerequisites
 
 Install the following:
+
 - [Rust](https://www.rust-lang.org/tools/install)
 - [Node.js (LTS)](https://nodejs.org/)
 - [Tauri system dependencies](https://v2.tauri.app/start/prerequisites/#system-dependencies) for your operating system
