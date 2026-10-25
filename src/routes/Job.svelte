@@ -1,7 +1,14 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
-  import { Alert, Button } from "flowbite-svelte";
+  import { Button, Spinner, Tooltip } from "flowbite-svelte";
+  import IconAlertCircle from "~icons/mdi/alert-circle-outline";
+  import IconCheckCircle from "~icons/mdi/check-circle";
+  import IconDiscord from "~icons/mdi/discord";
+  import IconFolderOpen from "~icons/mdi/folder-open";
+  import IconPackageDown from "~icons/mdi/package-down";
+  import { revealItemInDir } from "@tauri-apps/plugin-opener";
   import { jobTracker } from "$lib/stores/JobStore";
+  import { toastStore } from "$lib/stores/ToastStore";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { _ } from "svelte-i18n";
   import { navigate, route } from "../router";
@@ -29,6 +36,19 @@
   const proceedAfterSuccess = config?.proceedAfterSuccessfulOperation;
 
   let invalidJobDefinition = $state(false);
+  let generatingPackage = $state(false);
+  let packagePath: string | undefined = $state(undefined);
+
+  async function getSupportPackage() {
+    generatingPackage = true;
+    const path = await generateSupportPackage();
+    generatingPackage = false;
+    if (path) {
+      packagePath = path;
+      toastStore.makeToast($_("setup_supportPackage_saved"), "info");
+      await revealItemInDir(path);
+    }
+  }
 
   onMount(async () => {
     const jobType = toJobType(route.params.job_type);
@@ -202,20 +222,135 @@
         </div>
       </div>
     {:else if $jobTracker.overallStatus === "failed"}
-      <div class="flex flex-col mt-auto">
-        <div class="flex flex-row gap-2">
-          <Alert class="dark:bg-slate-900 grow text-red-400">
-            <span class="font-medium text-red-500"
-              >{$_("setup_installationFailed")}
-            </span><span class="text-white"
-              >&nbsp;{$jobTracker.failureReason}</span
+      <div
+        class="flex flex-col gap-3 mt-auto p-4 rounded-lg border border-slate-700 bg-slate-900/95"
+      >
+        <div class="flex flex-row items-start gap-3">
+          <IconAlertCircle class="text-red-500 text-2xl shrink-0" />
+          <div class="flex flex-col">
+            <span class="font-semibold text-white"
+              >{$_("setup_installationFailed")}</span
             >
-          </Alert>
-          <Button
-            class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
-            onclick={async () => await generateSupportPackage()}
-            >{$_("setup_button_getSupportPackage")}</Button
-          >
+            <span class="text-sm text-slate-400"
+              >{$jobTracker.failureReason}</span
+            >
+          </div>
+        </div>
+        <div
+          class="flex flex-row items-center gap-4 p-3 rounded-lg bg-slate-800/60"
+        >
+          <div class="flex flex-col gap-2 grow">
+            <span class="text-sm font-semibold text-white"
+              >{packagePath
+                ? $_("setup_supportPackage_headerSaved")
+                : $_("setup_supportPackage_header")}</span
+            >
+            <ol class="grid grid-cols-3 gap-3 text-xs">
+              <li class="flex flex-row gap-2">
+                {#if packagePath}
+                  <IconCheckCircle class="text-green-500 text-xl shrink-0" />
+                {:else}
+                  <span
+                    class="flex items-center justify-center shrink-0 w-5 h-5 rounded-full bg-[#F2C230] text-slate-900 font-bold"
+                    >1</span
+                  >
+                {/if}
+                <div class="flex flex-col">
+                  {#if packagePath}
+                    <span class="font-semibold text-green-400"
+                      >{$_("setup_supportPackage_step1_saved")}</span
+                    >
+                    <span class="text-slate-400 break-all"
+                      >{packagePath.split(/[\\/]/).pop()}</span
+                    >
+                  {:else}
+                    <span class="font-semibold text-white"
+                      >{$_("setup_supportPackage_step1")}</span
+                    >
+                    <span class="text-slate-400"
+                      >{$_("setup_supportPackage_step1_desc")}</span
+                    >
+                  {/if}
+                </div>
+              </li>
+              {#each [2, 3] as step}
+                <li class="flex flex-row gap-2">
+                  <span
+                    class="flex items-center justify-center shrink-0 w-5 h-5 rounded-full font-bold {packagePath &&
+                    step === 2
+                      ? 'bg-indigo-500 text-white'
+                      : 'bg-slate-700 text-slate-300'}">{step}</span
+                  >
+                  <div class="flex flex-col">
+                    <span class="font-semibold text-white"
+                      >{$_(`setup_supportPackage_step${step}`)}</span
+                    >
+                    <span class="text-slate-400"
+                      >{$_(`setup_supportPackage_step${step}_desc`)}</span
+                    >
+                  </div>
+                </li>
+              {/each}
+            </ol>
+          </div>
+          <div class="flex flex-col gap-2 shrink-0 w-60">
+            {#if packagePath}
+              <Button
+                class="h-11 rounded-lg bg-indigo-500 hover:bg-indigo-400 ring-2 ring-indigo-300/60 shadow-[0_0_22px_#6366F180] text-sm text-white font-bold"
+                href="https://discord.gg/dPRCfsju3N"
+                target="_blank"
+                rel="noreferrer noopener"
+                ><IconDiscord />&nbsp;{$_(
+                  "setup_button_openDiscordHelp",
+                )}</Button
+              >
+              <Button
+                class="rounded-lg border border-slate-600 bg-transparent hover:bg-slate-800 text-sm text-slate-200 font-semibold"
+                onclick={() => packagePath && revealItemInDir(packagePath)}
+                ><IconFolderOpen />&nbsp;{$_(
+                  "setup_button_showInFolder",
+                )}</Button
+              >
+            {:else}
+              <Button
+                id="get-support-package"
+                disabled={generatingPackage}
+                class="h-11 rounded-lg bg-[#F2C230] hover:bg-[#FFD24A] hover:ring-2 hover:ring-[#FFF1B8] hover:shadow-[0_0_22px_#F2C23080] disabled:bg-[#B8992F] disabled:opacity-100 text-sm text-slate-900 font-bold"
+                onclick={getSupportPackage}
+              >
+                {#if generatingPackage}
+                  <Spinner size="4" color="gray" class="mr-2" />
+                  {$_("setup_button_collectingLogs")}
+                {:else}
+                  <IconPackageDown />&nbsp;{$_(
+                    "setup_button_getSupportPackage",
+                  )}
+                {/if}
+              </Button>
+              <Tooltip
+                triggeredBy="#get-support-package"
+                placement="top"
+                type="dark"
+                class="max-w-64"
+              >
+                <p class="flex items-center gap-1 font-semibold">
+                  <IconDiscord />{$_("setup_supportPackage_tooltip_header")}
+                </p>
+                <p class="text-xs font-normal text-slate-300">
+                  {$_("setup_supportPackage_tooltip_body")}
+                </p>
+              </Tooltip>
+              <Button
+                class="rounded-lg bg-indigo-500 hover:bg-indigo-400 text-sm text-white font-semibold"
+                href="https://discord.gg/dPRCfsju3N"
+                target="_blank"
+                rel="noreferrer noopener"
+                ><IconDiscord />&nbsp;{$_(
+                  "setup_button_openDiscordHelp",
+                )}</Button
+              >
+            {/if}
+          </div>
         </div>
       </div>
     {/if}
