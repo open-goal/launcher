@@ -1,17 +1,33 @@
 <script lang="ts">
-  import { Button, Spinner, Toggle } from "flowbite-svelte";
-  import ChangelogTable from "../components/changelog/ChangelogTable.svelte";
-  import ChangelogRelease from "../components/changelog/ChangelogRelease.svelte";
   import {
-    listLauncherReleasesSince,
-    type ChangelogEntry,
-    type LauncherRelease,
-  } from "$lib/utils/github";
+    Button,
+    Spinner,
+    Table,
+    TableBody,
+    TableBodyCell,
+    TableBodyRow,
+    TableHead,
+    TableHeadCell,
+    Toggle,
+  } from "flowbite-svelte";
+  import IconCalendar from "~icons/mdi/CalendarMonth";
+  import IconGitHub from "~icons/mdi/github";
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { check, Update } from "@tauri-apps/plugin-updater";
   import { relaunch } from "@tauri-apps/plugin-process";
   import { exceptionLog } from "$lib/rpc/logging";
+  import {
+    listLauncherReleasesSince,
+    type LauncherRelease,
+  } from "$lib/utils/github";
+  import { config } from "/src/state/config.svelte";
+
+  interface ChangelogEntry {
+    contributor: string;
+    description: string;
+    pullRequestUrl: string;
+  }
 
   interface Changelog {
     changes: ChangelogEntry[];
@@ -22,8 +38,8 @@
   let availableUpdateChangelog: Changelog = {
     changes: [],
   };
-  // every release between the current version and the update, if GitHub can be reached
-  let releasesSinceCurrent: LauncherRelease[] = [];
+  // every release between the current version and the update
+  let releases: LauncherRelease[] = [];
   let showChanges = true;
   let showDependencyChanges = false;
 
@@ -32,9 +48,7 @@
   onMount(async () => {
     const update = await check();
     if (update) {
-      releasesSinceCurrent = await listLauncherReleasesSince(
-        update.currentVersion,
-      );
+      releases = await listLauncherReleasesSince(update.currentVersion);
       availableUpdate = update;
       if (availableUpdate.body) {
         try {
@@ -50,6 +64,15 @@
             e,
           );
         }
+      }
+      // fall back to just the update's own notes if GitHub couldn't be reached
+      if (releases.length === 0) {
+        releases = [
+          {
+            version: `v${update.version}`,
+            changes: availableUpdateChangelog.changes,
+          },
+        ];
       }
     }
   });
@@ -104,15 +127,92 @@
         }}>{$_("update_button_hideDependencyChanges")}</Toggle
       >
     </div>
-    {#if showChanges && releasesSinceCurrent.length > 0}
-      {#each releasesSinceCurrent as release (release.version)}
-        <ChangelogRelease {release} {showDependencyChanges} />
+    {#if showChanges}
+      {#each releases as release (release.version)}
+        {@const changes = release.changes.filter((note) => {
+          if (showDependencyChanges) {
+            return true;
+          } else {
+            return !note.contributor.includes("dependabot");
+          }
+        })}
+        {#if changes.length > 0}
+          <!-- wrapped so the flex column can't shrink the table away -->
+          <div class="mt-6">
+            <div class="flex items-center gap-4">
+              <h2 class="text-xl font-bold tracking-wide text-gray-200">
+                {release.version}
+              </h2>
+              {#if release.date}
+                <p
+                  class="flex items-center gap-1 tracking-wide text-gray-300 text-sm"
+                >
+                  <IconCalendar />
+                  {new Date(release.date).toLocaleString(
+                    config?.locale || "en-US",
+                    { month: "short", day: "numeric", year: "numeric" },
+                  )}
+                </p>
+              {/if}
+              {#if release.githubLink}
+                <a
+                  href={release.githubLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  class="flex items-center gap-1 cursor-pointer tracking-wide text-gray-300 hover:text-white text-sm capitalize"
+                >
+                  <IconGitHub />
+                  {$_("settings_versions_icon_githubRelease_altText")}
+                </a>
+              {/if}
+            </div>
+            <!-- fixed layout so the columns line up across every release's table -->
+            <Table
+              classes={{
+                div: "mt-3 pt-2 rounded-md bg-zinc-800 border border-zinc-600/70",
+              }}
+              class="table-fixed"
+            >
+              <TableHead class="bg-zinc-800! text-zinc-200!">
+                <TableHeadCell class="w-48"
+                  >{$_("update_changelog_header_contributor")}</TableHeadCell
+                >
+                <TableHeadCell
+                  >{$_("update_changelog_header_description")}</TableHeadCell
+                >
+                <TableHeadCell class="w-40"
+                  >{$_("update_changelog_header_pullRequest")}</TableHeadCell
+                >
+              </TableHead>
+              <TableBody class="divide-y divide-zinc-700/70!">
+                {#each changes as note}
+                  <TableBodyRow
+                    class="bg-zinc-800/80! text-white transition-colors hover:bg-zinc-700/80! border-y!"
+                  >
+                    <TableBodyCell class="px-6 py-3 font-bold wrap-break-word"
+                      >{note.contributor}</TableBodyCell
+                    >
+                    <TableBodyCell
+                      class="px-6 py-3 whitespace-normal wrap-break-word"
+                      >{note.description}</TableBodyCell
+                    >
+                    <TableBodyCell class="px-6 py-3">
+                      <a
+                        class="inline-block"
+                        href={note.pullRequestUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <IconGitHub class="text-xl" />
+                      </a>
+                    </TableBodyCell>
+                  </TableBodyRow>
+                {/each}
+              </TableBody>
+            </Table>
+          </div>
+        {/if}
       {/each}
-    {:else if showChanges}
-      <ChangelogTable
-        changes={availableUpdateChangelog.changes}
-        {showDependencyChanges}
-      />
     {/if}
   {:else}
     <h1 class="font-semibold text-xl text-orange-500">

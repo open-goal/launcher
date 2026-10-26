@@ -79,12 +79,11 @@ async function parseGithubRelease(
   return releaseInfo;
 }
 
-// Fetches every release for a repo (ie. "open-goal/jak-project"), following pagination
-async function fetchGithubReleases(repo: string): Promise<GitHubRelease[]> {
+export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
   const nextUrlPattern = /<([\S]+)>; rel="Next"/i;
-  let releases: GitHubRelease[] = [];
+  let releases = [];
   let urlToHit: string | undefined =
-    `https://api.github.com/repos/${repo}/releases?per_page=100`;
+    "https://api.github.com/repos/open-goal/jak-project/releases?per_page=100";
 
   while (urlToHit !== undefined) {
     const resp: Response = await fetch(urlToHit);
@@ -97,7 +96,9 @@ async function fetchGithubReleases(repo: string): Promise<GitHubRelease[]> {
     }
 
     const githubReleases: GitHubRelease[] = await resp.json();
-    releases.push(...githubReleases);
+    for (const release of githubReleases) {
+      releases.push(await parseGithubRelease(release));
+    }
 
     const linkHeader = resp.headers.get("link");
     if (linkHeader && linkHeader.includes(`rel=\"next\"`)) {
@@ -112,12 +113,6 @@ async function fetchGithubReleases(repo: string): Promise<GitHubRelease[]> {
       urlToHit = undefined;
     }
   }
-  return releases;
-}
-
-function sortByDateDescending<T extends { date: string | undefined }>(
-  releases: T[],
-): T[] {
   return releases.sort((a, b) => {
     const aDate = a.date;
     const bDate = b.date;
@@ -126,84 +121,6 @@ function sortByDateDescending<T extends { date: string | undefined }>(
     }
     return 0;
   });
-}
-
-export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
-  let releases = [];
-  for (const release of await fetchGithubReleases("open-goal/jak-project")) {
-    releases.push(await parseGithubRelease(release));
-  }
-  return sortByDateDescending(releases);
-}
-
-export interface ChangelogEntry {
-  contributor: string;
-  description: string;
-  pullRequestUrl: string;
-}
-
-export interface LauncherRelease {
-  version: string;
-  date: string | undefined;
-  githubLink: string;
-  changes: ChangelogEntry[];
-}
-
-export function isDependencyChange(entry: ChangelogEntry): boolean {
-  return entry.contributor.includes("dependabot");
-}
-
-// Parses the auto-generated "What's Changed" lines out of a release's markdown body, ie.
-// * jak1/speedruns: Some final touches by @open-goal in https://github.com/open-goal/jak-project/pull/1830
-// Mirrors `changesFromBody` in scripts/update-release-meta.mjs
-export function changesFromReleaseBody(releaseBody: string): ChangelogEntry[] {
-  let changes: ChangelogEntry[] = [];
-  for (const line of releaseBody.split("\n")) {
-    // check if the string contains a pull request link
-    if (!line.toLowerCase().match(/.*github.com\/[^/]*\/[^/]*\/pull.*/)) {
-      continue;
-    }
-    let description = [];
-    let contributor = "";
-    let pullRequestUrl = "";
-    const words = line
-      .trim()
-      .replace(/^(\* )/, "")
-      .split(" ");
-    let i = 0;
-    while (i < words.length) {
-      if (words[i] == "by" && i + 1 < words.length) {
-        contributor = words[i + 1].replace(/^(@)/, "");
-        i += 2;
-      } else if (words[i] == "in" && i + 1 < words.length) {
-        pullRequestUrl = words[i + 1];
-        i += 2;
-      } else {
-        description.push(words[i]);
-        i++;
-      }
-    }
-    if (!changes.some((entry) => entry.pullRequestUrl === pullRequestUrl)) {
-      changes.push({
-        contributor,
-        description: description.join(" "),
-        pullRequestUrl,
-      });
-    }
-  }
-  return changes;
-}
-
-async function listLauncherReleases(): Promise<LauncherRelease[]> {
-  const releases = (await fetchGithubReleases("open-goal/launcher")).map(
-    (release) => ({
-      version: release.tag_name,
-      date: release.published_at ?? undefined,
-      githubLink: release.html_url,
-      changes: changesFromReleaseBody(release.body ?? ""),
-    }),
-  );
-  return sortByDateDescending(releases);
 }
 
 export async function getLatestOfficialRelease(): Promise<
@@ -223,15 +140,45 @@ export async function getLatestOfficialRelease(): Promise<
   return await parseGithubRelease(githubRelease);
 }
 
-// Releases newer than `version` (ie. "2.11.0" or "v2.11.0"), newest first
-// Empty if `version` isn't a published release (ie. a dev build) or GitHub couldn't be reached
+export interface LauncherRelease {
+  version: string;
+  date?: string;
+  githubLink?: string;
+  changes: {
+    contributor: string;
+    description: string;
+    pullRequestUrl: string;
+  }[];
+}
+
+// Launcher releases newer than `version` (ie. "2.11.0"), newest first
+// Empty if GitHub can't be reached or `version` isn't a published release (ie. a dev build)
 export async function listLauncherReleasesSince(
   version: string,
 ): Promise<LauncherRelease[]> {
-  const releases = await listLauncherReleases();
-  const currentIndex = releases.findIndex(
-    (release) =>
-      release.version.replace(/^v/, "") === version.replace(/^v/, ""),
+  const resp = await fetch(
+    "https://api.github.com/repos/open-goal/launcher/releases?per_page=100",
   );
-  return currentIndex === -1 ? [] : releases.slice(0, currentIndex);
+  if (!resp.ok) {
+    return [];
+  }
+  const githubReleases: GitHubRelease[] = await resp.json();
+  const currentIndex = githubReleases.findIndex(
+    (release) => release.tag_name === `v${version}`,
+  );
+  return githubReleases.slice(0, Math.max(currentIndex, 0)).map((release) => ({
+    version: release.tag_name,
+    date: release.published_at ?? undefined,
+    githubLink: release.html_url,
+    // parse the auto-generated "* <description> by @<contributor> in <pull request url>" lines
+    changes: [
+      ...(release.body ?? "").matchAll(
+        /^\* (.+) by @(\S+) in (\S+\/pull\/\d+)/gm,
+      ),
+    ].map(([, description, contributor, pullRequestUrl]) => ({
+      contributor,
+      description,
+      pullRequestUrl,
+    })),
+  }));
 }
