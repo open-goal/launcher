@@ -79,11 +79,12 @@ async function parseGithubRelease(
   return releaseInfo;
 }
 
-export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
+// Fetches every release for a repo (ie. "open-goal/jak-project"), following pagination
+async function fetchGithubReleases(repo: string): Promise<GitHubRelease[]> {
   const nextUrlPattern = /<([\S]+)>; rel="Next"/i;
-  let releases = [];
+  let releases: GitHubRelease[] = [];
   let urlToHit: string | undefined =
-    "https://api.github.com/repos/open-goal/jak-project/releases?per_page=100";
+    `https://api.github.com/repos/${repo}/releases?per_page=100`;
 
   while (urlToHit !== undefined) {
     const resp: Response = await fetch(urlToHit);
@@ -96,9 +97,7 @@ export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
     }
 
     const githubReleases: GitHubRelease[] = await resp.json();
-    for (const release of githubReleases) {
-      releases.push(await parseGithubRelease(release));
-    }
+    releases.push(...githubReleases);
 
     const linkHeader = resp.headers.get("link");
     if (linkHeader && linkHeader.includes(`rel=\"next\"`)) {
@@ -113,6 +112,12 @@ export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
       urlToHit = undefined;
     }
   }
+  return releases;
+}
+
+function sortByDateDescending<T extends { date: string | undefined }>(
+  releases: T[],
+): T[] {
   return releases.sort((a, b) => {
     const aDate = a.date;
     const bDate = b.date;
@@ -121,6 +126,80 @@ export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
     }
     return 0;
   });
+}
+
+export async function listOfficialReleases(): Promise<ReleaseInfo[]> {
+  let releases = [];
+  for (const release of await fetchGithubReleases("open-goal/jak-project")) {
+    releases.push(await parseGithubRelease(release));
+  }
+  return sortByDateDescending(releases);
+}
+
+export interface ChangelogEntry {
+  contributor: string;
+  description: string;
+  pullRequestUrl: string;
+}
+
+export interface LauncherRelease {
+  version: string;
+  date: string | undefined;
+  githubLink: string;
+  changes: ChangelogEntry[];
+}
+
+// Parses the auto-generated "What's Changed" lines out of a release's markdown body, ie.
+// * jak1/speedruns: Some final touches by @open-goal in https://github.com/open-goal/jak-project/pull/1830
+// Mirrors `changesFromBody` in scripts/update-release-meta.mjs
+export function changesFromReleaseBody(releaseBody: string): ChangelogEntry[] {
+  let changes: ChangelogEntry[] = [];
+  for (const line of releaseBody.split("\n")) {
+    // check if the string contains a pull request link
+    if (!line.toLowerCase().match(/.*github.com\/[^/]*\/[^/]*\/pull.*/)) {
+      continue;
+    }
+    let description = [];
+    let contributor = "";
+    let pullRequestUrl = "";
+    const words = line
+      .trim()
+      .replace(/^(\* )/, "")
+      .split(" ");
+    let i = 0;
+    while (i < words.length) {
+      if (words[i] == "by" && i + 1 < words.length) {
+        contributor = words[i + 1].replace(/^(@)/, "");
+        i += 2;
+      } else if (words[i] == "in" && i + 1 < words.length) {
+        pullRequestUrl = words[i + 1];
+        i += 2;
+      } else {
+        description.push(words[i]);
+        i++;
+      }
+    }
+    if (!changes.some((entry) => entry.pullRequestUrl === pullRequestUrl)) {
+      changes.push({
+        contributor,
+        description: description.join(" "),
+        pullRequestUrl,
+      });
+    }
+  }
+  return changes;
+}
+
+export async function listLauncherReleases(): Promise<LauncherRelease[]> {
+  const releases = (await fetchGithubReleases("open-goal/launcher")).map(
+    (release) => ({
+      version: release.tag_name,
+      date: release.published_at ?? undefined,
+      githubLink: release.html_url,
+      changes: changesFromReleaseBody(release.body ?? ""),
+    }),
+  );
+  return sortByDateDescending(releases);
 }
 
 export async function getLatestOfficialRelease(): Promise<
