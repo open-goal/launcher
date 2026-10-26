@@ -9,7 +9,7 @@
   } from "flowbite-svelte";
   import IconGitHub from "~icons/mdi/github";
   import { _ } from "svelte-i18n";
-  import type { ChangelogEntry } from "$lib/utils/github";
+  import { isDependencyChange, type ChangelogEntry } from "$lib/utils/github";
 
   let {
     changes,
@@ -24,13 +24,7 @@
     <TableHeadCell>{$_("update_changelog_header_pullRequest")}</TableHeadCell>
   </TableHead>
   <TableBody class="divide-y">
-    {#each changes.filter((note) => {
-      if (showDependencyChanges) {
-        return true;
-      } else {
-        return !note.contributor.includes("dependabot");
-      }
-    }) as note}
+    {#each changes.filter((note) => showDependencyChanges || !isDependencyChange(note)) as note}
       <TableBodyRow>
         <TableBodyCell class="px-6 py-2 whitespace-nowrap font-bold"
           >{note.contributor}</TableBodyCell

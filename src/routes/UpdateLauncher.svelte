@@ -1,7 +1,12 @@
 <script lang="ts">
   import { Button, Spinner, Toggle } from "flowbite-svelte";
   import ChangelogTable from "../components/changelog/ChangelogTable.svelte";
-  import type { ChangelogEntry } from "$lib/utils/github";
+  import ChangelogRelease from "../components/changelog/ChangelogRelease.svelte";
+  import {
+    listLauncherReleasesSince,
+    type ChangelogEntry,
+    type LauncherRelease,
+  } from "$lib/utils/github";
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { check, Update } from "@tauri-apps/plugin-updater";
@@ -17,6 +22,8 @@
   let availableUpdateChangelog: Changelog = {
     changes: [],
   };
+  // every release between the current version and the update, if GitHub can be reached
+  let releasesSinceCurrent: LauncherRelease[] = [];
   let showChanges = true;
   let showDependencyChanges = false;
 
@@ -25,6 +32,9 @@
   onMount(async () => {
     const update = await check();
     if (update) {
+      releasesSinceCurrent = await listLauncherReleasesSince(
+        update.currentVersion,
+      );
       availableUpdate = update;
       if (availableUpdate.body) {
         try {
@@ -67,7 +77,7 @@
     <p class="text-sm mt-2">
       {$_("update_description")}
     </p>
-    <div class="flex flex-row mt-3 gap-3">
+    <div class="flex flex-row items-center mt-3 gap-3">
       <Button
         class="border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
         onclick={async () => await updateHandler()}
@@ -78,20 +88,27 @@
         {/if}
         {$_("update_button_doUpdate")}
       </Button>
-      <Button
-        class="shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
-        onclick={() => (showChanges = !showChanges)}
-        >{$_("update_button_viewChangelog")}</Button
+      <Toggle
+        checked={showChanges}
+        color="orange"
+        onchange={(evt: any) => {
+          showChanges = evt.target.checked;
+        }}>{$_("update_button_viewChangelog")}</Toggle
       >
       <Toggle
         checked={showDependencyChanges}
+        disabled={!showChanges}
         color="orange"
         onchange={(evt: any) => {
           showDependencyChanges = evt.target.checked;
         }}>{$_("update_button_hideDependencyChanges")}</Toggle
       >
     </div>
-    {#if showChanges}
+    {#if showChanges && releasesSinceCurrent.length > 0}
+      {#each releasesSinceCurrent as release (release.version)}
+        <ChangelogRelease {release} {showDependencyChanges} />
+      {/each}
+    {:else if showChanges}
       <ChangelogTable
         changes={availableUpdateChangelog.changes}
         {showDependencyChanges}

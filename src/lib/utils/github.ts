@@ -149,6 +149,10 @@ export interface LauncherRelease {
   changes: ChangelogEntry[];
 }
 
+export function isDependencyChange(entry: ChangelogEntry): boolean {
+  return entry.contributor.includes("dependabot");
+}
+
 // Parses the auto-generated "What's Changed" lines out of a release's markdown body, ie.
 // * jak1/speedruns: Some final touches by @open-goal in https://github.com/open-goal/jak-project/pull/1830
 // Mirrors `changesFromBody` in scripts/update-release-meta.mjs
@@ -217,4 +221,17 @@ export async function getLatestOfficialRelease(): Promise<
   }
   const githubRelease = await resp.json();
   return await parseGithubRelease(githubRelease);
+}
+
+// Releases newer than `version` (ie. "2.11.0" or "v2.11.0"), newest first
+// Empty if `version` isn't a published release (ie. a dev build) or GitHub couldn't be reached
+export async function listLauncherReleasesSince(
+  version: string,
+): Promise<LauncherRelease[]> {
+  const releases = await listLauncherReleases();
+  const currentIndex = releases.findIndex(
+    (release) =>
+      release.version.replace(/^v/, "") === version.replace(/^v/, ""),
+  );
+  return currentIndex === -1 ? [] : releases.slice(0, currentIndex);
 }
