@@ -1,7 +1,6 @@
 <script>
   import { Tabs, TabItem } from "flowbite-svelte";
   import Versions from "./settings/Versions.svelte";
-  import Changelog from "./settings/Changelog.svelte";
   import General from "./settings/General.svelte";
   import { _ } from "svelte-i18n";
   import Mods from "./settings/Mods.svelte";
@@ -42,14 +41,6 @@
       title={$_("settings_tabs_versions")}
     >
       <Versions />
-    </TabItem>
-    <TabItem
-      {activeClass}
-      {inactiveClass}
-      open={tab == "changelog"}
-      title={$_("settings_tabs_changelog")}
-    >
-      <Changelog />
     </TabItem>
     <TabItem
       {activeClass}

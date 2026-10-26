@@ -194,7 +194,7 @@ export function changesFromReleaseBody(releaseBody: string): ChangelogEntry[] {
   return changes;
 }
 
-export async function listLauncherReleases(): Promise<LauncherRelease[]> {
+async function listLauncherReleases(): Promise<LauncherRelease[]> {
   const releases = (await fetchGithubReleases("open-goal/launcher")).map(
     (release) => ({
       version: release.tag_name,
