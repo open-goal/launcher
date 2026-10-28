@@ -186,6 +186,8 @@
   "setup_prompt_selectFolderWithISO": "Select a folder with your ISO's data extracted",
   "setup_prompt_selectISO": "Select your legitimately obtained ISO File",
   "setup_error_noISO": "Can't continue without an ISO",
+  "setup_supportPackage_tooltip_header": "Generate a Support Package",
+  "setup_supportPackage_tooltip_body": "Collects launcher logs, settings, and system information into a ZIP file to help diagnose issues. Share the ZIP file in a Discord help thread to receive assistance from the community.",
   "sidebar_help": "Help",
   "sidebar_settings": "Settings",
   "splash_button_setInstallFolder_prompt": "Pick an Installation Folder",

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
-  import { Alert, Button } from "flowbite-svelte";
+  import { Alert, Button, Tooltip } from "flowbite-svelte";
+  import IconPackageDown from "~icons/mdi/package-down";
   import { jobTracker } from "$lib/stores/JobStore";
   import { generateSupportPackage } from "$lib/rpc/support";
   import { _ } from "svelte-i18n";
@@ -212,10 +213,24 @@
             >
           </Alert>
           <Button
-            class="border-solid border-2 border-slate-900 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
+            id="get-support-package"
+            class="border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
             onclick={async () => await generateSupportPackage()}
-            >{$_("setup_button_getSupportPackage")}</Button
+            ><IconPackageDown />&nbsp;{$_(
+              "setup_button_getSupportPackage",
+            )}</Button
           >
+          <Tooltip
+            triggeredBy="#get-support-package"
+            placement="top"
+            type="dark"
+            class="max-w-64"
+          >
+            <p class="font-semibold">
+              {$_("setup_supportPackage_tooltip_header")}
+            </p>
+            <p class="text-xs">{$_("setup_supportPackage_tooltip_body")}</p>
+          </Tooltip>
         </div>
       </div>
     {/if}
