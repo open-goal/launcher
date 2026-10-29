@@ -75,6 +75,9 @@ fn main() {
   unsafe {
     // temporary fix for: https://github.com/tauri-apps/tauri/issues/5143
     std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
+
+    // Workaround for WebKitGTK on NVIDIA, see tauri-apps/tauri#9394
+    std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
   }
   // In the event that some catastrophic happens, atleast log it out
   // the panic_hook will log to a file on the desktop
