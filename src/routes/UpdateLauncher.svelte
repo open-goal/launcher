@@ -10,12 +10,18 @@
     TableHeadCell,
     Toggle,
   } from "flowbite-svelte";
+  import IconCalendar from "~icons/mdi/CalendarMonth";
   import IconGitHub from "~icons/mdi/github";
   import { _ } from "svelte-i18n";
   import { onMount } from "svelte";
   import { check, Update } from "@tauri-apps/plugin-updater";
   import { relaunch } from "@tauri-apps/plugin-process";
   import { exceptionLog } from "$lib/rpc/logging";
+  import {
+    listLauncherReleasesSince,
+    type LauncherRelease,
+  } from "$lib/utils/github";
+  import { config } from "/src/state/config.svelte";
 
   interface ChangelogEntry {
     contributor: string;
@@ -32,6 +38,8 @@
   let availableUpdateChangelog: Changelog = {
     changes: [],
   };
+  // every release between the current version and the update
+  let releases: LauncherRelease[] = [];
   let showChanges = true;
   let showDependencyChanges = false;
 
@@ -40,6 +48,7 @@
   onMount(async () => {
     const update = await check();
     if (update) {
+      releases = await listLauncherReleasesSince(update.currentVersion);
       availableUpdate = update;
       if (availableUpdate.body) {
         try {
@@ -55,6 +64,15 @@
             e,
           );
         }
+      }
+      // fall back to just the update's own notes if GitHub couldn't be reached
+      if (releases.length === 0) {
+        releases = [
+          {
+            version: `v${update.version}`,
+            changes: availableUpdateChangelog.changes,
+          },
+        ];
       }
     }
   });
@@ -82,7 +100,7 @@
     <p class="text-sm mt-2">
       {$_("update_description")}
     </p>
-    <div class="flex flex-row mt-3 gap-3">
+    <div class="flex flex-row items-center mt-3 gap-3">
       <Button
         class="border-solid rounded bg-orange-400 hover:bg-orange-600 text-sm text-slate-900 font-semibold px-5 py-2"
         onclick={async () => await updateHandler()}
@@ -93,13 +111,16 @@
         {/if}
         {$_("update_button_doUpdate")}
       </Button>
-      <Button
-        class="shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-5 py-2"
-        onclick={() => (showChanges = !showChanges)}
-        >{$_("update_button_viewChangelog")}</Button
+      <Toggle
+        checked={showChanges}
+        color="orange"
+        onchange={(evt: any) => {
+          showChanges = evt.target.checked;
+        }}>{$_("update_button_viewChangelog")}</Toggle
       >
       <Toggle
         checked={showDependencyChanges}
+        disabled={!showChanges}
         color="orange"
         onchange={(evt: any) => {
           showDependencyChanges = evt.target.checked;
@@ -107,48 +128,91 @@
       >
     </div>
     {#if showChanges}
-      <Table hoverable={true} class="mt-3">
-        <TableHead>
-          <TableHeadCell
-            >{$_("update_changelog_header_contributor")}</TableHeadCell
-          >
-          <TableHeadCell
-            >{$_("update_changelog_header_description")}</TableHeadCell
-          >
-          <TableHeadCell
-            >{$_("update_changelog_header_pullRequest")}</TableHeadCell
-          >
-        </TableHead>
-        <TableBody class="divide-y">
-          {#each availableUpdateChangelog.changes.filter((note) => {
-            if (showDependencyChanges) {
-              return true;
-            } else {
-              return !note.contributor.includes("dependabot");
-            }
-          }) as note}
-            <TableBodyRow>
-              <TableBodyCell class="px-6 py-2 whitespace-nowrap font-bold"
-                >{note.contributor}</TableBodyCell
-              >
-              <TableBodyCell
-                class="px-6 py-2 max-w-80 whitespace-normal wrap-break-word"
-                >{note.description}</TableBodyCell
-              >
-              <TableBodyCell class="px-6 py-2 whitespace-nowrap font-medium">
+      {#each releases as release (release.version)}
+        {@const changes = release.changes.filter((note) => {
+          if (showDependencyChanges) {
+            return true;
+          } else {
+            return !note.contributor.includes("dependabot");
+          }
+        })}
+        {#if changes.length > 0}
+          <!-- wrapped so the flex column can't shrink the table away -->
+          <div class="mt-6">
+            <div class="flex items-center gap-4">
+              <h2 class="text-xl font-bold tracking-wide text-gray-200">
+                {release.version}
+              </h2>
+              {#if release.date}
+                <p
+                  class="flex items-center gap-1 tracking-wide text-gray-300 text-sm"
+                >
+                  <IconCalendar />
+                  {new Date(release.date).toLocaleString(
+                    config?.locale || "en-US",
+                    { month: "short", day: "numeric", year: "numeric" },
+                  )}
+                </p>
+              {/if}
+              {#if release.githubLink}
                 <a
-                  class="inline-block"
-                  href={note.pullRequestUrl}
+                  href={release.githubLink}
                   target="_blank"
                   rel="noreferrer"
+                  class="flex items-center gap-1 cursor-pointer tracking-wide text-gray-300 hover:text-white text-sm capitalize"
                 >
                   <IconGitHub />
+                  {$_("settings_versions_icon_githubRelease_altText")}
                 </a>
-              </TableBodyCell>
-            </TableBodyRow>
-          {/each}
-        </TableBody>
-      </Table>
+              {/if}
+            </div>
+            <!-- fixed layout so the columns line up across every release's table -->
+            <Table
+              classes={{
+                div: "mt-3 pt-2 rounded-md bg-zinc-800 border border-zinc-600/70",
+              }}
+              class="table-fixed"
+            >
+              <TableHead class="bg-zinc-800! text-zinc-200!">
+                <TableHeadCell class="w-48"
+                  >{$_("update_changelog_header_contributor")}</TableHeadCell
+                >
+                <TableHeadCell
+                  >{$_("update_changelog_header_description")}</TableHeadCell
+                >
+                <TableHeadCell class="w-40"
+                  >{$_("update_changelog_header_pullRequest")}</TableHeadCell
+                >
+              </TableHead>
+              <TableBody class="divide-y divide-zinc-700/70!">
+                {#each changes as note}
+                  <TableBodyRow
+                    class="bg-zinc-800/80! text-white transition-colors hover:bg-zinc-700/80! border-y!"
+                  >
+                    <TableBodyCell class="px-6 py-3 font-bold wrap-break-word"
+                      >{note.contributor}</TableBodyCell
+                    >
+                    <TableBodyCell
+                      class="px-6 py-3 whitespace-normal wrap-break-word"
+                      >{note.description}</TableBodyCell
+                    >
+                    <TableBodyCell class="px-6 py-3">
+                      <a
+                        class="inline-block"
+                        href={note.pullRequestUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <IconGitHub class="text-xl" />
+                      </a>
+                    </TableBodyCell>
+                  </TableBodyRow>
+                {/each}
+              </TableBody>
+            </Table>
+          </div>
+        {/if}
+      {/each}
     {/if}
   {:else}
     <h1 class="font-semibold text-xl text-orange-500">
