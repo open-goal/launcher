@@ -18,9 +18,9 @@
 
 {#if activeGame}
   <div class="flex flex-col h-full p-5">
-    <!-- Jak 2 & Jak 3 BETA warning -->
+    <!-- Jak 3 BETA warning -->
     <!-- Not shown on mod pages because mod bugs shouldn't be reported to the jak-projects repo -->
-    {#if (activeGame === "jak2" || activeGame === "jak3") && !modName && !isInDebugMode() && !config?.ui?.hideBetaAlerts}
+    {#if activeGame === "jak3" && !modName && !isInDebugMode() && !config?.ui?.hideBetaAlerts}
       <GameBetaAlert {activeGame}></GameBetaAlert>
     {/if}
     {#if modName && modSource}
