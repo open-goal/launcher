@@ -139,3 +139,46 @@ export async function getLatestOfficialRelease(): Promise<
   const githubRelease = await resp.json();
   return await parseGithubRelease(githubRelease);
 }
+
+export interface LauncherRelease {
+  version: string;
+  date?: string;
+  githubLink?: string;
+  changes: {
+    contributor: string;
+    description: string;
+    pullRequestUrl: string;
+  }[];
+}
+
+// Launcher releases newer than `version` (ie. "2.11.0"), newest first
+// Empty if GitHub can't be reached or `version` isn't a published release (ie. a dev build)
+export async function listLauncherReleasesSince(
+  version: string,
+): Promise<LauncherRelease[]> {
+  const resp = await fetch(
+    "https://api.github.com/repos/open-goal/launcher/releases?per_page=100",
+  );
+  if (!resp.ok) {
+    return [];
+  }
+  const githubReleases: GitHubRelease[] = await resp.json();
+  const currentIndex = githubReleases.findIndex(
+    (release) => release.tag_name === `v${version}`,
+  );
+  return githubReleases.slice(0, Math.max(currentIndex, 0)).map((release) => ({
+    version: release.tag_name,
+    date: release.published_at ?? undefined,
+    githubLink: release.html_url,
+    // parse the auto-generated "* <description> by @<contributor> in <pull request url>" lines
+    changes: [
+      ...(release.body ?? "").matchAll(
+        /^\* (.+) by @(\S+) in (\S+\/pull\/\d+)/gm,
+      ),
+    ].map(([, description, contributor, pullRequestUrl]) => ({
+      contributor,
+      description,
+      pullRequestUrl,
+    })),
+  }));
+}
