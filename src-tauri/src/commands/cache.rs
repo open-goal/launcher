@@ -15,9 +15,11 @@ pub async fn refresh_mod_sources(
   cache: tauri::State<'_, tokio::sync::Mutex<ModCache>>,
   config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
 ) -> Result<(), ()> {
+  let mod_sources = {
+    let config = config.lock().await;
+    config.mod_sources.clone()
+  };
   let mut cache_lock = cache.lock().await;
-  let config_lock = config.lock().await;
-  let mod_sources = config_lock.mod_sources.clone();
   cache_lock.refresh_mod_sources(mod_sources).await;
   Ok(())
 }

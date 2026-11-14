@@ -1,6 +1,5 @@
 <script lang="ts">
-  import type { ModSourceData } from "$lib/rpc/bindings/ModSourceData";
-  import { getModSourcesData, refreshModSources } from "$lib/rpc/cache";
+  import { refreshModSources } from "$lib/rpc/cache";
   import { addModSource, removeModSource } from "$lib/rpc/features";
   import {
     Label,
@@ -20,17 +19,11 @@
 
   let newSourceURL = $state("");
   const currentSources: string[] = $derived(config?.modSources!);
-  let currentSourceData: Record<string, ModSourceData> = {};
 
   let pageLoaded = $state(false);
 
-  async function refreshModSourceData() {
-    await refreshModSources();
-    currentSourceData = await getModSourcesData();
-  }
-
   onMount(async () => {
-    await refreshModSourceData();
+    await refreshModSources();
     pageLoaded = true;
   });
 </script>
@@ -60,7 +53,7 @@
       disabled={newSourceURL === ""}
       onclick={async () => {
         await addModSource(newSourceURL);
-        await refreshModSourceData();
+        await refreshModSources();
       }}
       ><IconPlus
         class="text-xl"
@@ -85,7 +78,7 @@
                   class="p-0 m-3 hover:text-red-500 text-slate-800 dark:text-gray-200"
                   onclick={async () => {
                     await removeModSource(source);
-                    await refreshModSourceData();
+                    await refreshModSources();
                   }}
                   ><IconDeleteForever
                     class="text-xl"
