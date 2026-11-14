@@ -9,6 +9,8 @@
     TableBody,
     TableBodyCell,
     TableBodyRow,
+    TableHead,
+    TableHeadCell,
     Alert,
   } from "flowbite-svelte";
   import { onMount } from "svelte";
@@ -64,30 +66,37 @@
   </div>
   <div class="mt-2">
     {#if pageLoaded && currentSources.length > 0}
-      <Table>
-        <TableBody class="divide-y dark:bg-slate-700">
-          {#each currentSources as source, i}
-            <TableBodyRow class="flex items-center dark:bg-slate-700">
-              <TableBodyCell
-                class="px-4 whitespace-nowrap font-medium text-gray-900 dark:text-white text-wrap"
+      <Table divClass="rounded-md bg-zinc-800 border border-zinc-600/70">
+        <TableHead class="bg-zinc-800! text-zinc-200!">
+          <TableHeadCell class="border-b! border-zinc-700/70!">
+            {$_("settings_mods_addSource_label")}
+          </TableHeadCell>
+          <TableHeadCell class="w-32 border-b! border-zinc-700/70!"
+          ></TableHeadCell>
+        </TableHead>
+        <TableBody class="divide-y divide-zinc-700/70!">
+          {#each currentSources as source (source)}
+            <TableBodyRow
+              class="bg-zinc-800/80! text-white transition-colors hover:bg-zinc-700/80! border-y!"
+            >
+              <TableBodyCell class="px-6 py-3 font-medium break-all"
                 >{source}</TableBodyCell
               >
-              <TableBodyCell
-                class="flex ml-auto justify-end px-4 whitespace-nowrap font-medium  dark:text-white text-red-600"
-                ><Button
-                  class="p-0 m-3 hover:text-red-500 text-slate-800 dark:text-gray-200"
+              <TableBodyCell class="w-32 px-6 py-2 text-right">
+                <Button
+                  class="p-0 bg-transparent text-zinc-200 hover:text-red-500 focus:ring-0"
                   onclick={async () => {
                     await removeModSource(source);
                     await refreshModSources();
                   }}
-                  ><IconDeleteForever
-                    class="text-xl"
-                    color="red"
+                >
+                  <IconDeleteForever
+                    class="text-xl text-red-500"
                     aria-label={$_("settings_mods_icon_deleteSource_altText")}
                   />
-                  {$_("settings_mods_icon_deleteSource_buttonText")}</Button
-                ></TableBodyCell
-              >
+                  {$_("settings_mods_icon_deleteSource_buttonText")}
+                </Button>
+              </TableBodyCell>
             </TableBodyRow>
           {/each}
         </TableBody>
