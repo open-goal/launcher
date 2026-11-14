@@ -4,6 +4,8 @@
   import { generateSupportPackage } from "$lib/rpc/support";
   import IconPackageDown from "~icons/mdi/package-down";
   import { _ } from "svelte-i18n";
+
+  const message = $derived((route.state as { message: string }).message);
 </script>
 
 <main
@@ -16,7 +18,7 @@
 
     <Alert color="red" class="text-center">
       <span class="font-bold">Error:</span>
-      {route.state?.message}
+      {message}
     </Alert>
 
     <Button

@@ -2,7 +2,6 @@
   import { Button } from "flowbite-svelte";
   import { folderPrompt, isoPrompt } from "$lib/utils/file-dialogs";
   import { _ } from "svelte-i18n";
-  import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { navigate } from "/src/router";
   import { asJobType } from "$lib/job/jobs";
 
@@ -10,13 +9,9 @@
   import { toSupportedGame } from "$lib/rpc/SupportedGame";
   import GameName from "../games/GameName.svelte";
 
-  const gameParam = $derived(route.params.game_name);
-  let activeGame: SupportedGame | undefined = $state(undefined);
-
-  $effect(() => {
-    const g = toSupportedGame(gameParam);
-    if (g) activeGame = g;
-  });
+  const activeGame = $derived(
+    toSupportedGame((route.params as { game_name: string }).game_name)!,
+  );
 
   async function install(viaFolder: boolean) {
     let sourcePath = undefined;
