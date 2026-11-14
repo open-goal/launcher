@@ -45,33 +45,39 @@
 
   onMount(async () => {
     const update = await check();
-    if (update) {
-      releases = await listLauncherReleasesSince(update.currentVersion);
-      availableUpdate = update;
-      if (availableUpdate.body) {
-        try {
-          const updateJson = JSON.parse(availableUpdate.body);
-          if (Object.keys(updateJson).includes("changes")) {
-            availableUpdateChangelog.changes = updateJson.changes;
-          }
-        } catch (e) {
-          exceptionLog(
-            `Could not parse changelog JSON from release metadata - ${JSON.stringify(
-              availableUpdate.rawJson,
-            )}`,
-            e,
-          );
+    if (!update) return;
+    availableUpdate = update;
+
+    if (update.body) {
+      try {
+        const updateJson = JSON.parse(update.body);
+        if (Array.isArray(updateJson.changes)) {
+          availableUpdateChangelog.changes = updateJson.changes;
         }
+      } catch (e) {
+        exceptionLog(
+          `Could not parse changelog JSON from release metadata - ${JSON.stringify(
+            availableUpdate.rawJson,
+          )}`,
+          e,
+        );
       }
-      // fall back to just the update's own notes if GitHub couldn't be reached
-      if (releases.length === 0) {
-        releases = [
-          {
-            version: `v${update.version}`,
-            changes: availableUpdateChangelog.changes,
-          },
-        ];
-      }
+    }
+
+    try {
+      releases = await listLauncherReleasesSince(update.currentVersion);
+    } catch (e) {
+      exceptionLog("Could not fetch launcher release changelog from GitHub", e);
+    }
+
+    // fall back to just the update's own notes if GitHub couldn't be reached
+    if (releases.length === 0) {
+      releases = [
+        {
+          version: `v${update.version}`,
+          changes: availableUpdateChangelog.changes,
+        },
+      ];
     }
   });
 
