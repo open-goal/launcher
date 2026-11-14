@@ -41,28 +41,34 @@
       {$_("settings_mods_warning_description_part2")}
     </p>
   </Alert>
-  <div>
-    <Label for="default-input" class="block mb-2 text-slate-200"
-      >{$_("settings_mods_addSource_label")}</Label
-    >
-  </div>
-  <div class="flex">
-    <div class="grow">
-      <Input id="default-input" bind:value={newSourceURL} />
+  <div class="rounded-md border border-green-500/40 bg-green-800/15 p-4">
+    <Label for="default-input" class="block mb-2 text-zinc-200">
+      {$_("settings_mods_addSource_label")}
+    </Label>
+    <div class="flex gap-2">
+      <div class="grow">
+        <Input
+          id="default-input"
+          bind:value={newSourceURL}
+          class="bg-zinc-700! border-zinc-600! text-zinc-100! focus:border-zinc-500! focus:ring-zinc-500!"
+        />
+      </div>
+      <Button
+        class="shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-3 py-2"
+        disabled={newSourceURL === ""}
+        onclick={async () => {
+          await addModSource(newSourceURL);
+          await refreshModSources();
+        }}
+      >
+        <IconPlus
+          class="text-xl"
+          color="green"
+          aria-label={$_("settings_mods_icon_addSource_buttonAltText")}
+        />
+        {$_("settings_mods_icon_addSource_buttonText")}
+      </Button>
     </div>
-    <Button
-      class="shrink border-solid rounded bg-white hover:bg-orange-400 text-sm text-slate-900 font-semibold px-3 py-2 ml-2"
-      disabled={newSourceURL === ""}
-      onclick={async () => {
-        await addModSource(newSourceURL);
-        await refreshModSources();
-      }}
-      ><IconPlus
-        class="text-xl"
-        color="green"
-        aria-label={$_("settings_mods_icon_addSource_buttonAltText")}
-      />{$_("settings_mods_icon_addSource_buttonText")}</Button
-    >
   </div>
   <div class="mt-2">
     {#if pageLoaded && currentSources.length > 0}
