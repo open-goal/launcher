@@ -167,7 +167,6 @@ impl ModSourceData {
             Some((name.clone(), info))
           }
         })
-        .map(|(name, info)| (name.clone(), info.clone()))
         .collect(),
       texture_packs: self
         .texture_packs
@@ -181,7 +180,6 @@ impl ModSourceData {
             Some((name.clone(), info))
           }
         })
-        .map(|(name, info)| (name.clone(), info.clone()))
         .collect(),
     }
   }

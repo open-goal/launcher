@@ -93,15 +93,16 @@ fn get_game_info_folder_diff_state(
   // The data_dir is always guaranteed to be there (it's just the extracted tooling)
   // however, the active version folder may or may not exist (might not be installed)
   let active_version_dir = base_active_version_dir.join(sub_dir);
-  if !active_version_dir.exists() {
-    return "Not Installed".to_string();
-  }
-
   let data_dir = base_data_dir.join(sub_dir);
-  match dir_diff::is_different(active_version_dir, data_dir) {
-    Ok(true) => "Different".to_string(),
-    Ok(false) => "Match".to_string(),
-    Err(_) => "Unknown".to_string(),
+
+  match active_version_dir.try_exists() {
+    Ok(false) => "Not Installed".to_string(),
+    Err(_) => "Install Status Unknown".to_string(),
+    Ok(true) => match dir_diff::is_different(active_version_dir, data_dir) {
+      Ok(true) => "Different".to_string(),
+      Ok(false) => "Match".to_string(),
+      Err(_) => "Comparison Unknown".to_string(),
+    },
   }
 }
 

@@ -41,7 +41,7 @@ pub async fn extract_new_mod(
   let mod_name = bundle_path
     .file_stem()
     .and_then(|stem| stem.to_str())
-    .map(|s| s.strip_suffix(".tar").unwrap_or(s))
+    .map(|s| s.trim_suffix(".tar"))
     .ok_or_else(|| anyhow::anyhow!("Unable to get mod name from archive path"))?;
 
   let destination_dir = install_path

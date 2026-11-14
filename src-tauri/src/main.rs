@@ -4,45 +4,32 @@
 )]
 
 use directories::UserDirs;
+use std::sync::OnceLock;
 use tauri::Manager;
-use tokio::sync::OnceCell;
 use tracing::warn;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
 use util::file::create_dir;
 
-use backtrace::Backtrace;
 use native_dialog::{DialogBuilder, MessageLevel};
-use std::io::Write;
+use std::backtrace::Backtrace;
 
 mod cache;
 mod commands;
 mod config;
 mod util;
 
-static LOG_GUARD: OnceCell<WorkerGuard> = OnceCell::const_new();
+static LOG_GUARD: OnceLock<WorkerGuard> = OnceLock::new();
 
-fn log_crash(panic_info: Option<&std::panic::PanicHookInfo>, error: Option<tauri::Error>) {
-  let backtrace = Backtrace::new();
-  let log_contents;
-  if let Some(panic_info) = panic_info {
-    log_contents = format!("panic occurred: {panic_info:?}\n{backtrace:?}");
-  } else if let Some(error) = error {
-    log_contents = format!("unexpected app error occurred: {error:?}\n{backtrace:?}",);
-  } else {
-    log_contents = format!("unexpected error occurred: {backtrace:?}");
-  }
-  tracing::error!("{}", log_contents);
+fn log_crash(message: String) {
+  let log_contents = format!("{message}\n{}", Backtrace::force_capture());
+  tracing::error!("{log_contents}");
+
   if let Some(user_dirs) = UserDirs::new() {
     if let Some(desktop_dir) = user_dirs.desktop_dir() {
-      match std::fs::File::create(desktop_dir.join("og-launcher-crash.log")) {
-        Ok(mut file) => {
-          if let Err(err) = file.write_all(log_contents.as_bytes()) {
-            tracing::error!("unable to log crash report to a file - {:?}", err)
-          }
-        }
-        Err(err) => tracing::error!("unable to log crash report to a file - {:?}", err),
+      if let Err(err) = std::fs::write(desktop_dir.join("og-launcher-crash.log"), &log_contents) {
+        tracing::error!("Unable to write crash report to a file: {err:?}");
       }
     }
   }
@@ -58,17 +45,18 @@ fn log_crash(panic_info: Option<&std::panic::PanicHookInfo>, error: Option<tauri
   DialogBuilder::message()
     .set_level(MessageLevel::Error)
     .set_title("OpenGOAL Launcher Crash Info")
-    .set_text(format!("{:?}", &dialog_text))
+    .set_text(dialog_text)
     .alert()
     .show()
     .unwrap();
 }
 
 fn panic_hook(info: &std::panic::PanicHookInfo) {
-  log_crash(Some(info), None);
+  let message = info.payload_as_str().unwrap_or("Unknown panic message");
+  log_crash(format!("Panic occurred: {message}"));
 }
 
-static TAURI_APP: OnceCell<tauri::AppHandle> = OnceCell::const_new();
+static TAURI_APP: OnceLock<tauri::AppHandle> = OnceLock::new();
 
 fn main() {
   #[cfg(target_os = "linux")]
@@ -218,13 +206,10 @@ fn main() {
       commands::versions::list_downloaded_versions,
       commands::versions::remove_version,
     ])
-    .build(tauri::generate_context!())
-    .map_err(|err| {
-      log_crash(None, Some(err));
-    });
+    .build(tauri::generate_context!());
 
   let app = tauri_setup.unwrap_or_else(|err| {
-    tracing::error!("Could not setup tauri application {:?}, exiting", err);
+    log_crash(format!("Could not set up the Tauri application: {err:?}"));
     std::process::exit(1);
   });
 

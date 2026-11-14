@@ -258,14 +258,13 @@ pub async fn is_opengl_requirement_met(
     .ok_or(CommandError::Configuration(
       "No active version set, can't perform operation".to_owned(),
     ))?;
-  // If we can't determine the version, assume it's too old
-  let tooling_version = Version::parse(active_version.strip_prefix('v').unwrap_or(active_version))
-    .unwrap_or(Version::new(0, 1, 37));
-  if tooling_version.major == 0 && tooling_version.minor <= 1 && tooling_version.patch < 38 {
-    // Assume it's fine
-    tracing::warn!(
-      "We no longer check for OpenGL support via heuristics, assuming they meet the requirement"
-    );
+
+  let is_old_or_unparseable = Version::parse(active_version.trim_prefix('v'))
+    .map(|version| version < Version::new(0, 1, 38))
+    .unwrap_or(true);
+
+  if is_old_or_unparseable {
+    tracing::warn!("Tooling version is old or invalid; assuming it meets the GPU requirement");
     return Ok(true);
   }
   // Do it the new way!
@@ -335,13 +334,13 @@ pub async fn does_active_tooling_version_support_game(
 ) -> Result<bool, CommandError> {
   let config_lock = config.lock().await;
   let version_str = if let Some(v) = &config_lock.active_version {
-    v.strip_prefix('v').unwrap_or(v)
+    v.trim_prefix('v')
   } else {
     tracing::warn!("No active tooling version set, can't check the game supports it!");
     return Ok(false);
   };
 
-  let tooling_version = Version::parse(version_str).unwrap_or_else(|_| Version::new(0, 0, 1));
+  let tooling_version = Version::parse(version_str).unwrap_or(Version::new(0, 0, 1));
   let supported = match game_name {
     SupportedGame::Jak1 => true,
     SupportedGame::Jak2 => tooling_version.minor >= 2,
@@ -362,8 +361,7 @@ pub async fn does_active_tooling_version_meet_minimum(
 ) -> Result<bool, CommandError> {
   let config_lock = config.lock().await;
   if let Some(version) = &config_lock.active_version {
-    let tooling_version = Version::parse(version.strip_prefix('v').unwrap_or(version))
-      .unwrap_or_else(|_| Version::new(0, 0, 0));
+    let tooling_version = Version::parse(version.trim_prefix('v')).unwrap_or(Version::new(0, 0, 0));
     let compare_version = Version::new(minimum_major, minimum_minor, minimum_patch);
     Ok(tooling_version >= compare_version)
   } else {

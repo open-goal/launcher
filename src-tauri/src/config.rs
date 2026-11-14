@@ -301,11 +301,14 @@ impl LauncherConfig {
 
     let file = std::fs::File::open(&settings_path);
     let mut config: LauncherConfig = match file {
-      Ok(file) => serde_json::from_reader(file).unwrap_or_else(|_| {
-        tracing::warn!("Failed to load or parse settings file, using defaults");
-        LauncherConfig::backup(&settings_path);
-        LauncherConfig::default_with_path(settings_path.clone())
-      }),
+      Ok(file) => serde_json::from_reader(file)
+        .inspect_err(|err| {
+          tracing::warn!("Failed to parse settings.json: {err}");
+        })
+        .unwrap_or_else(|_| {
+          LauncherConfig::backup(&settings_path);
+          LauncherConfig::default_with_path(settings_path.clone())
+        }),
       Err(_) => LauncherConfig::default_with_path(settings_path.clone()),
     };
 
@@ -514,7 +517,7 @@ impl LauncherConfig {
       CommandError::BinaryExecution("No active version set, can't perform operation".to_owned())
     })?;
 
-    let version_str = active_version.strip_prefix('v').unwrap_or(active_version);
+    let version_str = active_version.trim_prefix('v');
 
     let tooling_version = Version::parse(version_str).unwrap_or_else(|_| Version::new(0, 1, 35));
 
@@ -536,7 +539,7 @@ impl LauncherConfig {
       .join("official")
       .join(active_version);
 
-    if version_dir.exists() {
+    if version_dir.try_exists()? {
       return Ok(true);
     }
 
@@ -556,11 +559,13 @@ impl LauncherConfig {
       }
     });
 
-    if binaries.iter().all(|binary| dst_dir.join(binary).exists()) {
-      return Ok(());
+    for binary in &binaries {
+      if !dst_dir.join(binary).try_exists()? {
+        return self.copy_active_binaries();
+      }
     }
 
-    self.copy_active_binaries()
+    Ok(())
   }
 
   pub fn remove_version(&mut self, version: &str) -> Result<()> {

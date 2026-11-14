@@ -1,27 +1,35 @@
-import { locale as svelteLocale } from "svelte-i18n";
+import {
+  locale as svelteLocale,
+  unwrapFunctionStore,
+  format,
+} from "svelte-i18n";
 import { invoke_rpc, invoke_rpc2 } from "./rpc";
-import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
+import {
+  AVAILABLE_LOCALES,
+  applyLocaleFont,
+  type Locale,
+} from "$lib/i18n/i18n";
 import { exists } from "@tauri-apps/plugin-fs";
 import { appDataDir, join } from "@tauri-apps/api/path";
-import { convertFileSrc } from "@tauri-apps/api/core";
 import type { LauncherConfig } from "./bindings/LauncherConfig";
+import { toastStore } from "$lib/stores/ToastStore";
 
-export async function resetLauncherSettings(): Promise<string | null> {
-  return await invoke_rpc("reset_to_defaults", {});
+const $format = unwrapFunctionStore(format);
+
+export async function resetLauncherSettings(): Promise<void> {
+  return await invoke_rpc("reset_to_defaults");
 }
 
 export async function getLauncherConfig(): Promise<LauncherConfig | null> {
-  return await invoke_rpc("get_launcher_config", {});
+  return await invoke_rpc("get_launcher_config");
 }
 
-export async function setInstallationDirectory(
-  newDir: string,
-): Promise<string | null> {
+export async function setInstallationDirectory(newDir: string): Promise<void> {
   return await invoke_rpc("set_install_directory", { newDir: newDir });
 }
 
 export async function isAVXRequirementMet(): Promise<boolean | undefined> {
-  return await invoke_rpc("is_avx_requirement_met", {});
+  return await invoke_rpc("is_avx_requirement_met");
 }
 
 export async function isOpenGLRequirementMet(
@@ -37,7 +45,7 @@ export async function isDiskSpaceRequirementMet(
 }
 
 export async function isMinimumVCCRuntimeInstalled(): Promise<boolean> {
-  return await invoke_rpc("is_minimum_vcc_runtime_installed", {});
+  return await invoke_rpc("is_minimum_vcc_runtime_installed");
 }
 
 export async function finalizeInstallation(
@@ -50,31 +58,20 @@ export async function finalizeInstallation(
   });
 }
 
-export async function setActiveVersion(version: String): Promise<boolean> {
-  return invoke_rpc("set_active_version", { version: version }, () => true);
+export async function setActiveVersion(version: string): Promise<void> {
+  await invoke_rpc("set_active_version", { version: version });
+  toastStore.makeToast($format("toasts_savedToolingVersion"), "info");
 }
 
-export async function localeSpecificFontAvailableForDownload(
+export async function localeFontDownloadAvailable(
   localeId: string,
 ): Promise<Locale | undefined> {
-  let localeInfo = AVAILABLE_LOCALES.find((locale) => locale.id === localeId);
-  if (
-    localeInfo !== undefined &&
-    localeInfo.fontFileName !== undefined &&
-    localeInfo.fontDownloadUrl !== undefined
-  ) {
-    const fontPath = await join(
-      await appDataDir(),
-      "fonts",
-      localeInfo.fontFileName,
-    );
-    const fontAlreadyDownloaded = await exists(fontPath);
-    if (fontAlreadyDownloaded) {
-      return undefined;
-    }
-    return localeInfo;
-  }
-  return undefined;
+  const locale = AVAILABLE_LOCALES.find(({ id }) => id === localeId);
+  if (!locale?.fontFileName || !locale.fontDownloadUrl) return;
+
+  const fontPath = await join(await appDataDir(), "fonts", locale.fontFileName);
+
+  return (await exists(fontPath)) ? undefined : locale;
 }
 
 export async function setHideBetaAlerts(hide: boolean): Promise<void> {
@@ -96,55 +93,9 @@ export async function setHidePlaytime(hide: boolean): Promise<void> {
 }
 
 export async function setLocale(localeId: string): Promise<void> {
-  return await invoke_rpc(
-    "set_locale",
-    { locale: localeId },
-    undefined,
-    async () => {
-      svelteLocale.set(localeId);
-      // Update CSS variable if needed
-      let localeInfo = AVAILABLE_LOCALES.find(
-        (locale) => locale.id === localeId,
-      );
-      if (
-        localeInfo !== undefined &&
-        localeInfo.fontFamily !== undefined &&
-        localeInfo.fontFileName !== undefined
-      ) {
-        // Dynamically get the font
-        const fontPath = await join(
-          await appDataDir(),
-          "fonts",
-          localeInfo.fontFileName,
-        );
-        const fontExists = await exists(fontPath);
-        if (fontExists) {
-          const assetUrl = convertFileSrc(fontPath);
-          var newFontStyle = document.createElement("style");
-          newFontStyle.appendChild(
-            document.createTextNode(
-              `@font-face {\nfont-family: "${localeInfo.fontFamily}";\nsrc: url('${assetUrl}');\n}\n`,
-            ),
-          );
-          document.head.appendChild(newFontStyle);
-          document.documentElement.style.setProperty(
-            "--launcher-font-family",
-            localeInfo.fontFamily,
-          );
-        } else {
-          document.documentElement.style.setProperty(
-            "--launcher-font-family",
-            "Noto Sans",
-          );
-        }
-      } else {
-        document.documentElement.style.setProperty(
-          "--launcher-font-family",
-          "Noto Sans",
-        );
-      }
-    },
-  );
+  await invoke_rpc("set_locale", { locale: localeId });
+  svelteLocale.set(localeId);
+  await applyLocaleFont(localeId);
 }
 
 export async function setAutoUpdateGames(value: boolean): Promise<void> {

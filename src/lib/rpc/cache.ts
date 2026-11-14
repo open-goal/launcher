@@ -4,19 +4,19 @@ import type { ModSourceData } from "./bindings/ModSourceData";
 import { invoke_rpc } from "./rpc";
 
 export async function refreshModSources(): Promise<void> {
-  return await invoke_rpc("refresh_mod_sources", {});
+  return await invoke_rpc("refresh_mod_sources");
 }
 
 export async function getModSourcesData(): Promise<
   Record<string, ModSourceData>
 > {
-  return await invoke_rpc("get_mod_sources_data", {});
+  return await invoke_rpc("get_mod_sources_data");
 }
 
 export async function getExternalMods(): Promise<Array<ModInfo>> {
-  return await invoke_rpc("get_external_mods", {});
+  return await invoke_rpc("get_external_mods");
 }
 
 export async function getAvailableMods(): Promise<AvailableModsByGame> {
-  return await invoke_rpc("get_available_mods", {});
+  return await invoke_rpc("get_available_mods");
 }

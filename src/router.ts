@@ -32,6 +32,7 @@ import { requirementsStore } from "./state/requirements-store";
 import Startup from "./routes/Startup.svelte";
 import StartupLayout from "./layouts/StartupLayout.svelte";
 import { config } from "./state/config.svelte";
+import Error from "./routes/Error.svelte";
 
 export const { p, navigate, isActive, route } = createRouter({
   "/": {
@@ -43,6 +44,9 @@ export const { p, navigate, isActive, route } = createRouter({
         }
 
         throw navigate("/:game_name/", { params: { game_name: "jak1" } });
+      },
+      async onError(error) {
+        throw navigate("/error", { state: { message: error } });
       },
     },
   },
@@ -117,6 +121,9 @@ export const { p, navigate, isActive, route } = createRouter({
             });
           }
         },
+        async onError(error) {
+          throw navigate("/error", { state: { message: error } });
+        },
       },
     },
     "/tools-not-set": GameToolsNotSet,
@@ -146,4 +153,5 @@ export const { p, navigate, isActive, route } = createRouter({
     "/": Mods,
   },
   layout: Layout,
+  "/error": Error,
 });

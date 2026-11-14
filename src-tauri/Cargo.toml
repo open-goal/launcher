@@ -1,13 +1,13 @@
 [package]
 name = "opengoal-launcher"
-version = "2.11.2" # APP_VERSION
+version = "2.11.2"                                   # APP_VERSION
 description = "A frontend for the OpenGOAL project"
 authors = ["OpenGOAL"]
 license = "ISC"
 repository = "https://github.com/open-goal/launcher"
 default-run = "opengoal-launcher"
 edition = "2024"
-rust-version = "1.99"
+rust-version = "1.100.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -19,7 +19,6 @@ anyhow = "1.0.102"
 plist = "1.7.4"                                                               # ensuring a bug fix for newer rustc versions
 notify-rust = "4.12.0"                                                        # ensuring a bug fix for newer rustc versions
 cmake = "0.1.57"                                                              # VS2026 causes issues
-backtrace = "0.3.74"
 dir-diff = "0.3.3"
 directories = "6.0.0"
 rustc-serialize = "0.3"

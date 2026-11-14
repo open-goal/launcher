@@ -1,3 +1,6 @@
+import { convertFileSrc } from "@tauri-apps/api/core";
+import { appDataDir, join } from "@tauri-apps/api/path";
+import { exists } from "@tauri-apps/plugin-fs";
 import { getLocaleFromNavigator, init, register } from "svelte-i18n";
 
 export interface Locale {
@@ -210,4 +213,31 @@ export async function initLocales() {
     fallbackLocale: "en-US",
     initialLocale: getLocaleFromNavigator(),
   });
+}
+
+export async function applyLocaleFont(localeId: string): Promise<void> {
+  const locale = AVAILABLE_LOCALES.find(({ id }) => id === localeId);
+  let fontFamily = "Noto Sans";
+
+  if (locale?.fontFamily && locale.fontFileName) {
+    const path = await join(await appDataDir(), "fonts", locale.fontFileName);
+
+    if (await exists(path)) {
+      const style =
+        document.getElementById("locale-font") ??
+        document.head.appendChild(document.createElement("style"));
+
+      style.id = "locale-font";
+      style.textContent = `@font-face {
+        font-family: "${locale.fontFamily}";
+        src: url("${convertFileSrc(path)}");
+      }`;
+      fontFamily = locale.fontFamily;
+    }
+  }
+
+  document.documentElement.style.setProperty(
+    "--launcher-font-family",
+    fontFamily,
+  );
 }

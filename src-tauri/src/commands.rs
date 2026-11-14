@@ -30,6 +30,8 @@ pub enum CommandError {
   Support(String),
   #[error("{0}")]
   GameFeatures(String),
+  #[error("{0}")]
+  Semver(#[from] semver::Error),
 }
 
 impl Serialize for CommandError {

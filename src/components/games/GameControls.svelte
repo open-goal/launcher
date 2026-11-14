@@ -28,6 +28,7 @@
   import type { SupportedGame } from "$lib/rpc/bindings/SupportedGame";
   import { asJobType } from "$lib/job/jobs";
   import { config } from "/src/state/config.svelte";
+  import GameName from "./GameName.svelte";
 
   let {
     activeGame,
@@ -63,28 +64,12 @@
       );
     }
   }
-
-  // this doesnt work for the following languages: ja-JP, he-IL
-  let [title, subtitle] = $derived.by(() => {
-    const name = $_(`gameName_${activeGame}`);
-    const [t, s] = name.split(":");
-    return [t, s?.trimStart()];
-  });
 </script>
 
 <div class="flex flex-col items-end mt-auto ml-auto">
   <div class="flex flex-col pb-2 items-end text-shadow-lg">
-    {#if !config?.ui?.hideGamename}
-      <p
-        class="font-title text-3xl font-semibold tracking-wider text-gray-100 pointer-events-none uppercase"
-      >
-        {title}
-      </p>
-      <p class="text-2xl font-medium text-amber-500">{subtitle}</p>
-    {/if}
-    {#if !config?.ui?.hidePlaytime}
-      <Playtime {activeGame}></Playtime>
-    {/if}
+    <GameName {activeGame}></GameName>
+    <Playtime {activeGame}></Playtime>
   </div>
 
   <div class="flex flex-col mt-auto ml-auto">
@@ -245,7 +230,6 @@
             ></DropdownItem
           >
           <DropdownDivider />
-          <!-- TODO - clicking this button provides zero feedback -->
           <DropdownItem
             onclick={async () => {
               await resetGameSettings(activeGame);

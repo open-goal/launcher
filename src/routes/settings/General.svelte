@@ -1,7 +1,7 @@
 <script lang="ts">
   import { AVAILABLE_LOCALES, type Locale } from "$lib/i18n/i18n";
   import {
-    localeSpecificFontAvailableForDownload,
+    localeFontDownloadAvailable,
     resetLauncherSettings,
     setAutoUpdateGames,
     setBypassRequirements,
@@ -60,8 +60,7 @@
     }
 
     if (currentLocale) {
-      localeFontForDownload =
-        await localeSpecificFontAvailableForDownload(currentLocale);
+      localeFontForDownload = await localeFontDownloadAvailable(currentLocale);
     }
   });
 </script>
@@ -78,7 +77,7 @@
           if (currentLocale) {
             await setLocale(currentLocale);
             localeFontForDownload =
-              await localeSpecificFontAvailableForDownload(currentLocale);
+              await localeFontDownloadAvailable(currentLocale);
           }
         }}
       />
@@ -113,7 +112,7 @@
             await downloadFile(localeFontForDownload.fontDownloadUrl, fontPath);
             await setLocale(currentLocale);
             localeFontForDownload =
-              await localeSpecificFontAvailableForDownload(currentLocale);
+              await localeFontDownloadAvailable(currentLocale);
             localeFontDownloading = false;
           }
         }}
@@ -140,13 +139,11 @@
           newInstallDir !== undefined &&
           newInstallDir !== currentInstallationDirectory
         ) {
-          const errMsg = await setInstallationDirectory(newInstallDir);
-          if (errMsg === null) {
-            if (currentInstallationDirectory !== newInstallDir) {
-              versionState.activeToolingVersion = undefined;
-            }
-            currentInstallationDirectory = newInstallDir;
+          await setInstallationDirectory(newInstallDir);
+          if (currentInstallationDirectory !== newInstallDir) {
+            versionState.activeToolingVersion = undefined;
           }
+          currentInstallationDirectory = newInstallDir;
         }
       }}
     />
@@ -233,7 +230,7 @@
           $_("settings_general_button_resetSettings_confirmation"),
         );
         if (confirmed) {
-          const error = await resetLauncherSettings();
+          await resetLauncherSettings();
           versionState.activeToolingVersion = config?.activeVersion;
         }
       }}>{$_("settings_general_button_resetSettings")}</Button

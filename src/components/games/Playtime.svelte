@@ -20,8 +20,7 @@
   }
 </script>
 
-<!-- TODO: add an option to disable this -->
-{#if playtime}
+{#if playtime && !config?.ui?.hidePlaytime}
   <p class="text-sm font-normal tracking-wide text-gray-400">
     {`${$_(`gameControls_timePlayed_label`)} ${playtime}`}
   </p>

@@ -6,9 +6,7 @@ export async function uninstallGame(gameName: string): Promise<boolean> {
 }
 
 export async function resetGameSettings(gameName: string): Promise<void> {
-  return await invoke_rpc("reset_game_settings", { gameName }, () => {
-    toastStore.makeToast(`${gameName} settings reset`, "info");
-  });
+  return await invoke_rpc("reset_game_settings", { gameName });
 }
 
 export async function getFurthestGameMilestone(

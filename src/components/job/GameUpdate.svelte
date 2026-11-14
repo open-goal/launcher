@@ -14,7 +14,7 @@
 
   const gameParam = $derived(route.params.game_name);
   let activeGame: SupportedGame | undefined = $state(undefined);
-  let installedVersion: String | undefined = $derived(
+  let installedVersion: string | undefined = $derived(
     config?.games?.[activeGame!]?.version!,
   );
   let isoDataExists = $state(false);
@@ -122,10 +122,10 @@
       <Button
         class="border-solid border-2 border-slate-500 rounded bg-slate-900 hover:bg-slate-800 text-sm text-white font-semibold px-5 py-2"
         onclick={async () => {
-          const error = await setActiveVersion(installedVersion!);
-          if (!error) {
-            navigate("/:game_name/", { params: { game_name: activeGame! } });
-          }
+          await setActiveVersion(installedVersion!);
+          await navigate("/:game_name/", {
+            params: { game_name: activeGame! },
+          });
         }}>{$_("gameUpdate_versionMismatch_button_changeVersion")}</Button
       >
     </div>

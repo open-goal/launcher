@@ -10,7 +10,6 @@
   import { UpdateStore } from "$lib/stores/AppStore";
   import { setActiveVersion } from "$lib/rpc/config";
   import { _ } from "svelte-i18n";
-  import { toastStore } from "$lib/stores/ToastStore";
   import { versionState } from "/src/state/VersionState.svelte";
   import { Alert, Button, Spinner } from "flowbite-svelte";
   import Latest from "./versions/Latest.svelte";
@@ -108,13 +107,6 @@
     loading = false;
   }
 
-  async function saveOfficialVersionChange(version: string) {
-    const error = await setActiveVersion(version);
-    if (!error) {
-      toastStore.makeToast($_("toasts_savedToolingVersion"), "info");
-    }
-  }
-
   async function onDownloadVersion(version: string, downloadUrl: string) {
     // Mark that release as being downloaded
     releases = releases.map((release) =>
@@ -122,15 +114,11 @@
         ? { ...release, pendingAction: true }
         : release,
     );
-    const error = await downloadOfficialVersion(version, downloadUrl);
-    if (error) {
-      // ensure the version folder is removed if it failed
+
+    try {
+      await downloadOfficialVersion(version, downloadUrl);
+    } catch {
       await onRemoveVersion(version);
-      releases = releases.map((release) =>
-        release.version === version
-          ? { ...release, pendingAction: false }
-          : release,
-      );
       return;
     }
 
@@ -146,7 +134,7 @@
         ? { ...release, pendingAction: false, isDownloaded: true }
         : release,
     );
-    await saveOfficialVersionChange(version);
+    await setActiveVersion(version);
   }
 
   async function onRemoveVersion(version: string) {
@@ -156,27 +144,28 @@
         ? { ...release, pendingAction: true }
         : release,
     );
-    const error = await removeVersion(version);
-    if (error) {
+
+    try {
+      await removeVersion(version);
+
+      // Update the store, if we removed the active version
+      if (versionState.activeToolingVersion === version) {
+        versionState.activeToolingVersion = undefined;
+      }
+
+      // Then mark it as not downloaded
+      releases = releases.map((release) =>
+        release.version === version
+          ? { ...release, pendingAction: false, isDownloaded: false }
+          : release,
+      );
+    } catch {
       releases = releases.map((release) =>
         release.version === version
           ? { ...release, pendingAction: false }
           : release,
       );
-      return;
     }
-
-    // Update the store, if we removed the active version
-    if (versionState.activeToolingVersion === version) {
-      versionState.activeToolingVersion = undefined;
-    }
-
-    // Then mark it as not downloaded
-    releases = releases.map((release) =>
-      release.version === version
-        ? { ...release, pendingAction: false, isDownloaded: false }
-        : release,
-    );
   }
 
   const isPending = $derived(releases.some((r) => r.pendingAction));
@@ -218,7 +207,7 @@
 
   <Latest
     latest={releases[0]}
-    onVersionChange={saveOfficialVersionChange}
+    onVersionChange={setActiveVersion}
     {onRemoveVersion}
     {onDownloadVersion}
     {isPending}
@@ -226,7 +215,7 @@
 
   <VersionList
     releaseList={releases.slice(1)}
-    onVersionChange={saveOfficialVersionChange}
+    onVersionChange={setActiveVersion}
     {onRemoveVersion}
     {onDownloadVersion}
     {isPending}

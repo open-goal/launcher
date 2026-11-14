@@ -17,7 +17,7 @@
     // Set locale from settings
     const locale = config?.locale;
     if (locale) {
-      setLocale(locale);
+      await setLocale(locale);
     }
 
     systemInfoState.isMinVCCRuntimeInstalled =

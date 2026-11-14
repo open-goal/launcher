@@ -3,44 +3,39 @@ import { invoke_rpc } from "./rpc";
 import { config } from "/src/state/config.svelte";
 
 export async function listDownloadedVersions(): Promise<string[]> {
-  return await invoke_rpc(
-    "list_downloaded_versions",
-    { versionFolder: "official" },
-    () => [],
-  );
+  return await invoke_rpc("list_downloaded_versions", {
+    versionFolder: "official",
+  });
 }
 
 export async function downloadOfficialVersion(
-  version: String,
-  url: String,
-): Promise<boolean> {
-  return await invoke_rpc(
-    "download_version",
-    { version, url, versionFolder: "official" },
-    () => true,
+  version: string,
+  url: string,
+): Promise<void> {
+  return await invoke_rpc("download_version", {
+    version,
+    url,
+    versionFolder: "official",
+  });
+}
+
+export async function removeVersion(version: string): Promise<void> {
+  return await invoke_rpc("remove_version", { version });
+}
+
+export async function removeOldVersions(): Promise<void> {
+  if (!config?.deletePreviousVersions) return;
+
+  const downloadedVersions = await listDownloadedVersions();
+  const latestRelease = await getLatestOfficialRelease();
+  if (!latestRelease?.version) return;
+
+  const oldVersions = downloadedVersions.filter(
+    (version) => version !== latestRelease?.version,
   );
-}
-
-export async function removeVersion(version: String): Promise<boolean> {
-  return await invoke_rpc("remove_version", { version }, () => true);
-}
-
-export async function removeOldVersions(): Promise<boolean> {
-  const shouldRemove = config?.deletePreviousVersions;
-  if (shouldRemove) {
-    let downloadedVersions = await listDownloadedVersions();
-    let latestRelease = await getLatestOfficialRelease();
-    downloadedVersions = downloadedVersions.filter(
-      (v) => v !== latestRelease?.version,
-    );
-    downloadedVersions.forEach((v) => {
-      removeVersion(v);
-    });
-    return false;
-  }
-  return false;
+  await Promise.all(oldVersions.map(removeVersion));
 }
 
 export async function ensureActiveVersionStillExists(): Promise<boolean> {
-  return await invoke_rpc("ensure_active_version_still_exists", {});
+  return await invoke_rpc("ensure_active_version_still_exists");
 }
