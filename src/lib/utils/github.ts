@@ -160,6 +160,7 @@ export async function listLauncherReleasesSince(
     "https://api.github.com/repos/open-goal/launcher/releases?per_page=100",
   );
   if (!resp.ok) {
+    toastStore.makeToast(resp.statusText, "error");
     return [];
   }
   const githubReleases: GitHubRelease[] = await resp.json();
