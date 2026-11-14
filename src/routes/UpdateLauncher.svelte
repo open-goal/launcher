@@ -43,8 +43,6 @@
   let showChanges = true;
   let showDependencyChanges = false;
 
-  // TODO - add the timestamp, tauri doesn't use an ISO timestamp!
-
   onMount(async () => {
     const update = await check();
     if (update) {
@@ -137,8 +135,7 @@
           }
         })}
         {#if changes.length > 0}
-          <!-- wrapped so the flex column can't shrink the table away -->
-          <div class="mt-6">
+          <div class="mt-6 last:pb-4">
             <div class="flex items-center gap-4">
               <h2 class="text-xl font-bold tracking-wide text-gray-200">
                 {release.version}
@@ -166,10 +163,9 @@
                 </a>
               {/if}
             </div>
-            <!-- fixed layout so the columns line up across every release's table -->
             <Table
               classes={{
-                div: "mt-3 pt-2 rounded-md bg-zinc-800 border border-zinc-600/70",
+                div: "mt-2 rounded-md bg-zinc-800 border border-zinc-600/70",
               }}
               class="table-fixed"
             >
@@ -184,19 +180,19 @@
                   >{$_("update_changelog_header_pullRequest")}</TableHeadCell
                 >
               </TableHead>
-              <TableBody class="divide-y divide-zinc-700/70!">
+              <TableBody class="divide-y divide-zinc-700/70! [&>tr>td]:py-2!">
                 {#each changes as note}
                   <TableBodyRow
                     class="bg-zinc-800/80! text-white transition-colors hover:bg-zinc-700/80! border-y!"
                   >
-                    <TableBodyCell class="px-6 py-3 font-bold wrap-break-word"
+                    <TableBodyCell class="px-6 font-bold wrap-break-word"
                       >{note.contributor}</TableBodyCell
                     >
                     <TableBodyCell
-                      class="px-6 py-3 whitespace-normal wrap-break-word"
+                      class="px-6 whitespace-normal wrap-break-word"
                       >{note.description}</TableBodyCell
                     >
-                    <TableBodyCell class="px-6 py-3">
+                    <TableBodyCell class="px-6">
                       <a
                         class="inline-block"
                         href={note.pullRequestUrl}
