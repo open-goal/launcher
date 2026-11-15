@@ -118,7 +118,11 @@
     try {
       await downloadOfficialVersion(version, downloadUrl);
     } catch {
-      await onRemoveVersion(version);
+      releases = releases.map((release) =>
+        release.version === version
+          ? { ...release, pendingAction: false }
+          : release,
+      );
       return;
     }
 

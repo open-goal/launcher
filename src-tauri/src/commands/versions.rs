@@ -33,15 +33,20 @@ pub async fn download_version(
     .join(&version_folder);
   let dest_dir = versions_dir.join(&version);
 
+  let staging = tempfile::tempdir_in(&versions_dir)?;
+
   #[cfg(windows)]
-  let download_path = versions_dir.join(format!("{version}.zip"));
+  let download_path = staging.path().join(format!("{version}.zip"));
 
   #[cfg(unix)]
-  let download_path = versions_dir.join(format!("{version}.tar.gz"));
+  let download_path = staging.path().join(format!("{version}.tar.gz"));
 
-  delete_dir(&dest_dir)?;
+  let extracted_path = staging.path().join("extracted");
+
   download_file(&url, &download_path).await?;
-  extract_and_delete_archive(&download_path, &dest_dir, true)?;
+  extract_and_delete_archive(&download_path, &extracted_path, true)?;
+  delete_dir(&dest_dir)?;
+  std::fs::rename(&extracted_path, &dest_dir)?;
   Ok(())
 }
 

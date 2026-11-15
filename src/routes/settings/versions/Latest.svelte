@@ -50,10 +50,8 @@
   };
 
   const handleRedownload = async () => {
-    if (latest.downloadUrl) {
-      await onRemoveVersion(latest.version);
-      await onDownloadVersion(latest.version, latest.downloadUrl);
-    }
+    if (!latest.downloadUrl) return;
+    await onDownloadVersion(latest.version, latest.downloadUrl);
   };
 
   const handleDownload = async () => {

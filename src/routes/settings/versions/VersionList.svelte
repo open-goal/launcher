@@ -44,10 +44,8 @@
   };
 
   const handleRedownload = async (release: ReleaseInfo) => {
-    if (release.downloadUrl) {
-      await onRemoveVersion(release.version);
-      await onDownloadVersion(release.version, release.downloadUrl);
-    }
+    if (!release.downloadUrl) return;
+    await onDownloadVersion(release.version, release.downloadUrl);
   };
 </script>
 
