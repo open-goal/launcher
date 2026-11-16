@@ -12,6 +12,7 @@
   import IconStar from "~icons/mdi/Star";
   import { _ } from "svelte-i18n";
   import { config } from "/src/state/config.svelte";
+  import { refreshGoalSrc } from "$lib/rpc/binaries";
 
   let locale = $state(config?.locale || "en-US");
 
@@ -50,8 +51,10 @@
   };
 
   const handleRedownload = async () => {
-    if (!latest.downloadUrl) return;
-    await onDownloadVersion(latest.version, latest.downloadUrl);
+    if (latest.downloadUrl) {
+      await onDownloadVersion(latest.version, latest.downloadUrl);
+      await refreshGoalSrc(latest.version);
+    }
   };
 
   const handleDownload = async () => {

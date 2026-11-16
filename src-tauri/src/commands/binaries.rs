@@ -20,7 +20,7 @@ use crate::{
   TAURI_APP,
   config::{CommonConfigData, ExecutableLocation, LauncherConfig, SupportedGame},
   util::{
-    file::overwrite_dir,
+    file::{create_dir, delete_dir, overwrite_dir},
     process::{create_log_file, create_std_log_file, watch_process},
   },
 };
@@ -114,6 +114,41 @@ fn get_data_dir(
     copy_data_dir(config_info, game_name)?;
   }
   Ok(data_folder)
+}
+
+#[instrument(skip(config))]
+#[tauri::command]
+pub async fn refresh_goal_src(
+  config: tauri::State<'_, tokio::sync::Mutex<LauncherConfig>>,
+  version: &str,
+) -> Result<(), CommandError> {
+  let config_lock = config.lock().await;
+  let install_dir = config_lock.install_dir()?;
+
+  let source = install_dir
+    .join("versions")
+    .join("official")
+    .join(version)
+    .join("data")
+    .join("goal_src");
+
+  for (game, game_config) in &config_lock.games {
+    if !game_config.is_installed || game_config.version.as_deref() != Some(version) {
+      continue;
+    }
+
+    let destination = install_dir
+      .join("active")
+      .join(game.to_string())
+      .join("data")
+      .join("goal_src");
+
+    delete_dir(&destination)?;
+    create_dir(&destination)?;
+    overwrite_dir(&source, &destination)?;
+  }
+
+  Ok(())
 }
 
 #[instrument(skip(config))]

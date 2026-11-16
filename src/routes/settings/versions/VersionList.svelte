@@ -18,6 +18,7 @@
   import { _ } from "svelte-i18n";
   import { versionState } from "/src/state/VersionState.svelte";
   import { config } from "/src/state/config.svelte";
+  import { refreshGoalSrc } from "$lib/rpc/binaries";
 
   let locale = $state(config?.locale || "en-US");
 
@@ -44,8 +45,10 @@
   };
 
   const handleRedownload = async (release: ReleaseInfo) => {
-    if (!release.downloadUrl) return;
-    await onDownloadVersion(release.version, release.downloadUrl);
+    if (release.downloadUrl) {
+      await onDownloadVersion(release.version, release.downloadUrl);
+      await refreshGoalSrc(release.version);
+    }
   };
 </script>
 

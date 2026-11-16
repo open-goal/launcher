@@ -146,6 +146,7 @@ fn main() {
       commands::binaries::run_compiler,
       commands::binaries::run_decompiler,
       commands::binaries::update_data_directory,
+      commands::binaries::refresh_goal_src,
       commands::cache::get_mod_sources_data,
       commands::cache::get_external_mods,
       commands::cache::get_available_mods,

@@ -8,6 +8,10 @@ export async function updateDataDirectory(
   return await invoke_rpc2("update_data_directory", { args: { gameName } });
 }
 
+export async function refreshGoalSrc(version: string) {
+  return await invoke_rpc("refresh_goal_src", { version });
+}
+
 export async function extractAndValidateISO(
   pathToIso: string,
   gameName: string,
