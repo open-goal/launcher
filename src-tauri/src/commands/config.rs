@@ -343,8 +343,8 @@ pub async fn does_active_tooling_version_support_game(
   let tooling_version = Version::parse(version_str).unwrap_or(Version::new(0, 0, 1));
   let supported = match game_name {
     SupportedGame::Jak1 => true,
-    SupportedGame::Jak2 => tooling_version.minor >= 2,
-    SupportedGame::Jak3 => tooling_version.minor >= 3,
+    SupportedGame::Jak2 => tooling_version >= Version::new(0, 2, 0),
+    SupportedGame::Jak3 => tooling_version >= Version::new(0, 3, 0),
     SupportedGame::JakX => false,
   };
 
