@@ -26,6 +26,8 @@ pub async fn download_file(url: &str, destination: &Path) -> Result<()> {
   while let Some(chunk) = response.chunk().await? {
     file.write_all(&chunk).await?;
   }
+  
+  file.flush().await?;
 
   Ok(())
 }
